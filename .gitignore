@@ -1,0 +1,7 @@
+# Dev-only dependency (eslint); reinstall with `npm install`
+node_modules/
+
+# macOS
+.DS_Store
+
+npm-debug.log*

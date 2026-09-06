@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TLC — Call Center Prototype</title>
+
+<!--
+  Minimal dev harness for src/CallCenterPrototype.jsx.
+
+  Deliberately adds NO npm dependencies and no build step — the repo stays
+  dependency-free (per CLAUDE.md) apart from the dev-only eslint. React and
+  Babel come from CDNs at runtime; nothing is installed or vendored.
+
+  How it works: the .jsx file is fetched as text, transpiled in the browser
+  by Babel standalone, and imported as a blob module. The import map below
+  resolves its bare `react` / `react-dom/client` specifiers.
+
+  Consequences worth knowing:
+    - Needs network access (esm.sh, unpkg) on first load.
+    - Must be served over http, not opened as a file:// URL — fetch() and
+      module scripts are both blocked on file://. Use .claude/launch.json,
+      or: python3 -m http.server 5173
+    - In-browser transpile is slow-ish and unminified. This is a harness for
+      playing and verifying the prototype, not a production build.
+-->
+
+<!--
+  Jersey 15 (display/UI) and Pixelify Sans (body) are the design
+  handoff's chosen faces. Loaded from Google Fonts, which works here
+  because this is a local dev harness. (The CSP that blocks font CDNs
+  applies to published Artifacts, not to this page.)
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jersey+15&family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.3.1",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client"
+  }
+}
+</script>
+<script src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js"></script>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; background: #0b1016; overflow-x: hidden; }
+  body { font-family: 'Pixelify Sans', system-ui, sans-serif; color: #eaf2f9; }
+  #boot { padding: 24px; color: #8098af; font-family: 'Jersey 15', monospace; letter-spacing: 2px; }
+  .harness-error {
+    padding: 16px; margin: 16px; white-space: pre-wrap;
+    font-family: ui-monospace, monospace; font-size: 13px;
+    color: #7f1d1d; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px;
+  }
+</style>
+</head>
+<body>
+<div id="root"><div id="boot">Transpiling prototype…</div></div>
+
+<script type="module">
+const root = document.getElementById('root');
+const fail = (label, err) => {
+  root.innerHTML = '';
+  const pre = document.createElement('pre');
+  pre.className = 'harness-error';
+  pre.textContent = label + '\n\n' + (err && err.stack ? err.stack : String(err));
+  root.appendChild(pre);
+};
+
+try {
+  const res = await fetch('./src/CallCenterPrototype.jsx');
+  if (!res.ok) throw new Error(`fetch ./src/CallCenterPrototype.jsx -> HTTP ${res.status}`);
+  const source = await res.text();
+
+  const { code } = Babel.transform(source, {
+    filename: 'CallCenterPrototype.jsx',
+    presets: ['react'],
+    sourceType: 'module',
+  });
+
+  const blobUrl = URL.createObjectURL(new Blob([code], { type: 'text/javascript' }));
+  const [{ default: App }, React, { createRoot }] = await Promise.all([
+    import(blobUrl),
+    import('react').then((m) => m.default),
+    import('react-dom/client'),
+  ]);
+  URL.revokeObjectURL(blobUrl);
+
+  createRoot(root).render(React.createElement(App));
+} catch (err) {
+  fail('Harness failed to boot the prototype.', err);
+}
+</script>
+</body>
+</html>

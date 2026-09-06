@@ -1,0 +1,974 @@
+import React, { useState, useMemo, useCallback } from 'react';
+
+/**
+ * CallCenterPrototype.jsx
+ * ------------------------------------------------------------------
+ * Playable vertical slice of the core loop. The simulation logic below
+ * mirrors src/gameLogic.js exactly (same functions, same behavior,
+ * verified by src/gameLogic.test.js) — duplicated here only because
+ * artifacts can't import local files. If you move this into a real
+ * project, delete this block and `import` gameLogic.js instead.
+ * ------------------------------------------------------------------
+ */
+
+const CUSTOMER_TYPES = {
+  endUser: { label: 'End User', archetypes: ['Hero', 'Villain', 'NPC', 'Sidekick', 'Henchfolk'] },
+  business: { label: 'Business Account', archetypes: ['Kingdom', 'Town Council', 'Constabulary', 'Military'] },
+  partner: { label: 'Partner Vendor', archetypes: ['Tavern', 'Inn', 'Blacksmith', 'Potion Shop', 'Wandering Trader'] },
+};
+
+// Investigation content for "Phantom Inventory" -- Phase 0 proof-of-
+// concept, mirrors gameLogic.js's PHANTOM_INVENTORY_INVESTIGATION
+// exactly. See LORE.md, "Ticket Resolution -- Investigation Phase."
+const PHANTOM_INVENTORY_INVESTIGATION = {
+  openingStatement: "I ordered 40 healing potions for the festival, and now you're telling me I don't have them?! Where did they go?",
+  actions: [
+    { id: 'manifest', label: 'Check the shipment manifest', timeCost: 1, clue: 'The manifest shows all 40 potions left the depot, logged correctly.' },
+    { id: 'deliveryLog', label: "Check the Node's delivery log", timeCost: 1, clue: 'Delivery was received and signed for three days ago.' },
+    { id: 'stockroomAccess', label: 'Ask about stockroom access', timeCost: 1, clue: 'Their apprentice restocks the shelves most mornings.' },
+    { id: 'bulkActivity', label: 'Check for recent bulk activity', timeCost: 2, clue: 'A festival order was fulfilled two days ago \u2014 it may not have been logged.' },
+  ],
+  keyActionId: 'bulkActivity',
+  diagnoses: [
+    { id: 'miscount', label: "It's a system miscount \u2014 the festival sale wasn't logged", correct: true },
+    { id: 'stockroom', label: 'Someone in the stockroom must be responsible', correct: false },
+    { id: 'lostTransit', label: 'The shipment must have gotten lost in transit', correct: false },
+    { id: 'escalate', label: 'Not sure \u2014 escalate for review', correct: false },
+  ],
+};
+
+const TICKET_TEMPLATES = {
+  endUser: [
+    { category: 'Cursed Item Return', weight: 3, baseUrgency: 2 },
+    { category: 'Quest Line Bug', weight: 2, baseUrgency: 3 },
+    { category: 'Respawn Delay', weight: 3, baseUrgency: 4 },
+    { category: 'XP Miscount Dispute', weight: 2, baseUrgency: 1 },
+  ],
+  business: [
+    { category: 'Bulk Potion Order Delay', weight: 2, baseUrgency: 3 },
+    { category: 'Border Ward Malfunction', weight: 1, baseUrgency: 5 },
+    { category: 'Garrison Supply Shortfall', weight: 2, baseUrgency: 3 },
+  ],
+  partner: [
+    { category: 'Phantom Inventory', weight: 3, baseUrgency: 2, investigation: PHANTOM_INVENTORY_INVESTIGATION },
+    { category: 'Commission Payout Dispute', weight: 2, baseUrgency: 3 },
+    { category: 'Storefront Listing Error', weight: 2, baseUrgency: 1 },
+  ],
+};
+
+// UI-ONLY (no counterpart in gameLogic.js). The caller's opening line,
+// keyed by ticket category. Kept out of TICKET_TEMPLATES deliberately so
+// that table stays a byte-for-byte mirror of gameLogic.js's -- flavor
+// text is a rendering concern and the core sim has no business carrying
+// it. Phantom Inventory has no entry: it opens with its investigation's
+// `openingStatement` instead.
+const CATEGORY_BLURBS = {
+  'Cursed Item Return': 'This ring won\u2019t come off and it whispers at night.',
+  'Quest Line Bug': 'The old hermit keeps repeating the same line of dialogue.',
+  'Respawn Delay': 'Been dead for twenty minutes. Party\u2019s waiting.',
+  'XP Miscount Dispute': 'Certain that dragon was worth more than this.',
+  'Bulk Potion Order Delay': 'The garrison infirmary is out of healing draughts.',
+  'Border Ward Malfunction': 'The eastern ward flickered out for six minutes last night.',
+  'Garrison Supply Shortfall': 'Rations haven\u2019t arrived in three days.',
+  'Commission Payout Dispute': 'Last month\u2019s commission is short by a fair bit.',
+  'Storefront Listing Error': '"Slightly Cursed Dagger" is listed as a kitchen utensil.',
+};
+
+// UI-ONLY. Overrides CATEGORY_BLURBS when a ticket is a returning
+// follow-up -- the caller leads with why they're calling back, not with
+// the original complaint.
+const FOLLOW_UP_BLURBS = {
+  reopen: "They're calling back about this \u2014 they don't think it's actually fixed.",
+  hold: 'Following up on where things stand.',
+};
+
+const RESPONSE_QUALITY = {
+  correct: { dispositionDelta: 12, reputationDelta: 2, timeCost: 4 },
+  adequate: { dispositionDelta: 4, reputationDelta: 1, timeCost: 2 },
+  rushed: { dispositionDelta: -6, reputationDelta: -1, timeCost: 1 },
+  dismissive: { dispositionDelta: -18, reputationDelta: -3, timeCost: 1 },
+};
+
+// Mirrors gameLogic.js. The candle is the SHIFT TIMER -- it marks the
+// day going by. The player never spends it, and nothing inside a call
+// moves it. Being thorough costs the CALLER's patience (the Experience
+// axis), never the clock. See LORE.md, "Running the Desk."
+const SHIFT_CANDLE_NOTCHES = 12;
+const CANDLE_STAGES = [
+  { atOrAbove: 1.0, label: 'newly lit' },
+  { atOrAbove: 0.7, label: 'burning steady' },
+  { atOrAbove: 0.4, label: 'burning down' },
+  { atOrAbove: 0.2, label: 'burning low' },
+  { atOrAbove: 0.0001, label: 'guttering' },
+  { atOrAbove: 0, label: 'the wick is out' },
+];
+function candleStage(left, max = SHIFT_CANDLE_NOTCHES) {
+  if (max <= 0) return 'the wick is out';
+  const fraction = clamp(left / max, 0, 1);
+  if (fraction <= 0) return 'the wick is out';
+  return CANDLE_STAGES.find((st) => fraction >= st.atOrAbove).label;
+}
+
+// Mirrors gameLogic.js. Greeting someone does NOT reliably get you
+// their reason for calling -- see LORE.md, "Ticket Resolution," phase 1.
+const OPENING_MODES = [
+  { id: 'request', weight: 3, revealsRequest: true },
+  { id: 'history', weight: 2, revealsRequest: false, requiresMemory: true },
+  { id: 'wait', weight: 2, revealsRequest: false },
+  { id: 'product', weight: 2, revealsRequest: false },
+  { id: 'vague', weight: 2, revealsRequest: false },
+  { id: 'venting', weight: 1, revealsRequest: false },
+];
+
+// Baggage drives the manner of disclosure. Inert until PLAN.md Phase 1
+// gives disposition real values -- see gameLogic.js for why the hook
+// exists now rather than later.
+function guardednessOf(customer) {
+  if (!customer || typeof customer.disposition !== 'number') return 0;
+  return clamp(-customer.disposition / 100, 0, 1);
+}
+
+function rollOpening(customer, memory, rng = Math.random) {
+  const guarded = guardednessOf(customer);
+  const available = OPENING_MODES
+    .filter((m) => !m.requiresMemory || Boolean(memory))
+    .map((m) => (m.revealsRequest ? { ...m, weight: m.weight * (1 - guarded * 0.8) } : m));
+  const picked = weightedPick(available, rng);
+  return { mode: picked.id, revealsRequest: Boolean(picked.revealsRequest), guardedness: guarded };
+}
+
+function probeForRequest(probesSoFar, rng = Math.random) {
+  if (probesSoFar >= 1) return true;
+  return rng() < 0.5;
+}
+
+const RESOLUTION_STATUSES = ['resolved', 'hold', 'transfer'];
+
+const DISPUTE_CHANCE_BY_QUALITY = { correct: 0.03, adequate: 0.12, rushed: 0.35, dismissive: 0.6 };
+const HOLD_REASONS = ['internal', 'external'];
+const FOLLOW_UP_BASE_URGENCY = { hold: 5, reopen: 7 };
+
+const SHIFT_MODIFIERS = [
+  { id: 'guild-convention', label: "Adventurer's Guild Convention", description: 'Ticket volume is unusually high today.', apply: (d) => { d.ticketCount = Math.round(d.ticketCount * 1.5); } },
+  { id: 'mercury-retrograde', label: 'Mercury Retrograde', description: 'Tracking scrolls are scrambled; everything reads more urgent than it is.', apply: (d) => { d.urgencyBonus += 2; } },
+  { id: 'villain-uprising', label: 'Villain Uprising', description: 'A spike in End User tickets, mostly Villains.', apply: (d) => { d.tierWeightMultiplier.endUser *= 2; } },
+  { id: 'new-hire-shadow', label: 'New Hire Shadowing', description: 'You are training someone. Every response costs extra time.', apply: (d) => { d.timeCostMultiplier *= 1.5; } },
+  { id: 'quiet-morning', label: 'Quiet Morning', description: 'Lighter volume than usual.', apply: (d) => { d.ticketCount = Math.max(3, Math.round(d.ticketCount * 0.7)); } },
+];
+
+function weightedPick(items, rng) {
+  const total = items.reduce((s, i) => s + i.weight, 0);
+  let roll = rng() * total;
+  for (const item of items) {
+    roll -= item.weight;
+    if (roll <= 0) return item;
+  }
+  return items[items.length - 1];
+}
+function pickOne(list, rng) { return list[Math.floor(rng() * list.length)]; }
+function shuffle(list, rng) {
+  const copy = [...list];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
+function dispositionTag(score) {
+  if (score <= -60) return 'hostile';
+  if (score <= -20) return 'frustrated';
+  if (score < 20) return 'neutral';
+  if (score < 60) return 'warm';
+  return 'loyal';
+}
+
+// Same rules as gameLogic.js's recallMemory()/decayChanceFor(): scan
+// most-recent-first for a memorable incident, then let each detail of
+// it (category, timing, who helped) independently fade the longer ago
+// it happened. Kept in sync by hand — see the README note about this
+// duplication once this moves into a real project.
+const DECOY_AGENT_NAMES = ['Cassidy', 'Thistle', 'Bram', 'Pell', 'Wren'];
+const MEMORABLE_QUALITIES = new Set(['correct', 'dismissive']);
+const DECAY_RATE_PER_SHIFT = 0.2;
+const MAX_DECAY_CHANCE = 0.8;
+function decayChanceFor(shiftsSince) { return clamp(shiftsSince * DECAY_RATE_PER_SHIFT, 0, MAX_DECAY_CHANCE); }
+
+function recallMemory(customer, currentShiftId, rng = Math.random) {
+  if (!customer.history || customer.history.length === 0) return null;
+
+  let remembered = null;
+  for (let i = customer.history.length - 1; i >= 0; i--) {
+    if (MEMORABLE_QUALITIES.has(customer.history[i].quality)) { remembered = customer.history[i]; break; }
+  }
+  if (!remembered) return { style: 'tone' };
+
+  const shiftsSince = Math.max(0, currentShiftId - remembered.shiftId);
+  const decayChance = decayChanceFor(shiftsSince);
+  const categoryAccurate = rng() >= decayChance;
+  const timingAccurate = rng() >= decayChance;
+  const agentAccurate = rng() >= decayChance;
+
+  let category = remembered.ticketCategory;
+  if (!categoryAccurate) {
+    const otherCategories = TICKET_TEMPLATES[customer.tier].map((t) => t.category).filter((c) => c !== remembered.ticketCategory);
+    category = otherCategories.length ? pickOne(otherCategories, rng) : remembered.ticketCategory;
+  }
+
+  let shiftsAgoReported = shiftsSince;
+  if (!timingAccurate) {
+    const distortion = Math.round((rng() - 0.5) * 6);
+    shiftsAgoReported = Math.max(1, shiftsSince + (distortion === 0 ? 1 : distortion));
+  }
+
+  const agentAttribution = agentAccurate ? 'you' : pickOne(DECOY_AGENT_NAMES, rng);
+
+  return {
+    style: 'explicit', quality: remembered.quality, actualShiftId: remembered.shiftId,
+    category, categoryAccurate, shiftsAgoReported, timingAccurate, agentAttribution, agentAccurate,
+  };
+}
+
+function buildCustomerPool(existing, freshCount, rng) {
+  const pool = [...existing];
+  for (let i = 0; i < freshCount; i++) {
+    const tierKey = pickOne(Object.keys(CUSTOMER_TYPES), rng);
+    const archetype = pickOne(CUSTOMER_TYPES[tierKey].archetypes, rng);
+    pool.push({ id: `${tierKey}-${archetype}-${Math.floor(rng() * 1e6)}`, tier: tierKey, archetype, disposition: 0, history: [] });
+  }
+  return pool;
+}
+
+function generateShift({ knownCustomers = [], baseTicketCount = 8, currentShiftId = 1, pendingFollowUps = [], rng = Math.random } = {}) {
+  const draft = { ticketCount: baseTicketCount, urgencyBonus: 0, tierWeightMultiplier: { endUser: 1, business: 1, partner: 1 }, timeCostMultiplier: 1 };
+  const modifierCount = 1 + Math.floor(rng() * 2);
+  const modifiers = shuffle(SHIFT_MODIFIERS, rng).slice(0, modifierCount);
+  modifiers.forEach((m) => m.apply(draft));
+
+  const dueFollowUps = pendingFollowUps.filter((f) => f.dueShiftId <= currentShiftId);
+  const stillPendingFollowUps = pendingFollowUps.filter((f) => f.dueShiftId > currentShiftId);
+
+  const proceduralCount = Math.max(0, draft.ticketCount - dueFollowUps.length);
+  const returningTarget = Math.min(knownCustomers.length, Math.ceil(proceduralCount * 0.4));
+  const returning = shuffle(knownCustomers, rng).slice(0, returningTarget);
+  const freshNeeded = Math.max(0, proceduralCount - returning.length);
+  let customerPool = buildCustomerPool(returning, freshNeeded, rng);
+
+  // Follow-up customers must be present even if the random draw above
+  // didn't happen to include them -- it's specifically their ticket.
+  const poolIds = new Set(customerPool.map((c) => c.id));
+  dueFollowUps.forEach((f) => {
+    if (poolIds.has(f.customerId)) return;
+    const known = knownCustomers.find((c) => c.id === f.customerId);
+    if (known) { customerPool = [...customerPool, known]; poolIds.add(known.id); }
+  });
+
+  const tierKeys = Object.keys(CUSTOMER_TYPES);
+  const proceduralTickets = [];
+  const drawPool = customerPool.filter((c) => !dueFollowUps.some((f) => f.customerId === c.id));
+  for (let i = 0; i < proceduralCount && drawPool.length; i++) {
+    const chosenTier = weightedPick(tierKeys.map((t) => ({ tier: t, weight: draft.tierWeightMultiplier[t] })), rng).tier;
+    const candidates = drawPool.filter((c) => c.tier === chosenTier);
+    const customer = candidates.length ? pickOne(candidates, rng) : pickOne(drawPool, rng);
+    drawPool.splice(drawPool.indexOf(customer), 1);
+    const template = weightedPick(TICKET_TEMPLATES[customer.tier], rng);
+    proceduralTickets.push({
+      id: `ticket-${i}-${customer.id}`, customerId: customer.id, category: template.category,
+      urgency: clamp(template.baseUrgency + draft.urgencyBonus, 1, 10),
+      timeCostMultiplier: draft.timeCostMultiplier,
+      isReturning: customer.history.length > 0, isFollowUp: false,
+      investigation: template.investigation,
+    });
+  }
+
+  const followUpTickets = dueFollowUps.map((f, i) => ({
+    id: `followup-ticket-${i}-${f.id}`, customerId: f.customerId, category: f.category,
+    urgency: clamp(FOLLOW_UP_BASE_URGENCY[f.kind] + draft.urgencyBonus, 1, 10),
+    timeCostMultiplier: draft.timeCostMultiplier,
+    isReturning: true, isFollowUp: true, followUpKind: f.kind,
+    holdReason: f.kind === 'hold' ? pickOne(HOLD_REASONS, rng) : undefined,
+  }));
+
+  const tickets = shuffle([...proceduralTickets, ...followUpTickets], rng);
+
+  // fullRoster: every known customer, whether or not they appear this
+  // shift -- mirrors gameLogic.js's generateShift(). Callers must persist
+  // fullRoster, not customerPool, or anyone sitting out a shift with a
+  // follow-up due later silently vanishes from the roster.
+  const knownIds = new Set(knownCustomers.map((c) => c.id));
+  const newlyMinted = customerPool.filter((c) => !knownIds.has(c.id));
+  const fullRoster = [...knownCustomers, ...newlyMinted];
+
+  return { modifiers, tickets, customerPool, fullRoster, stillPendingFollowUps };
+}
+
+// Mirrors gameLogic.js's resolveInvestigation() exactly. See LORE.md,
+// "Ticket Resolution -- Investigation Phase," for the design.
+function resolveInvestigation(ticket, investigatedActionIds, chosenDiagnosisId) {
+  const investigation = ticket.investigation;
+  if (!investigation) {
+    throw new Error(`Ticket category "${ticket.category}" has no investigation data`);
+  }
+  const diagnosis = investigation.diagnoses.find((d) => d.id === chosenDiagnosisId);
+  if (!diagnosis) {
+    throw new Error(`Unknown diagnosis id: "${chosenDiagnosisId}"`);
+  }
+  const investigatedKeyClue = investigatedActionIds.includes(investigation.keyActionId);
+  const grounding = diagnosis.correct
+    ? (investigatedKeyClue ? 'grounded' : 'lucky')
+    : (investigatedActionIds.length > 0 ? 'reasoned' : 'blind');
+  let standing;
+  if (diagnosis.correct) standing = investigatedKeyClue ? 'correct' : 'partial';
+  else standing = investigatedActionIds.length > 0 ? 'partial' : 'wrong';
+  return {
+    standing,
+    grounding,
+    quality: diagnosis.correct
+      ? (investigatedKeyClue ? 'correct' : 'adequate')
+      : (investigatedActionIds.length > 0 ? 'rushed' : 'dismissive'),
+  };
+}
+
+function investigationTimeCost(ticket, investigatedActionIds) {
+  const investigation = ticket.investigation;
+  if (!investigation) return 0;
+  return investigation.actions
+    .filter((a) => investigatedActionIds.includes(a.id))
+    .reduce((sum, a) => sum + a.timeCost, 0);
+}
+
+function resolveTicket(ticket, customer, quality, status, shiftId) {
+  const effect = RESPONSE_QUALITY[quality];
+  if (!effect) {
+    throw new Error(`Unknown response quality: "${quality}"`);
+  }
+  if (!RESOLUTION_STATUSES.includes(status)) {
+    throw new Error(`Unknown resolution status: "${status}"`);
+  }
+
+  const newDisposition = clamp(customer.disposition + effect.dispositionDelta, -100, 100);
+  const updatedCustomer = {
+    ...customer, disposition: newDisposition,
+    history: [...customer.history, { shiftId, ticketCategory: ticket.category, quality, status, dispositionAfter: newDisposition }],
+  };
+
+  // `followUp` is a *seed*, not a decision -- endShift() is where the
+  // dice actually get rolled.
+  let followUp = null;
+  if (status === 'hold') {
+    followUp = { kind: 'hold', ticketCategory: ticket.category, customerId: customer.id };
+  } else if (status === 'resolved') {
+    followUp = { kind: 'reopen-risk', chance: DISPUTE_CHANCE_BY_QUALITY[quality], ticketCategory: ticket.category, customerId: customer.id };
+  }
+  // status === 'transfer': no follow-up. It's someone else's ticket now.
+
+  return {
+    customer: updatedCustomer,
+    outcome: {
+      ticketId: ticket.id, quality, status,
+      reputationDelta: effect.reputationDelta,
+      timeSpent: Math.round(effect.timeCost * ticket.timeCostMultiplier),
+      dispositionTag: dispositionTag(newDisposition), followUp,
+    },
+  };
+}
+
+function endShift(outcomes, currentReputation, currentShiftId, rng = Math.random) {
+  const reputationDelta = outcomes.reduce((s, o) => s + o.reputationDelta, 0);
+  const reputation = clamp(currentReputation + reputationDelta, 0, 100);
+  const commendationsEarned = outcomes.filter((o) => o.reputationDelta > 0).reduce((s, o) => s + o.reputationDelta, 0);
+
+  // Deliberately NOT a tally of how customers felt -- mirrors
+  // gameLogic.js. A shift summary reports work, not feelings; nobody
+  // knows how a customer felt at end of shift. See LORE.md, "Running
+  // the Desk," the shift-summary rule.
+  const statusCounts = outcomes.reduce((counts, o) => {
+    counts[o.status] = (counts[o.status] || 0) + 1;
+    return counts;
+  }, {});
+
+  const pendingFollowUps = [];
+  outcomes.forEach((o) => {
+    if (!o.followUp) return;
+    const delay = 1 + Math.floor(rng() * 2);
+    if (o.followUp.kind === 'hold') {
+      pendingFollowUps.push({ id: `followup-hold-${o.ticketId}`, customerId: o.followUp.customerId, category: o.followUp.ticketCategory, kind: 'hold', dueShiftId: currentShiftId + delay });
+    } else if (o.followUp.kind === 'reopen-risk' && rng() < o.followUp.chance) {
+      pendingFollowUps.push({ id: `followup-reopen-${o.ticketId}`, customerId: o.followUp.customerId, category: o.followUp.ticketCategory, kind: 'reopen', dueShiftId: currentShiftId + delay });
+    }
+  });
+
+  return {
+    reputation,
+    commendationsEarned,
+    summary: {
+      ticketsHandled: outcomes.length,
+      reputationDelta,
+      statusCounts,
+    },
+    pendingFollowUps,
+  };
+}
+
+// ------------------------------------------------------------------
+// UI
+// ------------------------------------------------------------------
+//
+// Visual language adopted from the design team's handoff
+// (design_handoff_tlc_front_desk): palette, bevel panels, the candle
+// status bar, the ask-menu tray with cost pips, and the pick-up-blind
+// Line screen. Their art is placeholder by their own instruction
+// ("must be replaced with authored sprites... do not port the
+// generator"), so portrait frames are left empty rather than faked.
+//
+// Where this deliberately DIVERGES from their handoff, per LORE.md:
+//   - The five phases are SURFACES, not a corridor. Any phase can be
+//     revisited; only the greeting gates anything, because before you
+//     open the call you have nothing.
+//   - No diagnosis is disabled. You may say what you cannot back up;
+//     the standing records that you couldn't.
+//   - Standings are correct / partial / wrong, not a binary.
+//   - The candle is the SHIFT's clock. Closing a ticket returns you to
+//     the line; the day ends when the wick is out or the line empties.
+//   - End of Day reports actions taken, never feelings or achievement.
+// ------------------------------------------------------------------
+
+const C = {
+  void: '#0b1016', deep: '#0d141c', mid: '#131e2a',
+  surface: '#16222f', lit: '#22344a', sunk: '#182530',
+  chromeTop: '#1d2b3c', chromeBot: '#111a25',
+  rule: '#3a536e', ruleSoft: '#2b3f56', bevelIn: '#1b2b3c', bevelOut: '#6e8fb0',
+  hi: '#f2f6fa', text: '#eaf2f9', t2: '#d5e2ee', t3: '#b6cadd',
+  dim: '#a9c2d8', muted: '#8fa8bf', mutest: '#8098af', off: '#3f556b',
+  gold: '#e0b45c', goldHover: '#f6d38a', goldDeep: '#8f6522',
+  steel: '#4a6c8f', sage: '#9db07c', sageDeep: '#7a8a5e',
+  rose: '#c9707a', roseDeep: '#8f3f47', copper: '#c9963f', ink: '#0a1017',
+};
+const DISPLAY = "'Jersey 15', ui-monospace, monospace";
+const BODY = "'Pixelify Sans', system-ui, sans-serif";
+
+const bevel = (accent) => ({
+  background: `linear-gradient(180deg, ${C.lit}, ${C.surface})`,
+  boxShadow: `inset 0 0 0 1px ${C.ink}, inset 0 0 0 2px ${accent || C.bevelIn}`,
+  borderRadius: 2,
+});
+
+const S = {
+  frame: { minHeight: '100vh', background: `linear-gradient(180deg, ${C.mid}, ${C.deep})`,
+    color: C.text, fontFamily: BODY, display: 'flex', flexDirection: 'column' },
+  bar: { display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    padding: '9px 12px', background: `linear-gradient(180deg, ${C.chromeTop}, ${C.chromeBot})`,
+    boxShadow: `inset 0 1px 0 rgba(255,255,255,.09)`, borderBottom: `1px solid ${C.rule}` },
+  barLeft: { fontFamily: DISPLAY, fontSize: 15, letterSpacing: 1.2, color: C.dim },
+  barRight: { fontFamily: DISPLAY, fontSize: 13, letterSpacing: 1.5, color: C.mutest },
+  body: { flex: 1, padding: '16px 14px 22px', maxWidth: 460, width: '100%', margin: '0 auto',
+    display: 'flex', flexDirection: 'column', gap: 13 },
+  h1: { fontFamily: DISPLAY, fontSize: 44, lineHeight: .96, color: C.hi, margin: 0,
+    textShadow: `0 2px 0 ${C.ink}, 0 3px 0 rgba(110,143,176,.35)` },
+  h2: { fontFamily: DISPLAY, fontSize: 30, lineHeight: 1.05, color: C.hi, margin: 0 },
+  kicker: { fontFamily: DISPLAY, fontSize: 15, letterSpacing: 3, color: C.muted, margin: 0 },
+  prose: { fontSize: 15.5, lineHeight: 1.5, color: C.dim, margin: 0 },
+  panel: { ...bevel(), padding: '13px 14px', display: 'flex', flexDirection: 'column', gap: 8 },
+  label: { fontFamily: DISPLAY, fontSize: 13, letterSpacing: 2, color: C.muted, margin: 0 },
+  menu: { display: 'flex', flexDirection: 'column', gap: 6 },
+  row: { display: 'flex', alignItems: 'center', gap: 9, width: '100%', textAlign: 'left',
+    padding: '8px 10px', border: 'none', cursor: 'pointer', color: C.text,
+    background: `linear-gradient(180deg, ${C.lit}, ${C.surface})`,
+    boxShadow: `inset 0 0 0 1px ${C.ink}, inset 0 0 0 2px ${C.bevelIn}`,
+    borderRadius: 2, fontFamily: BODY, fontSize: 15, lineHeight: 1.35 },
+  rowUsed: { background: `linear-gradient(180deg, ${C.sunk}, #111a23)`, color: C.mutest, cursor: 'default' },
+  glyph: { fontFamily: DISPLAY, fontSize: 16, width: 11, flex: '0 0 11px' },
+  note: { display: 'block', fontSize: 13, color: C.mutest, marginTop: 2 },
+  pips: { marginLeft: 'auto', display: 'flex', gap: 2, flex: '0 0 auto' },
+  // Pips show what an action costs the CALLER's patience -- never the
+  // candle. Nothing is ever priced out of reach.
+  pip: { width: 6, height: 12, background: C.copper, borderRadius: 1 },
+  pipOff: { width: 6, height: 12, background: C.off, borderRadius: 1 },
+  primary: { fontFamily: DISPLAY, fontSize: 18, letterSpacing: 2, padding: '11px 14px',
+    border: 'none', borderRadius: 2, cursor: 'pointer', color: '#241804',
+    background: `linear-gradient(180deg, ${C.goldHover}, ${C.copper} 60%, #a97a2c)`,
+    boxShadow: `inset 0 0 0 1px ${C.ink}` },
+  secondary: { fontFamily: DISPLAY, fontSize: 17, letterSpacing: 2, padding: '10px 14px',
+    border: 'none', borderRadius: 2, cursor: 'pointer', color: C.t2,
+    background: `linear-gradient(180deg, #33526f, #1e3145)`, boxShadow: `inset 0 0 0 1px ${C.ink}` },
+  feed: { display: 'flex', flexDirection: 'column', gap: 9 },
+  entry: { ...bevel(), padding: '12px 14px' },
+  speaker: { fontFamily: DISPLAY, fontSize: 13, letterSpacing: 2, margin: '0 0 4px' },
+  portrait: { width: 96, height: 126, flex: '0 0 96px', background: C.deep,
+    boxShadow: `0 0 0 1px ${C.ink}, 0 0 0 2px ${C.steel}, 0 0 0 4px ${C.ink}`,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    fontFamily: DISPLAY, fontSize: 12, letterSpacing: 1.5, color: C.off, textAlign: 'center' },
+  tag: { fontFamily: DISPLAY, fontSize: 12, letterSpacing: 1.5, padding: '3px 7px',
+    borderRadius: 2, display: 'inline-block' },
+  waiting: { display: 'flex', alignItems: 'center', gap: 10, opacity: .6, padding: '6px 2px' },
+};
+
+// UI-ONLY. The caller's opening line: an investigation ticket opens
+// with its own statement, a follow-up with why they're calling back,
+// everything else with its category blurb. gameLogic.js has no
+// equivalent -- tickets there carry no text.
+function blurbFor(ticket) {
+  if (ticket.investigation) return ticket.investigation.openingStatement;
+  if (ticket.isFollowUp) return FOLLOW_UP_BLURBS[ticket.followUpKind];
+  return CATEGORY_BLURBS[ticket.category];
+}
+
+// UI-ONLY. Renders what a customer brings up unprompted, exactly as
+// recallMemory() reported it -- including when it's wrong. The
+// distortions are the point; never "correct" them here.
+function memoryLine(m) {
+  const when = m.shiftsAgoReported === 0 ? 'earlier this shift'
+    : m.shiftsAgoReported === 1 ? 'last shift'
+    : `${m.shiftsAgoReported} shifts ago`;
+  const who = m.agentAttribution === 'you' ? 'you' : m.agentAttribution;
+  const verb = m.quality === 'correct' ? 'sorted out' : 'brushed off';
+  return `They bring up the "${m.category}" ticket ${who} ${verb}, ${when}.`;
+}
+
+// UI-ONLY. What a caller actually says when they lead with something
+// other than their reason for calling. gameLogic decides the MODE; the
+// words are a rendering concern, same split as ticket blurbs.
+//
+// `wait` and `venting` are the Experience axis showing itself -- the
+// experience that led to contact, audible in how they open. See
+// LORE.md, "Character Disposition Model."
+const OPENING_LINES = {
+  wait: "Before anything else \u2014 do you know how long I've been sat on this line?",
+  product: "I'll say this much: it used to be better. It used to be a lot better.",
+  vague: "Something's gone wrong somewhere and I honestly don't know where to start.",
+  venting: 'There is a long breath on the line. They have not said what they need yet.',
+};
+
+// UI-ONLY. When pressing them for the actual request doesn't land.
+const PROBE_MISSES = [
+  'They keep going. Whatever brought them in, they are not there yet.',
+  'They circle back to the same complaint without adding to it.',
+];
+
+const STANDING_STYLE = {
+  correct: { color: C.sage, rule: C.sageDeep, word: 'Grounded' },
+  partial: { color: C.gold, rule: C.goldDeep, word: 'Partial' },
+  wrong: { color: C.rose, rule: C.roseDeep, word: 'Not supported' },
+};
+
+// UI-ONLY. Every phrase describes an ACTION THE PLAYER TOOK, never an
+// achievement. See LORE.md, "Running the Desk," the shift-summary rule.
+const SUMMARY_STATUS_PHRASING = {
+  resolved: 'closed out by you — pending any dispute',
+  hold: 'left open, pending follow-up',
+  transfer: 'passed to another team',
+};
+
+const STATUS_OPTIONS = [
+  { status: 'resolved', label: 'Resolve it', hint: 'You rule on it. It sticks — or it is disputed later.' },
+  { status: 'hold', label: 'Hold for review', hint: 'Kicked up for manual review. Slow, safe, remembered as nothing.' },
+  { status: 'transfer', label: 'Transfer', hint: 'Off your plate. Assumes someone there answers.' },
+];
+
+// The greeting: the universal opening move. Nothing about the caller is
+// revealed until the player picks up and asks. See LORE.md, "Ticket
+// Resolution," phase 1.
+const GREETINGS = [
+  { id: 'standard', label: '"TLC Support. How may I help you?"', cost: 0 },
+  { id: 'name', label: 'Ask who you are speaking with first', cost: 0, getsName: true },
+];
+
+function ClockIn({ shiftNumber, reputation, commendations, roster, pending, onStart }) {
+  return (
+    <div style={S.body}>
+      <p style={S.kicker}>SHIFT {shiftNumber} · FRONT DESK</p>
+      <h1 style={S.h1}>Call Center #2</h1>
+      <p style={S.prose}>
+        Translocation &amp; Logistics Cooperative. Village of Import. The candle is whole,
+        the line is not empty, and nobody on it has told you their name yet.
+      </p>
+      <div style={S.panel}>
+        <p style={S.label}>POSTED THIS MORNING</p>
+        <p style={{ ...S.prose, color: C.t2 }}>
+          Company reputation stands at <strong style={{ color: C.hi }}>{reputation}/100</strong>.
+          {commendations > 0 && <> {commendations} commendations on file.</>}
+          {roster > 0
+            ? <> {roster} customers know your name.</>
+            : <> No one on the roster yet — this is your first shift.</>}
+        </p>
+        {pending > 0 && (
+          <p style={{ ...S.prose, color: C.gold, fontSize: 14 }}>
+            {pending} ticket{pending > 1 ? 's' : ''} still pending follow-up.
+          </p>
+        )}
+      </div>
+      <button style={S.primary} onClick={onStart}>LIGHT THE CANDLE</button>
+    </div>
+  );
+}
+
+function TheLine({ queue, index, candleLeft, onPickUp }) {
+  const waiting = queue.slice(index + 1, index + 3);
+  return (
+    <div style={S.body}>
+      <h2 style={S.h2}>THE LINE</h2>
+      <p style={S.prose}>
+        {queue.length - index} interaction{queue.length - index === 1 ? '' : 's'} waiting.
+        Discovering who is requesting help, why they do, and what you are capable of doing,
+        before providing support is your goal.
+      </p>
+      <div style={{ ...bevel(C.goldDeep), padding: 13, display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <span style={{ fontFamily: DISPLAY, fontSize: 14, color: C.gold, letterSpacing: 1.5 }}>
+            ◆ LINE ONE · RINGING
+          </span>
+          <span style={{ fontFamily: DISPLAY, fontSize: 14, color: C.muted }}>HELD 00:04</span>
+        </div>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <div style={S.portrait}>ART<br />PENDING</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <span style={{ fontFamily: DISPLAY, fontSize: 24, color: C.muted }}>Unidentified caller</span>
+            <span style={{ fontSize: 13.5, color: C.mutest, lineHeight: 1.4 }}>
+              Ward signature present but unmatched. Everything else, you get by asking.
+            </span>
+          </div>
+        </div>
+        <button style={S.primary} onClick={onPickUp} disabled={candleLeft <= 0}>PICK UP</button>
+      </div>
+      {waiting.map((t, i) => (
+        <div key={t.id} style={S.waiting}>
+          <div style={{ ...S.portrait, width: 28, height: 38, flex: '0 0 28px', fontSize: 8 }}>—</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: DISPLAY, fontSize: 17, color: C.t3 }}>
+              Line {i === 0 ? 'two' : 'three'} · waiting
+            </div>
+            <div style={{ fontSize: 12.5, color: C.mutest }}>No ward signature. Nothing else offered.</div>
+          </div>
+          <span style={{ fontFamily: DISPLAY, fontSize: 13, color: C.mutest }}>
+            HELD {i === 0 ? '02:11' : '05:40'}
+          </span>
+        </div>
+      ))}
+      <p style={{ ...S.prose, fontSize: 13.5, color: C.mutest, marginTop: 'auto', fontStyle: 'italic' }}>
+        On the desk you see scratched: History doesn&rsquo;t repeat itself, but it does rhyme.
+      </p>
+    </div>
+  );
+}
+
+function AskRow({ glyph, glyphColor, label, note, cost, used, onClick, affordable }) {
+  const dead = used || !affordable;
+  return (
+    <button
+      style={{ ...S.row, ...(used ? S.rowUsed : {}), ...(dead && !used ? { opacity: .5, cursor: 'default' } : {}) }}
+      onClick={dead ? undefined : onClick}
+      disabled={dead}
+    >
+      <span style={{ ...S.glyph, color: glyphColor }}>{glyph}</span>
+      <span style={{ flex: 1 }}>
+        {label}
+        {note && <span style={S.note}>{note}</span>}
+      </span>
+      {cost > 0 && (
+        <span style={S.pips}>
+          {Array.from({ length: cost }).map((_, i) => (
+            <span key={i} style={affordable ? S.pip : S.pipOff} />
+          ))}
+        </span>
+      )}
+    </button>
+  );
+}
+
+export default function CallCenterPrototype() {
+  const rng = Math.random;
+
+  const [screen, setScreen] = useState('clockin'); // clockin | line | call | summary
+  const [shiftNumber, setShiftNumber] = useState(1);
+  const [reputation, setReputation] = useState(50);
+  const [commendations, setCommendations] = useState(0);
+  const [customers, setCustomers] = useState([]);
+  const [pendingFollowUps, setPendingFollowUps] = useState([]);
+  const [shift, setShift] = useState(null);
+  const [index, setIndex] = useState(0);
+  const [outcomes, setOutcomes] = useState([]);
+  const [lastSummary, setLastSummary] = useState(null);
+  const [candleLeft, setCandleLeft] = useState(SHIFT_CANDLE_NOTCHES);
+
+  // --- per-call state. The five phases are SURFACES, not a corridor:
+  // everything below stays revisable while the call is open.
+  const [greeted, setGreeted] = useState(null);   // greeting id, or null
+  const [requestKnown, setRequestKnown] = useState(false); // did they actually say what they need
+  const [probes, setProbes] = useState(0);
+  const [klass, setKlass] = useState(null);       // revisable at any time
+  const [asked, setAsked] = useState([]);
+  const [result, setResult] = useState(null);     // resolveInvestigation record
+  const [feed, setFeed] = useState([]);
+
+  const ticket = shift && shift.tickets[index];
+  const customer = ticket && shift.customerPool.find((c) => c.id === ticket.customerId);
+  const investigation = ticket && ticket.investigation;
+
+  const startShift = () => {
+    const s = generateShift({
+      knownCustomers: customers, baseTicketCount: 8,
+      currentShiftId: shiftNumber, pendingFollowUps, rng,
+    });
+    setShift(s); setCustomers(s.fullRoster); setPendingFollowUps(s.stillPendingFollowUps);
+    setIndex(0); setOutcomes([]); setCandleLeft(SHIFT_CANDLE_NOTCHES);
+    setScreen('line');
+  };
+
+  const resetCall = () => {
+    setGreeted(null); setKlass(null); setAsked([]); setResult(null); setFeed([]);
+    setRequestKnown(false); setProbes(0);
+  };
+
+  const spend = (n) => setCandleLeft((left) => Math.max(0, left - n));
+
+  // Greeting opens the call. It does NOT reliably get you the reason
+  // they rang -- they may lead with the wait, the past, the product, or
+  // with feeling. Getting to the request is work. See LORE.md,
+  // "Ticket Resolution," phase 1.
+  const greet = (g) => {
+    setGreeted(g.id);
+    const memory = customer ? recallMemory(customer, shiftNumber, rng) : null;
+    const opening = rollOpening(customer, memory, rng);
+    const entries = [];
+    if (g.getsName) {
+      entries.push({ speaker: 'YOU', tint: C.muted, rule: C.bevelIn,
+        body: 'Before we start — who am I speaking with?' });
+    }
+    if (opening.mode === 'request') {
+      entries.push({ speaker: 'CALLER', tint: C.t3, rule: C.steel, body: blurbFor(ticket) });
+      setRequestKnown(true);
+    } else if (opening.mode === 'history' && memory) {
+      entries.push({ speaker: 'CALLER', tint: C.gold, rule: C.goldDeep, body: memoryLine(memory) });
+    } else {
+      entries.push({ speaker: 'CALLER', tint: C.t3, rule: C.steel,
+        body: OPENING_LINES[opening.mode] || OPENING_LINES.vague });
+    }
+    setFeed(entries);
+  };
+
+  // Free in candle. Costs the caller's patience, not the player's clock.
+  const probe = () => {
+    const landed = probeForRequest(probes, rng);
+    setProbes((n) => n + 1);
+    setFeed((f) => [
+      ...f,
+      { speaker: 'YOU', tint: C.muted, rule: C.bevelIn, body: 'What can I help you with today?' },
+      landed
+        ? { speaker: 'CALLER', tint: C.t3, rule: C.steel, body: blurbFor(ticket) }
+        : { speaker: 'CALLER', tint: C.mutest, rule: C.bevelIn, body: PROBE_MISSES[probes % PROBE_MISSES.length] },
+    ]);
+    if (landed) setRequestKnown(true);
+  };
+
+  const investigate = (action) => {
+    if (asked.includes(action.id)) return;
+    setAsked((prev) => [...prev, action.id]);
+    setFeed((f) => [...f, { speaker: action.label.toUpperCase(), tint: C.t3, rule: C.steel, body: action.clue }]);
+  };
+
+  const classify = (category) => {
+    setKlass(category);
+    setFeed((f) => [...f, { speaker: 'YOU · FILED AS', tint: C.gold, rule: C.goldDeep,
+      body: `${category}${klass && klass !== category ? ` (was ${klass})` : ''}` }]);
+  };
+
+  const diagnose = (d) => {
+    const r = resolveInvestigation(ticket, asked, d.id);
+    setResult(r);
+    setFeed((f) => [...f, { speaker: 'YOU · DIAGNOSIS', tint: C.t2, rule: C.bevelIn, body: d.label }]);
+  };
+
+  const dispose = (status) => {
+    const quality = result ? result.quality : 'adequate';
+    const { customer: updated, outcome } = resolveTicket(ticket, customer, quality, status, shiftNumber);
+    // One notch per call taken. A thorough call and a rushed one cost
+    // the same clock -- what thoroughness costs is the caller's
+    // patience, tracked as question load below.
+    spend(1);
+    setCustomers((prev) => prev.map((c) => (c.id === updated.id ? c : c)).map((c) => (c.id === updated.id ? updated : c)));
+    // questionLoad is what being thorough actually costs: an input to
+    // the Experience axis once Phase 1 gives the vector real values.
+    const questionLoad = investigationTimeCost(ticket, asked) + probes;
+    setOutcomes((prev) => [...prev, {
+      ...outcome, classification: klass, standing: result && result.standing, questionLoad,
+    }]);
+    resetCall();
+
+    const spentAfter = Math.max(0, candleLeft - 1);
+    const more = index + 1 < shift.tickets.length;
+    if (!more || spentAfter <= 0) {
+      const done = [...outcomes, { ...outcome, classification: klass }];
+      const res = endShift(done, reputation, shiftNumber, rng);
+      setReputation(res.reputation);
+      setCommendations((c) => c + res.commendationsEarned);
+      setPendingFollowUps((prev) => [...prev, ...res.pendingFollowUps]);
+      setLastSummary(res.summary);
+      setScreen('summary');
+    } else {
+      setIndex((i) => i + 1);
+      setScreen('line');
+    }
+  };
+
+  const nextShift = () => { setShiftNumber((n) => n + 1); setShift(null); setScreen('clockin'); };
+
+  const stage = candleStage(candleLeft);
+
+  return (
+    <div style={S.frame}>
+      <div style={S.bar}>
+        <span style={S.barLeft}>☎ TLC · SUPPORT CENTER</span>
+        <span style={S.barRight}>{stage.toUpperCase()}</span>
+      </div>
+
+      {screen === 'clockin' && (
+        <ClockIn shiftNumber={shiftNumber} reputation={reputation} commendations={commendations}
+          roster={customers.length} pending={pendingFollowUps.length} onStart={startShift} />
+      )}
+
+      {screen === 'line' && shift && (
+        <TheLine queue={shift.tickets} index={index} candleLeft={candleLeft}
+          onPickUp={() => { resetCall(); setScreen('call'); }} />
+      )}
+
+      {screen === 'call' && ticket && customer && (
+        <div style={S.body}>
+          {/* Caller header. Nothing is revealed before the greeting. */}
+          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+            <div style={S.portrait}>ART<br />PENDING</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              <span style={{ fontFamily: DISPLAY, fontSize: 24, color: greeted ? C.hi : C.muted }}>
+                {greeted ? `A ${customer.archetype}` : 'Unidentified caller'}
+              </span>
+              <span style={{ fontSize: 13, color: C.mutest }}>
+                {greeted ? CUSTOMER_TYPES[customer.tier].label : 'Ward signature present but unmatched.'}
+              </span>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                <span style={{ ...S.tag, color: greeted ? C.ink : C.muted,
+                  background: greeted ? 'linear-gradient(180deg,#a8c4dc,#7fa2c2)' : 'transparent',
+                  boxShadow: greeted ? 'none' : `inset 0 0 0 1px ${C.ruleSoft}` }}>
+                  {greeted ? CUSTOMER_TYPES[customer.tier].label.toUpperCase() : 'CHANNEL: UNKNOWN'}
+                </span>
+                <span style={{ ...S.tag, color: klass ? C.gold : C.muted,
+                  boxShadow: `inset 0 0 0 1px ${klass ? C.goldDeep : C.ruleSoft}` }}>
+                  {(klass || 'unclassified').toUpperCase()}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Transcript */}
+          <div style={S.feed}>
+            <div style={{ ...S.entry, boxShadow: `inset 0 0 0 1px ${C.ink}, inset 0 0 0 2px ${C.bevelIn}` }}>
+              <p style={{ ...S.speaker, color: C.mutest }}>LINE ONE · CONNECTED</p>
+              <p style={{ margin: 0, fontSize: 15.5, lineHeight: 1.5 }}>
+                Someone is on the line. The registry offers a channel and a ward signature it
+                cannot match. Everything else, you get by asking.
+              </p>
+            </div>
+            {feed.map((e, i) => (
+              <div key={i} style={{ ...S.entry, boxShadow: `inset 0 0 0 1px ${C.ink}, inset 0 0 0 2px ${e.rule}` }}>
+                <p style={{ ...S.speaker, color: e.tint }}>{e.speaker}</p>
+                <p style={{ margin: 0, fontSize: 15.5, lineHeight: 1.5 }}>{e.body}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* --- Surfaces. All live at once; only the greeting gates. --- */}
+          {!greeted ? (
+            <div style={S.menu}>
+              <p style={S.label}>OPEN THE CALL</p>
+              {GREETINGS.map((g) => (
+                <AskRow key={g.id} glyph="▸" glyphColor={C.gold} label={g.label}
+                  cost={g.cost} used={false} affordable onClick={() => greet(g)} />
+              ))}
+            </div>
+          ) : (
+            <>
+              {!requestKnown && (
+                <div style={S.menu}>
+                  <p style={S.label}>THEY HAVEN&rsquo;T SAID WHAT THEY NEED YET</p>
+                  <AskRow glyph="▸" glyphColor={C.gold}
+                    label="Ask what brought them in today"
+                    note="Every surface below stays open — you can act without knowing. It rarely goes well."
+                    cost={0} used={false} affordable onClick={probe} />
+                </div>
+              )}
+
+              <div style={S.menu}>
+                <p style={S.label}>CLASSIFICATION — REVISABLE</p>
+                {TICKET_TEMPLATES[customer.tier].map((t) => (
+                  <AskRow key={t.category} glyph={klass === t.category ? '✓' : '▸'}
+                    glyphColor={klass === t.category ? C.sage : C.gold}
+                    label={t.category} cost={0} used={false} affordable
+                    onClick={() => classify(t.category)} />
+                ))}
+              </div>
+
+              {investigation && (
+                <div style={S.menu}>
+                  <p style={S.label}>ASK / VERIFY — COSTS THEIR PATIENCE, NOT YOUR CLOCK</p>
+                  {investigation.actions.map((a) => (
+                    <AskRow key={a.id} glyph={asked.includes(a.id) ? '✓' : '▸'}
+                      glyphColor={asked.includes(a.id) ? C.sage : C.gold}
+                      label={a.label} cost={a.timeCost} used={asked.includes(a.id)}
+                      affordable onClick={() => investigate(a)} />
+                  ))}
+                </div>
+              )}
+
+              {investigation && (
+                <div style={S.menu}>
+                  <p style={S.label}>DIAGNOSIS — NOTHING IS DISABLED</p>
+                  {investigation.diagnoses.map((d) => (
+                    <AskRow key={d.id} glyph={result && result.id === d.id ? '✓' : '▸'}
+                      glyphColor={C.gold} label={d.label} cost={0} used={false} affordable
+                      onClick={() => diagnose(d)} />
+                  ))}
+                </div>
+              )}
+
+              <div style={S.menu}>
+                <p style={S.label}>DISPOSITION OF TICKET</p>
+                {STATUS_OPTIONS.map((o) => (
+                  <AskRow key={o.status} glyph="▸" glyphColor={C.gold} label={o.label}
+                    note={o.hint} cost={0} used={false} affordable
+                    onClick={() => dispose(o.status)} />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {screen === 'summary' && (
+        <div style={S.body}>
+          <p style={S.kicker}>SHIFT {shiftNumber} · CLOSED</p>
+          <h1 style={S.h1}>{candleLeft <= 0 ? 'CANDLE OUT' : 'LINE EMPTY'}</h1>
+          <div style={S.panel}>
+            <p style={S.label}>WHAT YOU DID</p>
+            <p style={{ ...S.prose, color: C.t2 }}>
+              You took <strong style={{ color: C.hi }}>{lastSummary ? lastSummary.ticketsHandled : 0}</strong>{' '}
+              call{(lastSummary ? lastSummary.ticketsHandled : 0) === 1 ? '' : 's'}.
+            </p>
+            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14.5, lineHeight: 1.8, color: C.dim }}>
+              {STATUS_OPTIONS.map((o) => {
+                const n = (lastSummary && lastSummary.statusCounts[o.status]) || 0;
+                if (!n) return null;
+                return <li key={o.status}>{n} {SUMMARY_STATUS_PHRASING[o.status]}</li>;
+              })}
+            </ul>
+            <p style={{ ...S.prose, fontSize: 13.5, color: C.mutest, fontStyle: 'italic' }}>
+              How any of them felt about it is not known yet. That comes back later, through
+              a survey, through your manager — or not at all.
+            </p>
+          </div>
+          <p style={{ ...S.prose, color: C.dim }}>
+            Company reputation is now <strong style={{ color: C.hi }}>{reputation}/100</strong>.
+          </p>
+          <button style={S.secondary} onClick={nextShift}>GO HOME FOR THE NIGHT</button>
+        </div>
+      )}
+    </div>
+  );
+}
