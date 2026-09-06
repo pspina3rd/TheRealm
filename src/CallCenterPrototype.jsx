@@ -124,8 +124,12 @@ const OPENING_MODES = [
 // gives disposition real values -- see gameLogic.js for why the hook
 // exists now rather than later.
 function guardednessOf(customer) {
-  if (!customer || typeof customer.disposition !== 'number') return 0;
-  return clamp(-customer.disposition / 100, 0, 1);
+  // Reads the TLC axis: what they walked in carrying about the company
+  // is what makes them slow to volunteer anything. Now that Phase 1 is
+  // built this is live, not inert.
+  const d = customer && customer.disposition;
+  if (!d || typeof d.tlc !== 'number') return 0;
+  return clamp(-d.tlc / 100, 0, 1);
 }
 
 function rollOpening(customer, memory, rng = Math.random) {
@@ -229,12 +233,72 @@ function recallMemory(customer, currentShiftId, rng = Math.random) {
   };
 }
 
+// --- Character Disposition Model (Phase 1). Mirrors gameLogic.js. ---
+const FEELING_AXES = ['you', 'tlc', 'experience'];
+
+const WRINKLES = [
+  { id: 'cog-affiliated', chance: 0.22, biases: { tlc: -18 } },
+  { id: 'post-adventure', chance: 0.15, biases: { experience: +12 }, sensitivity: -0.15 },
+  { id: 'pre-adventure', chance: 0.15, biases: { experience: -10 }, sensitivity: +0.2 },
+  { id: 'long-standing-account', chance: 0.18, biases: { tlc: +14 } },
+];
+
+const TRAIT_RANGES = {
+  baggageSpread: 35,
+  sensitivity: { min: 0.55, max: 1.45 },
+  socialFilter: { min: 0.35, max: 1.0 },
+};
+
+function triangular(spread, rng) {
+  return ((rng() + rng()) / 2 - 0.5) * 2 * spread;
+}
+
+function rollWrinkles(rng) {
+  return WRINKLES.filter((w) => rng() < w.chance).map((w) => w.id);
+}
+
+function rollTraits(wrinkles = [], rng = Math.random) {
+  const active = WRINKLES.filter((w) => wrinkles.includes(w.id));
+  const baggage = { you: 0, tlc: 0, experience: 0 };
+  for (const axis of FEELING_AXES) {
+    if (axis === 'you') continue;
+    const bias = active.reduce((sum, w) => sum + ((w.biases && w.biases[axis]) || 0), 0);
+    baggage[axis] = clamp(Math.round(triangular(TRAIT_RANGES.baggageSpread, rng) + bias), -100, 100);
+  }
+  const sensBias = active.reduce((sum, w) => sum + (w.sensitivity || 0), 0);
+  const { min: sMin, max: sMax } = TRAIT_RANGES.sensitivity;
+  const sensitivity = clamp(sMin + rng() * (sMax - sMin) + sensBias, 0.1, 2.5);
+  const { min: fMin, max: fMax } = TRAIT_RANGES.socialFilter;
+  const socialFilter = fMin + rng() * (fMax - fMin);
+  return { baggage, sensitivity, socialFilter };
+}
+
+function applyDisposition(customer, rawDeltas) {
+  const traits = customer.traits || { sensitivity: 1, socialFilter: 1 };
+  const current = customer.disposition || {};
+  const disposition = { ...current };
+  const visible = {};
+  for (const [axis, raw] of Object.entries(rawDeltas)) {
+    const felt = raw * traits.sensitivity;
+    disposition[axis] = clamp((current[axis] || 0) + felt, -100, 100);
+    visible[axis] = felt * traits.socialFilter;
+  }
+  return { disposition, visible };
+}
+
 function buildCustomerPool(existing, freshCount, rng) {
   const pool = [...existing];
   for (let i = 0; i < freshCount; i++) {
     const tierKey = pickOne(Object.keys(CUSTOMER_TYPES), rng);
     const archetype = pickOne(CUSTOMER_TYPES[tierKey].archetypes, rng);
-    pool.push({ id: `${tierKey}-${archetype}-${Math.floor(rng() * 1e6)}`, tier: tierKey, archetype, disposition: 0, history: [] });
+    const wrinkles = rollWrinkles(rng);
+    const traits = rollTraits(wrinkles, rng);
+    pool.push({
+      id: `${tierKey}-${archetype}-${Math.floor(rng() * 1e6)}`, tier: tierKey, archetype,
+      wrinkles, traits,
+      disposition: { you: traits.baggage.you, tlc: traits.baggage.tlc, experience: traits.baggage.experience, understanding: 0 },
+      history: [],
+    });
   }
   return pool;
 }
@@ -346,10 +410,15 @@ function resolveTicket(ticket, customer, quality, status, shiftId) {
     throw new Error(`Unknown resolution status: "${status}"`);
   }
 
-  const newDisposition = clamp(customer.disposition + effect.dispositionDelta, -100, 100);
+  const raw = {
+    tlc: effect.dispositionDelta,
+    you: effect.dispositionDelta * 0.6,
+    experience: effect.dispositionDelta * 0.3,
+  };
+  const { disposition, visible } = applyDisposition(customer, raw);
   const updatedCustomer = {
-    ...customer, disposition: newDisposition,
-    history: [...customer.history, { shiftId, ticketCategory: ticket.category, quality, status, dispositionAfter: newDisposition }],
+    ...customer, disposition,
+    history: [...customer.history, { shiftId, ticketCategory: ticket.category, quality, status, dispositionAfter: disposition }],
   };
 
   // `followUp` is a *seed*, not a decision -- endShift() is where the
@@ -368,7 +437,7 @@ function resolveTicket(ticket, customer, quality, status, shiftId) {
       ticketId: ticket.id, quality, status,
       reputationDelta: effect.reputationDelta,
       timeSpent: Math.round(effect.timeCost * ticket.timeCostMultiplier),
-      dispositionTag: dispositionTag(newDisposition), followUp,
+      dispositionTag: dispositionTag(disposition.you), visibleDelta: visible, followUp,
     },
   };
 }

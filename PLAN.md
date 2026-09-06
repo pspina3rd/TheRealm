@@ -82,13 +82,26 @@ for how small Phase 0 is scoped.
 
 ---
 
-## Phase 1 — Character Disposition Model
+## Phase 1 — Character Disposition Model — BUILT
 **Depends on**: nothing. Do this first — the most other things wait
 on it.
 **LORE.md**: "Character Disposition Model — Baggage, Sensitivity,
 Social Filter"
 
-> **Re-scope before starting — the target changed.** This phase was
+> **BUILT.** Disposition is a four-quantity vector; Baggage is per-axis
+> with `you` always starting at zero for a stranger; Sensitivity and
+> Social Filter are scalar; wrinkles bias the draw without deciding it.
+> `applyDisposition()` returns internal feeling AND visible reaction
+> separately, so a player cannot read the truth off the presentation.
+> 62 tests. `guardednessOf()` — the manner-of-disclosure hook — is now
+> live rather than inert.
+>
+> **Values chosen, not specified in lore** (flagged in code, meant to be
+> tuned): Baggage ±35 triangular, Sensitivity 0.55–1.45, Social Filter
+> 0.35–1.0, and the correctness weighting tlc 1.0 / you 0.6 /
+> experience 0.3.
+>
+> **Original re-scope note, kept for context — the target changed.** This phase was
 > written against a single `disposition` integer. `LORE.md` now locks
 > **disposition as a four-quantity vector** — You, TLC, The Experience
 > (all feelings), plus Understanding (not a feeling) — see "Character

@@ -7,6 +7,10 @@ const {
   investigationTimeCost,
   endShift,
   dispositionTag,
+  FEELING_AXES,
+  rollTraits,
+  rollWrinkles,
+  applyDisposition,
   recallMemory,
   decayChanceFor,
   candleStage,
@@ -75,38 +79,62 @@ test('generateShift: returning customers can end up anywhere in the queue, not j
   assert.ok(max - min >= 3, `positions too clustered: ${positions.join(',')}`);
 });
 
-test('resolveTicket: correct response raises disposition and reputation', () => {
-  const customer = { id: 'c1', tier: 'endUser', archetype: 'Hero', disposition: 0, history: [] };
+const neutralCustomer = (over = {}) => ({
+  id: 'c1', tier: 'endUser', archetype: 'Hero',
+  disposition: { you: 0, tlc: 0, experience: 0, understanding: 0 },
+  traits: { baggage: { you: 0, tlc: 0, experience: 0 }, sensitivity: 1, socialFilter: 1 },
+  history: [],
+  ...over,
+});
+
+test('resolveTicket: a correct response moves ALL THREE feeling axes', () => {
+  // Correctness is not a fact about the company alone. Getting it right
+  // is also a fact about the agent who did it and about how the episode
+  // went. See LORE.md, "Inputs spill across axes."
+  const customer = neutralCustomer();
   const ticket = { id: 't1', customerId: 'c1', category: 'Respawn Delay', urgency: 3, timeCostMultiplier: 1 };
 
   const { customer: updated, outcome } = resolveTicket(ticket, customer, 'correct', 'resolved', 1);
 
-  assert.equal(updated.disposition, RESPONSE_QUALITY.correct.dispositionDelta);
+  assert.equal(updated.disposition.tlc, RESPONSE_QUALITY.correct.dispositionDelta);
+  for (const axis of FEELING_AXES) {
+    assert.ok(updated.disposition[axis] > 0, `${axis} should have risen`);
+  }
+  // Understanding is NOT a feeling and correctness alone does not move
+  // it -- only Education does, and Education is not built.
+  assert.equal(updated.disposition.understanding, 0);
+
   assert.equal(outcome.reputationDelta, RESPONSE_QUALITY.correct.reputationDelta);
-  assert.equal(updated.history.length, 1);
   assert.equal(updated.history[0].quality, 'correct');
 });
 
-test('resolveTicket: dismissive response lowers disposition and reputation', () => {
-  const customer = { id: 'c2', tier: 'partner', archetype: 'Tavern', disposition: 0, history: [] };
+test('resolveTicket: a dismissive response lowers every feeling axis', () => {
+  const customer = neutralCustomer({ id: 'c2', tier: 'partner', archetype: 'Tavern' });
   const ticket = { id: 't2', customerId: 'c2', category: 'Phantom Inventory', urgency: 2, timeCostMultiplier: 1 };
 
   const { customer: updated, outcome } = resolveTicket(ticket, customer, 'dismissive', 'resolved', 1);
 
-  assert.ok(updated.disposition < 0);
+  for (const axis of FEELING_AXES) {
+    assert.ok(updated.disposition[axis] < 0, `${axis} should have fallen`);
+  }
   assert.ok(outcome.reputationDelta < 0);
 });
 
-test('resolveTicket: disposition never exceeds the -100..100 bounds', () => {
-  let customer = { id: 'c3', tier: 'endUser', archetype: 'Villain', disposition: 95, history: [] };
+test('resolveTicket: every axis stays inside -100..100', () => {
+  let customer = neutralCustomer({
+    id: 'c3', archetype: 'Villain',
+    disposition: { you: 95, tlc: 95, experience: 95, understanding: 0 },
+  });
   const ticket = { id: 't3', customerId: 'c3', category: 'XP Miscount Dispute', urgency: 1, timeCostMultiplier: 1 };
 
   ({ customer } = resolveTicket(ticket, customer, 'correct', 'resolved', 1));
-  assert.equal(customer.disposition, 100);
+  assert.equal(customer.disposition.tlc, 100);
+  for (const axis of FEELING_AXES) assert.ok(customer.disposition[axis] <= 100);
 
-  customer = { ...customer, disposition: -95 };
+  customer = { ...customer, disposition: { you: -95, tlc: -95, experience: -95, understanding: 0 } };
   ({ customer } = resolveTicket(ticket, customer, 'dismissive', 'resolved', 2));
-  assert.equal(customer.disposition, -100);
+  for (const axis of FEELING_AXES) assert.ok(customer.disposition[axis] >= -100);
+  assert.equal(customer.disposition.tlc, -100);
 });
 
 test('resolveTicket: rejects an unknown response quality', () => {
@@ -669,15 +697,17 @@ test('every opening mode is reachable and well-formed', () => {
 });
 
 
-test('guardednessOf: Baggage drives how readily someone volunteers anything', () => {
-  // Inert today (every customer sits at disposition 0 until Phase 1),
-  // but the hook must already behave correctly, or the manner of
-  // disclosure will need rewriting the moment Baggage exists.
+test('guardednessOf: TLC Baggage drives how readily someone volunteers anything', () => {
+  // Reads the TLC axis, not the agent axis -- they have not met you.
   assert.equal(guardednessOf(null), 0);
-  assert.equal(guardednessOf({ disposition: 0 }), 0);
-  assert.equal(guardednessOf({ disposition: -100 }), 1);
-  assert.equal(guardednessOf({ disposition: -50 }), 0.5);
-  assert.equal(guardednessOf({ disposition: 80 }), 0, 'warmth is not negative guardedness');
+  assert.equal(guardednessOf({ disposition: { tlc: 0 } }), 0);
+  assert.equal(guardednessOf({ disposition: { tlc: -100 } }), 1);
+  assert.equal(guardednessOf({ disposition: { tlc: -50 } }), 0.5);
+  assert.equal(guardednessOf({ disposition: { tlc: 80 } }), 0, 'warmth is not negative guardedness');
+
+  // Feeling badly about the AGENT does not make someone withhold the
+  // reason they rang -- that is a different axis doing a different job.
+  assert.equal(guardednessOf({ disposition: { tlc: 0, you: -100 } }), 0);
 });
 
 test('rollOpening: a guarded caller volunteers the request less often', () => {
@@ -690,8 +720,8 @@ test('rollOpening: a guarded caller volunteers the request less often', () => {
     }
     return reveals;
   };
-  const open = count({ disposition: 0 });
-  const guarded = count({ disposition: -100 });
+  const open = count({ disposition: { tlc: 0 } });
+  const guarded = count({ disposition: { tlc: -100 } });
   assert.ok(guarded < open,
     `guarded caller should volunteer less often (open ${open}, guarded ${guarded})`);
   assert.ok(guarded > 0, 'even a guarded caller sometimes just tells you');
@@ -701,8 +731,148 @@ test('rollOpening: guardedness 0 leaves the baseline distribution untouched', ()
   // The hook must be genuinely inert until Phase 1, not quietly
   // reshaping today's behaviour.
   for (let seed = 1; seed <= 200; seed++) {
-    const withCustomer = rollOpening({ disposition: 0 }, null, seededRng(seed));
+    const withCustomer = rollOpening({ disposition: { tlc: 0 } }, null, seededRng(seed));
     const without = rollOpening(null, null, seededRng(seed));
     assert.equal(withCustomer.mode, without.mode);
   }
+});
+
+
+// ---------------------------------------------------------------------
+// Phase 1 — Character Disposition Model
+// ---------------------------------------------------------------------
+
+test('traits vary across customers and are NOT archetype-correlated', () => {
+  // The hard constraint from LORE.md: archetype must never be a formula
+  // input. If it were, two Heroes would resemble each other more than a
+  // Hero and a Tavern do, and "archetype rhyme, not archetype lookup"
+  // would be prose the code contradicts.
+  const byArchetype = {};
+  const allSensitivities = [];
+  for (let seed = 1; seed <= 300; seed++) {
+    const rng = seededRng(seed);
+    const { customerPool } = generateShift({ knownCustomers: [], baseTicketCount: 8, rng });
+    for (const c of customerPool) {
+      (byArchetype[c.archetype] ||= []).push(c.traits.sensitivity);
+      allSensitivities.push(c.traits.sensitivity);
+    }
+  }
+
+  // Traits actually vary at all.
+  assert.ok(new Set(allSensitivities).size > 50, 'sensitivity must genuinely vary');
+
+  // No archetype's mean sensitivity sits far from the global mean.
+  const mean = (xs) => xs.reduce((a, b) => a + b, 0) / xs.length;
+  const overall = mean(allSensitivities);
+  for (const [archetype, values] of Object.entries(byArchetype)) {
+    if (values.length < 40) continue;
+    assert.ok(Math.abs(mean(values) - overall) < 0.1,
+      `${archetype} sensitivity mean drifted from the population — archetype is leaking into the roll`);
+  }
+});
+
+test('a stranger has Baggage about TLC but none about YOU', () => {
+  // You cannot resent an agent you have never spoken to. Baggage on the
+  // `you` axis is earned, never issued.
+  let sawLoadedTlc = false;
+  for (let seed = 1; seed <= 200; seed++) {
+    const rng = seededRng(seed);
+    const { customerPool } = generateShift({ knownCustomers: [], baseTicketCount: 6, rng });
+    for (const c of customerPool) {
+      assert.equal(c.disposition.you, 0, 'a new customer must hold no opinion of the agent');
+      assert.equal(c.disposition.understanding, 0);
+      if (c.disposition.tlc !== 0) sawLoadedTlc = true;
+    }
+  }
+  assert.ok(sawLoadedTlc, 'customers must be able to arrive already carrying something about TLC');
+});
+
+test('pipeline math: raw → × Sensitivity → dampened by Social Filter', () => {
+  // Known inputs, hand-checked outputs. Internal feeling and visible
+  // reaction are different numbers, and the gap is the whole point of
+  // Social Filter.
+  const customer = {
+    disposition: { you: 10, tlc: 0, experience: 0, understanding: 0 },
+    traits: { sensitivity: 2, socialFilter: 0.5 },
+  };
+  const { disposition, visible } = applyDisposition(customer, { you: 6, tlc: -4 });
+
+  assert.equal(disposition.you, 22, '10 + (6 × 2)');
+  assert.equal(disposition.tlc, -8, '0 + (-4 × 2)');
+  assert.equal(visible.you, 6, '(6 × 2) × 0.5');
+  assert.equal(visible.tlc, -4, '(-4 × 2) × 0.5');
+});
+
+test('Social Filter hides how much a customer actually felt', () => {
+  // Two customers, identical event, identical internal reaction --
+  // wildly different presentation. A player cannot read the truth off
+  // the surface. See LORE.md, "the lid on the pot."
+  const open = { disposition: { you: 0 }, traits: { sensitivity: 1, socialFilter: 1 } };
+  const guarded = { disposition: { you: 0 }, traits: { sensitivity: 1, socialFilter: 0.35 } };
+
+  const a = applyDisposition(open, { you: -20 });
+  const b = applyDisposition(guarded, { you: -20 });
+
+  assert.equal(a.disposition.you, b.disposition.you, 'they felt exactly the same thing');
+  assert.ok(Math.abs(b.visible.you) < Math.abs(a.visible.you) / 2,
+    'the guarded one must show far less of it');
+});
+
+test('wrinkle bias: COG affiliation skews TLC Baggage without deciding it', () => {
+  // Situational facts bias a random draw. They must NOT replace it with
+  // a lookup -- a COG-affiliated customer is more likely to arrive wary,
+  // never guaranteed to.
+  const sample = (wrinkles) => {
+    const out = [];
+    for (let seed = 1; seed <= 400; seed++) {
+      out.push(rollTraits(wrinkles, seededRng(seed)).baggage.tlc);
+    }
+    return out;
+  };
+  const mean = (xs) => xs.reduce((a, b) => a + b, 0) / xs.length;
+
+  const plain = sample([]);
+  const cog = sample(['cog-affiliated']);
+
+  assert.ok(mean(cog) < mean(plain) - 8,
+    `COG affiliation must measurably skew wary (plain ${mean(plain).toFixed(1)}, cog ${mean(cog).toFixed(1)})`);
+
+  // Not deterministic: some COG customers still arrive positive.
+  assert.ok(cog.some((v) => v > 0), 'the bias must not become a rule');
+  assert.ok(new Set(cog).size > 20, 'the draw must stay a distribution');
+});
+
+test('wrinkles are rolled per instance, not derived from archetype', () => {
+  const byArchetype = {};
+  for (let seed = 1; seed <= 200; seed++) {
+    const rng = seededRng(seed);
+    const { customerPool } = generateShift({ knownCustomers: [], baseTicketCount: 8, rng });
+    for (const c of customerPool) {
+      (byArchetype[c.archetype] ||= []).push(c.wrinkles.includes('cog-affiliated'));
+    }
+  }
+  const rates = Object.entries(byArchetype)
+    .filter(([, v]) => v.length >= 40)
+    .map(([a, v]) => [a, v.filter(Boolean).length / v.length]);
+  for (const [archetype, rate] of rates) {
+    assert.ok(rate > 0.05 && rate < 0.45,
+      `${archetype} COG rate ${rate.toFixed(2)} looks archetype-driven, not per-instance`);
+  }
+});
+
+test('rollWrinkles: situational facts appear sometimes, never always', () => {
+  const counts = {};
+  const runs = 500;
+  for (let seed = 1; seed <= runs; seed++) {
+    for (const w of rollWrinkles(seededRng(seed))) counts[w] = (counts[w] || 0) + 1;
+  }
+  assert.ok(Object.keys(counts).length >= 3, 'several wrinkles must be reachable');
+  for (const [id, n] of Object.entries(counts)) {
+    assert.ok(n > 0 && n < runs,
+      `${id} fired ${n}/${runs} times — a wrinkle must be a circumstance, not a constant`);
+  }
+  // A customer can have none at all -- most do.
+  let bare = 0;
+  for (let seed = 1; seed <= runs; seed++) if (rollWrinkles(seededRng(seed)).length === 0) bare++;
+  assert.ok(bare > 0, 'plenty of customers arrive with no special circumstance');
 });

@@ -1213,6 +1213,69 @@ declared solved.
 
 ---
 
+## Ticket Content — Categories, Sub-Variables, and the Telling
+
+**The problem: ten categories is not a game.** Hand-authoring each
+ticket type produces content that runs out. Ten categories means ten
+calls, and after that the player has seen everything and is choosing
+from a menu they have memorised.
+
+**Locked: a category is a template, not a script.** Three layers stack
+on top of each other, and the combinations are where volume comes from
+without hand-writing every case.
+
+### 1. The category
+
+The classification — a term of art for a real problem type, per
+"Naming Methodology." "Phantom Inventory." This is what gets *filed*,
+and it is the smallest of the three layers.
+
+### 2. Sub-variables
+
+The specifics that vary per instance. What was shipped, how much, to
+where, against what deadline, and — critically — **what actually went
+wrong.** The same category can have genuinely different root causes:
+Phantom Inventory can be an unlogged sale, a duplicated courier stamp,
+a stockroom problem, or a Node that never posted a receipt. The
+investigation actions and their clues follow from the root cause, so
+one category yields many distinct puzzles rather than one puzzle with
+new nouns.
+
+**A sub-variable is only worth having if it changes what the right
+answer is, or how you would find it.** Swapping potions for ingots is
+set dressing; swapping the root cause is content.
+
+### 3. The telling — perspective and Baggage
+
+**The same facts, expressed differently, are a different call.** Two
+layers distort the telling before it reaches the player:
+
+- **Perspective** — what the customer *believes* happened, which is
+  partial and often wrong. They are describing their experience, not
+  filing a report. The opening statement is never the diagnosis (see
+  "Ticket Resolution").
+- **Baggage** — what they walked in carrying decides *how* it comes
+  out: terse, defensive, circling back, over-explaining, apologetic,
+  furious, or flatly matter-of-fact. Baggage is not just a number that
+  moves; it is the manner of the telling. See "Character Disposition
+  Model."
+
+This is the layer that makes a category feel inexhaustible. A blacksmith
+who has been burned before and a first-time tavern keeper report the
+*same* root cause completely differently, and the player's job — reading
+which is which — is the same skill on both.
+
+**Consequence for content work**: authoring a new category means
+authoring a root-cause set and its clues, not a single scripted call.
+Expression is generated from traits, not written per case.
+
+Not built — design only. Phantom Inventory is the one category with any
+investigation content at all, and it currently has exactly one root
+cause. Making *that* ticket fully work — sub-variables and all — is the
+proving ground before any other category is written.
+
+---
+
 ## Character Disposition Model — Baggage, Sensitivity, Social Filter
 
 Design intent, not yet built — but foundational enough that other

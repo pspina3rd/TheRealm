@@ -419,19 +419,20 @@ const OPENING_MODES = [
  * carrying shapes whether they are terse, defensive, circling, or
  * forthcoming. See LORE.md, "Character Disposition Model."
  *
- * NOTE: this reads `disposition`, which today is 0 for every customer
- * because the Baggage/Sensitivity/Social Filter model is designed and
- * not built (PLAN.md Phase 1). At 0 it returns 0 and changes nothing —
- * it is a live hook, deliberately inert, so that the manner of
- * disclosure starts working the moment Phase 1 lands rather than
- * needing this function rewritten then.
+ * Reads the **TLC axis** specifically: what someone walked in carrying
+ * about the company is what makes them slow to volunteer anything. It
+ * is not about the agent — they have not met you yet, and Baggage on
+ * the `you` axis always starts at zero for that reason.
+ *
+ * Live as of Phase 1. Before that it was a deliberately inert hook.
  *
  * @param {object|null} customer
  * @returns {number} 0 (forthcoming) .. 1 (heavily guarded)
  */
 function guardednessOf(customer) {
-  if (!customer || typeof customer.disposition !== 'number') return 0;
-  return clamp(-customer.disposition / 100, 0, 1);
+  const disposition = customer && customer.disposition;
+  if (!disposition || typeof disposition.tlc !== 'number') return 0;
+  return clamp(-disposition.tlc / 100, 0, 1);
 }
 
 /**
@@ -499,6 +500,130 @@ const HOLD_REASONS = ['internal', 'external'];
 const FOLLOW_UP_BASE_URGENCY = { hold: 5, reopen: 7 };
 
 // ---------------------------------------------------------------------
+// Character Disposition Model — Phase 1
+// ---------------------------------------------------------------------
+
+/**
+ * The three FEELING axes. `understanding` is tracked alongside them but
+ * is deliberately not in this list — it is not a feeling, it has no
+ * Baggage, and it moves only through Education.
+ * See LORE.md, "Character Disposition Model."
+ */
+const FEELING_AXES = ['you', 'tlc', 'experience'];
+
+/**
+ * Situational facts about a *particular customer instance* that may
+ * bias a trait draw.
+ *
+ * **These are circumstances, never archetype.** LORE.md forbids
+ * archetype from being a formula input for any trait, so these are
+ * rolled independently of tier and archetype — a Hero and a Tavern are
+ * equally likely to be COG-affiliated as far as this roll is concerned.
+ * They bias a random draw; they never replace it with a lookup.
+ */
+const WRINKLES = [
+  { id: 'cog-affiliated', chance: 0.22, biases: { tlc: -18 } },
+  { id: 'post-adventure', chance: 0.15, biases: { experience: +12 }, sensitivity: -0.15 },
+  { id: 'pre-adventure', chance: 0.15, biases: { experience: -10 }, sensitivity: +0.2 },
+  { id: 'long-standing-account', chance: 0.18, biases: { tlc: +14 } },
+];
+
+/**
+ * NUMBERS CHOSEN HERE, NOT SPECIFIED IN LORE. LORE.md sets the shape of
+ * this model and explicitly leaves ranges and distributions open. These
+ * are a first reasonable pass, meant to be tuned:
+ *
+ *   Baggage      -35..+35 per axis, triangular (two rolls averaged) so
+ *                 most customers land near neutral and extremes are rare
+ *   Sensitivity   0.55..1.45, centred on 1.0
+ *   Social Filter 0.35..1.0 — how much of a reaction actually shows
+ */
+const TRAIT_RANGES = {
+  baggageSpread: 35,
+  sensitivity: { min: 0.55, max: 1.45 },
+  socialFilter: { min: 0.35, max: 1.0 },
+};
+
+/** Triangular draw in -spread..+spread; clusters near 0. */
+function triangular(spread, rng) {
+  return ((rng() + rng()) / 2 - 0.5) * 2 * spread;
+}
+
+/**
+ * Rolls the situational wrinkles for one customer instance.
+ * @param {function} rng
+ * @returns {string[]} wrinkle ids
+ */
+function rollWrinkles(rng) {
+  return WRINKLES.filter((w) => rng() < w.chance).map((w) => w.id);
+}
+
+/**
+ * Rolls Baggage / Sensitivity / Social Filter for one customer.
+ *
+ * Baggage is **per feeling-axis**: a stranger can arrive already hostile
+ * to TLC while holding no opinion of the agent at all, because they have
+ * never spoken to you. So `you` starts at zero for a new customer and is
+ * only ever moved by what the player actually does.
+ *
+ * @param {string[]} wrinkles - situational facts biasing the draw
+ * @param {function} [rng=Math.random]
+ * @returns {{ baggage: object, sensitivity: number, socialFilter: number }}
+ */
+function rollTraits(wrinkles = [], rng = Math.random) {
+  const active = WRINKLES.filter((w) => wrinkles.includes(w.id));
+
+  const baggage = { you: 0, tlc: 0, experience: 0 };
+  for (const axis of FEELING_AXES) {
+    // A stranger has no opinion of the agent yet -- there is nothing to
+    // have baggage about. Every other axis can be loaded on arrival.
+    if (axis === 'you') continue;
+    const bias = active.reduce((sum, w) => sum + ((w.biases && w.biases[axis]) || 0), 0);
+    baggage[axis] = clamp(
+      Math.round(triangular(TRAIT_RANGES.baggageSpread, rng) + bias), -100, 100,
+    );
+  }
+
+  const sensBias = active.reduce((sum, w) => sum + (w.sensitivity || 0), 0);
+  const { min: sMin, max: sMax } = TRAIT_RANGES.sensitivity;
+  const sensitivity = clamp(sMin + rng() * (sMax - sMin) + sensBias, 0.1, 2.5);
+
+  const { min: fMin, max: fMax } = TRAIT_RANGES.socialFilter;
+  const socialFilter = fMin + rng() * (fMax - fMin);
+
+  return { baggage, sensitivity, socialFilter };
+}
+
+/**
+ * Applies a raw per-axis delta through the full pipeline.
+ *
+ * Pipeline, in order: raw → × Sensitivity → dampened by Social Filter.
+ *
+ * Returns BOTH numbers, because they are different things and the split
+ * is the point: `disposition` is what the customer actually feels, and
+ * `visible` is only as much of it as they let show. A player cannot
+ * reliably read the truth off the presentation — see LORE.md on Social
+ * Filter as "the lid on the pot."
+ *
+ * @param {object} customer - carrying `disposition` and `traits`
+ * @param {object} rawDeltas - e.g. { you: 6, tlc: -3 }
+ * @returns {{ disposition: object, visible: object }}
+ */
+function applyDisposition(customer, rawDeltas) {
+  const traits = customer.traits || { sensitivity: 1, socialFilter: 1 };
+  const current = customer.disposition || {};
+  const disposition = { ...current };
+  const visible = {};
+
+  for (const [axis, raw] of Object.entries(rawDeltas)) {
+    const felt = raw * traits.sensitivity;
+    disposition[axis] = clamp((current[axis] || 0) + felt, -100, 100);
+    visible[axis] = felt * traits.socialFilter;
+  }
+  return { disposition, visible };
+}
+
+// ---------------------------------------------------------------------
 // Customer pool
 // ---------------------------------------------------------------------
 
@@ -515,11 +640,23 @@ function buildCustomerPool(existingCustomers, freshCount, rng) {
   for (let i = 0; i < freshCount; i++) {
     const tierKey = pickOne(Object.keys(CUSTOMER_TYPES), rng);
     const archetype = pickOne(CUSTOMER_TYPES[tierKey].archetypes, rng);
+    // Traits are rolled per INSTANCE. Archetype is picked above and is
+    // never fed into the roll -- see LORE.md, "archetype rhyme, not
+    // archetype lookup."
+    const wrinkles = rollWrinkles(rng);
+    const traits = rollTraits(wrinkles, rng);
     pool.push({
       id: `${tierKey}-${archetype}-${Math.floor(rng() * 1e6)}`,
       tier: tierKey,
       archetype,
-      disposition: 0,
+      wrinkles,
+      traits,
+      disposition: {
+        you: traits.baggage.you,
+        tlc: traits.baggage.tlc,
+        experience: traits.baggage.experience,
+        understanding: 0,
+      },
       history: [],
     });
   }
@@ -775,18 +912,36 @@ function resolveTicket(ticket, customer, quality, status, shiftId) {
     throw new Error(`Unknown resolution status: "${status}"`);
   }
 
-  const newDisposition = clamp(customer.disposition + effect.dispositionDelta, -100, 100);
+  // WEIGHTS CHOSEN HERE, NOT SPECIFIED IN LORE. LORE.md locks that
+  // correctness moves all three feeling axes and explicitly refuses to
+  // fix the weighting ("Do not invent a weighting table and treat it as
+  // locked"). First pass, meant to be tuned:
+  //
+  //   tlc         strongest -- did the company actually fix it
+  //   you         real but smaller -- you are one person at the company
+  //   experience  smallest -- correctness helps how it felt, a little
+  //
+  // Question load lands on `experience` and is applied by the caller,
+  // not here. Empathy and Education are earned skills and not built --
+  // see LORE.md, "Education & Empathy."
+  const raw = {
+    tlc: effect.dispositionDelta,
+    you: effect.dispositionDelta * 0.6,
+    experience: effect.dispositionDelta * 0.3,
+  };
+  const { disposition, visible } = applyDisposition(customer, raw);
+
   const historyEntry = {
     shiftId,
     ticketCategory: ticket.category,
     quality,
     status,
-    dispositionAfter: newDisposition,
+    dispositionAfter: disposition,
   };
 
   const updatedCustomer = {
     ...customer,
-    disposition: newDisposition,
+    disposition,
     history: [...customer.history, historyEntry],
   };
 
@@ -807,7 +962,11 @@ function resolveTicket(ticket, customer, quality, status, shiftId) {
     status,
     reputationDelta: effect.reputationDelta,
     timeSpent: Math.round(effect.timeCost * ticket.timeCostMultiplier),
-    dispositionTag: dispositionTag(newDisposition),
+    // The player's immediate read is the YOU axis -- and only as much
+    // as the customer lets show. See LORE.md's open question on which
+    // surface reports which axis.
+    dispositionTag: dispositionTag(disposition.you),
+    visibleDelta: visible,
     followUp,
   };
 
@@ -902,6 +1061,12 @@ module.exports = {
   guardednessOf,
   rollOpening,
   probeForRequest,
+  FEELING_AXES,
+  WRINKLES,
+  TRAIT_RANGES,
+  rollWrinkles,
+  rollTraits,
+  applyDisposition,
   decayChanceFor,
   dispositionTag,
   recallMemory,
