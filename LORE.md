@@ -1247,6 +1247,37 @@ and it still is; `rollTraits()` does not take a customer at all, which is
 the structural guarantee. **Register is expression; the traits are
 substance.** The two layer.
 
+### 3c. Familiarity — a regular talks like someone who knows the place
+
+A third dimension, independent of both register and Baggage: **how well
+this caller knows TLC.**
+
+A stranger states a grievance flat. **A regular in good standing hands
+you an excuse unprompted** — *"I've been on hold quite a while, must be
+busy today"* — because they have goodwill and no interest in spending it
+here. A regular in bad standing does the reverse, placing today's call
+in a pattern, because for them there is one.
+
+This **cuts across archetype**: a Kingdom and a Tavern who both know you
+both soften. Register only decides the words they soften in.
+
+**Written as a coda, not as new lines.** Familiarity composes on top of
+the register's wording rather than multiplying it — otherwise every mode
+× register × familiarity is sixty variations nobody would write well.
+
+**But a coda must be in the speaker's voice.** A grand caller who has
+just demanded *"do you know who I am?"* does not then say *"must be busy
+today"* — they are magnanimous instead: *"I will allow that you are
+busy."* Same intent, different person. Codas therefore override per
+register where the default would contradict the speaker.
+
+*Writing rule, learned the hard way*: **do not let a line undercut
+itself.** A rejected draft read *"I don't want to make a fuss. I have
+been holding rather a while, though"* — a character announcing they will
+not do the thing and then doing it. That is a writer's tic, not speech.
+If a line contains its own contradiction, the character is being written
+rather than heard.
+
 *Known gap*: register currently varies the OPENING lines only. The
 request itself — the category blurb — is still one wording for everyone.
 

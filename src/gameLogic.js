@@ -833,6 +833,29 @@ const ARCHETYPE_REGISTERS = {
 const DEFAULT_REGISTER = 'plain';
 
 /**
+ * How familiar this caller is with TLC, which shapes the telling
+ * independently of register and Baggage.
+ *
+ * **A repeat customer talks like someone who knows the place.** Where a
+ * stranger states a grievance flat, a regular in good standing hands
+ * you an excuse unprompted — *"must be busy today"* — because they have
+ * goodwill to spend and no interest in spending it here. A regular in
+ * bad standing does the reverse: they place today's call in a pattern,
+ * because for them there is one.
+ *
+ * This cuts ACROSS archetype. A Kingdom and a Tavern who both know you
+ * both soften; the register only decides the words they soften in.
+ *
+ * @param {object|null} customer
+ * @returns {'new'|'returning-warm'|'returning-cold'}
+ */
+function familiarityOf(customer) {
+  if (!customer || !customer.history || customer.history.length === 0) return 'new';
+  const tlc = (customer.disposition && customer.disposition.tlc) || 0;
+  return tlc >= 0 ? 'returning-warm' : 'returning-cold';
+}
+
+/**
  * The register this customer speaks in.
  * @param {object|null} customer
  * @returns {string}
@@ -1413,6 +1436,7 @@ module.exports = {
   probeForRequest,
   ARCHETYPE_REGISTERS,
   registerOf,
+  familiarityOf,
   FEELING_AXES,
   WRINKLES,
   TRAIT_RANGES,

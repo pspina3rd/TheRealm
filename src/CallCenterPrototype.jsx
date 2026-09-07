@@ -492,6 +492,29 @@ const ARCHETYPE_REGISTERS = {
 const DEFAULT_REGISTER = 'plain';
 
 /**
+ * How familiar this caller is with TLC, which shapes the telling
+ * independently of register and Baggage.
+ *
+ * **A repeat customer talks like someone who knows the place.** Where a
+ * stranger states a grievance flat, a regular in good standing hands
+ * you an excuse unprompted — *"must be busy today"* — because they have
+ * goodwill to spend and no interest in spending it here. A regular in
+ * bad standing does the reverse: they place today's call in a pattern,
+ * because for them there is one.
+ *
+ * This cuts ACROSS archetype. A Kingdom and a Tavern who both know you
+ * both soften; the register only decides the words they soften in.
+ *
+ * @param {object|null} customer
+ * @returns {'new'|'returning-warm'|'returning-cold'}
+ */
+function familiarityOf(customer) {
+  if (!customer || !customer.history || customer.history.length === 0) return 'new';
+  const tlc = (customer.disposition && customer.disposition.tlc) || 0;
+  return tlc >= 0 ? 'returning-warm' : 'returning-cold';
+}
+
+/**
  * The register this customer speaks in.
  * @param {object|null} customer
  * @returns {string}
@@ -878,7 +901,7 @@ const OPENING_LINES = {
     grand: 'Do you know how long I have been kept waiting? Do you know who I am?',
     plain: 'Been on this line a while.',
     chatty: "I'll tell you, I've had time to reorganise the whole back room while I waited.",
-    deferential: "I don't want to make a fuss. I have been holding rather a while, though.",
+    deferential: "I've been holding a fair while, if you have a moment.",
   },
   product: {
     formal: 'I will say the standard of service has declined measurably this season.',
@@ -903,13 +926,59 @@ const OPENING_LINES = {
   },
 };
 
+// UI-ONLY. What FAMILIARITY adds on top of the register's words.
+//
+// A regular in good standing hands you an excuse unprompted -- "must be
+// busy today" -- because they have goodwill and no interest in spending
+// it here. A regular in bad standing places the call in a pattern,
+// because for them there is one. A stranger has neither and says
+// nothing extra.
+//
+// Composing a coda rather than writing every mode x register x
+// familiarity line keeps this from exploding into sixty variations
+// nobody would write well.
+// A coda has to be in the SPEAKER'S voice. "Must be busy today" is a
+// regular extending goodwill -- but a grand caller who has just asked
+// "do you know who I am" does not then let you off the hook. They are
+// magnanimous instead, which is a different thing wearing the same
+// intent. So a coda may override per register; `default` covers the
+// rest.
+const FAMILIARITY_CODAS = {
+  wait: {
+    'returning-warm': { default: 'Must be busy today.', grand: 'I will allow that you are busy.' },
+    'returning-cold': { default: 'Same as the last time I rang.', grand: 'As ever.' },
+  },
+  product: {
+    'returning-warm': { default: 'Not like you, though.', grand: 'You were better than this once.' },
+    'returning-cold': { default: "It's a pattern by now.", grand: 'I have stopped being surprised.' },
+  },
+  vague: {
+    'returning-warm': { default: "You'll know better than me.", grand: 'I trust you will establish what.' },
+    'returning-cold': { default: 'Not the first time either.', grand: 'Nor the first time I have asked.' },
+  },
+  venting: {
+    'returning-warm': {
+      default: 'They catch themselves, and apologise for the tone.',
+      grand: 'They stop, and allow that none of it is your doing.',
+    },
+    'returning-cold': {
+      default: 'They have said all of this before, and they know it.',
+      grand: 'They have made this speech before. It has not improved.',
+    },
+  },
+};
+
 // UI-ONLY. Picks the line for this opening in this customer's voice.
 // Mode is the substance; register is how they say it. See gameLogic's
 // ARCHETYPE_REGISTERS -- expression keys off archetype, disposition
 // never does.
-function openingLine(mode, register) {
+function openingLine(mode, register, familiarity) {
   const byRegister = OPENING_LINES[mode] || OPENING_LINES.vague;
-  return byRegister[register] || byRegister.plain;
+  const base = byRegister[register] || byRegister.plain;
+  const codas = (FAMILIARITY_CODAS[mode] || {})[familiarity];
+  if (!codas) return base;
+  const coda = codas[register] || codas.default;
+  return coda ? `${base} ${coda}` : base;
 }
 
 // UI-ONLY. When pressing them for the actual request doesn't land.
@@ -1119,7 +1188,7 @@ export default function CallCenterPrototype() {
       entries.push({ speaker: 'CALLER', tint: C.gold, rule: C.goldDeep, body: memoryLine(memory) });
     } else {
       entries.push({ speaker: 'CALLER', tint: C.t3, rule: C.steel,
-        body: openingLine(opening.mode, registerOf(customer)) });
+        body: openingLine(opening.mode, registerOf(customer), familiarityOf(customer)) });
     }
     setFeed(entries);
   };

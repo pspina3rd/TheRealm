@@ -25,6 +25,7 @@ const {
   TICKET_TEMPLATES,
   DOMAINS,
   registerOf,
+  familiarityOf,
   askRelationshipCost,
   ARCHETYPE_REGISTERS,
   CUSTOMER_TYPES,
@@ -1220,4 +1221,47 @@ test('order matters, not just which actions were taken', () => {
   const goodOrder = askRelationshipCost(ticket, ['manifest', 'askLedger']);
   assert.ok(badOrder.you < goodOrder.you);
   assert.equal(goodOrder.you, 0);
+});
+
+
+// ---------------------------------------------------------------------
+// Familiarity — a regular talks like someone who knows the place
+// ---------------------------------------------------------------------
+
+test('familiarity is about history and standing, not archetype', () => {
+  const fresh = { archetype: 'Kingdom', history: [], disposition: { tlc: -80 } };
+  assert.equal(familiarityOf(fresh), 'new',
+    'someone who has never called is new however they feel about the company');
+
+  const warm = { archetype: 'Kingdom', history: [{}], disposition: { tlc: 20 } };
+  const cold = { archetype: 'Tavern', history: [{}], disposition: { tlc: -20 } };
+  assert.equal(familiarityOf(warm), 'returning-warm');
+  assert.equal(familiarityOf(cold), 'returning-cold');
+
+  // And it cuts across type: same standing, different archetypes, same
+  // familiarity. Register decides the words, not whether they soften.
+  const warmTavern = { archetype: 'Tavern', history: [{}], disposition: { tlc: 20 } };
+  assert.equal(familiarityOf(warmTavern), familiarityOf(warm));
+});
+
+test('familiarity and register are independent dimensions', () => {
+  // Four combinations must all be reachable, or one of the two is doing
+  // no work.
+  const combos = new Set();
+  for (const archetype of ['Kingdom', 'Tavern', 'Hero', 'NPC']) {
+    for (const history of [[], [{}]]) {
+      for (const tlc of [20, -20]) {
+        const c = { archetype, history, disposition: { tlc } };
+        combos.add(`${registerOf(c)}/${familiarityOf(c)}`);
+      }
+    }
+  }
+  assert.ok(combos.size >= 6,
+    `register and familiarity must vary independently, got ${combos.size} combinations`);
+});
+
+test('familiarityOf handles a customer with no disposition yet', () => {
+  assert.equal(familiarityOf(null), 'new');
+  assert.equal(familiarityOf({ history: [{}] }), 'returning-warm',
+    'no recorded feeling about TLC is not a grievance');
 });
