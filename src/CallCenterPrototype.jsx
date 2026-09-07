@@ -759,6 +759,67 @@ function investigationTimeCost(ticket, investigatedActionIds) {
     .reduce((sum, a) => sum + a.timeCost, 0);
 }
 
+/**
+ * WHERE THE TWO ACCOUNTS DISAGREE.
+ *
+ * There are two memories of every past call and they are not the same
+ * object:
+ *
+ *   - **The customer's** — grounded in what happened *to them*, and
+ *     distorted across the five facets (see "Memory is multifaceted").
+ *     It owes nothing to our paperwork.
+ *   - **The company's** — the case note. Only ever as good as what a
+ *     busy agent had time to write.
+ *
+ * **The agent reads one and talks to the other.** Neither side is
+ * lying: they remember what happened to them, we recorded what we had
+ * time for.
+ *
+ * Nothing surfaces while the two agree — most calls, most of the time.
+ * **A divergence is an event**, raised only where one account actually
+ * conflicts with the other, and it is the mechanical form of "Trust and
+ * Verify": trust the experience they lived, verify it against the
+ * record before acting.
+ *
+ * @param {object|null} memory - recallMemory() output for this customer
+ * @param {object|null} record - the matching history entry (the note)
+ * @returns {object[]} one entry per point of conflict; empty when the
+ *   accounts are consistent
+ */
+function accountDivergences(memory, record) {
+  if (!memory || memory.style !== 'explicit' || !record) return [];
+
+  const out = [];
+
+  // Products/Services — what they say the ticket was about
+  if (memory.categoryAccurate === false && memory.category !== record.ticketCategory) {
+    out.push({
+      facet: 'Products/Services',
+      claimed: memory.category,
+      recorded: record.ticketCategory,
+    });
+  }
+
+  // Staff — who they say handled it
+  if (memory.agentAccurate === false) {
+    out.push({
+      facet: 'Staff',
+      claimed: memory.agentAttribution,
+      recorded: 'you',
+    });
+  }
+
+  // Experiences — when they say it happened
+  if (memory.timingAccurate === false && memory.actualShiftId !== undefined) {
+    out.push({
+      facet: 'Experiences',
+      claimed: memory.shiftsAgoReported,
+      recorded: record.shiftId,
+    });
+  }
+
+  return out;
+}
 function resolveTicket(ticket, customer, quality, status, shiftId) {
   const effect = RESPONSE_QUALITY[quality];
   if (!effect) {

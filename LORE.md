@@ -1300,7 +1300,15 @@ Full structure, largest to smallest:
 > **domain** (9, fixed) → **category** (a term of art) → **root cause**
 > → told through **perspective** and **Baggage**
 
-The fixed list also makes absence visible. Current coverage:
+**The domains are the frame, not slots to be filled.** They are broad
+and stable; categories are the narrow, contextual things written inside
+them. An earlier pass got this backwards — scoring domains by how many
+existing categories happened to land in each, and reading "Orders has
+none" as a hole. It is not a hole. The old categories were written
+before the frame existed, so where they fall says nothing about the
+frame's health; it only says where writing has happened so far.
+
+Where things currently sit:
 
 | Domain | Categories written |
 | --- | --- |
@@ -1314,9 +1322,9 @@ The fixed list also makes absence visible. Current coverage:
 | Accounts | XP Miscount Dispute, Storefront Listing Error |
 | Billing | Commission Payout Dispute |
 
-**Orders has nothing at all** — no category covers placing, changing or
-cancelling one — and six domains have exactly one. That is the content
-map for whoever writes next.
+Read that as a map of where writing has happened, not a scorecard. New
+categories get written *into* the frame as the game needs them, and a
+domain sitting empty is simply one nothing has called for yet.
 
 A root cause carries a `trueDomain` as well as a `trueCategory`, because
 misclassification happens at both levels. Phantom Inventory's seven
@@ -2236,7 +2244,26 @@ Listed, not guessed at:
   the wrong answer, or only add to it? The repair call is the most
   valuable scenario the fencepost model produces, and these two
   decisions determine its shape.
-- **Player-written notes as `recallMemory()`'s source.** Still open,
+- **Two accounts of the same call — built.** Resolved from the earlier
+  proposal, which was wrong in an instructive way. The first version had
+  the player's case notes *becoming* the customer's memory, which
+  quietly turns TLC's paperwork into somebody's mind. **They are two
+  separate memories.** The customer's is grounded in what happened *to
+  them* and owes nothing to our records; the company's is the note, only
+  ever as good as what a busy agent had time to write. The agent reads
+  one and talks to the other, and neither side is lying.
+
+  **The contradiction surfaces where one account diverges from the
+  other** — not as a side-by-side comparison the player consults.
+  `accountDivergences()` raises an event only at points of actual
+  conflict, per facet, and stays silent while the two agree, which is
+  most calls. That is "Trust and Verify" in mechanical form: trust the
+  experience they lived, verify it against the record before acting.
+
+  Still open: whether a thin note should make the *next* agent's job
+  harder in some way beyond having less to go on.
+- **Player-written notes as `recallMemory()`'s source.** Superseded by
+  the entry above; kept for the reasoning. Still open,
   now reframed: not "wrap-up as a cost" (that framing is superseded —
   see "Between-call work, and what the record actually is") but "the
   record is a third imperfect account alongside what happened and what

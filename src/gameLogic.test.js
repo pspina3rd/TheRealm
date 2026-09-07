@@ -13,6 +13,7 @@ const {
   rollWrinkles,
   applyDisposition,
   recallMemory,
+  accountDivergences,
   decayChanceFor,
   candleStage,
   rollOpening,
@@ -1099,21 +1100,24 @@ test('domains cut across customer tiers', () => {
     'there must be more domains in play than there are tiers');
 });
 
-test('the taxonomy surfaces where content is missing', () => {
-  // The point of a fixed taxonomy is that gaps become visible instead
-  // of being invisible absences. This test DOCUMENTS the gaps; update
-  // it as categories get written, do not delete it.
+test('the taxonomy is a stable frame, not a scorecard', () => {
+  // The domains are broad and fixed; categories are the narrow things
+  // written INSIDE them. A domain with nothing in it is not a hole --
+  // it is a domain nothing has called for yet. So this asserts the
+  // frame's integrity, and deliberately does NOT grade coverage.
+  assert.equal(DOMAINS.length, 9, 'the nine are fixed; adding one is a design decision');
+  assert.equal(new Set(DOMAINS).size, DOMAINS.length, 'no duplicates');
+
+  // Every category written so far sits inside the frame, and none
+  // invents a domain of its own.
+  for (const t of Object.values(TICKET_TEMPLATES).flat()) {
+    assert.ok(DOMAINS.includes(t.domain), `${t.category} is outside the frame`);
+  }
+
+  // The frame is broader than what has been written into it, which is
+  // the normal and expected state.
   const covered = new Set(Object.values(TICKET_TEMPLATES).flat().map((t) => t.domain));
-  const missing = DOMAINS.filter((d) => !covered.has(d));
-
-  assert.deepEqual(missing, ['Orders'],
-    `expected only Orders to be uncovered; now missing: ${missing.join(', ') || 'none'}`);
-
-  // Thin coverage is worth seeing too.
-  const counts = {};
-  for (const t of Object.values(TICKET_TEMPLATES).flat()) counts[t.domain] = (counts[t.domain] || 0) + 1;
-  const thin = DOMAINS.filter((d) => (counts[d] || 0) === 1);
-  assert.ok(thin.length > 0, 'if nothing is thin any more, this suite is out of date');
+  assert.ok(covered.size <= DOMAINS.length);
 });
 
 test('a root cause knows which domain it ACTUALLY belongs to', () => {
@@ -1336,4 +1340,92 @@ test('readCues survives a customer with no traits yet', () => {
   const cues = readCues({ disposition: { you: 0 } }, 'you');
   assert.equal(cues.band, 'level');
   assert.equal(readCues({}, 'you').band, 'level');
+});
+
+
+// ---------------------------------------------------------------------
+// Two accounts of the same call
+// ---------------------------------------------------------------------
+
+const noteFor = (over = {}) => ({
+  shiftId: 3, ticketCategory: 'Phantom Inventory', quality: 'correct',
+  status: 'resolved', ...over,
+});
+
+test('nothing surfaces while the two accounts agree', () => {
+  // Most calls, most of the time. A divergence is an EVENT, not a
+  // running commentary.
+  const memory = {
+    style: 'explicit', quality: 'correct', actualShiftId: 3,
+    category: 'Phantom Inventory', categoryAccurate: true,
+    shiftsAgoReported: 2, timingAccurate: true,
+    agentAttribution: 'you', agentAccurate: true,
+  };
+  assert.deepEqual(accountDivergences(memory, noteFor()), []);
+});
+
+test('a divergence is raised only where the accounts actually conflict', () => {
+  // They misremember WHO helped them; everything else lines up. One
+  // conflict, not three.
+  const memory = {
+    style: 'explicit', quality: 'correct', actualShiftId: 3,
+    category: 'Phantom Inventory', categoryAccurate: true,
+    shiftsAgoReported: 2, timingAccurate: true,
+    agentAttribution: 'Thistle', agentAccurate: false,
+  };
+  const found = accountDivergences(memory, noteFor());
+  assert.equal(found.length, 1);
+  assert.equal(found[0].facet, 'Staff');
+  assert.equal(found[0].claimed, 'Thistle');
+  assert.equal(found[0].recorded, 'you');
+});
+
+test('each facet diverges on its own', () => {
+  // Memory is multifaceted, so conflicts are per-facet -- someone can
+  // have the what right and the who wrong, in any combination.
+  const memory = {
+    style: 'explicit', quality: 'correct', actualShiftId: 3,
+    category: 'Storefront Listing Error', categoryAccurate: false,
+    shiftsAgoReported: 9, timingAccurate: false,
+    agentAttribution: 'Pell', agentAccurate: false,
+  };
+  const facets = accountDivergences(memory, noteFor()).map((d) => d.facet);
+  assert.deepEqual(new Set(facets).size, facets.length, 'no facet reported twice');
+  assert.ok(facets.includes('Products/Services'));
+  assert.ok(facets.includes('Staff'));
+  assert.ok(facets.includes('Experiences'));
+});
+
+test('a vague impression carries no conflict to surface', () => {
+  // style 'tone' means they came away with a feeling and no specifics.
+  // There is nothing to contradict.
+  assert.deepEqual(accountDivergences({ style: 'tone' }, noteFor()), []);
+  assert.deepEqual(accountDivergences(null, noteFor()), []);
+});
+
+test('with no case note there is nothing to check them against', () => {
+  // The agent is working blind. That is its own problem, and it is not
+  // a contradiction.
+  const memory = {
+    style: 'explicit', category: 'Phantom Inventory', categoryAccurate: false,
+    agentAttribution: 'Bram', agentAccurate: false,
+    shiftsAgoReported: 4, timingAccurate: false, actualShiftId: 3,
+  };
+  assert.deepEqual(accountDivergences(memory, null), []);
+});
+
+test('divergence emerges naturally from a real remembered call', () => {
+  // End to end against recallMemory rather than hand-built objects: a
+  // long-decayed memory should eventually contradict its own note.
+  const customer = {
+    id: 'c1', tier: 'partner', archetype: 'Tavern',
+    disposition: { you: 0, tlc: 0, experience: 0, understanding: 0 },
+    history: [{ shiftId: 1, ticketCategory: 'Phantom Inventory', quality: 'correct', status: 'resolved' }],
+  };
+  let sawConflict = false;
+  for (let seed = 1; seed <= 200 && !sawConflict; seed++) {
+    const memory = recallMemory(customer, 40, seededRng(seed));
+    if (accountDivergences(memory, customer.history[0]).length > 0) sawConflict = true;
+  }
+  assert.ok(sawConflict, 'a badly decayed memory must eventually conflict with the record');
 });
