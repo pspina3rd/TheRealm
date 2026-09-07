@@ -404,11 +404,36 @@ function canAfford(ticket, takenActionIds, probes, action) {
   const left = CALL_INQUIRY_BUDGET - inquiriesSpent(ticket, takenActionIds, probes);
   return (action ? action.timeCost : PROBE_INQUIRY_COST) <= left;
 }
-// Mirrors gameLogic.js. The candle is the SHIFT TIMER -- it marks the
-// day going by. The player never spends it, and nothing inside a call
-// moves it. Being thorough costs the CALLER's patience (the Experience
-// axis), never the clock. See LORE.md, "Running the Desk."
-const SHIFT_CANDLE_NOTCHES = 12;
+/**
+ * The candle indicates the SHIFT. It has nothing to do with any single
+ * call.
+ *
+ * It is not a budget, not a per-call counter, and the player never
+ * spends it on anything. It is the working day going by while work gets
+ * done. A shift is a fixed amount of *day*, not a fixed number of calls
+ * — so how many people you get to depends on how you worked, which is
+ * arithmetic rather than punishment.
+ *
+ * Two earlier versions got this wrong: one priced individual questions
+ * in candle-notches like currency (cruel — it charged the player for
+ * doing the job), and one burned exactly one notch per call (which made
+ * a careful call and a shallow one cost the same day, so care was free
+ * and there was nothing to weigh).
+ */
+const SHIFT_CANDLE_NOTCHES = 40;
+
+/**
+ * How much of the day a call consumed.
+ *
+ * Every call has a floor — greeting somebody, hearing them out, closing
+ * — and beyond that it runs as long as the work took. Nobody is being
+ * charged per question; a longer call is simply longer.
+ */
+const CALL_BASE_DURATION = 2;
+
+function callDuration(inquiriesUsed) {
+  return CALL_BASE_DURATION + inquiriesUsed;
+}
 const CANDLE_STAGES = [
   { atOrAbove: 1.0, label: 'newly lit' },
   { atOrAbove: 0.7, label: 'burning steady' },
@@ -461,6 +486,49 @@ function probeForRequest(probesSoFar, rng = Math.random) {
   return rng() < 0.5;
 }
 
+/**
+ * PACE — noticed at BOTH ends, and only by people.
+ *
+ * There is no meter for this and no score. Taking too long over your
+ * interactions is a reason a manager or a coworker seeks you out.
+ * Blazing through them without asking enough is *also* a reason. Both
+ * edges get noticed; the middle does not.
+ *
+ * That is the whole mechanism. Not a resource, a norm — and it arrives
+ * as somebody wanting a word, which is the Meetings system doing real
+ * work rather than delivering flavour.
+ *
+ * Returns a plain reading for that system to act on. It is never shown
+ * to the player as a number.
+ *
+ * @param {object[]} outcomes - a shift's worth
+ * @returns {{ perCall: number, reading: 'dwelling'|'settled'|'blazing', calls: number }}
+ */
+/**
+ * Bands on average CALL DURATION, not on inquiry count.
+ *
+ * Counting inquiries measures the content, not the agent: a category
+ * with nothing to investigate makes any agent look like they blazed
+ * through it. Duration includes the floor every call has — greeting,
+ * hearing them out, closing — so it reads the same across categories.
+ *
+ * Values chosen against a base call of 2 and a shift of 40. Provisional
+ * until more than one category has anything to investigate; right now
+ * nine in ten tickets offer no inquiries at all, which drags every
+ * average toward the floor. See LORE.md.
+ */
+const PACE_BAND = { dwelling: 5, blazing: 2.5 };
+
+function assessPace(outcomes) {
+  const calls = outcomes.length;
+  if (!calls) return { perCall: 0, reading: 'settled', calls: 0 };
+  const total = outcomes.reduce((sum, o) => sum + (o.duration || CALL_BASE_DURATION), 0);
+  const perCall = total / calls;
+  let reading = 'settled';
+  if (perCall >= PACE_BAND.dwelling) reading = 'dwelling';
+  else if (perCall <= PACE_BAND.blazing) reading = 'blazing';
+  return { perCall, reading, calls };
+}
 const RESOLUTION_STATUSES = ['resolved', 'hold', 'transfer'];
 
 const DISPUTE_CHANCE_BY_QUALITY = { correct: 0.03, adequate: 0.12, rushed: 0.35, dismissive: 0.6 };
@@ -1071,7 +1139,7 @@ function accountDivergences(memory, record) {
 
   return out;
 }
-function resolveTicket(ticket, customer, quality, status, shiftId) {
+function resolveTicket(ticket, customer, quality, status, shiftId, inquiriesUsed = 0) {
   const effect = RESPONSE_QUALITY[quality];
   if (!effect) {
     throw new Error(`Unknown response quality: "${quality}"`);
@@ -1107,7 +1175,8 @@ function resolveTicket(ticket, customer, quality, status, shiftId) {
       ticketId: ticket.id, quality, status,
       reputationDelta: effect.reputationDelta,
       timeSpent: Math.round(effect.timeCost * ticket.timeCostMultiplier),
-      cues: readCues(updatedCustomer, 'you'), visibleDelta: visible, followUp,
+      cues: readCues(updatedCustomer, 'you'), visibleDelta: visible,
+      inquiriesUsed, duration: callDuration(inquiriesUsed), followUp,
     },
   };
 }
@@ -1667,11 +1736,13 @@ export default function CallCenterPrototype() {
 
   const dispose = (status) => {
     const quality = result ? result.quality : 'adequate';
-    const { customer: updated, outcome } = resolveTicket(ticket, customer, quality, status, shiftNumber);
-    // One notch per call taken. A thorough call and a rushed one cost
-    // the same clock -- what thoroughness costs is the caller's
-    // patience, tracked as question load below.
-    spend(1);
+    // The day goes by while the work gets done. A longer call is simply
+    // longer -- nobody is charged per question.
+    const used = inquiriesSpent(ticket, asked, probes);
+    const { customer: updated, outcome } = resolveTicket(
+      ticket, customer, quality, status, shiftNumber, used,
+    );
+    spend(outcome.duration);
     setCustomers((prev) => prev.map((c) => (c.id === updated.id ? c : c)).map((c) => (c.id === updated.id ? updated : c)));
     // questionLoad is what being thorough actually costs: an input to
     // the Experience axis once Phase 1 gives the vector real values.
@@ -1685,7 +1756,7 @@ export default function CallCenterPrototype() {
     }]);
     resetCall();
 
-    const spentAfter = Math.max(0, candleLeft - 1);
+    const spentAfter = Math.max(0, candleLeft - outcome.duration);
     const more = index + 1 < shift.tickets.length;
     if (!more || spentAfter <= 0) {
       const done = [...outcomes, { ...outcome, classification: klass }];

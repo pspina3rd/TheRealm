@@ -578,33 +578,66 @@ which is why it plays like paperwork.
 player can see that people are holding. That visibility is the entire
 mechanism — no anger meter, no abandonment penalty, no failure.
 
-### The candle is the shift clock — locked
+### The candle is the shift, and pace is noticed by people — locked
 
-The candle is the whole day's time, **not one call's budget**, and this
-distinction has already been got wrong once in a design draft, so it is
-stated flatly here.
+**The candle has nothing to do with any single call. It indicates the
+shift.** Not a budget, not a per-call counter, never spent by the player
+on anything. It is the working day going by while work gets done.
 
-- **The day ends when the candle is out** (or the line empties). It does
-  **not** end when a call is dispositioned. Closing a ticket returns the
-  player to the line with whatever wax remains.
-- **It is not a budget, and the player never spends it.** Nothing done
-  inside a call moves the candle — not asking another question, not
-  investigating another thing, not letting somebody finish. A candle
-  does not burn faster because you asked a question. **Charging the
-  player for doing the job properly is cruel**, and an earlier build did
-  exactly that: every probe and every investigation action billed the
-  clock, so being thorough was punished twice over.
-- **One notch per call taken.** A thorough call and a rushed one cost
-  the same clock. It must cover at least the baseline of 8 tickets, so
-  that clearing the line is the ordinary ending and burning out is the
-  heavy-day one.
-- **What thoroughness actually costs is the caller's patience.** Question
-  load is an input to the **Experience** axis (see "Character Disposition
-  Model") — drag someone through twenty questions and they notice. That
-  is the real tradeoff, and it is borne by the customer, not by a meter
-  the player watches drain.
+**A shift is a fixed amount of day, not a fixed number of calls.** How
+many people you get to depends on how you worked — which is arithmetic,
+not punishment. A call has a floor (greeting somebody, hearing them out,
+closing) and beyond that runs as long as the work took. Nobody is
+charged per question; a longer call is simply longer.
 
-**A caller who gives up doesn't disappear — they call back.** This
+*Two earlier versions were wrong in opposite directions.* One priced
+individual questions in candle-notches like currency — cruel, and it
+billed the player for doing the job. The other burned exactly one notch
+per call, which made a careful call and a shallow one cost the same day,
+so care was free and there was nothing to weigh at all.
+
+**The queue is not a pressure mechanic.** It communicates how much work
+is available, and this is a support centre: **there is always more.** It
+is never cleared. The day ends because the day ends.
+
+### Pace is noticed at both ends, and only by people
+
+**Taking too long over your interactions is a reason a manager or a
+coworker seeks you out. Blazing through them without asking enough is
+also a reason.** Both edges get noticed; the middle does not.
+
+That is the entire mechanism — no meter, no score, no resource. A norm,
+enforced socially, arriving as somebody wanting a word. It gives the
+Meetings system something real to deliver rather than flavour.
+
+### Measured: defection is genuinely tempting
+
+Run across 60 shifts × 8 seeds, three strategies:
+
+| | closes fast | works properly |
+| --- | --- | --- |
+| Interactions handled | **1200** | 931 |
+| Rework rate | 38.9% | **5.3%** |
+| **Real customers served** | 734 | **882** |
+| Feeling toward the agent | 9.3 | **24.7** |
+
+**Working fast handles 29% more interactions and serves 17% fewer
+people.** Four in ten of those calls are cleaning up earlier ones.
+
+That is the dilemma, and it is the right shape: **the thing that looks
+like productivity isn't.** Somebody closing shallow is visibly busier on
+the metric a contact centre actually tracks, and the cost is buried in
+rework and in how people come to feel about them. The individually
+rational move on the visible number is the collectively worse one.
+
+*Caveat on the pace bands*: they read average call **duration**, not
+inquiry count — counting inquiries measures the content rather than the
+agent, since a category with nothing to investigate makes anybody look
+fast. With nine of ten categories currently offering no inquiries at
+all, every average is dragged toward the floor and the bands are
+provisional.
+
+**A caller who gives up doesn't disappear**A caller who gives up doesn't disappear — they call back.** This
 falls out of machinery that already exists: an unreached caller
 becomes a pending follow-up, scheduled the same way holds and disputes
 already are (`pendingFollowUps`, `endShift()`). Cozy and mechanically

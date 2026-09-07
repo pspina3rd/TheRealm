@@ -753,24 +753,35 @@ function canAfford(ticket, takenActionIds, probes, action) {
 }
 
 /**
- * The candle is the SHIFT TIMER. It marks the working day going by.
+ * The candle indicates the SHIFT. It has nothing to do with any single
+ * call.
  *
- * **It is not a budget and the player does not spend it.** Nothing done
- * inside a call moves it — asking one more question, investigating one
- * more thing, letting somebody finish their sentence. A candle does not
- * burn faster because you asked a question, and charging the player for
- * doing the job properly is cruel besides.
+ * It is not a budget, not a per-call counter, and the player never
+ * spends it on anything. It is the working day going by while work gets
+ * done. A shift is a fixed amount of *day*, not a fixed number of calls
+ * — so how many people you get to depends on how you worked, which is
+ * arithmetic rather than punishment.
  *
- * One notch per call taken. The day ends when the wick is out or the
- * line empties, whichever comes first.
- *
- * The cost of being thorough is real, but it is borne by the CUSTOMER,
- * not the clock: question load moves the Experience axis (see
- * "Character Disposition Model"). Drag someone through twenty questions
- * and they notice. That is the tradeoff — never a meter the player
- * watches drain.
+ * Two earlier versions got this wrong: one priced individual questions
+ * in candle-notches like currency (cruel — it charged the player for
+ * doing the job), and one burned exactly one notch per call (which made
+ * a careful call and a shallow one cost the same day, so care was free
+ * and there was nothing to weigh).
  */
-const SHIFT_CANDLE_NOTCHES = 12;
+const SHIFT_CANDLE_NOTCHES = 40;
+
+/**
+ * How much of the day a call consumed.
+ *
+ * Every call has a floor — greeting somebody, hearing them out, closing
+ * — and beyond that it runs as long as the work took. Nobody is being
+ * charged per question; a longer call is simply longer.
+ */
+const CALL_BASE_DURATION = 2;
+
+function callDuration(inquiriesUsed) {
+  return CALL_BASE_DURATION + inquiriesUsed;
+}
 
 /** Candle state -> the words the UI shows. Never a number. */
 const CANDLE_STAGES = [
@@ -1568,6 +1579,50 @@ function accountDivergences(memory, record) {
   return out;
 }
 
+/**
+ * PACE — noticed at BOTH ends, and only by people.
+ *
+ * There is no meter for this and no score. Taking too long over your
+ * interactions is a reason a manager or a coworker seeks you out.
+ * Blazing through them without asking enough is *also* a reason. Both
+ * edges get noticed; the middle does not.
+ *
+ * That is the whole mechanism. Not a resource, a norm — and it arrives
+ * as somebody wanting a word, which is the Meetings system doing real
+ * work rather than delivering flavour.
+ *
+ * Returns a plain reading for that system to act on. It is never shown
+ * to the player as a number.
+ *
+ * @param {object[]} outcomes - a shift's worth
+ * @returns {{ perCall: number, reading: 'dwelling'|'settled'|'blazing', calls: number }}
+ */
+/**
+ * Bands on average CALL DURATION, not on inquiry count.
+ *
+ * Counting inquiries measures the content, not the agent: a category
+ * with nothing to investigate makes any agent look like they blazed
+ * through it. Duration includes the floor every call has — greeting,
+ * hearing them out, closing — so it reads the same across categories.
+ *
+ * Values chosen against a base call of 2 and a shift of 40. Provisional
+ * until more than one category has anything to investigate; right now
+ * nine in ten tickets offer no inquiries at all, which drags every
+ * average toward the floor. See LORE.md.
+ */
+const PACE_BAND = { dwelling: 5, blazing: 2.5 };
+
+function assessPace(outcomes) {
+  const calls = outcomes.length;
+  if (!calls) return { perCall: 0, reading: 'settled', calls: 0 };
+  const total = outcomes.reduce((sum, o) => sum + (o.duration || CALL_BASE_DURATION), 0);
+  const perCall = total / calls;
+  let reading = 'settled';
+  if (perCall >= PACE_BAND.dwelling) reading = 'dwelling';
+  else if (perCall <= PACE_BAND.blazing) reading = 'blazing';
+  return { perCall, reading, calls };
+}
+
 // ---------------------------------------------------------------------
 // Resolving a ticket
 // ---------------------------------------------------------------------
@@ -1672,7 +1727,7 @@ function investigationTimeCost(ticket, investigatedActionIds) {
  * @param {number} shiftId
  * @returns {{ customer: object, outcome: object }}
  */
-function resolveTicket(ticket, customer, quality, status, shiftId) {
+function resolveTicket(ticket, customer, quality, status, shiftId, inquiriesUsed = 0) {
   const effect = RESPONSE_QUALITY[quality];
   if (!effect) {
     throw new Error(`Unknown response quality: "${quality}"`);
@@ -1730,7 +1785,8 @@ function resolveTicket(ticket, customer, quality, status, shiftId) {
     quality,
     status,
     reputationDelta: effect.reputationDelta,
-    timeSpent: Math.round(effect.timeCost * ticket.timeCostMultiplier),
+    inquiriesUsed,
+    duration: callDuration(inquiriesUsed),
     // Observable cues, never a verdict. The player reads them; the game
     // does not tell them how anyone feels.
     cues: readCues(updatedCustomer, 'you'),
@@ -1829,6 +1885,10 @@ module.exports = {
   rollRootCause,
   buildInvestigation,
   SHIFT_CANDLE_NOTCHES,
+  CALL_BASE_DURATION,
+  callDuration,
+  PACE_BAND,
+  assessPace,
   CALL_INQUIRY_BUDGET,
   PROBE_INQUIRY_COST,
   inquiriesSpent,
