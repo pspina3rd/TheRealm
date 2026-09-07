@@ -31,6 +31,7 @@ const {
   deliveryFit,
   deliveryPreference,
   rollDayVariance,
+  situationalPressure,
   familiarityOf,
   askRelationshipCost,
   ARCHETYPE_REGISTERS,
@@ -1614,7 +1615,7 @@ test('the same customer is not the same person every day', () => {
 
   const days = [];
   for (let seed = 1; seed <= 50; seed++) {
-    days.push(deliveryPreference(customer, rollDayVariance(seededRng(seed))).warmth);
+    days.push(deliveryPreference(customer, { dayVariance: rollDayVariance(seededRng(seed)) }).warmth);
   }
   assert.ok(new Set(days.map((d) => d.toFixed(3))).size > 40,
     'the same person must vary across days');
@@ -1670,4 +1671,80 @@ test('deliveryFit stays in range and fails safe', () => {
   }
   assert.equal(deliveryFit('not-a-delivery', { archetype: 'NPC', disposition: {} }), 0);
   assert.ok(deliveryFit('plain', {}) >= 0);
+});
+
+
+// ---------------------------------------------------------------------
+// Nobody wants identical service every time
+// ---------------------------------------------------------------------
+
+test('what is happening to them RIGHT NOW pushes on what they want', () => {
+  // Feeling is not the only pressure. A caller with a festival tomorrow
+  // and a caller with a fortnight are in different situations even if
+  // they feel exactly the same about us.
+  const quiet = { urgency: 1, isFollowUp: false };
+  const pressing = { urgency: 10, isFollowUp: false };
+  assert.ok(situationalPressure(pressing) > situationalPressure(quiet));
+  assert.equal(situationalPressure(null), 0);
+});
+
+test('that it has already gone wrong before presses harder', () => {
+  // "Influenced by what happened before." A follow-up means we already
+  // failed them once; a reopen means we failed them AFTER telling them
+  // it was fixed.
+  const fresh = { urgency: 5, isFollowUp: false };
+  const held = { urgency: 5, isFollowUp: true, followUpKind: 'hold' };
+  const reopened = { urgency: 5, isFollowUp: true, followUpKind: 'reopen' };
+
+  assert.ok(situationalPressure(held) > situationalPressure(fresh));
+  assert.ok(situationalPressure(reopened) > situationalPressure(held),
+    'being told it was fixed and finding it was not is the worse one');
+});
+
+test('pressure supplies magnitude only — direction is always individual', () => {
+  // The rule that keeps every one of these from becoming a lookup
+  // table. Identical situation, identical feelings, different people:
+  // they must still want different things.
+  const ticket = { urgency: 9, isFollowUp: true, followUpKind: 'reopen' };
+  const wants = [];
+  for (let seed = 1; seed <= 300; seed++) {
+    const traits = rollTraits([], seededRng(seed), 'plain');
+    wants.push(deliveryPreference(
+      { archetype: 'NPC', traits, disposition: { you: -50, experience: -50 } },
+      { ticket },
+    ).warmth);
+  }
+  assert.ok(wants.some((w) => w > 0.5) && wants.some((w) => w < -0.5),
+    'the same crisis must not make everyone want the same handling');
+  assert.ok(new Set(wants.map((w) => w.toFixed(3))).size > 250,
+    'and it must stay a continuum under pressure, not collapse to cases');
+});
+
+test('the same person wants different handling in different situations', () => {
+  // One customer, one mood, two situations. Service is not a setting
+  // you find once per person.
+  const traits = rollTraits([], seededRng(21), 'plain');
+  const customer = { archetype: 'Blacksmith', traits, disposition: { you: -20, experience: -20 } };
+
+  const routine = deliveryPreference(customer, { ticket: { urgency: 1, isFollowUp: false } });
+  const crisis = deliveryPreference(customer, {
+    ticket: { urgency: 10, isFollowUp: true, followUpKind: 'reopen' },
+  });
+
+  assert.notEqual(routine.warmth.toFixed(3), crisis.warmth.toFixed(3));
+  assert.notEqual(routine.directness.toFixed(3), crisis.directness.toFixed(3));
+
+  // And the best phrasing for them can change with it.
+  const best = (want) => DELIVERIES
+    .map((d) => [d.id, deliveryFit(d.id, customer, want)])
+    .sort((a, b) => b[1] - a[1])[0][0];
+  assert.ok(typeof best({ ticket: { urgency: 1 } }) === 'string');
+});
+
+test('a caller in no difficulty at all is under no pressure', () => {
+  const traits = rollTraits([], seededRng(3), 'plain');
+  const c = { archetype: 'NPC', traits, disposition: { you: 40, experience: 40 } };
+  const calm = deliveryPreference(c, { ticket: { urgency: 1, isFollowUp: false } });
+  const bare = deliveryPreference(c);
+  assert.equal(calm.warmth.toFixed(3), bare.warmth.toFixed(3));
 });

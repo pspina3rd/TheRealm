@@ -1310,13 +1310,15 @@ const DELIVERIES = [
 /**
  * How this caller is, TODAY.
  *
- * A small per-call shift on top of who they are. The same customer on a
- * different day does not want quite the same handling — see LORE.md,
- * "day-to-day variance, same person," which warns that autopilot on a
+ * The part of "right now" that is *not* explained by their state or
+ * their situation — the ordinary variation of a person having a day.
+ * See LORE.md, "day-to-day variance, same person": autopilot on a
  * well-known regular is still a mistake.
  *
- * Deliberately smaller than the individual spread: it nudges, it does
- * not make somebody a different person.
+ * Deliberately smaller than both the individual spread and the
+ * situational push. It nudges; it does not make somebody a different
+ * person, and it is not a substitute for modelling what is actually
+ * happening to them.
  *
  * @param {function} [rng=Math.random]
  */
@@ -1372,29 +1374,55 @@ function rollDeliveryPreference(register, rng = Math.random) {
 /**
  * What this customer wants from a delivery right now.
  *
+ * **Nobody wants identical service every time.** What somebody wants is
+ * tailored to what they are feeling, what is happening to them at this
+ * moment, and what happened to them before — and it is a continuum, not
+ * a set of cases.
+ *
  * Their own rolled baseline, shifted along their own `underStress`
- * direction in proportion to how badly the call is going. Two equally
- * upset customers can want opposite things, and the player cannot infer
- * which from the fact of them being upset.
+ * direction by however much is pressing on them. Every source of
+ * pressure supplies **magnitude only**; direction is always individual,
+ * so no situation ever makes two people want the same thing.
  *
  * @param {object} customer
+ * @param {object} [context]
+ * @param {object} [context.ticket] - what is happening to them now
+ * @param {object} [context.dayVariance] - and who they are today
  * @returns {{ warmth: number, formality: number, directness: number }}
  */
-function deliveryPreference(customer, dayVariance) {
+function situationalPressure(ticket) {
+  if (!ticket) return 0;
+  // What is happening to them right now. Urgency is what is at stake;
+  // a follow-up means this has already failed them once, and a reopened
+  // one means it failed after we told them it was fixed.
+  const urgency = ((ticket.urgency || 1) - 1) / 9;
+  const again = ticket.isFollowUp ? (ticket.followUpKind === 'reopen' ? 0.45 : 0.25) : 0;
+  return clamp(urgency * 0.55 + again, 0, 1);
+}
+
+function deliveryPreference(customer, context) {
   const pref = (customer && customer.traits && customer.traits.preference)
     || { warmth: 0, formality: 0, directness: 0, underStress: { warmth: 0, directness: 0 } };
   const disposition = (customer && customer.disposition) || {};
   // Same person, different day. LORE.md's "day-to-day variance, same
   // person": even the best-known customer is not identical each time,
   // so autopilot on a regular is still a mistake.
-  const today = dayVariance || { warmth: 0, directness: 0 };
+  const ctx = context || {};
+  const today = ctx.dayVariance || { warmth: 0, directness: 0 };
 
-  // How badly this is going, 0..1. Only the negative side counts --
-  // a call going well applies no pressure.
-  const strain = clamp(
+  // Three things push, and they are different things:
+  //   feeling   -- how they feel about us and about the episode
+  //   situation -- what is happening to them RIGHT NOW
+  //   before    -- that this has already gone wrong for them once
+  // All three only supply MAGNITUDE. The direction is always the
+  // customer's own, so no amount of pressure makes two people want the
+  // same thing.
+  const feeling = clamp(
     (Math.max(0, -(disposition.you || 0)) + Math.max(0, -(disposition.experience || 0))) / 120,
     0, 1,
   );
+  const situation = situationalPressure(ctx.ticket);
+  const strain = clamp(feeling + situation * 0.7, 0, 1.4);
 
   const under = pref.underStress || { warmth: 0, directness: 0 };
   return {
@@ -1416,10 +1444,10 @@ function deliveryPreference(customer, dayVariance) {
  * @param {object} customer
  * @returns {number} 0 (badly mismatched) .. 1 (well judged)
  */
-function deliveryFit(deliveryId, customer, dayVariance) {
+function deliveryFit(deliveryId, customer, context) {
   const delivery = DELIVERIES.find((d) => d.id === deliveryId);
   if (!delivery) return 0;
-  const want = deliveryPreference(customer, dayVariance);
+  const want = deliveryPreference(customer, context);
 
   const distance = Math.abs(delivery.warmth - want.warmth)
     + Math.abs(delivery.formality - want.formality)
@@ -1763,6 +1791,7 @@ module.exports = {
   deliveryPreference,
   rollDeliveryPreference,
   rollDayVariance,
+  situationalPressure,
   deliveryFit,
   FEELING_AXES,
   WRINKLES,

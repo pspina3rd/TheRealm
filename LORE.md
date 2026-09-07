@@ -1556,7 +1556,12 @@ pull toward them is strong:
 **It is a continuum**, and where a caller sits on it is a fact about
 *that character at that time* — not about being upset.
 
-Three things stack, all continuous:
+**Nobody wants identical service every time.** What somebody wants is
+tailored to **what they are feeling**, **what is happening to them right
+now**, and **what happened to them before**. Service is not a setting
+you find once per customer and reuse.
+
+Four things stack, all continuous:
 
 - **Their own baseline.** Individually rolled, exactly like Baggage and
   Sensitivity. Register *biases* the formality they are comfortable
@@ -1564,11 +1569,24 @@ Three things stack, all continuous:
 - **Their own direction under strain.** A signed vector rolled per
   person. Some move toward warmth as a call goes badly, some away, and
   **some barely move at all** — not everyone changes under pressure.
-- **Today.** A smaller per-call shift, because *"even the most loyal,
-  best-known customer isn't identical day to day"* (Customer Service
-  Philosophy). It nudges; it does not make somebody a different person.
-  Autopilot on a favourite regular is still a mistake, and this is what
-  makes that true in code rather than in prose.
+- **What is happening to them right now.** Urgency is what is at stake
+  this minute; a follow-up means we have already failed them once, and a
+  **reopened** ticket means we failed them *after telling them it was
+  fixed*, which presses hardest of all. This is the piece an earlier
+  draft was missing entirely — it had a random per-call jitter standing
+  in for situation, which is a dice roll wearing a story.
+- **Today.** What is left over once feeling and situation are accounted
+  for — the ordinary variation of a person having a day. *"Even the most
+  loyal, best-known customer isn't identical day to day."* It nudges; it
+  is deliberately the smallest of the four, and it is **not** a
+  substitute for modelling what is actually happening to someone.
+
+**Every source supplies magnitude only. The direction is always the
+individual's.** That single rule is what stops each of these becoming a
+lookup table in turn: no amount of urgency, no depth of grievance, and
+no repeated failure ever makes two people want the same handling. There
+is a test that puts 300 different people in an identical crisis and
+fails if they converge.
 
 Measured across 2,000 equally-upset callers, wanted warmth forms a
 single smooth hump centred near neutral, tailing off to both extremes
