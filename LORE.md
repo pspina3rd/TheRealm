@@ -1487,6 +1487,67 @@ ships goods and never learns who received them or where. Both are wrong:
 Nodes and Couriers report because their agreements require it. The line
 is the agreement, not the dock.)*
 
+### The case note — composed, not logged
+
+**Captured through inquiries, processed by the agent's knowledge,
+rendered as a case note.** Three separate things. An early draft
+collapsed them and produced a transcript, which no agent writes.
+
+**Three sections, and they are the three aspects of any support
+interaction:**
+
+- **Reason for contact** — what they came to you with, in their terms.
+  Not what you concluded. Conflating the two makes the note assign fault
+  by construction.
+- **Support provided** — what was checked, what came back, and **who
+  found it**.
+- **Next steps** — what happens now. When TLC has none, do not invent
+  one for the customer to be responsible for.
+
+**Frames are keyed to the DOMAIN** the player filed it under, with the
+category supplying slot vocabulary. Twenty-seven frames rather than
+three per category, and a new category inherits a note shape for free.
+*This may move to category level later* if a Billing note and a
+Commission Payout note turn out to want genuinely different frames —
+recorded so the decision is known to be provisional rather than
+discovered again.
+
+**Written in a frame chosen by the classification the player made.** File
+it wrong and you write the note in the wrong shape entirely — a note
+about commission when the problem was stock. The misclassification
+propagates into the record, visibly, for whoever reads next.
+
+**Slots fill from what came up in the call**, not from what was
+established — so the red herring sits in the list beside the answer, and
+no distractors need authoring. The call already produced them.
+
+**Blanks are allowed, but capped at one or two.** A gap is the honest
+artifact of a thin call and is far better than an invention, because the
+next reader can see a gap. Past the cap the player must put *something*,
+which produces wrong notes rather than empty ones — and a wrong note
+misleads later, which is the more interesting failure.
+
+**Composed after the call, from recall.** *Memory is a fleeting thing.*
+This is what makes the anchoring rule bite: a detail that was acted on
+survives sharp, a detail heard once and never used goes fuzzy or goes
+missing. The agent's memory is imperfect for the same reason the
+customer's is — both were there, neither was taking dictation.
+
+**Two things the note must never do**, both learned from drafts that did
+them:
+
+1. **Assign blame.** *"Their own sale went out unentered"*, *"caller to
+   enter sales as they go"*, *"nothing outstanding our end"* — three
+   sentences, three separate accusations, and the next agent now
+   approaches that customer as someone who cannot keep books. Often
+   nobody is at fault, and a good note does not need the question
+   answered.
+2. **Claim knowledge TLC does not have.** *"Located a festival sale"* —
+   located how? That is their ledger, in their shop. Every finding must
+   be attributed to its source, and the data already knows which:
+   `records` findings are ours, `ask` findings are theirs. Built that
+   way, omniscience is unwriteable.
+
 ### The shape of a call — one Co-Op inquiry, nine of the player's
 
 **Locked: a call is 1 + 9.**

@@ -739,6 +739,55 @@ function recallMemory(customer, currentShiftId, rng = Math.random) {
  *     ticket — but quality still affects disposition/reputation.
  */
 /**
+ * One Co-Op inquiry, nine of the player's.
+ *
+ * The mandated opening — "thank you for calling, how may I help you" —
+ * is said on the company's behalf and costs the player nothing. After
+ * that they have nine.
+ *
+ * Twenty is far too many; ten reads as a round number rather than a
+ * shape. Nine leaves the opening standing apart as what it is.
+ *
+ * This is a budget of CAPTURES. It has nothing to do with the case
+ * note's shape and imposes no order on anything — see LORE.md, "The
+ * shape of a call."
+ */
+const CALL_INQUIRY_BUDGET = 9;
+
+/** Pressing a caller for what they actually need is an inquiry. */
+const PROBE_INQUIRY_COST = 1;
+
+/**
+ * What the chosen inquiries cost against the nine.
+ *
+ * @param {object} ticket - carrying `investigation`
+ * @param {string[]} takenActionIds
+ * @param {number} [probes=0]
+ * @returns {number}
+ */
+function inquiriesSpent(ticket, takenActionIds, probes = 0) {
+  const investigation = ticket && ticket.investigation;
+  const fromActions = investigation
+    ? investigation.actions
+      .filter((a) => takenActionIds.includes(a.id))
+      .reduce((sum, a) => sum + a.timeCost, 0)
+    : 0;
+  return fromActions + probes * PROBE_INQUIRY_COST;
+}
+
+/**
+ * Whether this inquiry is still affordable.
+ *
+ * A resource limit, NOT a sequence gate. Nothing is ever unavailable
+ * because of what has or has not been done first — only because there
+ * is not enough of the call left to do it in.
+ */
+function canAfford(ticket, takenActionIds, probes, action) {
+  const left = CALL_INQUIRY_BUDGET - inquiriesSpent(ticket, takenActionIds, probes);
+  return (action ? action.timeCost : PROBE_INQUIRY_COST) <= left;
+}
+
+/**
  * The candle is the SHIFT TIMER. It marks the working day going by.
  *
  * **It is not a budget and the player does not spend it.** Nothing done
@@ -1779,6 +1828,10 @@ module.exports = {
   rollRootCause,
   buildInvestigation,
   SHIFT_CANDLE_NOTCHES,
+  CALL_INQUIRY_BUDGET,
+  PROBE_INQUIRY_COST,
+  inquiriesSpent,
+  canAfford,
   OPENING_MODES,
   candleStage,
   guardednessOf,

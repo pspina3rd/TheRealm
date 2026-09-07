@@ -391,6 +391,54 @@ const RESPONSE_QUALITY = {
   dismissive: { dispositionDelta: -18, reputationDelta: -3, timeCost: 1 },
 };
 
+/**
+ * One Co-Op inquiry, nine of the player's.
+ *
+ * The mandated opening — "thank you for calling, how may I help you" —
+ * is said on the company's behalf and costs the player nothing. After
+ * that they have nine.
+ *
+ * Twenty is far too many; ten reads as a round number rather than a
+ * shape. Nine leaves the opening standing apart as what it is.
+ *
+ * This is a budget of CAPTURES. It has nothing to do with the case
+ * note's shape and imposes no order on anything — see LORE.md, "The
+ * shape of a call."
+ */
+const CALL_INQUIRY_BUDGET = 9;
+
+/** Pressing a caller for what they actually need is an inquiry. */
+const PROBE_INQUIRY_COST = 1;
+
+/**
+ * What the chosen inquiries cost against the nine.
+ *
+ * @param {object} ticket - carrying `investigation`
+ * @param {string[]} takenActionIds
+ * @param {number} [probes=0]
+ * @returns {number}
+ */
+function inquiriesSpent(ticket, takenActionIds, probes = 0) {
+  const investigation = ticket && ticket.investigation;
+  const fromActions = investigation
+    ? investigation.actions
+      .filter((a) => takenActionIds.includes(a.id))
+      .reduce((sum, a) => sum + a.timeCost, 0)
+    : 0;
+  return fromActions + probes * PROBE_INQUIRY_COST;
+}
+
+/**
+ * Whether this inquiry is still affordable.
+ *
+ * A resource limit, NOT a sequence gate. Nothing is ever unavailable
+ * because of what has or has not been done first — only because there
+ * is not enough of the call left to do it in.
+ */
+function canAfford(ticket, takenActionIds, probes, action) {
+  const left = CALL_INQUIRY_BUDGET - inquiriesSpent(ticket, takenActionIds, probes);
+  return (action ? action.timeCost : PROBE_INQUIRY_COST) <= left;
+}
 // Mirrors gameLogic.js. The candle is the SHIFT TIMER -- it marks the
 // day going by. The player never spends it, and nothing inside a call
 // moves it. Being thorough costs the CALLER's patience (the Experience
@@ -1219,6 +1267,9 @@ const S = {
   tag: { fontFamily: DISPLAY, fontSize: 12, letterSpacing: 1.5, padding: '3px 7px',
     borderRadius: 2, display: 'inline-block' },
   waiting: { display: 'flex', alignItems: 'center', gap: 10, opacity: .6, padding: '6px 2px' },
+  marks: { display: 'flex', gap: 3, alignItems: 'center' },
+  mark: { width: 5, height: 12, background: C.gold, borderRadius: 1 },
+  markSpent: { width: 5, height: 12, background: C.off, borderRadius: 1 },
 };
 
 // UI-ONLY. The caller's opening line: an investigation ticket opens
@@ -1557,6 +1608,10 @@ export default function CallCenterPrototype() {
   const customer = ticket && shift.customerPool.find((c) => c.id === ticket.customerId);
   const investigation = ticket && ticket.investigation;
   // Has the agent done their own homework before sending the customer off?
+  const spent = ticket ? inquiriesSpent(ticket, asked, probes) : 0;
+  const inquiriesLeft = Math.max(0, CALL_INQUIRY_BUDGET - spent);
+  const affords = (action) => ticket ? canAfford(ticket, asked, probes, action) : false;
+
   const checkedAnyRecord = Boolean(investigation) && asked.some((id) => {
     const a = investigation.actions.find((x) => x.id === id);
     return a && a.source === 'records';
@@ -1606,6 +1661,7 @@ export default function CallCenterPrototype() {
 
   // Free in candle. Costs the caller's patience, not the player's clock.
   const probe = () => {
+    if (!affords(null)) return;
     const landed = probeForRequest(probes, rng);
     setProbes((n) => n + 1);
     setFeed((f) => [
@@ -1619,7 +1675,7 @@ export default function CallCenterPrototype() {
   };
 
   const investigate = (action) => {
-    if (asked.includes(action.id)) return;
+    if (asked.includes(action.id) || !affords(action)) return;
     setAsked((prev) => [...prev, action.id]);
     setFeed((f) => [...f, { speaker: action.label.toUpperCase(), tint: C.t3, rule: C.steel, body: action.clue }]);
   };
@@ -1680,7 +1736,16 @@ export default function CallCenterPrototype() {
     <div style={S.frame}>
       <div style={S.bar}>
         <span style={S.barLeft}>☎ TLC · SUPPORT CENTER</span>
-        <span style={S.barRight}>{stage.toUpperCase()}</span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {screen === 'call' && (
+            <span style={S.marks} title="inquiries left on this call">
+              {Array.from({ length: CALL_INQUIRY_BUDGET }).map((_, i) => (
+                <span key={i} style={i < inquiriesLeft ? S.mark : S.markSpent} />
+              ))}
+            </span>
+          )}
+          <span style={S.barRight}>{stage.toUpperCase()}</span>
+        </span>
       </div>
 
       {screen === 'clockin' && (
@@ -1750,10 +1815,11 @@ export default function CallCenterPrototype() {
               {!requestKnown && (
                 <div style={S.menu}>
                   <p style={S.label}>THEY HAVEN&rsquo;T SAID WHAT THEY NEED YET</p>
-                  <AskRow glyph="▸" glyphColor={C.gold}
+                  <AskRow glyph={affords(null) ? '▸' : '·'} glyphColor={affords(null) ? C.gold : C.off}
                     label="Ask what brought them in today"
                     note="Every surface below stays open — you can act without knowing. It rarely goes well."
-                    cost={0} used={false} affordable onClick={probe} />
+                    cost={PROBE_INQUIRY_COST} used={false}
+                    affordable={affords(null)} onClick={probe} />
                 </div>
               )}
 
@@ -1770,11 +1836,11 @@ export default function CallCenterPrototype() {
               {investigation && (
                 <div style={S.menu}>
                   <p style={S.label}>OUR RECORDS — THE NETWORK REPORTS THESE</p>
-                  {investigation.actions.filter((a) => a.source === 'records').map((a) => (
+                  {investigation.actions.filter((a) => a.kind === 'investigative' && a.source === 'records').map((a) => (
                     <AskRow key={a.id} glyph={asked.includes(a.id) ? '✓' : '▸'}
                       glyphColor={asked.includes(a.id) ? C.sage : C.gold}
-                      label={a.label} cost={0} used={asked.includes(a.id)}
-                      affordable onClick={() => investigate(a)} />
+                      label={a.label} cost={a.timeCost} used={asked.includes(a.id)}
+                      affordable={affords(a)} onClick={() => investigate(a)} />
                   ))}
 
                   <p style={{ ...S.label, marginTop: 8, color: checkedAnyRecord ? C.muted : C.rose }}>
@@ -1782,7 +1848,7 @@ export default function CallCenterPrototype() {
                       ? 'ASK THEM TO GO AND LOOK'
                       : "ASK THEM TO GO AND LOOK \u2014 YOU HAVEN'T CHECKED OURS YET"}
                   </p>
-                  {investigation.actions.filter((a) => a.source === 'ask').map((a) => (
+                  {investigation.actions.filter((a) => a.kind === 'investigative' && a.source === 'ask').map((a) => (
                     <AskRow key={a.id} glyph={asked.includes(a.id) ? '✓' : '▸'}
                       glyphColor={asked.includes(a.id) ? C.sage : (checkedAnyRecord ? C.gold : C.rose)}
                       label={a.label}
@@ -1791,7 +1857,23 @@ export default function CallCenterPrototype() {
                           ? 'Their time and their trouble.'
                           : "You'd be telling them you think they miscounted \u2014 and that you haven't looked.")}
                       cost={a.timeCost} used={asked.includes(a.id)}
-                      affordable onClick={() => investigate(a)} />
+                      affordable={affords(a)} onClick={() => investigate(a)} />
+                  ))}
+
+                  <p style={{ ...S.label, marginTop: 8 }}>DO SOMETHING FOR THEM</p>
+                  {investigation.actions.filter((a) => a.kind === 'supportive').map((a) => (
+                    <AskRow key={a.id} glyph={asked.includes(a.id) ? '✓' : (affords(a) ? '▸' : '·')}
+                      glyphColor={asked.includes(a.id) ? C.sage : (affords(a) ? C.gold : C.off)}
+                      label={a.label} cost={a.timeCost} used={asked.includes(a.id)}
+                      affordable={affords(a)} onClick={() => investigate(a)} />
+                  ))}
+
+                  <p style={{ ...S.label, marginTop: 8 }}>TELL THEM WHAT HAPPENS NOW</p>
+                  {investigation.actions.filter((a) => a.kind === 'wrapup').map((a) => (
+                    <AskRow key={a.id} glyph={asked.includes(a.id) ? '✓' : (affords(a) ? '▸' : '·')}
+                      glyphColor={asked.includes(a.id) ? C.sage : (affords(a) ? C.gold : C.off)}
+                      label={a.label} cost={a.timeCost} used={asked.includes(a.id)}
+                      affordable={affords(a)} onClick={() => investigate(a)} />
                   ))}
                 </div>
               )}

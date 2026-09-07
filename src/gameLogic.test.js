@@ -21,6 +21,9 @@ const {
   probeForRequest,
   OPENING_MODES,
   SHIFT_CANDLE_NOTCHES,
+  CALL_INQUIRY_BUDGET,
+  inquiriesSpent,
+  canAfford,
   DECOY_AGENT_NAMES,
   RESPONSE_QUALITY,
   PHANTOM_INVENTORY_TEMPLATE,
@@ -1769,4 +1772,67 @@ test('a records lookup never reports what the customer knows', () => {
         `${cause.id}/${action.id} has our records reporting the caller's own knowledge:\n    "${action.clue}"`);
     }
   }
+});
+
+
+// ---------------------------------------------------------------------
+// The nine
+// ---------------------------------------------------------------------
+
+test('the greeting is free and everything after it is not', () => {
+  // One Co-Op inquiry, nine of the player's. The mandated opening is
+  // said on the company's behalf.
+  const ticket = ticketWithCause('unlogged-sale');
+  assert.equal(inquiriesSpent(ticket, [], 0), 0, 'opening the call costs nothing');
+  assert.ok(inquiriesSpent(ticket, [], 1) > 0, 'pressing them for the request is an inquiry');
+  assert.ok(inquiriesSpent(ticket, ['manifest'], 0) > 0);
+});
+
+test('nine cannot buy the menu', () => {
+  const ticket = ticketWithCause('unlogged-sale');
+  const everything = ticket.investigation.actions.map((a) => a.id);
+  assert.ok(inquiriesSpent(ticket, everything, 0) > CALL_INQUIRY_BUDGET * 2,
+    'no call may ever be exhaustively worked');
+});
+
+test('a realistic call fits, across all three kinds', () => {
+  // Roughly 2-3 of each, which is the shape a real call tends to take.
+  const ticket = ticketWithCause('misfiled-at-intake');
+  const pick = (kind, n) => ticket.investigation.actions
+    .filter((a) => a.kind === kind).sort((a, b) => a.timeCost - b.timeCost)
+    .slice(0, n).map((a) => a.id);
+  const call = [...pick('investigative', 3), ...pick('supportive', 3), ...pick('wrapup', 2)];
+  assert.ok(inquiriesSpent(ticket, call, 1) <= CALL_INQUIRY_BUDGET,
+    'a normal call plus one probe must fit inside nine');
+});
+
+test('affordability is a resource limit, never a sequence gate', () => {
+  // Nothing is unavailable because of what came before it -- only
+  // because there is not enough call left. Order must never matter to
+  // what you CAN do.
+  const ticket = ticketWithCause('split-lot');
+  const cheap = ticket.investigation.actions.find((a) => a.timeCost === 1);
+
+  // Same spend, two different orders: identical affordability.
+  const orderA = ['manifest', 'courierRecord'];
+  const orderB = ['courierRecord', 'manifest'];
+  assert.equal(canAfford(ticket, orderA, 0, cheap), canAfford(ticket, orderB, 0, cheap));
+
+  // Affordable when fresh, not when spent.
+  assert.equal(canAfford(ticket, [], 0, cheap), true);
+  const drained = ticket.investigation.actions
+    .filter((a) => a.kind === 'investigative').map((a) => a.id);
+  assert.equal(canAfford(ticket, drained, 0, cheap), false);
+});
+
+test('running out leaves the determination available', () => {
+  // Not a fail state. At zero you decide on what you have, and it is
+  // adjudicated later by other people like every other determination.
+  const ticket = ticketWithCause('unlogged-sale');
+  const drained = ticket.investigation.actions.map((a) => a.id);
+  assert.ok(inquiriesSpent(ticket, drained, 0) > CALL_INQUIRY_BUDGET);
+
+  const result = resolveInvestigation(ticket, [], 'unloggedSale');
+  assert.ok(['correct', 'partial', 'wrong'].includes(result.standing),
+    'a determination is always reachable, however little was gathered');
 });
