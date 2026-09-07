@@ -1457,6 +1457,36 @@ ships goods and never learns who received them or where. Both are wrong:
 Nodes and Couriers report because their agreements require it. The line
 is the agreement, not the dock.)*
 
+### Reading a customer — cues, never a verdict. Locked.
+
+**A label is not how anyone learns what a caller feels.** On a real desk
+you get **tone, word choice, phrasing, volume, pitch and cadence**, and
+you work it out. Every one of those is ambiguous on its own and none of
+them is a readout.
+
+So the game never states how a customer feels. `readCues()` returns
+**observable behaviour** — the cadence of their answers, their volume,
+the words they have started or stopped using — and the player infers.
+*"They answer short, flatter than before, and they have gone formal on
+you."* Not *"the Military is now feeling neutral."*
+
+*(That line was a debug readout promoted to a mechanic. It is gone.
+`dispositionTag()` survives as an internal convenience for the sim and
+its tests, marked never-show-the-player.)*
+
+**The uncertainty is structural, not noise.** Cues derive from the
+VISIBLE level — internal feeling times Social Filter — so:
+
+> a customer at **−80 behind a tight lid** and one at **−28 with no lid
+> at all** produce *word-for-word identical* cues.
+
+The player cannot tell them apart, which is precisely what "the lid on
+the pot" was always supposed to mean. Reading people is a skill because
+the evidence genuinely underdetermines the answer.
+
+Cues can be read per axis, so a caller can be warm toward the agent and
+cold about the Co-Op at once — and *show* both.
+
 ### The presented category is the customer's guess — locked
 
 **A customer reports a symptom, not a diagnosis, and the category they
@@ -1589,6 +1619,13 @@ lets a customer remember an interaction as worse or better than it was,
 independently of remembering the facts correctly — the thing that makes
 "I know you fixed it but I still felt awful about that call" possible.
 It should decay on its own curve, not the factual one.
+
+**Which facet distorts depends on what the memory is about.** There is
+no single axis memory "rides on" — a recollection about an agent decays
+on **Staff**, one about the Co-Op on **Company**, one about what was in
+the crate on **Products/Services**. The Emotional facet runs alongside
+all of them on its own schedule, which is why someone can recall the
+facts correctly and the feeling wrongly, or the reverse.
 
 **Do not wire these one-to-one onto the disposition axes.** They are
 adjacent and not identical — Staff is broader than the **You** axis
@@ -2132,10 +2169,10 @@ Listed, not guessed at:
   all five phases and still be missing posts; that gap is the
   difference between a call that was *processed* and one that was
   *handled*, and it is the thing to design toward.
-  Still open: whether Education and Empathy get their own surfaces in
-  the call UI once unlocked, or ride on the existing five as a quality
-  of *how* the player asks and answers. Current lean is the second —
-  they are not places you go — but not decided.
+  **Locked**: Education and Empathy **ride on the existing five
+  surfaces**, as a quality of *how* the player asks and answers. They do
+  not get surfaces of their own — they are not places you go, which is
+  also what keeps a call from becoming a seven-item checklist.
 - **What the player is shown now that disposition is a vector.** The
   biggest unresolved consequence of the vector, and three questions
   wearing one coat.
@@ -2172,13 +2209,10 @@ Listed, not guessed at:
     they call back and how they open the next call. A delayed, indirect
     tell matches Education's asymmetry.
 
-  *Mostly resolved now* — see "Running the Desk," *the survey chain*,
-  and the per-axis tells in the table above. What remains:
-  1. **Does a one-word tag survive at all?** `dispositionTag()` returns
-     one of five words from one integer. Even reporting a single axis, a
-     vector may want a phrase naming axis *and* feeling — "warm toward
-     you, cold toward the Co-Op." Prose rather than a tag: more cozy,
-     substantially larger authoring job.
+  **Resolved.** The tag is gone from the player-facing path entirely —
+  see "Reading a customer," above. The player gets observable cues and
+  infers. There is no phrase to author because there is no verdict to
+  deliver.
 - **The five fenceposts — the call's anatomy.** Now written (see "The
   Five Fenceposts — What Every Call Is Made Of"); nothing built. The
   model itself is locked: five components on every call, placed as a
