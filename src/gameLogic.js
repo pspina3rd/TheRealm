@@ -89,115 +89,179 @@ const PHANTOM_INVENTORY_TEMPLATE = {
   category: 'Phantom Inventory',
   openingStatement: "I ordered 40 healing potions for the festival, and now you're telling me I don't have them?! Where did they go?",
 
+  /**
+   * Two kinds of action, and the split is load-bearing.
+   *
+   * `source: 'records'` — TLC's own paperwork. The agent reads it
+   * directly. Reliable, and limited to what TLC actually touched.
+   *
+   * `source: 'ask'` — only the customer can find this out. The agent
+   * asks; somebody at the other end has to go and look. Slower, costs
+   * far more of their patience, and the answer is only as good as their
+   * own bookkeeping. **An agent cannot walk a customer's stockroom.**
+   *
+   * See LORE.md, "What TLC can actually see."
+   */
   actions: [
-    { id: 'manifest', label: 'Check the shipment manifest', timeCost: 1 },
-    { id: 'deliveryLog', label: "Check the Node's delivery log", timeCost: 1 },
-    { id: 'stockroomAccess', label: 'Ask about stockroom access', timeCost: 1 },
-    { id: 'bulkActivity', label: 'Check for recent bulk activity', timeCost: 2 },
-    { id: 'shelfCheck', label: 'Walk the shelf with them, crate by crate', timeCost: 2 },
+    { id: 'manifest', source: 'records', label: 'Check what we shipped', timeCost: 1 },
+    { id: 'courierRecord', source: 'records', label: 'Check the courier handoff record', timeCost: 1 },
+    { id: 'drawRecord', source: 'records', label: 'Check for a Caravan draw against the lot', timeCost: 2 },
+    { id: 'holdRegister', source: 'records', label: 'Check the hold register', timeCost: 1 },
+    { id: 'askCount', source: 'ask', label: 'Ask them to go and count the shelf', timeCost: 3 },
+    { id: 'askReceiving', source: 'ask', label: 'Ask who received it and who shelved it', timeCost: 2 },
+    { id: 'askLedger', source: 'ask', label: 'Ask them to check their own sales ledger', timeCost: 3 },
+    { id: 'askIntake', source: 'ask', label: 'Ask what else came in that week — returns, buy-ins', timeCost: 2 },
   ],
 
   diagnoses: [
-    { id: 'unloggedSale', label: 'Your own festival sale went out without being logged' },
+    { id: 'unloggedSale', label: 'Your own sale went out without being entered' },
     { id: 'splitLot', label: 'A duplicated stamp split the lot — a Caravan draw took the rest' },
-    { id: 'unpostedReceipt', label: 'It arrived, but the Node never posted the receipt' },
+    { id: 'shelvedNotEntered', label: 'It was received and shelved, but never entered in your records' },
     { id: 'secondLeg', label: "Nothing is missing yet — the second leg hasn't landed" },
-    { id: 'misfiled', label: "They're on your shelf, filed under the wrong classification" },
-    { id: 'underHold', label: "They're here and sealed — somebody has placed a hold on them" },
+    { id: 'misfiled', label: "They're on your shelf, shelved under the wrong classification" },
+    { id: 'underHold', label: "They're here and sealed — a hold was placed on them" },
+    { id: 'notOurs', label: 'That stock never came from us — it came in off your counter' },
     { id: 'theft', label: 'Someone with stockroom access has taken them' },
     { id: 'lostTransit', label: 'The shipment was lost in transit' },
   ],
 
   rootCauses: [
     {
+      // Invisible to TLC. Their sale, their ledger, their omission.
       id: 'unlogged-sale',
       weight: 3,
       trueCategory: 'Phantom Inventory',
+      trueDomain: 'Quantity',
       diagnosisId: 'unloggedSale',
-      keyActionIds: ['bulkActivity'],
-      redHerringActionId: 'stockroomAccess',
+      keyActionIds: ['askLedger'],
+      redHerringActionId: 'askReceiving',
       clues: {
-        manifest: 'All 40 left the depot, logged correctly.',
-        deliveryLog: 'Received and signed for three days ago.',
-        stockroomAccess: 'Their apprentice restocks the shelves most mornings.',
-        bulkActivity: 'A festival order went out two days ago — it may never have been logged.',
-        shelfCheck: 'The shelf count matches the low number. Nothing is hidden back there.',
+        manifest: 'All 40 shipped, logged correctly.',
+        courierRecord: 'Handed over and signed for three days ago.',
+        drawRecord: 'No draw against this lot.',
+        holdRegister: 'No hold on record.',
+        askCount: 'They come back with three. Same as the shelf said.',
+        askReceiving: 'Their apprentice receives most mornings and shelves the same day.',
+        askLedger: 'A festival order went out two days ago — nobody entered it.',
+        askIntake: 'Nothing else came in that week.',
       },
     },
     {
+      // Solvable entirely from our own records.
       id: 'split-lot',
       weight: 2,
       trueCategory: 'Phantom Inventory',
+      trueDomain: 'Quantity',
       diagnosisId: 'splitLot',
-      keyActionIds: ['deliveryLog', 'bulkActivity'],
+      keyActionIds: ['courierRecord', 'drawRecord'],
       clues: {
         manifest: 'One lot of 40 — and the courier stamp is on it twice.',
-        deliveryLog: 'Only four were signed for. Not forty.',
-        stockroomAccess: 'Nobody but the owner holds a key.',
-        bulkActivity: 'A Caravan draw moved 36 to the Constabulary the same morning.',
-        shelfCheck: 'Four on the shelf, exactly as the delivery recorded.',
+        courierRecord: 'Only four were handed over. Not forty.',
+        drawRecord: 'A Caravan draw moved 36 to the Constabulary that same morning.',
+        holdRegister: 'No hold on record.',
+        askCount: 'Four on the shelf.',
+        askReceiving: 'The owner took it in personally. Nobody else touched it.',
+        askLedger: 'Nothing unusual in their sales.',
+        askIntake: 'Nothing else came in.',
       },
     },
     {
-      id: 'unposted-receipt',
-      weight: 2,
+      // Chain of custody. Received by one, shelved by another, entered
+      // by nobody -- and TLC cannot see any of those three steps.
+      id: 'shelved-not-entered',
+      weight: 3,
       trueCategory: 'Phantom Inventory',
-      diagnosisId: 'unpostedReceipt',
-      keyActionIds: ['deliveryLog'],
-      redHerringActionId: 'stockroomAccess',
+      trueDomain: 'Quantity',
+      diagnosisId: 'shelvedNotEntered',
+      keyActionIds: ['askReceiving'],
+      redHerringActionId: 'askIntake',
       clues: {
-        manifest: 'All 40 left the depot.',
-        deliveryLog: 'No receipt was ever posted. The log simply stops before the delivery.',
-        stockroomAccess: 'Their apprentice restocks the shelves most mornings.',
-        bulkActivity: 'Nothing unusual in the last fortnight.',
-        shelfCheck: 'All forty are sitting right there. The listing is what is wrong.',
+        manifest: 'All 40 shipped.',
+        courierRecord: 'Signed for. The signature is a mark, not a name.',
+        drawRecord: 'No draw against this lot.',
+        holdRegister: 'No hold on record.',
+        askCount: 'They find forty. They sound less certain than they did.',
+        askReceiving: 'A casual hand took it in and stacked it. Nobody entered it in the book.',
+        askLedger: 'Their ledger has no record of it arriving at all.',
+        askIntake: 'A crate of returns came back the same week.',
       },
     },
     {
-      // NOT a phantom inventory problem. Nothing is missing yet.
+      // Not phantom inventory. Nothing is missing yet.
       id: 'second-leg-in-transit',
       weight: 2,
       trueCategory: 'Bulk Potion Order Delay',
+      trueDomain: 'Fulfillment',
       diagnosisId: 'secondLeg',
       keyActionIds: ['manifest'],
       clues: {
         manifest: 'Booked as a two-leg Priority Relay. This is leg one of two.',
-        deliveryLog: 'Leg one received. Leg two is not due until tomorrow.',
-        stockroomAccess: 'Nothing unusual.',
-        bulkActivity: 'Nothing unusual.',
-        shelfCheck: 'The count matches leg one precisely.',
+        courierRecord: 'Leg one handed over. Leg two is not due until tomorrow.',
+        drawRecord: 'No draw against this lot.',
+        holdRegister: 'No hold on record.',
+        askCount: 'The count matches leg one precisely.',
+        askReceiving: 'Received and shelved the same day, no trouble.',
+        askLedger: 'Nothing unusual.',
+        askIntake: 'Nothing else came in.',
       },
     },
     {
-      // NOT a phantom inventory problem. It is a listing problem.
+      // Not phantom inventory. It is on the shelf under the wrong name.
       id: 'misfiled-at-intake',
       weight: 2,
       trueCategory: 'Storefront Listing Error',
+      trueDomain: 'Accounts',
       diagnosisId: 'misfiled',
-      keyActionIds: ['shelfCheck'],
-      redHerringActionId: 'deliveryLog',
+      keyActionIds: ['askCount'],
+      redHerringActionId: 'courierRecord',
       clues: {
-        manifest: 'All 40 left the depot.',
-        deliveryLog: 'Signed for, but the signature is not one the Node recognises.',
-        stockroomAccess: 'Nothing unusual.',
-        bulkActivity: 'Nothing unusual.',
-        shelfCheck: 'All forty are here — filed as Large, not Small. The listing cannot see them.',
+        manifest: 'All 40 shipped, as Small.',
+        courierRecord: 'Signed for by a name the Node does not recognise.',
+        drawRecord: 'No draw against this lot.',
+        holdRegister: 'No hold on record.',
+        askCount: 'Forty are there — stacked under Large. Their listing cannot see them.',
+        askReceiving: 'Shelved by whoever was free that afternoon.',
+        askLedger: 'Nothing unusual.',
+        askIntake: 'Nothing else came in.',
       },
     },
     {
-      // NOT a phantom inventory problem, and no category covers it yet.
-      // Worth surfacing as a content gap rather than forcing a fit.
+      // Ours to see, and only ours.
       id: 'constabulary-hold',
       weight: 1,
       trueCategory: 'Goods Under Hold',
+      trueDomain: 'Service',
       diagnosisId: 'underHold',
-      keyActionIds: ['bulkActivity'],
+      keyActionIds: ['holdRegister'],
       clues: {
-        manifest: 'All 40 left the depot.',
-        deliveryLog: 'Received and signed for.',
-        stockroomAccess: 'Nothing unusual.',
-        bulkActivity: 'A Constabulary hold was placed on the lot the day it landed.',
-        shelfCheck: 'The crates are here. Sealed, tagged, and not theirs to open.',
+        manifest: 'All 40 shipped.',
+        courierRecord: 'Delivered and signed for.',
+        drawRecord: 'No draw against this lot.',
+        holdRegister: 'A Constabulary hold was placed on the lot the day it landed.',
+        askCount: 'The crates are there, sealed and tagged. Not theirs to open.',
+        askReceiving: 'Received and left sealed, as instructed.',
+        askLedger: 'Nothing unusual.',
+        askIntake: 'Nothing else came in.',
+      },
+    },
+    {
+      // A merchant's shelf holds goods TLC never touched. They bought a
+      // lot off an adventurer and are calling us about it.
+      id: 'never-shipped-by-us',
+      weight: 2,
+      trueCategory: 'Not A TLC Shipment',
+      trueDomain: 'Accounts',
+      diagnosisId: 'notOurs',
+      keyActionIds: ['manifest', 'askIntake'],
+      clues: {
+        manifest: 'We have no shipment of that size to this account. Not this season.',
+        courierRecord: 'No handoff, because there was nothing to hand over.',
+        drawRecord: 'No draw against a lot we do not have.',
+        holdRegister: 'No hold on record.',
+        askCount: 'Three on the shelf, as they said.',
+        askReceiving: 'Nobody remembers taking a TLC delivery that week.',
+        askLedger: 'The forty were entered as stock. No supplier against them.',
+        askIntake: 'They bought a lot off an adventurer three weeks ago. Never wrote down who.',
       },
     },
   ],
@@ -226,6 +290,7 @@ function buildInvestigation(template, rootCause) {
     openingStatement: template.openingStatement,
     rootCauseId: rootCause.id,
     trueCategory: rootCause.trueCategory,
+    trueDomain: rootCause.trueDomain,
     keyActionIds: [...rootCause.keyActionIds],
     correctDiagnosisId: rootCause.diagnosisId,
     redHerringActionId: rootCause.redHerringActionId,
@@ -238,22 +303,46 @@ function buildInvestigation(template, rootCause) {
  * Ticket templates per customer tier. `weight` is relative selection
  * likelihood within that tier (not normalized — see weightedPick).
  */
+/**
+ * The nine problem domains a contact centre actually handles. This is
+ * the real-world taxonomy, and it is the organising layer above
+ * categories — see LORE.md, "Ticket Content."
+ *
+ * Domains cut ACROSS customer tiers. Anyone can have a Billing problem;
+ * bucketing categories by tier was arbitrary.
+ *
+ * Structure, largest to smallest:
+ *   domain (9, fixed)  →  category (a term of art)  →  root cause
+ * with perspective and Baggage shaping how any of it gets told.
+ */
+const DOMAINS = [
+  'Orders',      // placing, changing, cancelling
+  'Fulfillment', // getting it there
+  'Quality',     // it arrived wrong or broken
+  'Quantity',    // the count disagrees
+  'Returns',     // sending it back
+  'Repairs',     // making it work again
+  'Service',     // the relationship and the doing of the thing
+  'Accounts',    // who they are and what is on record
+  'Billing',     // money
+];
+
 const TICKET_TEMPLATES = {
   endUser: [
-    { category: 'Cursed Item Return', weight: 3, baseUrgency: 2 },
-    { category: 'Quest Line Bug', weight: 2, baseUrgency: 3 },
-    { category: 'Respawn Delay', weight: 3, baseUrgency: 4 },
-    { category: 'XP Miscount Dispute', weight: 2, baseUrgency: 1 },
+    { category: 'Cursed Item Return', domain: 'Returns', weight: 3, baseUrgency: 2 },
+    { category: 'Quest Line Bug', domain: 'Quality', weight: 2, baseUrgency: 3 },
+    { category: 'Respawn Delay', domain: 'Service', weight: 3, baseUrgency: 4 },
+    { category: 'XP Miscount Dispute', domain: 'Accounts', weight: 2, baseUrgency: 1 },
   ],
   business: [
-    { category: 'Bulk Potion Order Delay', weight: 2, baseUrgency: 3 },
-    { category: 'Border Ward Malfunction', weight: 1, baseUrgency: 5 },
-    { category: 'Garrison Supply Shortfall', weight: 2, baseUrgency: 3 },
+    { category: 'Bulk Potion Order Delay', domain: 'Fulfillment', weight: 2, baseUrgency: 3 },
+    { category: 'Border Ward Malfunction', domain: 'Repairs', weight: 1, baseUrgency: 5 },
+    { category: 'Garrison Supply Shortfall', domain: 'Fulfillment', weight: 2, baseUrgency: 3 },
   ],
   partner: [
-    { category: 'Phantom Inventory', weight: 3, baseUrgency: 2, investigationTemplate: PHANTOM_INVENTORY_TEMPLATE },
-    { category: 'Commission Payout Dispute', weight: 2, baseUrgency: 3 },
-    { category: 'Storefront Listing Error', weight: 2, baseUrgency: 1 },
+    { category: 'Phantom Inventory', domain: 'Quantity', weight: 3, baseUrgency: 2, investigationTemplate: PHANTOM_INVENTORY_TEMPLATE },
+    { category: 'Commission Payout Dispute', domain: 'Billing', weight: 2, baseUrgency: 3 },
+    { category: 'Storefront Listing Error', domain: 'Accounts', weight: 2, baseUrgency: 1 },
   ],
 };
 
@@ -1189,6 +1278,7 @@ function endShift(outcomes, currentReputation, currentShiftId, rng = Math.random
 
 module.exports = {
   CUSTOMER_TYPES,
+  DOMAINS,
   TICKET_TEMPLATES,
   RESPONSE_QUALITY,
   SHIFT_MODIFIERS,

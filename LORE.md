@@ -1224,6 +1224,48 @@ from a menu they have memorised.
 on top of each other, and the combinations are where volume comes from
 without hand-writing every case.
 
+### 0. The domain — the real taxonomy, locked
+
+Above categories sit the **nine problem domains a contact centre
+actually handles**:
+
+> **Orders · Fulfillment · Quality · Quantity · Returns · Repairs ·
+> Service · Accounts · Billing**
+
+This is the real-world taxonomy, and it replaces an earlier ad-hoc
+arrangement in which flavour categories were bucketed by **customer
+tier** — which was arbitrary. **Domains cut across tiers.** A Kingdom,
+a Tavern and a Hero can all have a Billing problem, and organising by
+who is calling hid that.
+
+Full structure, largest to smallest:
+
+> **domain** (9, fixed) → **category** (a term of art) → **root cause**
+> → told through **perspective** and **Baggage**
+
+The fixed list also makes absence visible. Current coverage:
+
+| Domain | Categories written |
+| --- | --- |
+| Orders | **none** |
+| Fulfillment | Bulk Potion Order Delay, Garrison Supply Shortfall |
+| Quality | Quest Line Bug |
+| Quantity | Phantom Inventory |
+| Returns | Cursed Item Return |
+| Repairs | Border Ward Malfunction |
+| Service | Respawn Delay |
+| Accounts | XP Miscount Dispute, Storefront Listing Error |
+| Billing | Commission Payout Dispute |
+
+**Orders has nothing at all** — no category covers placing, changing or
+cancelling one — and six domains have exactly one. That is the content
+map for whoever writes next.
+
+A root cause carries a `trueDomain` as well as a `trueCategory`, because
+misclassification happens at both levels. Phantom Inventory's seven
+causes land across **four** domains: Quantity, Fulfillment, Accounts,
+and Service.
+
 ### 1. The category
 
 The classification — a term of art for a real problem type, per
@@ -1268,6 +1310,50 @@ which is which — is the same skill on both.
 **Consequence for content work**: authoring a new category means
 authoring a root-cause set and its clues, not a single scripted call.
 Expression is generated from traits, not written per case.
+
+### What TLC can actually see — locked
+
+**TLC's visibility ends at handoff.** This is a logistics cooperative.
+It knows what it shipped, how, when, and who signed for it. **It does
+not know what is on a customer's shelf**, and an agent on a ley-line
+cannot walk anyone's stockroom.
+
+**POOF is instant delivery. It is not instant unpacking, shelving, or
+bookkeeping.** A shipment arriving in a blink still has to be received
+by one person, shelved by another, and entered into the merchant's own
+records by a third — and after that, stock leaves through sales,
+returns, damage, and staff. **Every one of those hands is a place where
+the shelf and the ledger can drift apart, and none of them belong to
+TLC.** That gap is where most "phantom inventory" actually lives.
+
+It gets wider still, because a merchant's stock does not all come from
+TLC. They take **returns**, and they **buy inventory outright from
+adventurers** hauling loot in. A shelf holds goods TLC shipped, goods
+TLC never touched, and goods that came back — mixed together under one
+count. TLC's records cannot reconcile a number they only ever saw part
+of.
+
+**Mechanical consequence — investigation splits in two:**
+
+- **Records** — things the agent can check directly, because they are
+  TLC's own: what was shipped, the courier handoff, a Caravan draw
+  against the lot, a hold placed while goods were in TLC's custody.
+  Fast and reliable, and **limited to what TLC actually touched.**
+- **Asks** — things only the customer can find out: counting the shelf,
+  who received and who shelved it, their own sales ledger, what else
+  came in that week. **Slower, costly to their patience, and only as
+  good as their own bookkeeping.** Baggage shapes how willingly and how
+  accurately they answer.
+
+**Some calls cannot be solved from TLC's records at all.** The agent's
+reach is genuinely limited, and getting the customer to do the legwork
+is part of the job — not a fallback. An agent who only ever checks
+their own systems will close a whole class of ticket wrongly.
+
+*(This corrects an earlier build in which the investigation menu
+included "walk the shelf with them, crate by crate" — an action no
+agent at a call center can perform, and a claim of visibility TLC does
+not have.)*
 
 ### The presented category is the customer's guess — locked
 

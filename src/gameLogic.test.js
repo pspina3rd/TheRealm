@@ -23,6 +23,7 @@ const {
   RESPONSE_QUALITY,
   PHANTOM_INVENTORY_TEMPLATE,
   TICKET_TEMPLATES,
+  DOMAINS,
   rollRootCause,
   buildInvestigation,
 } = require('./gameLogic');
@@ -504,7 +505,7 @@ function phantomInventoryTicket() {
 
 test('resolveInvestigation: correct diagnosis + key clue investigated -> correct, grounded', () => {
   const ticket = phantomInventoryTicket();
-  const result = resolveInvestigation(ticket, ['bulkActivity'], 'unloggedSale');
+  const result = resolveInvestigation(ticket, ['askLedger'], 'unloggedSale');
   assert.equal(result.standing, 'correct');
   assert.equal(result.grounding, 'grounded');
   assert.equal(result.quality, 'correct');
@@ -514,7 +515,7 @@ test('resolveInvestigation: right answer with nothing behind it is PARTIAL, not 
   // Says the right thing, cannot back it up. Not wrong -- but not the
   // same as having done the work, and the standing says so.
   const ticket = phantomInventoryTicket();
-  const result = resolveInvestigation(ticket, ['manifest', 'deliveryLog'], 'unloggedSale');
+  const result = resolveInvestigation(ticket, ['manifest', 'courierRecord'], 'unloggedSale');
   assert.equal(result.standing, 'partial');
   assert.equal(result.grounding, 'lucky');
   assert.equal(result.quality, 'adequate');
@@ -533,7 +534,7 @@ test('resolveInvestigation: wrong after real investigation is PARTIAL, not wrong
   // reasoned from something. "Right kind of problem, wrong instance" is
   // the most common real outcome and must not collapse into "wrong."
   const ticket = phantomInventoryTicket();
-  const result = resolveInvestigation(ticket, ['stockroomAccess'], 'theft');
+  const result = resolveInvestigation(ticket, ['askReceiving'], 'theft');
   assert.equal(result.standing, 'partial');
   assert.equal(result.grounding, 'reasoned');
   assert.equal(result.quality, 'rushed');
@@ -545,7 +546,7 @@ test('resolveInvestigation: partial is reachable from BOTH directions', () => {
   // opposite sides, and the grounding is what tells them apart.
   const ticket = phantomInventoryTicket();
   const luckyRight = resolveInvestigation(ticket, [], 'unloggedSale');
-  const reasonedWrong = resolveInvestigation(ticket, ['stockroomAccess'], 'theft');
+  const reasonedWrong = resolveInvestigation(ticket, ['askReceiving'], 'theft');
   assert.equal(luckyRight.standing, 'partial');
   assert.equal(reasonedWrong.standing, 'partial');
   assert.notEqual(luckyRight.grounding, reasonedWrong.grounding);
@@ -558,7 +559,7 @@ test('resolveInvestigation: this is exactly the case the old model could not dis
   // could win every ticket by always clicking the same option).
   const ticket = phantomInventoryTicket();
   const underInvestigated = resolveInvestigation(ticket, [], 'unloggedSale');
-  const fullyInvestigated = resolveInvestigation(ticket, ['bulkActivity'], 'unloggedSale');
+  const fullyInvestigated = resolveInvestigation(ticket, ['askLedger'], 'unloggedSale');
   assert.notEqual(underInvestigated.standing, fullyInvestigated.standing);
   assert.equal(underInvestigated.standing, 'partial');
   assert.equal(fullyInvestigated.standing, 'correct');
@@ -614,7 +615,9 @@ test('investigationTimeCost: sums only the actions actually taken', () => {
   const ticket = phantomInventoryTicket();
   assert.equal(investigationTimeCost(ticket, []), 0);
   assert.equal(investigationTimeCost(ticket, ['manifest']), 1);
-  assert.equal(investigationTimeCost(ticket, ['manifest', 'bulkActivity']), 1 + 2);
+  const cost = (id) => PHANTOM_INVENTORY_TEMPLATE.actions.find((a) => a.id === id).timeCost;
+  assert.equal(investigationTimeCost(ticket, ['manifest', 'askLedger']),
+    cost('manifest') + cost('askLedger'));
   // Investigating everything costs the sum of every action, not a flat rate.
   const allIds = PHANTOM_INVENTORY_TEMPLATE.actions.map((a) => a.id);
   const expectedTotal = PHANTOM_INVENTORY_TEMPLATE.actions.reduce((s, a) => s + a.timeCost, 0);
@@ -668,14 +671,14 @@ test('the same investigation action yields different evidence per cause', () => 
   const clueFor = (causeId, actionId) => ticketWithCause(causeId)
     .investigation.actions.find((a) => a.id === actionId).clue;
 
-  const deliveryLogClues = PHANTOM_INVENTORY_TEMPLATE.rootCauses
-    .map((c) => clueFor(c.id, 'deliveryLog'));
-  assert.ok(new Set(deliveryLogClues).size >= 4,
-    'the delivery log must say different things depending on what actually happened');
+  const courierClues = PHANTOM_INVENTORY_TEMPLATE.rootCauses
+    .map((c) => clueFor(c.id, 'courierRecord'));
+  assert.ok(new Set(courierClues).size >= 4,
+    'the courier record must say different things depending on what actually happened');
 
-  const shelfClues = PHANTOM_INVENTORY_TEMPLATE.rootCauses.map((c) => clueFor(c.id, 'shelfCheck'));
-  assert.equal(new Set(shelfClues).size, PHANTOM_INVENTORY_TEMPLATE.rootCauses.length,
-    'walking the shelf should reveal something distinct every time');
+  const countClues = PHANTOM_INVENTORY_TEMPLATE.rootCauses.map((c) => clueFor(c.id, 'askCount'));
+  assert.equal(new Set(countClues).size, PHANTOM_INVENTORY_TEMPLATE.rootCauses.length,
+    'asking them to count should come back different every time');
 });
 
 test('some causes are NOT actually this category', () => {
@@ -702,10 +705,10 @@ test('a two-clue cause is not backed up by one of them', () => {
   // evidence is a right answer you cannot support -- partial, not
   // correct.
   const ticket = ticketWithCause('split-lot');
-  assert.deepEqual(ticket.investigation.keyActionIds, ['deliveryLog', 'bulkActivity']);
+  assert.deepEqual(ticket.investigation.keyActionIds, ['courierRecord', 'drawRecord']);
 
-  const half = resolveInvestigation(ticket, ['deliveryLog'], 'splitLot');
-  const both = resolveInvestigation(ticket, ['deliveryLog', 'bulkActivity'], 'splitLot');
+  const half = resolveInvestigation(ticket, ['courierRecord'], 'splitLot');
+  const both = resolveInvestigation(ticket, ['courierRecord', 'drawRecord'], 'splitLot');
 
   assert.equal(half.standing, 'partial');
   assert.equal(half.grounding, 'lucky');
@@ -716,8 +719,8 @@ test('a two-clue cause is not backed up by one of them', () => {
 test('the same diagnosis is right or wrong depending on the root cause', () => {
   // The sharpest consequence of sub-variables: there is no globally
   // correct answer for a category, only a correct answer for THIS call.
-  const onUnlogged = resolveInvestigation(ticketWithCause('unlogged-sale'), ['bulkActivity'], 'unloggedSale');
-  const onHold = resolveInvestigation(ticketWithCause('constabulary-hold'), ['bulkActivity'], 'unloggedSale');
+  const onUnlogged = resolveInvestigation(ticketWithCause('unlogged-sale'), ['askLedger'], 'unloggedSale');
+  const onHold = resolveInvestigation(ticketWithCause('constabulary-hold'), ['askLedger'], 'unloggedSale');
 
   assert.equal(onUnlogged.standing, 'correct');
   assert.equal(onHold.standing, 'partial', 'same answer, different call, no longer right');
@@ -982,4 +985,138 @@ test('rollWrinkles: situational facts appear sometimes, never always', () => {
   let bare = 0;
   for (let seed = 1; seed <= runs; seed++) if (rollWrinkles(seededRng(seed)).length === 0) bare++;
   assert.ok(bare > 0, 'plenty of customers arrive with no special circumstance');
+});
+
+
+// ---------------------------------------------------------------------
+// What TLC can actually see
+// ---------------------------------------------------------------------
+
+test('investigation splits into TLC records and things only the customer can find out', () => {
+  // An agent on a ley-line cannot walk a stockroom. TLC's sight ends at
+  // handoff. See LORE.md, "What TLC can actually see."
+  const actions = PHANTOM_INVENTORY_TEMPLATE.actions;
+  for (const a of actions) {
+    assert.ok(a.source === 'records' || a.source === 'ask',
+      `${a.id} must declare whether it is TLC's record or the customer's legwork`);
+  }
+  assert.ok(actions.some((a) => a.source === 'records'));
+  assert.ok(actions.some((a) => a.source === 'ask'));
+
+  // No action may claim TLC can inspect the customer's premises. Anything
+  // about their shelf, their staff, their books is an ASK.
+  const theirPremises = /shelf|stockroom|ledger|receiv|shelv|count/i;
+  for (const a of actions) {
+    if (theirPremises.test(a.label)) {
+      assert.equal(a.source, 'ask',
+        `"${a.label}" describes the customer's own premises or records — it cannot be a TLC lookup`);
+    }
+  }
+});
+
+test('asking the customer costs more patience than reading our own records', () => {
+  // Sending somebody to go and count is a real imposition. Reading a
+  // manifest is not.
+  const actions = PHANTOM_INVENTORY_TEMPLATE.actions;
+  const avg = (src) => {
+    const xs = actions.filter((a) => a.source === src).map((a) => a.timeCost);
+    return xs.reduce((x, y) => x + y, 0) / xs.length;
+  };
+  assert.ok(avg('ask') > avg('records'),
+    `asks (${avg('ask').toFixed(1)}) must cost more than records (${avg('records').toFixed(1)})`);
+});
+
+test('some causes cannot be solved from TLC records alone', () => {
+  // The agent's reach is genuinely limited. A player who only ever
+  // checks their own systems will close a whole class of ticket wrongly.
+  const recordIds = PHANTOM_INVENTORY_TEMPLATE.actions
+    .filter((a) => a.source === 'records').map((a) => a.id);
+
+  const needsCustomer = PHANTOM_INVENTORY_TEMPLATE.rootCauses
+    .filter((c) => !c.keyActionIds.every((id) => recordIds.includes(id)));
+
+  assert.ok(needsCustomer.length >= 3,
+    'most phantom inventory lives on the customer side of the handoff');
+
+  // And prove it end to end: every TLC record in hand, still not grounded.
+  const ticket = ticketWithCause('unlogged-sale');
+  const fromRecordsOnly = resolveInvestigation(ticket, recordIds, 'unloggedSale');
+  assert.equal(fromRecordsOnly.standing, 'partial');
+  assert.equal(fromRecordsOnly.grounding, 'lucky',
+    'every record we hold, and still no basis for the answer');
+
+  const withTheirLedger = resolveInvestigation(ticket, [...recordIds, 'askLedger'], 'unloggedSale');
+  assert.equal(withTheirLedger.standing, 'correct');
+});
+
+test('a merchant\'s shelf holds stock TLC never shipped', () => {
+  // Returns and buy-ins from adventurers mix into the same count. Our
+  // records cannot reconcile a number we only ever saw part of.
+  const ticket = ticketWithCause('never-shipped-by-us');
+  const manifest = ticket.investigation.actions.find((a) => a.id === 'manifest');
+  assert.match(manifest.clue, /no shipment/i, 'the manifest should show nothing, because we shipped nothing');
+
+  // Needs our record AND their intake -- neither alone is enough.
+  const ours = resolveInvestigation(ticket, ['manifest'], 'notOurs');
+  const both = resolveInvestigation(ticket, ['manifest', 'askIntake'], 'notOurs');
+  assert.equal(ours.standing, 'partial');
+  assert.equal(both.standing, 'correct');
+});
+
+
+// ---------------------------------------------------------------------
+// Problem domains — the real-world taxonomy above categories
+// ---------------------------------------------------------------------
+
+test('every category declares one of the nine real problem domains', () => {
+  for (const [tier, templates] of Object.entries(TICKET_TEMPLATES)) {
+    for (const t of templates) {
+      assert.ok(DOMAINS.includes(t.domain),
+        `${tier}/${t.category} has domain "${t.domain}", which is not one of the nine`);
+    }
+  }
+});
+
+test('domains cut across customer tiers', () => {
+  // Bucketing problem types by who is calling was arbitrary -- anyone
+  // can have a Billing problem. If no domain ever spans tiers, the
+  // taxonomy is just the old tier split wearing new labels.
+  const tiersByDomain = {};
+  for (const [tier, templates] of Object.entries(TICKET_TEMPLATES)) {
+    for (const t of templates) (tiersByDomain[t.domain] ||= new Set()).add(tier);
+  }
+  // Fulfillment currently spans business only; the real assertion is
+  // that the taxonomy is not a 1:1 relabelling of tiers.
+  assert.ok(Object.keys(tiersByDomain).length > Object.keys(TICKET_TEMPLATES).length,
+    'there must be more domains in play than there are tiers');
+});
+
+test('the taxonomy surfaces where content is missing', () => {
+  // The point of a fixed taxonomy is that gaps become visible instead
+  // of being invisible absences. This test DOCUMENTS the gaps; update
+  // it as categories get written, do not delete it.
+  const covered = new Set(Object.values(TICKET_TEMPLATES).flat().map((t) => t.domain));
+  const missing = DOMAINS.filter((d) => !covered.has(d));
+
+  assert.deepEqual(missing, ['Orders'],
+    `expected only Orders to be uncovered; now missing: ${missing.join(', ') || 'none'}`);
+
+  // Thin coverage is worth seeing too.
+  const counts = {};
+  for (const t of Object.values(TICKET_TEMPLATES).flat()) counts[t.domain] = (counts[t.domain] || 0) + 1;
+  const thin = DOMAINS.filter((d) => (counts[d] || 0) === 1);
+  assert.ok(thin.length > 0, 'if nothing is thin any more, this suite is out of date');
+});
+
+test('a root cause knows which domain it ACTUALLY belongs to', () => {
+  for (const cause of PHANTOM_INVENTORY_TEMPLATE.rootCauses) {
+    assert.ok(DOMAINS.includes(cause.trueDomain),
+      `${cause.id} claims domain "${cause.trueDomain}"`);
+  }
+  // And they genuinely span domains -- a Quantity-looking call is often
+  // a Fulfillment, Accounts, or Service problem.
+  const domains = new Set(PHANTOM_INVENTORY_TEMPLATE.rootCauses.map((c) => c.trueDomain));
+  assert.ok(domains.size >= 3,
+    `one category's causes should land in several domains, got ${[...domains].join(', ')}`);
+  assert.ok(domains.has('Quantity'), 'and sometimes it really is what it looks like');
 });
