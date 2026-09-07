@@ -110,15 +110,21 @@ const PHANTOM_INVENTORY_TEMPLATE = {
    */
   actions: [
     // INVESTIGATIVE — establishing the reason for contact
-    { id: 'manifest', kind: 'investigative', source: 'records', label: 'Check what we shipped', timeCost: 1 },
-    { id: 'courierRecord', kind: 'investigative', source: 'records', label: "Check the Courier's delivery report", timeCost: 1 },
-    { id: 'nodeReceipt', kind: 'investigative', source: 'records', label: 'Check whether the Node posted receipt', timeCost: 1 },
-    { id: 'drawRecord', kind: 'investigative', source: 'records', label: 'Check for a Caravan draw against the lot', timeCost: 2 },
-    { id: 'holdRegister', kind: 'investigative', source: 'records', label: 'Check the hold register', timeCost: 1 },
-    { id: 'askCount', kind: 'investigative', source: 'ask', label: 'Ask them to go and count the shelf', timeCost: 3 },
-    { id: 'askReceiving', kind: 'investigative', source: 'ask', label: 'Ask who received it and who shelved it', timeCost: 2 },
-    { id: 'askLedger', kind: 'investigative', source: 'ask', label: 'Ask them to check their own sales ledger', timeCost: 3 },
-    { id: 'askIntake', kind: 'investigative', source: 'ask', label: 'Ask what else came in that week — returns, buy-ins', timeCost: 2 },
+    { id: 'manifest', kind: 'investigative', source: 'records', label: 'Check what we shipped', timeCost: 1 , defaultOutcome: 'Shipped as booked. Nothing irregular.' },
+    { id: 'courierRecord', kind: 'investigative', source: 'records', label: "Check the Courier's delivery report", timeCost: 1 , defaultOutcome: 'Handed over and signed for, on time.' },
+    { id: 'nodeReceipt', kind: 'investigative', source: 'records', label: 'Check whether the Node posted receipt', timeCost: 1 , defaultOutcome: 'Receipt posted the same day, in order.' },
+    { id: 'drawRecord', kind: 'investigative', source: 'records', label: 'Check for a Caravan draw against the lot', timeCost: 2 , defaultOutcome: 'No draw against this lot.' },
+    { id: 'holdRegister', kind: 'investigative', source: 'records', label: 'Check the hold register', timeCost: 1 , defaultOutcome: 'No hold on record.' },
+    // Questions a caller can answer FROM WHERE THEY ARE STANDING.
+    //
+    // Not tasks. "Go and count your shelf" and "go and audit your sales
+    // ledger" were both here and both had to go: they dispatch the
+    // customer to do TLC's investigating, inside a business we cannot
+    // see, about records that are not ours. An agent asks what somebody
+    // knows. An agent does not set them homework.
+    { id: 'askExpected', kind: 'investigative', source: 'ask', label: 'Ask what they were expecting, and when', timeCost: 1 , defaultOutcome: 'They confirm the order and the date. It matches ours.' },
+    { id: 'askWhoTakesIn', kind: 'investigative', source: 'ask', label: 'Ask who normally takes deliveries in', timeCost: 1 , defaultOutcome: 'Whoever is nearest the door, they say. It varies.' },
+    { id: 'askAnyoneElse', kind: 'investigative', source: 'ask', label: 'Ask whether anyone else has been in touch about it', timeCost: 1 , defaultOutcome: 'Nobody else has been in touch about it.' },
 
     // SUPPORTIVE — actually doing something for them. Not finding out;
     // acting. Every one of these is available on every call, and most of
@@ -144,178 +150,137 @@ const PHANTOM_INVENTORY_TEMPLATE = {
     { id: 'misfiled', label: "They're on your shelf, shelved under the wrong classification" },
     { id: 'underHold', label: "They're here and sealed — a hold was placed on them" },
     { id: 'notOurs', label: 'That stock never shipped at all — it came in over your counter' },
+    { id: 'ourSideClean', label: "Everything on our side checks out — here is the delivery detail" },
     { id: 'theft', label: 'Someone with stockroom access has taken them' },
     { id: 'lostTransit', label: 'The shipment was lost in transit' },
   ],
 
   rootCauses: [
     {
-      // Invisible to TLC. Their sale, their ledger, their omission.
+      // NOT DISCOVERABLE BY TLC. Shipped, delivered, signed, receipt
+      // posted -- our part is clean and the rest is inside a business we
+      // cannot see. The correct call is to say so and hand over the
+      // detail. The unlogged sale is never named, because finding it
+      // would mean rummaging in their books.
       id: 'unlogged-sale',
-      aptSupport: ['nameTheirAction', 'explainCause'],
       weight: 3,
+      discoverable: false,
       trueCategory: 'Phantom Inventory',
       trueDomain: 'Quantity',
-      diagnosisId: 'unloggedSale',
-      keyActionIds: ['askLedger'],
-      redHerringActionId: 'askReceiving',
+      diagnosisId: 'ourSideClean',
+      keyActionIds: ['courierRecord', 'nodeReceipt'],
+      aptSupport: ['setExpectation'],
       clues: {
-        manifest: 'All 40 shipped, logged correctly.',
-        courierRecord: 'Handed over and signed for three days ago.',
-        nodeReceipt: 'Receipt posted the same day, in order.',
-        drawRecord: 'No draw against this lot.',
-        holdRegister: 'No hold on record.',
-        askCount: 'They come back with three. Same as the shelf said.',
-        askReceiving: 'Their apprentice receives most mornings and shelves the same day.',
-        askLedger: 'A festival order went out two days ago — nobody entered it.',
-        askIntake: 'Nothing else came in that week.',
-        nameTheirAction: 'You mention that entering sales as they go keeps the listing current.',
-        explainCause: 'You walk them through it: the stock left, it sold, nobody wrote it down. They follow it.',
+        setExpectation: 'You give them the delivery date, the signature and the receipt reference.',
       },
     },
     {
-      // Solvable entirely from our own records.
+      // Discoverable end to end from our own records.
       id: 'split-lot',
-      aptSupport: ['requestRedraw', 'setExpectation', 'explainCause'],
       weight: 2,
+      discoverable: true,
       trueCategory: 'Phantom Inventory',
       trueDomain: 'Quantity',
       diagnosisId: 'splitLot',
       keyActionIds: ['courierRecord', 'drawRecord'],
+      aptSupport: ['requestRedraw', 'setExpectation', 'explainCause'],
       clues: {
         manifest: 'One lot of 40 — and the courier stamp is on it twice.',
         courierRecord: 'Only four were handed over. Not forty.',
-        nodeReceipt: 'Receipt posted for four units. Four.',
         drawRecord: 'A Caravan draw moved 36 to the Constabulary that same morning.',
-        holdRegister: 'No hold on record.',
-        askCount: 'Four on the shelf.',
-        askReceiving: 'The owner took it in personally. Nobody else touched it.',
-        askLedger: 'Nothing unusual in their sales.',
-        askIntake: 'Nothing else came in.',
-        requestRedraw: 'Recall raised against the Constabulary draw. It will take days, not hours.',
-        setExpectation: 'You tell them the recall takes days and they will hear from us, not the other way round.',
+        requestRedraw: 'Recall raised against the Constabulary draw. Days, not hours.',
+        setExpectation: 'You tell them the recall takes days and that we will come to them.',
         explainCause: 'You explain the double stamp plainly. They are furious at the stamp, not at you.',
       },
     },
     {
-      // Chain of custody. Received by one, shelved by another, entered
-      // by nobody -- and TLC cannot see any of those three steps.
+      // NOT DISCOVERABLE. Received and shelved by different hands and
+      // entered by nobody -- all of it downstream of the Node receipt.
       id: 'shelved-not-entered',
-      aptSupport: ['nameTheirAction', 'explainCause'],
       weight: 3,
+      discoverable: false,
       trueCategory: 'Phantom Inventory',
       trueDomain: 'Quantity',
-      diagnosisId: 'shelvedNotEntered',
-      keyActionIds: ['askReceiving'],
-      redHerringActionId: 'askIntake',
+      diagnosisId: 'ourSideClean',
+      keyActionIds: ['courierRecord', 'nodeReceipt'],
+      redHerringActionId: 'courierRecord',
+      aptSupport: ['setExpectation'],
       clues: {
-        manifest: 'All 40 shipped.',
         courierRecord: 'Signed for. The signature is a mark, not a name.',
-        nodeReceipt: 'Receipt posted, on time, by the Node.',
-        drawRecord: 'No draw against this lot.',
-        holdRegister: 'No hold on record.',
-        askCount: 'They find forty. They sound less certain than they did.',
-        askReceiving: 'A casual hand took it in and stacked it. Nobody entered it in the book.',
-        askLedger: 'Their ledger has no record of it arriving at all.',
-        askIntake: 'A crate of returns came back the same week.',
-        nameTheirAction: 'You mention that receiving and entering on the same day closes the gap.',
-        explainCause: 'You explain that it arrived and was shelved and nobody wrote it down. They go quiet.',
+        askWhoTakesIn: 'Whoever is free. A casual hand took it in that week.',
+        setExpectation: 'You give them the date, the mark that was signed, and the receipt.',
       },
     },
     {
-      // Not phantom inventory. Nothing is missing yet.
       id: 'second-leg-in-transit',
-      aptSupport: ['setExpectation'],
       weight: 2,
+      discoverable: true,
       trueCategory: 'Bulk Potion Order Delay',
       trueDomain: 'Fulfillment',
       diagnosisId: 'secondLeg',
       keyActionIds: ['manifest'],
+      aptSupport: ['setExpectation'],
       clues: {
         manifest: 'Booked as a two-leg Priority Relay. This is leg one of two.',
         courierRecord: 'Leg one handed over. Leg two is not due until tomorrow.',
-        nodeReceipt: 'Receipt posted for leg one. Leg two is still outstanding.',
-        drawRecord: 'No draw against this lot.',
-        holdRegister: 'No hold on record.',
-        askCount: 'The count matches leg one precisely.',
-        askReceiving: 'Received and shelved the same day, no trouble.',
-        askLedger: 'Nothing unusual.',
-        askIntake: 'Nothing else came in.',
+        nodeReceipt: 'Receipt posted for leg one. Leg two still outstanding.',
+        askExpected: 'They were told forty. Nobody mentioned it came in two parts.',
         setExpectation: 'You tell them leg two lands tomorrow. Nothing else is required of anyone.',
       },
     },
     {
-      // Not phantom inventory. It is on the shelf under the wrong name.
+      // Only comes out if the agent SHARES what shipped. The customer
+      // supplies the rest -- we could never have found it.
       id: 'misfiled-at-intake',
-      aptSupport: ['correctListing', 'nameTheirAction'],
       weight: 2,
+      discoverable: false,
       trueCategory: 'Storefront Listing Error',
       trueDomain: 'Accounts',
       diagnosisId: 'misfiled',
-      keyActionIds: ['askCount'],
-      redHerringActionId: 'courierRecord',
+      keyActionIds: ['manifest'],
+      aptSupport: ['correctListing', 'explainCause'],
       clues: {
         manifest: 'All 40 shipped, as Small.',
         courierRecord: 'Signed for by J. Marrow, the 11th.',
-        nodeReceipt: 'Receipt posted in full — forty, acknowledged.',
-        drawRecord: 'No draw against this lot.',
-        holdRegister: 'No hold on record.',
-        askCount: 'Forty are there — stacked under Large. Their listing cannot see them.',
-        askReceiving: 'Shelved by whoever was free that afternoon.',
-        askLedger: 'Nothing unusual.',
-        askIntake: 'Nothing else came in.',
-        correctListing: 'You reclassify the lot from Large to Small. Their listing finds forty units immediately.',
-        nameTheirAction: 'You mention that Large and Small ship under separate labels.',
+        askWhoTakesIn: 'Whoever is free that afternoon puts it away.',
+        correctListing: 'You reclassify the lot from Large to Small. Their listing finds forty at once.',
+        explainCause: 'You mention the two sizes ship under separate labels. There is a pause at their end.',
       },
     },
     {
-      // Ours to see, and only ours.
       id: 'constabulary-hold',
-      aptSupport: ['holdReference', 'setExpectation'],
       weight: 1,
+      discoverable: true,
       trueCategory: 'Goods Under Hold',
       trueDomain: 'Fulfillment',
       diagnosisId: 'underHold',
       keyActionIds: ['holdRegister'],
+      aptSupport: ['holdReference', 'setExpectation'],
       clues: {
-        manifest: 'All 40 shipped.',
-        courierRecord: 'Delivered and signed for.',
-        nodeReceipt: 'Receipt posted, with the hold noted against it.',
-        drawRecord: 'No draw against this lot.',
         holdRegister: 'A Constabulary hold was placed on the lot the day it landed.',
-        askCount: 'The crates are there, sealed and tagged. Not theirs to open.',
-        askReceiving: 'Received and left sealed, as instructed.',
-        askLedger: 'Nothing unusual.',
-        askIntake: 'Nothing else came in.',
+        nodeReceipt: 'Receipt posted, with the hold noted against it.',
         holdReference: 'You pull the hold reference. It is the Constabulary they need now, not us.',
         setExpectation: 'You are honest that we cannot say how long a hold runs. They do not enjoy hearing it.',
       },
     },
     {
-      // TLC is an accidental MONOPOLY -- there is no rival carrier, so
-      // "somebody else shipped it" is not a thing that can happen. What
-      // can happen is that goods never moved through the network at
-      // all: an adventurer walked in with a haul and sold it over the
-      // counter. Nothing to ship, nothing to record.
+      // TLC is a monopoly, so there is no rival carrier -- this simply
+      // never moved through the network. Our records show nothing
+      // because there was nothing to record.
       id: 'counter-bought',
-      aptSupport: ['nameTheirAction', 'explainCause'],
       weight: 2,
+      discoverable: true,
       trueCategory: 'Counter-Bought Stock',
       trueDomain: 'Accounts',
       diagnosisId: 'notOurs',
-      keyActionIds: ['manifest', 'askIntake'],
+      keyActionIds: ['manifest'],
+      aptSupport: ['explainCause'],
       clues: {
         manifest: 'No shipment of that size to this account. Nothing to ship means nothing to find.',
         courierRecord: 'No delivery report. Nothing ever moved.',
         nodeReceipt: 'No receipt. There was nothing for the Node to receive.',
-        drawRecord: 'No draw against a lot we do not have.',
-        holdRegister: 'No hold on record.',
-        askCount: 'Three on the shelf, as they said.',
-        askReceiving: 'Nobody remembers taking a TLC delivery that week.',
-        askLedger: 'The forty were entered as stock. No supplier against them.',
-        askIntake: 'An adventurer came in with a haul three weeks ago. They bought the lot over the counter and never wrote down who.',
-        nameTheirAction: 'You mention that counter purchases need a supplier recorded against them.',
-        explainCause: 'You explain that nothing shipped because nothing was ever sent. It takes a moment to land.',
+        askExpected: 'They are certain of the forty. Less certain about who they ordered them from.',
+        explainCause: 'You explain that nothing shipped because nothing was sent. It takes a moment to land.',
       },
     },
   ],

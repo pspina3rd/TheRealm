@@ -1445,6 +1445,56 @@ of.
   good as their own bookkeeping.** Baggage shapes how willingly and how
   accurately they answer.
 
+### An agent asks what you know. An agent does not set you homework.
+
+**Locked, after two builds got it wrong.** "Go and count your shelf" and
+"go and check your own sales ledger" were both on the menu as things an
+agent could do. Both are TLC **dispatching a customer to carry out TLC's
+investigation**, inside a business we cannot see, about records that are
+not ours. Making them merely *expensive* was not the fix; they should
+never have been options.
+
+The line: **asking what somebody knows from where they are standing is a
+question. Sending them off to do work is not.** "Who normally takes
+deliveries in?" is a question. "Go and audit your books and call us
+back" is homework, and it is also an accusation.
+
+Conversational questions are cheap — a single inquiry — because that is
+what they cost in life.
+
+### When our part is discharged, saying so IS the answer
+
+**Not every root cause is TLC's to find.** Our sight ends at the Node's
+receipt. When the records are clean — shipped, delivered, signed, receipt
+posted — the correct determination is *"everything on our side checks
+out, here is the delivery detail"*, at **full standing**. It is not a
+partial answer, and it is not a failure to diagnose.
+
+What happened afterwards, inside their operation, is genuinely theirs.
+An agent who keeps going past this point is not being thorough; they are
+rummaging, and that is where both the blame and the condescension in
+earlier drafts came from. **You can only tell somebody they failed to
+log a sale if you went looking in their books first.**
+
+So a cause is marked `discoverable` or not:
+
+| Discoverable from our records | Not ours to find |
+| --- | --- |
+| Split lot and Caravan draw | Unlogged sale |
+| Second leg still in transit | Received and shelved but never entered |
+| Constabulary hold | Misfiled at intake — unless *they* volunteer it |
+| Counter-bought (we shipped nothing) | |
+
+**The undiscoverable ones still have a right answer.** It is just not the
+cause — it is the discharge, delivered cleanly, with the detail handed
+over. Guessing at their internals from a clean record scores as
+overreach, not insight.
+
+*(And a cause that is invisible to a lookup can still come out — when the
+agent shares what they hold and the caller contradicts it. "Shipped as
+Small." "Small? We shelved those as Large." We could never have found
+that; they could never have known to say it.)*
+
 ### "Go and check your shelves" — the timing is the service
 
 **An ask is never neutral.** Sending a customer off to count their own

@@ -520,7 +520,7 @@ function phantomInventoryTicket() {
 
 test('resolveInvestigation: correct diagnosis + key clue investigated -> correct, grounded', () => {
   const ticket = phantomInventoryTicket();
-  const result = resolveInvestigation(ticket, ['askLedger'], 'unloggedSale');
+  const result = resolveInvestigation(ticket, ['courierRecord', 'nodeReceipt'], 'ourSideClean');
   assert.equal(result.standing, 'correct');
   assert.equal(result.grounding, 'grounded');
   assert.equal(result.quality, 'correct');
@@ -530,7 +530,7 @@ test('resolveInvestigation: right answer with nothing behind it is PARTIAL, not 
   // Says the right thing, cannot back it up. Not wrong -- but not the
   // same as having done the work, and the standing says so.
   const ticket = phantomInventoryTicket();
-  const result = resolveInvestigation(ticket, ['manifest', 'courierRecord'], 'unloggedSale');
+  const result = resolveInvestigation(ticket, ['manifest', 'courierRecord'], 'ourSideClean');
   assert.equal(result.standing, 'partial');
   assert.equal(result.grounding, 'lucky');
   assert.equal(result.quality, 'adequate');
@@ -549,7 +549,7 @@ test('resolveInvestigation: wrong after real investigation is PARTIAL, not wrong
   // reasoned from something. "Right kind of problem, wrong instance" is
   // the most common real outcome and must not collapse into "wrong."
   const ticket = phantomInventoryTicket();
-  const result = resolveInvestigation(ticket, ['askReceiving'], 'theft');
+  const result = resolveInvestigation(ticket, ['askWhoTakesIn'], 'theft');
   assert.equal(result.standing, 'partial');
   assert.equal(result.grounding, 'reasoned');
   assert.equal(result.quality, 'rushed');
@@ -560,8 +560,8 @@ test('resolveInvestigation: partial is reachable from BOTH directions', () => {
   // lucky right answer and a reasoned wrong one both land in it, from
   // opposite sides, and the grounding is what tells them apart.
   const ticket = phantomInventoryTicket();
-  const luckyRight = resolveInvestigation(ticket, [], 'unloggedSale');
-  const reasonedWrong = resolveInvestigation(ticket, ['askReceiving'], 'theft');
+  const luckyRight = resolveInvestigation(ticket, [], 'ourSideClean');
+  const reasonedWrong = resolveInvestigation(ticket, ['askWhoTakesIn'], 'theft');
   assert.equal(luckyRight.standing, 'partial');
   assert.equal(reasonedWrong.standing, 'partial');
   assert.notEqual(luckyRight.grounding, reasonedWrong.grounding);
@@ -573,8 +573,8 @@ test('resolveInvestigation: this is exactly the case the old model could not dis
   // tests the failure mode the old single-button model had (a player
   // could win every ticket by always clicking the same option).
   const ticket = phantomInventoryTicket();
-  const underInvestigated = resolveInvestigation(ticket, [], 'unloggedSale');
-  const fullyInvestigated = resolveInvestigation(ticket, ['askLedger'], 'unloggedSale');
+  const underInvestigated = resolveInvestigation(ticket, [], 'ourSideClean');
+  const fullyInvestigated = resolveInvestigation(ticket, ['courierRecord', 'nodeReceipt'], 'ourSideClean');
   assert.notEqual(underInvestigated.standing, fullyInvestigated.standing);
   assert.equal(underInvestigated.standing, 'partial');
   assert.equal(fullyInvestigated.standing, 'correct');
@@ -631,8 +631,8 @@ test('investigationTimeCost: sums only the actions actually taken', () => {
   assert.equal(investigationTimeCost(ticket, []), 0);
   assert.equal(investigationTimeCost(ticket, ['manifest']), 1);
   const cost = (id) => PHANTOM_INVENTORY_TEMPLATE.actions.find((a) => a.id === id).timeCost;
-  assert.equal(investigationTimeCost(ticket, ['manifest', 'askLedger']),
-    cost('manifest') + cost('askLedger'));
+  assert.equal(investigationTimeCost(ticket, ['manifest', 'courierRecord']),
+    cost('manifest') + cost('courierRecord'));
   // Investigating everything costs the sum of every action, not a flat rate.
   const allIds = PHANTOM_INVENTORY_TEMPLATE.actions.map((a) => a.id);
   const expectedTotal = PHANTOM_INVENTORY_TEMPLATE.actions.reduce((s, a) => s + a.timeCost, 0);
@@ -691,9 +691,11 @@ test('the same investigation action yields different evidence per cause', () => 
   assert.ok(new Set(courierClues).size >= 4,
     'the courier record must say different things depending on what actually happened');
 
-  const countClues = PHANTOM_INVENTORY_TEMPLATE.rootCauses.map((c) => clueFor(c.id, 'askCount'));
-  assert.equal(new Set(countClues).size, PHANTOM_INVENTORY_TEMPLATE.rootCauses.length,
-    'asking them to count should come back different every time');
+  // Not every lookup differs on every call -- most come back ordinary,
+  // which is why the ones that do not are worth finding.
+  const manifestClues = PHANTOM_INVENTORY_TEMPLATE.rootCauses.map((c) => clueFor(c.id, 'manifest'));
+  assert.ok(new Set(manifestClues).size >= 4,
+    'the manifest must say different things depending on what actually happened');
 });
 
 test('some causes are NOT actually this category', () => {
@@ -734,8 +736,8 @@ test('a two-clue cause is not backed up by one of them', () => {
 test('the same diagnosis is right or wrong depending on the root cause', () => {
   // The sharpest consequence of sub-variables: there is no globally
   // correct answer for a category, only a correct answer for THIS call.
-  const onUnlogged = resolveInvestigation(ticketWithCause('unlogged-sale'), ['askLedger'], 'unloggedSale');
-  const onHold = resolveInvestigation(ticketWithCause('constabulary-hold'), ['askLedger'], 'unloggedSale');
+  const onUnlogged = resolveInvestigation(ticketWithCause('unlogged-sale'), ['courierRecord', 'nodeReceipt'], 'ourSideClean');
+  const onHold = resolveInvestigation(ticketWithCause('constabulary-hold'), ['courierRecord', 'nodeReceipt'], 'ourSideClean');
 
   assert.equal(onUnlogged.standing, 'correct');
   assert.equal(onHold.standing, 'partial', 'same answer, different call, no longer right');
@@ -1029,40 +1031,56 @@ test('investigation splits into TLC records and things only the customer can fin
   }
 });
 
-test('asking the customer costs more patience than reading our own records', () => {
-  // Sending somebody to go and count is a real imposition. Reading a
-  // manifest is not.
-  const actions = PHANTOM_INVENTORY_TEMPLATE.actions;
-  const avg = (src) => {
-    const xs = actions.filter((a) => a.source === src).map((a) => a.timeCost);
-    return xs.reduce((x, y) => x + y, 0) / xs.length;
-  };
-  assert.ok(avg('ask') > avg('records'),
-    `asks (${avg('ask').toFixed(1)}) must cost more than records (${avg('records').toFixed(1)})`);
+test('asks are conversational now, not homework', () => {
+  // "Go and count your shelf" and "go and audit your ledger" were both
+  // in this menu and both had to go. An agent asks what somebody knows
+  // from where they are standing; an agent does not set them tasks.
+  const asks = PHANTOM_INVENTORY_TEMPLATE.actions.filter((a) => a.source === 'ask');
+  assert.ok(asks.length > 0);
+
+  const homework = /go and|check their own|count the shelf|audit|call us back/i;
+  for (const a of asks) {
+    assert.equal(homework.test(a.label), false,
+      `"${a.label}" dispatches the customer to do our investigating`);
+    assert.ok(a.timeCost <= 1,
+      `${a.id} costs ${a.timeCost} — a question asked in conversation is cheap`);
+  }
 });
 
-test('some causes cannot be solved from TLC records alone', () => {
-  // The agent's reach is genuinely limited. A player who only ever
-  // checks their own systems will close a whole class of ticket wrongly.
-  const recordIds = PHANTOM_INVENTORY_TEMPLATE.actions
-    .filter((a) => a.source === 'records').map((a) => a.id);
 
-  const needsCustomer = PHANTOM_INVENTORY_TEMPLATE.rootCauses
-    .filter((c) => !c.keyActionIds.every((id) => recordIds.includes(id)));
 
-  assert.ok(needsCustomer.length >= 3,
-    'most phantom inventory lives on the customer side of the handoff');
+test('some causes are not TLC\'s to discover at all', () => {
+  // Our part ends at the Node's receipt. When the records are clean,
+  // the right call is to SAY SO and hand over the detail -- not to go
+  // rummaging in somebody's business for an explanation that is theirs.
+  const undiscoverable = PHANTOM_INVENTORY_TEMPLATE.rootCauses.filter((c) => !c.discoverable);
+  assert.ok(undiscoverable.length >= 2, 'most phantom inventory lives past our reach');
 
-  // And prove it end to end: every TLC record in hand, still not grounded.
+  for (const cause of undiscoverable) {
+    const ticket = ticketWithCause(cause.id);
+    // Confirming our side IS the correct determination, at full standing.
+    const done = resolveInvestigation(ticket, cause.keyActionIds, cause.diagnosisId);
+    assert.equal(done.standing, 'correct',
+      `${cause.id}: discharging our part correctly must be a full outcome, not a partial one`);
+    assert.equal(done.grounding, 'grounded');
+  }
+});
+
+test('closing correctly without naming the cause is a real outcome', () => {
+  // The unlogged sale is never named, because naming it would mean
+  // having gone through their books.
   const ticket = ticketWithCause('unlogged-sale');
-  const fromRecordsOnly = resolveInvestigation(ticket, recordIds, 'unloggedSale');
-  assert.equal(fromRecordsOnly.standing, 'partial');
-  assert.equal(fromRecordsOnly.grounding, 'lucky',
-    'every record we hold, and still no basis for the answer');
+  assert.equal(ticket.investigation.correctDiagnosisId, 'ourSideClean');
 
-  const withTheirLedger = resolveInvestigation(ticket, [...recordIds, 'askLedger'], 'unloggedSale');
-  assert.equal(withTheirLedger.standing, 'correct');
+  const clean = resolveInvestigation(ticket, ['courierRecord', 'nodeReceipt'], 'ourSideClean');
+  assert.equal(clean.standing, 'correct');
+
+  // And guessing at their internals is NOT the right answer.
+  const overreach = resolveInvestigation(ticket, ['courierRecord', 'nodeReceipt'], 'theft');
+  assert.notEqual(overreach.standing, 'correct');
 });
+
+
 
 test('a merchant\'s shelf holds stock that never shipped at all', () => {
   // TLC is an accidental monopoly, so there is no rival carrier to
@@ -1074,10 +1092,11 @@ test('a merchant\'s shelf holds stock that never shipped at all', () => {
   assert.match(manifest.clue, /no shipment/i, 'the manifest shows nothing because nothing shipped');
 
   // Needs our record AND their intake -- neither alone is enough.
-  const ours = resolveInvestigation(ticket, ['manifest'], 'notOurs');
-  const both = resolveInvestigation(ticket, ['manifest', 'askIntake'], 'notOurs');
-  assert.equal(ours.standing, 'partial');
-  assert.equal(both.standing, 'correct');
+  // Discoverable from our own records: we have no such shipment.
+  const fromRecords = resolveInvestigation(ticket, ['manifest'], 'notOurs');
+  assert.equal(fromRecords.standing, 'correct');
+  const guessed = resolveInvestigation(ticket, [], 'notOurs');
+  assert.equal(guessed.standing, 'partial', 'right answer, no basis for it');
 });
 
 
@@ -1189,54 +1208,36 @@ test('registerOf falls back safely rather than throwing', () => {
 // "Go and check your shelves" — how an ask lands
 // ---------------------------------------------------------------------
 
-test('asking before you have looked yourself costs the relationship', () => {
-  // Opening with "go and count your shelf" tells a customer two things:
-  // that you think they miscounted, and that you have not looked. The
-  // same request after checking our own records is collaboration.
-  const ticket = ticketWithCause('unlogged-sale');
+test('asking about their operation before checking ours still costs', () => {
+  // Weaker than it was, and rightly so -- these are questions now, not
+  // tasks. But asking a caller about their staff before you have looked
+  // at your own records still implies you think it is their problem.
+  const ticket = ticketWithCause('shelved-not-entered');
 
-  const coldOpen = askRelationshipCost(ticket, ['askLedger']);
-  const afterHomework = askRelationshipCost(ticket, ['manifest', 'courierRecord', 'askLedger']);
+  const coldOpen = askRelationshipCost(ticket, ['askWhoTakesIn']);
+  const afterHomework = askRelationshipCost(ticket, ['courierRecord', 'askWhoTakesIn']);
 
   assert.equal(coldOpen.unearnedAsks, 1);
   assert.equal(afterHomework.unearnedAsks, 0);
-  assert.ok(coldOpen.you < afterHomework.you,
-    'the cold open must cost more of their opinion of you');
-  assert.equal(afterHomework.you, 0, 'an earned ask should not damage the relationship at all');
+  assert.ok(coldOpen.you < afterHomework.you);
+  assert.equal(afterHomework.you, 0, 'an earned question should not damage anything');
 });
 
-test('every ask costs their time, earned or not', () => {
-  // Doing your homework first makes the request reasonable. It does not
-  // make it free -- it is still their afternoon.
-  const ticket = ticketWithCause('unlogged-sale');
-  const earned = askRelationshipCost(ticket, ['manifest', 'askLedger']);
-  assert.ok(earned.experience < 0, 'their time is spent either way');
-  assert.equal(earned.you, 0);
-});
-
-test('checking records costs the customer nothing', () => {
+test('checking our own records costs the customer nothing', () => {
   const ticket = ticketWithCause('split-lot');
   const recordsOnly = askRelationshipCost(ticket, ['manifest', 'courierRecord', 'nodeReceipt', 'drawRecord']);
   assert.deepEqual(recordsOnly, { you: 0, experience: 0, unearnedAsks: 0 });
 });
 
-test('repeated cold asks compound', () => {
-  const ticket = ticketWithCause('unlogged-sale');
-  const one = askRelationshipCost(ticket, ['askCount']);
-  const three = askRelationshipCost(ticket, ['askCount', 'askReceiving', 'askLedger']);
-  assert.equal(three.unearnedAsks, 3);
-  assert.ok(three.you < one.you, 'sending them off three times running is worse than once');
-});
-
-test('order matters, not just which actions were taken', () => {
-  // Same four actions, different sequence, different call. This is the
-  // whole point: it is about the moment, not the menu.
-  const ticket = ticketWithCause('unlogged-sale');
-  const badOrder = askRelationshipCost(ticket, ['askLedger', 'manifest']);
-  const goodOrder = askRelationshipCost(ticket, ['manifest', 'askLedger']);
+test('order matters, not just which questions were asked', () => {
+  const ticket = ticketWithCause('shelved-not-entered');
+  const badOrder = askRelationshipCost(ticket, ['askWhoTakesIn', 'courierRecord']);
+  const goodOrder = askRelationshipCost(ticket, ['courierRecord', 'askWhoTakesIn']);
   assert.ok(badOrder.you < goodOrder.you);
   assert.equal(goodOrder.you, 0);
 });
+
+
 
 
 // ---------------------------------------------------------------------
@@ -1832,7 +1833,7 @@ test('running out leaves the determination available', () => {
   const drained = ticket.investigation.actions.map((a) => a.id);
   assert.ok(inquiriesSpent(ticket, drained, 0) > CALL_INQUIRY_BUDGET);
 
-  const result = resolveInvestigation(ticket, [], 'unloggedSale');
+  const result = resolveInvestigation(ticket, [], 'ourSideClean');
   assert.ok(['correct', 'partial', 'wrong'].includes(result.standing),
     'a determination is always reachable, however little was gathered');
 });
