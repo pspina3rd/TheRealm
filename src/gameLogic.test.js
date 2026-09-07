@@ -27,6 +27,9 @@ const {
   TICKET_TEMPLATES,
   DOMAINS,
   registerOf,
+  DELIVERIES,
+  deliveryFit,
+  deliveryPreference,
   familiarityOf,
   askRelationshipCost,
   ARCHETYPE_REGISTERS,
@@ -1505,4 +1508,73 @@ test('the same support is right on one call and useless on another', () => {
   assert.equal(fix(misfiled).apt, true);
   assert.equal(fix(hold).apt, false);
   assert.notEqual(fix(misfiled).clue, fix(hold).clue);
+});
+
+
+// ---------------------------------------------------------------------
+// Delivery — an inquiry is an intent, not a sentence
+// ---------------------------------------------------------------------
+
+test('an inquiry has several deliveries and most are not questions', () => {
+  // "May I have your name?" / "To proceed, please provide your name." /
+  // "I'm Wren, and your name?" -- same intent, different sentence, and
+  // only some of them are questions at all.
+  assert.ok(DELIVERIES.length >= 5, 'one phrasing per inquiry is not a choice');
+  const ids = DELIVERIES.map((d) => d.id);
+  for (const notAQuestion of ['directive', 'procedural', 'transactional']) {
+    assert.ok(ids.includes(notAQuestion),
+      `${notAQuestion} is a statement form -- inquiries are not all questions`);
+  }
+});
+
+test('NO delivery is right for everyone', () => {
+  // The whole point. If one phrasing always won there would be nothing
+  // to judge and the player would learn it once and stop thinking.
+  const people = [
+    { archetype: 'Tavern', disposition: { you: -40, experience: -30 } },
+    { archetype: 'Kingdom', disposition: { you: 10, experience: 0 } },
+    { archetype: 'Hero', disposition: { you: 0, experience: -40 } },
+    { archetype: 'NPC', disposition: { you: -5, experience: 5 } },
+  ];
+  const bestFor = people.map((p) => DELIVERIES
+    .map((d) => [d.id, deliveryFit(d.id, p)])
+    .sort((a, b) => b[1] - a[1])[0][0]);
+
+  assert.ok(new Set(bestFor).size > 1,
+    `different people must want different deliveries, all wanted ${bestFor[0]}`);
+});
+
+test('the best delivery for one caller is a poor one for another', () => {
+  const upsetAndChatty = { archetype: 'Tavern', disposition: { you: -40, experience: -30 } };
+  const calmAndFormal = { archetype: 'Kingdom', disposition: { you: 10, experience: 0 } };
+
+  // Warm and reciprocal for somebody upset; cold and transactional for
+  // somebody who just wants it handled. Each is wrong for the other.
+  assert.ok(deliveryFit('reciprocal', upsetAndChatty) > deliveryFit('reciprocal', calmAndFormal));
+  assert.ok(deliveryFit('transactional', calmAndFormal) > deliveryFit('transactional', upsetAndChatty));
+});
+
+test('someone upset wants warmth; someone worn down wants you to get on with it', () => {
+  const upset = deliveryPreference({ archetype: 'NPC', disposition: { you: -50, experience: 0 } });
+  const wornDown = deliveryPreference({ archetype: 'NPC', disposition: { you: 0, experience: -50 } });
+  const easy = deliveryPreference({ archetype: 'NPC', disposition: { you: 0, experience: 0 } });
+
+  assert.ok(upset.warmth > easy.warmth);
+  assert.ok(wornDown.directness > easy.directness);
+  assert.equal(upset.directness, easy.directness, 'being upset is not the same as being in a hurry');
+});
+
+test('register sets the formality a caller is comfortable with', () => {
+  const kingdom = deliveryPreference({ archetype: 'Kingdom', disposition: {} });
+  const tavern = deliveryPreference({ archetype: 'Tavern', disposition: {} });
+  assert.ok(kingdom.formality > tavern.formality);
+});
+
+test('deliveryFit stays in range and fails safe', () => {
+  for (const d of DELIVERIES) {
+    const fit = deliveryFit(d.id, { archetype: 'Hero', disposition: { you: -100, experience: -100 } });
+    assert.ok(fit >= 0 && fit <= 1, `${d.id} produced ${fit}`);
+  }
+  assert.equal(deliveryFit('not-a-delivery', { archetype: 'NPC', disposition: {} }), 0);
+  assert.ok(deliveryFit('plain', {}) >= 0);
 });

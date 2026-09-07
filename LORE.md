@@ -1493,6 +1493,65 @@ design. Do not build anything that maps one to the other.)*
 on what they have — under-informed, and adjudicated later by other
 people like every other determination.
 
+### An inquiry is an intent, not a sentence — locked
+
+**Inquiries are not always questions.** These all obtain the same thing:
+
+> *"May I have your name?"*
+> *"And what is your name?"*
+> *"To proceed, please provide your name."*
+> *"The next thing we need is your name."*
+> *"I'm Wren, and your name?"*
+> *"Thank you for that. To continue we need your name."*
+
+Same intent. Six **deliveries**, and three of them are not questions at
+all. The information obtained is identical. **What changes is how it
+lands** — and that depends on who is on the line and on the agent
+delivering it.
+
+So an inquiry has two parts, and the player chooses both:
+
+- **The intent** — what you are trying to obtain. This is what spends
+  one of the nine.
+- **The delivery** — how you put it. Free, and most of the actual job.
+
+Deliveries vary on three axes: **directness** (how hard it presses),
+**warmth** (how much of the agent is in it), and **formality**
+(register). A directive to somebody already upset is cold. A reciprocal
+*"I'm Wren, and your name?"* to a Kingdom account is over-familiar.
+**Neither is wrong in the abstract** — and nothing is universally right,
+which there is a test for. If one phrasing always won, the player would
+learn it once and stop thinking.
+
+What a caller wants is set by their register (the formality they are
+comfortable with) plus their current state: somebody **upset** wants
+warmth, somebody **worn down by the episode** wants you to get to the
+point. Those are different needs and must not collapse into one.
+
+Worked example — the same request to an upset, chatty Tavern:
+
+| Fit | Delivery |
+| --- | --- |
+| **0.71** | *"I'm Wren, and your name?"* |
+| 0.57 | *"And your name?"* |
+| 0.43 | *"May I have your name?"* |
+| 0.29 | *"To proceed, please provide your name."* |
+| **0.14** | *"The next thing we need is your name."* |
+
+To a calm Kingdom account the order roughly inverts, and the
+transactional form scores best of all.
+
+**This is where Empathy actually lives.** Choosing the delivery that
+suits this person *is* the skill. Empathy is earned (see "Education &
+Empathy"), so a new agent picks by instinct and finds out afterwards —
+and finds out only through the customer's cues, which are ambiguous by
+design. The game never scores the choice.
+
+*Implementation note*: phrasings are written once as forms with a slot
+for the intent's subject — "your name", "the shelf count", "who signed
+for it" — so one set of deliveries serves every inquiry rather than six
+phrasings being written per action.
+
 ### Three kinds of inquiry — a tendency, not a sequence
 
 A rough shape of how the nine tend to fall, **explicitly not locked**:

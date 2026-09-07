@@ -804,6 +804,91 @@ function investigationTimeCost(ticket, investigatedActionIds) {
 }
 
 /**
+ * DELIVERY — an inquiry is an intent, not a sentence.
+ *
+ * **An inquiry is not always a question.** Every one of these obtains
+ * the same thing:
+ *
+ *   "May I have your name?"                                  question
+ *   "And what is your name?"                                  plain
+ *   "To proceed, please provide your name."                   directive
+ *   "The next thing we need is your name."                    procedural
+ *   "I'm Wren, and your name?"                                reciprocal
+ *   "Thank you. To continue we need your name."               transactional
+ *
+ * Same intent. Six deliveries, three of them not questions at all. What
+ * changes is not the information — it is how it lands, and that depends
+ * on who is on the line.
+ *
+ * `directness` is how much it presses; `warmth` is how much of the
+ * agent is in it; `formality` is register. A directive to somebody
+ * already upset is cold. A reciprocal "I'm Wren, and your name?" to a
+ * Kingdom account is over-familiar. Neither is wrong in the abstract.
+ *
+ * **This is where Empathy actually lives.** Choosing the delivery that
+ * suits this person is the skill; Empathy is earned, so a new agent
+ * picks by instinct and finds out afterwards. See LORE.md, "Education
+ * & Empathy."
+ */
+const DELIVERIES = [
+  { id: 'question', warmth: 1, formality: 0, directness: 0 },
+  { id: 'plain', warmth: 0, formality: -1, directness: 1 },
+  { id: 'directive', warmth: -1, formality: 1, directness: 2 },
+  { id: 'procedural', warmth: -1, formality: 1, directness: 1 },
+  { id: 'reciprocal', warmth: 2, formality: -1, directness: 0 },
+  { id: 'transactional', warmth: 0, formality: 1, directness: 0 },
+];
+
+/**
+ * What this customer, right now, wants from a delivery.
+ *
+ * Register sets the formality they are comfortable with. Their state
+ * sets the rest: somebody upset needs warmth, and somebody who has
+ * already been kept a long time wants you to get to the point.
+ *
+ * @param {object} customer
+ * @returns {{ warmth: number, formality: number, directness: number }}
+ */
+function deliveryPreference(customer) {
+  const register = registerOf(customer);
+  const formality = { formal: 1, grand: 1, plain: 0, chatty: -1, deferential: 0 }[register] || 0;
+
+  const disposition = (customer && customer.disposition) || {};
+  const you = disposition.you || 0;
+  const experience = disposition.experience || 0;
+
+  // Upset with you -> wants warmth. Worn down by the episode -> wants
+  // you to get on with it.
+  const warmth = you < -20 ? 2 : you < 0 ? 1 : 0;
+  const directness = experience < -20 ? 2 : experience < 0 ? 1 : 0;
+
+  return { warmth, formality, directness };
+}
+
+/**
+ * How well a delivery suits this customer. Higher is better.
+ *
+ * Returns a plain closeness score rather than a verdict — nothing here
+ * tells the player they chose well; the customer's cues do that, and
+ * they are ambiguous on purpose (see readCues).
+ *
+ * @param {string} deliveryId
+ * @param {object} customer
+ * @returns {number} 0 (badly mismatched) .. 1 (well judged)
+ */
+function deliveryFit(deliveryId, customer) {
+  const delivery = DELIVERIES.find((d) => d.id === deliveryId);
+  if (!delivery) return 0;
+  const want = deliveryPreference(customer);
+
+  const distance = Math.abs(delivery.warmth - want.warmth)
+    + Math.abs(delivery.formality - want.formality)
+    + Math.abs(delivery.directness - want.directness);
+
+  // Worst case across the ranges in play is 7; keep it in 0..1.
+  return clamp(1 - distance / 7, 0, 1);
+}
+/**
  * WHERE THE TWO ACCOUNTS DISAGREE.
  *
  * There are two memories of every past call and they are not the same
@@ -1094,6 +1179,30 @@ const OPENING_LINES = {
     deferential: 'They start, stop, and apologise for having started.',
   },
 };
+
+// UI-ONLY. The same inquiry, put six ways.
+//
+// An inquiry is an INTENT. These are the sentences it can be delivered
+// in, and three of them are not questions at all. The information
+// obtained is identical; what changes is how it lands on this
+// particular person. See gameLogic's DELIVERIES / deliveryFit().
+//
+// `%s` is the intent's own subject -- "your name", "the shelf count",
+// "who signed for it" -- so one set of forms serves every inquiry
+// rather than writing six phrasings per action.
+const DELIVERY_FORMS = {
+  question: 'May I have %s?',
+  plain: 'And %s?',
+  directive: 'To proceed, please provide %s.',
+  procedural: 'The next thing we need is %s.',
+  reciprocal: "I'm %A, and %s?",
+  transactional: 'Thank you for that. To continue we need %s.',
+};
+
+function phrase(deliveryId, subject, agentName) {
+  const form = DELIVERY_FORMS[deliveryId] || DELIVERY_FORMS.plain;
+  return form.replace('%s', subject).replace('%A', agentName || 'the front desk');
+}
 
 // UI-ONLY. Cues rendered as behaviour the player watches. Never a
 // verdict -- the game does not say how anyone feels, it says what they
