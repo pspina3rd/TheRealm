@@ -30,6 +30,7 @@ const {
   DELIVERIES,
   deliveryFit,
   deliveryPreference,
+  rollDayVariance,
   familiarityOf,
   askRelationshipCost,
   ARCHETYPE_REGISTERS,
@@ -1530,12 +1531,11 @@ test('an inquiry has several deliveries and most are not questions', () => {
 test('NO delivery is right for everyone', () => {
   // The whole point. If one phrasing always won there would be nothing
   // to judge and the player would learn it once and stop thinking.
-  const people = [
-    { archetype: 'Tavern', disposition: { you: -40, experience: -30 } },
-    { archetype: 'Kingdom', disposition: { you: 10, experience: 0 } },
-    { archetype: 'Hero', disposition: { you: 0, experience: -40 } },
-    { archetype: 'NPC', disposition: { you: -5, experience: 5 } },
-  ];
+  const people = [1, 2, 3, 4, 5, 6, 7, 8].map((seed) => ({
+    archetype: 'NPC',
+    traits: rollTraits([], seededRng(seed), 'plain'),
+    disposition: { you: -30, experience: -20 },
+  }));
   const bestFor = people.map((p) => DELIVERIES
     .map((d) => [d.id, deliveryFit(d.id, p)])
     .sort((a, b) => b[1] - a[1])[0][0]);
@@ -1544,30 +1544,123 @@ test('NO delivery is right for everyone', () => {
     `different people must want different deliveries, all wanted ${bestFor[0]}`);
 });
 
-test('the best delivery for one caller is a poor one for another', () => {
-  const upsetAndChatty = { archetype: 'Tavern', disposition: { you: -40, experience: -30 } };
-  const calmAndFormal = { archetype: 'Kingdom', disposition: { you: 10, experience: 0 } };
-
-  // Warm and reciprocal for somebody upset; cold and transactional for
-  // somebody who just wants it handled. Each is wrong for the other.
-  assert.ok(deliveryFit('reciprocal', upsetAndChatty) > deliveryFit('reciprocal', calmAndFormal));
-  assert.ok(deliveryFit('transactional', calmAndFormal) > deliveryFit('transactional', upsetAndChatty));
+test('the same delivery suits one caller and not the next', () => {
+  // Across a population of individually-rolled people, every delivery
+  // must find someone it fits and someone it does not. No phrasing is
+  // safe and none is useless.
+  const people = [];
+  for (let seed = 1; seed <= 120; seed++) {
+    people.push({
+      archetype: 'NPC', traits: rollTraits([], seededRng(seed), 'plain'),
+      disposition: { you: -30, experience: -20 },
+    });
+  }
+  for (const d of DELIVERIES) {
+    const fits = people.map((p) => deliveryFit(d.id, p));
+    assert.ok(Math.max(...fits) > 0.6, `${d.id} suits nobody`);
+    assert.ok(Math.min(...fits) < 0.5, `${d.id} suits everybody, which is worse`);
+  }
 });
 
-test('someone upset wants warmth; someone worn down wants you to get on with it', () => {
-  const upset = deliveryPreference({ archetype: 'NPC', disposition: { you: -50, experience: 0 } });
-  const wornDown = deliveryPreference({ archetype: 'NPC', disposition: { you: 0, experience: -50 } });
-  const easy = deliveryPreference({ archetype: 'NPC', disposition: { you: 0, experience: 0 } });
+test('what an upset caller wants is a CONTINUUM, not two camps', () => {
+  // The correction, twice over. First version derived wants from state
+  // -- upset meant warmth -- a lookup table. The second version said
+  // "some want soothing, some want you to get on with it", which is
+  // still two buckets with the middle thrown away. Most people are in
+  // that middle.
+  const upset = { you: -60, experience: -40 };
+  const warmths = [];
+  for (let seed = 1; seed <= 500; seed++) {
+    const traits = rollTraits([], seededRng(seed), 'plain');
+    warmths.push(deliveryPreference({ archetype: 'NPC', traits, disposition: upset }).warmth);
+  }
 
-  assert.ok(upset.warmth > easy.warmth);
-  assert.ok(wornDown.directness > easy.directness);
-  assert.equal(upset.directness, easy.directness, 'being upset is not the same as being in a hurry');
+  // Genuinely continuous, not clustered on a handful of values.
+  assert.ok(new Set(warmths.map((w) => w.toFixed(3))).size > 400,
+    'wants must be continuous, not drawn from a few buckets');
+
+  // And populated throughout -- the middle is where most people live.
+  const band = (lo, hi) => warmths.filter((w) => w >= lo && w < hi).length;
+  const middle = band(-0.5, 0.5);
+  assert.ok(middle > warmths.length * 0.2,
+    `the middle must be well populated, held ${middle} of ${warmths.length}`);
+  assert.ok(band(-3, -1.5) > 0 && band(1.5, 3) > 0, 'and the far ends must be reachable');
+
+  // Nothing bimodal: no empty gap between the middle and the extremes.
+  assert.ok(band(0.5, 1.5) > 0 && band(-1.5, -0.5) > 0,
+    'the space between "soothe me" and "get on with it" must be occupied');
 });
 
-test('register sets the formality a caller is comfortable with', () => {
-  const kingdom = deliveryPreference({ archetype: 'Kingdom', disposition: {} });
-  const tavern = deliveryPreference({ archetype: 'Tavern', disposition: {} });
-  assert.ok(kingdom.formality > tavern.formality);
+test('strain moves each caller along their own line, in either direction', () => {
+  const shifts = [];
+  for (let seed = 1; seed <= 300; seed++) {
+    const traits = rollTraits([], seededRng(seed), 'plain');
+    const c = { archetype: 'NPC', traits };
+    const calm = deliveryPreference({ ...c, disposition: { you: 0, experience: 0 } });
+    const strained = deliveryPreference({ ...c, disposition: { you: -60, experience: -40 } });
+    shifts.push(strained.warmth - calm.warmth);
+  }
+  assert.ok(shifts.some((d) => d > 0.3) && shifts.some((d) => d < -0.3),
+    'strain must push some toward warmth and others away');
+  assert.ok(shifts.some((d) => Math.abs(d) < 0.2),
+    'and leave some barely moved -- not everyone changes under pressure');
+});
+
+test('the same customer is not the same person every day', () => {
+  // LORE.md: even the best-known regular is not identical day to day,
+  // so autopilot on a favourite customer is still a mistake.
+  const traits = rollTraits([], seededRng(9), 'plain');
+  const customer = { archetype: 'Tavern', traits, disposition: { you: -10, experience: -10 } };
+
+  const days = [];
+  for (let seed = 1; seed <= 50; seed++) {
+    days.push(deliveryPreference(customer, rollDayVariance(seededRng(seed))).warmth);
+  }
+  assert.ok(new Set(days.map((d) => d.toFixed(3))).size > 40,
+    'the same person must vary across days');
+
+  // But it is a nudge, not a personality transplant.
+  const spread = Math.max(...days) - Math.min(...days);
+  assert.ok(spread < 2.2, `a day should nudge, not remake them (spread ${spread.toFixed(2)})`);
+});
+
+test('generated tickets carry the caller as they are today', () => {
+  const { tickets } = generateShift({ knownCustomers: [], baseTicketCount: 8, rng: seededRng(4) });
+  for (const t of tickets.filter((x) => !x.isFollowUp)) {
+    assert.ok(t.dayVariance, 'every call needs its own day');
+    assert.equal(typeof t.dayVariance.warmth, 'number');
+  }
+  const spread = new Set(tickets.filter((x) => x.dayVariance)
+    .map((t) => t.dayVariance.warmth.toFixed(3)));
+  assert.ok(spread.size > 1, 'and days must differ from one another');
+});
+
+test('a caller who is doing fine is not under strain at all', () => {
+  const traits = rollTraits([], seededRng(5), 'plain');
+  const c = { archetype: 'NPC', traits };
+  const happy = deliveryPreference({ ...c, disposition: { you: 60, experience: 40 } });
+  const neutral = deliveryPreference({ ...c, disposition: { you: 0, experience: 0 } });
+  assert.deepEqual(happy, neutral, 'a call going well applies no pressure');
+});
+
+test('register biases the formality a caller prefers without setting it', () => {
+  // Bias, not lookup: a formal speaker may still want warmth, and the
+  // draw must stay a distribution.
+  const mean = (register) => {
+    let total = 0;
+    for (let seed = 1; seed <= 300; seed++) {
+      total += rollTraits([], seededRng(seed), register).preference.formality;
+    }
+    return total / 300;
+  };
+  assert.ok(mean('formal') > mean('chatty'), 'the bias must be real');
+
+  const formals = [];
+  for (let seed = 1; seed <= 300; seed++) {
+    formals.push(rollTraits([], seededRng(seed), 'formal').preference.formality);
+  }
+  assert.ok(formals.some((f) => f < 0),
+    'and it must not become a rule -- some formal speakers want informality');
 });
 
 test('deliveryFit stays in range and fails safe', () => {

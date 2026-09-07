@@ -1541,6 +1541,41 @@ Worked example — the same request to an upset, chatty Tavern:
 To a calm Kingdom account the order roughly inverts, and the
 transactional form scores best of all.
 
+### What a caller wants is a continuum, and it moves — locked
+
+**Do not derive what somebody wants from their state.** Two drafts got
+this wrong in escalating ways, and both are worth recording because the
+pull toward them is strong:
+
+1. *"Upset means they want warmth."* A lookup table wearing a formula.
+   The player learns it once and stops thinking.
+2. *"Some want soothing, some want you to get on with it."* Better —
+   and still **two camps with the middle thrown away.** Most people live
+   in that middle.
+
+**It is a continuum**, and where a caller sits on it is a fact about
+*that character at that time* — not about being upset.
+
+Three things stack, all continuous:
+
+- **Their own baseline.** Individually rolled, exactly like Baggage and
+  Sensitivity. Register *biases* the formality they are comfortable
+  with; it never sets it, and plenty of formal speakers want warmth.
+- **Their own direction under strain.** A signed vector rolled per
+  person. Some move toward warmth as a call goes badly, some away, and
+  **some barely move at all** — not everyone changes under pressure.
+- **Today.** A smaller per-call shift, because *"even the most loyal,
+  best-known customer isn't identical day to day"* (Customer Service
+  Philosophy). It nudges; it does not make somebody a different person.
+  Autopilot on a favourite regular is still a mistake, and this is what
+  makes that true in code rather than in prose.
+
+Measured across 2,000 equally-upset callers, wanted warmth forms a
+single smooth hump centred near neutral, tailing off to both extremes
+with **no gap between the middle and the poles**. That shape is the
+requirement: a bimodal result would mean the two camps had crept back
+in.
+
 **This is where Empathy actually lives.** Choosing the delivery that
 suits this person *is* the skill. Empathy is earned (see "Education &
 Empathy"), so a new agent picks by instinct and finds out afterwards —

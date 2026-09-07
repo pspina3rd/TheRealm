@@ -656,7 +656,7 @@ function rollWrinkles(rng) {
   return WRINKLES.filter((w) => rng() < w.chance).map((w) => w.id);
 }
 
-function rollTraits(wrinkles = [], rng = Math.random) {
+function rollTraits(wrinkles = [], rng = Math.random, register = DEFAULT_REGISTER) {
   const active = WRINKLES.filter((w) => wrinkles.includes(w.id));
   const baggage = { you: 0, tlc: 0, experience: 0 };
   for (const axis of FEELING_AXES) {
@@ -669,7 +669,7 @@ function rollTraits(wrinkles = [], rng = Math.random) {
   const sensitivity = clamp(sMin + rng() * (sMax - sMin) + sensBias, 0.1, 2.5);
   const { min: fMin, max: fMax } = TRAIT_RANGES.socialFilter;
   const socialFilter = fMin + rng() * (fMax - fMin);
-  return { baggage, sensitivity, socialFilter };
+  return { baggage, sensitivity, socialFilter, preference: rollDeliveryPreference(register, rng) };
 }
 
 function applyDisposition(customer, rawDeltas) {
@@ -691,7 +691,7 @@ function buildCustomerPool(existing, freshCount, rng) {
     const tierKey = pickOne(Object.keys(CUSTOMER_TYPES), rng);
     const archetype = pickOne(CUSTOMER_TYPES[tierKey].archetypes, rng);
     const wrinkles = rollWrinkles(rng);
-    const traits = rollTraits(wrinkles, rng);
+    const traits = rollTraits(wrinkles, rng, ARCHETYPE_REGISTERS[archetype] || DEFAULT_REGISTER);
     pool.push({
       id: `${tierKey}-${archetype}-${Math.floor(rng() * 1e6)}`, tier: tierKey, archetype,
       wrinkles, traits,
@@ -739,6 +739,7 @@ function generateShift({ knownCustomers = [], baseTicketCount = 8, currentShiftI
       id: `ticket-${i}-${customer.id}`, customerId: customer.id, category: template.category,
       urgency: clamp(template.baseUrgency + draft.urgencyBonus, 1, 10),
       timeCostMultiplier: draft.timeCostMultiplier,
+      dayVariance: rollDayVariance(rng),
       isReturning: customer.history.length > 0, isFollowUp: false,
       investigation: template.investigationTemplate
         ? buildInvestigation(template.investigationTemplate, rollRootCause(template.investigationTemplate, rng))
@@ -840,30 +841,102 @@ const DELIVERIES = [
 ];
 
 /**
- * What this customer, right now, wants from a delivery.
+ * How this caller is, TODAY.
  *
- * Register sets the formality they are comfortable with. Their state
- * sets the rest: somebody upset needs warmth, and somebody who has
- * already been kept a long time wants you to get to the point.
+ * A small per-call shift on top of who they are. The same customer on a
+ * different day does not want quite the same handling — see LORE.md,
+ * "day-to-day variance, same person," which warns that autopilot on a
+ * well-known regular is still a mistake.
+ *
+ * Deliberately smaller than the individual spread: it nudges, it does
+ * not make somebody a different person.
+ *
+ * @param {function} [rng=Math.random]
+ */
+function rollDayVariance(rng = Math.random) {
+  return { warmth: triangular(0.8, rng), directness: triangular(0.8, rng) };
+}
+
+/**
+ * Rolls how THIS PERSON likes to be addressed.
+ *
+ * **Not a function of their state.** An earlier version derived wants
+ * from disposition — upset meant wanting warmth, worn down meant
+ * wanting directness — which is a lookup table wearing a formula. Some
+ * upset customers want warmth. Some want you to stop talking and fix
+ * it. Some want something else again, because they are a particular
+ * person on a particular day.
+ *
+ * So preference is **individually rolled**, exactly like Baggage and
+ * Sensitivity, and it carries its own `underStress` vector: the
+ * direction *this* person moves when a call goes badly. For some that
+ * is toward warmth; for others away from it.
+ *
+ * Register biases the baseline formality — how someone speaks tends to
+ * track what they are comfortable being spoken to in — but it **biases
+ * a draw and never sets it**. A formal speaker may still want warmth.
+ *
+ * @param {string} register
+ * @param {function} [rng=Math.random]
+ */
+function rollDeliveryPreference(register, rng = Math.random) {
+  const formalityBias = {
+    formal: 0.6, grand: 0.5, plain: 0, chatty: -0.6, deferential: 0,
+  }[register] || 0;
+
+  // Spread deliberately wide. A tighter draw clustered everyone near
+  // neutral, which made the striking deliveries -- reciprocal, directive
+  // -- the right call for about 2% of people each. That is dead content:
+  // a phrasing nobody ever wants is the same as a phrasing that does not
+  // exist. People are more various than a tight bell allows.
+  return {
+    warmth: triangular(2.2, rng),
+    formality: triangular(1.6, rng) + formalityBias,
+    directness: triangular(2.2, rng),
+    // Where this person goes when the call is going badly. Individual,
+    // signed, and not inferable from the fact that they are upset.
+    underStress: {
+      warmth: triangular(1.6, rng),
+      directness: triangular(1.6, rng),
+    },
+  };
+}
+
+/**
+ * What this customer wants from a delivery right now.
+ *
+ * Their own rolled baseline, shifted along their own `underStress`
+ * direction in proportion to how badly the call is going. Two equally
+ * upset customers can want opposite things, and the player cannot infer
+ * which from the fact of them being upset.
  *
  * @param {object} customer
  * @returns {{ warmth: number, formality: number, directness: number }}
  */
-function deliveryPreference(customer) {
-  const register = registerOf(customer);
-  const formality = { formal: 1, grand: 1, plain: 0, chatty: -1, deferential: 0 }[register] || 0;
-
+function deliveryPreference(customer, dayVariance) {
+  const pref = (customer && customer.traits && customer.traits.preference)
+    || { warmth: 0, formality: 0, directness: 0, underStress: { warmth: 0, directness: 0 } };
   const disposition = (customer && customer.disposition) || {};
-  const you = disposition.you || 0;
-  const experience = disposition.experience || 0;
+  // Same person, different day. LORE.md's "day-to-day variance, same
+  // person": even the best-known customer is not identical each time,
+  // so autopilot on a regular is still a mistake.
+  const today = dayVariance || { warmth: 0, directness: 0 };
 
-  // Upset with you -> wants warmth. Worn down by the episode -> wants
-  // you to get on with it.
-  const warmth = you < -20 ? 2 : you < 0 ? 1 : 0;
-  const directness = experience < -20 ? 2 : experience < 0 ? 1 : 0;
+  // How badly this is going, 0..1. Only the negative side counts --
+  // a call going well applies no pressure.
+  const strain = clamp(
+    (Math.max(0, -(disposition.you || 0)) + Math.max(0, -(disposition.experience || 0))) / 120,
+    0, 1,
+  );
 
-  return { warmth, formality, directness };
+  const under = pref.underStress || { warmth: 0, directness: 0 };
+  return {
+    warmth: pref.warmth + strain * under.warmth + (today.warmth || 0),
+    formality: pref.formality,
+    directness: pref.directness + strain * under.directness + (today.directness || 0),
+  };
 }
+
 
 /**
  * How well a delivery suits this customer. Higher is better.
@@ -876,10 +949,10 @@ function deliveryPreference(customer) {
  * @param {object} customer
  * @returns {number} 0 (badly mismatched) .. 1 (well judged)
  */
-function deliveryFit(deliveryId, customer) {
+function deliveryFit(deliveryId, customer, dayVariance) {
   const delivery = DELIVERIES.find((d) => d.id === deliveryId);
   if (!delivery) return 0;
-  const want = deliveryPreference(customer);
+  const want = deliveryPreference(customer, dayVariance);
 
   const distance = Math.abs(delivery.warmth - want.warmth)
     + Math.abs(delivery.formality - want.formality)
