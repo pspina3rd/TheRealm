@@ -1269,10 +1269,42 @@ which is which — is the same skill on both.
 authoring a root-cause set and its clues, not a single scripted call.
 Expression is generated from traits, not written per case.
 
-Not built — design only. Phantom Inventory is the one category with any
-investigation content at all, and it currently has exactly one root
-cause. Making *that* ticket fully work — sub-variables and all — is the
-proving ground before any other category is written.
+### The presented category is the customer's guess — locked
+
+**A customer reports a symptom, not a diagnosis, and the category they
+imply is frequently wrong.** Ask how many genuinely different reasons
+there are for *"I forgot my password"*: a typo, caps lock, a stale
+autofill, a recent change they forgot, somebody else changing it, a
+migrated account, an expired credential, MFA failing rather than the
+password, a locked account, a suspension for non-payment, or no account
+on this system at all. **Several of those are not password problems.**
+
+So a root cause may sit **outside** the category it arrives under. This
+is what makes Classify a judgement rather than a label, and it is the
+same shape as "Pigs is Pigs" (see "Screening & Classification") — rigid
+classification meeting a reality that does not fit it.
+
+**Built, for Phantom Inventory.** Six root causes, sharing one symptom
+and one menu of investigation actions, each supplying its own evidence:
+
+| Root cause | What it actually is |
+| --- | --- |
+| Unlogged sale | Phantom Inventory |
+| Split lot, duplicated stamp | Phantom Inventory |
+| Receipt never posted | Phantom Inventory |
+| Second leg still in transit | **Bulk Potion Order Delay** |
+| Misfiled at intake | **Storefront Listing Error** |
+| Constabulary hold | **no category covers this yet** |
+
+**About 42% of Phantom Inventory calls are not Phantom Inventory.**
+Filing it right requires working out what actually happened, and the
+same diagnosis is correct on one call and wrong on the next — there is
+no globally right answer for a category, only a right answer for *this*
+call.
+
+*Content gap surfaced by this work*: "Goods Under Hold" has no category
+anywhere in `TICKET_TEMPLATES`. Left unnamed and unbuilt rather than
+forced into an existing category that does not fit.
 
 ---
 

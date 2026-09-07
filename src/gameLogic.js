@@ -61,42 +61,178 @@ const CUSTOMER_TYPES = {
  * deliberately has a genuine red herring (the stockroom-access clue)
  * per the "not every ticket has a trap" rule.
  */
-const PHANTOM_INVENTORY_INVESTIGATION = {
+/**
+ * PHANTOM INVENTORY — a category template, not a script.
+ *
+ * The customer's symptom is always the same: the listing says one
+ * number and the shelf says another. **What actually caused it is not.**
+ * A single root cause per category is the lazy version and produces one
+ * puzzle wearing different nouns — ask how many genuinely different
+ * reasons there are for "I forgot my password" and the point makes
+ * itself. Several of those are not password problems at all.
+ *
+ * Same principle here. **Three of the six causes below are not really
+ * Phantom Inventory** — the goods are misfiled, still in transit, or
+ * sitting under a hold. The customer cannot know that; they only know
+ * what they can see. That is what makes the Classify phase a real
+ * judgement instead of a label, and it rhymes directly with "Pigs is
+ * Pigs" (see LORE.md, "Screening & Classification").
+ *
+ * The investigation ACTIONS stay the same across every cause. The
+ * EVIDENCE they turn up does not. That is what makes this a puzzle the
+ * player reads rather than a sequence they memorise.
+ *
+ * See LORE.md, "Ticket Content — Categories, Sub-Variables, and the
+ * Telling."
+ */
+const PHANTOM_INVENTORY_TEMPLATE = {
+  category: 'Phantom Inventory',
   openingStatement: "I ordered 40 healing potions for the festival, and now you're telling me I don't have them?! Where did they go?",
+
   actions: [
-    {
-      id: 'manifest',
-      label: 'Check the shipment manifest',
-      timeCost: 1,
-      clue: 'The manifest shows all 40 potions left the depot, logged correctly.',
-    },
-    {
-      id: 'deliveryLog',
-      label: "Check the Node's delivery log",
-      timeCost: 1,
-      clue: 'Delivery was received and signed for three days ago.',
-    },
-    {
-      id: 'stockroomAccess',
-      label: 'Ask about stockroom access',
-      timeCost: 1,
-      clue: 'Their apprentice restocks the shelves most mornings.',
-    },
-    {
-      id: 'bulkActivity',
-      label: 'Check for recent bulk activity',
-      timeCost: 2,
-      clue: 'A festival order was fulfilled two days ago — it may not have been logged.',
-    },
+    { id: 'manifest', label: 'Check the shipment manifest', timeCost: 1 },
+    { id: 'deliveryLog', label: "Check the Node's delivery log", timeCost: 1 },
+    { id: 'stockroomAccess', label: 'Ask about stockroom access', timeCost: 1 },
+    { id: 'bulkActivity', label: 'Check for recent bulk activity', timeCost: 2 },
+    { id: 'shelfCheck', label: 'Walk the shelf with them, crate by crate', timeCost: 2 },
   ],
-  keyActionId: 'bulkActivity',
+
   diagnoses: [
-    { id: 'miscount', label: "It's a system miscount — the festival sale wasn't logged", correct: true },
-    { id: 'stockroom', label: 'Someone in the stockroom must be responsible', correct: false },
-    { id: 'lostTransit', label: 'The shipment must have gotten lost in transit', correct: false },
-    { id: 'escalate', label: "Not sure — escalate for review", correct: false },
+    { id: 'unloggedSale', label: 'Your own festival sale went out without being logged' },
+    { id: 'splitLot', label: 'A duplicated stamp split the lot — a Caravan draw took the rest' },
+    { id: 'unpostedReceipt', label: 'It arrived, but the Node never posted the receipt' },
+    { id: 'secondLeg', label: "Nothing is missing yet — the second leg hasn't landed" },
+    { id: 'misfiled', label: "They're on your shelf, filed under the wrong classification" },
+    { id: 'underHold', label: "They're here and sealed — somebody has placed a hold on them" },
+    { id: 'theft', label: 'Someone with stockroom access has taken them' },
+    { id: 'lostTransit', label: 'The shipment was lost in transit' },
+  ],
+
+  rootCauses: [
+    {
+      id: 'unlogged-sale',
+      weight: 3,
+      trueCategory: 'Phantom Inventory',
+      diagnosisId: 'unloggedSale',
+      keyActionIds: ['bulkActivity'],
+      redHerringActionId: 'stockroomAccess',
+      clues: {
+        manifest: 'All 40 left the depot, logged correctly.',
+        deliveryLog: 'Received and signed for three days ago.',
+        stockroomAccess: 'Their apprentice restocks the shelves most mornings.',
+        bulkActivity: 'A festival order went out two days ago — it may never have been logged.',
+        shelfCheck: 'The shelf count matches the low number. Nothing is hidden back there.',
+      },
+    },
+    {
+      id: 'split-lot',
+      weight: 2,
+      trueCategory: 'Phantom Inventory',
+      diagnosisId: 'splitLot',
+      keyActionIds: ['deliveryLog', 'bulkActivity'],
+      clues: {
+        manifest: 'One lot of 40 — and the courier stamp is on it twice.',
+        deliveryLog: 'Only four were signed for. Not forty.',
+        stockroomAccess: 'Nobody but the owner holds a key.',
+        bulkActivity: 'A Caravan draw moved 36 to the Constabulary the same morning.',
+        shelfCheck: 'Four on the shelf, exactly as the delivery recorded.',
+      },
+    },
+    {
+      id: 'unposted-receipt',
+      weight: 2,
+      trueCategory: 'Phantom Inventory',
+      diagnosisId: 'unpostedReceipt',
+      keyActionIds: ['deliveryLog'],
+      redHerringActionId: 'stockroomAccess',
+      clues: {
+        manifest: 'All 40 left the depot.',
+        deliveryLog: 'No receipt was ever posted. The log simply stops before the delivery.',
+        stockroomAccess: 'Their apprentice restocks the shelves most mornings.',
+        bulkActivity: 'Nothing unusual in the last fortnight.',
+        shelfCheck: 'All forty are sitting right there. The listing is what is wrong.',
+      },
+    },
+    {
+      // NOT a phantom inventory problem. Nothing is missing yet.
+      id: 'second-leg-in-transit',
+      weight: 2,
+      trueCategory: 'Bulk Potion Order Delay',
+      diagnosisId: 'secondLeg',
+      keyActionIds: ['manifest'],
+      clues: {
+        manifest: 'Booked as a two-leg Priority Relay. This is leg one of two.',
+        deliveryLog: 'Leg one received. Leg two is not due until tomorrow.',
+        stockroomAccess: 'Nothing unusual.',
+        bulkActivity: 'Nothing unusual.',
+        shelfCheck: 'The count matches leg one precisely.',
+      },
+    },
+    {
+      // NOT a phantom inventory problem. It is a listing problem.
+      id: 'misfiled-at-intake',
+      weight: 2,
+      trueCategory: 'Storefront Listing Error',
+      diagnosisId: 'misfiled',
+      keyActionIds: ['shelfCheck'],
+      redHerringActionId: 'deliveryLog',
+      clues: {
+        manifest: 'All 40 left the depot.',
+        deliveryLog: 'Signed for, but the signature is not one the Node recognises.',
+        stockroomAccess: 'Nothing unusual.',
+        bulkActivity: 'Nothing unusual.',
+        shelfCheck: 'All forty are here — filed as Large, not Small. The listing cannot see them.',
+      },
+    },
+    {
+      // NOT a phantom inventory problem, and no category covers it yet.
+      // Worth surfacing as a content gap rather than forcing a fit.
+      id: 'constabulary-hold',
+      weight: 1,
+      trueCategory: 'Goods Under Hold',
+      diagnosisId: 'underHold',
+      keyActionIds: ['bulkActivity'],
+      clues: {
+        manifest: 'All 40 left the depot.',
+        deliveryLog: 'Received and signed for.',
+        stockroomAccess: 'Nothing unusual.',
+        bulkActivity: 'A Constabulary hold was placed on the lot the day it landed.',
+        shelfCheck: 'The crates are here. Sealed, tagged, and not theirs to open.',
+      },
+    },
   ],
 };
+
+/**
+ * Picks which root cause this instance of the ticket actually has.
+ * @param {object} template
+ * @param {function} [rng=Math.random]
+ */
+function rollRootCause(template, rng = Math.random) {
+  return weightedPick(template.rootCauses, rng);
+}
+
+/**
+ * Composes the investigation a specific ticket instance carries: the
+ * template's shared actions and diagnoses, wearing this root cause's
+ * evidence.
+ *
+ * @param {object} template
+ * @param {object} rootCause
+ * @returns {object} investigation data for one ticket
+ */
+function buildInvestigation(template, rootCause) {
+  return {
+    openingStatement: template.openingStatement,
+    rootCauseId: rootCause.id,
+    trueCategory: rootCause.trueCategory,
+    keyActionIds: [...rootCause.keyActionIds],
+    correctDiagnosisId: rootCause.diagnosisId,
+    redHerringActionId: rootCause.redHerringActionId,
+    actions: template.actions.map((a) => ({ ...a, clue: rootCause.clues[a.id] })),
+    diagnoses: template.diagnoses.map((d) => ({ ...d, correct: d.id === rootCause.diagnosisId })),
+  };
+}
 
 /**
  * Ticket templates per customer tier. `weight` is relative selection
@@ -115,7 +251,7 @@ const TICKET_TEMPLATES = {
     { category: 'Garrison Supply Shortfall', weight: 2, baseUrgency: 3 },
   ],
   partner: [
-    { category: 'Phantom Inventory', weight: 3, baseUrgency: 2, investigation: PHANTOM_INVENTORY_INVESTIGATION },
+    { category: 'Phantom Inventory', weight: 3, baseUrgency: 2, investigationTemplate: PHANTOM_INVENTORY_TEMPLATE },
     { category: 'Commission Payout Dispute', weight: 2, baseUrgency: 3 },
     { category: 'Storefront Listing Error', weight: 2, baseUrgency: 1 },
   ],
@@ -772,7 +908,11 @@ function generateShift({
       timeCostMultiplier: draft.timeCostMultiplier,
       isReturning: customer.history.length > 0,
       isFollowUp: false,
-      investigation: template.investigation,
+      // Root cause is rolled PER TICKET. Two Phantom Inventory calls in
+      // the same shift can have entirely different things wrong.
+      investigation: template.investigationTemplate
+        ? buildInvestigation(template.investigationTemplate, rollRootCause(template.investigationTemplate, rng))
+        : undefined,
     });
   }
 
@@ -838,7 +978,10 @@ function resolveInvestigation(ticket, investigatedActionIds, chosenDiagnosisId) 
     throw new Error(`Unknown diagnosis id: "${chosenDiagnosisId}"`);
   }
 
-  const investigatedKeyClue = investigatedActionIds.includes(investigation.keyActionId);
+  // Every key clue must be in hand, not just one. A cause needing two
+  // pieces of evidence is not backed up by one of them.
+  const investigatedKeyClue = investigation.keyActionIds
+    .every((id) => investigatedActionIds.includes(id));
 
   // `grounding` is the honest thing the sim knows: did the player have
   // a basis for saying this. It is NOT a verdict delivered to the
@@ -1054,7 +1197,9 @@ module.exports = {
   RESOLUTION_STATUSES,
   DISPUTE_CHANCE_BY_QUALITY,
   HOLD_REASONS,
-  PHANTOM_INVENTORY_INVESTIGATION,
+  PHANTOM_INVENTORY_TEMPLATE,
+  rollRootCause,
+  buildInvestigation,
   SHIFT_CANDLE_NOTCHES,
   OPENING_MODES,
   candleStage,

@@ -21,7 +21,10 @@ const {
   SHIFT_CANDLE_NOTCHES,
   DECOY_AGENT_NAMES,
   RESPONSE_QUALITY,
-  PHANTOM_INVENTORY_INVESTIGATION,
+  PHANTOM_INVENTORY_TEMPLATE,
+  TICKET_TEMPLATES,
+  rollRootCause,
+  buildInvestigation,
 } = require('./gameLogic');
 
 /** Deterministic PRNG (mulberry32) so tests are reproducible. */
@@ -476,6 +479,18 @@ test('generateShift: fullRoster retains a known customer who sits out this shift
 // Investigation Phase (Phase 0 proof-of-concept — "Phantom Inventory")
 // ---------------------------------------------------------------------
 
+// Builds a Phantom Inventory ticket with a NAMED root cause, so tests
+// say which of the six situations they are about.
+function ticketWithCause(causeId) {
+  const cause = PHANTOM_INVENTORY_TEMPLATE.rootCauses.find((c) => c.id === causeId);
+  assert.ok(cause, `no such root cause: ${causeId}`);
+  return {
+    id: 'pi-1', customerId: 'c1', category: 'Phantom Inventory',
+    urgency: 2, timeCostMultiplier: 1,
+    investigation: buildInvestigation(PHANTOM_INVENTORY_TEMPLATE, cause),
+  };
+}
+
 function phantomInventoryTicket() {
   return {
     id: 't-phantom-1',
@@ -483,13 +498,13 @@ function phantomInventoryTicket() {
     category: 'Phantom Inventory',
     urgency: 2,
     timeCostMultiplier: 1,
-    investigation: PHANTOM_INVENTORY_INVESTIGATION,
+    investigation: buildInvestigation(PHANTOM_INVENTORY_TEMPLATE, PHANTOM_INVENTORY_TEMPLATE.rootCauses[0]),
   };
 }
 
 test('resolveInvestigation: correct diagnosis + key clue investigated -> correct, grounded', () => {
   const ticket = phantomInventoryTicket();
-  const result = resolveInvestigation(ticket, ['bulkActivity'], 'miscount');
+  const result = resolveInvestigation(ticket, ['bulkActivity'], 'unloggedSale');
   assert.equal(result.standing, 'correct');
   assert.equal(result.grounding, 'grounded');
   assert.equal(result.quality, 'correct');
@@ -499,7 +514,7 @@ test('resolveInvestigation: right answer with nothing behind it is PARTIAL, not 
   // Says the right thing, cannot back it up. Not wrong -- but not the
   // same as having done the work, and the standing says so.
   const ticket = phantomInventoryTicket();
-  const result = resolveInvestigation(ticket, ['manifest', 'deliveryLog'], 'miscount');
+  const result = resolveInvestigation(ticket, ['manifest', 'deliveryLog'], 'unloggedSale');
   assert.equal(result.standing, 'partial');
   assert.equal(result.grounding, 'lucky');
   assert.equal(result.quality, 'adequate');
@@ -507,7 +522,7 @@ test('resolveInvestigation: right answer with nothing behind it is PARTIAL, not 
 
 test('resolveInvestigation: wrong diagnosis with zero investigation -> wrong, blind', () => {
   const ticket = phantomInventoryTicket();
-  const result = resolveInvestigation(ticket, [], 'stockroom');
+  const result = resolveInvestigation(ticket, [], 'theft');
   assert.equal(result.standing, 'wrong');
   assert.equal(result.grounding, 'blind');
   assert.equal(result.quality, 'dismissive');
@@ -518,7 +533,7 @@ test('resolveInvestigation: wrong after real investigation is PARTIAL, not wrong
   // reasoned from something. "Right kind of problem, wrong instance" is
   // the most common real outcome and must not collapse into "wrong."
   const ticket = phantomInventoryTicket();
-  const result = resolveInvestigation(ticket, ['stockroomAccess'], 'stockroom');
+  const result = resolveInvestigation(ticket, ['stockroomAccess'], 'theft');
   assert.equal(result.standing, 'partial');
   assert.equal(result.grounding, 'reasoned');
   assert.equal(result.quality, 'rushed');
@@ -529,8 +544,8 @@ test('resolveInvestigation: partial is reachable from BOTH directions', () => {
   // lucky right answer and a reasoned wrong one both land in it, from
   // opposite sides, and the grounding is what tells them apart.
   const ticket = phantomInventoryTicket();
-  const luckyRight = resolveInvestigation(ticket, [], 'miscount');
-  const reasonedWrong = resolveInvestigation(ticket, ['stockroomAccess'], 'stockroom');
+  const luckyRight = resolveInvestigation(ticket, [], 'unloggedSale');
+  const reasonedWrong = resolveInvestigation(ticket, ['stockroomAccess'], 'theft');
   assert.equal(luckyRight.standing, 'partial');
   assert.equal(reasonedWrong.standing, 'partial');
   assert.notEqual(luckyRight.grounding, reasonedWrong.grounding);
@@ -542,8 +557,8 @@ test('resolveInvestigation: this is exactly the case the old model could not dis
   // tests the failure mode the old single-button model had (a player
   // could win every ticket by always clicking the same option).
   const ticket = phantomInventoryTicket();
-  const underInvestigated = resolveInvestigation(ticket, [], 'miscount');
-  const fullyInvestigated = resolveInvestigation(ticket, ['bulkActivity'], 'miscount');
+  const underInvestigated = resolveInvestigation(ticket, [], 'unloggedSale');
+  const fullyInvestigated = resolveInvestigation(ticket, ['bulkActivity'], 'unloggedSale');
   assert.notEqual(underInvestigated.standing, fullyInvestigated.standing);
   assert.equal(underInvestigated.standing, 'partial');
   assert.equal(fullyInvestigated.standing, 'correct');
@@ -572,7 +587,7 @@ test('the candle is a shift timer, not a budget the player spends', () => {
   // every probe and every investigation action, which billed the player
   // for doing the job properly.
   const ticket = phantomInventoryTicket();
-  const everyAction = PHANTOM_INVENTORY_INVESTIGATION.actions.map((a) => a.id);
+  const everyAction = PHANTOM_INVENTORY_TEMPLATE.actions.map((a) => a.id);
 
   // Question load is a real quantity -- it just isn't clock.
   assert.ok(investigationTimeCost(ticket, everyAction) > 0,
@@ -601,8 +616,8 @@ test('investigationTimeCost: sums only the actions actually taken', () => {
   assert.equal(investigationTimeCost(ticket, ['manifest']), 1);
   assert.equal(investigationTimeCost(ticket, ['manifest', 'bulkActivity']), 1 + 2);
   // Investigating everything costs the sum of every action, not a flat rate.
-  const allIds = PHANTOM_INVENTORY_INVESTIGATION.actions.map((a) => a.id);
-  const expectedTotal = PHANTOM_INVENTORY_INVESTIGATION.actions.reduce((s, a) => s + a.timeCost, 0);
+  const allIds = PHANTOM_INVENTORY_TEMPLATE.actions.map((a) => a.id);
+  const expectedTotal = PHANTOM_INVENTORY_TEMPLATE.actions.reduce((s, a) => s + a.timeCost, 0);
   assert.equal(investigationTimeCost(ticket, allIds), expectedTotal);
 });
 
@@ -623,7 +638,99 @@ test('generateShift: a Phantom Inventory ticket carries its investigation data t
   }
   assert.ok(found, 'expected at least one Phantom Inventory ticket across 200 seeded shifts');
   assert.ok(found.investigation, 'ticket should carry its investigation block');
-  assert.equal(found.investigation.keyActionId, 'bulkActivity');
+  assert.ok(found.investigation.rootCauseId, 'a ticket instance must have a concrete root cause');
+  assert.ok(found.investigation.keyActionIds.length > 0);
+  assert.ok(found.investigation.correctDiagnosisId);
+  // Every action carries evidence for THIS cause.
+  for (const action of found.investigation.actions) {
+    assert.equal(typeof action.clue, 'string', `${action.id} has no clue for this root cause`);
+  }
+});
+
+// ---------------------------------------------------------------------
+// Root causes — a category is a template, not a script
+// ---------------------------------------------------------------------
+
+test('the same category produces genuinely different root causes', () => {
+  // One root cause per category is one puzzle wearing different nouns.
+  // Ask how many reasons there are for "I forgot my password."
+  const seen = new Set();
+  for (let seed = 1; seed <= 200; seed++) {
+    seen.add(rollRootCause(PHANTOM_INVENTORY_TEMPLATE, seededRng(seed)).id);
+  }
+  assert.equal(seen.size, PHANTOM_INVENTORY_TEMPLATE.rootCauses.length,
+    `every root cause must be reachable, saw ${[...seen].join(', ')}`);
+});
+
+test('the same investigation action yields different evidence per cause', () => {
+  // This is what makes it a puzzle the player READS rather than a
+  // sequence they memorise: same menu, different findings.
+  const clueFor = (causeId, actionId) => ticketWithCause(causeId)
+    .investigation.actions.find((a) => a.id === actionId).clue;
+
+  const deliveryLogClues = PHANTOM_INVENTORY_TEMPLATE.rootCauses
+    .map((c) => clueFor(c.id, 'deliveryLog'));
+  assert.ok(new Set(deliveryLogClues).size >= 4,
+    'the delivery log must say different things depending on what actually happened');
+
+  const shelfClues = PHANTOM_INVENTORY_TEMPLATE.rootCauses.map((c) => clueFor(c.id, 'shelfCheck'));
+  assert.equal(new Set(shelfClues).size, PHANTOM_INVENTORY_TEMPLATE.rootCauses.length,
+    'walking the shelf should reveal something distinct every time');
+});
+
+test('some causes are NOT actually this category', () => {
+  // "I forgot my password" is frequently not a password problem. The
+  // customer reports a symptom; the category they imply can be wrong.
+  // This is what makes Classify a judgement, not a label.
+  const causes = PHANTOM_INVENTORY_TEMPLATE.rootCauses;
+  const elsewhere = causes.filter((c) => c.trueCategory !== 'Phantom Inventory');
+
+  assert.ok(elsewhere.length >= 2,
+    'a category whose every cause belongs to it is not modelling misclassification at all');
+  assert.ok(causes.some((c) => c.trueCategory === 'Phantom Inventory'),
+    'and it must sometimes genuinely be what it looks like');
+
+  // At least one belongs to a category that actually exists elsewhere,
+  // so filing it correctly is a real option the player has.
+  const known = Object.values(TICKET_TEMPLATES).flat().map((t) => t.category);
+  assert.ok(elsewhere.some((c) => known.includes(c.trueCategory)),
+    'at least one misfiled cause should map onto a real category');
+});
+
+test('a two-clue cause is not backed up by one of them', () => {
+  // split-lot needs the delivery log AND the bulk draw. Having half the
+  // evidence is a right answer you cannot support -- partial, not
+  // correct.
+  const ticket = ticketWithCause('split-lot');
+  assert.deepEqual(ticket.investigation.keyActionIds, ['deliveryLog', 'bulkActivity']);
+
+  const half = resolveInvestigation(ticket, ['deliveryLog'], 'splitLot');
+  const both = resolveInvestigation(ticket, ['deliveryLog', 'bulkActivity'], 'splitLot');
+
+  assert.equal(half.standing, 'partial');
+  assert.equal(half.grounding, 'lucky');
+  assert.equal(both.standing, 'correct');
+  assert.equal(both.grounding, 'grounded');
+});
+
+test('the same diagnosis is right or wrong depending on the root cause', () => {
+  // The sharpest consequence of sub-variables: there is no globally
+  // correct answer for a category, only a correct answer for THIS call.
+  const onUnlogged = resolveInvestigation(ticketWithCause('unlogged-sale'), ['bulkActivity'], 'unloggedSale');
+  const onHold = resolveInvestigation(ticketWithCause('constabulary-hold'), ['bulkActivity'], 'unloggedSale');
+
+  assert.equal(onUnlogged.standing, 'correct');
+  assert.equal(onHold.standing, 'partial', 'same answer, different call, no longer right');
+});
+
+test('red herrings are on SOME causes, not all', () => {
+  // LORE.md: if every ticket had a trap, reflexive distrust would be
+  // the only sane strategy, and "Trust and Verify" would collapse into
+  // "verify."
+  const withTrap = PHANTOM_INVENTORY_TEMPLATE.rootCauses.filter((c) => c.redHerringActionId);
+  assert.ok(withTrap.length > 0, 'some calls must mislead');
+  assert.ok(withTrap.length < PHANTOM_INVENTORY_TEMPLATE.rootCauses.length,
+    'trusting the evidence must usually be the right call');
 });
 
 
