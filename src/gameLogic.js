@@ -92,19 +92,26 @@ const PHANTOM_INVENTORY_TEMPLATE = {
   /**
    * Two kinds of action, and the split is load-bearing.
    *
-   * `source: 'records'` — TLC's own paperwork. The agent reads it
-   * directly. Reliable, and limited to what TLC actually touched.
+   * `source: 'records'` — the network's own reporting. Nodes report
+   * receipt and Couriers report delivery, because their partnership
+   * agreements require it, so TLC knows what shipped, where it went,
+   * who took it, and whether receipt was acknowledged. Reliable, and
+   * limited to what the agreement covers. A MISSING report is itself
+   * information.
    *
    * `source: 'ask'` — only the customer can find this out. The agent
    * asks; somebody at the other end has to go and look. Slower, costs
    * far more of their patience, and the answer is only as good as their
-   * own bookkeeping. **An agent cannot walk a customer's stockroom.**
+   * own bookkeeping. Everything downstream of the Node's receipt is
+   * inside somebody else's operation. **An agent cannot walk a
+   * customer's stockroom.**
    *
    * See LORE.md, "What TLC can actually see."
    */
   actions: [
     { id: 'manifest', source: 'records', label: 'Check what we shipped', timeCost: 1 },
-    { id: 'courierRecord', source: 'records', label: 'Check the courier handoff record', timeCost: 1 },
+    { id: 'courierRecord', source: 'records', label: "Check the Courier's delivery report", timeCost: 1 },
+    { id: 'nodeReceipt', source: 'records', label: "Check whether the Node posted receipt", timeCost: 1 },
     { id: 'drawRecord', source: 'records', label: 'Check for a Caravan draw against the lot', timeCost: 2 },
     { id: 'holdRegister', source: 'records', label: 'Check the hold register', timeCost: 1 },
     { id: 'askCount', source: 'ask', label: 'Ask them to go and count the shelf', timeCost: 3 },
@@ -138,6 +145,7 @@ const PHANTOM_INVENTORY_TEMPLATE = {
       clues: {
         manifest: 'All 40 shipped, logged correctly.',
         courierRecord: 'Handed over and signed for three days ago.',
+        nodeReceipt: 'Receipt posted the same day, in order.',
         drawRecord: 'No draw against this lot.',
         holdRegister: 'No hold on record.',
         askCount: 'They come back with three. Same as the shelf said.',
@@ -157,6 +165,7 @@ const PHANTOM_INVENTORY_TEMPLATE = {
       clues: {
         manifest: 'One lot of 40 — and the courier stamp is on it twice.',
         courierRecord: 'Only four were handed over. Not forty.',
+        nodeReceipt: 'Receipt posted for four units. Four.',
         drawRecord: 'A Caravan draw moved 36 to the Constabulary that same morning.',
         holdRegister: 'No hold on record.',
         askCount: 'Four on the shelf.',
@@ -178,6 +187,7 @@ const PHANTOM_INVENTORY_TEMPLATE = {
       clues: {
         manifest: 'All 40 shipped.',
         courierRecord: 'Signed for. The signature is a mark, not a name.',
+        nodeReceipt: 'Receipt posted, on time, by the Node.',
         drawRecord: 'No draw against this lot.',
         holdRegister: 'No hold on record.',
         askCount: 'They find forty. They sound less certain than they did.',
@@ -197,6 +207,7 @@ const PHANTOM_INVENTORY_TEMPLATE = {
       clues: {
         manifest: 'Booked as a two-leg Priority Relay. This is leg one of two.',
         courierRecord: 'Leg one handed over. Leg two is not due until tomorrow.',
+        nodeReceipt: 'Receipt posted for leg one. Leg two is still outstanding.',
         drawRecord: 'No draw against this lot.',
         holdRegister: 'No hold on record.',
         askCount: 'The count matches leg one precisely.',
@@ -217,6 +228,7 @@ const PHANTOM_INVENTORY_TEMPLATE = {
       clues: {
         manifest: 'All 40 shipped, as Small.',
         courierRecord: 'Signed for by a name the Node does not recognise.',
+        nodeReceipt: 'Receipt posted in full — forty, acknowledged.',
         drawRecord: 'No draw against this lot.',
         holdRegister: 'No hold on record.',
         askCount: 'Forty are there — stacked under Large. Their listing cannot see them.',
@@ -236,6 +248,7 @@ const PHANTOM_INVENTORY_TEMPLATE = {
       clues: {
         manifest: 'All 40 shipped.',
         courierRecord: 'Delivered and signed for.',
+        nodeReceipt: 'Receipt posted, with the hold noted against it.',
         drawRecord: 'No draw against this lot.',
         holdRegister: 'A Constabulary hold was placed on the lot the day it landed.',
         askCount: 'The crates are there, sealed and tagged. Not theirs to open.',
@@ -256,6 +269,7 @@ const PHANTOM_INVENTORY_TEMPLATE = {
       clues: {
         manifest: 'We have no shipment of that size to this account. Not this season.',
         courierRecord: 'No handoff, because there was nothing to hand over.',
+        nodeReceipt: 'No receipt, because there was no shipment to receive.',
         drawRecord: 'No draw against a lot we do not have.',
         holdRegister: 'No hold on record.',
         askCount: 'Three on the shelf, as they said.',
@@ -266,6 +280,67 @@ const PHANTOM_INVENTORY_TEMPLATE = {
     },
   ],
 };
+
+/**
+ * What asking the customer to go and do your legwork costs you.
+ *
+ * "Go and count your shelves" is not a neutral request. It puts the
+ * work back on them, and it carries an unspoken accusation: *I think
+ * you have miscounted, and I have not looked myself.* Done at the wrong
+ * moment it is simply bad service.
+ *
+ * **The moment is what decides it.** An ask lands very differently
+ * depending on whether the agent has visibly done their own homework
+ * first:
+ *
+ *   "Everything on our side checks out — the manifest, the Courier's
+ *    report, the Node's receipt. Can I ask you to do one thing for me?"
+ *
+ * versus opening the call with "go and count your shelf." Same action,
+ * same information, completely different call.
+ *
+ * So an ask made before ANY record has been checked is **unearned**, and
+ * costs the relationship. An ask made after is ordinary collaboration.
+ * Every ask costs some Experience regardless — it is their time and
+ * their trouble either way.
+ *
+ * Empathy would soften an unearned ask, but Empathy is an earned skill
+ * and is not built (see LORE.md, "Education & Empathy"). A new agent
+ * genuinely does not know how to make this land.
+ *
+ * @param {object} ticket - carrying `investigation`
+ * @param {string[]} investigatedActionIds - IN THE ORDER TAKEN
+ * @returns {{ you: number, experience: number, unearnedAsks: number }}
+ *   raw deltas, before Sensitivity and Social Filter
+ */
+function askRelationshipCost(ticket, investigatedActionIds) {
+  const investigation = ticket && ticket.investigation;
+  if (!investigation) return { you: 0, experience: 0, unearnedAsks: 0 };
+
+  const byId = new Map(investigation.actions.map((a) => [a.id, a]));
+  let seenRecord = false;
+  let you = 0;
+  let experience = 0;
+  let unearnedAsks = 0;
+
+  for (const id of investigatedActionIds) {
+    const action = byId.get(id);
+    if (!action) continue;
+    if (action.source === 'records') {
+      seenRecord = true;
+      continue;
+    }
+    // Their time and trouble, always.
+    experience -= action.timeCost;
+    if (!seenRecord) {
+      // Asked before we looked. That is the one that stings.
+      unearnedAsks += 1;
+      you -= action.timeCost * 2;
+      experience -= action.timeCost;
+    }
+  }
+  return { you, experience, unearnedAsks };
+}
 
 /**
  * Picks which root cause this instance of the ticket actually has.
@@ -727,6 +802,45 @@ const FOLLOW_UP_BASE_URGENCY = { hold: 5, reopen: 7 };
 // ---------------------------------------------------------------------
 // Character Disposition Model — Phase 1
 // ---------------------------------------------------------------------
+
+/**
+ * How a customer TYPE tends to talk — their register.
+ *
+ * **This is expression, not disposition, and the distinction is the
+ * whole reason it is allowed to key off archetype.** LORE.md forbids
+ * archetype from being a formula input for Baggage, Sensitivity or
+ * Social Filter, and it still is — none of those are touched here.
+ * What archetype shapes is *voice*: a Military account and a Wandering
+ * Trader with identical traits, identical Baggage and the identical
+ * complaint will not say it the same way.
+ *
+ * Register is style. Baggage is substance — how willingly and how
+ * accurately they tell you anything. The two layer.
+ */
+const ARCHETYPE_REGISTERS = {
+  // Official, procedural, speaks in the third person of an institution
+  Kingdom: 'formal', 'Town Council': 'formal', Constabulary: 'formal', Military: 'formal',
+  // Self-important, theatrical, the call is about them
+  Hero: 'grand', Villain: 'grand',
+  // Few words, matter of fact, no performance in it
+  NPC: 'plain', Blacksmith: 'plain', Henchfolk: 'plain',
+  // Discursive, anecdotal, gets there eventually
+  Tavern: 'chatty', Inn: 'chatty', 'Wandering Trader': 'chatty',
+  // Hedging, apologetic, reluctant to take up your time
+  Sidekick: 'deferential', 'Potion Shop': 'deferential',
+};
+
+const DEFAULT_REGISTER = 'plain';
+
+/**
+ * The register this customer speaks in.
+ * @param {object|null} customer
+ * @returns {string}
+ */
+function registerOf(customer) {
+  if (!customer) return DEFAULT_REGISTER;
+  return ARCHETYPE_REGISTERS[customer.archetype] || DEFAULT_REGISTER;
+}
 
 /**
  * The three FEELING axes. `understanding` is tracked alongside them but
@@ -1288,6 +1402,7 @@ module.exports = {
   DISPUTE_CHANCE_BY_QUALITY,
   HOLD_REASONS,
   PHANTOM_INVENTORY_TEMPLATE,
+  askRelationshipCost,
   rollRootCause,
   buildInvestigation,
   SHIFT_CANDLE_NOTCHES,
@@ -1296,6 +1411,8 @@ module.exports = {
   guardednessOf,
   rollOpening,
   probeForRequest,
+  ARCHETYPE_REGISTERS,
+  registerOf,
   FEELING_AXES,
   WRINKLES,
   TRAIT_RANGES,

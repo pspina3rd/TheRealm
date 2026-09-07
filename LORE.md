@@ -1224,6 +1224,32 @@ from a menu they have memorised.
 on top of each other, and the combinations are where volume comes from
 without hand-writing every case.
 
+### 3b. Register — customer type shapes the telling too
+
+**Baggage decides how willingly someone tells you; customer type decides
+how they sound doing it.** A Military account and a Wandering Trader
+with identical traits, identical Baggage and the identical complaint
+will not say it the same way.
+
+Five registers, keyed to archetype:
+
+| Register | Who | Sounds like |
+| --- | --- | --- |
+| **formal** | Kingdom, Town Council, Constabulary, Military | procedural, institutional |
+| **grand** | Hero, Villain | theatrical; the call is about them |
+| **plain** | NPC, Blacksmith, Henchfolk | few words, no performance |
+| **chatty** | Tavern, Inn, Wandering Trader | discursive, gets there eventually |
+| **deferential** | Sidekick, Potion Shop | hedging, reluctant to take up your time |
+
+**This does not violate the archetype constraint.** LORE.md forbids
+archetype as a formula input for Baggage, Sensitivity or Social Filter —
+and it still is; `rollTraits()` does not take a customer at all, which is
+the structural guarantee. **Register is expression; the traits are
+substance.** The two layer.
+
+*Known gap*: register currently varies the OPENING lines only. The
+request itself — the category blurb — is still one wording for everyone.
+
 ### 0. The domain — the real taxonomy, locked
 
 Above categories sit the **nine problem domains a contact centre
@@ -1313,10 +1339,22 @@ Expression is generated from traits, not written per case.
 
 ### What TLC can actually see — locked
 
-**TLC's visibility ends at handoff.** This is a logistics cooperative.
-It knows what it shipped, how, when, and who signed for it. **It does
-not know what is on a customer's shelf**, and an agent on a ley-line
-cannot walk anyone's stockroom.
+**TLC's visibility ends where the partnership agreement ends — not at
+the loading dock.** A Node is a formal role in TLC's own network, and so
+is a Courier. **Both report.** A Courier reports the delivery: when,
+where, and to whom. A Node reports receipt. That is not a courtesy, it
+is the arrangement — a business does not get to be a waypoint in the
+network and also be a black box. So TLC knows perfectly well what it
+shipped, where it went, who took it, and that the Node acknowledged it.
+
+**A missing report is itself information**, and a partnership problem in
+its own right. A Node that never posted receipt has told you something
+by not telling you anything.
+
+What TLC does **not** see is everything downstream of that receipt:
+what happened to the goods once they were inside somebody else's
+operation. **It does not know what is on a customer's shelf**, and an
+agent on a ley-line cannot walk anyone's stockroom.
 
 **POOF is instant delivery. It is not instant unpacking, shelving, or
 bookkeeping.** A shipment arriving in a blink still has to be received
@@ -1335,25 +1373,58 @@ of.
 
 **Mechanical consequence — investigation splits in two:**
 
-- **Records** — things the agent can check directly, because they are
-  TLC's own: what was shipped, the courier handoff, a Caravan draw
-  against the lot, a hold placed while goods were in TLC's custody.
-  Fast and reliable, and **limited to what TLC actually touched.**
+- **Records** — things the agent can check directly, because the
+  network reports them: what was shipped, the Courier's delivery report,
+  the Node's receipt, a Caravan draw against the lot, a hold placed on
+  goods in TLC's custody. Fast and reliable, and **limited to what the
+  agreement covers.**
 - **Asks** — things only the customer can find out: counting the shelf,
   who received and who shelved it, their own sales ledger, what else
   came in that week. **Slower, costly to their patience, and only as
   good as their own bookkeeping.** Baggage shapes how willingly and how
   accurately they answer.
 
+### "Go and check your shelves" — the timing is the service
+
+**An ask is never neutral.** Sending a customer off to count their own
+stock puts the work back on them and carries an unspoken accusation: *I
+think you have miscounted, and I have not looked myself.*
+
+**What decides how it lands is whether the agent has visibly done their
+own homework first.** These are the same request:
+
+> *"Go and count your shelf."*
+>
+> *"Everything on our side checks out — the manifest, the Courier's
+> report, the Node's receipt. Can I ask you to do one thing for me?"*
+
+The first is an accusation. The second is collaboration, and it works
+because the customer can hear that the agent already spent their own
+effort before spending theirs.
+
+**Locked**: an ask made before any record has been checked is
+**unearned** and costs the relationship — it lands on the **You** axis,
+because it is a fact about the agent, not the company. An ask made after
+costs only Experience, because it is still their time and trouble.
+Repeated cold asks compound. **Order matters, not just which actions
+were taken.**
+
+Empathy would soften an unearned ask, but Empathy is an earned skill and
+is not built (see "Education & Empathy") — a new agent genuinely does
+not know how to make this land, which is exactly right for the early
+game.
+
 **Some calls cannot be solved from TLC's records at all.** The agent's
 reach is genuinely limited, and getting the customer to do the legwork
 is part of the job — not a fallback. An agent who only ever checks
 their own systems will close a whole class of ticket wrongly.
 
-*(This corrects an earlier build in which the investigation menu
-included "walk the shelf with them, crate by crate" — an action no
-agent at a call center can perform, and a claim of visibility TLC does
-not have.)*
+*(Two earlier builds got this wrong in opposite directions. The first
+included "walk the shelf with them, crate by crate" — an action no call
+centre agent can perform. The correction then overshot, implying TLC
+ships goods and never learns who received them or where. Both are wrong:
+Nodes and Couriers report because their agreements require it. The line
+is the agreement, not the dock.)*
 
 ### The presented category is the customer's guess — locked
 

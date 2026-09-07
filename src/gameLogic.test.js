@@ -24,6 +24,10 @@ const {
   PHANTOM_INVENTORY_TEMPLATE,
   TICKET_TEMPLATES,
   DOMAINS,
+  registerOf,
+  askRelationshipCost,
+  ARCHETYPE_REGISTERS,
+  CUSTOMER_TYPES,
   rollRootCause,
   buildInvestigation,
 } = require('./gameLogic');
@@ -1119,4 +1123,101 @@ test('a root cause knows which domain it ACTUALLY belongs to', () => {
   assert.ok(domains.size >= 3,
     `one category's causes should land in several domains, got ${[...domains].join(', ')}`);
   assert.ok(domains.has('Quantity'), 'and sometimes it really is what it looks like');
+});
+
+
+// ---------------------------------------------------------------------
+// Register — customer type shapes expression, never disposition
+// ---------------------------------------------------------------------
+
+test('every archetype has a register', () => {
+  for (const tier of Object.values(CUSTOMER_TYPES)) {
+    for (const archetype of tier.archetypes) {
+      assert.ok(ARCHETYPE_REGISTERS[archetype],
+        `${archetype} has no register — it would fall back to plain silently`);
+    }
+  }
+});
+
+test('register genuinely varies, and cuts across tiers', () => {
+  const all = Object.values(CUSTOMER_TYPES).flatMap((t) => t.archetypes);
+  const registers = new Set(all.map((a) => registerOf({ archetype: a })));
+  assert.ok(registers.size >= 4, `expected several distinct voices, got ${[...registers].join(', ')}`);
+
+  // Partner tier alone should hold more than one voice -- a Blacksmith
+  // and a Wandering Trader do not talk alike.
+  const partner = new Set(CUSTOMER_TYPES.partner.archetypes.map((a) => registerOf({ archetype: a })));
+  assert.ok(partner.size >= 2, 'a single tier must contain more than one register');
+});
+
+test('register is expression only — it never touches disposition', () => {
+  // The hard constraint from LORE.md survives: archetype shapes HOW
+  // someone talks and never what they feel or how much of it shows.
+  // rollTraits does not take a customer at all, which is the structural
+  // guarantee -- this test exists so that stays true.
+  assert.equal(rollTraits.length <= 2, true,
+    'rollTraits must take (wrinkles, rng) only — never a customer or archetype');
+
+  const a = rollTraits([], seededRng(11));
+  const b = rollTraits([], seededRng(11));
+  assert.deepEqual(a, b, 'traits depend on the seed and the wrinkles, nothing else');
+});
+
+test('registerOf falls back safely rather than throwing', () => {
+  assert.equal(registerOf(null), 'plain');
+  assert.equal(registerOf({ archetype: 'Something Unwritten' }), 'plain');
+});
+
+
+// ---------------------------------------------------------------------
+// "Go and check your shelves" — how an ask lands
+// ---------------------------------------------------------------------
+
+test('asking before you have looked yourself costs the relationship', () => {
+  // Opening with "go and count your shelf" tells a customer two things:
+  // that you think they miscounted, and that you have not looked. The
+  // same request after checking our own records is collaboration.
+  const ticket = ticketWithCause('unlogged-sale');
+
+  const coldOpen = askRelationshipCost(ticket, ['askLedger']);
+  const afterHomework = askRelationshipCost(ticket, ['manifest', 'courierRecord', 'askLedger']);
+
+  assert.equal(coldOpen.unearnedAsks, 1);
+  assert.equal(afterHomework.unearnedAsks, 0);
+  assert.ok(coldOpen.you < afterHomework.you,
+    'the cold open must cost more of their opinion of you');
+  assert.equal(afterHomework.you, 0, 'an earned ask should not damage the relationship at all');
+});
+
+test('every ask costs their time, earned or not', () => {
+  // Doing your homework first makes the request reasonable. It does not
+  // make it free -- it is still their afternoon.
+  const ticket = ticketWithCause('unlogged-sale');
+  const earned = askRelationshipCost(ticket, ['manifest', 'askLedger']);
+  assert.ok(earned.experience < 0, 'their time is spent either way');
+  assert.equal(earned.you, 0);
+});
+
+test('checking records costs the customer nothing', () => {
+  const ticket = ticketWithCause('split-lot');
+  const recordsOnly = askRelationshipCost(ticket, ['manifest', 'courierRecord', 'nodeReceipt', 'drawRecord']);
+  assert.deepEqual(recordsOnly, { you: 0, experience: 0, unearnedAsks: 0 });
+});
+
+test('repeated cold asks compound', () => {
+  const ticket = ticketWithCause('unlogged-sale');
+  const one = askRelationshipCost(ticket, ['askCount']);
+  const three = askRelationshipCost(ticket, ['askCount', 'askReceiving', 'askLedger']);
+  assert.equal(three.unearnedAsks, 3);
+  assert.ok(three.you < one.you, 'sending them off three times running is worse than once');
+});
+
+test('order matters, not just which actions were taken', () => {
+  // Same four actions, different sequence, different call. This is the
+  // whole point: it is about the moment, not the menu.
+  const ticket = ticketWithCause('unlogged-sale');
+  const badOrder = askRelationshipCost(ticket, ['askLedger', 'manifest']);
+  const goodOrder = askRelationshipCost(ticket, ['manifest', 'askLedger']);
+  assert.ok(badOrder.you < goodOrder.you);
+  assert.equal(goodOrder.you, 0);
 });

@@ -209,6 +209,36 @@ const PHANTOM_INVENTORY_TEMPLATE = {
  * @param {object} template
  * @param {function} [rng=Math.random]
  */
+// Asking someone to do your legwork before you have done your own is
+// unearned, and costs the relationship. Mirrors gameLogic.js.
+function askRelationshipCost(ticket, investigatedActionIds) {
+  const investigation = ticket && ticket.investigation;
+  if (!investigation) return { you: 0, experience: 0, unearnedAsks: 0 };
+
+  const byId = new Map(investigation.actions.map((a) => [a.id, a]));
+  let seenRecord = false;
+  let you = 0;
+  let experience = 0;
+  let unearnedAsks = 0;
+
+  for (const id of investigatedActionIds) {
+    const action = byId.get(id);
+    if (!action) continue;
+    if (action.source === 'records') {
+      seenRecord = true;
+      continue;
+    }
+    // Their time and trouble, always.
+    experience -= action.timeCost;
+    if (!seenRecord) {
+      // Asked before we looked. That is the one that stings.
+      unearnedAsks += 1;
+      you -= action.timeCost * 2;
+      experience -= action.timeCost;
+    }
+  }
+  return { you, experience, unearnedAsks };
+}
 function rollRootCause(template, rng = Math.random) {
   return weightedPick(template.rootCauses, rng);
 }
@@ -442,6 +472,33 @@ function recallMemory(customer, currentShiftId, rng = Math.random) {
     style: 'explicit', quality: remembered.quality, actualShiftId: remembered.shiftId,
     category, categoryAccurate, shiftsAgoReported, timingAccurate, agentAttribution, agentAccurate,
   };
+}
+
+// Register: how a customer TYPE talks. Expression, not disposition --
+// archetype shapes voice and never touches traits. Mirrors gameLogic.js.
+const ARCHETYPE_REGISTERS = {
+  // Official, procedural, speaks in the third person of an institution
+  Kingdom: 'formal', 'Town Council': 'formal', Constabulary: 'formal', Military: 'formal',
+  // Self-important, theatrical, the call is about them
+  Hero: 'grand', Villain: 'grand',
+  // Few words, matter of fact, no performance in it
+  NPC: 'plain', Blacksmith: 'plain', Henchfolk: 'plain',
+  // Discursive, anecdotal, gets there eventually
+  Tavern: 'chatty', Inn: 'chatty', 'Wandering Trader': 'chatty',
+  // Hedging, apologetic, reluctant to take up your time
+  Sidekick: 'deferential', 'Potion Shop': 'deferential',
+};
+
+const DEFAULT_REGISTER = 'plain';
+
+/**
+ * The register this customer speaks in.
+ * @param {object|null} customer
+ * @returns {string}
+ */
+function registerOf(customer) {
+  if (!customer) return DEFAULT_REGISTER;
+  return ARCHETYPE_REGISTERS[customer.archetype] || DEFAULT_REGISTER;
 }
 
 // --- Character Disposition Model (Phase 1). Mirrors gameLogic.js. ---
@@ -816,11 +873,44 @@ function memoryLine(m) {
 // experience that led to contact, audible in how they open. See
 // LORE.md, "Character Disposition Model."
 const OPENING_LINES = {
-  wait: "Before anything else \u2014 do you know how long I've been sat on this line?",
-  product: "I'll say this much: it used to be better. It used to be a lot better.",
-  vague: "Something's gone wrong somewhere and I honestly don't know where to start.",
-  venting: 'There is a long breath on the line. They have not said what they need yet.',
+  wait: {
+    formal: 'Before we proceed, I should note that I have been holding for some time.',
+    grand: 'Do you know how long I have been kept waiting? Do you know who I am?',
+    plain: 'Been on this line a while.',
+    chatty: "I'll tell you, I've had time to reorganise the whole back room while I waited.",
+    deferential: "I don't want to make a fuss. I have been holding rather a while, though.",
+  },
+  product: {
+    formal: 'I will say the standard of service has declined measurably this season.',
+    grand: 'There was a time when your service was worthy of the name.',
+    plain: 'It used to be better. It used to be a lot better.',
+    chatty: 'My father dealt with your lot, you know. Different outfit then, mind.',
+    deferential: "It's probably me, but things haven't felt quite right lately.",
+  },
+  vague: {
+    formal: 'There is an irregularity I am not able to characterise precisely.',
+    grand: 'Something is deeply wrong and I expect you to determine what.',
+    plain: "Something's off. Can't say what.",
+    chatty: 'Now where do I even start with this, honestly —',
+    deferential: "Sorry — I'm not even sure this is the right place to ask.",
+  },
+  venting: {
+    formal: 'There is a pause. They appear to be composing themselves.',
+    grand: 'A long, theatrical breath. They are not finished being aggrieved.',
+    plain: 'A long silence. They have not said anything yet.',
+    chatty: 'They are still talking. None of it is about the problem yet.',
+    deferential: 'They start, stop, and apologise for having started.',
+  },
 };
+
+// UI-ONLY. Picks the line for this opening in this customer's voice.
+// Mode is the substance; register is how they say it. See gameLogic's
+// ARCHETYPE_REGISTERS -- expression keys off archetype, disposition
+// never does.
+function openingLine(mode, register) {
+  const byRegister = OPENING_LINES[mode] || OPENING_LINES.vague;
+  return byRegister[register] || byRegister.plain;
+}
 
 // UI-ONLY. When pressing them for the actual request doesn't land.
 const PROBE_MISSES = [
@@ -986,6 +1076,11 @@ export default function CallCenterPrototype() {
   const ticket = shift && shift.tickets[index];
   const customer = ticket && shift.customerPool.find((c) => c.id === ticket.customerId);
   const investigation = ticket && ticket.investigation;
+  // Has the agent done their own homework before sending the customer off?
+  const checkedAnyRecord = Boolean(investigation) && asked.some((id) => {
+    const a = investigation.actions.find((x) => x.id === id);
+    return a && a.source === 'records';
+  });
 
   const startShift = () => {
     const s = generateShift({
@@ -1024,7 +1119,7 @@ export default function CallCenterPrototype() {
       entries.push({ speaker: 'CALLER', tint: C.gold, rule: C.goldDeep, body: memoryLine(memory) });
     } else {
       entries.push({ speaker: 'CALLER', tint: C.t3, rule: C.steel,
-        body: OPENING_LINES[opening.mode] || OPENING_LINES.vague });
+        body: openingLine(opening.mode, registerOf(customer)) });
     }
     setFeed(entries);
   };
@@ -1072,8 +1167,12 @@ export default function CallCenterPrototype() {
     // questionLoad is what being thorough actually costs: an input to
     // the Experience axis once Phase 1 gives the vector real values.
     const questionLoad = investigationTimeCost(ticket, asked) + probes;
+    // Sending them off to do our legwork lands on the relationship --
+    // hard if we hadn't looked first, softer if we had.
+    const askCost = askRelationshipCost(ticket, asked);
     setOutcomes((prev) => [...prev, {
-      ...outcome, classification: klass, standing: result && result.standing, questionLoad,
+      ...outcome, classification: klass, standing: result && result.standing,
+      questionLoad, unearnedAsks: askCost.unearnedAsks,
     }]);
     resetCall();
 
@@ -1190,11 +1289,28 @@ export default function CallCenterPrototype() {
 
               {investigation && (
                 <div style={S.menu}>
-                  <p style={S.label}>ASK / VERIFY — COSTS THEIR PATIENCE, NOT YOUR CLOCK</p>
-                  {investigation.actions.map((a) => (
+                  <p style={S.label}>OUR RECORDS — THE NETWORK REPORTS THESE</p>
+                  {investigation.actions.filter((a) => a.source === 'records').map((a) => (
                     <AskRow key={a.id} glyph={asked.includes(a.id) ? '✓' : '▸'}
                       glyphColor={asked.includes(a.id) ? C.sage : C.gold}
-                      label={a.label} cost={a.timeCost} used={asked.includes(a.id)}
+                      label={a.label} cost={0} used={asked.includes(a.id)}
+                      affordable onClick={() => investigate(a)} />
+                  ))}
+
+                  <p style={{ ...S.label, marginTop: 8, color: checkedAnyRecord ? C.muted : C.rose }}>
+                    {checkedAnyRecord
+                      ? 'ASK THEM TO GO AND LOOK'
+                      : "ASK THEM TO GO AND LOOK \u2014 YOU HAVEN'T CHECKED OURS YET"}
+                  </p>
+                  {investigation.actions.filter((a) => a.source === 'ask').map((a) => (
+                    <AskRow key={a.id} glyph={asked.includes(a.id) ? '✓' : '▸'}
+                      glyphColor={asked.includes(a.id) ? C.sage : (checkedAnyRecord ? C.gold : C.rose)}
+                      label={a.label}
+                      note={asked.includes(a.id) ? undefined
+                        : (checkedAnyRecord
+                          ? 'Their time and their trouble.'
+                          : "You'd be telling them you think they miscounted \u2014 and that you haven't looked.")}
+                      cost={a.timeCost} used={asked.includes(a.id)}
                       affordable onClick={() => investigate(a)} />
                   ))}
                 </div>
