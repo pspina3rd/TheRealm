@@ -1748,3 +1748,25 @@ test('a caller in no difficulty at all is under no pressure', () => {
   const bare = deliveryPreference(c);
   assert.equal(calm.warmth.toFixed(3), bare.warmth.toFixed(3));
 });
+
+
+// ---------------------------------------------------------------------
+// TLC's records cannot hold the customer's knowledge
+// ---------------------------------------------------------------------
+
+test('a records lookup never reports what the customer knows', () => {
+  // A Node is a PLACE -- it holds shipments, it does not recognise
+  // people. And the customer signs, whether they collect at a Node or a
+  // Courier brings it to them. So our paperwork holds a NAME; whether
+  // that name means anything is knowledge only the caller has, and it
+  // arrives when the agent reads it out and gets contradicted.
+  const customerSideKnowledge = /recognis|recognize|they had not|they admit|nobody remembers|never wrote down|does not work here/i;
+
+  for (const cause of PHANTOM_INVENTORY_TEMPLATE.rootCauses) {
+    const inv = buildInvestigation(PHANTOM_INVENTORY_TEMPLATE, cause);
+    for (const action of inv.actions.filter((a) => a.source === 'records')) {
+      assert.equal(customerSideKnowledge.test(action.clue), false,
+        `${cause.id}/${action.id} has our records reporting the caller's own knowledge:\n    "${action.clue}"`);
+    }
+  }
+});

@@ -1386,6 +1386,28 @@ is the arrangement — a business does not get to be a waypoint in the
 network and also be a black box. So TLC knows perfectly well what it
 shipped, where it went, who took it, and that the Node acknowledged it.
 
+**Who signs, and where — it is not complicated.** A **Node** is a
+*place*: the shipment lands there and **the customer collects and
+signs**. A **Courier** is an *actor*: they carry it and **the customer
+signs** on delivery. Which leg is last decides which happens. Either
+way it is the customer's signature.
+
+So a signature is always meaningful, and a name on a receipt that means
+nothing to the caller is a real problem in both cases.
+
+**But TLC only holds the name.** Whether that person works there is the
+customer's knowledge, not ours — which means it does not exist in our
+records at all. It comes into being when the agent reads the name out
+and gets contradicted:
+
+> *"It was signed for by Jimothy, on the 11th."*
+> *"Jimothy? We've no Jimothy — nor a Timothy, for that matter."*
+
+**Sharing a finding is therefore a move that can return information**,
+and one of the most productive an agent makes. Support and investigation
+are not separable stages: telling somebody what you hold is frequently
+how the next thread appears.
+
 **A missing report is itself information**, and a partnership problem in
 its own right. A Node that never posted receipt has told you something
 by not telling you anything.
