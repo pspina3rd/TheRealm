@@ -1364,6 +1364,114 @@ misclassification happens at both levels. Phantom Inventory's seven
 causes land across **four** domains: Quantity, Fulfillment, Accounts,
 and Service.
 
+### 0b. Basic requests — the bread and butter of each domain
+
+The ordinary calls. Not exotica: these are what actually comes in, day
+after day, and a support centre is mostly made of them.
+
+**Names are terms of art**, per "Naming Methodology" — what the trade
+would call the problem type, recognisable to a customer as *their*
+situation without being the sentence they would say. Existing built
+categories are marked **[built]**.
+
+**Shape** says which of the call's machinery a request leans on:
+*records* (answerable from our own paperwork), *ask* (needs what only
+they know), *educate* (the work is explaining), *boundary* (frequently
+turns out not to be ours), *divergence* (our record and their memory
+tend to disagree).
+
+#### Orders — placing, changing, cancelling
+
+| Request | What they experience | Shape |
+| --- | --- | --- |
+| Booking Request | wants something sent, needs it arranged | educate |
+| Booking Change | destination, count or tier wrong before dispatch | records |
+| Booking Cancellation | wants to stop something already booked | records |
+| Tier Quote | which service do I need, what will it cost | educate |
+| Standing Order Setup | recurring shipments, usually Caravan | educate |
+| No Booking On Record | certain they ordered; we have nothing | divergence, boundary |
+
+#### Fulfillment — getting it there
+
+| Request | What they experience | Shape |
+| --- | --- | --- |
+| Shipment Trace | *where is it* — the commonest call there is | records, educate |
+| Late Arrival | past the window they were given | records, educate |
+| Misroute | went to the wrong Node | records |
+| Failed Handover | nobody there to sign, or the Node was shut | records, ask |
+| Redirect Request | change the destination mid-route | educate |
+| Split Delivery | arrived in parts; they expected one | records, educate |
+
+#### Quality — it arrived wrong or broken
+
+| Request | What they experience | Shape |
+| --- | --- | --- |
+| Damage In Transit | it arrived broken | ask, records |
+| Spoilage | potions turned, perishables degraded | ask |
+| Wrong Goods | not what was sent, or not what was ordered | records, divergence |
+| Seal Breach | opened or tampered with before arrival | records, ask |
+
+#### Quantity — the count disagrees
+
+| Request | What they experience | Shape |
+| --- | --- | --- |
+| Short Shipment | fewer arrived than ordered | records, ask |
+| **Phantom Inventory** **[built]** | the listing and the shelf disagree | records, ask, boundary |
+| Overage | more arrived than ordered | records |
+| Partial Delivery | some came, the rest is outstanding | records, educate |
+
+#### Returns — sending it back
+
+| Request | What they experience | Shape |
+| --- | --- | --- |
+| Return Request | how do I send this back | educate |
+| Return Not Credited | sent it back, nothing came of it | records, divergence |
+| Return Refused | the Node would not take it | ask, educate |
+| Cursed Item Return **[built]** | it will not come off, and it whispers | educate, boundary |
+
+#### Repairs — making it work again
+
+| Request | What they experience | Shape |
+| --- | --- | --- |
+| Ward Failure **[built]** | something we maintain has stopped | records, educate |
+| Repair Status | when is somebody coming | records, educate |
+| Repeat Failure | it was fixed and it broke again | records, divergence |
+
+#### Service — the relationship, and the doing of the thing
+
+| Request | What they experience | Shape |
+| --- | --- | --- |
+| Process Question | how does this actually work | educate |
+| Handling Complaint | about how a previous call went | divergence, boundary |
+| Agent Request | asks for somebody by name | boundary |
+| Escalation Request | wants a supervisor | boundary, educate |
+| Partnership Inquiry | wants to become a partner (POST) | educate, boundary |
+
+#### Accounts — who they are, and what is on record
+
+| Request | What they experience | Shape |
+| --- | --- | --- |
+| Detail Update | address, contact, named person changed | records |
+| Record Discrepancy | our record disagrees with theirs | divergence |
+| Authorisation Query | who is allowed to act on this account | records, educate |
+| Listing Sync Failure **[built]** | storefront and stock disagree | records, boundary |
+| Account Access | cannot act on their own account | educate, boundary |
+
+#### Billing — money
+
+| Request | What they experience | Shape |
+| --- | --- | --- |
+| Overcharge Dispute | charged more than expected | records, boundary |
+| Duplicate Charge | charged twice for one thing | records |
+| Payout Missing **[built]** | commission never arrived | records, divergence |
+| Upcharge Dispute | a size or weight upcharge nobody authorised | records, boundary |
+| Invoice Query | what is this line for | educate |
+
+**Phantom Inventory is a subcategory, not a top-level thing.** It is one
+specific shape of a count going wrong — the listing says one number and
+the shelf says another — and its causes already span four domains. Most
+of the requests above are broader and more ordinary than it.
+
 ### 1. The category
 
 The classification — a term of art for a real problem type, per

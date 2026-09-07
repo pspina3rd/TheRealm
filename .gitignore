@@ -5,3 +5,8 @@ node_modules/
 .DS_Store
 
 npm-debug.log*
+
+# Purchased asset packs -- large binaries, and licensed separately.
+# Keep them out of version control; track what we actually use, once
+# it is exported and its licence is confirmed.
+Possible Assets/
