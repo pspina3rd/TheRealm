@@ -7,6 +7,7 @@ const {
   investigationTimeCost,
   endShift,
   dispositionTag,
+  readCues,
   FEELING_AXES,
   rollTraits,
   rollWrinkles,
@@ -1054,12 +1055,14 @@ test('some causes cannot be solved from TLC records alone', () => {
   assert.equal(withTheirLedger.standing, 'correct');
 });
 
-test('a merchant\'s shelf holds stock TLC never shipped', () => {
-  // Returns and buy-ins from adventurers mix into the same count. Our
-  // records cannot reconcile a number we only ever saw part of.
-  const ticket = ticketWithCause('never-shipped-by-us');
+test('a merchant\'s shelf holds stock that never shipped at all', () => {
+  // TLC is an accidental monopoly, so there is no rival carrier to
+  // blame. What happens instead is off-network: an adventurer walks in
+  // with a haul and sells it over the counter. Returns do the same.
+  // Our records cannot reconcile a number that never entered them.
+  const ticket = ticketWithCause('counter-bought');
   const manifest = ticket.investigation.actions.find((a) => a.id === 'manifest');
-  assert.match(manifest.clue, /no shipment/i, 'the manifest should show nothing, because we shipped nothing');
+  assert.match(manifest.clue, /no shipment/i, 'the manifest shows nothing because nothing shipped');
 
   // Needs our record AND their intake -- neither alone is enough.
   const ours = resolveInvestigation(ticket, ['manifest'], 'notOurs');
@@ -1264,4 +1267,73 @@ test('familiarityOf handles a customer with no disposition yet', () => {
   assert.equal(familiarityOf(null), 'new');
   assert.equal(familiarityOf({ history: [{}] }), 'returning-warm',
     'no recorded feeling about TLC is not a grievance');
+});
+
+
+// ---------------------------------------------------------------------
+// Reading a customer — cues, not verdicts
+// ---------------------------------------------------------------------
+
+test('reading a customer returns observable cues, never a feeling', () => {
+  // Tone, word choice, cadence, volume. The player infers. The game does
+  // not announce how anyone feels.
+  const c = {
+    disposition: { you: -70, tlc: 0, experience: 0, understanding: 0 },
+    traits: { socialFilter: 1 },
+  };
+  const cues = readCues(c, 'you');
+
+  for (const key of ['cadence', 'volume', 'wordChoice']) {
+    assert.equal(typeof cues[key], 'string', `missing observable cue: ${key}`);
+  }
+  // No cue may be a feeling word -- that would be the label again in
+  // costume.
+  const feelings = ['hostile', 'frustrated', 'neutral', 'warm', 'loyal', 'angry', 'happy'];
+  for (const key of ['cadence', 'volume', 'wordChoice', 'band']) {
+    assert.equal(feelings.includes(cues[key]), false,
+      `"${cues[key]}" names a feeling; cues must describe behaviour`);
+  }
+});
+
+test('the Social Filter makes the reading genuinely ambiguous', () => {
+  // The heart of it: a badly upset customer with a tight lid reads the
+  // same as a mildly annoyed one with none. A player cannot infer the
+  // truth from the presentation -- and that is the design, not a bug.
+  const upsetButGuarded = {
+    disposition: { you: -80 }, traits: { socialFilter: 0.35 },
+  };
+  const mildlyAnnoyedAndOpen = {
+    disposition: { you: -28 }, traits: { socialFilter: 1 },
+  };
+
+  const a = readCues(upsetButGuarded, 'you');
+  const b = readCues(mildlyAnnoyedAndOpen, 'you');
+
+  assert.equal(a.band, b.band, 'these two must be indistinguishable to the player');
+  assert.ok(upsetButGuarded.disposition.you < mildlyAnnoyedAndOpen.disposition.you * 2,
+    'while actually feeling very different things');
+});
+
+test('cues move across the whole range', () => {
+  const bands = new Set();
+  for (let level = -100; level <= 100; level += 5) {
+    bands.add(readCues({ disposition: { you: level }, traits: { socialFilter: 1 } }, 'you').band);
+  }
+  assert.ok(bands.size >= 5, `expected the full spread, got ${[...bands].join(', ')}`);
+});
+
+test('cues can be read on any axis, not just the agent', () => {
+  const c = {
+    disposition: { you: 60, tlc: -60, experience: 0, understanding: 0 },
+    traits: { socialFilter: 1 },
+  };
+  // Warm to you, cold about the company -- the state a scalar could not
+  // hold, now readable one axis at a time.
+  assert.notEqual(readCues(c, 'you').band, readCues(c, 'tlc').band);
+});
+
+test('readCues survives a customer with no traits yet', () => {
+  const cues = readCues({ disposition: { you: 0 } }, 'you');
+  assert.equal(cues.band, 'level');
+  assert.equal(readCues({}, 'you').band, 'level');
 });

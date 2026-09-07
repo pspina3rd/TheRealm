@@ -127,7 +127,7 @@ const PHANTOM_INVENTORY_TEMPLATE = {
     { id: 'secondLeg', label: "Nothing is missing yet — the second leg hasn't landed" },
     { id: 'misfiled', label: "They're on your shelf, shelved under the wrong classification" },
     { id: 'underHold', label: "They're here and sealed — a hold was placed on them" },
-    { id: 'notOurs', label: 'That stock never came from us — it came in off your counter' },
+    { id: 'notOurs', label: 'That stock never shipped at all — it came in over your counter' },
     { id: 'theft', label: 'Someone with stockroom access has taken them' },
     { id: 'lostTransit', label: 'The shipment was lost in transit' },
   ],
@@ -242,7 +242,7 @@ const PHANTOM_INVENTORY_TEMPLATE = {
       id: 'constabulary-hold',
       weight: 1,
       trueCategory: 'Goods Under Hold',
-      trueDomain: 'Service',
+      trueDomain: 'Fulfillment',
       diagnosisId: 'underHold',
       keyActionIds: ['holdRegister'],
       clues: {
@@ -258,24 +258,27 @@ const PHANTOM_INVENTORY_TEMPLATE = {
       },
     },
     {
-      // A merchant's shelf holds goods TLC never touched. They bought a
-      // lot off an adventurer and are calling us about it.
-      id: 'never-shipped-by-us',
+      // TLC is an accidental MONOPOLY -- there is no rival carrier, so
+      // "somebody else shipped it" is not a thing that can happen. What
+      // can happen is that goods never moved through the network at
+      // all: an adventurer walked in with a haul and sold it over the
+      // counter. Nothing to ship, nothing to record.
+      id: 'counter-bought',
       weight: 2,
-      trueCategory: 'Not A TLC Shipment',
+      trueCategory: 'Counter-Bought Stock',
       trueDomain: 'Accounts',
       diagnosisId: 'notOurs',
       keyActionIds: ['manifest', 'askIntake'],
       clues: {
-        manifest: 'We have no shipment of that size to this account. Not this season.',
-        courierRecord: 'No handoff, because there was nothing to hand over.',
-        nodeReceipt: 'No receipt, because there was no shipment to receive.',
+        manifest: 'No shipment of that size to this account. Nothing to ship means nothing to find.',
+        courierRecord: 'No delivery report. Nothing ever moved.',
+        nodeReceipt: 'No receipt. There was nothing for the Node to receive.',
         drawRecord: 'No draw against a lot we do not have.',
         holdRegister: 'No hold on record.',
         askCount: 'Three on the shelf, as they said.',
         askReceiving: 'Nobody remembers taking a TLC delivery that week.',
         askLedger: 'The forty were entered as stock. No supplier against them.',
-        askIntake: 'They bought a lot off an adventurer three weeks ago. Never wrote down who.',
+        askIntake: 'An adventurer came in with a haul three weeks ago. They bought the lot over the counter and never wrote down who.',
       },
     },
   ],
@@ -503,6 +506,60 @@ function clamp(value, min, max) {
 /**
  * Maps a numeric disposition score to a coarse tag the UI/dialogue layer
  * can key flavor text off of, without exposing raw numbers to players.
+ */
+/**
+ * READING A CUSTOMER — cues, not verdicts.
+ *
+ * **A label is not how anyone learns what a caller feels.** On a real
+ * desk you get tone, word choice, phrasing, volume, pitch and cadence,
+ * and you work it out. "The Military is now feeling neutral" is a debug
+ * readout that got promoted to a mechanic; this replaces it.
+ *
+ * What comes back is a set of **observable cues** for the UI to render
+ * as behaviour. The player infers. The game never states how anyone
+ * feels.
+ *
+ * **The reading is genuinely uncertain, and not because of added
+ * noise.** Cues derive from the VISIBLE level — internal feeling times
+ * Social Filter — so a badly upset customer with a tight lid produces
+ * the same cues as a mildly annoyed one with none. That ambiguity is
+ * the Social Filter doing exactly what LORE.md says it does: a player
+ * cannot read the truth off the presentation.
+ *
+ * @param {object} customer
+ * @param {string} [axis='you'] - which feeling is being read
+ * @returns {{ band: string, cadence: string, volume: string, wordChoice: string, visible: number }}
+ */
+function readCues(customer, axis = 'you') {
+  const disposition = (customer && customer.disposition) || {};
+  const traits = (customer && customer.traits) || { socialFilter: 1 };
+  const level = disposition[axis] || 0;
+  const visible = level * (traits.socialFilter === undefined ? 1 : traits.socialFilter);
+
+  let band;
+  if (visible <= -45) band = 'cold';
+  else if (visible <= -15) band = 'cooling';
+  else if (visible < 15) band = 'level';
+  else if (visible < 45) band = 'warming';
+  else band = 'open';
+
+  const cues = {
+    cold: { cadence: 'clipped', volume: 'raised', wordChoice: 'distancing' },
+    cooling: { cadence: 'short', volume: 'flat', wordChoice: 'formal' },
+    level: { cadence: 'even', volume: 'level', wordChoice: 'plain' },
+    warming: { cadence: 'unhurried', volume: 'easy', wordChoice: 'personal' },
+    open: { cadence: 'rambling', volume: 'bright', wordChoice: 'familiar' },
+  }[band];
+
+  return { band, visible, ...cues };
+}
+
+/**
+ * INTERNAL ONLY — do not show this to the player.
+ *
+ * Kept because the simulation and its tests need a compact way to talk
+ * about where a number sits. The player-facing path is readCues().
+ * See LORE.md, "Reading a customer."
  */
 function dispositionTag(score) {
   if (score <= -60) return 'hostile';
@@ -1331,10 +1388,9 @@ function resolveTicket(ticket, customer, quality, status, shiftId) {
     status,
     reputationDelta: effect.reputationDelta,
     timeSpent: Math.round(effect.timeCost * ticket.timeCostMultiplier),
-    // The player's immediate read is the YOU axis -- and only as much
-    // as the customer lets show. See LORE.md's open question on which
-    // surface reports which axis.
-    dispositionTag: dispositionTag(disposition.you),
+    // Observable cues, never a verdict. The player reads them; the game
+    // does not tell them how anyone feels.
+    cues: readCues(updatedCustomer, 'you'),
     visibleDelta: visible,
     followUp,
   };
@@ -1445,6 +1501,7 @@ module.exports = {
   applyDisposition,
   decayChanceFor,
   dispositionTag,
+  readCues,
   recallMemory,
   generateShift,
   resolveInvestigation,

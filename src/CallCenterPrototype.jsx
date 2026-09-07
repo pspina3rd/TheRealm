@@ -28,19 +28,26 @@ const PHANTOM_INVENTORY_TEMPLATE = {
   /**
    * Two kinds of action, and the split is load-bearing.
    *
-   * `source: 'records'` — TLC's own paperwork. The agent reads it
-   * directly. Reliable, and limited to what TLC actually touched.
+   * `source: 'records'` — the network's own reporting. Nodes report
+   * receipt and Couriers report delivery, because their partnership
+   * agreements require it, so TLC knows what shipped, where it went,
+   * who took it, and whether receipt was acknowledged. Reliable, and
+   * limited to what the agreement covers. A MISSING report is itself
+   * information.
    *
    * `source: 'ask'` — only the customer can find this out. The agent
    * asks; somebody at the other end has to go and look. Slower, costs
    * far more of their patience, and the answer is only as good as their
-   * own bookkeeping. **An agent cannot walk a customer's stockroom.**
+   * own bookkeeping. Everything downstream of the Node's receipt is
+   * inside somebody else's operation. **An agent cannot walk a
+   * customer's stockroom.**
    *
    * See LORE.md, "What TLC can actually see."
    */
   actions: [
     { id: 'manifest', source: 'records', label: 'Check what we shipped', timeCost: 1 },
-    { id: 'courierRecord', source: 'records', label: 'Check the courier handoff record', timeCost: 1 },
+    { id: 'courierRecord', source: 'records', label: "Check the Courier's delivery report", timeCost: 1 },
+    { id: 'nodeReceipt', source: 'records', label: "Check whether the Node posted receipt", timeCost: 1 },
     { id: 'drawRecord', source: 'records', label: 'Check for a Caravan draw against the lot', timeCost: 2 },
     { id: 'holdRegister', source: 'records', label: 'Check the hold register', timeCost: 1 },
     { id: 'askCount', source: 'ask', label: 'Ask them to go and count the shelf', timeCost: 3 },
@@ -56,7 +63,7 @@ const PHANTOM_INVENTORY_TEMPLATE = {
     { id: 'secondLeg', label: "Nothing is missing yet — the second leg hasn't landed" },
     { id: 'misfiled', label: "They're on your shelf, shelved under the wrong classification" },
     { id: 'underHold', label: "They're here and sealed — a hold was placed on them" },
-    { id: 'notOurs', label: 'That stock never came from us — it came in off your counter' },
+    { id: 'notOurs', label: 'That stock never shipped at all — it came in over your counter' },
     { id: 'theft', label: 'Someone with stockroom access has taken them' },
     { id: 'lostTransit', label: 'The shipment was lost in transit' },
   ],
@@ -74,6 +81,7 @@ const PHANTOM_INVENTORY_TEMPLATE = {
       clues: {
         manifest: 'All 40 shipped, logged correctly.',
         courierRecord: 'Handed over and signed for three days ago.',
+        nodeReceipt: 'Receipt posted the same day, in order.',
         drawRecord: 'No draw against this lot.',
         holdRegister: 'No hold on record.',
         askCount: 'They come back with three. Same as the shelf said.',
@@ -93,6 +101,7 @@ const PHANTOM_INVENTORY_TEMPLATE = {
       clues: {
         manifest: 'One lot of 40 — and the courier stamp is on it twice.',
         courierRecord: 'Only four were handed over. Not forty.',
+        nodeReceipt: 'Receipt posted for four units. Four.',
         drawRecord: 'A Caravan draw moved 36 to the Constabulary that same morning.',
         holdRegister: 'No hold on record.',
         askCount: 'Four on the shelf.',
@@ -114,6 +123,7 @@ const PHANTOM_INVENTORY_TEMPLATE = {
       clues: {
         manifest: 'All 40 shipped.',
         courierRecord: 'Signed for. The signature is a mark, not a name.',
+        nodeReceipt: 'Receipt posted, on time, by the Node.',
         drawRecord: 'No draw against this lot.',
         holdRegister: 'No hold on record.',
         askCount: 'They find forty. They sound less certain than they did.',
@@ -133,6 +143,7 @@ const PHANTOM_INVENTORY_TEMPLATE = {
       clues: {
         manifest: 'Booked as a two-leg Priority Relay. This is leg one of two.',
         courierRecord: 'Leg one handed over. Leg two is not due until tomorrow.',
+        nodeReceipt: 'Receipt posted for leg one. Leg two is still outstanding.',
         drawRecord: 'No draw against this lot.',
         holdRegister: 'No hold on record.',
         askCount: 'The count matches leg one precisely.',
@@ -153,6 +164,7 @@ const PHANTOM_INVENTORY_TEMPLATE = {
       clues: {
         manifest: 'All 40 shipped, as Small.',
         courierRecord: 'Signed for by a name the Node does not recognise.',
+        nodeReceipt: 'Receipt posted in full — forty, acknowledged.',
         drawRecord: 'No draw against this lot.',
         holdRegister: 'No hold on record.',
         askCount: 'Forty are there — stacked under Large. Their listing cannot see them.',
@@ -166,12 +178,13 @@ const PHANTOM_INVENTORY_TEMPLATE = {
       id: 'constabulary-hold',
       weight: 1,
       trueCategory: 'Goods Under Hold',
-      trueDomain: 'Service',
+      trueDomain: 'Fulfillment',
       diagnosisId: 'underHold',
       keyActionIds: ['holdRegister'],
       clues: {
         manifest: 'All 40 shipped.',
         courierRecord: 'Delivered and signed for.',
+        nodeReceipt: 'Receipt posted, with the hold noted against it.',
         drawRecord: 'No draw against this lot.',
         holdRegister: 'A Constabulary hold was placed on the lot the day it landed.',
         askCount: 'The crates are there, sealed and tagged. Not theirs to open.',
@@ -181,23 +194,27 @@ const PHANTOM_INVENTORY_TEMPLATE = {
       },
     },
     {
-      // A merchant's shelf holds goods TLC never touched. They bought a
-      // lot off an adventurer and are calling us about it.
-      id: 'never-shipped-by-us',
+      // TLC is an accidental MONOPOLY -- there is no rival carrier, so
+      // "somebody else shipped it" is not a thing that can happen. What
+      // can happen is that goods never moved through the network at
+      // all: an adventurer walked in with a haul and sold it over the
+      // counter. Nothing to ship, nothing to record.
+      id: 'counter-bought',
       weight: 2,
-      trueCategory: 'Not A TLC Shipment',
+      trueCategory: 'Counter-Bought Stock',
       trueDomain: 'Accounts',
       diagnosisId: 'notOurs',
       keyActionIds: ['manifest', 'askIntake'],
       clues: {
-        manifest: 'We have no shipment of that size to this account. Not this season.',
-        courierRecord: 'No handoff, because there was nothing to hand over.',
+        manifest: 'No shipment of that size to this account. Nothing to ship means nothing to find.',
+        courierRecord: 'No delivery report. Nothing ever moved.',
+        nodeReceipt: 'No receipt. There was nothing for the Node to receive.',
         drawRecord: 'No draw against a lot we do not have.',
         holdRegister: 'No hold on record.',
         askCount: 'Three on the shelf, as they said.',
         askReceiving: 'Nobody remembers taking a TLC delivery that week.',
         askLedger: 'The forty were entered as stock. No supplier against them.',
-        askIntake: 'They bought a lot off an adventurer three weeks ago. Never wrote down who.',
+        askIntake: 'An adventurer came in with a haul three weeks ago. They bought the lot over the counter and never wrote down who.',
       },
     },
   ],
@@ -420,6 +437,53 @@ function shuffle(list, rng) {
   return copy;
 }
 function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
+/**
+ * READING A CUSTOMER — cues, not verdicts.
+ *
+ * **A label is not how anyone learns what a caller feels.** On a real
+ * desk you get tone, word choice, phrasing, volume, pitch and cadence,
+ * and you work it out. "The Military is now feeling neutral" is a debug
+ * readout that got promoted to a mechanic; this replaces it.
+ *
+ * What comes back is a set of **observable cues** for the UI to render
+ * as behaviour. The player infers. The game never states how anyone
+ * feels.
+ *
+ * **The reading is genuinely uncertain, and not because of added
+ * noise.** Cues derive from the VISIBLE level — internal feeling times
+ * Social Filter — so a badly upset customer with a tight lid produces
+ * the same cues as a mildly annoyed one with none. That ambiguity is
+ * the Social Filter doing exactly what LORE.md says it does: a player
+ * cannot read the truth off the presentation.
+ *
+ * @param {object} customer
+ * @param {string} [axis='you'] - which feeling is being read
+ * @returns {{ band: string, cadence: string, volume: string, wordChoice: string, visible: number }}
+ */
+function readCues(customer, axis = 'you') {
+  const disposition = (customer && customer.disposition) || {};
+  const traits = (customer && customer.traits) || { socialFilter: 1 };
+  const level = disposition[axis] || 0;
+  const visible = level * (traits.socialFilter === undefined ? 1 : traits.socialFilter);
+
+  let band;
+  if (visible <= -45) band = 'cold';
+  else if (visible <= -15) band = 'cooling';
+  else if (visible < 15) band = 'level';
+  else if (visible < 45) band = 'warming';
+  else band = 'open';
+
+  const cues = {
+    cold: { cadence: 'clipped', volume: 'raised', wordChoice: 'distancing' },
+    cooling: { cadence: 'short', volume: 'flat', wordChoice: 'formal' },
+    level: { cadence: 'even', volume: 'level', wordChoice: 'plain' },
+    warming: { cadence: 'unhurried', volume: 'easy', wordChoice: 'personal' },
+    open: { cadence: 'rambling', volume: 'bright', wordChoice: 'familiar' },
+  }[band];
+
+  return { band, visible, ...cues };
+}
+// INTERNAL ONLY -- never shown to the player. See readCues().
 function dispositionTag(score) {
   if (score <= -60) return 'hostile';
   if (score <= -20) return 'frustrated';
@@ -731,7 +795,7 @@ function resolveTicket(ticket, customer, quality, status, shiftId) {
       ticketId: ticket.id, quality, status,
       reputationDelta: effect.reputationDelta,
       timeSpent: Math.round(effect.timeCost * ticket.timeCostMultiplier),
-      dispositionTag: dispositionTag(disposition.you), visibleDelta: visible, followUp,
+      cues: readCues(updatedCustomer, 'you'), visibleDelta: visible, followUp,
     },
   };
 }
@@ -925,6 +989,38 @@ const OPENING_LINES = {
     deferential: 'They start, stop, and apologise for having started.',
   },
 };
+
+// UI-ONLY. Cues rendered as behaviour the player watches. Never a
+// verdict -- the game does not say how anyone feels, it says what they
+// did with their voice. See gameLogic's readCues().
+const CUE_WORDS = {
+  cadence: {
+    clipped: 'Their answers come back clipped',
+    short: 'They answer short',
+    even: 'They answer evenly',
+    unhurried: 'They take their time answering',
+    rambling: 'They talk on past the answer',
+  },
+  volume: {
+    raised: 'a good deal louder than they started',
+    flat: 'flatter than before',
+    level: 'at the same level throughout',
+    easy: 'easy enough',
+    bright: 'bright with it',
+  },
+  wordChoice: {
+    distancing: 'and they have started saying "you people"',
+    formal: 'and they have gone formal on you',
+    plain: 'and say about what you would expect',
+    personal: 'and they have started using your name',
+    familiar: 'and they are telling you things you did not ask for',
+  },
+};
+
+function cueSentence(cues) {
+  if (!cues) return null;
+  return `${CUE_WORDS.cadence[cues.cadence]}, ${CUE_WORDS.volume[cues.volume]}, ${CUE_WORDS.wordChoice[cues.wordChoice]}.`;
+}
 
 // UI-ONLY. What FAMILIARITY adds on top of the register's words.
 //
