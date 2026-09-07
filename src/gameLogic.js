@@ -893,6 +893,21 @@ function probeForRequest(probesSoFar, rng = Math.random) {
   return rng() < 0.5;
 }
 
+/**
+ * How an interaction can end. Three ways, and **none of them require a
+ * cause to have been named** — see LORE.md, "Ticket Resolution."
+ *
+ *   resolved  the agent BELIEVES the request was given an appropriate
+ *             solution. A belief, not a verified truth: it sticks, or
+ *             it is disputed later by somebody else.
+ *   hold      action pending — on the agent, the customer, an internal
+ *             process, or several at once.
+ *   transfer  the call or case is handed off for further review.
+ *
+ * A diagnosis is one way to reach `resolved`. It is not the only one,
+ * and it is not required: confirming our part is clean and handing over
+ * the detail resolves a call perfectly well without naming anything.
+ */
 const RESOLUTION_STATUSES = ['resolved', 'hold', 'transfer'];
 
 /**
@@ -909,7 +924,27 @@ const DISPUTE_CHANCE_BY_QUALITY = {
 };
 
 /** Flavor-only reason shown on a "hold" ticket; no mechanical difference. */
-const HOLD_REASONS = ['internal', 'external'];
+/**
+ * What a Hold is waiting ON. **One or more of these at a time** — a case
+ * can be pending the agent's own work, something from the customer, and
+ * an internal process all at once, and usually is.
+ *
+ * An earlier version flattened this to internal/external, which lost
+ * both the agent's own pending work and the fact that holds stack.
+ */
+const HOLD_PENDING = ['agent', 'customer', 'internal'];
+
+/**
+ * Rolls what a hold is waiting on. Weighted toward one thing, because
+ * most holds are, but genuinely able to stack.
+ *
+ * @param {function} rng
+ * @returns {string[]} at least one of HOLD_PENDING
+ */
+function rollHoldPending(rng) {
+  const pending = HOLD_PENDING.filter(() => rng() < 0.4);
+  return pending.length ? pending : [pickOne(HOLD_PENDING, rng)];
+}
 
 /** How urgent a follow-up ticket reads on arrival — these have been waiting. */
 const FOLLOW_UP_BASE_URGENCY = { hold: 5, reopen: 7 };
@@ -1268,7 +1303,7 @@ function generateShift({
     isReturning: true,
     isFollowUp: true,
     followUpKind: f.kind,
-    holdReason: f.kind === 'hold' ? pickOne(HOLD_REASONS, rng) : undefined,
+    holdPending: f.kind === 'hold' ? rollHoldPending(rng) : undefined,
   }));
 
   const tickets = shuffle([...proceduralTickets, ...followUpTickets], rng);
@@ -1787,7 +1822,8 @@ module.exports = {
   DECOY_AGENT_NAMES,
   RESOLUTION_STATUSES,
   DISPUTE_CHANCE_BY_QUALITY,
-  HOLD_REASONS,
+  HOLD_PENDING,
+  rollHoldPending,
   PHANTOM_INVENTORY_TEMPLATE,
   askRelationshipCost,
   rollRootCause,

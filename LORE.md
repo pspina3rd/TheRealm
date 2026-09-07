@@ -1462,6 +1462,32 @@ back" is homework, and it is also an accusation.
 Conversational questions are cheap — a single inquiry — because that is
 what they cost in life.
 
+### Three endings, and none of them require a named cause — locked
+
+This was already established and a later model contradicted it, so it is
+restated flatly:
+
+- **Resolve** — the agent **believes** the request was given an
+  appropriate solution. A belief, not a verified truth. It sticks, or it
+  is disputed later by somebody else.
+- **Hold** — action pending: on the **agent**, on the **customer**, on
+  an **internal** process, or **more than one at once**.
+- **Transfer** — the call or case is handed off for further review.
+
+**A diagnosis is one route to Resolve. It is not the only one and it is
+not required.** Confirming our part is clean and handing over the detail
+resolves a call perfectly well without naming anything at all.
+
+The model that went wrong assumed every call must end with a named
+cause, which is precisely what kept pushing the agent into the
+customer's own books looking for one. The three endings already said
+otherwise.
+
+*(An earlier build also flattened Hold to internal/external, which lost
+the agent's own pending work entirely and lost the fact that holds
+**stack** — a case waiting on the customer AND on an internal process is
+ordinary, not exceptional.)*
+
 ### When our part is discharged, saying so IS the answer
 
 **Not every root cause is TLC's to find.** Our sight ends at the Node's

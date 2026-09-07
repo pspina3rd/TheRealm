@@ -464,7 +464,15 @@ function probeForRequest(probesSoFar, rng = Math.random) {
 const RESOLUTION_STATUSES = ['resolved', 'hold', 'transfer'];
 
 const DISPUTE_CHANCE_BY_QUALITY = { correct: 0.03, adequate: 0.12, rushed: 0.35, dismissive: 0.6 };
-const HOLD_REASONS = ['internal', 'external'];
+// What a Hold is waiting ON -- one or more at a time. Mirrors
+// gameLogic.js. Flattening this to internal/external lost the agent's
+// own pending work and the fact that holds stack.
+const HOLD_PENDING = ['agent', 'customer', 'internal'];
+
+function rollHoldPending(rng) {
+  const pending = HOLD_PENDING.filter(() => rng() < 0.4);
+  return pending.length ? pending : [pickOne(HOLD_PENDING, rng)];
+}
 const FOLLOW_UP_BASE_URGENCY = { hold: 5, reopen: 7 };
 
 const SHIFT_MODIFIERS = [
@@ -765,7 +773,7 @@ function generateShift({ knownCustomers = [], baseTicketCount = 8, currentShiftI
     urgency: clamp(FOLLOW_UP_BASE_URGENCY[f.kind] + draft.urgencyBonus, 1, 10),
     timeCostMultiplier: draft.timeCostMultiplier,
     isReturning: true, isFollowUp: true, followUpKind: f.kind,
-    holdReason: f.kind === 'hold' ? pickOne(HOLD_REASONS, rng) : undefined,
+    holdPending: f.kind === 'hold' ? rollHoldPending(rng) : undefined,
   }));
 
   const tickets = shuffle([...proceduralTickets, ...followUpTickets], rng);

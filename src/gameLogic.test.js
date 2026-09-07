@@ -29,6 +29,9 @@ const {
   PHANTOM_INVENTORY_TEMPLATE,
   TICKET_TEMPLATES,
   DOMAINS,
+  RESOLUTION_STATUSES,
+  HOLD_PENDING,
+  rollHoldPending,
   registerOf,
   DELIVERIES,
   deliveryFit,
@@ -1836,4 +1839,73 @@ test('running out leaves the determination available', () => {
   const result = resolveInvestigation(ticket, [], 'ourSideClean');
   assert.ok(['correct', 'partial', 'wrong'].includes(result.standing),
     'a determination is always reachable, however little was gathered');
+});
+
+
+// ---------------------------------------------------------------------
+// An interaction ends three ways, and none of them need a cause
+// ---------------------------------------------------------------------
+
+test('a call can resolve without ever naming a cause', () => {
+  // resolved = the agent BELIEVES the request was given an appropriate
+  // solution. That is the whole bar. An earlier model treated a named
+  // diagnosis as the goal of every call, which is what kept pushing the
+  // agent into the customer's own books looking for one.
+  const ticket = ticketWithCause('unlogged-sale');
+  const customer = neutralCustomer({ tier: 'partner', archetype: 'Potion Shop' });
+
+  const { outcome } = resolveTicket(ticket, customer, 'correct', 'resolved', 1);
+  assert.equal(outcome.status, 'resolved');
+  // Nothing anywhere requires a diagnosis to have happened.
+  assert.equal('diagnosis' in outcome, false);
+});
+
+test('all three endings are available whatever was or was not established', () => {
+  const ticket = ticketWithCause('shelved-not-entered');
+  const customer = neutralCustomer({ tier: 'partner', archetype: 'Tavern' });
+  for (const status of RESOLUTION_STATUSES) {
+    const { outcome } = resolveTicket(ticket, customer, 'adequate', status, 1);
+    assert.equal(outcome.status, status);
+  }
+});
+
+test('a hold can be pending on several things at once', () => {
+  // Agent, customer, internal -- one or more. Flattening this to
+  // internal/external lost the agent's own pending work entirely.
+  assert.deepEqual(HOLD_PENDING, ['agent', 'customer', 'internal']);
+
+  let sawMultiple = false;
+  let sawSingle = false;
+  const seen = new Set();
+  for (let seed = 1; seed <= 300; seed++) {
+    const pending = rollHoldPending(seededRng(seed));
+    assert.ok(pending.length >= 1, 'a hold is always waiting on something');
+    for (const p of pending) {
+      assert.ok(HOLD_PENDING.includes(p));
+      seen.add(p);
+    }
+    if (pending.length > 1) sawMultiple = true;
+    if (pending.length === 1) sawSingle = true;
+  }
+  assert.equal(seen.size, 3, 'every kind of pending must be reachable');
+  assert.ok(sawMultiple, 'holds must be able to stack');
+  assert.ok(sawSingle, 'and most are just the one thing');
+});
+
+test('a held follow-up carries what it is waiting on', () => {
+  const outcomes = [{
+    ticketId: 't1', quality: 'adequate', status: 'hold', reputationDelta: 0, timeSpent: 2,
+    followUp: { kind: 'hold', ticketCategory: 'Phantom Inventory', customerId: 'c1' },
+  }];
+  const { pendingFollowUps } = endShift(outcomes, 50, 1, seededRng(3));
+  assert.equal(pendingFollowUps.length, 1);
+
+  const { tickets } = generateShift({
+    knownCustomers: [neutralCustomer({ id: 'c1', tier: 'partner', archetype: 'Inn' })],
+    baseTicketCount: 4, currentShiftId: 9, pendingFollowUps, rng: seededRng(3),
+  });
+  const held = tickets.find((t) => t.followUpKind === 'hold');
+  assert.ok(held, 'the hold should surface once it is due');
+  assert.ok(Array.isArray(held.holdPending) && held.holdPending.length >= 1,
+    'and it should say what it has been waiting on');
 });
