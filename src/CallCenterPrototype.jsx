@@ -17,12 +17,71 @@ const CUSTOMER_TYPES = {
   partner: { label: 'Partner Vendor', archetypes: ['Tavern', 'Inn', 'Blacksmith', 'Potion Shop', 'Wandering Trader'] },
 };
 
-// Phantom Inventory as a CATEGORY TEMPLATE -- six root causes, three of
-// which are not really Phantom Inventory at all. Mirrors gameLogic.js
-// exactly. See LORE.md, "Ticket Content -- Categories, Sub-Variables,
-// and the Telling."
+/**
+ * Lookups any category can make, because they are TLC's own paperwork.
+ *
+ * Factored out because four categories were about to repeat them. A
+ * template names the ones its calls can reach; the rest simply are not
+ * on that menu.
+ *
+ * `defaultOutcome` is what a lookup says when this particular call has
+ * nothing interesting there — which is most lookups on most calls, and
+ * is why the ones that DO carry something are worth finding.
+ */
+const RECORD_LOOKUPS = {
+  manifest: { label: 'Check what we shipped', timeCost: 1, defaultOutcome: 'Shipped as booked. Nothing irregular.' },
+  courierRecord: { label: "Check the Courier's delivery report", timeCost: 1, defaultOutcome: 'Handed over and signed for, on time.' },
+  nodeReceipt: { label: 'Check whether the Node posted receipt', timeCost: 1, defaultOutcome: 'Receipt posted the same day, in order.' },
+  drawRecord: { label: 'Check for a Caravan draw against the lot', timeCost: 2, defaultOutcome: 'No draw against this lot.' },
+  holdRegister: { label: 'Check the hold register', timeCost: 1, defaultOutcome: 'No hold on record.' },
+  routeBooking: { label: 'Check the route and tier it was booked at', timeCost: 1, defaultOutcome: 'Booked as a single direct hop.' },
+  legStatus: { label: 'Check where each leg has got to', timeCost: 2, defaultOutcome: 'All legs complete.' },
+  accountRecord: { label: "Check the account's own record", timeCost: 1, defaultOutcome: 'Account in order. Nothing flagged.' },
+  chargeLedger: { label: 'Check what was charged, and when', timeCost: 2, defaultOutcome: 'One charge, at the booked rate.' },
+  bookingRegister: { label: 'Search the booking register', timeCost: 1, defaultOutcome: 'The booking is there, as described.' },
+  priorCase: { label: 'Pull the earlier case and its note', timeCost: 2, defaultOutcome: 'A note from a previous call, briefly written.' },
+  workOrder: { label: 'Check the work order and who attended', timeCost: 2, defaultOutcome: 'Attended and closed out.' },
+};
+
+/** Questions a caller can answer from where they are standing. */
+const ASK_LOOKUPS = {
+  askExpected: { label: 'Ask what they were expecting, and when', timeCost: 1, defaultOutcome: 'They confirm the order and the date. It matches ours.' },
+  askWhoTakesIn: { label: 'Ask who normally takes deliveries in', timeCost: 1, defaultOutcome: 'Whoever is nearest the door, they say. It varies.' },
+  askAnyoneElse: { label: 'Ask whether anyone else has been in touch about it', timeCost: 1, defaultOutcome: 'Nobody else has been in touch about it.' },
+  askWhenNoticed: { label: 'Ask when they first noticed', timeCost: 1, defaultOutcome: 'A few days ago. They are vague on the exact day.' },
+  askWhoTheySpokeTo: { label: 'Ask who they spoke to last time', timeCost: 1, defaultOutcome: 'They did not catch the name.' },
+};
+
+/**
+ * Builds a category template from named lookups plus its own supportive
+ * and wrap-up work.
+ *
+ * Keeps the three kinds honest: investigative comes from the shared
+ * pools, while doing something for somebody and telling them what
+ * happens next are specific to the kind of problem it is.
+ */
+function makeTemplate({ category, domain, openingStatement, records, asks, supportive, wrapup, diagnoses, rootCauses }) {
+  const build = (ids, pool, kind, source) => ids.map((id) => ({
+    id, kind, source, ...pool[id],
+  }));
+  return {
+    category,
+    domain,
+    openingStatement,
+    actions: [
+      ...build(records, RECORD_LOOKUPS, 'investigative', 'records'),
+      ...build(asks, ASK_LOOKUPS, 'investigative', 'ask'),
+      ...supportive.map((a) => ({ ...a, kind: 'supportive', source: 'records' })),
+      ...wrapup.map((a) => ({ ...a, kind: 'wrapup', source: 'records' })),
+    ],
+    diagnoses,
+    rootCauses,
+  };
+}
+
 const PHANTOM_INVENTORY_TEMPLATE = {
   category: 'Phantom Inventory',
+  domain: 'Quantity',
   openingStatement: "I ordered 40 healing potions for the festival, and now you're telling me I don't have them?! Where did they go?",
 
   /**
@@ -222,14 +281,38 @@ const PHANTOM_INVENTORY_TEMPLATE = {
   ],
 };
 
-
 /**
- * Picks which root cause this instance of the ticket actually has.
- * @param {object} template
- * @param {function} [rng=Math.random]
+ * What asking the customer to go and do your legwork costs you.
+ *
+ * "Go and count your shelves" is not a neutral request. It puts the
+ * work back on them, and it carries an unspoken accusation: *I think
+ * you have miscounted, and I have not looked myself.* Done at the wrong
+ * moment it is simply bad service.
+ *
+ * **The moment is what decides it.** An ask lands very differently
+ * depending on whether the agent has visibly done their own homework
+ * first:
+ *
+ *   "Everything on our side checks out — the manifest, the Courier's
+ *    report, the Node's receipt. Can I ask you to do one thing for me?"
+ *
+ * versus opening the call with "go and count your shelf." Same action,
+ * same information, completely different call.
+ *
+ * So an ask made before ANY record has been checked is **unearned**, and
+ * costs the relationship. An ask made after is ordinary collaboration.
+ * Every ask costs some Experience regardless — it is their time and
+ * their trouble either way.
+ *
+ * Empathy would soften an unearned ask, but Empathy is an earned skill
+ * and is not built (see LORE.md, "Education & Empathy"). A new agent
+ * genuinely does not know how to make this land.
+ *
+ * @param {object} ticket - carrying `investigation`
+ * @param {string[]} investigatedActionIds - IN THE ORDER TAKEN
+ * @returns {{ you: number, experience: number, unearnedAsks: number }}
+ *   raw deltas, before Sensitivity and Social Filter
  */
-// Asking someone to do your legwork before you have done your own is
-// unearned, and costs the relationship. Mirrors gameLogic.js.
 function askRelationshipCost(ticket, investigatedActionIds) {
   const investigation = ticket && ticket.investigation;
   if (!investigation) return { you: 0, experience: 0, unearnedAsks: 0 };
@@ -258,6 +341,12 @@ function askRelationshipCost(ticket, investigatedActionIds) {
   }
   return { you, experience, unearnedAsks };
 }
+
+/**
+ * Picks which root cause this instance of the ticket actually has.
+ * @param {object} template
+ * @param {function} [rng=Math.random]
+ */
 function rollRootCause(template, rng = Math.random) {
   return weightedPick(template.rootCauses, rng);
 }
@@ -292,6 +381,22 @@ function buildInvestigation(template, rootCause) {
   };
 }
 
+/**
+ * Ticket templates per customer tier. `weight` is relative selection
+ * likelihood within that tier (not normalized — see weightedPick).
+ */
+/**
+ * The nine problem domains a contact centre actually handles. This is
+ * the real-world taxonomy, and it is the organising layer above
+ * categories — see LORE.md, "Ticket Content."
+ *
+ * Domains cut ACROSS customer tiers. Anyone can have a Billing problem;
+ * bucketing categories by tier was arbitrary.
+ *
+ * Structure, largest to smallest:
+ *   domain (9, fixed)  →  category (a term of art)  →  root cause
+ * with perspective and Baggage shaping how any of it gets told.
+ */
 const DOMAINS = [
   'Orders',      // placing, changing, cancelling
   'Fulfillment', // getting it there
@@ -304,20 +409,396 @@ const DOMAINS = [
   'Billing',     // money
 ];
 
+/**
+ * SHIPMENT TRACE — Fulfillment. The commonest call there is.
+ *
+ * Nothing here is mysterious: our records say where it is. **The whole
+ * skill is what you say next** — being straight about a leg that has not
+ * landed, and not promising a day you cannot hold. Contrast Phantom
+ * Inventory, where clean records mean it is not ours and the cause is
+ * unfindable; here clean records mean you have your answer immediately
+ * and the call is about delivering it.
+ */
+const SHIPMENT_TRACE_TEMPLATE = makeTemplate({
+  category: 'Shipment Trace',
+  domain: 'Fulfillment',
+  openingStatement: "I sent something out four days ago and I've heard nothing since. Where is it?",
+  records: ['routeBooking', 'legStatus', 'courierRecord', 'nodeReceipt', 'holdRegister'],
+  asks: ['askExpected', 'askAnyoneElse'],
+  supportive: [
+    { id: 'chaseLeg', label: 'Chase the outstanding leg', timeCost: 2, defaultOutcome: 'Nothing outstanding to chase.' },
+    { id: 'flagPriority', label: 'Flag it for the next available Courier', timeCost: 1, defaultOutcome: 'It is already moving. Flagging changes nothing.' },
+  ],
+  wrapup: [
+    { id: 'giveWindow', label: 'Give them an honest window', timeCost: 1, defaultOutcome: 'You give a window. You are guessing, and it will be wrong.' },
+    { id: 'sayUnknown', label: 'Tell them plainly that we cannot say yet', timeCost: 1, defaultOutcome: 'You say you cannot tell them, when in fact you can.' },
+    { id: 'explainRoute', label: 'Walk them through the route it takes', timeCost: 2, defaultOutcome: 'You describe a route. It is not the one this took.' },
+  ],
+  diagnoses: [
+    { id: 'inTransitOnTime', label: 'It is moving and it is not late yet' },
+    { id: 'legOutstanding', label: 'One leg has not been picked up — that is the delay' },
+    { id: 'alreadyDelivered', label: 'It arrived already, and was signed for' },
+    { id: 'heldByAuthority', label: 'It is sitting under a hold' },
+    { id: 'lostTransit', label: 'It has been lost in transit' },
+  ],
+  rootCauses: [
+    {
+      // The commonest outcome of the commonest call: nothing is wrong.
+      id: 'moving-normally',
+      weight: 4, discoverable: true,
+      trueCategory: 'Shipment Trace', trueDomain: 'Fulfillment',
+      diagnosisId: 'inTransitOnTime',
+      keyActionIds: ['legStatus'],
+      aptSupport: ['giveWindow', 'explainRoute'],
+      clues: {
+        legStatus: 'Leg one complete, leg two picked up this morning. It is moving.',
+        routeBooking: 'Two-leg Priority Relay. Four days is inside the window.',
+        askExpected: 'They were quoted a week. They have been counting from the wrong day.',
+        giveWindow: 'You give them the real window and the reason for it. They settle.',
+        explainRoute: 'You walk them through both legs. They had assumed it was one hop.',
+      },
+    },
+    {
+      id: 'leg-not-collected',
+      weight: 3, discoverable: true,
+      trueCategory: 'Shipment Trace', trueDomain: 'Fulfillment',
+      diagnosisId: 'legOutstanding',
+      keyActionIds: ['legStatus'],
+      aptSupport: ['chaseLeg', 'giveWindow'],
+      clues: {
+        legStatus: 'Leg one complete. Leg two has been sitting unclaimed for two days.',
+        courierRecord: 'No Courier has picked up the second leg.',
+        chaseLeg: 'You chase it. Somebody will collect it tomorrow, probably.',
+        giveWindow: 'You tell them tomorrow, and that you have chased it yourself.',
+      },
+    },
+    {
+      // It is already there. They are asking us where something is that
+      // is sitting in their own building.
+      id: 'already-arrived',
+      weight: 2, discoverable: true,
+      trueCategory: 'Shipment Trace', trueDomain: 'Fulfillment',
+      diagnosisId: 'alreadyDelivered',
+      keyActionIds: ['courierRecord', 'nodeReceipt'],
+      redHerringActionId: 'routeBooking',
+      clues: {
+        routeBooking: 'Booked as a three-leg Relay — a long route, easy to assume it is still going.',
+        courierRecord: 'Delivered and signed for, two days ago.',
+        nodeReceipt: 'Receipt posted. It is there.',
+        askWhoTakesIn: 'Whoever is about. They sound less certain now.',
+        giveWindow: 'You tell them it is already with them, and when it arrived.',
+      },
+    },
+    {
+      id: 'under-hold',
+      weight: 1, discoverable: true,
+      trueCategory: 'Goods Under Hold', trueDomain: 'Fulfillment',
+      diagnosisId: 'heldByAuthority',
+      keyActionIds: ['holdRegister'],
+      aptSupport: ['sayUnknown'],
+      clues: {
+        holdRegister: 'A hold was placed on it in transit. No release date given.',
+        legStatus: 'Leg two shows as halted, not delayed.',
+        sayUnknown: 'You are honest that we do not know how long. They would rather have heard anything else.',
+      },
+    },
+  ],
+});
+
+/**
+ * REPEAT FAILURE — Repairs. The one that leans on coworkers.
+ *
+ * It was fixed. It broke again. **Somebody handled that first call**,
+ * and the note they left is as good as they were — which may not be very
+ * good. This is where "other agents work at varying quality" stops being
+ * a stated fact and becomes something the player reads.
+ */
+const REPEAT_FAILURE_TEMPLATE = makeTemplate({
+  category: 'Repeat Failure',
+  domain: 'Repairs',
+  openingStatement: "Somebody was out to fix this a fortnight ago. It has gone again, exactly the same.",
+  records: ['priorCase', 'workOrder', 'accountRecord'],
+  asks: ['askWhenNoticed', 'askWhoTheySpokeTo'],
+  supportive: [
+    { id: 'raiseRepeat', label: 'Raise it as a repeat, not a new fault', timeCost: 2, defaultOutcome: 'Raised as a repeat. It is not one.' },
+    { id: 'sendSameHand', label: 'Ask for whoever attended last time', timeCost: 1, defaultOutcome: 'No use — a different fault wants different hands.' },
+  ],
+  wrapup: [
+    { id: 'ownIt', label: 'Say plainly that we did not fix it the first time', timeCost: 1, defaultOutcome: 'You take the blame for something that was not ours.' },
+    { id: 'setRepairWindow', label: 'Tell them when somebody will be out', timeCost: 1, defaultOutcome: 'You give a date. Nobody has been assigned to hold it.' },
+  ],
+  diagnoses: [
+    { id: 'neverFixed', label: 'It was never actually fixed — the first visit closed early' },
+    { id: 'differentFault', label: 'This is a second, separate fault' },
+    { id: 'wrongDiagnosisFirst', label: 'The first call diagnosed it wrongly' },
+    { id: 'wearNotFault', label: 'Nothing has failed — it is due for its scheduled work' },
+  ],
+  rootCauses: [
+    {
+      // A coworker closed it thin. The note says almost nothing, and
+      // the almost-nothing IS the finding.
+      id: 'closed-early',
+      weight: 3, discoverable: true,
+      trueCategory: 'Repeat Failure', trueDomain: 'Repairs',
+      diagnosisId: 'neverFixed',
+      keyActionIds: ['priorCase', 'workOrder'],
+      aptSupport: ['raiseRepeat', 'ownIt'],
+      clues: {
+        priorCase: 'Thistle took it. The note reads, in full: "Attended. Resolved."',
+        workOrder: 'Attended for under an hour. Closed the same visit, no parts drawn.',
+        askWhoTheySpokeTo: 'A woman, they think. Brisk. Did not stay long.',
+        raiseRepeat: 'Raised as a repeat. That routes it to somebody senior.',
+        ownIt: 'You say plainly it was not fixed the first time. They are not angry — they are relieved.',
+      },
+    },
+    {
+      // Not a repeat at all, whatever they believe. Saying so is the job.
+      id: 'second-fault',
+      weight: 2, discoverable: true,
+      trueCategory: 'Ward Failure', trueDomain: 'Repairs',
+      diagnosisId: 'differentFault',
+      keyActionIds: ['priorCase', 'workOrder'],
+      redHerringActionId: 'accountRecord',
+      clues: {
+        priorCase: 'Pell took it. Thorough note: the coupling, replaced, tested twice.',
+        workOrder: 'Different component entirely from the one failing now.',
+        accountRecord: 'Third call this season. It reads worse than it is.',
+        askWhenNoticed: 'This started yesterday. The last one had been going for weeks.',
+        setRepairWindow: 'You book it as new work and tell them when.',
+      },
+    },
+    {
+      // The first agent got it wrong. Their note is confident and wrong,
+      // which is worse than a thin one.
+      id: 'misdiagnosed-first',
+      weight: 2, discoverable: true,
+      trueCategory: 'Repeat Failure', trueDomain: 'Repairs',
+      diagnosisId: 'wrongDiagnosisFirst',
+      keyActionIds: ['priorCase'],
+      aptSupport: ['raiseRepeat', 'ownIt'],
+      clues: {
+        priorCase: 'Bram took it, and wrote it up at length — cause, reasoning, the lot. Read against what they are describing now, the cause he settled on does not fit the symptom, and never did.',
+        workOrder: 'The work done follows his note exactly. It was never going to help.',
+        askWhenNoticed: 'It came back within days, they say. They did not want to make a fuss.',
+        ownIt: 'You tell them the first read was wrong. It costs nothing to say and they have been waiting to hear it.',
+      },
+    },
+    {
+      // Nothing failed. It is simply due, and nobody told them.
+      id: 'scheduled-work-due',
+      weight: 1, discoverable: true,
+      trueCategory: 'Process Question', trueDomain: 'Service',
+      diagnosisId: 'wearNotFault',
+      keyActionIds: ['accountRecord'],
+      clues: {
+        priorCase: 'Cassidy took it. Brief, but she wrote down that it was routine, and that it was routine is the whole point.',
+        accountRecord: 'Its scheduled work fell due last week. Nobody has booked it.',
+        workOrder: 'The earlier visit was routine, not a fault.',
+        setRepairWindow: 'You book the scheduled work and tell them what it is for.',
+      },
+    },
+  ],
+});
+
+/**
+ * NO BOOKING ON RECORD — Orders. Pure divergence.
+ *
+ * They are certain they booked it. We have nothing. **Neither side is
+ * lying** — and the first domain with no category at all until now.
+ */
+const NO_BOOKING_TEMPLATE = makeTemplate({
+  category: 'No Booking On Record',
+  domain: 'Orders',
+  openingStatement: "I booked this a week ago and you're telling me there's no record of it? I stood right there and did it.",
+  records: ['bookingRegister', 'accountRecord', 'chargeLedger'],
+  asks: ['askWhenNoticed', 'askWhoTheySpokeTo'],
+  supportive: [
+    { id: 'bookItNow', label: 'Book it now, at the quoted rate', timeCost: 2, defaultOutcome: 'Booking it again would duplicate one that exists.' },
+    { id: 'traceAcrossAccounts', label: 'Search the neighbouring accounts', timeCost: 2, defaultOutcome: 'Nothing under any related account.' },
+  ],
+  wrapup: [
+    { id: 'confirmBooked', label: 'Confirm it is booked and read back the details', timeCost: 1, defaultOutcome: 'You confirm a booking that does not exist.' },
+    { id: 'explainNoRecord', label: 'Explain what we can see and what we cannot', timeCost: 2, defaultOutcome: 'You explain an absence that is not there.' },
+  ],
+  diagnoses: [
+    { id: 'neverCompleted', label: 'The booking was started and never completed' },
+    { id: 'underOtherAccount', label: 'It is booked — under a different account' },
+    { id: 'bookedElsewhere', label: 'It was arranged privately, not through us' },
+    { id: 'ourLoss', label: 'We took it and lost it' },
+  ],
+  rootCauses: [
+    {
+      id: 'started-not-finished',
+      weight: 3, discoverable: true,
+      trueCategory: 'No Booking On Record', trueDomain: 'Orders',
+      diagnosisId: 'neverCompleted',
+      keyActionIds: ['bookingRegister'],
+      aptSupport: ['bookItNow', 'confirmBooked'],
+      clues: {
+        bookingRegister: 'A draft, opened last week and never confirmed. No charge against it.',
+        chargeLedger: 'Nothing charged. Nothing was ever committed.',
+        askWhoTheySpokeTo: 'Nobody. They did it themselves, at the counter.',
+        bookItNow: 'You book it properly, at the rate they were quoted.',
+        confirmBooked: 'You read it back to them: route, tier, day. They are satisfied.',
+      },
+    },
+    {
+      // It exists. It is filed under the guild, not the person.
+      id: 'other-account',
+      weight: 3, discoverable: true,
+      trueCategory: 'Record Discrepancy', trueDomain: 'Accounts',
+      diagnosisId: 'underOtherAccount',
+      keyActionIds: ['traceAcrossAccounts'],
+      redHerringActionId: 'bookingRegister',
+      clues: {
+        bookingRegister: 'Nothing under this account. Nothing at all.',
+        accountRecord: 'One of three accounts sharing a name — the others are guild-held.',
+        traceAcrossAccounts: 'There it is, booked against the guild account, not theirs.',
+        explainNoRecord: 'You explain which account it sits under, and why we could not see it at first.',
+      },
+    },
+    {
+      // TLC is a monopoly, so nobody else shipped it -- but people do
+      // arrange things privately, hand to hand, and then ring us.
+      id: 'arranged-privately',
+      weight: 2, discoverable: true,
+      trueCategory: 'Counter-Bought Stock', trueDomain: 'Accounts',
+      diagnosisId: 'bookedElsewhere',
+      keyActionIds: ['bookingRegister', 'chargeLedger'],
+      clues: {
+        bookingRegister: 'Nothing, and no draft either.',
+        chargeLedger: 'No charge, this season or last.',
+        askWhoTheySpokeTo: 'A man at the market who said he could get it moved.',
+        explainNoRecord: 'You explain that nothing came through us, gently. It is not the news they wanted.',
+      },
+    },
+    {
+      // Sometimes it IS us. Saying so is the whole call.
+      id: 'ours-and-lost',
+      weight: 1, discoverable: true,
+      trueCategory: 'No Booking On Record', trueDomain: 'Orders',
+      diagnosisId: 'ourLoss',
+      keyActionIds: ['chargeLedger'],
+      aptSupport: ['bookItNow', 'explainNoRecord'],
+      clues: {
+        bookingRegister: 'Nothing on record.',
+        chargeLedger: 'Charged a week ago, at the full rate. The charge is ours; the booking is not there.',
+        bookItNow: 'You book it yourself and note the original charge against it.',
+        explainNoRecord: 'You tell them we took the money and lost the booking. They take it better than expected.',
+      },
+    },
+  ],
+});
+
+/**
+ * DUPLICATE CHARGE — Billing. Records-heavy with a boundary.
+ *
+ * Often ours and sometimes not: a Node applies charges at intake, and
+ * a caller cannot tell one line from another.
+ */
+const DUPLICATE_CHARGE_TEMPLATE = makeTemplate({
+  category: 'Duplicate Charge',
+  domain: 'Billing',
+  openingStatement: "I've been charged twice for the same shipment. Same amount, same week. I want one of them back.",
+  records: ['chargeLedger', 'bookingRegister', 'routeBooking', 'accountRecord'],
+  asks: ['askWhenNoticed', 'askExpected'],
+  supportive: [
+    { id: 'reverseCharge', label: 'Reverse the duplicate', timeCost: 2, defaultOutcome: 'There is no duplicate of ours to reverse.' },
+    { id: 'itemiseCharges', label: 'Itemise every charge on the account', timeCost: 2, defaultOutcome: 'Itemised. It reads exactly as it did.' },
+  ],
+  wrapup: [
+    { id: 'confirmReversal', label: 'Tell them what is coming back and when', timeCost: 1, defaultOutcome: 'You promise a reversal that is not happening.' },
+    { id: 'pointToNode', label: 'Show them which charge is not ours to reverse', timeCost: 1, defaultOutcome: 'You point elsewhere. It was ours.' },
+  ],
+  diagnoses: [
+    { id: 'genuineDuplicate', label: 'Two charges, one shipment — ours to put right' },
+    { id: 'nodeIntakeCharge', label: 'One is ours; the other was applied at your Node' },
+    { id: 'twoShipments', label: 'Two charges because there were two shipments' },
+    { id: 'legBilledSeparately', label: 'A multi-leg route bills each leg' },
+  ],
+  rootCauses: [
+    {
+      id: 'genuine-duplicate',
+      weight: 3, discoverable: true,
+      trueCategory: 'Duplicate Charge', trueDomain: 'Billing',
+      diagnosisId: 'genuineDuplicate',
+      keyActionIds: ['chargeLedger'],
+      aptSupport: ['reverseCharge', 'confirmReversal'],
+      clues: {
+        chargeLedger: 'Two charges, same amount, same day, one booking reference.',
+        bookingRegister: 'One booking. Only ever one.',
+        reverseCharge: 'Reversed. It will show against them within the week.',
+        confirmReversal: 'You tell them the amount and the week. Nothing else is needed.',
+      },
+    },
+    {
+      // Not ours. The Node applied it at intake, and the caller cannot
+      // tell one line from another because they both say TLC.
+      id: 'node-applied',
+      weight: 3, discoverable: true,
+      trueCategory: 'Upcharge Dispute', trueDomain: 'Billing',
+      diagnosisId: 'nodeIntakeCharge',
+      keyActionIds: ['chargeLedger', 'accountRecord'],
+      redHerringActionId: 'bookingRegister',
+      clues: {
+        chargeLedger: 'Two lines. Ours is the booking rate. The other was raised at the Node, at intake.',
+        bookingRegister: 'One booking, which makes two charges look obviously wrong.',
+        accountRecord: 'Their Node holds its own intake schedule. It has done for two seasons.',
+        itemiseCharges: 'Itemised side by side, the second line is plainly not in our hand.',
+        pointToNode: 'You show them which line is which, and who raised it. They are annoyed, but not at you.',
+      },
+    },
+    {
+      id: 'two-shipments',
+      weight: 2, discoverable: true,
+      trueCategory: 'Invoice Query', trueDomain: 'Billing',
+      diagnosisId: 'twoShipments',
+      keyActionIds: ['bookingRegister'],
+      clues: {
+        chargeLedger: 'Two charges, same amount, three days apart.',
+        bookingRegister: 'Two bookings. Same goods, same route, both confirmed by them.',
+        askExpected: 'They only remember arranging it once. They are certain of it.',
+        itemiseCharges: 'Itemised, the two bookings are three days and two references apart.',
+      },
+    },
+    {
+      id: 'legs-billed-apart',
+      weight: 2, discoverable: true,
+      trueCategory: 'Invoice Query', trueDomain: 'Billing',
+      diagnosisId: 'legBilledSeparately',
+      keyActionIds: ['routeBooking'],
+      aptSupport: ['itemiseCharges'],
+      clues: {
+        chargeLedger: 'Two charges. Different amounts, though they read alike at a glance.',
+        routeBooking: 'Priority Relay — three legs, and each leg bills on completion.',
+        itemiseCharges: 'Itemised, the legs are obvious. Nobody had ever explained it to them.',
+      },
+    },
+  ],
+});
+
 const TICKET_TEMPLATES = {
   endUser: [
+    { category: 'Shipment Trace', domain: 'Fulfillment', weight: 4, baseUrgency: 3, investigationTemplate: SHIPMENT_TRACE_TEMPLATE },
+    { category: 'Duplicate Charge', domain: 'Billing', weight: 2, baseUrgency: 2, investigationTemplate: DUPLICATE_CHARGE_TEMPLATE },
     { category: 'Cursed Item Return', domain: 'Returns', weight: 3, baseUrgency: 2 },
     { category: 'Quest Line Bug', domain: 'Quality', weight: 2, baseUrgency: 3 },
     { category: 'Respawn Delay', domain: 'Service', weight: 3, baseUrgency: 4 },
     { category: 'XP Miscount Dispute', domain: 'Accounts', weight: 2, baseUrgency: 1 },
   ],
   business: [
+    { category: 'Shipment Trace', domain: 'Fulfillment', weight: 4, baseUrgency: 3, investigationTemplate: SHIPMENT_TRACE_TEMPLATE },
+    { category: 'Repeat Failure', domain: 'Repairs', weight: 2, baseUrgency: 4, investigationTemplate: REPEAT_FAILURE_TEMPLATE },
+    { category: 'No Booking On Record', domain: 'Orders', weight: 2, baseUrgency: 3, investigationTemplate: NO_BOOKING_TEMPLATE },
     { category: 'Bulk Potion Order Delay', domain: 'Fulfillment', weight: 2, baseUrgency: 3 },
     { category: 'Border Ward Malfunction', domain: 'Repairs', weight: 1, baseUrgency: 5 },
     { category: 'Garrison Supply Shortfall', domain: 'Fulfillment', weight: 2, baseUrgency: 3 },
   ],
   partner: [
     { category: 'Phantom Inventory', domain: 'Quantity', weight: 3, baseUrgency: 2, investigationTemplate: PHANTOM_INVENTORY_TEMPLATE },
+    { category: 'Shipment Trace', domain: 'Fulfillment', weight: 4, baseUrgency: 3, investigationTemplate: SHIPMENT_TRACE_TEMPLATE },
+    { category: 'Duplicate Charge', domain: 'Billing', weight: 3, baseUrgency: 2, investigationTemplate: DUPLICATE_CHARGE_TEMPLATE },
+    { category: 'No Booking On Record', domain: 'Orders', weight: 2, baseUrgency: 3, investigationTemplate: NO_BOOKING_TEMPLATE },
     { category: 'Commission Payout Dispute', domain: 'Billing', weight: 2, baseUrgency: 3 },
     { category: 'Storefront Listing Error', domain: 'Accounts', weight: 2, baseUrgency: 1 },
   ],

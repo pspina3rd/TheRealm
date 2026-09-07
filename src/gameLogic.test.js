@@ -27,6 +27,12 @@ const {
   DECOY_AGENT_NAMES,
   RESPONSE_QUALITY,
   PHANTOM_INVENTORY_TEMPLATE,
+  SHIPMENT_TRACE_TEMPLATE,
+  REPEAT_FAILURE_TEMPLATE,
+  NO_BOOKING_TEMPLATE,
+  DUPLICATE_CHARGE_TEMPLATE,
+  RECORD_LOOKUPS,
+  ASK_LOOKUPS,
   TICKET_TEMPLATES,
   DOMAINS,
   RESOLUTION_STATUSES,
@@ -1908,4 +1914,113 @@ test('a held follow-up carries what it is waiting on', () => {
   assert.ok(held, 'the hold should surface once it is due');
   assert.ok(Array.isArray(held.holdPending) && held.holdPending.length >= 1,
     'and it should say what it has been waiting on');
+});
+
+
+// ---------------------------------------------------------------------
+// The batch — four more categories, and the template travelling
+// ---------------------------------------------------------------------
+
+const ALL_TEMPLATES = [
+  PHANTOM_INVENTORY_TEMPLATE, SHIPMENT_TRACE_TEMPLATE,
+  REPEAT_FAILURE_TEMPLATE, NO_BOOKING_TEMPLATE, DUPLICATE_CHARGE_TEMPLATE,
+];
+
+test('every category is structurally complete', () => {
+  // The rules Phantom Inventory established, applied to all of them --
+  // this is what "the template travels" has to mean.
+  for (const t of ALL_TEMPLATES) {
+    assert.ok(DOMAINS.includes(t.domain), `${t.category} sits outside the nine`);
+    assert.ok(t.openingStatement.length > 20, `${t.category} needs a real opening`);
+    assert.ok(t.rootCauses.length >= 4, `${t.category} needs several causes, not one`);
+
+    for (const cause of t.rootCauses) {
+      const inv = buildInvestigation(t, cause);
+      assert.ok(cause.keyActionIds.length > 0, `${t.category}/${cause.id} has no key evidence`);
+      assert.ok(DOMAINS.includes(cause.trueDomain), `${t.category}/${cause.id} bad trueDomain`);
+      assert.equal(inv.diagnoses.filter((d) => d.correct).length, 1,
+        `${t.category}/${cause.id} must have exactly one right answer`);
+      for (const a of inv.actions) {
+        assert.equal(typeof a.clue, 'string', `${t.category}/${cause.id}/${a.id} has no outcome`);
+      }
+    }
+  }
+});
+
+test('every category offers all three kinds of inquiry', () => {
+  for (const t of ALL_TEMPLATES) {
+    for (const kind of ['investigative', 'supportive', 'wrapup']) {
+      assert.ok(t.actions.some((a) => a.kind === kind),
+        `${t.category} has no ${kind} work — the player could not ${kind === 'supportive' ? 'act' : 'close'}`);
+    }
+  }
+});
+
+test('no category can be exhaustively worked inside the nine', () => {
+  for (const t of ALL_TEMPLATES) {
+    const total = t.actions.reduce((n, a) => n + a.timeCost, 0);
+    assert.ok(total > CALL_INQUIRY_BUDGET,
+      `${t.category} costs ${total} against a budget of ${CALL_INQUIRY_BUDGET} — nothing to choose`);
+  }
+});
+
+test('causes route to domains other than their own', () => {
+  // A caller reports a symptom; where the problem really sits is
+  // frequently somewhere else. True for the whole batch, not just the
+  // one it was designed on.
+  let categoriesThatCrossDomains = 0;
+  for (const t of ALL_TEMPLATES) {
+    const domains = new Set(t.rootCauses.map((c) => c.trueDomain));
+    if (domains.size > 1) categoriesThatCrossDomains++;
+  }
+  assert.ok(categoriesThatCrossDomains >= 3,
+    `only ${categoriesThatCrossDomains} categories cross domains; misfiling should be common`);
+});
+
+test('shared lookups are shared, not copied', () => {
+  // Four categories were about to repeat the same paperwork. Any
+  // template using a named lookup must get the same label and cost.
+  const seen = {};
+  for (const t of ALL_TEMPLATES) {
+    for (const a of t.actions.filter((x) => x.kind === 'investigative')) {
+      const pool = a.source === 'records' ? RECORD_LOOKUPS : ASK_LOOKUPS;
+      if (!pool[a.id]) continue;
+      assert.equal(a.label, pool[a.id].label, `${t.category}/${a.id} drifted from the shared pool`);
+      seen[a.id] = (seen[a.id] || 0) + 1;
+    }
+  }
+  const reused = Object.values(seen).filter((n) => n > 1).length;
+  assert.ok(reused >= 4, `only ${reused} lookups are actually shared across categories`);
+});
+
+test('most tickets can now be worked', () => {
+  // Nine in ten offering nothing to investigate was distorting the pace
+  // measurement, not just limiting content.
+  const all = Object.values(TICKET_TEMPLATES).flat();
+  const weight = (xs) => xs.reduce((n, t) => n + t.weight, 0);
+  const workable = weight(all.filter((t) => t.investigationTemplate)) / weight(all);
+  assert.ok(workable > 0.4,
+    `only ${(workable * 100).toFixed(0)}% of tickets by draw weight can be worked`);
+});
+
+test('every domain has something in it', () => {
+  const covered = new Set(Object.values(TICKET_TEMPLATES).flat().map((t) => t.domain));
+  const empty = DOMAINS.filter((d) => !covered.has(d));
+  assert.deepEqual(empty, [], `nothing written for: ${empty.join(', ')}`);
+});
+
+test('Repeat Failure is where coworkers become mechanical', () => {
+  // "Other agents complete their work at varying levels of quality."
+  // The prior case note IS the finding, and its quality varies by who
+  // wrote it.
+  const notes = REPEAT_FAILURE_TEMPLATE.rootCauses
+    .map((c) => c.clues.priorCase).filter(Boolean);
+  assert.ok(notes.length >= 3, 'the earlier note should matter on most causes');
+
+  const named = notes.filter((n) => DECOY_AGENT_NAMES.some((who) => n.includes(who)));
+  assert.ok(named.length >= 3, 'a previous call was handled by somebody with a name');
+
+  // And they are not all equally good.
+  assert.ok(notes.some((n) => n.length < 90), 'somebody closed one thin');
+  assert.ok(notes.some((n) => n.length > 110), 'and somebody else wrote it up properly');
 });
