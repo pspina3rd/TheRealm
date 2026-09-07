@@ -45,15 +45,31 @@ const PHANTOM_INVENTORY_TEMPLATE = {
    * See LORE.md, "What TLC can actually see."
    */
   actions: [
-    { id: 'manifest', source: 'records', label: 'Check what we shipped', timeCost: 1 },
-    { id: 'courierRecord', source: 'records', label: "Check the Courier's delivery report", timeCost: 1 },
-    { id: 'nodeReceipt', source: 'records', label: "Check whether the Node posted receipt", timeCost: 1 },
-    { id: 'drawRecord', source: 'records', label: 'Check for a Caravan draw against the lot', timeCost: 2 },
-    { id: 'holdRegister', source: 'records', label: 'Check the hold register', timeCost: 1 },
-    { id: 'askCount', source: 'ask', label: 'Ask them to go and count the shelf', timeCost: 3 },
-    { id: 'askReceiving', source: 'ask', label: 'Ask who received it and who shelved it', timeCost: 2 },
-    { id: 'askLedger', source: 'ask', label: 'Ask them to check their own sales ledger', timeCost: 3 },
-    { id: 'askIntake', source: 'ask', label: 'Ask what else came in that week — returns, buy-ins', timeCost: 2 },
+    // INVESTIGATIVE — establishing the reason for contact
+    { id: 'manifest', kind: 'investigative', source: 'records', label: 'Check what we shipped', timeCost: 1 },
+    { id: 'courierRecord', kind: 'investigative', source: 'records', label: "Check the Courier's delivery report", timeCost: 1 },
+    { id: 'nodeReceipt', kind: 'investigative', source: 'records', label: 'Check whether the Node posted receipt', timeCost: 1 },
+    { id: 'drawRecord', kind: 'investigative', source: 'records', label: 'Check for a Caravan draw against the lot', timeCost: 2 },
+    { id: 'holdRegister', kind: 'investigative', source: 'records', label: 'Check the hold register', timeCost: 1 },
+    { id: 'askCount', kind: 'investigative', source: 'ask', label: 'Ask them to go and count the shelf', timeCost: 3 },
+    { id: 'askReceiving', kind: 'investigative', source: 'ask', label: 'Ask who received it and who shelved it', timeCost: 2 },
+    { id: 'askLedger', kind: 'investigative', source: 'ask', label: 'Ask them to check their own sales ledger', timeCost: 3 },
+    { id: 'askIntake', kind: 'investigative', source: 'ask', label: 'Ask what else came in that week — returns, buy-ins', timeCost: 2 },
+
+    // SUPPORTIVE — actually doing something for them. Not finding out;
+    // acting. Every one of these is available on every call, and most of
+    // them are the wrong thing to do on any given call.
+    { id: 'postReceipt', kind: 'supportive', source: 'records', label: 'Post the missing receipt to the Node yourself', timeCost: 1 , defaultOutcome: 'There is no missing receipt to post. It goes nowhere.' },
+    { id: 'raiseClaim', kind: 'supportive', source: 'records', label: 'Raise a claim for the missing units', timeCost: 2 , defaultOutcome: 'You raise a claim. Nothing is actually missing, so it will be closed by somebody else in a week.' },
+    { id: 'requestRedraw', kind: 'supportive', source: 'records', label: 'Request a recall on the misdirected lot', timeCost: 2 , defaultOutcome: 'Nothing was misdirected. There is no lot to recall.' },
+    { id: 'correctListing', kind: 'supportive', source: 'records', label: 'Correct the classification on their listing', timeCost: 1 , defaultOutcome: 'Their listing matches what we shipped. There is nothing to correct.' },
+    { id: 'holdReference', kind: 'supportive', source: 'records', label: 'Pull the hold reference so they can chase it', timeCost: 1 , defaultOutcome: 'There is no hold, so there is no reference to give them.' },
+
+    // WRAP-UP — next steps. What happens now, what they are waiting on,
+    // what they have to do themselves. This is where Education lives.
+    { id: 'setExpectation', kind: 'wrapup', source: 'records', label: 'Tell them when to expect it', timeCost: 1 , defaultOutcome: 'You give them a timeframe. You are guessing, and it will be wrong.' },
+    { id: 'nameTheirAction', kind: 'wrapup', source: 'records', label: 'Tell them what they need to do at their end', timeCost: 1 , defaultOutcome: 'You tell them what to do at their end. It is not what this needed.' },
+    { id: 'explainCause', kind: 'wrapup', source: 'records', label: 'Explain, in plain terms, how this happened', timeCost: 2 , defaultOutcome: 'You explain what you believe happened. It does not match what happened.' },
   ],
 
   diagnoses: [
@@ -72,6 +88,7 @@ const PHANTOM_INVENTORY_TEMPLATE = {
     {
       // Invisible to TLC. Their sale, their ledger, their omission.
       id: 'unlogged-sale',
+      aptSupport: ['nameTheirAction', 'explainCause'],
       weight: 3,
       trueCategory: 'Phantom Inventory',
       trueDomain: 'Quantity',
@@ -88,11 +105,14 @@ const PHANTOM_INVENTORY_TEMPLATE = {
         askReceiving: 'Their apprentice receives most mornings and shelves the same day.',
         askLedger: 'A festival order went out two days ago — nobody entered it.',
         askIntake: 'Nothing else came in that week.',
+        nameTheirAction: 'You tell them to enter festival orders as they go out. They say they know. They will not.',
+        explainCause: 'You walk them through it: the stock left, it sold, nobody wrote it down. They follow it.',
       },
     },
     {
       // Solvable entirely from our own records.
       id: 'split-lot',
+      aptSupport: ['requestRedraw', 'setExpectation', 'explainCause'],
       weight: 2,
       trueCategory: 'Phantom Inventory',
       trueDomain: 'Quantity',
@@ -108,12 +128,16 @@ const PHANTOM_INVENTORY_TEMPLATE = {
         askReceiving: 'The owner took it in personally. Nobody else touched it.',
         askLedger: 'Nothing unusual in their sales.',
         askIntake: 'Nothing else came in.',
+        requestRedraw: 'Recall raised against the Constabulary draw. It will take days, not hours.',
+        setExpectation: 'You tell them the recall takes days and they will hear from us, not the other way round.',
+        explainCause: 'You explain the double stamp plainly. They are furious at the stamp, not at you.',
       },
     },
     {
       // Chain of custody. Received by one, shelved by another, entered
       // by nobody -- and TLC cannot see any of those three steps.
       id: 'shelved-not-entered',
+      aptSupport: ['nameTheirAction', 'explainCause'],
       weight: 3,
       trueCategory: 'Phantom Inventory',
       trueDomain: 'Quantity',
@@ -130,11 +154,14 @@ const PHANTOM_INVENTORY_TEMPLATE = {
         askReceiving: 'A casual hand took it in and stacked it. Nobody entered it in the book.',
         askLedger: 'Their ledger has no record of it arriving at all.',
         askIntake: 'A crate of returns came back the same week.',
+        nameTheirAction: 'You tell them to have whoever receives also enter it, the same day. That is the whole fix.',
+        explainCause: 'You explain that it arrived and was shelved and nobody wrote it down. They go quiet.',
       },
     },
     {
       // Not phantom inventory. Nothing is missing yet.
       id: 'second-leg-in-transit',
+      aptSupport: ['setExpectation'],
       weight: 2,
       trueCategory: 'Bulk Potion Order Delay',
       trueDomain: 'Fulfillment',
@@ -150,11 +177,13 @@ const PHANTOM_INVENTORY_TEMPLATE = {
         askReceiving: 'Received and shelved the same day, no trouble.',
         askLedger: 'Nothing unusual.',
         askIntake: 'Nothing else came in.',
+        setExpectation: 'You tell them leg two lands tomorrow. Nothing else is required of anyone.',
       },
     },
     {
       // Not phantom inventory. It is on the shelf under the wrong name.
       id: 'misfiled-at-intake',
+      aptSupport: ['correctListing', 'nameTheirAction'],
       weight: 2,
       trueCategory: 'Storefront Listing Error',
       trueDomain: 'Accounts',
@@ -171,11 +200,14 @@ const PHANTOM_INVENTORY_TEMPLATE = {
         askReceiving: 'Shelved by whoever was free that afternoon.',
         askLedger: 'Nothing unusual.',
         askIntake: 'Nothing else came in.',
+        correctListing: 'You reclassify the lot from Large to Small. Their listing finds forty units immediately.',
+        nameTheirAction: 'You tell them to check the size on the label at intake. They had not thought to.',
       },
     },
     {
       // Ours to see, and only ours.
       id: 'constabulary-hold',
+      aptSupport: ['holdReference', 'setExpectation'],
       weight: 1,
       trueCategory: 'Goods Under Hold',
       trueDomain: 'Fulfillment',
@@ -191,6 +223,8 @@ const PHANTOM_INVENTORY_TEMPLATE = {
         askReceiving: 'Received and left sealed, as instructed.',
         askLedger: 'Nothing unusual.',
         askIntake: 'Nothing else came in.',
+        holdReference: 'You pull the hold reference. It is the Constabulary they need now, not us.',
+        setExpectation: 'You are honest that we cannot say how long a hold runs. They do not enjoy hearing it.',
       },
     },
     {
@@ -200,6 +234,7 @@ const PHANTOM_INVENTORY_TEMPLATE = {
       // all: an adventurer walked in with a haul and sold it over the
       // counter. Nothing to ship, nothing to record.
       id: 'counter-bought',
+      aptSupport: ['nameTheirAction', 'explainCause'],
       weight: 2,
       trueCategory: 'Counter-Bought Stock',
       trueDomain: 'Accounts',
@@ -215,6 +250,8 @@ const PHANTOM_INVENTORY_TEMPLATE = {
         askReceiving: 'Nobody remembers taking a TLC delivery that week.',
         askLedger: 'The forty were entered as stock. No supplier against them.',
         askIntake: 'An adventurer came in with a haul three weeks ago. They bought the lot over the counter and never wrote down who.',
+        nameTheirAction: 'You tell them to record who they buy from. They admit they have never done it.',
+        explainCause: 'You explain that nothing shipped because nothing was ever sent. It takes a moment to land.',
       },
     },
   ],
@@ -278,7 +315,14 @@ function buildInvestigation(template, rootCause) {
     keyActionIds: [...rootCause.keyActionIds],
     correctDiagnosisId: rootCause.diagnosisId,
     redHerringActionId: rootCause.redHerringActionId,
-    actions: template.actions.map((a) => ({ ...a, clue: rootCause.clues[a.id] })),
+    aptSupport: [...(rootCause.aptSupport || [])],
+    actions: template.actions.map((a) => ({
+      ...a,
+      // A cause supplies text for what it is apt for; everything else
+      // falls back to the action's own "that didn't help" outcome.
+      clue: rootCause.clues[a.id] || a.defaultOutcome,
+      apt: (rootCause.aptSupport || []).includes(a.id),
+    })),
     diagnoses: template.diagnoses.map((d) => ({ ...d, correct: d.id === rootCause.diagnosisId })),
   };
 }

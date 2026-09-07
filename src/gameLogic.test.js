@@ -1429,3 +1429,80 @@ test('divergence emerges naturally from a real remembered call', () => {
   }
   assert.ok(sawConflict, 'a badly decayed memory must eventually conflict with the record');
 });
+
+
+// ---------------------------------------------------------------------
+// Three kinds of inquiry — a tendency, never a sequence
+// ---------------------------------------------------------------------
+
+test('a call has investigative, supportive AND wrap-up inquiries', () => {
+  // An earlier build had only investigative actions: the player could
+  // find out what was wrong and had no way to DO anything about it, or
+  // to tell the customer what happens next.
+  const kinds = new Set(PHANTOM_INVENTORY_TEMPLATE.actions.map((a) => a.kind));
+  assert.deepEqual([...kinds].sort(), ['investigative', 'supportive', 'wrapup']);
+
+  for (const kind of kinds) {
+    const n = PHANTOM_INVENTORY_TEMPLATE.actions.filter((a) => a.kind === kind).length;
+    assert.ok(n >= 3, `${kind} needs enough options to be a real choice, has ${n}`);
+  }
+});
+
+test('the three kinds are NOT phases and nothing enforces an order', () => {
+  // Support is not a linear process. An inquiry of one kind routinely
+  // triggers a follow-up of another as information arrives -- you are
+  // mid-wrap-up, they mention something, and you are investigating
+  // again. Nothing in the data may encode a stage, a step number, or a
+  // prerequisite.
+  for (const a of PHANTOM_INVENTORY_TEMPLATE.actions) {
+    for (const forbidden of ['stage', 'step', 'order', 'phase', 'requires', 'after', 'unlocks']) {
+      assert.equal(forbidden in a, false,
+        `${a.id} carries "${forbidden}" — that would make the kinds a sequence`);
+    }
+  }
+});
+
+test('the full menu is deliberately unaffordable', () => {
+  // Nine player-driven inquiries against a menu that costs far more.
+  // No call can ever be exhaustively worked, which is the point.
+  const BUDGET = 9;
+  const total = PHANTOM_INVENTORY_TEMPLATE.actions.reduce((n, a) => n + a.timeCost, 0);
+  assert.ok(total > BUDGET * 2,
+    `the menu (${total}) must dwarf the budget (${BUDGET}) or there is no choice to make`);
+
+  // And the rough shape -- a few of each kind -- has to actually fit.
+  const cheapest = (kind, count) => PHANTOM_INVENTORY_TEMPLATE.actions
+    .filter((a) => a.kind === kind).map((a) => a.timeCost)
+    .sort((x, y) => x - y).slice(0, count).reduce((x, y) => x + y, 0);
+  const roughShape = cheapest('investigative', 3) + cheapest('supportive', 3) + cheapest('wrapup', 2);
+  assert.ok(roughShape <= BUDGET,
+    `a realistic call (${roughShape}) must fit inside ${BUDGET}`);
+});
+
+test('every cause has support that is apt, and support that is not', () => {
+  for (const cause of PHANTOM_INVENTORY_TEMPLATE.rootCauses) {
+    const inv = buildInvestigation(PHANTOM_INVENTORY_TEMPLATE, cause);
+    const helpful = inv.actions.filter((a) => a.kind !== 'investigative' && a.apt);
+    const useless = inv.actions.filter((a) => a.kind !== 'investigative' && !a.apt);
+
+    assert.ok(helpful.length > 0, `${cause.id} has nothing the agent can usefully DO`);
+    assert.ok(useless.length > 0, `${cause.id} makes every action correct, so there is no judgement`);
+
+    // Every action says something, apt or not.
+    for (const a of inv.actions) {
+      assert.equal(typeof a.clue, 'string', `${cause.id}/${a.id} has no outcome text`);
+    }
+  }
+});
+
+test('the same support is right on one call and useless on another', () => {
+  const misfiled = buildInvestigation(PHANTOM_INVENTORY_TEMPLATE,
+    PHANTOM_INVENTORY_TEMPLATE.rootCauses.find((c) => c.id === 'misfiled-at-intake'));
+  const hold = buildInvestigation(PHANTOM_INVENTORY_TEMPLATE,
+    PHANTOM_INVENTORY_TEMPLATE.rootCauses.find((c) => c.id === 'constabulary-hold'));
+
+  const fix = (inv) => inv.actions.find((a) => a.id === 'correctListing');
+  assert.equal(fix(misfiled).apt, true);
+  assert.equal(fix(hold).apt, false);
+  assert.notEqual(fix(misfiled).clue, fix(hold).clue);
+});

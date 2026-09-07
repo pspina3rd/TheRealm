@@ -1465,6 +1465,67 @@ ships goods and never learns who received them or where. Both are wrong:
 Nodes and Couriers report because their agreements require it. The line
 is the agreement, not the dock.)*
 
+### The shape of a call — one Co-Op inquiry, nine of the player's
+
+**Locked: a call is 1 + 9.**
+
+The **opening is the Co-Op's, not the player's**. "Thank you for calling
+TLC, how may I help you?" is a requirement of the job, said on the
+company's behalf. The player gets no credit for saying the script and no
+blame either, so it costs them nothing.
+
+After that the player has **nine inquiries** to work with. Twenty is far
+too many — nobody sustains twenty questions and no caller would tolerate
+it. Ten sits wrong; it reads as a round number rather than a shape. Nine
+leaves the opening standing apart as what it actually is.
+
+*(That there are also nine problem domains is a happy coincidence, not a
+design. Do not build anything that maps one to the other.)*
+
+**Two clocks, doing different jobs:**
+
+| | |
+| --- | --- |
+| **The candle** | the shift. One notch per call, untouched by anything inside a call. Not a budget. |
+| **The nine** | this call's natural length. Resets every call, so spending it is never hoarding. |
+
+**Running out is not failure.** At zero the agent makes a determination
+on what they have — under-informed, and adjudicated later by other
+people like every other determination.
+
+### Three kinds of inquiry — a tendency, not a sequence
+
+A rough shape of how the nine tend to fall, **explicitly not locked**:
+
+- **2–3 investigative** — establishing the reason for contact
+- **2–3 supportive** — the support actually provided
+- **2–3 wrap-up** — next steps: time frames, what they are waiting on,
+  what they must do themselves
+
+**This is a distribution, not a structure.** Every customer and scenario
+wants a different chain, and **customer support is not a linear
+process**: an inquiry of one kind routinely triggers a follow-up of
+another as information arrives. You are three questions into wrapping up,
+they mention something in passing, and you are investigating again.
+Nothing may encode a stage, a prerequisite, or an order — there is a
+test that fails if any action grows a `stage`, `step`, `requires` or
+`unlocks` field.
+
+**What this exposed**: an earlier build had *only* investigative
+actions. The player could find out what was wrong and had no way to **do
+anything about it**, and no way to tell the customer **what happens
+next**. Both are now real inquiries with their own costs.
+
+Wrap-up is also where **Education** naturally lives — explaining in
+plain terms how a thing happened is the wrap-up inquiry and the
+Education fencepost at the same time.
+
+**Support is judged, not free.** Every supportive action is available on
+every call, and most are the wrong thing on any given one. Correcting a
+listing fixes a misfiled lot and does nothing at all for goods under a
+Constabulary hold. The menu never disables anything; it simply lets you
+be wrong.
+
 ### Reading a customer — cues, never a verdict. Locked.
 
 **A label is not how anyone learns what a caller feels.** On a real desk
