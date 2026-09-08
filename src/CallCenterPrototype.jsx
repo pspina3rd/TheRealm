@@ -2284,7 +2284,28 @@ const SURFACES = [
 // is the state of their own desk -- who they know, what is still open.
 // See LORE.md: metrics reach the player as observations from named
 // people, never as a dashboard.
-function ClockIn({ shiftNumber, roster, pending, onStart }) {
+// UI-ONLY. Things actually pinned to the wall of a call centre: rules
+// that arrived from somewhere else, are inconveniently specific, and
+// which nobody on this floor was consulted about. The Co-Op talking to
+// itself.
+//
+// Written because the notice board briefly held "No one on the roster
+// yet" -- an internal game concept dropped into a frame meant for
+// notices, which is not a thing anyone would post on a wall.
+const POSTED_NOTICES = [
+  'Reminder: the Loading Dock remains a Ballroom. Do not route returned packages to the Loading Dock Ballroom until further notice.',
+  'Procedure update: step four is now step six. Steps four and five are new. Do not ask about step five.',
+  'The east stair is closed for the renovation. It has been closed for the renovation since Longlight.',
+  'Couriers are reminded that a signature is a name. A mark is not a name. A mark is, however, still a signature.',
+  'Ley traffic is heavy through the hub this week. Nobody has said why, and asking has not helped.',
+  'Anyone who has taken the good chair from the third desk is asked, again, to return it.',
+];
+
+function noticeFor(shiftNumber) {
+  return POSTED_NOTICES[(shiftNumber - 1) % POSTED_NOTICES.length];
+}
+
+function ClockIn({ shiftNumber, pending, onStart }) {
   return (
     <div style={S.body}>
       <p style={S.kicker}>SHIFT {shiftNumber} · FRONT DESK</p>
@@ -2295,21 +2316,18 @@ function ClockIn({ shiftNumber, roster, pending, onStart }) {
       </p>
       <div style={S.panel}>
         <p style={S.label}>POSTED THIS MORNING</p>
-        <p style={{ ...S.prose, color: C.t2 }}>
-          {roster > 0
-            ? <> {roster} customers know your name.</>
-            : <> No one on the roster yet — this is your first shift.</>}
-        </p>
-        {pending > 0 && (
-          <p style={{ ...S.prose, color: C.gold, fontSize: 14 }}>
-            {pending} ticket{pending > 1 ? 's' : ''} still pending follow-up.
-          </p>
-        )}
+        <p style={{ ...S.prose, color: C.t2 }}>{noticeFor(shiftNumber)}</p>
       </div>
+      {pending > 0 && (
+        <p style={{ ...S.prose, color: C.muted, fontSize: 14 }}>
+          {pending} case{pending > 1 ? 's' : ''} from earlier shifts will come back to the line.
+        </p>
+      )}
       <button style={S.primary} onClick={onStart}>LIGHT THE CANDLE</button>
     </div>
   );
 }
+
 
 function TheLine({ queue, index, candleLeft, onPickUp }) {
   const waiting = queue.slice(index + 1, index + 3);
@@ -2480,8 +2498,13 @@ export default function CallCenterPrototype() {
     } else if (opening.mode === 'history' && memory) {
       entries.push({ speaker: 'CALLER', tint: C.gold, rule: C.goldDeep, body: memoryLine(memory) });
     } else {
-      entries.push({ speaker: 'CALLER', tint: C.t3, rule: C.steel,
-        body: openingLine(opening.mode, registerOf(customer), familiarityOf(customer)) });
+      // `venting` is not speech -- it is what you observe when somebody
+      // has not said anything useful yet. Putting it under a CALLER
+      // label made stage direction read as dialogue.
+      const line = openingLine(opening.mode, registerOf(customer), familiarityOf(customer));
+      entries.push(opening.mode === 'venting'
+        ? { speaker: 'ON THE LINE', tint: C.mutest, rule: C.bevelIn, observed: true, body: line }
+        : { speaker: 'CALLER', tint: C.t3, rule: C.steel, body: line });
     }
     setFeed(entries);
   };
@@ -2618,7 +2641,7 @@ export default function CallCenterPrototype() {
 
       {screen === 'clockin' && (
         <ClockIn shiftNumber={shiftNumber}
-          roster={customers.length} pending={pendingFollowUps.length} onStart={startShift} />
+          pending={pendingFollowUps.length} onStart={startShift} />
       )}
 
       {screen === 'line' && shift && (
@@ -2661,7 +2684,7 @@ export default function CallCenterPrototype() {
                 A channel, and a ward signature the registry cannot match.
               </p>
             </div>
-            {feed.map((e, i) => (e.lookup ? (
+            {feed.map((e, i) => ((e.lookup || e.observed) ? (
               <div key={i} style={S.lookup}>
                 <span style={S.lookupLabel}>{e.speaker}</span>
                 <span style={S.lookupBody}>{e.body}</span>
