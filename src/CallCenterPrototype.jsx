@@ -45,11 +45,61 @@ const RECORD_LOOKUPS = {
 
 /** Questions a caller can answer from where they are standing. */
 const ASK_LOOKUPS = {
-  askExpected: { label: 'Ask what they were expecting, and when', timeCost: 1, defaultOutcome: 'They confirm the order and the date. It matches ours.' },
-  askWhoTakesIn: { label: 'Ask who normally takes deliveries in', timeCost: 1, defaultOutcome: 'Whoever is nearest the door, they say. It varies.' },
-  askAnyoneElse: { label: 'Ask whether anyone else has been in touch about it', timeCost: 1, defaultOutcome: 'Nobody else has been in touch about it.' },
-  askWhenNoticed: { label: 'Ask when they first noticed', timeCost: 1, defaultOutcome: 'A few days ago. They are vague on the exact day.' },
-  askWhoTheySpokeTo: { label: 'Ask who they spoke to last time', timeCost: 1, defaultOutcome: 'They did not catch the name.' },
+  // WRITTEN variants, not a noun slotted into a template.
+  //
+  // Rule for all of them: **no question may imply the customer is wrong,
+  // careless, or at fault.** "What were you expecting?" reads as "well,
+  // what did you expect?" and would get somebody pulled off the phones.
+  // Ask about the ORDER, not about their expectations.
+  //
+  // And `firm` means efficient, not curt. A brisk agent is still a
+  // polite one; "I'll need a name before we go further" is a doorman,
+  // not a support agent.
+  askName: {
+    label: "Ask who you're speaking with", timeCost: 1,
+    spoken: {
+      soft: "Sorry — may I take your name?",
+      plain: "Who am I speaking with?",
+      firm: "Can I start with your name?",
+    },
+    defaultOutcome: "It's on the account — I'm the one who deals with you.",
+  },
+  askWhoTakesIn: {
+    label: 'Ask who normally takes deliveries in', timeCost: 1,
+    spoken: {
+      soft: "Do you happen to know who usually takes your deliveries in?",
+      plain: "Who normally takes your deliveries in?",
+      firm: "Who signs for your deliveries?",
+    },
+    defaultOutcome: "Whoever's about. It varies.",
+  },
+  askAnyoneElse: {
+    label: 'Ask whether anyone else has been in touch', timeCost: 1,
+    spoken: {
+      soft: "Has anyone else from your end been in touch with us about it, do you know?",
+      plain: "Has anyone else been in touch with us about it?",
+      firm: "Has this been raised with us before?",
+    },
+    defaultOutcome: 'No. Just me.',
+  },
+  askWhenNoticed: {
+    label: 'Ask when they first noticed', timeCost: 1,
+    spoken: {
+      soft: "When did you first notice, if you don't mind me asking?",
+      plain: "When did you first notice?",
+      firm: "When did this start?",
+    },
+    defaultOutcome: "Few days back. Couldn't tell you exactly.",
+  },
+  askWhoTheySpokeTo: {
+    label: 'Ask who they spoke to last time', timeCost: 1,
+    spoken: {
+      soft: "Do you remember who you spoke to last time at all?",
+      plain: "Who did you speak to last time?",
+      firm: "Do you have a name from the last call?",
+    },
+    defaultOutcome: "Didn't catch the name, I'm afraid.",
+  },
 };
 
 /**
@@ -82,7 +132,7 @@ function makeTemplate({ category, domain, openingStatement, records, asks, suppo
 const PHANTOM_INVENTORY_TEMPLATE = {
   category: 'Phantom Inventory',
   domain: 'Quantity',
-  openingStatement: "I ordered 40 healing potions for the festival, and now you're telling me I don't have them?! Where did they go?",
+  openingStatement: "I ordered forty healing potions for the festival. Three on the shelf. I need to know where the rest of them are.",
 
   /**
    * Two kinds of action, and the split is load-bearing.
@@ -117,9 +167,9 @@ const PHANTOM_INVENTORY_TEMPLATE = {
     // customer to do TLC's investigating, inside a business we cannot
     // see, about records that are not ours. An agent asks what somebody
     // knows. An agent does not set them homework.
-    { id: 'askExpected', kind: 'investigative', source: 'ask', label: 'Ask what they were expecting, and when', timeCost: 1 , defaultOutcome: 'They confirm the order and the date. It matches ours.' },
-    { id: 'askWhoTakesIn', kind: 'investigative', source: 'ask', label: 'Ask who normally takes deliveries in', timeCost: 1 , defaultOutcome: 'Whoever is nearest the door, they say. It varies.' },
-    { id: 'askAnyoneElse', kind: 'investigative', source: 'ask', label: 'Ask whether anyone else has been in touch about it', timeCost: 1 , defaultOutcome: 'Nobody else has been in touch about it.' },
+    ...['askName', 'askWhoTakesIn', 'askAnyoneElse'].map((id) => ({
+      id, kind: 'investigative', source: 'ask', ...ASK_LOOKUPS[id],
+    })),
 
     // SUPPORTIVE — actually doing something for them. Not finding out;
     // acting. Every one of these is available on every call, and most of
@@ -219,7 +269,6 @@ const PHANTOM_INVENTORY_TEMPLATE = {
         manifest: 'Booked as a two-leg Priority Relay. This is leg one of two.',
         courierRecord: 'Leg one handed over. Leg two is not due until tomorrow.',
         nodeReceipt: 'Receipt posted for leg one. Leg two still outstanding.',
-        askExpected: 'They were told forty. Nobody mentioned it came in two parts.',
         setExpectation: 'You tell them leg two lands tomorrow. Nothing else is required of anyone.',
       },
     },
@@ -274,7 +323,6 @@ const PHANTOM_INVENTORY_TEMPLATE = {
         manifest: 'No shipment of that size to this account. Nothing to ship means nothing to find.',
         courierRecord: 'No delivery report. Nothing ever moved.',
         nodeReceipt: 'No receipt. There was nothing for the Node to receive.',
-        askExpected: 'They are certain of the forty. Less certain about who they ordered them from.',
         explainCause: 'You explain that nothing shipped because nothing was sent. It takes a moment to land.',
       },
     },
@@ -347,6 +395,50 @@ function askRelationshipCost(ticket, investigatedActionIds) {
  * @param {object} template
  * @param {function} [rng=Math.random]
  */
+/**
+ * What an agent can always do, on any call, whatever it is about.
+ *
+ * You can always look up the account. You can always ask who you are
+ * speaking to. A category with nothing written for it yet still has to
+ * be workable — otherwise the player greets somebody, asks one
+ * question, and finds the entire menu empty, which is what happened
+ * before this existed.
+ *
+ * These lookups return their ordinary outcome, because on a call with
+ * nothing special going on that is the truth: you looked, and there was
+ * nothing there.
+ */
+const BASELINE_TEMPLATE = makeTemplate({
+  category: 'General',
+  domain: 'Service',
+  openingStatement: '',
+  records: ['accountRecord', 'bookingRegister', 'courierRecord'],
+  asks: ['askName', 'askWhenNoticed'],
+  supportive: [
+    { id: 'raiseForReview', label: 'Raise it for somebody to look at properly', timeCost: 2, defaultOutcome: 'Raised. Somebody will pick it up.' },
+    { id: 'noteAccount', label: 'Note it against the account', timeCost: 1, defaultOutcome: 'Noted, so the next person sees it.' },
+  ],
+  wrapup: [
+    { id: 'setExpectation', label: 'Tell them what happens now', timeCost: 1, defaultOutcome: 'You tell them what to expect next.' },
+    { id: 'explainProcess', label: 'Walk them through how this works', timeCost: 2, defaultOutcome: 'You explain the process. They had not been told.' },
+  ],
+  diagnoses: [
+    { id: 'asDescribed', label: 'It is as they describe, and it is ours' },
+    { id: 'needsReview', label: 'This wants somebody with more of the picture' },
+    { id: 'notOurs', label: 'Nothing here is ours to act on' },
+  ],
+  rootCauses: [
+    {
+      id: 'as-described',
+      weight: 1, discoverable: true,
+      trueCategory: 'General', trueDomain: 'Service',
+      diagnosisId: 'asDescribed',
+      keyActionIds: ['accountRecord'],
+      aptSupport: ['noteAccount', 'setExpectation'],
+      clues: {},
+    },
+  ],
+});
 function rollRootCause(template, rng = Math.random) {
   return weightedPick(template.rootCauses, rng);
 }
@@ -424,7 +516,7 @@ const SHIPMENT_TRACE_TEMPLATE = makeTemplate({
   domain: 'Fulfillment',
   openingStatement: "I sent something out four days ago and I've heard nothing since. Where is it?",
   records: ['routeBooking', 'legStatus', 'courierRecord', 'nodeReceipt', 'holdRegister'],
-  asks: ['askExpected', 'askAnyoneElse'],
+  asks: ['askAnyoneElse'],
   supportive: [
     { id: 'chaseLeg', label: 'Chase the outstanding leg', timeCost: 2, defaultOutcome: 'Nothing outstanding to chase.' },
     { id: 'flagPriority', label: 'Flag it for the next available Courier', timeCost: 1, defaultOutcome: 'It is already moving. Flagging changes nothing.' },
@@ -453,7 +545,6 @@ const SHIPMENT_TRACE_TEMPLATE = makeTemplate({
       clues: {
         legStatus: 'Leg one complete, leg two picked up this morning. It is moving.',
         routeBooking: 'Two-leg Priority Relay. Four days is inside the window.',
-        askExpected: 'They were quoted a week. They have been counting from the wrong day.',
         giveWindow: 'You give them the real window and the reason for it. They settle.',
         explainRoute: 'You walk them through both legs. They had assumed it was one hop.',
       },
@@ -609,7 +700,7 @@ const REPEAT_FAILURE_TEMPLATE = makeTemplate({
 const NO_BOOKING_TEMPLATE = makeTemplate({
   category: 'No Booking On Record',
   domain: 'Orders',
-  openingStatement: "I booked this a week ago and you're telling me there's no record of it? I stood right there and did it.",
+  openingStatement: "I booked a shipment a week ago and nothing has moved. I stood at the counter and did it myself.",
   records: ['bookingRegister', 'accountRecord', 'chargeLedger'],
   asks: ['askWhenNoticed', 'askWhoTheySpokeTo'],
   supportive: [
@@ -701,7 +792,7 @@ const DUPLICATE_CHARGE_TEMPLATE = makeTemplate({
   domain: 'Billing',
   openingStatement: "I've been charged twice for the same shipment. Same amount, same week. I want one of them back.",
   records: ['chargeLedger', 'bookingRegister', 'routeBooking', 'accountRecord'],
-  asks: ['askWhenNoticed', 'askExpected'],
+  asks: ['askWhenNoticed'],
   supportive: [
     { id: 'reverseCharge', label: 'Reverse the duplicate', timeCost: 2, defaultOutcome: 'There is no duplicate of ours to reverse.' },
     { id: 'itemiseCharges', label: 'Itemise every charge on the account', timeCost: 2, defaultOutcome: 'Itemised. It reads exactly as it did.' },
@@ -757,7 +848,6 @@ const DUPLICATE_CHARGE_TEMPLATE = makeTemplate({
       clues: {
         chargeLedger: 'Two charges, same amount, three days apart.',
         bookingRegister: 'Two bookings. Same goods, same route, both confirmed by them.',
-        askExpected: 'They only remember arranging it once. They are certain of it.',
         itemiseCharges: 'Itemised, the two bookings are three days and two references apart.',
       },
     },
@@ -811,15 +901,25 @@ const TICKET_TEMPLATES = {
 // it. Phantom Inventory has no entry: it opens with its investigation's
 // `openingStatement` instead.
 const CATEGORY_BLURBS = {
-  'Cursed Item Return': 'This ring won\u2019t come off and it whispers at night.',
+  // A blurb is the REASON THEY RANG US, not their situation. "The
+  // infirmary is out of draughts" is a fact about their week; it is not
+  // a reason to contact a shipping co-op. "The draughts we ordered have
+  // not come" is.
+  'Cursed Item Return': 'I need to send a ring back, and I can\u2019t get it off my hand to pack it.',
+  'Bulk Potion Order Delay': 'The draughts we ordered for the infirmary still haven\u2019t come.',
+  'Garrison Supply Shortfall': 'Our rations were due three days ago and nothing has arrived.',
+  'Commission Payout Dispute': 'Last month\u2019s commission came in short by a fair bit.',
+  'Storefront Listing Error': 'Your listing has my Slightly Cursed Dagger down as a kitchen utensil.',
+  'Border Ward Malfunction': 'The ward on our eastern gate went out for six minutes last night.',
+
+  // NOT LOGISTICS PROBLEMS. These three came from an earlier pass and
+  // are not things a shipping cooperative handles at all -- there is no
+  // shipment, no account and no charge in any of them. They need
+  // replacing with real End User requests (a trace, damage in transit,
+  // a return), not rewording. Left honest rather than dressed up.
   'Quest Line Bug': 'The old hermit keeps repeating the same line of dialogue.',
   'Respawn Delay': 'Been dead for twenty minutes. Party\u2019s waiting.',
   'XP Miscount Dispute': 'Certain that dragon was worth more than this.',
-  'Bulk Potion Order Delay': 'The garrison infirmary is out of healing draughts.',
-  'Border Ward Malfunction': 'The eastern ward flickered out for six minutes last night.',
-  'Garrison Supply Shortfall': 'Rations haven\u2019t arrived in three days.',
-  'Commission Payout Dispute': 'Last month\u2019s commission is short by a fair bit.',
-  'Storefront Listing Error': '"Slightly Cursed Dagger" is listed as a kitchen utensil.',
 };
 
 // UI-ONLY. Overrides CATEGORY_BLURBS when a ticket is a returning
@@ -1009,6 +1109,46 @@ function assessPace(outcomes) {
   if (perCall >= PACE_BAND.dwelling) reading = 'dwelling';
   else if (perCall <= PACE_BAND.blazing) reading = 'blazing';
   return { perCall, reading, calls };
+}
+/**
+ * Which questions make sense before they have said what they want.
+ *
+ * You cannot ask somebody what they were expecting, or whether anyone
+ * else has been in touch about *it*, when they have not yet told you
+ * what "it" is. A playthrough produced exactly that: two questions
+ * about a shipment, and only afterwards the customer explaining there
+ * was a shipment.
+ *
+ * This is an EVIDENCE gate, not a sequence gate -- the same rule that
+ * lets a diagnosis be unavailable when nothing supports it. Nothing is
+ * locked by position; these simply have no referent yet.
+ */
+const ASKS_BEFORE_REQUEST = ['askName', 'askWhenNoticed'];
+
+function askMakesSense(actionId, requestKnown) {
+  return requestKnown || ASKS_BEFORE_REQUEST.includes(actionId);
+}
+/**
+ * How well each way of putting a question suits this caller, right now.
+ *
+ * **Returns fit, and never a choice.** An earlier version picked the
+ * phrasing automatically, which removed the only decision that made
+ * delivery interesting and also produced nonsense — it handed a
+ * deferential shopkeeper "I'll need a name before we go further."
+ *
+ * The player chooses how to say it. This says how it landed, and the
+ * player finds that out from the caller's cues, not from a number.
+ */
+function spokenFit(customer, context) {
+  const want = deliveryPreference(customer, context);
+  const score = (warmth, directness) => clamp(
+    1 - (Math.abs(warmth - want.warmth) + Math.abs(directness - want.directness)) / 6, 0, 1,
+  );
+  return {
+    soft: score(1.6, -0.8),
+    plain: score(0, 0),
+    firm: score(-1, 1.8),
+  };
 }
 const RESOLUTION_STATUSES = ['resolved', 'hold', 'transfer'];
 
@@ -1311,9 +1451,10 @@ function generateShift({ knownCustomers = [], baseTicketCount = 8, currentShiftI
       timeCostMultiplier: draft.timeCostMultiplier,
       dayVariance: rollDayVariance(rng),
       isReturning: customer.history.length > 0, isFollowUp: false,
-      investigation: template.investigationTemplate
-        ? buildInvestigation(template.investigationTemplate, rollRootCause(template.investigationTemplate, rng))
-        : undefined,
+      investigation: (() => {
+        const t = template.investigationTemplate || BASELINE_TEMPLATE;
+        return buildInvestigation(t, rollRootCause(t, rng));
+      })(),
     });
   }
 
@@ -1892,6 +2033,26 @@ const S = {
   tag: { fontFamily: DISPLAY, fontSize: 12, letterSpacing: 1.5, padding: '3px 7px',
     borderRadius: 2, display: 'inline-block' },
   waiting: { display: 'flex', alignItems: 'center', gap: 10, opacity: .6, padding: '6px 2px' },
+  // A lookup is not dialogue. Nobody spoke; you read something.
+  lookup: {
+    display: 'flex', gap: 8, padding: '7px 10px', borderRadius: 2,
+    background: 'rgba(255,255,255,.02)', boxShadow: `inset 2px 0 0 ${C.ruleSoft}`,
+  },
+  lookupLabel: { fontFamily: DISPLAY, fontSize: 12.5, letterSpacing: 1, color: C.off, flex: '0 0 34%' },
+  lookupBody: { fontSize: 14, lineHeight: 1.45, color: C.mutest, flex: 1 },
+  surfaceBar: { display: 'flex', gap: 4, flexWrap: 'wrap' },
+  surfaceTab: {
+    flex: '1 1 auto', padding: '7px 6px', border: 'none', borderRadius: 2, cursor: 'pointer',
+    fontFamily: DISPLAY, fontSize: 14, letterSpacing: 1.2, color: C.muted,
+    background: `linear-gradient(180deg, ${C.sunk}, #111a23)`,
+    boxShadow: `inset 0 0 0 1px ${C.ink}, inset 0 0 0 2px ${C.bevelIn}`,
+  },
+  surfaceTabOn: {
+    color: C.hi,
+    background: `linear-gradient(180deg, ${C.lit}, ${C.surface})`,
+    boxShadow: `inset 0 0 0 1px ${C.ink}, inset 0 0 0 2px ${C.steel}`,
+  },
+  surfaceCount: { marginLeft: 5, fontSize: 12, color: C.sage },
   marks: { display: 'flex', gap: 3, alignItems: 'center' },
   mark: { width: 5, height: 12, background: C.gold, borderRadius: 1 },
   markSpent: { width: 5, height: 12, background: C.off, borderRadius: 1 },
@@ -1902,7 +2063,13 @@ const S = {
 // everything else with its category blurb. gameLogic.js has no
 // equivalent -- tickets there carry no text.
 function blurbFor(ticket) {
-  if (ticket.investigation) return ticket.investigation.openingStatement;
+  // The baseline template carries no opening of its own -- a category
+  // without written content still has a blurb, and the blurb IS what
+  // they say. Without this a Town Council's ward fault opened in
+  // silence.
+  if (ticket.investigation && ticket.investigation.openingStatement) {
+    return ticket.investigation.openingStatement;
+  }
   if (ticket.isFollowUp) return FOLLOW_UP_BLURBS[ticket.followUpKind];
   return CATEGORY_BLURBS[ticket.category];
 }
@@ -1957,28 +2124,18 @@ const OPENING_LINES = {
   },
 };
 
-// UI-ONLY. The same inquiry, put six ways.
+// UI-ONLY. What the agent actually says. Written variants, not a noun
+// slotted into a template -- slotting produced "To continue we need
+// whether anyone else has been in touch about it."
 //
-// An inquiry is an INTENT. These are the sentences it can be delivered
-// in, and three of them are not questions at all. The information
-// obtained is identical; what changes is how it lands on this
-// particular person. See gameLogic's DELIVERIES / deliveryFit().
-//
-// `%s` is the intent's own subject -- "your name", "the shelf count",
-// "who signed for it" -- so one set of forms serves every inquiry
-// rather than writing six phrasings per action.
-const DELIVERY_FORMS = {
-  question: 'May I have %s?',
-  plain: 'And %s?',
-  directive: 'To proceed, please provide %s.',
-  procedural: 'The next thing we need is %s.',
-  reciprocal: "I'm %A, and %s?",
-  transactional: 'Thank you for that. To continue we need %s.',
-};
-
-function phrase(deliveryId, subject, agentName) {
-  const form = DELIVERY_FORMS[deliveryId] || DELIVERY_FORMS.plain;
-  return form.replace('%s', subject).replace('%A', agentName || 'the front desk');
+// Which variant depends on what suits this caller right now. There is
+// no single best line for everybody, and it should not be the same line
+// twice in a row for the same person.
+function spokenLine(action, customer, ticket) {
+  if (!action.spoken) return action.label;
+  const fit = spokenFit(customer, { ticket, dayVariance: ticket && ticket.dayVariance });
+  const best = Object.entries(fit).sort((x, y) => y[1] - x[1])[0][0];
+  return action.spoken[best] || action.spoken.plain;
 }
 
 // UI-ONLY. Cues rendered as behaviour the player watches. Never a
@@ -2097,9 +2254,19 @@ const STATUS_OPTIONS = [
 // The greeting: the universal opening move. Nothing about the caller is
 // revealed until the player picks up and asks. See LORE.md, "Ticket
 // Resolution," phase 1.
-const GREETINGS = [
-  { id: 'standard', label: '"TLC Support. How may I help you?"', cost: 0 },
-  { id: 'name', label: 'Ask who you are speaking with first', cost: 0, getsName: true },
+// ONE option, because the opening is not a choice. It is the Co-Op's
+// requirement, said on the company's behalf, and it costs the player
+// nothing. Asking who you are speaking with is a PLAYER inquiry and
+// lives in the menu with the rest -- see askName.
+const GREETING = { id: 'standard', label: '"TLC Support. How may I help you?"' };
+
+const SURFACES = [
+  { id: 'ask', label: 'Ask' },
+  { id: 'records', label: 'Records' },
+  { id: 'act', label: 'Act' },
+  { id: 'explain', label: 'Explain' },
+  { id: 'conclude', label: 'File' },
+  { id: 'close', label: 'Close' },
 ];
 
 function ClockIn({ shiftNumber, reputation, commendations, roster, pending, onStart }) {
@@ -2222,6 +2389,7 @@ export default function CallCenterPrototype() {
   // --- per-call state. The five phases are SURFACES, not a corridor:
   // everything below stays revisable while the call is open.
   const [greeted, setGreeted] = useState(null);   // greeting id, or null
+  const [surface, setSurface] = useState('ask');  // which surface is showing
   const [requestKnown, setRequestKnown] = useState(false); // did they actually say what they need
   const [probes, setProbes] = useState(0);
   const [klass, setKlass] = useState(null);       // revisable at any time
@@ -2236,6 +2404,30 @@ export default function CallCenterPrototype() {
   const spent = ticket ? inquiriesSpent(ticket, asked, probes) : 0;
   const inquiriesLeft = Math.max(0, CALL_INQUIRY_BUDGET - spent);
   const affords = (action) => ticket ? canAfford(ticket, asked, probes, action) : false;
+
+  // You know who you are speaking to once you have ASKED. Greeting
+  // somebody does not tell you who they are.
+  const knowsWho = asked.includes('askName');
+
+  // Which options belong to the surface being shown. Every surface stays
+  // reachable; only one is on screen.
+  const surfaceActions = (kind) => {
+    if (!investigation) return [];
+    if (kind === 'ask') {
+      return investigation.actions.filter((a) => a.kind === 'investigative' && a.source === 'ask');
+    }
+    if (kind === 'records') {
+      return investigation.actions.filter((a) => a.kind === 'investigative' && a.source === 'records');
+    }
+    return investigation.actions.filter((a) => a.kind === kind);
+  };
+
+  const surfaceDone = (id) => {
+    if (id === 'conclude') return (klass ? 1 : 0) + (result ? 1 : 0);
+    if (id === 'close') return 0;
+    const kind = { ask: 'ask', records: 'records', act: 'supportive', explain: 'wrapup' }[id];
+    return surfaceActions(kind).filter((a) => asked.includes(a.id)).length;
+  };
 
   const checkedAnyRecord = Boolean(investigation) && asked.some((id) => {
     const a = investigation.actions.find((x) => x.id === id);
@@ -2254,7 +2446,7 @@ export default function CallCenterPrototype() {
 
   const resetCall = () => {
     setGreeted(null); setKlass(null); setAsked([]); setResult(null); setFeed([]);
-    setRequestKnown(false); setProbes(0);
+    setRequestKnown(false); setProbes(0); setSurface('ask');
   };
 
   const spend = (n) => setCandleLeft((left) => Math.max(0, left - n));
@@ -2263,15 +2455,11 @@ export default function CallCenterPrototype() {
   // they rang -- they may lead with the wait, the past, the product, or
   // with feeling. Getting to the request is work. See LORE.md,
   // "Ticket Resolution," phase 1.
-  const greet = (g) => {
-    setGreeted(g.id);
+  const greet = () => {
+    setGreeted(GREETING.id);
     const memory = customer ? recallMemory(customer, shiftNumber, rng) : null;
     const opening = rollOpening(customer, memory, rng);
-    const entries = [];
-    if (g.getsName) {
-      entries.push({ speaker: 'YOU', tint: C.muted, rule: C.bevelIn,
-        body: 'Before we start — who am I speaking with?' });
-    }
+    const entries = [{ speaker: 'YOU', tint: C.muted, rule: C.bevelIn, body: GREETING.label }];
     if (opening.mode === 'request') {
       entries.push({ speaker: 'CALLER', tint: C.t3, rule: C.steel, body: blurbFor(ticket) });
       setRequestKnown(true);
@@ -2302,7 +2490,21 @@ export default function CallCenterPrototype() {
   const investigate = (action) => {
     if (asked.includes(action.id) || !affords(action)) return;
     setAsked((prev) => [...prev, action.id]);
-    setFeed((f) => [...f, { speaker: action.label.toUpperCase(), tint: C.t3, rule: C.steel, body: action.clue }]);
+
+    if (action.source === 'ask') {
+      // Something was SAID. You put it one of several ways; they answer
+      // in their own words.
+      setFeed((f) => [
+        ...f,
+        { speaker: 'YOU', tint: C.muted, rule: C.bevelIn, body: spokenLine(action, customer, ticket) },
+        { speaker: 'CALLER', tint: C.t3, rule: C.steel, body: action.clue },
+      ]);
+      return;
+    }
+    // Something was LOOKED AT. Nobody spoke.
+    setFeed((f) => [...f, {
+      speaker: action.label, tint: C.mutest, rule: C.ruleSoft, lookup: true, body: action.clue,
+    }]);
   };
 
   const classify = (category) => {
@@ -2411,16 +2613,16 @@ export default function CallCenterPrototype() {
             <div style={S.portrait}>ART<br />PENDING</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
               <span style={{ fontFamily: DISPLAY, fontSize: 24, color: greeted ? C.hi : C.muted }}>
-                {greeted ? `A ${customer.archetype}` : 'Unidentified caller'}
+                {knowsWho ? `A ${customer.archetype}` : 'Unidentified caller'}
               </span>
               <span style={{ fontSize: 13, color: C.mutest }}>
-                {greeted ? CUSTOMER_TYPES[customer.tier].label : 'Ward signature present but unmatched.'}
+                {knowsWho ? CUSTOMER_TYPES[customer.tier].label : 'Ward signature present but unmatched.'}
               </span>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                <span style={{ ...S.tag, color: greeted ? C.ink : C.muted,
-                  background: greeted ? 'linear-gradient(180deg,#a8c4dc,#7fa2c2)' : 'transparent',
-                  boxShadow: greeted ? 'none' : `inset 0 0 0 1px ${C.ruleSoft}` }}>
-                  {greeted ? CUSTOMER_TYPES[customer.tier].label.toUpperCase() : 'CHANNEL: UNKNOWN'}
+                <span style={{ ...S.tag, color: knowsWho ? C.ink : C.muted,
+                  background: knowsWho ? 'linear-gradient(180deg,#a8c4dc,#7fa2c2)' : 'transparent',
+                  boxShadow: knowsWho ? 'none' : `inset 0 0 0 1px ${C.ruleSoft}` }}>
+                  {knowsWho ? CUSTOMER_TYPES[customer.tier].label.toUpperCase() : 'CHANNEL: UNKNOWN'}
                 </span>
                 <span style={{ ...S.tag, color: klass ? C.gold : C.muted,
                   boxShadow: `inset 0 0 0 1px ${klass ? C.goldDeep : C.ruleSoft}` }}>
@@ -2435,109 +2637,114 @@ export default function CallCenterPrototype() {
             <div style={{ ...S.entry, boxShadow: `inset 0 0 0 1px ${C.ink}, inset 0 0 0 2px ${C.bevelIn}` }}>
               <p style={{ ...S.speaker, color: C.mutest }}>LINE ONE · CONNECTED</p>
               <p style={{ margin: 0, fontSize: 15.5, lineHeight: 1.5 }}>
-                Someone is on the line. The registry offers a channel and a ward signature it
-                cannot match. Everything else, you get by asking.
+                A channel, and a ward signature the registry cannot match.
               </p>
             </div>
-            {feed.map((e, i) => (
+            {feed.map((e, i) => (e.lookup ? (
+              <div key={i} style={S.lookup}>
+                <span style={S.lookupLabel}>{e.speaker}</span>
+                <span style={S.lookupBody}>{e.body}</span>
+              </div>
+            ) : (
               <div key={i} style={{ ...S.entry, boxShadow: `inset 0 0 0 1px ${C.ink}, inset 0 0 0 2px ${e.rule}` }}>
                 <p style={{ ...S.speaker, color: e.tint }}>{e.speaker}</p>
                 <p style={{ margin: 0, fontSize: 15.5, lineHeight: 1.5 }}>{e.body}</p>
               </div>
-            ))}
+            )))}
           </div>
 
-          {/* --- Surfaces. All live at once; only the greeting gates. --- */}
+          {/* --- SURFACES ---------------------------------------------
+              All of these stay AVAILABLE at all times -- that is the
+              non-linearity rule, and it is about what the player may do,
+              not about what must be on screen at once. An earlier build
+              rendered every surface simultaneously: 37 controls on a
+              393px phone. Available is not the same as visible.
+
+              Pick a surface, act on it, switch whenever you like. No
+              order is imposed and nothing closes behind you. --------- */}
           {!greeted ? (
             <div style={S.menu}>
-              <p style={S.label}>OPEN THE CALL</p>
-              {GREETINGS.map((g) => (
-                <AskRow key={g.id} glyph="▸" glyphColor={C.gold} label={g.label}
-                  cost={g.cost} used={false} affordable onClick={() => greet(g)} />
-              ))}
+              <AskRow glyph="▸" glyphColor={C.gold} label={GREETING.label}
+                cost={0} used={false} affordable onClick={greet} />
             </div>
           ) : (
             <>
-              {!requestKnown && (
-                <div style={S.menu}>
-                  <p style={S.label}>THEY HAVEN&rsquo;T SAID WHAT THEY NEED YET</p>
-                  <AskRow glyph={affords(null) ? '▸' : '·'} glyphColor={affords(null) ? C.gold : C.off}
-                    label="Ask what brought them in today"
-                    note="Every surface below stays open — you can act without knowing. It rarely goes well."
-                    cost={PROBE_INQUIRY_COST} used={false}
-                    affordable={affords(null)} onClick={probe} />
-                </div>
-              )}
-
-              <div style={S.menu}>
-                <p style={S.label}>CLASSIFICATION — REVISABLE</p>
-                {TICKET_TEMPLATES[customer.tier].map((t) => (
-                  <AskRow key={t.category} glyph={klass === t.category ? '✓' : '▸'}
-                    glyphColor={klass === t.category ? C.sage : C.gold}
-                    label={t.category} cost={0} used={false} affordable
-                    onClick={() => classify(t.category)} />
-                ))}
+              <div style={S.surfaceBar}>
+                {SURFACES.map((sf) => {
+                  const on = surface === sf.id;
+                  const done = surfaceDone(sf.id);
+                  return (
+                    <button key={sf.id} onClick={() => setSurface(sf.id)}
+                      style={{ ...S.surfaceTab, ...(on ? S.surfaceTabOn : {}) }}>
+                      {sf.label}
+                      {done > 0 && <span style={S.surfaceCount}>{done}</span>}
+                    </button>
+                  );
+                })}
               </div>
 
-              {investigation && (
-                <div style={S.menu}>
-                  <p style={S.label}>OUR RECORDS — THE NETWORK REPORTS THESE</p>
-                  {investigation.actions.filter((a) => a.kind === 'investigative' && a.source === 'records').map((a) => (
-                    <AskRow key={a.id} glyph={asked.includes(a.id) ? '✓' : '▸'}
-                      glyphColor={asked.includes(a.id) ? C.sage : C.gold}
-                      label={a.label} cost={a.timeCost} used={asked.includes(a.id)}
-                      affordable={affords(a)} onClick={() => investigate(a)} />
-                  ))}
-
-                  <p style={{ ...S.label, marginTop: 8, color: checkedAnyRecord ? C.muted : C.rose }}>
-                    {checkedAnyRecord
-                      ? 'ASK THEM TO GO AND LOOK'
-                      : "ASK THEM TO GO AND LOOK \u2014 YOU HAVEN'T CHECKED OURS YET"}
-                  </p>
-                  {investigation.actions.filter((a) => a.kind === 'investigative' && a.source === 'ask').map((a) => (
-                    <AskRow key={a.id} glyph={asked.includes(a.id) ? '✓' : '▸'}
-                      glyphColor={asked.includes(a.id) ? C.sage : (checkedAnyRecord ? C.gold : C.rose)}
-                      label={a.label}
-                      note={asked.includes(a.id) ? undefined
-                        : (checkedAnyRecord
-                          ? 'Their time and their trouble.'
-                          : "You'd be telling them you think they miscounted \u2014 and that you haven't looked.")}
-                      cost={a.timeCost} used={asked.includes(a.id)}
-                      affordable={affords(a)} onClick={() => investigate(a)} />
-                  ))}
-
-                  <p style={{ ...S.label, marginTop: 8 }}>DO SOMETHING FOR THEM</p>
-                  {investigation.actions.filter((a) => a.kind === 'supportive').map((a) => (
-                    <AskRow key={a.id} glyph={asked.includes(a.id) ? '✓' : (affords(a) ? '▸' : '·')}
-                      glyphColor={asked.includes(a.id) ? C.sage : (affords(a) ? C.gold : C.off)}
-                      label={a.label} cost={a.timeCost} used={asked.includes(a.id)}
-                      affordable={affords(a)} onClick={() => investigate(a)} />
-                  ))}
-
-                  <p style={{ ...S.label, marginTop: 8 }}>TELL THEM WHAT HAPPENS NOW</p>
-                  {investigation.actions.filter((a) => a.kind === 'wrapup').map((a) => (
-                    <AskRow key={a.id} glyph={asked.includes(a.id) ? '✓' : (affords(a) ? '▸' : '·')}
-                      glyphColor={asked.includes(a.id) ? C.sage : (affords(a) ? C.gold : C.off)}
-                      label={a.label} cost={a.timeCost} used={asked.includes(a.id)}
-                      affordable={affords(a)} onClick={() => investigate(a)} />
-                  ))}
-                </div>
-              )}
-
-              {investigation && (
-                <div style={S.menu}>
-                  <p style={S.label}>DIAGNOSIS — NOTHING IS DISABLED</p>
-                  {investigation.diagnoses.map((d) => (
-                    <AskRow key={d.id} glyph={result && result.id === d.id ? '✓' : '▸'}
-                      glyphColor={C.gold} label={d.label} cost={0} used={false} affordable
-                      onClick={() => diagnose(d)} />
-                  ))}
-                </div>
-              )}
-
               <div style={S.menu}>
-                <p style={S.label}>DISPOSITION OF TICKET</p>
-                {STATUS_OPTIONS.map((o) => (
+                {surface === 'ask' && (
+                  <>
+                    {!requestKnown && (
+                      <AskRow glyph={affords(null) ? '▸' : '·'} glyphColor={affords(null) ? C.gold : C.off}
+                        label="Ask what brought them in today"
+                        cost={PROBE_INQUIRY_COST} used={false}
+                        affordable={affords(null)} onClick={probe} />
+                    )}
+                    {surfaceActions('ask').filter((a) => askMakesSense(a.id, requestKnown)).map((a) => (
+                      <AskRow key={a.id} glyph={asked.includes(a.id) ? '✓' : (affords(a) ? '▸' : '·')}
+                        glyphColor={asked.includes(a.id) ? C.sage : (affords(a) ? (checkedAnyRecord ? C.gold : C.rose) : C.off)}
+                        label={a.label} cost={a.timeCost} used={asked.includes(a.id)}
+                        affordable={affords(a)} onClick={() => investigate(a)} />
+                    ))}
+                  </>
+                )}
+
+                {surface === 'records' && surfaceActions('records').map((a) => (
+                  <AskRow key={a.id} glyph={asked.includes(a.id) ? '✓' : (affords(a) ? '▸' : '·')}
+                    glyphColor={asked.includes(a.id) ? C.sage : (affords(a) ? C.gold : C.off)}
+                    label={a.label} cost={a.timeCost} used={asked.includes(a.id)}
+                    affordable={affords(a)} onClick={() => investigate(a)} />
+                ))}
+
+                {surface === 'act' && surfaceActions('supportive').map((a) => (
+                  <AskRow key={a.id} glyph={asked.includes(a.id) ? '✓' : (affords(a) ? '▸' : '·')}
+                    glyphColor={asked.includes(a.id) ? C.sage : (affords(a) ? C.gold : C.off)}
+                    label={a.label} cost={a.timeCost} used={asked.includes(a.id)}
+                    affordable={affords(a)} onClick={() => investigate(a)} />
+                ))}
+
+                {surface === 'explain' && surfaceActions('wrapup').map((a) => (
+                  <AskRow key={a.id} glyph={asked.includes(a.id) ? '✓' : (affords(a) ? '▸' : '·')}
+                    glyphColor={asked.includes(a.id) ? C.sage : (affords(a) ? C.gold : C.off)}
+                    label={a.label} cost={a.timeCost} used={asked.includes(a.id)}
+                    affordable={affords(a)} onClick={() => investigate(a)} />
+                ))}
+
+                {surface === 'conclude' && (
+                  <>
+                    <p style={S.label}>FILE IT AS</p>
+                    {TICKET_TEMPLATES[customer.tier].map((t) => (
+                      <AskRow key={t.category} glyph={klass === t.category ? '✓' : '▸'}
+                        glyphColor={klass === t.category ? C.sage : C.gold}
+                        label={t.category} cost={0} used={false} affordable
+                        onClick={() => classify(t.category)} />
+                    ))}
+                    {investigation && (
+                      <>
+                        <p style={{ ...S.label, marginTop: 8 }}>YOUR ANSWER</p>
+                        {investigation.diagnoses.map((d) => (
+                          <AskRow key={d.id} glyph={result && result.id === d.id ? '✓' : '▸'}
+                            glyphColor={C.gold} label={d.label} cost={0} used={false} affordable
+                            onClick={() => diagnose(d)} />
+                        ))}
+                      </>
+                    )}
+                  </>
+                )}
+
+                {surface === 'close' && STATUS_OPTIONS.map((o) => (
                   <AskRow key={o.status} glyph="▸" glyphColor={C.gold} label={o.label}
                     note={o.hint} cost={0} used={false} affordable
                     onClick={() => dispose(o.status)} />

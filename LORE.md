@@ -1404,6 +1404,26 @@ misclassification happens at both levels. Phantom Inventory's seven
 causes land across **four** domains: Quantity, Fulfillment, Accounts,
 and Service.
 
+### A blurb is the reason they rang, not their situation
+
+**"The garrison infirmary is out of healing draughts" is not a reason to
+contact a shipping cooperative.** It is a fact about their week. The
+reason to contact us is *"the draughts we ordered still haven't come"* —
+the shortage is the consequence, and the shipment is the request.
+
+Same error as writing a customer's cause into their reason-for-contact:
+it states what is happening to them rather than what they want from us.
+Every opening line has to survive the question **"and why are you
+telling TLC?"**
+
+**Three inherited categories do not survive it at all.** `Quest Line
+Bug`, `Respawn Delay` and `XP Miscount Dispute` involve no shipment, no
+account and no charge — there is nothing for a logistics co-op to do
+with any of them. They came from an early pass, they are flagged in code
+as not-ours, and they want **replacing with real End User requests** (a
+trace, damage in transit, a return) rather than rewording. End Users
+ship things too: potions, gear, loot, quest items.
+
 ### 0b. Basic requests — the bread and butter of each domain
 
 The ordinary calls. Not exotica: these are what actually comes in, day

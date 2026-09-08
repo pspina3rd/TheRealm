@@ -113,12 +113,105 @@ const RECORD_LOOKUPS = {
 
 /** Questions a caller can answer from where they are standing. */
 const ASK_LOOKUPS = {
-  askExpected: { label: 'Ask what they were expecting, and when', timeCost: 1, defaultOutcome: 'They confirm the order and the date. It matches ours.' },
-  askWhoTakesIn: { label: 'Ask who normally takes deliveries in', timeCost: 1, defaultOutcome: 'Whoever is nearest the door, they say. It varies.' },
-  askAnyoneElse: { label: 'Ask whether anyone else has been in touch about it', timeCost: 1, defaultOutcome: 'Nobody else has been in touch about it.' },
-  askWhenNoticed: { label: 'Ask when they first noticed', timeCost: 1, defaultOutcome: 'A few days ago. They are vague on the exact day.' },
-  askWhoTheySpokeTo: { label: 'Ask who they spoke to last time', timeCost: 1, defaultOutcome: 'They did not catch the name.' },
+  // WRITTEN variants, not a noun slotted into a template.
+  //
+  // Rule for all of them: **no question may imply the customer is wrong,
+  // careless, or at fault.** "What were you expecting?" reads as "well,
+  // what did you expect?" and would get somebody pulled off the phones.
+  // Ask about the ORDER, not about their expectations.
+  //
+  // And `firm` means efficient, not curt. A brisk agent is still a
+  // polite one; "I'll need a name before we go further" is a doorman,
+  // not a support agent.
+  askName: {
+    label: "Ask who you're speaking with", timeCost: 1,
+    spoken: {
+      soft: "Sorry — may I take your name?",
+      plain: "Who am I speaking with?",
+      firm: "Can I start with your name?",
+    },
+    defaultOutcome: "It's on the account — I'm the one who deals with you.",
+  },
+  askWhoTakesIn: {
+    label: 'Ask who normally takes deliveries in', timeCost: 1,
+    spoken: {
+      soft: "Do you happen to know who usually takes your deliveries in?",
+      plain: "Who normally takes your deliveries in?",
+      firm: "Who signs for your deliveries?",
+    },
+    defaultOutcome: "Whoever's about. It varies.",
+  },
+  askAnyoneElse: {
+    label: 'Ask whether anyone else has been in touch', timeCost: 1,
+    spoken: {
+      soft: "Has anyone else from your end been in touch with us about it, do you know?",
+      plain: "Has anyone else been in touch with us about it?",
+      firm: "Has this been raised with us before?",
+    },
+    defaultOutcome: 'No. Just me.',
+  },
+  askWhenNoticed: {
+    label: 'Ask when they first noticed', timeCost: 1,
+    spoken: {
+      soft: "When did you first notice, if you don't mind me asking?",
+      plain: "When did you first notice?",
+      firm: "When did this start?",
+    },
+    defaultOutcome: "Few days back. Couldn't tell you exactly.",
+  },
+  askWhoTheySpokeTo: {
+    label: 'Ask who they spoke to last time', timeCost: 1,
+    spoken: {
+      soft: "Do you remember who you spoke to last time at all?",
+      plain: "Who did you speak to last time?",
+      firm: "Do you have a name from the last call?",
+    },
+    defaultOutcome: "Didn't catch the name, I'm afraid.",
+  },
 };
+
+/**
+ * Which questions make sense before they have said what they want.
+ *
+ * You cannot ask somebody what they were expecting, or whether anyone
+ * else has been in touch about *it*, when they have not yet told you
+ * what "it" is. A playthrough produced exactly that: two questions
+ * about a shipment, and only afterwards the customer explaining there
+ * was a shipment.
+ *
+ * This is an EVIDENCE gate, not a sequence gate -- the same rule that
+ * lets a diagnosis be unavailable when nothing supports it. Nothing is
+ * locked by position; these simply have no referent yet.
+ */
+const ASKS_BEFORE_REQUEST = ['askName', 'askWhenNoticed'];
+
+function askMakesSense(actionId, requestKnown) {
+  return requestKnown || ASKS_BEFORE_REQUEST.includes(actionId);
+}
+
+/**
+ * How well each way of putting a question suits this caller, right now.
+ *
+ * **Returns fit, and never a choice.** An earlier version picked the
+ * phrasing automatically, which removed the only decision that made
+ * delivery interesting and also produced nonsense — it handed a
+ * deferential shopkeeper "I'll need a name before we go further."
+ *
+ * The player chooses how to say it. This says how it landed, and the
+ * player finds that out from the caller's cues, not from a number.
+ */
+function spokenFit(customer, context) {
+  const want = deliveryPreference(customer, context);
+  const score = (warmth, directness) => clamp(
+    1 - (Math.abs(warmth - want.warmth) + Math.abs(directness - want.directness)) / 6, 0, 1,
+  );
+  return {
+    soft: score(1.6, -0.8),
+    plain: score(0, 0),
+    firm: score(-1, 1.8),
+  };
+}
+
 
 /**
  * Builds a category template from named lookups plus its own supportive
@@ -150,7 +243,7 @@ function makeTemplate({ category, domain, openingStatement, records, asks, suppo
 const PHANTOM_INVENTORY_TEMPLATE = {
   category: 'Phantom Inventory',
   domain: 'Quantity',
-  openingStatement: "I ordered 40 healing potions for the festival, and now you're telling me I don't have them?! Where did they go?",
+  openingStatement: "I ordered forty healing potions for the festival. Three on the shelf. I need to know where the rest of them are.",
 
   /**
    * Two kinds of action, and the split is load-bearing.
@@ -185,9 +278,9 @@ const PHANTOM_INVENTORY_TEMPLATE = {
     // customer to do TLC's investigating, inside a business we cannot
     // see, about records that are not ours. An agent asks what somebody
     // knows. An agent does not set them homework.
-    { id: 'askExpected', kind: 'investigative', source: 'ask', label: 'Ask what they were expecting, and when', timeCost: 1 , defaultOutcome: 'They confirm the order and the date. It matches ours.' },
-    { id: 'askWhoTakesIn', kind: 'investigative', source: 'ask', label: 'Ask who normally takes deliveries in', timeCost: 1 , defaultOutcome: 'Whoever is nearest the door, they say. It varies.' },
-    { id: 'askAnyoneElse', kind: 'investigative', source: 'ask', label: 'Ask whether anyone else has been in touch about it', timeCost: 1 , defaultOutcome: 'Nobody else has been in touch about it.' },
+    ...['askName', 'askWhoTakesIn', 'askAnyoneElse'].map((id) => ({
+      id, kind: 'investigative', source: 'ask', ...ASK_LOOKUPS[id],
+    })),
 
     // SUPPORTIVE — actually doing something for them. Not finding out;
     // acting. Every one of these is available on every call, and most of
@@ -270,7 +363,7 @@ const PHANTOM_INVENTORY_TEMPLATE = {
       aptSupport: ['setExpectation'],
       clues: {
         courierRecord: 'Signed for. The signature is a mark, not a name.',
-        askWhoTakesIn: 'Whoever is free. A casual hand took it in that week.',
+        askWhoTakesIn: "Whoever's about. There was a lad in that week, just helping out.",
         setExpectation: 'You give them the date, the mark that was signed, and the receipt.',
       },
     },
@@ -287,7 +380,6 @@ const PHANTOM_INVENTORY_TEMPLATE = {
         manifest: 'Booked as a two-leg Priority Relay. This is leg one of two.',
         courierRecord: 'Leg one handed over. Leg two is not due until tomorrow.',
         nodeReceipt: 'Receipt posted for leg one. Leg two still outstanding.',
-        askExpected: 'They were told forty. Nobody mentioned it came in two parts.',
         setExpectation: 'You tell them leg two lands tomorrow. Nothing else is required of anyone.',
       },
     },
@@ -305,7 +397,7 @@ const PHANTOM_INVENTORY_TEMPLATE = {
       clues: {
         manifest: 'All 40 shipped, as Small.',
         courierRecord: 'Signed for by J. Marrow, the 11th.',
-        askWhoTakesIn: 'Whoever is free that afternoon puts it away.',
+        askWhoTakesIn: "Whoever's free that afternoon puts it away. Could be any of us.",
         correctListing: 'You reclassify the lot from Large to Small. Their listing finds forty at once.',
         explainCause: 'You mention the two sizes ship under separate labels. There is a pause at their end.',
       },
@@ -342,7 +434,6 @@ const PHANTOM_INVENTORY_TEMPLATE = {
         manifest: 'No shipment of that size to this account. Nothing to ship means nothing to find.',
         courierRecord: 'No delivery report. Nothing ever moved.',
         nodeReceipt: 'No receipt. There was nothing for the Node to receive.',
-        askExpected: 'They are certain of the forty. Less certain about who they ordered them from.',
         explainCause: 'You explain that nothing shipped because nothing was sent. It takes a moment to land.',
       },
     },
@@ -409,6 +500,51 @@ function askRelationshipCost(ticket, investigatedActionIds) {
   }
   return { you, experience, unearnedAsks };
 }
+
+/**
+ * What an agent can always do, on any call, whatever it is about.
+ *
+ * You can always look up the account. You can always ask who you are
+ * speaking to. A category with nothing written for it yet still has to
+ * be workable — otherwise the player greets somebody, asks one
+ * question, and finds the entire menu empty, which is what happened
+ * before this existed.
+ *
+ * These lookups return their ordinary outcome, because on a call with
+ * nothing special going on that is the truth: you looked, and there was
+ * nothing there.
+ */
+const BASELINE_TEMPLATE = makeTemplate({
+  category: 'General',
+  domain: 'Service',
+  openingStatement: '',
+  records: ['accountRecord', 'bookingRegister', 'courierRecord'],
+  asks: ['askName', 'askWhenNoticed'],
+  supportive: [
+    { id: 'raiseForReview', label: 'Raise it for somebody to look at properly', timeCost: 2, defaultOutcome: 'Raised. Somebody will pick it up.' },
+    { id: 'noteAccount', label: 'Note it against the account', timeCost: 1, defaultOutcome: 'Noted, so the next person sees it.' },
+  ],
+  wrapup: [
+    { id: 'setExpectation', label: 'Tell them what happens now', timeCost: 1, defaultOutcome: 'You tell them what to expect next.' },
+    { id: 'explainProcess', label: 'Walk them through how this works', timeCost: 2, defaultOutcome: 'You explain the process. They had not been told.' },
+  ],
+  diagnoses: [
+    { id: 'asDescribed', label: 'It is as they describe, and it is ours' },
+    { id: 'needsReview', label: 'This wants somebody with more of the picture' },
+    { id: 'notOurs', label: 'Nothing here is ours to act on' },
+  ],
+  rootCauses: [
+    {
+      id: 'as-described',
+      weight: 1, discoverable: true,
+      trueCategory: 'General', trueDomain: 'Service',
+      diagnosisId: 'asDescribed',
+      keyActionIds: ['accountRecord'],
+      aptSupport: ['noteAccount', 'setExpectation'],
+      clues: {},
+    },
+  ],
+});
 
 /**
  * Picks which root cause this instance of the ticket actually has.
@@ -492,7 +628,7 @@ const SHIPMENT_TRACE_TEMPLATE = makeTemplate({
   domain: 'Fulfillment',
   openingStatement: "I sent something out four days ago and I've heard nothing since. Where is it?",
   records: ['routeBooking', 'legStatus', 'courierRecord', 'nodeReceipt', 'holdRegister'],
-  asks: ['askExpected', 'askAnyoneElse'],
+  asks: ['askName', 'askAnyoneElse'],
   supportive: [
     { id: 'chaseLeg', label: 'Chase the outstanding leg', timeCost: 2, defaultOutcome: 'Nothing outstanding to chase.' },
     { id: 'flagPriority', label: 'Flag it for the next available Courier', timeCost: 1, defaultOutcome: 'It is already moving. Flagging changes nothing.' },
@@ -521,7 +657,6 @@ const SHIPMENT_TRACE_TEMPLATE = makeTemplate({
       clues: {
         legStatus: 'Leg one complete, leg two picked up this morning. It is moving.',
         routeBooking: 'Two-leg Priority Relay. Four days is inside the window.',
-        askExpected: 'They were quoted a week. They have been counting from the wrong day.',
         giveWindow: 'You give them the real window and the reason for it. They settle.',
         explainRoute: 'You walk them through both legs. They had assumed it was one hop.',
       },
@@ -586,7 +721,7 @@ const REPEAT_FAILURE_TEMPLATE = makeTemplate({
   domain: 'Repairs',
   openingStatement: "Somebody was out to fix this a fortnight ago. It has gone again, exactly the same.",
   records: ['priorCase', 'workOrder', 'accountRecord'],
-  asks: ['askWhenNoticed', 'askWhoTheySpokeTo'],
+  asks: ['askName', 'askWhenNoticed', 'askWhoTheySpokeTo'],
   supportive: [
     { id: 'raiseRepeat', label: 'Raise it as a repeat, not a new fault', timeCost: 2, defaultOutcome: 'Raised as a repeat. It is not one.' },
     { id: 'sendSameHand', label: 'Ask for whoever attended last time', timeCost: 1, defaultOutcome: 'No use — a different fault wants different hands.' },
@@ -614,7 +749,7 @@ const REPEAT_FAILURE_TEMPLATE = makeTemplate({
       clues: {
         priorCase: 'Thistle took it. The note reads, in full: "Attended. Resolved."',
         workOrder: 'Attended for under an hour. Closed the same visit, no parts drawn.',
-        askWhoTheySpokeTo: 'A woman, they think. Brisk. Did not stay long.',
+        askWhoTheySpokeTo: "A woman. Brisk about it. Wasn't here long.",
         raiseRepeat: 'Raised as a repeat. That routes it to somebody senior.',
         ownIt: 'You say plainly it was not fixed the first time. They are not angry — they are relieved.',
       },
@@ -631,7 +766,7 @@ const REPEAT_FAILURE_TEMPLATE = makeTemplate({
         priorCase: 'Pell took it. Thorough note: the coupling, replaced, tested twice.',
         workOrder: 'Different component entirely from the one failing now.',
         accountRecord: 'Third call this season. It reads worse than it is.',
-        askWhenNoticed: 'This started yesterday. The last one had been going for weeks.',
+        askWhenNoticed: "Yesterday. The last one had been going for weeks before I rang.",
         setRepairWindow: 'You book it as new work and tell them when.',
       },
     },
@@ -647,7 +782,7 @@ const REPEAT_FAILURE_TEMPLATE = makeTemplate({
       clues: {
         priorCase: 'Bram took it, and wrote it up at length — cause, reasoning, the lot. Read against what they are describing now, the cause he settled on does not fit the symptom, and never did.',
         workOrder: 'The work done follows his note exactly. It was never going to help.',
-        askWhenNoticed: 'It came back within days, they say. They did not want to make a fuss.',
+        askWhenNoticed: "Within days. I left it, thought I'd see if it settled.",
         ownIt: 'You tell them the first read was wrong. It costs nothing to say and they have been waiting to hear it.',
       },
     },
@@ -677,9 +812,9 @@ const REPEAT_FAILURE_TEMPLATE = makeTemplate({
 const NO_BOOKING_TEMPLATE = makeTemplate({
   category: 'No Booking On Record',
   domain: 'Orders',
-  openingStatement: "I booked this a week ago and you're telling me there's no record of it? I stood right there and did it.",
+  openingStatement: "I booked a shipment a week ago and nothing has moved. I stood at the counter and did it myself.",
   records: ['bookingRegister', 'accountRecord', 'chargeLedger'],
-  asks: ['askWhenNoticed', 'askWhoTheySpokeTo'],
+  asks: ['askName', 'askWhenNoticed', 'askWhoTheySpokeTo'],
   supportive: [
     { id: 'bookItNow', label: 'Book it now, at the quoted rate', timeCost: 2, defaultOutcome: 'Booking it again would duplicate one that exists.' },
     { id: 'traceAcrossAccounts', label: 'Search the neighbouring accounts', timeCost: 2, defaultOutcome: 'Nothing under any related account.' },
@@ -705,7 +840,7 @@ const NO_BOOKING_TEMPLATE = makeTemplate({
       clues: {
         bookingRegister: 'A draft, opened last week and never confirmed. No charge against it.',
         chargeLedger: 'Nothing charged. Nothing was ever committed.',
-        askWhoTheySpokeTo: 'Nobody. They did it themselves, at the counter.',
+        askWhoTheySpokeTo: "Nobody. I did it myself, at the counter.",
         bookItNow: 'You book it properly, at the rate they were quoted.',
         confirmBooked: 'You read it back to them: route, tier, day. They are satisfied.',
       },
@@ -736,7 +871,7 @@ const NO_BOOKING_TEMPLATE = makeTemplate({
       clues: {
         bookingRegister: 'Nothing, and no draft either.',
         chargeLedger: 'No charge, this season or last.',
-        askWhoTheySpokeTo: 'A man at the market who said he could get it moved.',
+        askWhoTheySpokeTo: "A fellow at the market. Said he could get it moved.",
         explainNoRecord: 'You explain that nothing came through us, gently. It is not the news they wanted.',
       },
     },
@@ -769,7 +904,7 @@ const DUPLICATE_CHARGE_TEMPLATE = makeTemplate({
   domain: 'Billing',
   openingStatement: "I've been charged twice for the same shipment. Same amount, same week. I want one of them back.",
   records: ['chargeLedger', 'bookingRegister', 'routeBooking', 'accountRecord'],
-  asks: ['askWhenNoticed', 'askExpected'],
+  asks: ['askName', 'askWhenNoticed'],
   supportive: [
     { id: 'reverseCharge', label: 'Reverse the duplicate', timeCost: 2, defaultOutcome: 'There is no duplicate of ours to reverse.' },
     { id: 'itemiseCharges', label: 'Itemise every charge on the account', timeCost: 2, defaultOutcome: 'Itemised. It reads exactly as it did.' },
@@ -825,7 +960,6 @@ const DUPLICATE_CHARGE_TEMPLATE = makeTemplate({
       clues: {
         chargeLedger: 'Two charges, same amount, three days apart.',
         bookingRegister: 'Two bookings. Same goods, same route, both confirmed by them.',
-        askExpected: 'They only remember arranging it once. They are certain of it.',
         itemiseCharges: 'Itemised, the two bookings are three days and two references apart.',
       },
     },
@@ -1738,9 +1872,12 @@ function generateShift({
       isFollowUp: false,
       // Root cause is rolled PER TICKET. Two Phantom Inventory calls in
       // the same shift can have entirely different things wrong.
-      investigation: template.investigationTemplate
-        ? buildInvestigation(template.investigationTemplate, rollRootCause(template.investigationTemplate, rng))
-        : undefined,
+      // Every call is workable. A category without its own content
+      // still gets the baseline lookups any agent could make.
+      investigation: (() => {
+        const t = template.investigationTemplate || BASELINE_TEMPLATE;
+        return buildInvestigation(t, rollRootCause(t, rng));
+      })(),
     });
   }
 
@@ -2424,7 +2561,11 @@ module.exports = {
   rollHoldPending,
   RECORD_LOOKUPS,
   ASK_LOOKUPS,
+  spokenFit,
+  ASKS_BEFORE_REQUEST,
+  askMakesSense,
   makeTemplate,
+  BASELINE_TEMPLATE,
   PHANTOM_INVENTORY_TEMPLATE,
   SHIPMENT_TRACE_TEMPLATE,
   REPEAT_FAILURE_TEMPLATE,
