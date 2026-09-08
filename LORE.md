@@ -640,6 +640,31 @@ the queue tops itself up and the player only ever sees the front of it.
 ended the shift when the ticket list emptied, which quietly made the
 queue a stack to finish rather than a display of what is available.
 
+### There is no score. Locked.
+
+**Nobody tells an agent the company's reputation is 58 out of 100.** No
+such conversation exists in the job, and a number on the clock-in screen
+is exactly the dashboard this design already ruled out — metrics reach
+the player as observations from named people or not at all.
+
+It was inherited from an early pass and never questioned. Two further
+reasons it had to go:
+
+- **It measured nothing.** Across 60 shifts × 8 seeds it sat at 100 for
+  every strategy tested, including the one with a 39% rework rate. It
+  could not tell careful work from careless.
+- **It was redundant.** How the world feels about TLC is already
+  modelled per customer on the **TLC axis** of the disposition vector —
+  specific, readable, and attached to somebody. An aggregate adds
+  nothing an agent would ever see.
+
+"Commendations on file" went with it, for the same reason: it is a game
+scoreboard wearing a workplace word.
+
+What the player gets at clock-in is the state of their own desk — how
+many customers know them, what is still open — and at the end of a
+shift, what they did with the day.
+
 ### Pace is noticed at both ends, and only by people
 
 **Taking too long over your interactions is a reason a manager or a

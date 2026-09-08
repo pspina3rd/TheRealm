@@ -2494,6 +2494,23 @@ function resolveTicket(ticket, customer, quality, status, shiftId, inquiriesUsed
  * @param {function} [rng=Math.random]
  * @returns {{ reputation: number, commendationsEarned: number, summary: object, pendingFollowUps: object[] }}
  */
+/**
+ * NOTE ON `reputation`: internal only, and probably on its way out.
+ *
+ * There is no conversation in this job where somebody tells an agent the
+ * company's reputation is 58 out of 100. It was inherited from an early
+ * pass, it violates the rule that metrics reach the player through
+ * people rather than a dashboard, and a 60-shift run showed it pinned at
+ * 100 for every strategy tested -- it could not tell a 5% rework rate
+ * from a 39% one.
+ *
+ * It is also redundant: how the world feels about TLC is already
+ * modelled, per customer, on the **TLC axis** of the disposition vector,
+ * which is specific and readable. An aggregate number adds nothing.
+ *
+ * Kept for now only because endShift's shape is depended on. Not shown
+ * to the player anywhere.
+ */
 function endShift(outcomes, currentReputation, currentShiftId, rng = Math.random) {
   const reputationDelta = outcomes.reduce((sum, o) => sum + o.reputationDelta, 0);
   const reputation = clamp(currentReputation + reputationDelta, 0, 100);

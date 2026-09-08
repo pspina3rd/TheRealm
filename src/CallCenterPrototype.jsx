@@ -2279,7 +2279,12 @@ const SURFACES = [
   { id: 'close', label: 'Close' },
 ];
 
-function ClockIn({ shiftNumber, reputation, commendations, roster, pending, onStart }) {
+// No score anywhere. Nobody tells an agent the company's reputation is
+// 58/100; there is no such conversation in the job. What the player gets
+// is the state of their own desk -- who they know, what is still open.
+// See LORE.md: metrics reach the player as observations from named
+// people, never as a dashboard.
+function ClockIn({ shiftNumber, roster, pending, onStart }) {
   return (
     <div style={S.body}>
       <p style={S.kicker}>SHIFT {shiftNumber} · FRONT DESK</p>
@@ -2291,8 +2296,6 @@ function ClockIn({ shiftNumber, reputation, commendations, roster, pending, onSt
       <div style={S.panel}>
         <p style={S.label}>POSTED THIS MORNING</p>
         <p style={{ ...S.prose, color: C.t2 }}>
-          Company reputation stands at <strong style={{ color: C.hi }}>{reputation}/100</strong>.
-          {commendations > 0 && <> {commendations} commendations on file.</>}
           {roster > 0
             ? <> {roster} customers know your name.</>
             : <> No one on the roster yet — this is your first shift.</>}
@@ -2614,7 +2617,7 @@ export default function CallCenterPrototype() {
       </div>
 
       {screen === 'clockin' && (
-        <ClockIn shiftNumber={shiftNumber} reputation={reputation} commendations={commendations}
+        <ClockIn shiftNumber={shiftNumber}
           roster={customers.length} pending={pendingFollowUps.length} onStart={startShift} />
       )}
 
@@ -2796,9 +2799,6 @@ export default function CallCenterPrototype() {
               a survey, through your manager — or not at all.
             </p>
           </div>
-          <p style={{ ...S.prose, color: C.dim }}>
-            Company reputation is now <strong style={{ color: C.hi }}>{reputation}/100</strong>.
-          </p>
           <button style={S.secondary} onClick={nextShift}>GO HOME FOR THE NIGHT</button>
         </div>
       )}
