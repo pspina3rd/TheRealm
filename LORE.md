@@ -600,6 +600,46 @@ so care was free and there was nothing to weigh at all.
 is available, and this is a support centre: **there is always more.** It
 is never cleared. The day ends because the day ends.
 
+### Enchanted mail — support taken apart
+
+**Locked.** A customer writes; that opens a case. An agent replies, and
+then **waits** — sometimes days — for an answer. It is the same work as a
+call, in pieces.
+
+**The difference that matters: an agent never knows where in the process
+they are entering.** You might be the first person to touch it. You
+might be the fourth, on the ninth exchange, on a case two other people
+have already asked half the right questions on. Nothing on the outside
+tells you which. **Reading the thread to work out where you are is the
+job** — and it is a different skill from working a call, where you are
+at the beginning by definition.
+
+Two things fall out of that:
+
+- **Every prior exchange was written by whoever picked it up**, at their
+  own standard. A thread can carry good work, thin work, or work that
+  was confidently wrong. Same as the case notes; same roster of people.
+- **Anything already established is in the thread.** Re-asking it wastes
+  the little you get per exchange — and from the customer's side, they
+  have now answered the same question twice, to two different people, at
+  a company that evidently does not read its own mail. It costs on both
+  the Experience and the You axis.
+
+**Piecemeal means piecemeal**: an exchange is a fraction of a call, not
+a whole one, so the inquiry budget per exchange is small.
+
+Measured across 400 generated cases, you arrive first about a quarter of
+the time and behind three or more hands about a quarter of the time —
+the rest in between. The spread is the point.
+
+### The work does not run out
+
+**Tickets never run out.** A support centre always has more waiting, so
+the queue tops itself up and the player only ever sees the front of it.
+**The day is what ends** — the candle — not the work. An earlier build
+ended the shift when the ticket list emptied, which quietly made the
+queue a stack to finish rather than a display of what is available.
+
 ### Pace is noticed at both ends, and only by people
 
 **Taking too long over your interactions is a reason a manager or a

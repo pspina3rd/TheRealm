@@ -22,6 +22,9 @@ const {
   OPENING_MODES,
   SHIFT_CANDLE_NOTCHES,
   CALL_INQUIRY_BUDGET,
+  MAIL_EXCHANGE_BUDGET,
+  rollMailThread,
+  redundantAsk,
   inquiriesSpent,
   canAfford,
   DECOY_AGENT_NAMES,
@@ -2023,4 +2026,92 @@ test('Repeat Failure is where coworkers become mechanical', () => {
   // And they are not all equally good.
   assert.ok(notes.some((n) => n.length < 90), 'somebody closed one thin');
   assert.ok(notes.some((n) => n.length > 110), 'and somebody else wrote it up properly');
+});
+
+
+// ---------------------------------------------------------------------
+// Enchanted mail — you never know where you are entering
+// ---------------------------------------------------------------------
+
+const anyInvestigation = () => buildInvestigation(
+  SHIPMENT_TRACE_TEMPLATE, SHIPMENT_TRACE_TEMPLATE.rootCauses[1],
+);
+
+test('a case can arrive at any depth, including already well underway', () => {
+  // The defining property. On a call you are always at the beginning by
+  // definition. In mail you might be the fourth person on the ninth
+  // exchange, and nothing outside the thread tells you which.
+  const inv = anyInvestigation();
+  const depths = new Set();
+  for (let seed = 1; seed <= 300; seed++) {
+    depths.add(rollMailThread(inv, seededRng(seed)).handledBy.length);
+  }
+  assert.ok(depths.has(0), 'sometimes you are the first to touch it');
+  assert.ok(Math.max(...depths) >= 3, 'and sometimes several people have been here');
+  assert.ok(depths.size >= 4, 'entry depth must genuinely vary');
+});
+
+test('the thread always opens with the customer, never with us', () => {
+  const inv = anyInvestigation();
+  for (let seed = 1; seed <= 100; seed++) {
+    const { exchanges } = rollMailThread(inv, seededRng(seed));
+    assert.equal(exchanges[0].from, 'customer', 'a case begins because somebody wrote to us');
+  }
+});
+
+test('prior exchanges were written by named people, at varying quality', () => {
+  // Same as the case notes: whoever picked it up left what they left.
+  const inv = anyInvestigation();
+  let sawRecorded = false;
+  let sawEmptyHanded = false;
+  for (let seed = 1; seed <= 300; seed++) {
+    const { exchanges, handledBy } = rollMailThread(inv, seededRng(seed));
+    for (const who of handledBy) assert.ok(DECOY_AGENT_NAMES.includes(who));
+    for (const e of exchanges.filter((x) => x.from === 'agent')) {
+      if (e.body) sawRecorded = true; else sawEmptyHanded = true;
+    }
+  }
+  assert.ok(sawRecorded, 'some agents establish something and write it down');
+  assert.ok(sawEmptyHanded, 'and some move it along having written nothing useful');
+});
+
+test('what earlier hands established is IN the thread', () => {
+  const inv = anyInvestigation();
+  for (let seed = 1; seed <= 200; seed++) {
+    const t = rollMailThread(inv, seededRng(seed));
+    for (const id of t.established) {
+      assert.ok(t.exchanges.some((e) => e.actionId === id),
+        'anything established must be readable in the thread, not implied');
+    }
+    assert.equal(new Set(t.established).size, t.established.length, 'no duplicates');
+  }
+});
+
+test('re-asking what the thread already answered costs, on both axes', () => {
+  // It wastes an exchange you barely have. And from their side they have
+  // now answered the same question twice, to two different people, at a
+  // company that evidently does not read its own mail.
+  const inv = anyInvestigation();
+  let checked = 0;
+  for (let seed = 1; seed <= 300 && checked < 20; seed++) {
+    const t = rollMailThread(inv, seededRng(seed));
+    if (!t.established.length) continue;
+    checked++;
+
+    const repeat = redundantAsk(t, [t.established[0]]);
+    assert.equal(repeat.repeated.length, 1);
+    assert.ok(repeat.experience < 0, 'their patience');
+    assert.ok(repeat.you < 0, 'and their opinion of you');
+
+    const fresh = redundantAsk(t, ['nothing-anyone-asked']);
+    assert.deepEqual(fresh.repeated, []);
+    assert.equal(fresh.experience, 0);
+  }
+  assert.ok(checked > 0, 'expected some threads to carry established facts');
+});
+
+test('an exchange is a fraction of a call, not a call', () => {
+  // Piecemeal means piecemeal.
+  assert.ok(MAIL_EXCHANGE_BUDGET < CALL_INQUIRY_BUDGET);
+  assert.ok(MAIL_EXCHANGE_BUDGET >= 2, 'but enough to actually do something with');
 });

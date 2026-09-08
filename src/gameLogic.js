@@ -2062,6 +2062,109 @@ function assessPace(outcomes) {
   return { perCall, reading, calls };
 }
 
+/**
+ * ENCHANTED MAIL — support in pieces.
+ *
+ * A customer writes. That opens a case. An agent replies and then
+ * *waits*, sometimes days, for an answer. It is the same work as a call,
+ * taken apart and spread out — and the difference that matters is this:
+ *
+ *   **An agent never knows where in the process they are entering.**
+ *
+ * You might be the first person to touch it. You might be the fourth,
+ * on the ninth exchange, on a case two other people have already asked
+ * half the right questions on. Nothing on the outside tells you which.
+ * **Reading the thread to work out where you are is the job**, and it is
+ * a different skill from working a call, where you are always at the
+ * beginning by definition.
+ *
+ * Two consequences fall straight out:
+ *
+ *   - **Prior exchanges were written by whoever picked them up**, at
+ *     their own standard. A thread can carry good work, thin work, or
+ *     work that was confidently wrong (see DECOY_AGENT_NAMES).
+ *   - **Anything already established is in the thread.** Re-asking it
+ *     wastes the little you get per exchange, and worse, asks a customer
+ *     something they have already answered — twice, from their side.
+ *
+ * Piecemeal means piecemeal: an exchange is a fraction of a call, not a
+ * whole one.
+ */
+const MAIL_EXCHANGE_BUDGET = 3;
+
+/** How many exchanges a case tends to have run before you see it. */
+const MAIL_DEPTH_WEIGHTS = [
+  { depth: 0, weight: 3 },   // brand new; you are first
+  { depth: 1, weight: 3 },
+  { depth: 2, weight: 3 },
+  { depth: 3, weight: 2 },
+  { depth: 4, weight: 1 },   // long-running, several hands on it
+];
+
+/**
+ * Rolls the thread a case arrives carrying.
+ *
+ * Each prior agent exchange may have established something — drawn from
+ * the same evidence a caller would have got by asking — and the quality
+ * of what they wrote down varies with who they were.
+ *
+ * @param {object} investigation - a built investigation block
+ * @param {function} [rng=Math.random]
+ * @returns {{ exchanges: object[], established: string[], handledBy: string[] }}
+ */
+function rollMailThread(investigation, rng = Math.random) {
+  const depth = weightedPick(MAIL_DEPTH_WEIGHTS, rng).depth;
+  const exchanges = [];
+  const established = [];
+  const handledBy = [];
+
+  // The customer's opening. Always first, always theirs.
+  exchanges.push({ from: 'customer', body: investigation.openingStatement });
+
+  const lookups = investigation.actions.filter((a) => a.kind === 'investigative');
+
+  for (let i = 0; i < depth; i++) {
+    const who = pickOne(DECOY_AGENT_NAMES, rng);
+    handledBy.push(who);
+
+    // Did they actually establish anything, or just move it along?
+    const didWork = rng() < 0.6;
+    const action = didWork && lookups.length
+      ? lookups[Math.floor(rng() * lookups.length)]
+      : null;
+    // Even when they did the work, they may not have written it down.
+    const recorded = action && rng() < 0.7;
+    if (recorded) established.push(action.id);
+
+    exchanges.push({
+      from: 'agent', agent: who, actionId: recorded ? action.id : null,
+      body: recorded ? action.clue : null,
+    });
+    exchanges.push({ from: 'customer', body: null, reply: true });
+  }
+
+  return { exchanges, established: [...new Set(established)], handledBy };
+}
+
+/**
+ * What re-asking something already in the thread costs.
+ *
+ * It wastes an exchange you barely have — and from the customer's side
+ * they have now answered the same question twice, to two different
+ * people, at a company that apparently does not read its own mail.
+ */
+function redundantAsk(thread, actionIds) {
+  const repeated = actionIds.filter((id) => thread.established.includes(id));
+  // `|| 0` guards against negative zero: -2 * 0 is -0 in JavaScript, and
+  // Object.is(-0, 0) is false, so a no-cost result would compare unequal
+  // to zero for any caller checking it strictly.
+  return {
+    repeated,
+    experience: repeated.length * -2 || 0,
+    you: repeated.length * -1 || 0,
+  };
+}
+
 // ---------------------------------------------------------------------
 // Resolving a ticket
 // ---------------------------------------------------------------------
@@ -2336,6 +2439,10 @@ module.exports = {
   PACE_BAND,
   assessPace,
   CALL_INQUIRY_BUDGET,
+  MAIL_EXCHANGE_BUDGET,
+  MAIL_DEPTH_WEIGHTS,
+  rollMailThread,
+  redundantAsk,
   PROBE_INQUIRY_COST,
   inquiriesSpent,
   canAfford,
