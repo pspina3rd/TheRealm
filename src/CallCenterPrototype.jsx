@@ -1986,7 +1986,7 @@ const bevel = (accent) => ({
 });
 
 const S = {
-  frame: { minHeight: '100vh', background: `linear-gradient(180deg, ${C.mid}, ${C.deep})`,
+  frame: { height: '100vh', overflow: 'hidden', background: `linear-gradient(180deg, ${C.mid}, ${C.deep})`,
     color: C.text, fontFamily: BODY, display: 'flex', flexDirection: 'column' },
   bar: { display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     padding: '9px 12px', background: `linear-gradient(180deg, ${C.chromeTop}, ${C.chromeBot})`,
@@ -2023,7 +2023,17 @@ const S = {
   secondary: { fontFamily: DISPLAY, fontSize: 17, letterSpacing: 2, padding: '10px 14px',
     border: 'none', borderRadius: 2, cursor: 'pointer', color: C.t2,
     background: `linear-gradient(180deg, #33526f, #1e3145)`, boxShadow: `inset 0 0 0 1px ${C.ink}` },
+  // The call screen is three regions and the PAGE does not grow: a fixed
+  // header, a transcript that scrolls inside itself, and controls pinned
+  // at the bottom. Built as one long column, every action appended to an
+  // endless vertical scroll.
+  callBody: {
+    flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', gap: 10,
+    padding: '12px 14px 14px', maxWidth: 460, width: '100%', margin: '0 auto',
+  },
+  feedScroll: { flex: 1, minHeight: 0, overflowY: 'auto', WebkitOverflowScrolling: 'touch' },
   feed: { display: 'flex', flexDirection: 'column', gap: 9 },
+  controls: { flex: '0 0 auto', display: 'flex', flexDirection: 'column', gap: 8 },
   entry: { ...bevel(), padding: '12px 14px' },
   speaker: { fontFamily: DISPLAY, fontSize: 13, letterSpacing: 2, margin: '0 0 4px' },
   portrait: { width: 96, height: 126, flex: '0 0 96px', background: C.deep,
@@ -2390,6 +2400,7 @@ export default function CallCenterPrototype() {
   // everything below stays revisable while the call is open.
   const [greeted, setGreeted] = useState(null);   // greeting id, or null
   const [surface, setSurface] = useState('ask');  // which surface is showing
+  const feedRef = React.useRef(null);
   const [requestKnown, setRequestKnown] = useState(false); // did they actually say what they need
   const [probes, setProbes] = useState(0);
   const [klass, setKlass] = useState(null);       // revisable at any time
@@ -2576,6 +2587,12 @@ export default function CallCenterPrototype() {
     setCustomers(more.fullRoster);
   }, [shift, screen, index]);
 
+  // Keep the latest exchange in view rather than letting the page grow.
+  useEffect(() => {
+    const el = feedRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [feed]);
+
   const nextShift = () => { setShiftNumber((n) => n + 1); setShift(null); setScreen('clockin'); };
 
   const stage = candleStage(candleLeft);
@@ -2607,7 +2624,7 @@ export default function CallCenterPrototype() {
       )}
 
       {screen === 'call' && ticket && customer && (
-        <div style={S.body}>
+        <div style={S.callBody}>
           {/* Caller header. Nothing is revealed before the greeting. */}
           <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
             <div style={S.portrait}>ART<br />PENDING</div>
@@ -2632,7 +2649,8 @@ export default function CallCenterPrototype() {
             </div>
           </div>
 
-          {/* Transcript */}
+          {/* Transcript — scrolls in place; the page does not grow. */}
+          <div style={S.feedScroll} ref={feedRef}>
           <div style={S.feed}>
             <div style={{ ...S.entry, boxShadow: `inset 0 0 0 1px ${C.ink}, inset 0 0 0 2px ${C.bevelIn}` }}>
               <p style={{ ...S.speaker, color: C.mutest }}>LINE ONE · CONNECTED</p>
@@ -2651,6 +2669,7 @@ export default function CallCenterPrototype() {
                 <p style={{ margin: 0, fontSize: 15.5, lineHeight: 1.5 }}>{e.body}</p>
               </div>
             )))}
+          </div>
           </div>
 
           {/* --- SURFACES ---------------------------------------------
