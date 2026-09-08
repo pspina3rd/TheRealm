@@ -130,7 +130,7 @@ const ASK_LOOKUPS = {
       plain: "Who am I speaking with?",
       firm: "Can I start with your name?",
     },
-    defaultOutcome: "It's on the account — I'm the one who deals with you.",
+    defaultOutcome: '__NAME__',
   },
   askWhoTakesIn: {
     label: 'Ask who normally takes deliveries in', timeCost: 1,
@@ -169,6 +169,23 @@ const ASK_LOOKUPS = {
     defaultOutcome: "Didn't catch the name, I'm afraid.",
   },
 };
+
+/**
+ * You cannot look somebody up without something to look them up BY.
+ *
+ * Every record lookup here is against an account: what we shipped them,
+ * what their Courier reported, what they were charged. None of it is
+ * reachable until the agent has identified who is on the line. A build
+ * that let the manifest be pulled for an unidentified caller was
+ * checking the records of nobody in particular.
+ *
+ * Evidence gate, not a sequence gate: it is not "you must ask first",
+ * it is "there is nothing to search on yet". Ask their name, or match
+ * the ward signature, and it opens.
+ */
+function canLookUpRecords(identified) {
+  return Boolean(identified);
+}
 
 /**
  * Which questions make sense before they have said what they want.
@@ -1719,6 +1736,32 @@ function applyDisposition(customer, rawDeltas) {
   return { disposition, visible };
 }
 
+/**
+ * Callers have names, and accounts have references.
+ *
+ * Without them, "ask who you're speaking with" returns nothing usable
+ * and every record lookup happens against a customer the agent has not
+ * identified. A caller answering "it's on the account" is not an
+ * answer — you cannot find an account without something to find it by.
+ */
+const GIVEN_NAMES = [
+  'Maren', 'Aldrick', 'Sef', 'Bramwell', 'Tessa', 'Corrin', 'Halla', 'Odo',
+  'Wynn', 'Marek', 'Isolde', 'Garrick', 'Nessa', 'Rook', 'Perrin', 'Alis',
+];
+const FAMILY_NAMES = [
+  'Thackery', 'Marrow', 'Bell', 'Ashgrove', 'Quill', 'Underhay', 'Vance',
+  'Toller', 'Redfern', 'Stannish', 'Copperwaite', 'Larch',
+];
+
+/** A short, stable account reference — the thing you look them up by. */
+function rollAccountRef(rng) {
+  return `${Math.floor(rng() * 9) + 1}-${String(Math.floor(rng() * 9000) + 1000)}`;
+}
+
+function rollName(rng) {
+  return `${pickOne(GIVEN_NAMES, rng)} ${pickOne(FAMILY_NAMES, rng)}`;
+}
+
 // ---------------------------------------------------------------------
 // Customer pool
 // ---------------------------------------------------------------------
@@ -1745,6 +1788,8 @@ function buildCustomerPool(existingCustomers, freshCount, rng) {
       id: `${tierKey}-${archetype}-${Math.floor(rng() * 1e6)}`,
       tier: tierKey,
       archetype,
+      name: rollName(rng),
+      accountRef: rollAccountRef(rng),
       wrinkles,
       traits,
       disposition: {
@@ -2581,6 +2626,7 @@ module.exports = {
   spokenFit,
   ASKS_BEFORE_REQUEST,
   askMakesSense,
+  canLookUpRecords,
   makeTemplate,
   BASELINE_TEMPLATE,
   PHANTOM_INVENTORY_TEMPLATE,
@@ -2621,6 +2667,8 @@ module.exports = {
   FEELING_AXES,
   WRINKLES,
   TRAIT_RANGES,
+  rollName,
+  rollAccountRef,
   rollWrinkles,
   rollTraits,
   applyDisposition,

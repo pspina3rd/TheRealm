@@ -62,7 +62,7 @@ const ASK_LOOKUPS = {
       plain: "Who am I speaking with?",
       firm: "Can I start with your name?",
     },
-    defaultOutcome: "It's on the account — I'm the one who deals with you.",
+    defaultOutcome: '__NAME__',
   },
   askWhoTakesIn: {
     label: 'Ask who normally takes deliveries in', timeCost: 1,
@@ -1111,6 +1111,22 @@ function assessPace(outcomes) {
   return { perCall, reading, calls };
 }
 /**
+ * You cannot look somebody up without something to look them up BY.
+ *
+ * Every record lookup here is against an account: what we shipped them,
+ * what their Courier reported, what they were charged. None of it is
+ * reachable until the agent has identified who is on the line. A build
+ * that let the manifest be pulled for an unidentified caller was
+ * checking the records of nobody in particular.
+ *
+ * Evidence gate, not a sequence gate: it is not "you must ask first",
+ * it is "there is nothing to search on yet". Ask their name, or match
+ * the ward signature, and it opens.
+ */
+function canLookUpRecords(identified) {
+  return Boolean(identified);
+}
+/**
  * Which questions make sense before they have said what they want.
  *
  * You cannot ask somebody what they were expecting, or whether anyone
@@ -1395,6 +1411,31 @@ function applyDisposition(customer, rawDeltas) {
   return { disposition, visible };
 }
 
+/**
+ * Callers have names, and accounts have references.
+ *
+ * Without them, "ask who you're speaking with" returns nothing usable
+ * and every record lookup happens against a customer the agent has not
+ * identified. A caller answering "it's on the account" is not an
+ * answer — you cannot find an account without something to find it by.
+ */
+const GIVEN_NAMES = [
+  'Maren', 'Aldrick', 'Sef', 'Bramwell', 'Tessa', 'Corrin', 'Halla', 'Odo',
+  'Wynn', 'Marek', 'Isolde', 'Garrick', 'Nessa', 'Rook', 'Perrin', 'Alis',
+];
+const FAMILY_NAMES = [
+  'Thackery', 'Marrow', 'Bell', 'Ashgrove', 'Quill', 'Underhay', 'Vance',
+  'Toller', 'Redfern', 'Stannish', 'Copperwaite', 'Larch',
+];
+
+/** A short, stable account reference — the thing you look them up by. */
+function rollAccountRef(rng) {
+  return `${Math.floor(rng() * 9) + 1}-${String(Math.floor(rng() * 9000) + 1000)}`;
+}
+
+function rollName(rng) {
+  return `${pickOne(GIVEN_NAMES, rng)} ${pickOne(FAMILY_NAMES, rng)}`;
+}
 function buildCustomerPool(existing, freshCount, rng) {
   const pool = [...existing];
   for (let i = 0; i < freshCount; i++) {
@@ -1404,6 +1445,7 @@ function buildCustomerPool(existing, freshCount, rng) {
     const traits = rollTraits(wrinkles, rng, ARCHETYPE_REGISTERS[archetype] || DEFAULT_REGISTER);
     pool.push({
       id: `${tierKey}-${archetype}-${Math.floor(rng() * 1e6)}`, tier: tierKey, archetype,
+      name: rollName(rng), accountRef: rollAccountRef(rng),
       wrinkles, traits,
       disposition: { you: traits.baggage.you, tlc: traits.baggage.tlc, experience: traits.baggage.experience, understanding: 0 },
       history: [],
@@ -2534,7 +2576,10 @@ export default function CallCenterPrototype() {
       setFeed((f) => [
         ...f,
         { speaker: 'YOU', tint: C.muted, rule: C.bevelIn, body: spokenLine(action, customer, ticket) },
-        { speaker: 'CALLER', tint: C.t3, rule: C.steel, body: action.clue },
+        { speaker: 'CALLER', tint: C.t3, rule: C.steel,
+          body: action.clue === '__NAME__'
+            ? `${customer.name}. The account's under ${customer.accountRef}.`
+            : action.clue },
       ]);
       return;
     }
@@ -2746,7 +2791,12 @@ export default function CallCenterPrototype() {
                   </>
                 )}
 
-                {surface === 'records' && surfaceActions('records').map((a) => (
+                {surface === 'records' && !canLookUpRecords(knowsWho) && (
+                  <p style={{ ...S.prose, fontSize: 14, color: C.mutest }}>
+                    Nothing to search on yet.
+                  </p>
+                )}
+                {surface === 'records' && canLookUpRecords(knowsWho) && surfaceActions('records').map((a) => (
                   <AskRow key={a.id} glyph={asked.includes(a.id) ? '✓' : (affords(a) ? '▸' : '·')}
                     glyphColor={asked.includes(a.id) ? C.sage : (affords(a) ? C.gold : C.off)}
                     label={a.label} cost={a.timeCost} used={asked.includes(a.id)}
