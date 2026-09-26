@@ -2,11 +2,9 @@
 
 ## What this is
 
-A cozy roguelite about working the front desk of **TLC (the
-Translocation & Logistics Cooperative)** — a magical logistics company
-supporting End Users (Hero/Villain/NPC/Sidekick), Business accounts
-(Kingdom/Town Council/Constabulary/Military), and Partner vendors
-(Tavern/Inn/Blacksmith/Potion Shop/Wandering Trader). Currently a
+A cozy roguelite RPG about working the call center of **TLC (the
+Transportation & Logistical Co-operative)** — the support co-op serving
+every guild. Currently a
 vertical-slice prototype validating one core loop: imperfect customer
 memory shaping future encounters.
 

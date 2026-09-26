@@ -2,7 +2,7 @@
   "name": "the-realm",
   "version": "0.1.0",
   "private": true,
-  "description": "A cozy roguelite RPG about working the front desk of TLC, the Translocation & Logistics Cooperative. Vertical-slice prototype.",
+  "description": "A cozy roguelite RPG about working the call center of TLC, the Transportation & Logistical Co-operative — the support co-op serving every guild. Vertical-slice prototype.",
   "license": "UNLICENSED",
   "type": "commonjs",
   "scripts": {

@@ -2350,10 +2350,10 @@ function noticeFor(shiftNumber) {
 function ClockIn({ shiftNumber, pending, onStart }) {
   return (
     <div style={S.body}>
-      <p style={S.kicker}>SHIFT {shiftNumber} · FRONT DESK</p>
+      <p style={S.kicker}>SHIFT {shiftNumber} · CALL CENTER</p>
       <h1 style={S.h1}>Call Center #2</h1>
       <p style={S.prose}>
-        Translocation &amp; Logistics Cooperative. Village of Import. The candle is whole,
+        Transportation &amp; Logistical Co-operative. Village of Import. The candle is whole,
         the line is not empty, and nobody on it has told you their name yet.
       </p>
       <div style={S.panel}>
