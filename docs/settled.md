@@ -31,6 +31,51 @@ the Magicians' Guild — founded by the head of our R&D department.
 
 **[P]** The future head of R&D was the one who read the scroll aloud.
 
+**[P] The original Magician.** The head of R&D is the person who read the
+scroll. Because of that discovery and that tragedy they founded the
+**Magician's** Guild and began researching and studying: hard labour in the
+catacombs of knowledge — the nearby university library — and a few near misses
+journeying with adventurers in search of further scrolls and other ancient
+knowledge, some of which was still legible. That it often wasn't is not only
+down to age. In the **first couple of years at most**, the overuse of what has
+become known as **Fireball** was a blessing, since it removed a great many
+obstacles, and a curse, because when your only tool is a hammer every problem
+is a nail — and fireballs burn things, while knowledge tends to be recorded on
+flammable materials. **[P]** Those early misadventures with damaged or partial
+scrolls came from the Magician's own lack of knowledge, and faded as skill grew
+through practice and experimentation. The Magician got better at Fireball.
+
+**[P]** Magical knowledge expanded, and as the adventurers became more
+competent and skilled, so did the magicians. When it moved from a
+**Magician's** Guild to the more respectable-sounding **Magicians'** Guild, it
+was able to join the co-op. That they had by then discovered a way to create a
+refillable potion was a happy accident and complete coincidence.
+
+**[P]** When POOF was discovered, establishing an R&D team internally made
+sense — and who better to head it than the original Magician, who would never
+pass up the chance to learn more.
+
+**[C·ok] The Magician was a new agent with one card.** A short window at the
+very start, when the only person who could read the scrolls was the least able
+to handle them, and nobody else to ask. Whatever burned in those two years
+burned because nobody yet knew enough not to burn it. **[C]** It could earn its
+keep in the game: a coworker telling the story that way to an apprentice whose
+call has just gone wrong with the only question they knew to ask.
+
+**[C·ok]** So TLC didn't employ the founder at the start. The guild joined the
+co-op once it was a guild, and R&D came later, with POOF.
+
+**[P] Every enchantment in the world came from the guild.** There is no
+unsanctioned magic. **Fireball is a cautionary tale for the general public
+too: magic can be unpredictable, the Magicians' Guild is not.**
+
+**[C]** So the guild's standing rests on being the safe and repeatable option,
+and the story of the scroll does the enforcing socially — nobody sensible reads
+a strange scroll aloud. It also keeps the rules whole: every enchanted item has
+a provenance, and the gaps an agent runs into come from records being imperfect
+rather than from anything outside the rules. **[P] Rejected:** magic practised
+outside the guild — an escape hatch that would undo the settled rules.
+
 **[P]** *The Dungeon* is only the first one found. Because of the tragedy and
 the discovery, the name has taken on a life of its own.
 
@@ -59,6 +104,43 @@ words having consequences is the oldest fact in this world.
 **[P] Wordplay** works when it's a parallel from our world that a character
 would say plainly — *enchanted mail* — not a wink at the audience. The joke
 happens on our side of the page.
+
+### Guilds, the co-op, and the tiers **[P]**
+
+**[P] Guilds existed long before the Dungeon** — Farmers' Guilds, various
+[Shop]keeper Guilds, Innkeeper Guilds. Would they not need a little TLC too?
+
+**[C·ok]** So **TLC predates the rediscovery**: a carrier built by working
+guilds who needed goods moved, already there when the new guilds turned up.
+*Serving every guild* is the founding arrangement, not a slogan. The
+Adventurer's and Magicians' Guilds joined something that existed, which is why
+the Magicians' Guild being part of the co-op with no rival is ordinary rather
+than suspicious. **[C]** Most calls are mundane — a farmer's delivery, an
+innkeeper's order, a shopkeeper's stock — and POOF is the loud minority, which
+is the right balance for a cozy game. It also explains the Council: farmers and
+innkeepers voting on an experimental magic service, hence terms, a buyback and
+a research budget rather than free rein. **[C]** My earlier *"moved parcels for
+a century"* was invented; the co-op is old, the number isn't set.
+
+**[P] The tiering was for the end customers**, not for guild membership. Not
+every brand-new adventurer has the money or the skills to afford the best
+product or service straight away, and the guilds still want to serve their own
+customers, so they wanted choices and options to offer them.
+
+**[C·ok]** So the pay-wall exists so the poorest customer can be served at all,
+not to keep them out. The cheap tier is the beginner's tier — which puts the
+least experienced agents and the least resourced customers in the same
+conversation. Entitlements follow the tier, which is what makes Sella's
+complimentary refill a find rather than a gift: someone below her, same flask,
+same mistake, doesn't have it, and that is where the better No lives. The agent
+has to know the tier before speaking — the three-part check again.
+
+**[C·ok] Customers move between tiers over time.** An adventurer who survives a
+few years buys up; a shop with a bad season drops down. The record keeps that
+history, so an agent can see someone who used to have more than they have now,
+which is a different conversation from someone who never had it — and a
+customer who remembers what they used to be entitled to will argue from the old
+tier.
 
 **[C] Offered:** provenance claims. Anything recovered is worth more if it came
 from The Dungeon, so people say it did. The co-op can't verify it and has no
@@ -2065,6 +2147,10 @@ YOU      Let me set that up with them now… Done. It'll be ready
          email you the confirmation. Is the email on your account
          still good?
 CALLER   It is. Thank you.
+YOU      You're welcome, Sella. The confirmation's on its way. Is
+         there anything else I can help with today?
+CALLER   No, that's everything. Thanks again.
+YOU      Take care, Sella.
 ```
 
 **[P]** The cause rolled for these four is *drank it in the night, thinking
