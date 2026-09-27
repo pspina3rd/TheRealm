@@ -6,8 +6,8 @@
   "license": "UNLICENSED",
   "type": "commonjs",
   "scripts": {
-    "test": "node --test src/gameLogic.test.js",
-    "lint": "eslint src/gameLogic.js src/gameLogic.test.js",
+    "test": "node --test src/*.test.js",
+    "lint": "eslint src/*.js",
     "serve": "python3 -m http.server 5173"
   },
   "devDependencies": {
