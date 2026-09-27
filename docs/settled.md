@@ -21,6 +21,13 @@ This is the source of truth. `LORE.md` is archived.
 
 ### The rediscovery **[P]**
 
+**[P] The Realm is the whole world.** It has uninhabited continents; a great
+cataclysm left everyone living on just one. The cataclysm is also where magic
+is believed to have dropped out of the zeitgeist, and magic came to be thought
+of as myth and legend. The Dungeon's discovery changed all of that. The one
+inhabited continent is divided into several commonwealths — most likely; not
+yet firm.
+
 **A generation ago, 'The Dungeon' was found.** Soon after, the Adventurer's
 Guild was founded. The first party went in search of treasure; those brave
 souls were never found, though later their gear was discovered. During the
@@ -122,6 +129,30 @@ innkeepers voting on an experimental magic service, hence terms, a buyback and
 a research budget rather than free rein. **[C]** My earlier *"moved parcels for
 a century"* was invented; the co-op is old, the number isn't set.
 
+**[P] Partners** are individual guild-affiliated shops and traveling merchants
+alike. The shops are run by senior journeymen or masters, and they are what an
+apprentice works toward (§9).
+
+**[P] Partner is a relationship**, like the customer relationships in §18.
+TLC moves goods through traveling merchants who hold that relationship with
+it. There are different classes of traveling merchant; they bring goods to
+people with no guild nearby, carry stock between guilds, and resell. They know
+their local areas, and hire adventurers for protection when they go somewhere
+less familiar. Villains and anti-heroes normally leave them alone: hitting one
+angers the Guilds, and almost everyone has a subscription.
+
+**[C·ok] The next-day guilds** were mostly splits from trades that already
+existed: the **Armorers'** out of the smiths; the **Apothecaries'** out of the
+herbalists and brewers, since adventurers came back injured and a draught you
+can carry is worth more than a poultice at home; and the **Explorers'** out of
+the cartographers and scribes. **[P]** The Explorers travel with the
+Adventurers, the way a bard would — the Adventurer seeks the excitement and
+mystery of the unknown, the Explorer seeks to map and record it. The
+**Magicians'** was founded by the Magician alone.
+
+**[P] Healing draughts** are made and sold by apothecaries and magicians, and
+sold by merchants, shops, inns and other logical vendors.
+
 **[P] The tiering was for the end customers**, not for guild membership. Not
 every brand-new adventurer has the money or the skills to afford the best
 product or service straight away, and the guilds still want to serve their own
@@ -131,9 +162,40 @@ customers, so they wanted choices and options to offer them.
 not to keep them out. The cheap tier is the beginner's tier — which puts the
 least experienced agents and the least resourced customers in the same
 conversation. Entitlements follow the tier, which is what makes Sella's
-complimentary refill a find rather than a gift: someone below her, same flask,
-same mistake, doesn't have it, and that is where the better No lives. The agent
+complimentary refill a find rather than a gift: it depends on how many her
+tier allows and how many she has already used this term. Someone who has used
+theirs gets half off instead, and that is where the better No lives. The agent
 has to know the tier before speaking — the three-part check again.
+
+**[C·ok] The tiers are Copper, Silver and Gold.** **[P]** Complimentary refills per annual
+subscription term: one on Copper, three on Silver, five on Gold. Beyond those,
+refills are half off.
+
+### Money and draughts
+
+**[P] Currency** is copper, silver and gold coin: 10 coppers to a silver, 5
+silvers to a gold.
+
+**[P]** Healing draughts come in strengths, as potions do in most RPGs.
+**[C·ok]** In plain words — no numbers shown:
+- **Minor** — everyday knocks: cuts, bruises, a turned ankle. Gets you home,
+  not back into the fight. 2 coppers at a shop.
+- **Standard** — a proper wound: a sword cut, a bad fall. Back on your feet
+  the same day. 1 silver.
+- **Greater** — serious harm: a broken bone, a deep wound. The one that saves
+  a life. 1 gold.
+- **Superior** — close to death; carried into a dungeon and hoped never to be
+  opened. 2 gold, shop only — on no plan.
+
+**[C·ok] The tier sets the strength the flask refills with:** Copper refills
+minor, Silver standard, Gold greater. Per annual term, payable monthly: Copper
+5 gold (about 2 silver a month — less than a new adventurer's first job pays),
+Silver 20 gold, Gold 60 gold. Every plan costs far less than a draught a night
+from a shop, because most nights it goes undrunk; the co-op prices for it being
+there. A refill beyond the allowance is half the shop price for that strength.
+**[C]** A customer who drops a tier wakes to a weaker draught, and one who
+expects a minor draught to mend a broken arm rings to say the flask doesn't
+work.
 
 **[C·ok] Customers move between tiers over time.** An adventurer who survives a
 few years buys up; a shop with a bad season drops down. The record keeps that
@@ -141,6 +203,13 @@ history, so an agent can see someone who used to have more than they have now,
 which is a different conversation from someone who never had it — and a
 customer who remembers what they used to be entitled to will argue from the old
 tier.
+
+### Places **[P]**
+
+**[P] Places, largest to smallest:** commonwealth · fiefdom · barony · town ·
+village · fort. A **castle** is not a level; it can stand within a
+commonwealth, fiefdom, barony or town. An address names a place at the scale
+the customer knows.
 
 **[C] Offered:** provenance claims. Anything recovered is worth more if it came
 from The Dungeon, so people say it did. The co-op can't verify it and has no
@@ -826,6 +895,10 @@ inquiry), Validate (actively seek knowledge), and others.
 
 **[P] Transfer to a different department.** **[C·ok]** The better No is the
 Finesse on the Transfer card.
+
+**[P] Departments a call can be transferred to:** Partner Support · Billing ·
+Subscriptions · Sales · Repairs · Dispatch. R&D and account administration
+don't take calls.
 
 **[P]** *"Our expert"* is a safe, customer-friendly catch-all for checking
 with a human resource rather than a documented one.
