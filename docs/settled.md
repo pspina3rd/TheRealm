@@ -29,6 +29,8 @@ a bedroll. Read aloud, it sent up a geyser of flame that destroyed the
 remaining evidence. Several guilds were formed the very next day, including
 the Magicians' Guild — founded by the head of our R&D department.
 
+**[P]** The future head of R&D was the one who read the scroll aloud.
+
 **[P]** *The Dungeon* is only the first one found. Because of the tragedy and
 the discovery, the name has taken on a life of its own.
 
@@ -913,6 +915,15 @@ what was given, what was recorded — *and* weights on the sheet: whether she
 feels owed, and what she remembers being told. The two are not guaranteed to
 match. The courtesy granted and never logged is exactly that gap: she arrives
 expecting it and the record says it never happened.
+
+**[C·ok] Where the weights come from — settled 26 September.** The categories
+are not a block on the sheet; each weight is read from what the sheet already
+holds, and changes at the rate of whatever it comes from (the table above).
+**[P]** Baggage carries much of it: everyone arrives with history and a sense
+of goodwill about a company, whether they've called before or only heard.
+**[C·ok]** Baggage also sets Treatment and Certainty — Sella, braced to be
+guessed at — and the situation sets Safety and Access. **[C]** Personality
+sets the slowest, such as preferring a rule to a favour.
 
 ### Fields
 
@@ -1921,25 +1932,6 @@ CALLER   Go on, then.
 ```
 
 ```
-OVERSIMPLIFIED
-YOU      Thanks for holding, Sella. Can I just confirm the
-         subscription's active?
-CALLER   You told me it was, before you went away.
-YOU      I did, sorry. That's me double-checking.
-CALLER   So you don't know yet.
-YOU      Not yet.
-```
-
-```
-SIMPLIFIED
-YOU      Thanks for holding. Was the stopper in overnight?
-CALLER   It was. It always is, it lives on the cord.
-YOU      Right. Then it isn't that.
-CALLER   Is there something else it could be?
-YOU      There'll be something. Bear with me.
-```
-
-```
 GENERALIZED
 YOU      Thanks for holding, Sella. Where does the flask sit
          overnight?
@@ -2099,16 +2091,11 @@ needing a No.
 
 ## 17. Open
 
-1. **[PINNED]** Do the fifteen win categories belong on the customer character
-   sheet? They are the same kind of object — a template filled in per
-   instance. Some may live in baggage, some under other categories within a
-   character, or there may be something else there.
-2. **[PINNED — last]** Sella's ending — which offer, worded how, for her.
-3. **[PINNED]** §15's original OVERSIMPLIFIED and SIMPLIFIED returns (20
-   September) still sit below their reworked versions, unlabelled. Delete, or
-   keep under a "Superseded" label.
-4. **[C] Open** Did the head of R&D read the scroll aloud? (§1, the
-   rediscovery.)
+1. **[PINNED — last]** Sella's ending — which offer, worded how, for her.
+
+**Closed 26 September:** whether the win categories belong on the customer
+sheet (§8) · the original OVERSIMPLIFIED and SIMPLIFIED returns (deleted; in
+git history) · who read the scroll aloud (§1).
 
 **Closed 21–24 September:** R&D's questions about POOF (§1) · the win-win-win
 perspectives (§14) — Sella's fifteen, the co-op's eighteen, the agent's
