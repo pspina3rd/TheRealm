@@ -2130,7 +2130,8 @@ division, department, team — leave room for error and allow limited
 compensation. Policy sets the requirements, stricter or more lenient, mostly
 by the current co-op leadership's decisions.
 
-**[P] Ending — in progress.** Picks up from ORGANIZED's last line.
+**[P] Ending — finished 27 September.** Picks up from ORGANIZED's last line.
+[partner] and [place] come from her account and are left as placeholders.
 
 ```
 CALLER   I drank my own flask in the dark.
@@ -2204,11 +2205,12 @@ needing a No.
 
 ## 17. Open
 
-1. **[PINNED — last]** Sella's ending — which offer, worded how, for her.
+Nothing open.
 
 **Closed 26 September:** whether the win categories belong on the customer
 sheet (§8) · the original OVERSIMPLIFIED and SIMPLIFIED returns (deleted; in
-git history) · who read the scroll aloud (§1).
+git history) · who read the scroll aloud (§1) · Sella's ending (§15, finished 27
+September).
 
 **Closed 21–24 September:** R&D's questions about POOF (§1) · the win-win-win
 perspectives (§14) — Sella's fifteen, the co-op's eighteen, the agent's
