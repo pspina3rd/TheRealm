@@ -1202,6 +1202,12 @@ the mirror of the better No — the agent handing the customer an easy No to
 *give*. Overused, a run of *"it's this, isn't it?"* reads as guessing at
 everything.
 
+**[P] Offers are paths with edges.** Structure a response in anticipation of
+questions or pushback: questions choose between paths A and B; pushback lands
+against targets A and B. The goal is to guide the conversation through
+boundaries. If the customer answers with C, check whether C sits within A and
+B — if it does, keep making progress; if not, reframe A and B.
+
 **[C·ok]** A reaction that misses is itself information. Confusion tells you
 what they know; defensiveness tells you what they think you meant.
 
@@ -2033,12 +2039,33 @@ not customer-friendly. Viable one-time courtesies:
   (we arrange it);
 - a POOF option — and a courtesy POOF is also a data point for R&D.
 
+**[P]** The flask is a subscription service, not a one-time purchase. The
+subscription provides for a complimentary refill, because crazy things happen.
+The agent knows it from her Subscriptions record, not from their basics.
+
 **[P]** Budgets at every level — subscription, business, organization,
 division, department, team — leave room for error and allow limited
 compensation. Policy sets the requirements, stricter or more lenient, mostly
 by the current co-op leadership's decisions.
 
-**[P]** Ending: **open.**
+**[P] Ending — in progress.** Picks up from ORGANIZED's last line.
+
+```
+CALLER   I drank my own flask in the dark.
+YOU      Your subscription covers a complimentary refill. I can send
+         you a voucher for a partner near you. Would that work?
+CALLER   It would. Where's the nearest one?
+YOU      One moment… The closest to the address on your account is
+         [partner], in [place].
+CALLER   I know them. Can I go today?
+YOU      You can. Would you like me to prearrange pickup for you?
+CALLER   Yes, please. So it'll be ready when I get there?
+YOU      Let me set that up with them now… Done. It'll be ready
+         when you get there, with the voucher already applied. I'll
+         email you the confirmation. Is the email on your account
+         still good?
+CALLER   It is. Thank you.
+```
 
 **[P]** The cause rolled for these four is *drank it in the night, thinking
 it was her water* — chosen because it is the only one of the four where the
