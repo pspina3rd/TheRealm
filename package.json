@@ -2,12 +2,12 @@
   "name": "the-realm",
   "version": "0.1.0",
   "private": true,
-  "description": "A cozy roguelite RPG about working the call center of TLC, the Transportation & Logistical Co-operative — the support co-op serving every guild. Vertical-slice prototype.",
+  "description": "A cozy roguelite RPG about working the call center of TLC, the Transportation & Logistical Co-operative \u2014 the support co-op serving every guild. Vertical-slice prototype.",
   "license": "UNLICENSED",
   "type": "commonjs",
   "scripts": {
-    "test": "node --test src/*.test.js",
-    "lint": "eslint src/*.js",
+    "test": "node --test src/*.test.js src/call/*.test.js",
+    "lint": "eslint src/*.js src/call/*.js",
     "serve": "python3 -m http.server 5173"
   },
   "devDependencies": {

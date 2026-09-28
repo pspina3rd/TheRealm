@@ -17,9 +17,7 @@ This is the source of truth. `LORE.md` is archived.
 
 ## 1. The company and POOF
 
-**[P]** The name is the **Transportation & Logistical Co-operative (TLC)**.
-
-### The rediscovery **[P]**
+### The Realm **[P]**
 
 **[P] The Realm is the whole world.** It has uninhabited continents; a great
 cataclysm left everyone living on just one. The cataclysm is also where magic
@@ -28,18 +26,23 @@ of as myth and legend. The Dungeon's discovery changed all of that. The one
 inhabited continent is divided into several commonwealths — most likely; not
 yet firm.
 
+**[P] Places, largest to smallest:** commonwealth · fiefdom · barony · town ·
+village · fort. A **castle** is not a level; it can stand within a
+commonwealth, fiefdom, barony or town. An address names a place at the scale
+the customer knows.
+
+### The rediscovery **[P]**
+
 **A generation ago, 'The Dungeon' was found.** Soon after, the Adventurer's
 Guild was founded. The first party went in search of treasure; those brave
 souls were never found, though later their gear was discovered. During the
 official investigation an ancient scroll was found sewn between the layers of
 a bedroll. Read aloud, it sent up a geyser of flame that destroyed the
 remaining evidence. Several guilds were formed the very next day, including
-the Magicians' Guild — founded by the head of our R&D department.
+the Magicians' Guild.
 
-**[P]** The future head of R&D was the one who read the scroll aloud.
-
-**[P] The original Magician.** The head of R&D is the person who read the
-scroll. Because of that discovery and that tragedy they founded the
+**[P] The original Magician.** The person who read the scroll — later the head
+of TLC's R&D — founded the
 **Magician's** Guild and began researching and studying: hard labour in the
 catacombs of knowledge — the nearby university library — and a few near misses
 journeying with adventurers in search of further scrolls and other ancient
@@ -112,7 +115,9 @@ words having consequences is the oldest fact in this world.
 would say plainly — *enchanted mail* — not a wink at the audience. The joke
 happens on our side of the page.
 
-### Guilds, the co-op, and the tiers **[P]**
+### The co-op and the guilds **[P]**
+
+**[P]** The name is the **Transportation & Logistical Co-operative (TLC)**.
 
 **[P] Guilds existed long before the Dungeon** — Farmers' Guilds, various
 [Shop]keeper Guilds, Innkeeper Guilds. Would they not need a little TLC too?
@@ -129,6 +134,15 @@ innkeepers voting on an experimental magic service, hence terms, a buyback and
 a research budget rather than free rein. **[C]** My earlier *"moved parcels for
 a century"* was invented; the co-op is old, the number isn't set.
 
+**[C·ok] The next-day guilds** were mostly splits from trades that already
+existed: the **Armorers'** out of the smiths; the **Apothecaries'** out of the
+herbalists and brewers, since adventurers came back injured and a draught you
+can carry is worth more than a poultice at home; and the **Explorers'** out of
+the cartographers and scribes. **[P]** The Explorers travel with the
+Adventurers, the way a bard would — the Adventurer seeks the excitement and
+mystery of the unknown, the Explorer seeks to map and record it. The
+**Magicians'** was founded by the Magician alone.
+
 **[P] Partners** are individual guild-affiliated shops and traveling merchants
 alike. The shops are run by senior journeymen or masters, and they are what an
 apprentice works toward (§9).
@@ -141,17 +155,14 @@ their local areas, and hire adventurers for protection when they go somewhere
 less familiar. Villains and anti-heroes normally leave them alone: hitting one
 angers the Guilds, and almost everyone has a subscription.
 
-**[C·ok] The next-day guilds** were mostly splits from trades that already
-existed: the **Armorers'** out of the smiths; the **Apothecaries'** out of the
-herbalists and brewers, since adventurers came back injured and a draught you
-can carry is worth more than a poultice at home; and the **Explorers'** out of
-the cartographers and scribes. **[P]** The Explorers travel with the
-Adventurers, the way a bard would — the Adventurer seeks the excitement and
-mystery of the unknown, the Explorer seeks to map and record it. The
-**Magicians'** was founded by the Magician alone.
-
 **[P] Healing draughts** are made and sold by apothecaries and magicians, and
 sold by merchants, shops, inns and other logical vendors.
+
+**[P] Departments a call can be transferred to:** Partner Support · Billing ·
+Subscriptions · Sales · Repairs · Dispatch. R&D and account administration
+don't take calls.
+
+### Commerce **[P]**
 
 **[P] The tiering was for the end customers**, not for guild membership. Not
 every brand-new adventurer has the money or the skills to afford the best
@@ -170,8 +181,6 @@ has to know the tier before speaking — the three-part check again.
 **[C·ok] The tiers are Copper, Silver and Gold.** **[P]** Complimentary refills per annual
 subscription term: one on Copper, three on Silver, five on Gold. Beyond those,
 refills are half off.
-
-### Money and draughts
 
 **[P] Currency** is copper, silver and gold coin: 10 coppers to a silver, 5
 silvers to a gold.
@@ -204,17 +213,12 @@ which is a different conversation from someone who never had it — and a
 customer who remembers what they used to be entitled to will argue from the old
 tier.
 
-### Places **[P]**
-
-**[P] Places, largest to smallest:** commonwealth · fiefdom · barony · town ·
-village · fort. A **castle** is not a level; it can stand within a
-commonwealth, fiefdom, barony or town. An address names a place at the scale
-the customer knows.
-
 **[C] Offered:** provenance claims. Anything recovered is worth more if it came
 from The Dungeon, so people say it did. The co-op can't verify it and has no
 reason to argue, so a record and a customer's story can carry two different
 provenances for one object.
+
+### POOF **[P]**
 
 **[P]** TLC is the company and the standard service. **POOF** is the new,
 experimental, express service.
@@ -614,6 +618,23 @@ isn't the answer at all.
 
 ## 2. Cards
 
+**[P] Nine plays.** The game inherits the training game's budget (Appendix):
+the agent has **nine**, and asking the customer something, asking a coworker
+for help, or looking something up each uses one.
+
+**[C·ok]** It is what makes *offers are paths with edges* (§6) load-bearing.
+With nine, an inquiry has to do work: set the boundaries, keep the customer's
+answer inside them, and drive toward progress — **transfer, hold, or resolve**.
+A question whose answer was already on the agent's own screen costs a ninth of
+the call.
+
+**[C] Consequence for the written calls:** they were written as dialogue and
+justified afterwards, never played against the budget. Sella's ORGANIZED path
+spends nine by *"From?"* — the moment she realises — and the drafted ending
+sits entirely outside it. Each of the hand-written calls needs replaying to
+nine before it can be a standard for anything.
+
+
 **[P]** Playing cards should be simple, without too much thinking.
 
 **[P]** The model is Marvel Snap's Draft mode: you have cards, and as you
@@ -896,9 +917,7 @@ inquiry), Validate (actively seek knowledge), and others.
 **[P] Transfer to a different department.** **[C·ok]** The better No is the
 Finesse on the Transfer card.
 
-**[P] Departments a call can be transferred to:** Partner Support · Billing ·
-Subscriptions · Sales · Repairs · Dispatch. R&D and account administration
-don't take calls.
+**[C]** The departments a call can be transferred to are listed in §1.
 
 **[P]** *"Our expert"* is a safe, customer-friendly catch-all for checking
 with a human resource rather than a documented one.

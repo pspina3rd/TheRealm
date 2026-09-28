@@ -23,6 +23,8 @@ reframe replaced.
 | `src/gameLogic.test.js` | Node's built-in test runner (`node --test`), no external test framework. Uses a seeded `mulberry32`-style PRNG (`seededRng(seed)`) for determinism — copy that pattern for new tests rather than inventing another one. |
 | `src/CallCenterPrototype.jsx` | Playable React UI. **Duplicates `gameLogic.js`'s logic inline** — artifacts can't `import` a local file, so this is a hand-port, not a real import. Any change to `gameLogic.js` must be mirrored here too, or explicitly called out as drift in your summary. If a phase only touches `gameLogic.js` and doesn't need a UI yet, it's fine to leave the JSX un-mirrored for that phase — just say so. |
 | `src/supportCall.js` | The seven causes behind one symptom. No diagnosis step. |
+| `src/call/` | **The call engine.** Nine turns, word cards dealt from what has actually been said, a customer model that decides its own answers, agents as policies, and a shift runner so she reaches other people between calls. `scenario.js` is the data; `customer.js` is the only thing allowed to decide what she says; `engine.js` holds the hidden cause. |
+| `scripts/playShifts.js` | Plays the engine over many seeds and prints transcripts and an outcome distribution. Green tests do not tell you whether a call works — read what this prints. |
 | `src/callCards.js` | The sword call played with cards. **Its dialogue was rejected — parked. Not a reference for tone.** The hand-written calls in `docs/settled.md` are the standard. |
 | `src/intake.js` | Superseded by the reframe. Kept for its tests. |
 | `docs/settled.md` | The record. The source of truth for design. |
@@ -46,7 +48,7 @@ reframe replaced.
   `.eslintrc.json` at repo root). Run `npm install` first if
   `node_modules` isn't present — eslint is the only dependency and it's
   dev-only. Must pass clean before a phase is done.
-- **Tests**: `npm test` runs all four suites in `src/`. Every new pure
+- **Tests**: `npm test` runs every suite in `src/` and `src/call/`. Every new pure
   function needs real tests, including edge cases and at least one
   test that would have caught a plausible mistake — not just a happy
   path. (A past session caught a real bug this way: `generateShift()`
