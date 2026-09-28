@@ -105,6 +105,7 @@ function ask(call, hidden, cards) {
   const room = call.mood + mood;
   const budget = room >= 6 ? 2 : room >= 3 ? 1 : 0;
   const seeds = [];
+
   for (const w of fresh) {
     call.said.add(w);
     const fam = FAMILIES[w];
@@ -119,6 +120,21 @@ function ask(call, hidden, cards) {
   }
 
   call.recent = seeds.concat(fresh);
+  // What this particular trouble makes her mention. She volunteers it
+  // only while the call is going well: being comfortable is what buys
+  // the detail nobody asked for, which is why keeping her that way is
+  // worth more than any single question.
+  if (room >= MOOD_START) {
+    const hints = hidden.hints || {};
+    for (const w of words) {
+      for (const hint of (hints[w] || [])) {
+        if (call.pool.includes(hint) || call.said.has(hint) || seeds.includes(hint)) continue;
+        seeds.push(hint);
+        break;
+      }
+    }
+  }
+
   return {
     line: answerLine(fresh, seeds, budget),
     seeds,

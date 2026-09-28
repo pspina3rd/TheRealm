@@ -24,7 +24,9 @@ reframe replaced.
 | `src/CallCenterPrototype.jsx` | Playable React UI. **Duplicates `gameLogic.js`'s logic inline** — artifacts can't `import` a local file, so this is a hand-port, not a real import. Any change to `gameLogic.js` must be mirrored here too, or explicitly called out as drift in your summary. If a phase only touches `gameLogic.js` and doesn't need a UI yet, it's fine to leave the JSX un-mirrored for that phase — just say so. |
 | `src/supportCall.js` | The seven causes behind one symptom. No diagnosis step. |
 | `src/call/` | **The call engine.** Nine turns, word cards dealt from what has actually been said, a customer model that decides its own answers, agents as policies, and a shift runner so she reaches other people between calls. `scenario.js` is the data; `customer.js` is the only thing allowed to decide what she says; `engine.js` holds the hidden cause. |
+| `src/call/score.js` | What each perspective got out of a call, as vectors on the record's fifteen categories plus each seat's extras. **Never a total** — an axis that was not in play is absent rather than zero, and the same event reads differently depending on who is holding it. |
 | `scripts/playShifts.js` | Plays the engine over many seeds and prints transcripts and an outcome distribution. Green tests do not tell you whether a call works — read what this prints. |
+| `scripts/audit.js` | Counts what happens *inside* played calls — wasted turns, fields that never pay, holds that reach nobody, causes found too late — and reports every perspective's categories separately. Endings alone hid three real bugs. |
 | `src/callCards.js` | The sword call played with cards. **Its dialogue was rejected — parked. Not a reference for tone.** The hand-written calls in `docs/settled.md` are the standard. |
 | `src/intake.js` | Superseded by the reframe. Kept for its tests. |
 | `docs/settled.md` | The record. The source of truth for design. |

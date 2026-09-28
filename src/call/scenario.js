@@ -32,6 +32,7 @@ const CAUSES = [
   {
     id: 'stopper-left-out',
     reach: [['stopper']],
+    hints: { vial: ['stopper'], refill: ['vial'] },
     // She knows the answer the moment she is asked the question.
     connects: true,
     says: "…the stopper. I decanted some into a vial for my sister and I don't think I put it back.",
@@ -40,6 +41,9 @@ const CAUSES = [
   {
     id: 'charm-interference',
     reach: [['near'], ['enchanted']],
+    // What she volunteers, and when. A cause with no trail can only be
+    // reached by the coworker's lines; a cause with one can be walked to.
+    hints: { shelf: ['charm'], near: ['charm'] },
     connects: false,
     says: "My sister gave me a charm last week. It's up on the shelf.",
     fix: { id: 'move-charm', line: 'Two enchantments that close will interfere. Move it and it fills tonight.' },
@@ -48,13 +52,28 @@ const CAUSES = [
     id: 'drank-in-the-night',
     // The one that needs a pair, and that she would never volunteer.
     reach: [['night', 'water'], ['night', 'cup']],
+    hints: { night: ['water', 'cup'], bed: ['cup'] },
     connects: false,
     says: "I woke up thirsty. I had a drink. The cup's always— …oh.",
     fix: { id: 'nothing-broken', line: "Nothing's broken. It fills again tonight." },
   },
   {
+    id: 'unregistered-drinker',
+    // Only reachable once the record has shown who else is in the
+    // household: an unregistered person drinking it gets water, and the
+    // flask is empty by morning either way.
+    reach: [['sister'], ['household']],
+    // She mentions who is in the house when asked about her night, not
+    // when asked about her flask.
+    hints: { night: ['sister'], bed: ['sister'], morning: ['sister'] },
+    connects: false,
+    says: "My sister's staying with me. She had some in the night — she said it tasted like water.",
+    fix: { id: 'register-her', line: 'Only people registered on the account get the draught. We can add her.' },
+  },
+  {
     id: 'rinsed-it-out',
     reach: [['bed'], ['rinse']],
+    hints: { empty: ['stale'], refill: ['stale'] },
     connects: false,
     says: "Nothing. I rinsed it out before bed, it had gone a bit stale.",
     fix: { id: 'leave-it-dry', line: 'Leave it dry tonight and it fills.' },
@@ -80,12 +99,15 @@ const FAMILIES = {
   near: { adjacent: ['shelf'], flavours: ['plain', 'support'] },
   bed: { adjacent: ['sleep'], flavours: ['plain', 'routine'] },
   night: { adjacent: ['water', 'cup', 'thirst'], flavours: ['plain', 'routine'] },
-  charm: { adjacent: ['sister'], flavours: ['plain', 'support'] },
+  charm: { adjacent: [], flavours: ['plain', 'support'] },
   shelf: { adjacent: ['candle', 'cup', 'ring'], flavours: ['plain'] },
   cup: { adjacent: ['water'], flavours: ['plain'] },
+  sister: { adjacent: [], flavours: ['plain', 'support', 'blame'] },
+  household: { adjacent: ['sister'], flavours: ['plain', 'support'] },
   cord: { adjacent: [], flavours: ['plain'] },
   water: { adjacent: [], flavours: ['plain'] },
-  rinse: { adjacent: ['stale'], flavours: ['plain', 'blame'] },
+  rinse: { adjacent: [], flavours: ['plain', 'blame'] },
+  stale: { adjacent: ['rinse'], flavours: ['plain'] },
 };
 
 /** Flavour effects, in mood points. Blame is the expensive one. */

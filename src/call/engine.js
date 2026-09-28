@@ -32,13 +32,28 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
     holds: 0,
     partnerKnown: false,
     fieldsRead: [],
-    facts: 0,                 // verified + confirmed, feeds the brief
+    facts: 0,                 // anything learned, verified or confirmed
+    confirmed: 0,             // what she has told us — this feeds the brief
+    stale: 0,
     turnsLeft: TURNS - 1,
     rng,
     log: [],
     ending: null,
     refillUsed: false,
     taught: null,
+    ledger: {
+      flavours: { blame: 0, frustration: 0, support: 0, routine: 0, plain: 0 },
+      wasted: 0,
+      holdsAsked: 0,
+      holdsRefused: 0,
+      holdsEmpty: 0,
+      readsBeyondNeed: 0,
+      entitlement: 'not offered',
+      accessGiven: false,
+      identTurn: null,
+      lateFind: false,
+      findTurn: null,
+    },
   };
 
   state.log.push({ turn: 1, kind: 'opening', line: call.sheet.name
@@ -68,6 +83,9 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
         entry.discarded = label(swapCard);
       }
       const plays = agent.choosePlays(hand, view, rng);
+      for (const p of plays) {
+        state.ledger.flavours[p.flavour] = (state.ledger.flavours[p.flavour] || 0) + 1;
+      }
       entry.source = choice.source;
       entry.mode = choice.mode;
       entry.played = plays.map(label);
@@ -86,15 +104,18 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
           entry.result = 'cause surfaced';
         } else if (res.wasted) {
           entry.result = 'wasted';
+          state.stale += 1;
         } else {
           entry.result = 'spent';
-          state.facts += 1;
+          state.confirmed += 1;
         }
         for (const s of res.seeds) if (!call.pool.includes(s)) call.pool.push(s);
         if (res.seeds.length) entry.seeded = res.seeds.slice();
       }
     } else if (choice.kind === 'hold') {
+      state.ledger.holdsAsked += 1;
       if (!customer.acceptsHold(call, state.holds, rng)) {
+        state.ledger.holdsRefused += 1;
         entry.result = 'refused';
         entry.reply = "I'd rather you didn't, I've things to get on with.";
         call.mood = clampMood(call.mood - 1);
@@ -102,6 +123,7 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
         state.holds += 1;
         call.mood = clampMood(call.mood - (state.holds > 1 ? 1 : 0));
         if (!available) {
+          state.ledger.holdsEmpty += 1;
           entry.result = 'nobody who knows flasks is free';
         } else {
           const strength = briefStrength(state);
@@ -125,10 +147,13 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
         entry.result = 'cannot — nowhere to send her';
       } else {
         const allowance = allowanceFor(call.sheet.tier);
+        state.ledger.accessGiven = true;
         if (call.sheet.refillsUsed >= allowance) {
           entry.result = 'no complimentary refill left — half off instead';
+          state.ledger.entitlement = 'half off';
         } else {
           entry.result = 'complimentary refill arranged';
+          state.ledger.entitlement = 'complimentary';
           state.refillUsed = true;
         }
       }
@@ -137,6 +162,14 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
       entry.result = 'transferred';
     }
 
+    if (entry.result && String(entry.result).startsWith('wasted')) state.ledger.wasted += 1;
+    if (entry.result === 'cause surfaced') {
+      state.ledger.findTurn = turn;
+      state.ledger.lateFind = state.turnsLeft <= 1;
+    }
+    if (typeof entry.result === 'string' && entry.result.startsWith('identified')) {
+      state.ledger.identTurn = turn;
+    }
     state.log.push(entry);
     state.turnsLeft -= 1;
     turn += 1;
@@ -151,6 +184,13 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
 
   if (!state.ending) state.ending = state.fixGiven ? 'resolved' : 'case';
 
+  state.ledger.moodStart = customer.MOOD_START + sheet.opinion;
+  state.ledger.moodEnd = call.mood;
+  state.ledger.taught = state.taught;
+  state.ledger.caseWritten = state.ending === 'case';
+  state.ledger.cause = cause.id;
+  state.ledger.ending = state.ending;
+
   const outcome = {
     ending: state.ending,
     taught: state.taught,
@@ -162,6 +202,7 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
   return {
     cause: cause.id,
     ending: state.ending,
+    ledger: state.ledger,
     turnsUsed: TURNS - state.turnsLeft,
     mood: call.mood,
     log: state.log,
@@ -210,16 +251,46 @@ function applyCrm(state, call, plays, entry) {
     state.facts += 1;
     entry.result = `identified — ${call.sheet.name}`;
     entry.reply = call.sheet.name;
+    entry.paid = [used];
     return;
   }
   const fresh = words.filter((w) => !state.fieldsRead.includes(w));
   const found = [];
-  if (fresh.includes('subscription')) found.push(`subscription active, ${call.sheet.tier}`);
+  const paid = [];
+  if (fresh.includes('subscription')) {
+    found.push(`subscription active, ${call.sheet.tier}`); paid.push('subscription');
+  }
   if (fresh.includes('refills')) {
     found.push(`${allowanceFor(call.sheet.tier) - call.sheet.refillsUsed} refills left`);
+    paid.push('refills');
   }
-  if (fresh.includes('address')) { found.push('address on file'); state.partnerKnown = true; }
+  if (fresh.includes('address')) {
+    found.push('address on file'); paid.push('address'); state.partnerKnown = true;
+  }
+  if (fresh.includes('minions')) {
+    // Registration is what decides whether a drinker gets draught or
+    // water, so this is the field that can put another person in play.
+    // Reading it before anything suggests another person is prying into
+    // who lives with her — which is a real cost, and sometimes the only
+    // way to find the answer. That tension is the point.
+    const suggested = call.pool.includes('sister') || call.pool.includes('household')
+      || call.said.has('sister');
+    if (!suggested) state.ledger.readsBeyondNeed += 1;
+    found.push('one registered minion; another person in the household is not');
+    paid.push('minions');
+    if (!call.pool.includes('household')) call.pool.push('household');
+  }
+  if (fresh.includes('orders')) {
+    found.push(`last refill collected ${9 + (call.sheet.refillsUsed * 10)} days ago`);
+    paid.push('orders');
+  }
+  if (fresh.includes('billing')) {
+    found.push('paid to date, no lapse');
+    paid.push('billing');
+    state.billingChecked = true;
+  }
   for (const w of fresh) state.fieldsRead.push(w);
+  entry.paid = paid;
   if (!found.length) {
     entry.result = words.length && fresh.length === 0
       ? 'wasted — already read'
@@ -230,9 +301,17 @@ function applyCrm(state, call, plays, entry) {
   }
 }
 
+/**
+ * What the coworker can give back.
+ *
+ * Only what she has *confirmed* counts. Reading her record tells the
+ * coworker nothing they need — which is why an agent who identifies her
+ * and holds immediately gets the thin brief, and the bottom rung of the
+ * ladder is reachable.
+ */
 function briefStrength(state) {
-  if (state.facts >= 3) return 5;
-  if (state.facts >= 2) return 3;
+  if (state.confirmed >= 3) return 5;
+  if (state.confirmed >= 1) return 3;
   return 1;
 }
 

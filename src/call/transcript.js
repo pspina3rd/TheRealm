@@ -7,6 +7,7 @@
  * it produced does. This exists so a run can be printed and judged.
  */
 function render(result, opts = {}) {
+  const { score } = require('./score');
   const lines = [];
   const head = `— ${opts.title || 'call'} — cause: ${result.cause} — ending: ${result.ending}`
     + ` — turns: ${result.turnsUsed} — mood: ${result.mood}`;
@@ -25,6 +26,15 @@ function render(result, opts = {}) {
     if (e.result) lines.push(`     → ${e.result}`);
     if (e.reply) lines.push(`     CALLER   ${e.reply}`);
     if (e.line) lines.push(`     YOU      ${e.line}`);
+  }
+  if (result.ledger) {
+    const s = score(result.ledger);
+    for (const [who, axes] of Object.entries(s)) {
+      const won = Object.entries(axes).filter(([, v]) => v > 0).map(([k]) => k);
+      const lost = Object.entries(axes).filter(([, v]) => v < 0).map(([k]) => k);
+      lines.push(`  ${who.padEnd(11)} won: ${won.join(', ') || '—'}`);
+      lines.push(`  ${''.padEnd(11)} lost: ${lost.join(', ') || '—'}`);
+    }
   }
   return lines.join('\n');
 }

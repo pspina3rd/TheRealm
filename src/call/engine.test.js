@@ -35,11 +35,13 @@ test('the agent is never handed the cause', () => {
   }
 });
 
-test('the brief is built from what the agent holds', () => {
-  assert.strictEqual(briefName(briefStrength({ facts: 0 })), 'oversimplified');
-  assert.strictEqual(briefName(briefStrength({ facts: 2 })), 'generalized');
-  assert.strictEqual(briefName(briefStrength({ facts: 4 })), 'organized');
-  assert.ok(briefStrength({ facts: 4 }) > briefStrength({ facts: 0 }));
+test('the brief is built from what she has confirmed, not what was read', () => {
+  // Reading her record tells the coworker nothing they need. An agent
+  // who identifies her and holds immediately gets the thin brief, which
+  // is the bottom rung the ladder needs in order to exist.
+  assert.strictEqual(briefName(briefStrength({ confirmed: 0, facts: 9 })), 'oversimplified');
+  assert.strictEqual(briefName(briefStrength({ confirmed: 1 })), 'generalized');
+  assert.strictEqual(briefName(briefStrength({ confirmed: 3 })), 'organized');
 });
 
 test('a full brief seeds more lines of inquiry than a thin one', () => {
@@ -57,7 +59,7 @@ test('a full brief seeds more lines of inquiry than a thin one', () => {
   }
   assert.ok(briefs.length > 5, 'expected holds across 60 calls');
   assert.ok(Math.max(...briefs) === 5);
-  assert.ok(Math.min(...briefs) >= 1);
+  assert.ok(Math.min(...briefs) === 1, 'the thin brief must be reachable');
 });
 
 test('the same CRM field does not pay twice', () => {
