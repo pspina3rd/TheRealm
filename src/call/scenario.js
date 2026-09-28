@@ -58,19 +58,6 @@ const CAUSES = [
     fix: { id: 'nothing-broken', line: "Nothing's broken. It fills again tonight." },
   },
   {
-    id: 'unregistered-drinker',
-    // Only reachable once the record has shown who else is in the
-    // household: an unregistered person drinking it gets water, and the
-    // flask is empty by morning either way.
-    reach: [['sister'], ['household']],
-    // She mentions who is in the house when asked about her night, not
-    // when asked about her flask.
-    hints: { night: ['sister'], bed: ['sister'], morning: ['sister'] },
-    connects: false,
-    says: "My sister's staying with me. She had some in the night — she said it tasted like water.",
-    fix: { id: 'register-her', line: 'Only people registered on the account get the draught. We can add her.' },
-  },
-  {
     id: 'rinsed-it-out',
     reach: [['bed'], ['rinse']],
     hints: { empty: ['stale'], refill: ['stale'] },
@@ -102,8 +89,6 @@ const FAMILIES = {
   charm: { adjacent: [], flavours: ['plain', 'support'] },
   shelf: { adjacent: ['candle', 'cup', 'ring'], flavours: ['plain'] },
   cup: { adjacent: ['water'], flavours: ['plain'] },
-  sister: { adjacent: [], flavours: ['plain', 'support', 'blame'] },
-  household: { adjacent: ['sister'], flavours: ['plain', 'support'] },
   cord: { adjacent: [], flavours: ['plain'] },
   water: { adjacent: [], flavours: ['plain'] },
   rinse: { adjacent: [], flavours: ['plain', 'blame'] },

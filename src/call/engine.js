@@ -268,17 +268,13 @@ function applyCrm(state, call, plays, entry) {
     found.push('address on file'); paid.push('address'); state.partnerKnown = true;
   }
   if (fresh.includes('minions')) {
-    // Registration is what decides whether a drinker gets draught or
-    // water, so this is the field that can put another person in play.
-    // Reading it before anything suggests another person is prying into
-    // who lives with her — which is a real cost, and sometimes the only
-    // way to find the answer. That tension is the point.
-    const suggested = call.pool.includes('sister') || call.pool.includes('household')
-      || call.said.has('sister');
-    if (!suggested) state.ledger.readsBeyondNeed += 1;
-    found.push('one registered minion; another person in the household is not');
+    // Minions are authorized users. An end customer with a flask by her
+    // bed has none, so this closes a line rather than opening one — and
+    // reading who else may use her account, with nothing suggesting
+    // anyone does, is prying.
+    state.ledger.readsBeyondNeed += 1;
+    found.push('no authorized users on the account');
     paid.push('minions');
-    if (!call.pool.includes('household')) call.pool.push('household');
   }
   if (fresh.includes('orders')) {
     found.push(`last refill collected ${9 + (call.sheet.refillsUsed * 10)} days ago`);

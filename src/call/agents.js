@@ -66,6 +66,23 @@ function makeAgent({ name, competence }) {
       const source = sloppy && hand.length ? hand : order;
       if (!source.length) return [];
 
+      // On the record, the fields that bear on a flask are the ones an
+      // agent should reach for. Reading who else may use her account,
+      // with nothing suggesting anyone does, is prying — and a poor
+      // agent does it because it is there.
+      const bearing = ['subscription', 'refills', 'address', 'name',
+        'account number', 'subscription number', 'phone'];
+      const onRecord = source.filter((c) => c.source === 'crm');
+      if (onRecord.length && chance(0.3 + skill * 0.65, rng)) {
+        const useful = onRecord.filter((c) => bearing.includes(c.word));
+        if (useful.length) {
+          const a = pick(useful, rng);
+          const b = useful.filter((c) => c.word !== a.word);
+          if (b.length && chance(0.3 + skill * 0.5, rng)) return [a, pick(b, rng)];
+          return [a];
+        }
+      }
+
       // What a coworker named is worth more than what came off the top
       // of her own words.
       const expert = source.filter((c) => COWORKER_WORDS.includes(c.word));
