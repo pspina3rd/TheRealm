@@ -17,7 +17,7 @@ test('before identification the CRM only deals ways in', () => {
 test('after identification the CRM deals fields', () => {
   const deck = buildDeck({ pool: [], identified: true, source: 'crm', mode: 'expand' });
   const words = new Set(deck.map((c) => c.word));
-  assert.ok(words.has('refills'));
+  assert.ok(words.has('subscriptions'));
   assert.ok(!words.has('name'));
 });
 

@@ -35,7 +35,7 @@ const CAUSES = [
     hints: { vial: ['stopper'], refill: ['vial'] },
     // She knows the answer the moment she is asked the question.
     connects: true,
-    says: "…the stopper. I decanted some into a vial for my sister and I don't think I put it back.",
+    says: "…the stopper. I had it out to pour some off, and I don't think I put it back.",
     fix: { id: 'stopper-in', line: 'Stoppered tonight and it fills as normal.' },
   },
   {
@@ -45,7 +45,7 @@ const CAUSES = [
     // reached by the coworker's lines; a cause with one can be walked to.
     hints: { shelf: ['charm'], near: ['charm'] },
     connects: false,
-    says: "My sister gave me a charm last week. It's up on the shelf.",
+    says: "There's a charm up there I hadn't thought about.",
     fix: { id: 'move-charm', line: 'Two enchantments that close will interfere. Move it and it fills tonight.' },
   },
   {
@@ -58,12 +58,23 @@ const CAUSES = [
     fix: { id: 'nothing-broken', line: "Nothing's broken. It fills again tonight." },
   },
   {
-    id: 'rinsed-it-out',
-    reach: [['bed'], ['rinse']],
+    // The open slot. The record names only "did something she didn't think
+    // mattered" (settled.md:2020) — naming one act would hand the player a
+    // catalogue, which is what supportCall.js exists to prevent. So the
+    // particular act is drawn per call and the way to it never changes.
+    id: 'did-something-she-didnt-think-mattered',
+    reach: [['bed']],
     hints: { empty: ['stale'], refill: ['stale'] },
     connects: false,
-    says: "Nothing. I rinsed it out before bed, it had gone a bit stale.",
-    fix: { id: 'leave-it-dry', line: 'Leave it dry tonight and it fills.' },
+    acts: [
+      "Nothing. I rinsed it out before bed, it had gone a bit stale.",
+      "Nothing… I moved it while I was cleaning, it was back before dark.",
+      "Nothing. I lent it out for an hour, it came straight back.",
+      "Nothing. It was in my bag most of the day, if that counts.",
+      "Nothing. I left it by the fire to take the chill off it.",
+      "Nothing. I topped it up from the jug — it looked low.",
+    ],
+    fix: { id: 'leave-it-be', line: 'Leave it as it is tonight and it fills.' },
   },
 ];
 
@@ -104,8 +115,13 @@ const FLAVOUR_COST = {
   blame: -2,
 };
 
-/** CRM fields, dealt once an account has been contracted to. */
-const CRM_FIELDS = ['subscription', 'refills', 'address', 'billing', 'orders', 'minions'];
+/**
+ * What a search returns, exactly as the record lists it (settled.md:872):
+ * Billing, Account History, Order History, Subscriptions, Minions.
+ * Entitlement sits under subscriptions and the address under account
+ * history, rather than being fields of their own.
+ */
+const CRM_FIELDS = ['billing', 'account history', 'order history', 'subscriptions', 'minions'];
 
 /** Ways in. Only these are dealable before identification. */
 const IDENTIFIERS = ['name', 'account number', 'subscription number', 'phone'];

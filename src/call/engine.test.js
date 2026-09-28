@@ -69,11 +69,11 @@ test('the same CRM field does not pay twice', () => {
     chooseDiscard() { return null; },
     choosePlays(hand, view) {
       if (!view.identified) return hand.filter((c) => c.word === 'name').slice(0, 1);
-      return hand.filter((c) => c.word === 'subscription').slice(0, 1);
+      return hand.filter((c) => c.word === 'subscriptions').slice(0, 1);
     },
   };
   const r = playCall({ sheet: sheet(), agent, rng: seededRng(7) });
-  const reads = r.log.filter((e) => e.result && String(e.result).includes('subscription active'));
+  const reads = r.log.filter((e) => e.result && String(e.result).includes('refills left'));
   assert.strictEqual(reads.length, 1, 'a record read twice should be a wasted turn');
   assert.ok(r.log.some((e) => e.result === 'wasted — already read'));
 });
@@ -87,7 +87,7 @@ test('when nobody knows flasks, the hold returns nothing', () => {
   }
 });
 
-test('an unfound cause ends as a case, not a failure state', () => {
+test('an unfound cause is held, not failed', () => {
   const agent = {
     knowsApothecaries: false,
     chooseTurn() { return { kind: 'inquiry', source: 'crm', mode: 'expand' }; },
@@ -95,7 +95,7 @@ test('an unfound cause ends as a case, not a failure state', () => {
     choosePlays() { return []; },
   };
   const r = playCall({ sheet: sheet(), agent, rng: seededRng(2) });
-  assert.strictEqual(r.ending, 'case');
+  assert.strictEqual(r.ending, 'hold');
 });
 
 test('skill moves outcomes', () => {
@@ -107,7 +107,7 @@ test('skill moves outcomes', () => {
         agent: makeAgent({ name: 'a', competence }),
         rng: seededRng(s),
       });
-      if (r.ending === 'resolved') resolved += 1;
+      if (r.ending === 'resolve') resolved += 1;
     }
     return resolved;
   };
@@ -121,4 +121,51 @@ test('a call is reproducible from its seed', () => {
   const b = playCall({ sheet: sheet(), agent: makeAgent({ name: 'a', competence: 0.6 }), rng: seededRng(21) });
   assert.deepStrictEqual(a.log, b.log);
   assert.strictEqual(a.cause, b.cause);
+});
+
+test('there are three outcomes and no fourth', () => {
+  const seen = new Set();
+  for (let s = 1; s <= 400; s++) {
+    const rng = seededRng(s);
+    const r = playCall({
+      sheet: require('./customer').newSheet({ name: 'Sella Brandt' }, rng),
+      agent: makeAgent({ name: 'a', competence: (s % 10) / 10 }),
+      rng,
+    });
+    seen.add(r.ending);
+  }
+  assert.deepStrictEqual(Array.from(seen).sort(), ['hold', 'resolve', 'transfer']);
+});
+
+test('the open-slot cause draws a different act per call', () => {
+  const lines = new Set();
+  for (let s = 1; s <= 300; s++) {
+    const rng = seededRng(s);
+    const r = playCall({
+      sheet: require('./customer').newSheet({ name: 'Sella Brandt' }, rng),
+      agent: makeAgent({ name: 'a', competence: 0.9 }),
+      rng,
+    });
+    if (r.cause !== 'did-something-she-didnt-think-mattered') continue;
+    for (const e of r.log) {
+      if (e.result === 'cause surfaced') lines.add(e.reply);
+    }
+  }
+  assert.ok(lines.size > 1, `the open slot only ever said: ${Array.from(lines).join(' | ')}`);
+});
+
+test('she can reach for the door herself, and it lands as transfer or a callback', () => {
+  let escalations = 0;
+  for (let s = 1; s <= 400; s++) {
+    const rng = seededRng(s);
+    const r = playCall({
+      sheet: require('./customer').newSheet({ name: 'Sella Brandt' }, rng),
+      agent: makeAgent({ name: 'a', competence: 0.1 }),
+      rng,
+    });
+    if (!r.ledger.escalated) continue;
+    escalations += 1;
+    assert.ok(r.ending === 'transfer' || (r.ending === 'hold' && r.ledger.callback));
+  }
+  assert.ok(escalations > 5, `only ${escalations} escalations in 400 poor calls`);
 });

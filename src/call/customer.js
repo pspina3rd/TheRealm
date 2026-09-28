@@ -21,14 +21,22 @@ const MOOD_START = 5;
 const MOOD_FLOOR = 0;
 const MOOD_CEILING = 8;
 
+const TIERS = ['Copper', 'Silver', 'Gold'];
+
 /**
  * A fresh sheet for a first-time caller.
- * @param {{name: string, tier: 'Copper'|'Silver'|'Gold'}} who
+ *
+ * The tier is rolled rather than given: the record never assigns Sella one,
+ * and what matters is that a tier exists on the sheet and has to be looked
+ * up. The same call plays differently for a Copper and a Gold.
+ *
+ * @param {{name: string, tier?: string}} who
+ * @param {() => number} [rng]
  */
-function newSheet(who) {
+function newSheet(who, rng = Math.random) {
   return {
     name: who.name,
-    tier: who.tier,
+    tier: who.tier || TIERS[Math.floor(rng() * TIERS.length)],
     refillsUsed: 0,
     opinion: 0,          // how she feels about the co-op, -3..+3
     knows: [],           // causes somebody has explained to her
@@ -49,6 +57,10 @@ function openCall(sheet) {
     pool: SYMPTOM.words.slice(),
     revealed: null,
     recent: SYMPTOM.words.slice(),
+    // The last three turns, for the repetition check (settled.md:746). Both
+    // halves count: which door was used, and what it was aimed at.
+    doors: [],
+    subjects: [],
     turnsTaken: 0,
   };
 }
@@ -74,9 +86,24 @@ function reaches(cause, words) {
  * @param {Array<{word: string, flavour: string}>} cards one or two
 * @returns {{line: string, seeds: string[], reached: (string|null), wasted: boolean, mood: number}}
  */
-function ask(call, hidden, cards) {
+function ask(call, hidden, cards, door) {
   const words = cards.map((c) => c.word);
   let mood = 0;
+
+  // A third check of the same thing is dangerous for anyone (settled.md:748).
+  // A new apprentice is softly limited, not hard-limited (settled.md:752), so
+  // this costs rather than forbids.
+  const recentSubjects = call.subjects.slice(-6);
+  const doorRuns = call.doors.slice(-3).filter((d) => d === door).length;
+  // "A third check of the same thing is dangerous for anyone" — so the cost
+  // lands on the third, not the second (settled.md:748).
+  const thirdCheck = words.some(
+    (w) => recentSubjects.filter((x) => x === w).length >= 2,
+  );
+  if (doorRuns >= 2) mood -= 1; // the third use of the same door, as above
+  if (thirdCheck) mood -= 1;
+  if (door) call.doors.push(door);
+  for (const w of words) call.subjects.push(w);
   for (const c of cards) mood += FLAVOUR_COST[c.flavour] || 0;
 
   // Asking for something she has already given costs her patience and
@@ -115,6 +142,7 @@ function ask(call, hidden, cards) {
       // Don't hand back something already in play, or something she has
       // already been asked about.
       if (call.pool.includes(adj) || call.said.has(adj) || seeds.includes(adj)) continue;
+      if (words.includes(adj)) continue; // don't offer back what was just asked
       seeds.push(adj);
     }
   }
@@ -163,7 +191,7 @@ function acceptsHold(call, holdsSoFar, rng) {
 /** End of call: what survives, and what she was taught. */
 function writeBack(call, outcome) {
   const sheet = call.sheet;
-  const felt = Math.abs(call.mood - MOOD_START) >= 2 || outcome.ending !== 'resolved';
+  const felt = Math.abs(call.mood - MOOD_START) >= 2 || outcome.ending !== 'resolve';
   const next = {
     ...sheet,
     opinion: clamp3(sheet.opinion + opinionDelta(call, outcome)),
@@ -179,8 +207,8 @@ function writeBack(call, outcome) {
 }
 
 function opinionDelta(call, outcome) {
-  if (outcome.ending === 'resolved') return call.mood >= MOOD_START ? 1 : 0;
-  if (outcome.ending === 'case') return -1;
+  if (outcome.ending === 'resolve') return call.mood >= MOOD_START ? 1 : 0;
+  if (outcome.ending === 'hold') return -1;
   if (outcome.ending === 'transfer') return 0;
   return -2; // she gave up on the call
 }

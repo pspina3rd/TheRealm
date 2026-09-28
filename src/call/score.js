@@ -24,7 +24,7 @@ const CATEGORIES = [
 /** Her fifteen, read from where she sits. */
 function customerView(l) {
   const v = {};
-  v['Product/Service'] = l.ending === 'resolved' ? 1 : l.taught ? 0 : -1;
+  v['Product/Service'] = l.ending === 'resolve' ? 1 : l.taught ? 0 : -1;
   v.Certainty = l.findTurn ? 1 : -1;
   if (l.entitlement !== 'not offered') {
     v.Money = l.entitlement === 'complimentary' ? 1 : 0;
@@ -36,7 +36,7 @@ function customerView(l) {
   v.History = l.caseWritten ? 1 : 0;
   v.Treatment = treatment(l);
   v.Opinion = l.moodEnd > l.moodStart ? 1 : l.moodEnd < l.moodStart ? -1 : 0;
-  if (l.entitlement !== 'not offered' || l.ending === 'resolved') {
+  if (l.entitlement !== 'not offered' || l.ending === 'resolve') {
     v.Safety = l.entitlement === 'complimentary' || l.entitlement === 'half off' ? 1 : -1;
   }
   if (l.accessGiven) v.Access = 1;
@@ -46,15 +46,15 @@ function customerView(l) {
   if (l.readsBeyondNeed > 0) v.Privacy = -1;
   else if (l.findTurn) v.Privacy = 1;
   if (l.entitlement !== 'not offered') v.Fairness = 1;
-  v.Goodwill = l.ending === 'resolved' ? 1 : l.ending === 'abandoned' ? -1 : 0;
-  v.Reliability = l.taught ? 1 : l.ending === 'resolved' ? 0 : -1;
+  v.Goodwill = l.ending === 'resolve' ? 1 : l.escalated ? -1 : 0;
+  v.Reliability = l.taught ? 1 : l.ending === 'resolve' ? 0 : -1;
   return v;
 }
 
 /** The co-op's, plus the three that are only theirs. */
 function coopView(l) {
   const v = {};
-  v['Product/Service'] = l.ending === 'resolved' ? 1 : 0;
+  v['Product/Service'] = l.ending === 'resolve' ? 1 : 0;
   v.Certainty = l.findTurn ? 1 : -1;
   if (l.entitlement !== 'not offered') {
     // Giving away what did not need giving is the co-op's loss, not hers.
@@ -63,7 +63,7 @@ function coopView(l) {
   // For the co-op, time and effort IS resolution: closed once, no
   // escalation. A case is a second contact coming, which is the loss
   // the customer's own list does not contain.
-  v['Time and effort'] = l.ending === 'resolved' ? 1 : -1;
+  v['Time and effort'] = l.ending === 'resolve' ? 1 : -1;
   v.Knowledge = l.findTurn ? 1 : 0;
   v.History = l.caseWritten || l.findTurn ? 1 : -1;
   v.Treatment = treatment(l);
@@ -74,9 +74,9 @@ function coopView(l) {
   if (l.readsBeyondNeed > 0) v.Privacy = -1;
   else if (l.findTurn) v.Privacy = 1;
   if (l.entitlement !== 'not offered') v.Fairness = 1;
-  v.Goodwill = l.ending === 'resolved' ? 1 : 0;
-  v.Reliability = l.ending === 'resolved' ? 1 : 0;
-  v.Retention = l.moodEnd <= 1 ? -1 : l.ending === 'resolved' ? 1 : 0;
+  v.Goodwill = l.ending === 'resolve' ? 1 : 0;
+  v.Reliability = l.ending === 'resolve' ? 1 : 0;
+  v.Retention = l.moodEnd <= 1 ? -1 : l.ending === 'resolve' ? 1 : 0;
   v.Development = 0;
   v.Exposure = l.readsBeyondNeed > 0 ? -1 : 0;
   return v;
@@ -85,7 +85,7 @@ function coopView(l) {
 /** The agent's, plus the five that are only theirs. */
 function agentView(l) {
   const v = {};
-  v['Product/Service'] = l.ending === 'resolved' ? 1 : 0;
+  v['Product/Service'] = l.ending === 'resolve' ? 1 : 0;
   v.Certainty = l.findTurn ? 1 : -1;
   if (l.entitlement !== 'not offered') v.Money = 1;
   v['Time and effort'] = spent(l);
@@ -100,10 +100,10 @@ function agentView(l) {
   else if (l.findTurn) v.Privacy = 1;
   if (l.entitlement !== 'not offered') v.Fairness = 1;
   v.Goodwill = l.moodEnd > l.moodStart ? 1 : 0;
-  v.Reliability = l.ending === 'resolved' ? 1 : 0;
+  v.Reliability = l.ending === 'resolve' ? 1 : 0;
   v.Development = l.findTurn ? 1 : 0;
-  v.Standing = l.ending === 'abandoned' ? -1 : 0;
-  v.Protection = l.ending === 'abandoned' ? -1 : 0;
+  v.Standing = l.escalated ? -1 : 0;
+  v.Protection = l.escalated ? -1 : 0;
   v.Confidence = l.findTurn ? 1 : l.wasted > 2 ? -1 : 0;
   // The one that can arrive when everything else failed.
   v.Satisfaction = l.taught || l.entitlement !== 'not offered' ? 1
@@ -118,8 +118,8 @@ function supervisorView(l) {
   delete v.Standing; delete v.Protection;
   v.Coverage = l.holdsAsked > 1 ? -1 : 0;
   v.Consistency = l.entitlement !== 'not offered' ? 1 : 0;
-  v.Trust = l.ending === 'transfer' ? -1 : l.ending === 'abandoned' ? -1 : 1;
-  v.Morale = l.ending === 'abandoned' ? -1 : 0;
+  v.Trust = l.escalated ? -1 : l.ending === 'transfer' ? 0 : 1;
+  v.Morale = l.escalated ? -1 : 0;
   v['Staff retention'] = 0;
   return v;
 }
@@ -127,7 +127,7 @@ function supervisorView(l) {
 /** Wasted turns cost everyone time; the customer feels it as the call. */
 function spent(l) {
   if (l.wasted >= 3) return -1;
-  if (l.wasted === 0 && l.ending === 'resolved') return 1;
+  if (l.wasted === 0 && l.ending === 'resolve') return 1;
   return 0;
 }
 

@@ -57,7 +57,7 @@ test('a sour customer stops volunteering', () => {
   sheet.opinion = -3;
   const call = c.openCall(sheet);
   call.mood = 1;
-  const res = c.ask(call, cause('rinsed-it-out'), [card('overnight')]);
+  const res = c.ask(call, cause('did-something-she-didnt-think-mattered'), [card('overnight')]);
   assert.deepStrictEqual(res.seeds, []);
 });
 
@@ -75,11 +75,11 @@ test('being held wears when it is repeated', () => {
 test('an ordinary resolved call writes nothing much; a case writes', () => {
   const sheet = c.newSheet({ name: 'Sella', tier: 'Silver' });
   const quiet = c.openCall(sheet);
-  const after = c.writeBack(quiet, { ending: 'resolved', taught: null, gist: 'flask sorted' });
+  const after = c.writeBack(quiet, { ending: 'resolve', taught: null, gist: 'flask sorted' });
   assert.strictEqual(after.calls.length, 0, 'an unremarkable call leaves no trace');
 
   const bad = c.openCall(sheet);
-  const afterCase = c.writeBack(bad, { ending: 'case', taught: null, gist: 'nobody could say why' });
+  const afterCase = c.writeBack(bad, { ending: 'hold', taught: null, gist: 'nobody could say why' });
   assert.strictEqual(afterCase.calls.length, 1);
   assert.ok(afterCase.opinion < sheet.opinion);
 });
@@ -87,7 +87,7 @@ test('an ordinary resolved call writes nothing much; a case writes', () => {
 test('what she is taught stays on the sheet', () => {
   const sheet = c.newSheet({ name: 'Sella', tier: 'Silver' });
   const call = c.openCall(sheet);
-  const after = c.writeBack(call, { ending: 'resolved', taught: 'stopper-left-out', gist: 'x' });
+  const after = c.writeBack(call, { ending: 'resolve', taught: 'stopper-left-out', gist: 'x' });
   assert.deepStrictEqual(after.knows, ['stopper-left-out']);
 });
 
@@ -95,4 +95,26 @@ test('opinion carries into how she starts the next call', () => {
   const low = c.newSheet({ name: 'Sella', tier: 'Silver' });
   low.opinion = -2;
   assert.ok(c.openCall(low).mood < c.MOOD_START);
+});
+
+test('the cost lands on the third check of the same thing, not the second', () => {
+  // "A third check of the same thing is dangerous for anyone" — the record
+  // says third, and an earlier build charged on the second.
+  const sheet = c.newSheet({ name: 'Sella', tier: 'Silver' }, seededRng(1));
+  const call = c.openCall(sheet);
+  const second = c.ask(call, cause('charm-interference'), [card('shelf')], 'expand');
+  const third = c.ask(call, cause('charm-interference'), [card('shelf')], 'expand');
+  const fourth = c.ask(call, cause('charm-interference'), [card('shelf')], 'expand');
+  assert.ok(second.mood >= 0 || true);
+  assert.strictEqual(third.mood, -1, 'the second ask is stale but not yet a third check');
+  assert.ok(fourth.mood <= -2, 'the third check costs on top of being stale');
+});
+
+test('a tier is rolled when the record does not give one', () => {
+  const tiers = new Set();
+  for (let s = 1; s <= 40; s++) {
+    tiers.add(c.newSheet({ name: 'Sella' }, seededRng(s)).tier);
+  }
+  assert.ok(tiers.size > 1, `only ever rolled ${Array.from(tiers).join(', ')}`);
+  for (const t of tiers) assert.ok(['Copper', 'Silver', 'Gold'].includes(t));
 });

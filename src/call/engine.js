@@ -21,7 +21,10 @@ const HAND = 5;
  * turn, which is what makes the hold expensive.
  */
 function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
-  const cause = pick(CAUSES, rng);
+  const rolled = pick(CAUSES, rng);
+  // The open slot's particular act is drawn per call, so the player learns
+  // the shape of the question rather than a list of answers.
+  const cause = rolled.acts ? { ...rolled, says: pick(rolled.acts, rng) } : rolled;
   const call = customer.openCall(sheet);
   const available = coworkerAvailable === null ? chance(0.75, rng) : coworkerAvailable;
 
@@ -95,7 +98,7 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
       } else if (choice.source === 'crm') {
         applyCrm(state, call, plays, entry);
       } else {
-        const res = customer.ask(call, cause, plays);
+        const res = customer.ask(call, cause, plays, choice.mode);
         call.mood = clampMood(call.mood + res.mood);
         entry.reply = res.line;
         entry.mood = call.mood;
@@ -159,7 +162,7 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
       }
     } else if (choice.kind === 'transfer') {
       state.ending = 'transfer';
-      entry.result = 'transferred';
+      entry.result = 'transferred to another department';
     }
 
     if (entry.result && String(entry.result).startsWith('wasted')) state.ledger.wasted += 1;
@@ -174,20 +177,34 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
     state.turnsLeft -= 1;
     turn += 1;
 
-    if (call.mood <= 0) {
-      state.ending = 'abandoned';
-      state.log.push({ turn, kind: 'customer', result: 'asks for someone else' });
+    if (call.mood <= 0 && !state.ending) {
+      // Either side can reach for the door (settled.md:1392). Hers is asking
+      // for someone else. The apprentice does not know who picks up
+      // (settled.md:1396), and if nobody is available it becomes a callback
+      // logged in the case (settled.md:1413).
+      const manager = chance(0.6, rng);
+      state.ledger.escalated = true;
+      if (manager) {
+        state.ending = 'transfer';
+        state.log.push({ turn, kind: 'escalation', result: 'she asks for someone else; a manager takes it' });
+      } else {
+        state.ending = 'hold';
+        state.ledger.callback = true;
+        state.log.push({ turn, kind: 'escalation', result: 'she asks for someone else; nobody free, logged as a callback' });
+      }
     }
-    if (state.fixGiven && (state.refillUsed || state.offerAttempted)) state.ending = 'resolved';
-    if (state.fixGiven && state.turnsLeft === 0) state.ending = 'resolved';
+    if (state.fixGiven && (state.refillUsed || state.offerAttempted)) state.ending = 'resolve';
+    if (state.fixGiven && state.turnsLeft === 0) state.ending = 'resolve';
   }
 
-  if (!state.ending) state.ending = state.fixGiven ? 'resolved' : 'case';
+  // Three outcomes, and no fourth. A call nobody could answer today is held:
+  // the case is where it lives until someone comes back to her.
+  if (!state.ending) state.ending = state.fixGiven ? 'resolve' : 'hold';
 
   state.ledger.moodStart = customer.MOOD_START + sheet.opinion;
   state.ledger.moodEnd = call.mood;
   state.ledger.taught = state.taught;
-  state.ledger.caseWritten = state.ending === 'case';
+  state.ledger.caseWritten = state.ending === 'hold';
   state.ledger.cause = cause.id;
   state.ledger.ending = state.ending;
 
@@ -257,33 +274,31 @@ function applyCrm(state, call, plays, entry) {
   const fresh = words.filter((w) => !state.fieldsRead.includes(w));
   const found = [];
   const paid = [];
-  if (fresh.includes('subscription')) {
-    found.push(`subscription active, ${call.sheet.tier}`); paid.push('subscription');
+  if (fresh.includes('subscriptions')) {
+    found.push(`${call.sheet.tier}, active, `
+      + `${allowanceFor(call.sheet.tier) - call.sheet.refillsUsed} refills left`);
+    paid.push('subscriptions');
+    state.entitlementKnown = true;
   }
-  if (fresh.includes('refills')) {
-    found.push(`${allowanceFor(call.sheet.tier) - call.sheet.refillsUsed} refills left`);
-    paid.push('refills');
+  if (fresh.includes('account history')) {
+    found.push('address on file; no changes this term');
+    paid.push('account history');
+    state.partnerKnown = true;
   }
-  if (fresh.includes('address')) {
-    found.push('address on file'); paid.push('address'); state.partnerKnown = true;
-  }
-  if (fresh.includes('minions')) {
-    // Minions are authorized users. An end customer with a flask by her
-    // bed has none, so this closes a line rather than opening one — and
-    // reading who else may use her account, with nothing suggesting
-    // anyone does, is prying.
-    state.ledger.readsBeyondNeed += 1;
-    found.push('no authorized users on the account');
-    paid.push('minions');
-  }
-  if (fresh.includes('orders')) {
+  if (fresh.includes('order history')) {
     found.push(`last refill collected ${9 + (call.sheet.refillsUsed * 10)} days ago`);
-    paid.push('orders');
+    paid.push('order history');
   }
   if (fresh.includes('billing')) {
     found.push('paid to date, no lapse');
     paid.push('billing');
-    state.billingChecked = true;
+  }
+  if (fresh.includes('minions')) {
+    // Authorized users. She is an individual end customer, so there are none
+    // — and looking before anything suggests otherwise is prying.
+    state.ledger.readsBeyondNeed += 1;
+    found.push('no authorized users on the account');
+    paid.push('minions');
   }
   for (const w of fresh) state.fieldsRead.push(w);
   entry.paid = paid;
@@ -328,10 +343,10 @@ function label(card) {
 }
 
 function gistOf(state, cause) {
-  if (state.ending === 'resolved') return `flask sorted — ${cause.id}`;
-  if (state.ending === 'case') return 'rang about the flask, nobody could say why';
-  if (state.ending === 'transfer') return 'was passed on';
-  return 'rang about the flask and gave up on them';
+  if (state.ending === 'resolve') return `flask sorted — ${cause.id}`;
+  if (state.ending === 'transfer') return 'was passed on to someone else';
+  if (state.ledger.callback) return 'rang about the flask; someone is to ring her back';
+  return 'rang about the flask, nobody could say why';
 }
 
 module.exports = { playCall, allowanceFor, briefStrength, briefName, TURNS, HAND };

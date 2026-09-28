@@ -22,7 +22,7 @@ test('she reaches other people, not only the player', () => {
 
 test('the sheet carries between calls', () => {
   const { history, sheet } = runCustomer({ who, calls: 5, player, rng: seededRng(12) });
-  const remembered = history.filter((h) => h.ending !== 'resolved').length;
+  const remembered = history.filter((h) => h.ending !== 'resolve').length;
   assert.ok(sheet.calls.length <= history.length);
   assert.ok(sheet.calls.length >= Math.min(1, remembered));
   assert.ok(sheet.opinion >= -3 && sheet.opinion <= 3);

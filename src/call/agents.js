@@ -37,9 +37,11 @@ function makeAgent({ name, competence }) {
       if (view.facts >= 2 && view.holds === 0 && chance(0.2 + skill * 0.7, rng)) {
         return { kind: 'hold' };
       }
-      if (view.turnsLeft <= 2 && !view.revealed && chance(0.3 * (1 - skill), rng)) {
-        return { kind: 'transfer' };
-      }
+      // No transfer card exists just because the agent is stuck. It exists
+      // when something out of scope has appeared — and in this scenario a
+      // flask that won't refill is Subscriptions' own business, so the only
+      // door out is the one she reaches for.
+
       return inquiry(view, rng, skill);
     },
 
