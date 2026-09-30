@@ -56,7 +56,11 @@ const CAUSES = [
       "…it isn't. I untied it to pour some off and left it beside the flask.",
     ],
     of: 'stopper',
-    fix: { id: 'stopper-in', line: 'Stoppered tonight and it fills as normal.' },
+    fix: {
+      id: 'stopper-in',
+      line: 'Stoppered tonight and it fills as normal.',
+      reply: "That's it? I'll put it back on now.",
+    },
   },
   {
     id: 'charm-interference',
@@ -68,7 +72,11 @@ const CAUSES = [
       "My ring — it was enchanted last week. It's been up there a year, but that part is new.",
     ],
     of: 'ring',
-    fix: { id: 'move-charm', line: 'Two enchantments that close will interfere. Move one and it fills tonight.' },
+    fix: {
+      id: 'move-charm',
+      line: 'Two enchantments that close will interfere. Move one and it fills tonight.',
+      reply: "The charm can go on the mantel. It'll fill tonight, then?",
+    },
   },
   {
     id: 'drank-in-the-night',
@@ -79,7 +87,11 @@ const CAUSES = [
       "I woke up thirsty. I had a drink. The cup's always— …oh.",
     ],
     of: 'night',
-    fix: { id: 'nothing-broken', line: "Nothing's broken. It fills again tonight." },
+    fix: {
+      id: 'nothing-broken',
+      line: "Nothing's broken. It fills again tonight.",
+      reply: 'Nothing wrong with it at all. Right. And tonight?',
+    },
   },
   {
     // The open slot. The record names only "did something she didn't think
@@ -87,10 +99,9 @@ const CAUSES = [
     // catalogue, which is what supportCall.js exists to prevent.
     id: 'did-something-she-didnt-think-mattered',
     reach: [['bed']],
-    hints: { empty: ['stale'], refill: ['stale'] },
     connects: false,
     departures: [
-      "Nothing. I rinsed it out before bed, it had gone a bit stale.",
+      "Nothing. I rinsed it out before bed, it had a taste to it.",
       "Nothing… I moved it while I was cleaning, it was back before dark.",
       "Nothing. I lent it out for an hour, it came straight back.",
       "Nothing. It was in my bag most of the day, if that counts.",
@@ -98,7 +109,11 @@ const CAUSES = [
       "Nothing. I topped it up from the jug — it looked low.",
     ],
     of: 'bed',
-    fix: { id: 'leave-it-be', line: 'Leave it as it is tonight and it fills.' },
+    fix: {
+      id: 'leave-it-be',
+      line: 'Leave it as it is tonight and it fills.',
+      reply: "So I just leave it be. And that's all it was?",
+    },
   },
 ];
 
@@ -111,7 +126,7 @@ const COWORKER_WORDS = ['stopper', 'enchanted', 'near', 'bed', 'night'];
  * changes what it costs her, never what it reaches.
  */
 const FAMILIES = {
-  flask: { adjacent: ['vial'], flavours: ['plain'] },
+  flask: { adjacent: [], flavours: ['plain'] },
   refill: { adjacent: ['draught'], flavours: ['plain'] },
   overnight: { adjacent: ['night'], flavours: ['plain', 'routine'] },
   morning: { adjacent: [], flavours: ['plain', 'frustration'] },
@@ -126,8 +141,6 @@ const FAMILIES = {
   cup: { adjacent: ['water'], flavours: ['plain'] },
   cord: { adjacent: [], flavours: ['plain'] },
   water: { adjacent: [], flavours: ['plain'] },
-  rinse: { adjacent: [], flavours: ['plain', 'blame'] },
-  stale: { adjacent: ['rinse'], flavours: ['plain'] },
 };
 
 /** Flavour effects, in mood points. Blame is the expensive one. */

@@ -105,6 +105,7 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
       if (findPlays.length) {
         const c = CAUSES.find((x) => x.id === findPlays[0].causeId);
         entry.fix = c ? c.fix.line : '';
+        entry.fixReply = c ? c.fix.reply : '';
         entry.fixGiven = true;
         state.taught = findPlays[0].causeId;
         state.fixGiven = true;
