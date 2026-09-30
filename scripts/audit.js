@@ -23,6 +23,8 @@ const player = makeAgent({ name: 'you', competence });
 const count = (obj, k) => { obj[k] = (obj[k] || 0) + 1; };
 
 const endings = {};
+const byCause = {};
+const findTurns = {};
 const perspectives = {};
 const turnKinds = {};
 const results = {};
@@ -49,6 +51,15 @@ for (let seed = 1; seed <= runs; seed++) {
   for (const call of history) {
     calls += 1;
     count(endings, call.ending);
+    const cz = call.cause;
+    byCause[cz] = byCause[cz] || { calls: 0, found: 0, endings: {}, turns: [] };
+    byCause[cz].calls += 1;
+    byCause[cz].endings[call.ending] = (byCause[cz].endings[call.ending] || 0) + 1;
+    if (call.ledger.findTurn) {
+      byCause[cz].found += 1;
+      byCause[cz].turns.push(call.ledger.findTurn);
+      findTurns[call.ledger.findTurn] = (findTurns[call.ledger.findTurn] || 0) + 1;
+    }
     const s = score(call.ledger);
     for (const [who, axes] of Object.entries(s)) {
       perspectives[who] = perspectives[who] || {};
@@ -129,6 +140,19 @@ console.log(`  found on the last turn, no turn to act: ${lateCause}  ${pc(lateCa
 console.log(`identification cost: ${(identTurns / (identCalls || 1)).toFixed(2)} turns on average`
   + `, and failed entirely in ${calls - identCalls} calls (${pc(calls - identCalls, calls)})`);
 
+
+console.log('\n=== by cause — the same scenario with one thing different ===\n');
+for (const [cz, r] of Object.entries(byCause).sort((a, b) => b[1].found / b[1].calls - a[1].found / a[1].calls)) {
+  const avg = r.turns.length ? (r.turns.reduce((a, b) => a + b, 0) / r.turns.length).toFixed(1) : '—';
+  const ends = Object.entries(r.endings).sort((a, b) => b[1] - a[1])
+    .map(([e, n]) => `${e} ${pc(n, r.calls)}`).join('  ');
+  console.log(`  ${cz.padEnd(38)} ${String(r.calls).padStart(4)} calls  found ${pc(r.found, r.calls).padStart(6)}`
+    + `  avg turn ${String(avg).padStart(4)}   ${ends}`);
+}
+console.log('\nwhen the cause surfaces, by turn');
+for (const [t, n] of Object.entries(findTurns).sort((a, b) => Number(a[0]) - Number(b[0]))) {
+  console.log(`  turn ${t}  ${String(n).padStart(4)}  ${'#'.repeat(Math.round(n / 4))}`);
+}
 
 console.log('\n=== what each perspective got, by category ===');
 console.log('(live = calls where the axis was in play at all)\n');

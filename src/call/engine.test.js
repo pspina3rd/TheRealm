@@ -169,3 +169,25 @@ test('she can reach for the door herself, and it lands as transfer or a callback
   }
   assert.ok(escalations > 5, `only ${escalations} escalations in 400 poor calls`);
 });
+
+test('a find is a card in hand, so the hand shrinks rather than a turn being spent', () => {
+  // Phil's middle ground: the fix is neither free nor a whole turn. It sits
+  // in hand, and every candidate carried is one fewer fresh card dealt.
+  let sawPairedFix = 0;
+  let sawFixTurn = 0;
+  for (let s = 1; s <= 300; s++) {
+    const rng = seededRng(s);
+    const r = playCall({
+      sheet: require('./customer').newSheet({ name: 'Sella Brandt' }, rng),
+      agent: makeAgent({ name: 'a', competence: 0.9 }),
+      rng,
+    });
+    for (const e of r.log) {
+      assert.notStrictEqual(e.kind, 'fix', 'the separate fix turn should be gone');
+      if (e.fixGiven && e.played && e.played.length > 1) sawPairedFix += 1;
+      if (e.fixGiven) sawFixTurn += 1;
+    }
+  }
+  assert.ok(sawFixTurn > 20, `only ${sawFixTurn} fixes given in 300 calls`);
+  assert.ok(sawPairedFix > 0, 'a fix was never paired with another card');
+});

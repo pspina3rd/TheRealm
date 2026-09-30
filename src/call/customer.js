@@ -1,6 +1,6 @@
 'use strict';
 
-const { SYMPTOM, FAMILIES, FLAVOUR_COST } = require('./scenario');
+const { SYMPTOM, BASELINE, FAMILIES, FLAVOUR_COST } = require('./scenario');
 
 /**
  * The customer, and the only thing in the engine allowed to decide
@@ -56,6 +56,7 @@ function openCall(sheet) {
     said: new Set(),
     pool: SYMPTOM.words.slice(),
     revealed: null,
+    departure: null,   // set by the engine from the rolled cause
     recent: SYMPTOM.words.slice(),
     // The last three turns, for the repetition check (settled.md:746). Both
     // halves count: which door was used, and what it was aimed at.
@@ -115,7 +116,7 @@ function ask(call, hidden, cards, door) {
   if (reaches(hidden, words)) {
     for (const w of words) call.said.add(w);
     return {
-      line: hidden.says,
+      line: call.departure,
       seeds: [],
       reached: hidden.id,
       wasted: false,
@@ -153,23 +154,40 @@ function ask(call, hidden, cards, door) {
   // the detail nobody asked for, which is why keeping her that way is
   // worth more than any single question.
   if (room >= MOOD_START) {
-    const hints = hidden.hints || {};
-    for (const w of words) {
-      for (const hint of (hints[w] || [])) {
-        if (call.pool.includes(hint) || call.said.has(hint) || seeds.includes(hint)) continue;
-        seeds.push(hint);
-        break;
-      }
-    }
+    for (const hint of hintsFor(call, hidden, words, seeds)) seeds.push(hint);
   }
 
+  // If she was asked about something on her shelf that did not change, the
+  // answer is her normal one — a real answer that eliminates a line — and
+  // she is still talking, so what she volunteers comes out alongside it.
+  const baseline = fresh.find((w) => BASELINE[w]);
+
   return {
-    line: answerLine(fresh, seeds, budget),
+    line: baseline
+      ? (seeds.length
+        ? `${BASELINE[baseline]} …${seeds.join(' and ')}, if that matters.`
+        : BASELINE[baseline])
+      : answerLine(fresh, seeds, budget),
     seeds,
     reached: null,
-    wasted: seeds.length === 0 && budget === 0,
+    wasted: !baseline && seeds.length === 0 && budget === 0,
     mood,
   };
+}
+
+/** What this trouble makes her mention, given what she was just asked. */
+function hintsFor(call, hidden, words, already) {
+  const hints = hidden.hints || {};
+  const out = [];
+  for (const w of words) {
+    for (const hint of (hints[w] || [])) {
+      if (call.pool.includes(hint) || call.said.has(hint)) continue;
+      if (already.includes(hint) || out.includes(hint)) continue;
+      out.push(hint);
+      break;
+    }
+  }
+  return out;
 }
 
 /** Flat, plain phrasing. The engine is not trying to write dialogue. */

@@ -21,17 +21,18 @@ const HAND = 5;
  * turn, which is what makes the hold expensive.
  */
 function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
-  const rolled = pick(CAUSES, rng);
-  // The open slot's particular act is drawn per call, so the player learns
-  // the shape of the question rather than a list of answers.
-  const cause = rolled.acts ? { ...rolled, says: pick(rolled.acts, rng) } : rolled;
+  const cause = pick(CAUSES, rng);
   const call = customer.openCall(sheet);
+  // Which departure from the baseline happened this time. The same question
+  // gets her normal answer on a call where that thing did not change.
+  call.departure = pick(cause.departures, rng);
   const available = coworkerAvailable === null ? chance(0.75, rng) : coworkerAvailable;
 
   const state = {
     identified: false,
     record: null,
     revealed: null,           // cause id, once a word has reached it
+    candidates: [],           // finds in hand, each playable as a card
     holds: 0,
     partnerKnown: false,
     fieldsRead: [],
@@ -76,8 +77,14 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
         source: choice.source,
         mode: choice.mode,
       });
-      const dealt = deal(deck, HAND, rng, { recent: call.recent || [] });
-      let hand = dealt.hand;
+      // A find is held as a card, not spent as a turn: the hand is still
+      // HAND, so every candidate you are carrying is one fewer fresh card
+      // dealt. Surface three and play none and you are working from two.
+      const finds = state.candidates.map((id) => ({
+        word: `fix: ${id}`, flavour: 'plain', source: 'find', causeId: id,
+      }));
+      const dealt = deal(deck, Math.max(1, HAND - finds.length), rng, { recent: call.recent || [] });
+      let hand = finds.concat(dealt.hand);
       let rest = dealt.rest;
       const swapCard = agent.chooseDiscard(hand, view, rng);
       if (swapCard) {
@@ -93,17 +100,30 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
       entry.mode = choice.mode;
       entry.played = plays.map(label);
 
+      const findPlays = plays.filter((p) => p.source === 'find');
+      const rest2 = plays.filter((p) => p.source !== 'find');
+      if (findPlays.length) {
+        const c = CAUSES.find((x) => x.id === findPlays[0].causeId);
+        entry.fix = c ? c.fix.line : '';
+        entry.fixGiven = true;
+        state.taught = findPlays[0].causeId;
+        state.fixGiven = true;
+        state.candidates = state.candidates.filter((id) => id !== findPlays[0].causeId);
+      }
       if (!plays.length) {
         entry.result = 'nothing playable';
+      } else if (!rest2.length && findPlays.length) {
+        entry.result = 'fix given';
       } else if (choice.source === 'crm') {
         applyCrm(state, call, plays, entry);
       } else {
-        const res = customer.ask(call, cause, plays, choice.mode);
+        const res = customer.ask(call, cause, rest2.length ? rest2 : plays, choice.mode);
         call.mood = clampMood(call.mood + res.mood);
         entry.reply = res.line;
         entry.mood = call.mood;
         if (res.reached) {
           state.revealed = res.reached;
+          if (!state.candidates.includes(res.reached)) state.candidates.push(res.reached);
           entry.result = 'cause surfaced';
         } else if (res.wasted) {
           entry.result = 'wasted';
@@ -136,12 +156,6 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
           entry.seeded = words;
         }
       }
-    } else if (choice.kind === 'fix') {
-      const c = CAUSES.find((x) => x.id === state.revealed);
-      entry.result = 'fix given';
-      entry.line = c ? c.fix.line : '';
-      state.taught = state.revealed;
-      state.fixGiven = true;
     } else if (choice.kind === 'offer') {
       state.offerAttempted = true;
       if (!state.identified) {
@@ -242,6 +256,7 @@ function viewFor(call, state) {
     tier: state.identified ? call.sheet.tier : null,
     refillsUsed: state.identified ? call.sheet.refillsUsed : null,
     said: Array.from(call.said),
+    candidates: state.candidates.slice(),
     fieldsRead: state.fieldsRead.slice(),
   };
 }

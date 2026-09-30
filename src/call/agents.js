@@ -26,7 +26,7 @@ function makeAgent({ name, competence }) {
     knowsApothecaries: skill > 0.6,
 
     chooseTurn(view, rng) {
-      if (view.revealed && !view.fixGiven) return { kind: 'fix' };
+      // No fix turn: a find is a card in hand and gets played like one.
       if (view.fixGiven && !view.offerAttempted) return { kind: 'offer' };
       if (!view.identified) {
         // A weak agent sometimes starts asking questions of a customer
@@ -55,6 +55,17 @@ function makeAgent({ name, competence }) {
     },
 
     choosePlays(hand, view, rng) {
+      // A find in hand is worth playing, and worth pairing with a question
+      // rather than spending the turn on by itself.
+      const held = hand.filter((c) => c.source === 'find');
+      if (held.length) {
+        const other = hand.filter((c) => c.source !== 'find'
+          && !view.said.includes(c.word) && c.flavour !== 'blame');
+        if (other.length && chance(0.4 + skill * 0.55, rng)) {
+          return [held[0], pick(other, rng)];
+        }
+        return [held[0]];
+      }
       const stale = (c) => view.said.includes(c.word)
         || (c.source === 'crm' && view.fieldsRead.includes(c.word));
       const costly = (c) => c.flavour === 'blame' || c.flavour === 'frustration';

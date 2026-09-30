@@ -28,45 +28,68 @@ const SYMPTOM = {
  * it, whether the customer has connected it herself, and what putting
  * it right asks of her.
  */
+/**
+ * How things normally are on her shelf.
+ *
+ * Her answers in the record's scenes — the stopper on a cord, the ring up
+ * there every night for a year, water in the cup, just a candle — are the
+ * baseline, not laws. A cause is a **departure** from it, which is why the
+ * questions are about her routine: the signal is the deviation.
+ */
+const BASELINE = {
+  stopper: "It was. It's on a cord, it doesn't come off.",
+  ring: "It is. It's been up there every night for a year.",
+  candle: 'No, just a candle.',
+  cup: 'Water for the night.',
+  night: 'I slept through, same as usual.',
+  bed: 'Nothing out of the ordinary. I put it up and went to sleep.',
+};
+
 const CAUSES = [
   {
     id: 'stopper-left-out',
     reach: [['stopper']],
-    hints: { vial: ['stopper'], refill: ['vial'] },
-    // She knows the answer the moment she is asked the question.
     connects: true,
-    says: "…the stopper. I had it out to pour some off, and I don't think I put it back.",
+    // The cord is the normal state; this is what went wrong with it.
+    departures: [
+      "It wasn't, no — the cord's frayed through and the stopper's on the shelf.",
+      "…it isn't. I untied it to pour some off and left it beside the flask.",
+    ],
+    of: 'stopper',
     fix: { id: 'stopper-in', line: 'Stoppered tonight and it fills as normal.' },
   },
   {
     id: 'charm-interference',
     reach: [['near'], ['enchanted']],
-    // What she volunteers, and when. A cause with no trail can only be
-    // reached by the coworker's lines; a cause with one can be walked to.
     hints: { shelf: ['charm'], near: ['charm'] },
     connects: false,
-    says: "There's a charm up there I hadn't thought about.",
-    fix: { id: 'move-charm', line: 'Two enchantments that close will interfere. Move it and it fills tonight.' },
+    departures: [
+      "There's a charm up there now that wasn't before.",
+      "My ring — it was enchanted last week. It's been up there a year, but that part is new.",
+    ],
+    of: 'ring',
+    fix: { id: 'move-charm', line: 'Two enchantments that close will interfere. Move one and it fills tonight.' },
   },
   {
     id: 'drank-in-the-night',
-    // The one that needs a pair, and that she would never volunteer.
     reach: [['night', 'water'], ['night', 'cup']],
     hints: { night: ['water', 'cup'], bed: ['cup'] },
     connects: false,
-    says: "I woke up thirsty. I had a drink. The cup's always— …oh.",
+    departures: [
+      "I woke up thirsty. I had a drink. The cup's always— …oh.",
+    ],
+    of: 'night',
     fix: { id: 'nothing-broken', line: "Nothing's broken. It fills again tonight." },
   },
   {
     // The open slot. The record names only "did something she didn't think
     // mattered" (settled.md:2020) — naming one act would hand the player a
-    // catalogue, which is what supportCall.js exists to prevent. So the
-    // particular act is drawn per call and the way to it never changes.
+    // catalogue, which is what supportCall.js exists to prevent.
     id: 'did-something-she-didnt-think-mattered',
     reach: [['bed']],
     hints: { empty: ['stale'], refill: ['stale'] },
     connects: false,
-    acts: [
+    departures: [
       "Nothing. I rinsed it out before bed, it had gone a bit stale.",
       "Nothing… I moved it while I was cleaning, it was back before dark.",
       "Nothing. I lent it out for an hour, it came straight back.",
@@ -74,6 +97,7 @@ const CAUSES = [
       "Nothing. I left it by the fire to take the chill off it.",
       "Nothing. I topped it up from the jug — it looked low.",
     ],
+    of: 'bed',
     fix: { id: 'leave-it-be', line: 'Leave it as it is tonight and it fills.' },
   },
 ];
@@ -128,6 +152,7 @@ const IDENTIFIERS = ['name', 'account number', 'subscription number', 'phone'];
 
 module.exports = {
   SYMPTOM,
+  BASELINE,
   CAUSES,
   COWORKER_WORDS,
   FAMILIES,

@@ -24,6 +24,8 @@ function render(result, opts = {}) {
     if (e.discarded) bits.push(`(discarded ${e.discarded})`);
     lines.push(bits.join('  '));
     if (e.result) lines.push(`     → ${e.result}`);
+    // The fix is said before she answers whatever was paired with it.
+    if (e.fix) lines.push(`     YOU      ${e.fix}`);
     if (e.reply) lines.push(`     CALLER   ${e.reply}`);
     if (e.line) lines.push(`     YOU      ${e.line}`);
   }
