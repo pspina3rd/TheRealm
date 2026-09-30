@@ -37,10 +37,13 @@ const SYMPTOM = {
  * questions are about her routine: the signal is the deviation.
  */
 const BASELINE = {
+  flask: "Same flask I've had since I took the subscription out. It looks no different.",
+  refill: 'It fills itself overnight. That is the whole point of it.',
   stopper: "It was. It's on a cord, it doesn't come off.",
   ring: "It is. It's been up there every night for a year.",
   candle: 'No, just a candle.',
   cup: 'Water for the night.',
+  water: "It's what I keep by the bed. I fill the cup before I turn in.",
   night: 'I slept through, same as usual.',
   bed: 'Nothing out of the ordinary. I put it up and went to sleep.',
 };

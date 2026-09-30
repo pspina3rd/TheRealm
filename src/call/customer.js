@@ -234,11 +234,22 @@ function hintsFor(call, hidden, words, already) {
   return out;
 }
 
-/** Flat, plain phrasing. The engine is not trying to write dialogue. */
+/**
+ * When she has nothing to add.
+ *
+ * Plain phrasing, not dialogue-writing — but it has to sound like a person
+ * with nothing to say rather than a null result, because a player reads it
+ * as her and judges the call by it.
+ */
 function answerLine(fresh, seeds, budget) {
-  if (budget === 0) return `[${fresh.join(', ')}] — no, nothing there.`;
-  if (!seeds.length) return `[${fresh.join(', ')}] — no, nothing unusual.`;
-  return `[${fresh.join(', ')}] — no, though there's ${seeds.join(' and ')}.`;
+  const subject = fresh.join(' and ');
+  if (budget === 0) return `${cap(subject)}… no. There's nothing I can tell you about that.`;
+  if (!seeds.length) return `${cap(subject)}? No, nothing out of the ordinary there.`;
+  return `${cap(subject)}, no — though there's ${seeds.join(' and ')}, if that's any use.`;
+}
+
+function cap(text) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 /**

@@ -24,6 +24,12 @@ const arg = (name, dflt) => {
   return i > -1 ? process.argv[i + 1] : dflt;
 };
 const seed = Number(arg('--seed', 12));
+// --after "<moves>" replays a previous call to its end and starts the next one
+// on the sheet it left behind, which is how she arrives carrying it.
+const after = arg('--after', '');
+// The earlier call has its own seed; this one rolls fresh. She is the same
+// woman either way, because she arrives on the sheet the last call left.
+const prevSeed = Number(arg('--prev-seed', seed));
 const moves = (arg('--moves', '') || '').split(';').map((m) => m.trim()).filter(Boolean);
 
 const PAUSE = Symbol('pause');
@@ -57,8 +63,10 @@ const scripted = {
   },
   chooseDiscard(cards, view) {
     const p = parse(moves[this.index] || '');
-    if (!p.picks) { hand.shown = cards; pausedAt = { stage: 'cards', view, cards }; throw PAUSE; }
-    return p.discard ? cards[p.discard - 1] : null;
+    // A discard is applied before the hand is shown, so you never pick blind.
+    if (p.discard) return cards[p.discard - 1];
+    if (!p.picks) { hand.shown = cards; pausedAt = { stage: 'cards', view, cards, log: view.log }; throw PAUSE; }
+    return null;
   },
   choosePlays(cards, view) {
     const move = moves[this.index];
@@ -70,7 +78,35 @@ const scripted = {
 };
 
 const rng = seededRng(seed);
-const sheet = newSheet({ name: 'Sella Brandt' }, rng);
+let sheet = newSheet({ name: 'Sella Brandt' }, rng);
+let carried = null;
+if (after) {
+  const prevMoves = after.split(';').map((m) => m.trim()).filter(Boolean);
+  const prevRng = seededRng(prevSeed);
+  let prevSheet = newSheet({ name: 'Sella Brandt' }, prevRng);
+  const prev = { knowsApothecaries: false, index: 0,
+    chooseTurn() {
+      const m = prevMoves[this.index];
+      if (!m) return { kind: 'hold' };
+      if (m === 'hold') return { kind: 'hold' };
+      if (m === 'offer') return { kind: 'offer' };
+      const p = parse(m);
+      return { kind: 'inquiry', source: p.source, mode: p.mode, direction: p.direction };
+    },
+    chooseDiscard(cards) {
+      const p = parse(prevMoves[this.index] || '');
+      return p.discard ? cards[p.discard - 1] : null;
+    },
+    choosePlays(cards) {
+      const p = parse(prevMoves[this.index] || '');
+      this.index += 1;
+      return p.picks ? p.picks.map((n) => cards[n - 1]).filter(Boolean) : [];
+    } };
+  const done = playCall({ sheet: prevSheet, agent: prev, rng: prevRng });
+  carried = { ending: done.ending, cause: done.cause, mood: done.mood, sheet: done.sheet };
+  sheet = done.sheet;
+  void prevSheet;
+}
 let result = null;
 try {
   result = playCall({ sheet, agent: scripted, rng });
@@ -89,6 +125,12 @@ if (result) {
 const replay = [];
 const spy = Object.assign({}, scripted, { index: 0 });
 console.log(`— seed ${seed} — her tier: ${sheet.tier} —`);
+if (carried) {
+  console.log(`she rang before: ${carried.ending}${carried.ending === 'hold' ? ' (a callback is owed)' : ''}`
+    + `   what she thinks of the co-op: ${sheet.opinion}`
+    + `   what she was taught: ${sheet.knows.join(', ') || 'nothing'}`);
+  console.log(`she remembers: ${(sheet.calls || []).map((c) => c.gist).join(' · ') || 'nothing worth keeping'}`);
+}
 console.log(`turns used: ${9 - pausedAt.view.turnsLeft} of 9   (${pausedAt.view.turnsLeft} left)`);
 console.log(`identified: ${pausedAt.view.identified ? 'yes' : 'no'}`
   + `   holds: ${pausedAt.view.holds}`
