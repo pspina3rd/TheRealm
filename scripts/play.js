@@ -31,10 +31,11 @@ const PAUSE = Symbol('pause');
 /** Turn "customer/expand-2:1,4" into its parts. */
 function parse(move) {
   const [head, picks] = move.split(':');
-  const [sm, discard] = head.split('-');
+  const tell = head.includes('!');
+  const [sm, discard] = head.replace('!', '').split('-');
   const [source, mode] = sm.split('/');
   return {
-    source, mode,
+    source, mode, direction: tell ? 'state' : 'ask',
     discard: discard ? Number(discard) : null,
     picks: picks ? picks.split(',').map(Number) : null,
   };
@@ -52,7 +53,7 @@ const scripted = {
     if (move === 'hold') return { kind: 'hold' };
     if (move === 'offer') return { kind: 'offer' };
     const p = parse(move);
-    return { kind: 'inquiry', source: p.source, mode: p.mode };
+    return { kind: 'inquiry', source: p.source, mode: p.mode, direction: p.direction };
   },
   chooseDiscard(cards, view) {
     const p = parse(moves[this.index] || '');
@@ -106,6 +107,7 @@ if (pausedAt.log && pausedAt.log.length > 1) {
     if (e.result) console.log(`     → ${e.result}`);
     if (e.fix) console.log(`     YOU      ${e.fix}`);
     if (e.reply) console.log(`     CALLER   ${e.reply}`);
+    if (e.seeded && e.seeded.length) console.log(`     + in play: ${e.seeded.join(' · ')}`);
   }
   console.log('');
 }
@@ -124,6 +126,7 @@ if (pausedAt.stage === 'turn') {
   });
   console.log('');
   console.log('Play up to two, or discard one and play one.');
+  console.log('Add ! to make it a STATEMENT rather than a question — a confirmation that invites a No.');
   console.log(`  e.g. --moves "${moves.concat(['…:1,3']).join(';')}"`);
 }
 void replay; void spy;

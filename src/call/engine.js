@@ -1,6 +1,6 @@
 'use strict';
 
-const { CAUSES, COWORKER_WORDS } = require('./scenario');
+const { CAUSES, COWORKER_WORDS, CRM_FIELDS } = require('./scenario');
 const { buildDeck, deal, swap } = require('./deck');
 const customer = require('./customer');
 const { pick, chance } = require('./rng');
@@ -133,7 +133,8 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
           turn += 1;
           continue;
         }
-        const res = customer.ask(call, cause, rest2.length ? rest2 : plays, choice.mode);
+        const res = customer.ask(call, cause, rest2.length ? rest2 : plays,
+          choice.mode, choice.direction || 'ask');
         call.mood = clampMood(call.mood + res.mood);
         entry.reply = res.line;
         entry.mood = call.mood;
@@ -321,6 +322,11 @@ function applyCrm(state, call, plays, entry, rng) {
         entry.result = `you search on ${used} — one record`
           + ` · the ${entry.confirmedWith.join(' and ')} matches what she gave`;
       }
+      // Accessing the account puts its details in play. They are key words
+      // like any other: readable on the record, and askable of her.
+      const opened = CRM_FIELDS.filter((f) => !call.pool.includes(f));
+      for (const f of opened) call.pool.push(f);
+      entry.seeded = opened;
     } else {
       entry.result = `you search on ${used} — one record, ${call.sheet.name}`;
     }
@@ -329,6 +335,7 @@ function applyCrm(state, call, plays, entry, rng) {
   const fresh = words.filter((w) => !state.fieldsRead.includes(w));
   const found = [];
   const paid = [];
+  for (const w of fresh) if (!call.known.includes(w)) call.known.push(w);
   if (fresh.includes('subscriptions')) {
     found.push(`${call.sheet.tier}, active, `
       + `${allowanceFor(call.sheet.tier) - call.sheet.refillsUsed} refills left`);
@@ -348,12 +355,12 @@ function applyCrm(state, call, plays, entry, rng) {
     found.push('paid to date, no lapse');
     paid.push('billing');
   }
-  if (fresh.includes('minions')) {
+  if (fresh.includes('hands')) {
     // Authorized users. She is an individual end customer, so there are none
     // — and looking before anything suggests otherwise is prying.
     state.ledger.readsBeyondNeed += 1;
-    found.push('no authorized users on the account');
-    paid.push('minions');
+    found.push('no hands named on the account');
+    paid.push('hands');
   }
   for (const w of fresh) state.fieldsRead.push(w);
   entry.paid = paid;

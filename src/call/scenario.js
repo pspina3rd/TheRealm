@@ -45,6 +45,33 @@ const BASELINE = {
   bed: 'Nothing out of the ordinary. I put it up and went to sleep.',
 };
 
+/**
+ * What she says when asked about her own account.
+ *
+ * Her belief, not the record's fact — and it is allowed to be wrong. The
+ * player has the CRM and she has only herself (settled.md:1168), so the gap
+ * between these lines and what the record says is where her expectations sit.
+ */
+const BELIEFS = {
+  subscriptions: {
+    Copper: 'The monthly one, for the flask. The ordinary draught, I think.',
+    Silver: "The monthly one. Standard draught — that's what I pay for.",
+    Gold: 'The good one. It should be the strong draught in there.',
+  },
+  billing: {
+    any: "It goes out every month, same day. I've never missed one.",
+  },
+  'order history': {
+    any: "I've collected one before, when I was caught short. A while ago now.",
+  },
+  'account history': {
+    any: "Nothing's changed. Same address, same flask, since I took it out.",
+  },
+  hands: {
+    any: 'Nobody else. It sits by my bed.',
+  },
+};
+
 const CAUSES = [
   {
     id: 'stopper-left-out',
@@ -158,7 +185,7 @@ const FLAVOUR_COST = {
  * Entitlement sits under subscriptions and the address under account
  * history, rather than being fields of their own.
  */
-const CRM_FIELDS = ['billing', 'account history', 'order history', 'subscriptions', 'minions'];
+const CRM_FIELDS = ['billing', 'account history', 'order history', 'subscriptions', 'hands'];
 
 /** Ways in. Only these are dealable before identification. */
 const IDENTIFIERS = ['name', 'account number', 'subscription number', 'phone'];
@@ -166,6 +193,7 @@ const IDENTIFIERS = ['name', 'account number', 'subscription number', 'phone'];
 module.exports = {
   SYMPTOM,
   BASELINE,
+  BELIEFS,
   CAUSES,
   COWORKER_WORDS,
   FAMILIES,

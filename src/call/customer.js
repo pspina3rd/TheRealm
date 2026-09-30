@@ -1,6 +1,6 @@
 'use strict';
 
-const { SYMPTOM, BASELINE, FAMILIES, FLAVOUR_COST } = require('./scenario');
+const { SYMPTOM, BASELINE, BELIEFS, FAMILIES, FLAVOUR_COST } = require('./scenario');
 
 /**
  * The customer, and the only thing in the engine allowed to decide
@@ -56,6 +56,8 @@ function openCall(sheet) {
     said: new Set(),
     pool: SYMPTOM.words.slice(),
     revealed: null,
+    known: [],         // what the agent has established
+    forms: [],         // question or statement, for the run-of-guesses check
     departure: null,   // set by the engine from the rolled cause
     recent: SYMPTOM.words.slice(),
     // The last three turns, for the repetition check (settled.md:746). Both
@@ -87,13 +89,49 @@ function reaches(cause, words) {
  * @param {Array<{word: string, flavour: string}>} cards one or two
 * @returns {{line: string, seeds: string[], reached: (string|null), wasted: boolean, mood: number}}
  */
-function ask(call, hidden, cards, door) {
+function ask(call, hidden, cards, door, direction = 'ask') {
   const words = cards.map((c) => c.word);
-  let mood = 0;
+
+  // A statement is an inquiry too (settled.md:1360): a confirmation that
+  // invites a No. Yes confirms in one beat; no corrects and hands you the
+  // right thing anyway — which is why being wrong is cheap for both sides.
+  // What costs is a run of them, because that reads as guessing at everything.
+  if (direction === 'state') {
+    let told = 0;
+    for (const c of cards) told += FLAVOUR_COST[c.flavour] || 0;
+    const runOfGuesses = call.forms.slice(-3).filter((f) => f === 'state').length >= 2;
+    call.forms.push('state');
+    const supported = words.filter((w) => call.said.has(w) || (call.known || []).includes(w));
+    const wrong = words.filter((w) => !supported.includes(w));
+    for (const w of words) call.said.add(w);
+    if (wrong.length) {
+      const put = wrong.map((w) => BELIEFS[w]
+        ? (BELIEFS[w][call.sheet.tier] || BELIEFS[w].any)
+        : BASELINE[w] || null).filter(Boolean);
+      return {
+        line: put.length
+          ? put.join(' ')
+          : `I couldn't tell you — that's what I'm asking you.`,
+        seeds: [],
+        reached: null,
+        // A no corrects you, which is information, not a wasted play.
+        wasted: put.length === 0,
+        mood: told - (runOfGuesses ? 1 : 0),
+      };
+    }
+    return {
+      line: "That's it, yes. That's what I'm saying.",
+      seeds: [],
+      reached: null,
+      wasted: false,
+      mood: told + 1 - (runOfGuesses ? 1 : 0),
+    };
+  }
 
   // A third check of the same thing is dangerous for anyone (settled.md:748).
   // A new apprentice is softly limited, not hard-limited (settled.md:752), so
   // this costs rather than forbids.
+  let mood = 0;
   const recentSubjects = call.subjects.slice(-6);
   const doorRuns = call.doors.slice(-3).filter((d) => d === door).length;
   // "A third check of the same thing is dangerous for anyone" — so the cost
@@ -161,16 +199,22 @@ function ask(call, hidden, cards, door) {
   // answer is her normal one — a real answer that eliminates a line — and
   // she is still talking, so what she volunteers comes out alongside it.
   const baseline = fresh.find((w) => BASELINE[w]);
+  const believed = fresh.find((w) => BELIEFS[w]);
+  const belief = believed
+    ? (BELIEFS[believed][call.sheet.tier] || BELIEFS[believed].any)
+    : null;
 
   return {
-    line: baseline
-      ? (seeds.length
-        ? `${BASELINE[baseline]} …${seeds.join(' and ')}, if that matters.`
-        : BASELINE[baseline])
-      : answerLine(fresh, seeds, budget),
+    line: belief
+      ? belief
+      : baseline
+        ? (seeds.length
+          ? `${BASELINE[baseline]} …${seeds.join(' and ')}, if that matters.`
+          : BASELINE[baseline])
+        : answerLine(fresh, seeds, budget),
     seeds,
     reached: null,
-    wasted: !baseline && seeds.length === 0 && budget === 0,
+    wasted: !baseline && !belief && seeds.length === 0 && budget === 0,
     mood,
   };
 }

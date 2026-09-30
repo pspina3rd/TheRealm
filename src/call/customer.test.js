@@ -118,3 +118,32 @@ test('a tier is rolled when the record does not give one', () => {
   assert.ok(tiers.size > 1, `only ever rolled ${Array.from(tiers).join(', ')}`);
   for (const t of tiers) assert.ok(['Copper', 'Silver', 'Gold'].includes(t));
 });
+
+test('a statement is an inquiry: being wrong corrects you rather than wasting the play', () => {
+  const sheet = c.newSheet({ name: 'Sella', tier: 'Copper' }, seededRng(2));
+  const call = c.openCall(sheet);
+  // Nothing established about her subscription, so the statement is a guess
+  // offered for correction — and her correction is the information.
+  const guess = c.ask(call, cause('stopper-left-out'), [card('subscriptions')], 'contract', 'state');
+  assert.strictEqual(guess.wasted, false);
+  assert.match(guess.line, /ordinary draught/);
+});
+
+test('a run of statements reads as guessing at everything', () => {
+  const sheet = c.newSheet({ name: 'Sella', tier: 'Silver' }, seededRng(3));
+  const call = c.openCall(sheet);
+  const first = c.ask(call, cause('stopper-left-out'), [card('billing')], 'contract', 'state');
+  const second = c.ask(call, cause('stopper-left-out'), [card('order history')], 'contract', 'state');
+  const third = c.ask(call, cause('stopper-left-out'), [card('account history')], 'contract', 'state');
+  assert.ok(third.mood < first.mood, `first ${first.mood}, third ${third.mood}`);
+  void second;
+});
+
+test('confirming something she did say lands as being heard', () => {
+  const sheet = c.newSheet({ name: 'Sella', tier: 'Silver' }, seededRng(4));
+  const call = c.openCall(sheet);
+  c.ask(call, cause('stopper-left-out'), [card('overnight')], 'expand');
+  const back = c.ask(call, cause('stopper-left-out'), [card('overnight')], 'contract', 'state');
+  assert.ok(back.mood > 0);
+  assert.strictEqual(back.wasted, false);
+});

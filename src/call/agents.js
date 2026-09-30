@@ -137,10 +137,13 @@ function makeAgent({ name, competence }) {
 }
 
 function inquiry(view, rng, skill) {
+  // A tell is available when there is something established to hand back.
   const source = view.identified && chance(0.35 - skill * 0.15, rng) ? 'crm' : 'customer';
   const roll = rng();
   const mode = roll < 0.15 ? 'random' : roll < 0.75 ? 'expand' : 'contract';
-  return { kind: 'inquiry', source, mode };
+  const canTell = (view.said.length + (view.fieldsRead || []).length) > 0;
+  const direction = canTell && chance(0.15 + skill * 0.2, rng) ? 'state' : 'ask';
+  return { kind: 'inquiry', source, mode, direction };
 }
 
 module.exports = { makeAgent };
