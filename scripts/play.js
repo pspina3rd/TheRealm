@@ -48,7 +48,7 @@ const scripted = {
   index: 0,
   chooseTurn(view) {
     const move = moves[this.index];
-    if (!move) { pausedAt = { stage: 'turn', view }; throw PAUSE; }
+    if (!move) { pausedAt = { stage: 'turn', view, log: view.log }; throw PAUSE; }
     if (move === 'hold') return { kind: 'hold' };
     if (move === 'offer') return { kind: 'offer' };
     const p = parse(move);
@@ -63,7 +63,7 @@ const scripted = {
     const move = moves[this.index];
     const p = parse(move || '');
     this.index += 1;
-    if (!p.picks) { hand.shown = cards; pausedAt = { stage: 'cards', view, cards }; throw PAUSE; }
+    if (!p.picks) { hand.shown = cards; pausedAt = { stage: 'cards', view, cards, log: view.log }; throw PAUSE; }
     return p.picks.map((n) => cards[n - 1]).filter(Boolean);
   },
 };
@@ -96,6 +96,19 @@ console.log(`records read: ${(pausedAt.view.fieldsRead || []).join(' · ') || 'n
 console.log(`she has answered on: ${(pausedAt.view.said || []).join(' · ') || 'nothing yet'}`);
 console.log(`in play: ${pausedAt.view.pool.join(' · ')}`);
 console.log('');
+
+if (pausedAt.log && pausedAt.log.length > 1) {
+  console.log('SO FAR:');
+  for (const e of pausedAt.log.slice(1)) {
+    const bits = [`  ${e.turn}. ${e.kind}`];
+    if (e.played) bits.push(`played: ${e.played.join(' + ')}`);
+    console.log(bits.join('  '));
+    if (e.result) console.log(`     → ${e.result}`);
+    if (e.fix) console.log(`     YOU      ${e.fix}`);
+    if (e.reply) console.log(`     CALLER   ${e.reply}`);
+  }
+  console.log('');
+}
 
 if (pausedAt.stage === 'turn') {
   console.log('YOUR MOVE — pick a source and a mode, or hold, or offer:');

@@ -29,9 +29,10 @@ function makeAgent({ name, competence }) {
       // No fix turn: a find is a card in hand and gets played like one.
       if (view.fixGiven && !view.offerAttempted) return { kind: 'offer' };
       if (!view.identified) {
-        // A weak agent sometimes starts asking questions of a customer
-        // whose account they have not found.
+        // Two plays, not one: ask her for something searchable, then search
+        // on it. A weak agent starts asking about the flask instead.
         if (chance(1 - skill, rng)) return inquiry(view, rng, skill);
+        if (!view.handles.length) return { kind: 'inquiry', source: 'customer', mode: 'contract' };
         return { kind: 'inquiry', source: 'crm', mode: 'contract' };
       }
       if (view.facts >= 2 && view.holds === 0 && chance(0.2 + skill * 0.7, rng)) {
@@ -57,6 +58,13 @@ function makeAgent({ name, competence }) {
     choosePlays(hand, view, rng) {
       // A find in hand is worth playing, and worth pairing with a question
       // rather than spending the turn on by itself.
+      // With no handle yet, the useful card is the one that asks for one.
+      if (!view.identified && !view.handles.length) {
+        const asks = hand.filter((c) => c.asks === 'identifier');
+        const issued = asks.filter((c) => c.word === 'account number' || c.word === 'subscription number');
+        if (issued.length && chance(0.3 + skill * 0.6, rng)) return [pick(issued, rng)];
+        if (asks.length) return [pick(asks, rng)];
+      }
       const held = hand.filter((c) => c.source === 'find');
       if (held.length) {
         const other = hand.filter((c) => c.source !== 'find'

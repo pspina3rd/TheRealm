@@ -33,7 +33,7 @@ const CONTRACT_FLAVOURS = ['plain', 'support'];
  * @param {'expand'|'contract'|'random'} opts.mode
  * @returns {Array<{word: string, flavour: string, source: string}>}
  */
-function buildDeck({ pool, identified, source, mode }) {
+function buildDeck({ pool, identified, source, mode, handles = [] }) {
   const cards = [];
   const flavoursFor = (word) => {
     const fam = FAMILIES[word];
@@ -46,6 +46,15 @@ function buildDeck({ pool, identified, source, mode }) {
   };
 
   if (source === 'customer') {
+    // Asking her for a handle is a question to her, not a search — it just
+    // happens to use the CRM's vocabulary, which is precise for us and
+    // opaque to her (settled.md:1367).
+    if (!identified && mode !== 'expand') {
+      for (const word of IDENTIFIERS) {
+        cards.push({ word, flavour: 'plain', source, asks: 'identifier' });
+        cards.push({ word, flavour: 'support', source, asks: 'identifier' });
+      }
+    }
     for (const word of pool) {
       for (const flavour of flavoursFor(word)) cards.push({ word, flavour, source });
       if (mode !== 'contract') {
@@ -57,8 +66,16 @@ function buildDeck({ pool, identified, source, mode }) {
       }
     }
   } else {
-    const fields = identified ? CRM_FIELDS : IDENTIFIERS;
-    for (const word of fields) {
+    // Nothing can be searched until she has given something searchable. Once
+    // she has, the search itself is the card: you look her up on what she
+    // gave you.
+    if (!identified) {
+      for (const h of handles) {
+        cards.push({ word: h, flavour: 'plain', source, searches: true });
+      }
+      return dedupe(cards);
+    }
+    for (const word of CRM_FIELDS) {
       cards.push({ word, flavour: 'plain', source });
       if (mode !== 'expand') cards.push({ word, flavour: 'support', source });
     }

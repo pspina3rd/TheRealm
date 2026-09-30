@@ -104,7 +104,7 @@ None of these names appear in the record.
 | Fix | a candidate cause surfaced |
 | Offer | entitlement was read off the record |
 | Transfer | something out of scope appeared, or she asked for someone else |
-| Verify / Validate | an unexpected result happened, pointing at the other source |
+| *(Verify / Validate — struck)* | not card types. A search aimed at the other store: the agent retrieves from the record, she retrieves from herself. What differs is who searches, and therefore how it fails — a wrong record on one side, a confident wrong memory on the other (Phil, this session) |
 
 Search results give the agent: **Billing, Account History, Order History,
 Subscriptions, Minions** (authorized users) (:872, [P]). Registration is an

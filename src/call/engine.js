@@ -35,6 +35,7 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
     candidates: [],           // finds in hand, each playable as a card
     holds: 0,
     partnerKnown: false,
+    handles: [],              // what she has given that can be searched on
     fieldsRead: [],
     facts: 0,                 // anything learned, verified or confirmed
     confirmed: 0,             // what she has told us — this feeds the brief
@@ -74,6 +75,7 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
       const deck = buildDeck({
         pool: call.pool.concat(state.identified ? [] : []),
         identified: state.identified,
+        handles: state.handles,
         source: choice.source,
         mode: choice.mode,
       });
@@ -99,7 +101,6 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
       entry.source = choice.source;
       entry.mode = choice.mode;
       entry.played = plays.map(label);
-
       const findPlays = plays.filter((p) => p.source === 'find');
       const rest2 = plays.filter((p) => p.source !== 'find');
       if (findPlays.length) {
@@ -116,8 +117,22 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
       } else if (!rest2.length && findPlays.length) {
         entry.result = 'fix given';
       } else if (choice.source === 'crm') {
-        applyCrm(state, call, plays, entry);
+        applyCrm(state, call, plays, entry, rng);
       } else {
+        const asked = (rest2.length ? rest2 : plays).filter((p) => p.asks === 'identifier');
+        if (asked.length) {
+          for (const a of asked) if (!state.handles.includes(a.word)) state.handles.push(a.word);
+          entry.result = `she gives her ${asked.map((a) => a.word).join(' and ')}`;
+          entry.reply = asked.some((a) => a.word === 'name')
+            ? call.sheet.name
+            : 'It should be on the flask… here.';
+          // Her account number tells a coworker nothing about a flask, so it
+          // does not improve the brief.
+          state.log.push(entry);
+          state.turnsLeft -= 1;
+          turn += 1;
+          continue;
+        }
         const res = customer.ask(call, cause, rest2.length ? rest2 : plays, choice.mode);
         call.mood = clampMood(call.mood + res.mood);
         entry.reply = res.line;
@@ -245,6 +260,7 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
 
 function viewFor(call, state) {
   return {
+    log: state.log,
     pool: call.pool.slice(),
     identified: state.identified,
     revealed: state.revealed,
@@ -258,20 +274,29 @@ function viewFor(call, state) {
     refillsUsed: state.identified ? call.sheet.refillsUsed : null,
     said: Array.from(call.said),
     candidates: state.candidates.slice(),
+    handles: state.handles.slice(),
     fieldsRead: state.fieldsRead.slice(),
   };
 }
 
-function applyCrm(state, call, plays, entry) {
+function applyCrm(state, call, plays, entry, rng) {
   const words = plays.map((p) => p.word);
   if (!state.identified) {
     const issued = ['account number', 'subscription number'];
     const given = ['name', 'phone'];
-    const used = words.find((w) => issued.includes(w) || given.includes(w));
+    // Both cards are the agent's searches. The first goes to the record on
+    // the primary identifier. The second checks the record against details
+    // she has already given — does the name on this account match the name
+    // she gave me — which is what catches a record that is not hers, or an
+    // account held in somebody else's name.
+    const used = words.find((w) => issued.includes(w) || given.includes(w))
+      || state.handles.find((w) => issued.includes(w) || given.includes(w));
     if (!used) {
-      entry.result = 'wasted — nothing to search on';
+      entry.result = 'wasted — nothing to search on yet';
       return;
     }
+    entry.confirmedWith = words.slice(1).filter((w) => w !== used
+      && (issued.includes(w) || given.includes(w)));
     // What the co-op issued contracts to one parent. What the customer
     // gave us contracts to whoever happens to match: a phone is only
     // reliable if exactly one person ever uses it, and a name is not a
@@ -282,9 +307,23 @@ function applyCrm(state, call, plays, entry) {
     }
     state.identified = true;
     state.facts += 1;
-    entry.result = `identified — ${call.sheet.name}`;
-    entry.reply = call.sheet.name;
     entry.paid = [used];
+    if (entry.confirmedWith.length) {
+      // Held in another name often enough to be worth the check: a parent
+      // bought it, a household account, a name changed since.
+      const heldByAnother = chance(0.15, rng);
+      if (heldByAnother) {
+        state.ledger.recordMismatch = true;
+        entry.result = `you search on ${used} — one record`
+          + ` · the ${entry.confirmedWith.join(' and ')} on it is not the one she gave`;
+        entry.reply = "Oh — that'll be my mother. She bought it for me.";
+      } else {
+        entry.result = `you search on ${used} — one record`
+          + ` · the ${entry.confirmedWith.join(' and ')} matches what she gave`;
+      }
+    } else {
+      entry.result = `you search on ${used} — one record, ${call.sheet.name}`;
+    }
     return;
   }
   const fresh = words.filter((w) => !state.fieldsRead.includes(w));

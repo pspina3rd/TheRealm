@@ -6,12 +6,17 @@ const { buildDeck, deal, swap } = require('./deck');
 const { seededRng } = require('./rng');
 const { COWORKER_WORDS } = require('./scenario');
 
-test('before identification the CRM only deals ways in', () => {
+test('the record deals nothing until she has given something searchable', () => {
   const deck = buildDeck({ pool: ['flask'], identified: false, source: 'crm', mode: 'contract' });
+  assert.deepStrictEqual(deck, [], 'there is nothing to search on yet');
+});
+
+test('asking her for a handle is a question to her, not a search', () => {
+  const deck = buildDeck({ pool: ['flask'], identified: false, source: 'customer', mode: 'contract' });
   const words = new Set(deck.map((c) => c.word));
   assert.ok(words.has('name'));
   assert.ok(words.has('subscription number'));
-  assert.ok(!words.has('refills'), 'cannot read a record you have not found');
+  assert.ok(deck.filter((c) => c.asks === 'identifier').length >= 4);
 });
 
 test('after identification the CRM deals fields', () => {

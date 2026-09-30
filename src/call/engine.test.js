@@ -65,17 +65,26 @@ test('a full brief seeds more lines of inquiry than a thin one', () => {
 test('the same CRM field does not pay twice', () => {
   const agent = {
     knowsApothecaries: true,
-    chooseTurn() { return { kind: 'inquiry', source: 'crm', mode: 'expand' }; },
+    chooseTurn(view) {
+      if (!view.handles.length) return { kind: 'inquiry', source: 'customer', mode: 'contract' };
+      return { kind: 'inquiry', source: 'crm', mode: 'expand' };
+    },
     chooseDiscard() { return null; },
     choosePlays(hand, view) {
-      if (!view.identified) return hand.filter((c) => c.word === 'name').slice(0, 1);
+      if (!view.handles.length) return hand.filter((c) => c.asks === 'identifier').slice(0, 1);
+      if (!view.identified) return hand.slice(0, 1);
       return hand.filter((c) => c.word === 'subscriptions').slice(0, 1);
     },
   };
-  const r = playCall({ sheet: sheet(), agent, rng: seededRng(7) });
-  const reads = r.log.filter((e) => e.result && String(e.result).includes('refills left'));
-  assert.strictEqual(reads.length, 1, 'a record read twice should be a wasted turn');
-  assert.ok(r.log.some((e) => e.result === 'wasted — already read'));
+  // Across seeds, because whether her phone contracts cleanly is a roll.
+  let sawReRead = 0;
+  for (let s = 1; s <= 30; s++) {
+    const r = playCall({ sheet: sheet(), agent, rng: seededRng(s) });
+    const reads = r.log.filter((e) => e.result && String(e.result).includes('refills left'));
+    assert.ok(reads.length <= 1, 'a record should not pay twice');
+    if (r.log.some((e) => e.result === 'wasted — already read')) sawReRead += 1;
+  }
+  assert.ok(sawReRead > 0, 'reading the same field twice should show as wasted');
 });
 
 test('when nobody knows flasks, the hold returns nothing', () => {
@@ -99,21 +108,30 @@ test('an unfound cause is held, not failed', () => {
 });
 
 test('skill moves outcomes', () => {
+  // Measured on finds as well as resolves: identification costs every agent
+  // two plays now, so the fixed overhead is large and 120 seeds is not enough
+  // to see the variable part. 400 each.
   const run = (competence) => {
     let resolved = 0;
-    for (let s = 1; s <= 120; s++) {
+    let found = 0;
+    for (let s = 1; s <= 400; s++) {
+      const rng = seededRng(s);
       const r = playCall({
-        sheet: sheet(),
+        sheet: require('./customer').newSheet({ name: 'Sella Brandt' }, rng),
         agent: makeAgent({ name: 'a', competence }),
-        rng: seededRng(s),
+        rng,
       });
       if (r.ending === 'resolve') resolved += 1;
+      if (r.ledger.findTurn) found += 1;
     }
-    return resolved;
+    return { resolved, found };
   };
   const poor = run(0.15);
-  const good = run(0.95);
-  assert.ok(good > poor * 1.5, `poor ${poor}, good ${good}`);
+  const good = run(0.9);
+  assert.ok(good.found > poor.found * 2.5,
+    `finds: poor ${poor.found}, good ${good.found}`);
+  assert.ok(good.resolved > poor.resolved * 2.5,
+    `resolves: poor ${poor.resolved}, good ${good.resolved}`);
 });
 
 test('a call is reproducible from its seed', () => {
