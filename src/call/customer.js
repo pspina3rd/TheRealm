@@ -207,9 +207,19 @@ function ask(call, hidden, cards, door, direction = 'ask') {
   }
   const answered = answers.length ? answers.join(' ') : null;
 
+  // Don't have her volunteer something she has just said. Compare the words
+  // she would use, not the card names — her answer about the refill and her
+  // aside about the draught are the same sentence.
+  const already = answered || '';
+  const fresh_seeds = seeds.filter((w) => {
+    const phrase = VOLUNTEERS[w];
+    if (!phrase) return true;
+    const stem = phrase.replace(/^(it's|it|I|there's|they|the)\s+/i, '').slice(0, 18);
+    return !already.toLowerCase().includes(stem.toLowerCase());
+  });
   return {
     line: answered
-      ? (seeds.length ? `${answered} ${mentions(seeds)}` : answered)
+      ? (fresh_seeds.length ? `${answered} ${mentions(fresh_seeds)}` : answered)
       : answerLine(fresh, seeds, budget),
     seeds,
     reached: null,

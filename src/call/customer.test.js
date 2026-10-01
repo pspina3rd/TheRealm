@@ -14,41 +14,38 @@ test('her opening words can be asked about', () => {
   // already answered, which made those words unplayable and stopped
   // their neighbours ever reaching the pool.
   const call = c.openCall(c.newSheet({ name: 'Sella', tier: 'Silver' }));
-  const res = c.ask(call, cause('stopper-left-out'), [card('overnight')]);
+  const res = c.ask(call, cause('own-container'), [card('poof')]);
   assert.strictEqual(res.wasted, false);
-  assert.ok(res.seeds.includes('night'), 'asking about overnight should put night in play');
-  assert.ok(SYMPTOM.words.includes('overnight'));
+  assert.ok(res.seeds.includes('crate'), 'asking about the shipment should put the crate in play');
+  assert.ok(SYMPTOM.words.includes('poof'));
 });
 
 test('asking what she has already answered returns nothing and costs her', () => {
   const call = c.openCall(c.newSheet({ name: 'Sella', tier: 'Silver' }));
-  c.ask(call, cause('stopper-left-out'), [card('morning')]);
-  const again = c.ask(call, cause('stopper-left-out'), [card('morning')]);
+  c.ask(call, cause('own-container'), [card('wrong')]);
+  const again = c.ask(call, cause('own-container'), [card('wrong')]);
   assert.strictEqual(again.wasted, true);
   assert.ok(again.mood < 0);
 });
 
 test('a single word reaches a single-word cause', () => {
   const call = c.openCall(c.newSheet({ name: 'Sella', tier: 'Silver' }));
-  const res = c.ask(call, cause('stopper-left-out'), [card('stopper')]);
-  assert.strictEqual(res.reached, 'stopper-left-out');
+  const res = c.ask(call, cause('own-container'), [card('crate')]);
+  assert.strictEqual(res.reached, 'own-container');
 });
 
-test('a paired cause needs both words in the same inquiry', () => {
+test('a cause is reached by a word she uses herself', () => {
   const sheet = c.newSheet({ name: 'Sella', tier: 'Silver' });
-  const alone = c.openCall(sheet);
-  assert.strictEqual(c.ask(alone, cause('drank-in-the-night'), [card('night')]).reached, null);
-  const paired = c.openCall(sheet);
-  assert.strictEqual(
-    c.ask(paired, cause('drank-in-the-night'), [card('night'), card('water')]).reached,
-    'drank-in-the-night',
-  );
+  // Every cause in this scenario is reachable without a coworker, which is
+  // what a scenario needs if the caller might refuse a hold.
+  const call = c.openCall(sheet);
+  assert.strictEqual(c.ask(call, cause('sent-extra'), [card('measure')]).reached, 'sent-extra');
 });
 
 test('blame costs her more than plain', () => {
   const sheet = c.newSheet({ name: 'Sella', tier: 'Silver' });
-  const plain = c.ask(c.openCall(sheet), cause('charm-interference'), [card('stopper')], seededRng(5));
-  const blamed = c.ask(c.openCall(sheet), cause('charm-interference'), [card('stopper', 'blame')], seededRng(5));
+  const plain = c.ask(c.openCall(sheet), cause('sent-together'), [card('crate')], seededRng(5));
+  const blamed = c.ask(c.openCall(sheet), cause('sent-together'), [card('stopper', 'blame')], seededRng(5));
   assert.ok(blamed.mood < plain.mood);
 });
 
@@ -57,7 +54,7 @@ test('a sour customer stops volunteering', () => {
   sheet.opinion = -3;
   const call = c.openCall(sheet);
   call.mood = 1;
-  const res = c.ask(call, cause('did-something-she-didnt-think-mattered'), [card('overnight')]);
+  const res = c.ask(call, cause('remnant-ingredients'), [card('poof')]);
   assert.deepStrictEqual(res.seeds, []);
 });
 
@@ -87,8 +84,8 @@ test('an ordinary resolved call writes nothing much; a case writes', () => {
 test('what she is taught stays on the sheet', () => {
   const sheet = c.newSheet({ name: 'Sella', tier: 'Silver' });
   const call = c.openCall(sheet);
-  const after = c.writeBack(call, { ending: 'resolve', taught: 'stopper-left-out', gist: 'x' });
-  assert.deepStrictEqual(after.knows, ['stopper-left-out']);
+  const after = c.writeBack(call, { ending: 'resolve', taught: 'own-container', gist: 'x' });
+  assert.deepStrictEqual(after.knows, ['own-container']);
 });
 
 test('opinion carries into how she starts the next call', () => {
@@ -102,9 +99,9 @@ test('the cost lands on the third check of the same thing, not the second', () =
   // says third, and an earlier build charged on the second.
   const sheet = c.newSheet({ name: 'Sella', tier: 'Silver' }, seededRng(1));
   const call = c.openCall(sheet);
-  const second = c.ask(call, cause('charm-interference'), [card('shelf')], 'expand');
-  const third = c.ask(call, cause('charm-interference'), [card('shelf')], 'expand');
-  const fourth = c.ask(call, cause('charm-interference'), [card('shelf')], 'expand');
+  const second = c.ask(call, cause('sent-together'), [card('crate')], 'expand');
+  const third = c.ask(call, cause('sent-together'), [card('crate')], 'expand');
+  const fourth = c.ask(call, cause('sent-together'), [card('crate')], 'expand');
   assert.ok(second.mood >= 0 || true);
   assert.strictEqual(third.mood, -1, 'the second ask is stale but not yet a third check');
   assert.ok(fourth.mood <= -2, 'the third check costs on top of being stale');
@@ -124,7 +121,7 @@ test('a statement is an inquiry: being wrong corrects you rather than wasting th
   const call = c.openCall(sheet);
   // Nothing established about her subscription, so the statement is a guess
   // offered for correction — and her correction is the information.
-  const guess = c.ask(call, cause('stopper-left-out'), [card('subscriptions')], 'contract', 'state');
+  const guess = c.ask(call, cause('own-container'), [card('subscriptions')], 'contract', 'state');
   assert.strictEqual(guess.wasted, false);
   assert.match(guess.line, /ordinary draught/);
 });
@@ -132,9 +129,9 @@ test('a statement is an inquiry: being wrong corrects you rather than wasting th
 test('a run of statements reads as guessing at everything', () => {
   const sheet = c.newSheet({ name: 'Sella', tier: 'Silver' }, seededRng(3));
   const call = c.openCall(sheet);
-  const first = c.ask(call, cause('stopper-left-out'), [card('billing')], 'contract', 'state');
-  const second = c.ask(call, cause('stopper-left-out'), [card('order history')], 'contract', 'state');
-  const third = c.ask(call, cause('stopper-left-out'), [card('account history')], 'contract', 'state');
+  const first = c.ask(call, cause('own-container'), [card('billing')], 'contract', 'state');
+  const second = c.ask(call, cause('own-container'), [card('order history')], 'contract', 'state');
+  const third = c.ask(call, cause('own-container'), [card('account history')], 'contract', 'state');
   assert.ok(third.mood < first.mood, `first ${first.mood}, third ${third.mood}`);
   void second;
 });
@@ -142,8 +139,8 @@ test('a run of statements reads as guessing at everything', () => {
 test('confirming something she did say lands as being heard', () => {
   const sheet = c.newSheet({ name: 'Sella', tier: 'Silver' }, seededRng(4));
   const call = c.openCall(sheet);
-  c.ask(call, cause('stopper-left-out'), [card('overnight')], 'expand');
-  const back = c.ask(call, cause('stopper-left-out'), [card('overnight')], 'contract', 'state');
+  c.ask(call, cause('own-container'), [card('poof')], 'expand');
+  const back = c.ask(call, cause('own-container'), [card('poof')], 'contract', 'state');
   assert.ok(back.mood > 0);
   assert.strictEqual(back.wasted, false);
 });

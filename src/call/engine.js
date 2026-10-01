@@ -93,7 +93,8 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
         ? state.leads.map((w) => ({ word: w, flavour: 'routine', source: 'lead' }))
         : [];
       const held = finds.concat(leads);
-      const dealt = deal(deck, Math.max(1, HAND - held.length), rng, { recent: call.recent || [] });
+      const dealt = deal(deck, Math.max(1, HAND - held.length), rng,
+        { recent: call.recent || [], expert: state.leads });
       let hand = held.concat(dealt.hand);
       let rest = dealt.rest;
       const swapCard = agent.chooseDiscard(hand, view, rng);
@@ -178,6 +179,22 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
         for (const s of res.seeds) if (!call.pool.includes(s)) call.pool.push(s);
         if (res.seeds.length) entry.seeded = res.seeds.slice();
       }
+    } else if (choice.kind === 'aside') {
+      // You can't put a man mid-fight on hold, but you can ask over your
+      // shoulder while he's on the line. Cheaper than a hold, worse than a
+      // hold, and available when a hold isn't — she hears you not knowing.
+      state.ledger.asides = (state.ledger.asides || 0) + 1;
+      if (!available) {
+        entry.result = 'nobody near enough to ask';
+      } else {
+        const lines = Math.max(1, Math.floor(briefStrength(state) / 2));
+        const words = require('./rng').shuffle(COWORKER_WORDS, rng).slice(0, lines);
+        for (const w of words) if (!state.leads.includes(w)) state.leads.push(w);
+        entry.result = `asked over your shoulder — ${words.join(' · ')}`;
+        entry.seeded = words;
+      }
+      call.mood = clampMood(call.mood - 1);
+      entry.mood = call.mood;
     } else if (choice.kind === 'hold') {
       state.ledger.holdsAsked += 1;
       if (!customer.acceptsHold(call, state.holds, rng)) {
@@ -306,6 +323,7 @@ function viewFor(call, state) {
     said: Array.from(call.said),
     candidates: state.candidates.slice(),
     leads: state.leads.slice(),
+    holdRefused: state.ledger.holdsRefused > 0,
     handles: state.handles.slice(),
     fieldsRead: state.fieldsRead.slice(),
   };

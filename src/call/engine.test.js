@@ -29,7 +29,7 @@ test('the agent is never handed the cause', () => {
   playCall({ sheet: sheet(), agent: spy, rng: seededRng(11) });
   assert.ok(seen);
   const json = JSON.stringify(seen);
-  for (const id of ['stopper-left-out', 'charm-interference', 'drank-in-the-night', 'rinsed-it-out']) {
+  for (const id of ['own-container', 'sent-together', 'sent-extra', 'remnant-ingredients']) {
     if (seen.revealed === id) continue;
     assert.ok(!json.includes(id), `view leaked ${id}`);
   }
@@ -58,7 +58,7 @@ test('a full brief seeds more lines of inquiry than a thin one', () => {
     }
   }
   assert.ok(briefs.length > 5, 'expected holds across 60 calls');
-  assert.ok(Math.max(...briefs) === 5);
+  assert.strictEqual(Math.max(...briefs), require('./scenario').COWORKER_WORDS.length);
   assert.ok(Math.min(...briefs) === 1, 'the thin brief must be reachable');
 });
 
@@ -128,9 +128,13 @@ test('skill moves outcomes', () => {
   };
   const poor = run(0.15);
   const good = run(0.9);
-  assert.ok(good.found > poor.found * 2.5,
+  // The margin is smaller than it was when three of four causes sat behind a
+  // coworker: every cause here is reachable from her own words, which a
+  // scenario needs if the caller might refuse a hold. The trade is real and
+  // recorded rather than tuned away.
+  assert.ok(good.found > poor.found * 1.15,
     `finds: poor ${poor.found}, good ${good.found}`);
-  assert.ok(good.resolved > poor.resolved * 2.5,
+  assert.ok(good.resolved > poor.resolved * 1.15,
     `resolves: poor ${poor.resolved}, good ${good.resolved}`);
 });
 
@@ -155,7 +159,7 @@ test('there are three outcomes and no fourth', () => {
   assert.deepStrictEqual(Array.from(seen).sort(), ['hold', 'resolve', 'transfer']);
 });
 
-test('the open-slot cause draws a different act per call', () => {
+test('a cause draws a different departure per call', () => {
   const lines = new Set();
   for (let s = 1; s <= 300; s++) {
     const rng = seededRng(s);
@@ -164,7 +168,7 @@ test('the open-slot cause draws a different act per call', () => {
       agent: makeAgent({ name: 'a', competence: 0.9 }),
       rng,
     });
-    if (r.cause !== 'did-something-she-didnt-think-mattered') continue;
+    if (r.cause !== 'remnant-ingredients') continue;
     for (const e of r.log) {
       if (e.result === 'cause surfaced') lines.add(e.reply);
     }
@@ -208,4 +212,33 @@ test('a find is a card in hand, so the hand shrinks rather than a turn being spe
   }
   assert.ok(sawFixTurn > 20, `only ${sawFixTurn} fixes given in 300 calls`);
   assert.ok(sawPairedFix > 0, 'a fix was never paired with another card');
+});
+
+test('the aside is available when a hold has been refused, and costs her something', () => {
+  // You can't put a man mid-fight on hold; you can ask over your shoulder.
+  const agent = {
+    knowsApothecaries: false,
+    turn: 0,
+    chooseTurn(view) {
+      this.turn += 1;
+      if (!view.handles.length) return { kind: 'inquiry', source: 'customer', mode: 'contract' };
+      if (this.turn === 2) return { kind: 'aside' };
+      return { kind: 'inquiry', source: 'customer', mode: 'expand' };
+    },
+    chooseDiscard() { return null; },
+    choosePlays(hand, view) {
+      if (!view.handles.length) return hand.filter((c) => c.asks === 'identifier').slice(0, 1);
+      return hand.slice(0, 1);
+    },
+  };
+  const r = playCall({ sheet: sheet(), agent, rng: seededRng(5), coworkerAvailable: true });
+  const aside = r.log.find((e) => e.kind === 'aside');
+  assert.ok(aside, 'expected an aside');
+  assert.match(String(aside.result), /over your shoulder|nobody near/);
+  if (aside.seeded) {
+    assert.ok(aside.seeded.length >= 1);
+    assert.ok(aside.seeded.length < require('./scenario').COWORKER_WORDS.length,
+      'an aside should return less than a full brief');
+  }
+  assert.ok(r.ledger.asides >= 1);
 });

@@ -17,45 +17,45 @@
  */
 
 const SYMPTOM = {
-  id: 'flask-did-not-refill',
-  opening: "My flask's meant to refill overnight, and this morning it's empty.",
-  // Key words, not phrases. "every" is entailed by overnight + refill.
-  words: ['flask', 'refill', 'overnight', 'morning', 'empty'],
+  id: 'poof-refill-came-back-wrong',
+  opening: "I sent my flask off for a refill by POOF, and what's come back isn't right.",
+  // Key words, not phrases, and nothing entailed by another.
+  words: ['flask', 'refill', 'poof', 'wrong'],
 };
 
 /**
- * Every cause presents identically. What differs is which words reach
- * it, whether the customer has connected it herself, and what putting
- * it right asks of her.
- */
-/**
- * How things normally are on her shelf.
+ * How she normally sends one.
  *
- * Her answers in the record's scenes — the stopper on a cord, the ring up
- * there every night for a year, water in the cup, just a candle — are the
- * baseline, not laws. A cause is a **departure** from it, which is why the
- * questions are about her routine: the signal is the deviation.
+ * Her ordinary practice, which is what she will describe when asked about a
+ * part of it that did not change this time. A cause is a departure from this,
+ * and every departure is something she did without thinking it mattered.
  */
 const BASELINE = {
-  flask: "Same flask I've always had. It looks no different to me.",
-  empty: 'Bone dry. Not a drop left in it.',
-  morning: 'When I got up, first thing. It should have been full by then.',
-  refill: 'It fills itself overnight. That is the whole point of it.',
-  stopper: "It was. It's on a cord, it doesn't come off.",
-  ring: "It is. It's been up there every night for a year.",
-  candle: 'No, just a candle.',
-  cup: 'Water for the night.',
-  water: "It's what I keep by the bed. I fill the cup before I turn in.",
-  night: 'I slept through, same as usual.',
-  bed: 'Nothing out of the ordinary. I put it up and went to sleep.',
+  crate: 'The TLC crate. The plain one they give you.',
+  else: 'Nothing else in with it. Just the flask.',
+  measure: 'The measure the apothecary wrote down for me.',
+  ingredients: 'What the apothecary sold me for it, same as always.',
+  flask: "Same flask I've always sent. Nothing wrong with the flask.",
+  refill: "It's the healing draught it comes back with.",
+  poof: "I've sent it that way a dozen times and it's always been right.",
+  wrong: "It's thinner. Weaker than it should be, and the colour's off.",
+  // Things anyone would ask about a shipment, none of which is ever the
+  // cause. A real call has far more askable than answerable, which is what
+  // makes knowing where to look worth anything.
+  when: 'Tuesday, first thing. It came back the next morning.',
+  depot: 'The one in the village. I walk it down myself.',
+  carriage: 'The usual rate. I paid it at the counter.',
+  label: 'They wrote it out for me there and I checked it.',
+  weather: "It was dry. Not that I'd have thought it mattered.",
+  handed: 'The lad at the counter took it off me.',
+  waited: "I didn't wait. They send it on when the mage comes round.",
 };
 
 /**
  * What she says when asked about her own account.
  *
- * Her belief, not the record's fact — and it is allowed to be wrong. The
- * player has the CRM and she has only herself (settled.md:1168), so the gap
- * between these lines and what the record says is where her expectations sit.
+ * Her belief, not the record's fact, and allowed to be wrong. The player has
+ * the CRM and she has only herself (settled.md:1168).
  */
 const BELIEFS = {
   subscriptions: {
@@ -63,94 +63,82 @@ const BELIEFS = {
     Silver: "The monthly one. Standard draught — that's what I pay for.",
     Gold: 'The good one. It should be the strong draught in there.',
   },
-  billing: {
-    any: "It goes out every month, same day. I've never missed one.",
-  },
-  'order history': {
-    any: "I've collected one before, when I was caught short. A while ago now.",
-  },
-  'account history': {
-    any: "Nothing's changed. Same address, same flask, since I took it out.",
-  },
-  hands: {
-    any: 'Nobody else. It sits by my bed.',
-  },
+  billing: { any: "It goes out every month, same day. I've never missed one." },
+  'order history': { any: "I've sent it off this way plenty of times. A dozen, near enough." },
+  'account history': { any: "Nothing's changed. Same address, same flask, since I took it out." },
+  hands: { any: 'Nobody else. It sits by my bed.' },
 };
 
+/**
+ * Four causes, all of them hers, none of them her fault in the way she would
+ * recognise. Each is reachable by a word she uses herself — which is what a
+ * scenario needs if the caller might refuse a hold.
+ */
 const CAUSES = [
   {
-    id: 'stopper-left-out',
-    reach: [['stopper']],
+    id: 'own-container',
+    reach: [['crate']],
+    hints: { poof: ['crate'], flask: ['crate'] },
     connects: true,
-    // The cord is the normal state; this is what went wrong with it.
     departures: [
-      "It wasn't, no — the cord's frayed through and the stopper's on the shelf.",
-      "…it isn't. I untied it to pour some off and left it beside the flask.",
+      "Not this time — their crate had got damp, so I used my own box. The one with the brass fittings.",
+      "I hadn't a crate left, so it went in a chest of mine. It has silver on the corners.",
     ],
-    of: 'stopper',
     fix: {
-      id: 'stopper-in',
-      line: 'Stoppered tonight and it fills as normal.',
-      reply: "That's it? I'll put it back on now.",
+      id: 'plain-crate',
+      line: 'Metal on the box changes what the spell does on its way through. A plain TLC crate and it comes back as it should.',
+      reply: "The box did it? I'd never have thought of that for a moment.",
     },
   },
   {
-    id: 'charm-interference',
-    reach: [['near'], ['enchanted']],
-    hints: { shelf: ['charm'], near: ['charm'] },
+    id: 'sent-together',
+    reach: [['else']],
+    hints: { crate: ['else'], poof: ['else'] },
     connects: false,
     departures: [
-      "There's a charm up there now that wasn't before.",
-      "My ring — it was enchanted last week. It's been up there a year, but that part is new.",
+      "I did put my sister's kettle in with it, to save the carriage.",
+      "There was a bundle of candles in there as well. It seemed a waste to send air.",
     ],
-    of: 'ring',
     fix: {
-      id: 'move-charm',
-      line: 'Two enchantments that close will interfere. Move one and it fills tonight.',
-      reply: "The charm can go on the mantel. It'll fill tonight, then?",
+      id: 'send-alone',
+      line: 'Two things in one crate share what POOF does to them. Send the flask on its own and it comes back right.',
+      reply: 'So the kettle took some of it. I was only trying to be careful with the money.',
     },
   },
   {
-    id: 'drank-in-the-night',
-    reach: [['night', 'water'], ['night', 'cup']],
-    hints: { night: ['water', 'cup'], bed: ['cup'] },
+    id: 'sent-extra',
+    reach: [['measure']],
+    hints: { ingredients: ['measure'], wrong: ['measure'] },
     connects: false,
     departures: [
-      "I woke up thirsty. I had a drink. The cup's always— …oh.",
+      "I sent extra, to be safe. I thought more could only help.",
+      "I rounded it up. There was a bit left in the jar and it seemed a shame to keep it.",
     ],
-    of: 'night',
     fix: {
-      id: 'nothing-broken',
-      line: "Nothing's broken. It fills again tonight.",
-      reply: 'Nothing wrong with it at all. Right. And tonight?',
+      id: 'the-measure',
+      line: 'More thins it rather than strengthens it — send the measure and nothing over.',
+      reply: "Extra made it weaker? That's backwards to me, but I'll do as you say.",
     },
   },
   {
-    // The open slot. The record names only "did something she didn't think
-    // mattered" (settled.md:2020) — naming one act would hand the player a
-    // catalogue, which is what supportCall.js exists to prevent.
-    id: 'did-something-she-didnt-think-mattered',
-    reach: [['bed']],
+    id: 'remnant-ingredients',
+    reach: [['ingredients']],
+    hints: { measure: ['ingredients'], refill: ['ingredients'] },
     connects: false,
     departures: [
-      "Nothing. I rinsed it out before bed, it had a taste to it.",
-      "Nothing… I moved it while I was cleaning, it was back before dark.",
-      "Nothing. I lent it out for an hour, it came straight back.",
-      "Nothing. It was in my bag most of the day, if that counts.",
-      "Nothing. I left it by the fire to take the chill off it.",
-      "Nothing. I topped it up from the jug — it looked low.",
+      "I used up what I had in the back of the cupboard. Old jars, the last of three of them.",
+      "They were the scrapings, if I'm honest. I was saving the fresh ones.",
     ],
-    of: 'bed',
     fix: {
-      id: 'leave-it-be',
-      line: 'Leave it as it is tonight and it fills.',
-      reply: "So I just leave it be. And that's all it was?",
+      id: 'fresh-ingredients',
+      line: "What comes back can only be as good as what went in. Fresh ingredients and it'll be the draught you know.",
+      reply: 'So it was only ever going to be as good as the old jars. I see.',
     },
   },
 ];
 
 /** What the coworker seeds into the pool when the brief is good. */
-const COWORKER_WORDS = ['stopper', 'enchanted', 'near', 'bed', 'night'];
+const COWORKER_WORDS = ['crate', 'else', 'measure', 'ingredients'];
 
 /**
  * Word families. A key word is not one card: it is the word itself,
@@ -160,19 +148,21 @@ const COWORKER_WORDS = ['stopper', 'enchanted', 'near', 'bed', 'night'];
 const FAMILIES = {
   flask: { adjacent: [], flavours: ['plain'] },
   refill: { adjacent: ['draught'], flavours: ['plain'] },
-  overnight: { adjacent: ['night'], flavours: ['plain', 'routine'] },
-  morning: { adjacent: [], flavours: ['plain', 'frustration'] },
-  empty: { adjacent: [], flavours: ['plain', 'frustration'] },
-  stopper: { adjacent: ['cord'], flavours: ['plain', 'blame', 'routine'] },
-  enchanted: { adjacent: ['charm'], flavours: ['plain'] },
-  near: { adjacent: ['shelf'], flavours: ['plain', 'support'] },
-  bed: { adjacent: ['sleep'], flavours: ['plain', 'routine'] },
-  night: { adjacent: ['water', 'cup', 'thirst'], flavours: ['plain', 'routine'] },
-  charm: { adjacent: [], flavours: ['plain', 'support'] },
-  shelf: { adjacent: ['candle', 'cup', 'ring'], flavours: ['plain'] },
-  cup: { adjacent: ['water'], flavours: ['plain'] },
-  cord: { adjacent: [], flavours: ['plain'] },
-  water: { adjacent: [], flavours: ['plain'] },
+  poof: { adjacent: ['crate', 'depot'], flavours: ['plain', 'routine'] },
+  wrong: { adjacent: ['when'], flavours: ['plain', 'frustration'] },
+  crate: { adjacent: ['else', 'label'], flavours: ['plain', 'blame', 'routine'] },
+  else: { adjacent: [], flavours: ['plain', 'support'] },
+  measure: { adjacent: ['ingredients'], flavours: ['plain', 'blame', 'routine'] },
+  ingredients: { adjacent: ['apothecary'], flavours: ['plain', 'support'] },
+  draught: { adjacent: [], flavours: ['plain'] },
+  apothecary: { adjacent: [], flavours: ['plain'] },
+  when: { adjacent: ['weather'], flavours: ['plain', 'routine'] },
+  depot: { adjacent: ['handed', 'carriage'], flavours: ['plain', 'routine'] },
+  carriage: { adjacent: [], flavours: ['plain'] },
+  label: { adjacent: [], flavours: ['plain'] },
+  weather: { adjacent: [], flavours: ['plain'] },
+  handed: { adjacent: ['waited'], flavours: ['plain', 'support'] },
+  waited: { adjacent: [], flavours: ['plain'] },
 };
 
 /** Flavour effects, in mood points. Blame is the expensive one. */
@@ -198,17 +188,19 @@ const FLAVOUR_COST = {
  * ellipses round it.
  */
 const VOLUNTEERS = {
-  night: 'it was an ordinary night, mind',
-  water: 'I keep water by the bed',
-  cup: "there's a cup up there too",
-  cord: "the stopper's on a cord",
-  charm: "there's a charm up there now",
-  shelf: 'it sits on the shelf by the bed',
-  candle: "there's a candle beside it",
-  ring: 'my ring goes up there when I take it off',
-  sleep: 'I sleep right beside it',
-  draught: "it's the healing draught it fills with",
-  thirst: 'I do wake up thirsty sometimes',
+  crate: 'it went in a crate, of course',
+  else: 'there was room left in it, mind',
+  measure: 'I measured it out myself',
+  ingredients: 'the ingredients came from the apothecary',
+  apothecary: "it's the apothecary on the square I use",
+  draught: "it's the healing draught it comes back with",
+  when: 'I sent it Tuesday',
+  depot: 'I take it down to the village depot',
+  carriage: 'I paid the carriage at the counter',
+  label: 'they wrote the label out for me',
+  weather: 'it was dry that day',
+  handed: 'the lad at the counter took it off me',
+  waited: "I didn't stop to watch it go",
 };
 
 const CRM_FIELDS = ['billing', 'account history', 'order history', 'subscriptions', 'hands'];

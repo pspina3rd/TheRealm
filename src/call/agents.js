@@ -38,6 +38,10 @@ function makeAgent({ name, competence }) {
       if (view.facts >= 2 && view.holds === 0 && chance(0.2 + skill * 0.7, rng)) {
         return { kind: 'hold' };
       }
+      // When a hold has already been refused, the aside is what's left.
+      if (view.holdRefused && !view.leads.length && chance(0.3 + skill * 0.5, rng)) {
+        return { kind: 'aside' };
+      }
       // No transfer card exists just because the agent is stuck. It exists
       // when something out of scope has appeared — and in this scenario a
       // flask that won't refill is Subscriptions' own business, so the only

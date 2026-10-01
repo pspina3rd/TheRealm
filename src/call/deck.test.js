@@ -27,15 +27,15 @@ test('after identification the CRM deals fields', () => {
 });
 
 test('contract does not wander into neighbours; expand does', () => {
-  const contract = buildDeck({ pool: ['stopper'], identified: true, source: 'customer', mode: 'contract' });
-  const expand = buildDeck({ pool: ['stopper'], identified: true, source: 'customer', mode: 'expand' });
-  assert.ok(!contract.some((c) => c.word === 'cord'));
-  assert.ok(expand.some((c) => c.word === 'cord'));
+  const contract = buildDeck({ pool: ['crate'], identified: true, source: 'customer', mode: 'contract' });
+  const expand = buildDeck({ pool: ['crate'], identified: true, source: 'customer', mode: 'expand' });
+  assert.ok(!contract.some((c) => c.word === 'else'));
+  assert.ok(expand.some((c) => c.word === 'else'));
 });
 
 test('expand carries the costly flavours and contract does not', () => {
-  const expand = buildDeck({ pool: ['stopper'], identified: true, source: 'customer', mode: 'expand' });
-  const contract = buildDeck({ pool: ['near'], identified: true, source: 'customer', mode: 'contract' });
+  const expand = buildDeck({ pool: ['crate'], identified: true, source: 'customer', mode: 'expand' });
+  const contract = buildDeck({ pool: ['ingredients'], identified: true, source: 'customer', mode: 'contract' });
   assert.ok(expand.some((c) => c.flavour === 'blame'));
   assert.ok(!contract.some((c) => c.flavour === 'blame'));
   assert.ok(contract.some((c) => c.flavour === 'support'));
@@ -43,7 +43,7 @@ test('expand carries the costly flavours and contract does not', () => {
 
 test('the pool is larger than the hand, so a discard draws something new', () => {
   const deck = buildDeck({
-    pool: ['flask', 'refill', 'overnight', 'morning', 'empty', 'stopper', 'near'],
+    pool: ['flask', 'refill', 'poof', 'wrong', 'crate', 'measure', 'ingredients'],
     identified: true, source: 'customer', mode: 'expand',
   });
   assert.ok(deck.length > 5);
@@ -58,18 +58,18 @@ test('the pool is larger than the hand, so a discard draws something new', () =>
 test('what a coworker named comes to hand more readily than noise', () => {
   // Would have caught the flat deal, where a growing pool buried the one
   // card that mattered.
-  const pool = ['flask', 'refill', 'morning', 'empty', 'shelf', 'cup', 'water'].concat(COWORKER_WORDS);
+  const pool = ['flask', 'refill', 'poof', 'wrong', 'draught', 'apothecary'].concat(COWORKER_WORDS);
   const deck = buildDeck({ pool, identified: true, source: 'customer', mode: 'expand' });
   let withExpert = 0;
   for (let seed = 1; seed <= 200; seed++) {
-    const { hand } = deal(deck, 5, seededRng(seed), { recent: [] });
+    const { hand } = deal(deck, 5, seededRng(seed), { recent: [], expert: COWORKER_WORDS });
     if (hand.some((c) => COWORKER_WORDS.includes(c.word))) withExpert += 1;
   }
   assert.ok(withExpert > 150, `expert words reached hand in only ${withExpert}/200 deals`);
 });
 
 test('dealing is deterministic for a seed', () => {
-  const deck = buildDeck({ pool: ['flask', 'stopper', 'near'], identified: true, source: 'customer', mode: 'expand' });
+  const deck = buildDeck({ pool: ['flask', 'crate', 'measure'], identified: true, source: 'customer', mode: 'expand' });
   const a = deal(deck, 5, seededRng(9)).hand.map((c) => `${c.word}:${c.flavour}`);
   const b = deal(deck, 5, seededRng(9)).hand.map((c) => `${c.word}:${c.flavour}`);
   assert.deepStrictEqual(a, b);

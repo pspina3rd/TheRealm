@@ -8,8 +8,8 @@ const ledger = (over = {}) => ({
   flavours: { blame: 0, frustration: 0, support: 0, routine: 0, plain: 4 },
   wasted: 0, holdsAsked: 1, holdsRefused: 0, holdsEmpty: 0, readsBeyondNeed: 0,
   entitlement: 'not offered', accessGiven: false, identTurn: 2,
-  lateFind: false, findTurn: 5, moodStart: 5, moodEnd: 5, taught: 'stopper-left-out',
-  caseWritten: false, cause: 'stopper-left-out', ending: 'resolve', ...over,
+  lateFind: false, findTurn: 5, moodStart: 5, moodEnd: 5, taught: 'own-container',
+  caseWritten: false, cause: 'own-container', ending: 'resolve', ...over,
 });
 
 test('nothing is collapsed into a total', () => {
@@ -32,7 +32,7 @@ test('an axis that was never in play is absent, not zero', () => {
 test('the same call reads differently depending on who is holding it', () => {
   // A case she was taught something on: she loses the product, the
   // co-op does not, because resolution means different things to them.
-  const s = score(ledger({ ending: 'hold', caseWritten: true, taught: 'stopper-left-out' }));
+  const s = score(ledger({ ending: 'hold', caseWritten: true, taught: 'own-container' }));
   assert.strictEqual(s.customer['Product/Service'], 0);
   assert.strictEqual(s.coop['Product/Service'], 0);
   assert.strictEqual(s.customer.History, 1);

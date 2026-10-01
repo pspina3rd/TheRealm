@@ -62,6 +62,7 @@ const scripted = {
     // A hold or an offer is the whole turn, so it advances the pointer here;
     // an inquiry advances it when the cards are played.
     if (move === 'hold') { this.index += 1; return { kind: 'hold' }; }
+    if (move === 'aside') { this.index += 1; return { kind: 'aside' }; }
     if (move === 'offer') { this.index += 1; return { kind: 'offer' }; }
     const p = parse(move);
     return { kind: 'inquiry', source: p.source, mode: p.mode, direction: p.direction };
@@ -163,7 +164,7 @@ if (pausedAt.stage === 'turn') {
   console.log('YOUR MOVE — pick a source and a mode, or hold, or offer:');
   console.log('  customer/expand · customer/contract · customer/random');
   console.log('  crm/expand · crm/contract · crm/random');
-  console.log('  hold · offer');
+  console.log('  hold · aside · offer');
 } else {
   console.log('DEALT:');
   pausedAt.cards.forEach((c, i) => {

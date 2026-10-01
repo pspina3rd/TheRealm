@@ -1,6 +1,6 @@
 'use strict';
 
-const { FAMILIES, CRM_FIELDS, IDENTIFIERS, COWORKER_WORDS } = require('./scenario');
+const { FAMILIES, CRM_FIELDS, IDENTIFIERS } = require('./scenario');
 const { shuffle } = require('./rng');
 
 /**
@@ -101,9 +101,14 @@ function dedupe(cards) {
  */
 function deal(deck, size, rng, opts = {}) {
   const recent = opts.recent || [];
+  // Weighted by what a coworker actually named on THIS call, not by the
+  // scenario's list of lines a coworker could name. Weighting the latter made
+  // every deal favour the words that reach a cause, so flailing paid as well
+  // as asking — and it hid the whole value of the hold.
+  const expert = opts.expert || [];
   const weightOf = (c) => {
     let w = 1;
-    if (COWORKER_WORDS.includes(c.word)) w += 3;
+    if (expert.includes(c.word)) w += 3;
     if (recent.includes(c.word)) w += 2;
     return w;
   };
