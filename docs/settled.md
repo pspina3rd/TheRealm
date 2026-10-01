@@ -245,6 +245,30 @@ It's there before you blink."*
 
 **[C]** A POOF complaint is TLC's to handle, not a referral.
 
+### Rescue by POOF
+
+**[P]** Adventurers on quests call for help and use POOF to get resupplied;
+the player can also use POOF to try to save them. A portion of what
+adventurers earn is tithed to TLC as stock for those deliveries. The chaos
+comes when items don't arrive as expected, and the player puzzles out what
+went wrong through the conversation. **[C·ok]** Rescue calls are the loud
+minority among mundane ones.
+
+**[P] Failure is a lost quest**, not a death. It is written to the party's
+character sheets and changes which items and components are available next
+time.
+
+**[P] The bag that holds anything** is TLC holding the adventurer's goods, with
+POOF fetching them. **[C·ok]** A party shares one bag, under the CRM's Admin
+and User access, so the member who calls may not see what another member put
+in or took out.
+
+**[P]** POOF's rules are fixed, like a recipe, yet people make it better or
+worse, add to it, modify it, and manipulate the rules for a different
+outcome — and the quality of the ingredients matters too. Knowing the rule
+tells the player what should have happened; the call is finding what this
+party did differently.
+
 **[P]** Ley lines and the size upcharge belong to the previous iteration.
 `Quest Line Bug`, `Respawn Delay` and `XP Miscount Dispute` belong to a
 support center for video game characters. Neither is this game.
@@ -907,6 +931,10 @@ the previous iteration.
 
 **[C·ok]** A hold is right when the apprentice truly doesn't know, someone
 else on the floor does, and nobody is in danger.
+
+**[P]** Whether a caller accepts a hold depends on their part in the moment.
+Someone fighting refuses; a party member who can't help against these enemies,
+or someone calling before or after the battle, may accept.
 
 **[P]** When nothing has been shared that allows a search, and the apprentice
 couldn't interpret what a search found anyway, guessing is not the path.
