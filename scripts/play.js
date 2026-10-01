@@ -38,10 +38,11 @@ const PAUSE = Symbol('pause');
 function parse(move) {
   const [head, picks] = move.split(':');
   const tell = head.includes('!');
-  const [sm, discard] = head.replace('!', '').split('-');
+  const now = head.includes('+fix');
+  const [sm, discard] = head.replace('!', '').replace('+fix', '').split('-');
   const [source, mode] = sm.split('/');
   return {
-    source, mode, direction: tell ? 'state' : 'ask',
+    source, mode, direction: tell ? 'state' : 'ask', now,
     discard: discard ? Number(discard) : null,
     picks: picks ? picks.split(',').map(Number) : null,
   };
@@ -52,12 +53,16 @@ let pausedAt = null;
 
 const scripted = {
   knowsApothecaries: false,
+  // `fix` in the move means: say it the moment it surfaces.
+  fixNow() { return parse(moves[this.index - 1] || 'x/x').now; },
   index: 0,
   chooseTurn(view) {
     const move = moves[this.index];
     if (!move) { pausedAt = { stage: 'turn', view, log: view.log }; throw PAUSE; }
-    if (move === 'hold') return { kind: 'hold' };
-    if (move === 'offer') return { kind: 'offer' };
+    // A hold or an offer is the whole turn, so it advances the pointer here;
+    // an inquiry advances it when the cards are played.
+    if (move === 'hold') { this.index += 1; return { kind: 'hold' }; }
+    if (move === 'offer') { this.index += 1; return { kind: 'offer' }; }
     const p = parse(move);
     return { kind: 'inquiry', source: p.source, mode: p.mode, direction: p.direction };
   },

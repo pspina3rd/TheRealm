@@ -46,6 +46,14 @@ function makeAgent({ name, competence }) {
       return inquiry(view, rng, skill);
     },
 
+    // Acting on what she just said, rather than banking it for a later turn.
+    fixNow(view, rng) {
+      // With a turn in hand a better agent sometimes checks first; with none,
+      // anyone says the thing rather than ringing off in silence.
+      if (view.turnsLeft <= 1) return true;
+      return chance(0.75 - skill * 0.35, rng);
+    },
+
     chooseDiscard(hand, view, rng) {
       // Spotting that a card is dead takes some skill; everyone gets it
       // sometimes, nobody gets it always.

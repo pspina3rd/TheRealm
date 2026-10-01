@@ -33,6 +33,7 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
     record: null,
     revealed: null,           // cause id, once a word has reached it
     candidates: [],           // finds in hand, each playable as a card
+    leads: [],                // what a coworker named, held until played
     holds: 0,
     partnerKnown: false,
     handles: [],              // what she has given that can be searched on
@@ -85,8 +86,15 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
       const finds = state.candidates.map((id) => ({
         word: `fix: ${id}`, flavour: 'plain', source: 'find', causeId: id,
       }));
-      const dealt = deal(deck, Math.max(1, HAND - finds.length), rng, { recent: call.recent || [] });
-      let hand = finds.concat(dealt.hand);
+      // What a coworker named is held in hand, not dropped into the pool to
+      // be re-randomised: an organized brief hands you its lines, and the
+      // player who earned it works the expert's list.
+      const leads = choice.source === 'customer'
+        ? state.leads.map((w) => ({ word: w, flavour: 'routine', source: 'lead' }))
+        : [];
+      const held = finds.concat(leads);
+      const dealt = deal(deck, Math.max(1, HAND - held.length), rng, { recent: call.recent || [] });
+      let hand = held.concat(dealt.hand);
       let rest = dealt.rest;
       const swapCard = agent.chooseDiscard(hand, view, rng);
       if (swapCard) {
@@ -119,6 +127,9 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
       } else if (choice.source === 'crm') {
         applyCrm(state, call, plays, entry, rng);
       } else {
+        for (const p of plays) {
+          if (p.source === 'lead') state.leads = state.leads.filter((w) => w !== p.word);
+        }
         const asked = (rest2.length ? rest2 : plays).filter((p) => p.asks === 'identifier');
         if (asked.length) {
           for (const a of asked) if (!state.handles.includes(a.word)) state.handles.push(a.word);
@@ -142,6 +153,21 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
           state.revealed = res.reached;
           if (!state.candidates.includes(res.reached)) state.candidates.push(res.reached);
           entry.result = 'cause surfaced';
+          // A find is playable in the moment it arrives — the chain carrying
+          // on is not a separate play (settled.md:885). What it costs is
+          // certainty: this is the first candidate, and nothing is ruled out
+          // behind it.
+          if (!state.fixGiven && agent.fixNow && agent.fixNow(viewFor(call, state), rng)) {
+            const fc = CAUSES.find((x) => x.id === res.reached);
+            entry.fix = fc ? fc.fix.line : '';
+            entry.fixReply = fc ? fc.fix.reply : '';
+            entry.fixGiven = true;
+            entry.unverified = true;
+            state.taught = res.reached;
+            state.fixGiven = true;
+            state.candidates = state.candidates.filter((id) => id !== res.reached);
+            state.ledger.fixedInTheMoment = true;
+          }
         } else if (res.wasted) {
           entry.result = 'wasted';
           state.stale += 1;
@@ -168,7 +194,7 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
         } else {
           const strength = briefStrength(state);
           const words = require('./rng').shuffle(COWORKER_WORDS, rng).slice(0, strength);
-          for (const w of words) if (!call.pool.includes(w)) call.pool.push(w);
+          for (const w of words) if (!state.leads.includes(w)) state.leads.push(w);
           entry.result = `brief ${briefName(strength)} — ${words.join(' · ')}`;
           entry.seeded = words;
         }
@@ -224,8 +250,12 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
         state.log.push({ turn, kind: 'escalation', result: 'she asks for someone else; nobody free, logged as a callback' });
       }
     }
-    if (state.fixGiven && (state.refillUsed || state.offerAttempted)) state.ending = 'resolve';
-    if (state.fixGiven && state.turnsLeft === 0) state.ending = 'resolve';
+    // If she has reached for the door, that is the ending, even if the fix
+    // was given first — she is the one who decides she has had enough.
+    if (!state.ending && state.fixGiven && (state.refillUsed || state.offerAttempted)) {
+      state.ending = 'resolve';
+    }
+    if (!state.ending && state.fixGiven && state.turnsLeft === 0) state.ending = 'resolve';
   }
 
   // Three outcomes, and no fourth. A call nobody could answer today is held:
@@ -275,6 +305,7 @@ function viewFor(call, state) {
     refillsUsed: state.identified ? call.sheet.refillsUsed : null,
     said: Array.from(call.said),
     candidates: state.candidates.slice(),
+    leads: state.leads.slice(),
     handles: state.handles.slice(),
     fieldsRead: state.fieldsRead.slice(),
   };

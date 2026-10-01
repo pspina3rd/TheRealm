@@ -1,6 +1,6 @@
 'use strict';
 
-const { SYMPTOM, BASELINE, BELIEFS, FAMILIES, FLAVOUR_COST } = require('./scenario');
+const { SYMPTOM, BASELINE, BELIEFS, VOLUNTEERS, FAMILIES, FLAVOUR_COST } = require('./scenario');
 
 /**
  * The customer, and the only thing in the engine allowed to decide
@@ -198,23 +198,22 @@ function ask(call, hidden, cards, door, direction = 'ask') {
   // If she was asked about something on her shelf that did not change, the
   // answer is her normal one — a real answer that eliminates a line — and
   // she is still talking, so what she volunteers comes out alongside it.
-  const baseline = fresh.find((w) => BASELINE[w]);
-  const believed = fresh.find((w) => BELIEFS[w]);
-  const belief = believed
-    ? (BELIEFS[believed][call.sheet.tier] || BELIEFS[believed].any)
-    : null;
+  // She answers everything she was asked, not the first thing the engine
+  // happened to find. Two cards are two questions.
+  const answers = [];
+  for (const w of fresh) {
+    if (BELIEFS[w]) answers.push(BELIEFS[w][call.sheet.tier] || BELIEFS[w].any);
+    else if (BASELINE[w]) answers.push(BASELINE[w]);
+  }
+  const answered = answers.length ? answers.join(' ') : null;
 
   return {
-    line: belief
-      ? belief
-      : baseline
-        ? (seeds.length
-          ? `${BASELINE[baseline]} …${seeds.join(' and ')}, if that matters.`
-          : BASELINE[baseline])
-        : answerLine(fresh, seeds, budget),
+    line: answered
+      ? (seeds.length ? `${answered} ${mentions(seeds)}` : answered)
+      : answerLine(fresh, seeds, budget),
     seeds,
     reached: null,
-    wasted: !baseline && !belief && seeds.length === 0 && budget === 0,
+    wasted: !answered && seeds.length === 0 && budget === 0,
     mood,
   };
 }
@@ -245,7 +244,15 @@ function answerLine(fresh, seeds, budget) {
   const subject = fresh.join(' and ');
   if (budget === 0) return `${cap(subject)}… no. There's nothing I can tell you about that.`;
   if (!seeds.length) return `${cap(subject)}? No, nothing out of the ordinary there.`;
-  return `${cap(subject)}, no — though there's ${seeds.join(' and ')}, if that's any use.`;
+  return `${cap(subject)}, no. ${mentions(seeds)}`;
+}
+
+/** Her way of mentioning what she has just thought of. */
+function mentions(seeds) {
+  const said = seeds.map((w) => VOLUNTEERS[w] || w);
+  if (!said.length) return '';
+  const joined = said.length === 1 ? said[0] : `${said.slice(0, -1).join(', ')} and ${said[said.length - 1]}`;
+  return `${cap(joined)}.`;
 }
 
 function cap(text) {

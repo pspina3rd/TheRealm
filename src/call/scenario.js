@@ -37,7 +37,9 @@ const SYMPTOM = {
  * questions are about her routine: the signal is the deviation.
  */
 const BASELINE = {
-  flask: "Same flask I've had since I took the subscription out. It looks no different.",
+  flask: "Same flask I've always had. It looks no different to me.",
+  empty: 'Bone dry. Not a drop left in it.',
+  morning: 'When I got up, first thing. It should have been full by then.',
   refill: 'It fills itself overnight. That is the whole point of it.',
   stopper: "It was. It's on a cord, it doesn't come off.",
   ring: "It is. It's been up there every night for a year.",
@@ -188,6 +190,27 @@ const FLAVOUR_COST = {
  * Entitlement sits under subscriptions and the address under account
  * history, rather than being fields of their own.
  */
+/**
+ * How she mentions a thing she volunteers.
+ *
+ * A seeded word is a card to the engine and a thing in her house to her. She
+ * has to say it in a sentence, or the player is reading debug output with
+ * ellipses round it.
+ */
+const VOLUNTEERS = {
+  night: 'it was an ordinary night, mind',
+  water: 'I keep water by the bed',
+  cup: "there's a cup up there too",
+  cord: "the stopper's on a cord",
+  charm: "there's a charm up there now",
+  shelf: 'it sits on the shelf by the bed',
+  candle: "there's a candle beside it",
+  ring: 'my ring goes up there when I take it off',
+  sleep: 'I sleep right beside it',
+  draught: "it's the healing draught it fills with",
+  thirst: 'I do wake up thirsty sometimes',
+};
+
 const CRM_FIELDS = ['billing', 'account history', 'order history', 'subscriptions', 'hands'];
 
 /** Ways in. Only these are dealable before identification. */
@@ -197,6 +220,7 @@ module.exports = {
   SYMPTOM,
   BASELINE,
   BELIEFS,
+  VOLUNTEERS,
   CAUSES,
   COWORKER_WORDS,
   FAMILIES,

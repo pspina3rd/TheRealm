@@ -24,10 +24,17 @@ function render(result, opts = {}) {
     if (e.discarded) bits.push(`(discarded ${e.discarded})`);
     lines.push(bits.join('  '));
     if (e.result) lines.push(`     → ${e.result}`);
-    // The fix is said before she answers whatever was paired with it.
-    if (e.fix) lines.push(`     YOU      ${e.fix}`);
-    if (e.fixReply) lines.push(`     CALLER   ${e.fixReply}`);
-    if (e.reply) lines.push(`     CALLER   ${e.reply}`);
+    // A fix said in the moment comes after what she just told you; a fix
+    // played as a card comes before she answers whatever was paired with it.
+    if (e.unverified) {
+      if (e.reply) lines.push(`     CALLER   ${e.reply}`);
+      if (e.fix) lines.push(`     YOU      ${e.fix}`);
+      if (e.fixReply) lines.push(`     CALLER   ${e.fixReply}`);
+    } else {
+      if (e.fix) lines.push(`     YOU      ${e.fix}`);
+      if (e.reply) lines.push(`     CALLER   ${e.reply}`);
+      if (e.fixReply) lines.push(`     CALLER   ${e.fixReply}`);
+    }
     if (e.line) lines.push(`     YOU      ${e.line}`);
   }
   if (result.ledger) {
