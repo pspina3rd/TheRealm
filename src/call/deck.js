@@ -33,7 +33,7 @@ const CONTRACT_FLAVOURS = ['plain', 'support'];
  * @param {'expand'|'contract'|'random'} opts.mode
  * @returns {Array<{word: string, flavour: string, source: string}>}
  */
-function buildDeck({ pool, identified, source, mode, handles = [] }) {
+function buildDeck({ pool, identified, source, mode, handles = [], ...opts }) {
   const cards = [];
   const flavoursFor = (word) => {
     const fam = FAMILIES[word];
@@ -75,9 +75,15 @@ function buildDeck({ pool, identified, source, mode, handles = [] }) {
       }
       return dedupe(cards);
     }
+    // Categories you have not opened, and the entries under the ones you have.
+    // A category opened is a list, and each item on it is its own read.
     for (const word of CRM_FIELDS) {
+      if ((opts.opened || []).includes(word)) continue;
       cards.push({ word, flavour: 'plain', source });
       if (mode !== 'expand') cards.push({ word, flavour: 'support', source });
+    }
+    for (const entry of (opts.entries || [])) {
+      cards.push({ word: entry.id, flavour: 'plain', source, entry });
     }
   }
   return dedupe(cards);

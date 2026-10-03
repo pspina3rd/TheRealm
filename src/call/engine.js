@@ -1,6 +1,6 @@
 'use strict';
 
-const { CAUSES, COWORKER_WORDS, CRM_FIELDS } = require('./scenario');
+const { CAUSES, COWORKER_WORDS, CRM_FIELDS, RECORD } = require('./scenario');
 const { buildDeck, deal, swap } = require('./deck');
 const customer = require('./customer');
 const { pick, chance } = require('./rng');
@@ -38,10 +38,14 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
     partnerKnown: false,
     handles: [],              // what she has given that can be searched on
     fieldsRead: [],
+    opened: [],               // categories opened on the record
+    entries: [],              // the items under them, each its own read
     facts: 0,                 // anything learned, verified or confirmed
     confirmed: 0,             // what she has told us — this feeds the brief
     stale: 0,
-    turnsLeft: TURNS - 1,
+    // The opening is the greeting and the universal question. It is forced,
+    // so it cannot cost one of the nine (Phil, this session).
+    turnsLeft: TURNS,
     rng,
     log: [],
     ending: null,
@@ -77,6 +81,8 @@ function playCall({ sheet, agent, rng, coworkerAvailable = null }) {
         pool: call.pool.concat(state.identified ? [] : []),
         identified: state.identified,
         handles: state.handles,
+        opened: state.opened,
+        entries: state.entries,
         source: choice.source,
         mode: choice.mode,
       });
@@ -384,35 +390,35 @@ function applyCrm(state, call, plays, entry, rng) {
   const fresh = words.filter((w) => !state.fieldsRead.includes(w));
   const found = [];
   const paid = [];
+
+  for (const card of plays) {
+    // An entry under a category: the read is the line itself.
+    if (card.entry) {
+      if (state.fieldsRead.includes(card.word)) continue;
+      state.fieldsRead.push(card.word);
+      found.push(card.entry.line);
+      paid.push(card.word);
+      if (!call.known.includes(card.word)) call.known.push(card.word);
+      continue;
+    }
+    // A category: opening it lists what is under it. Reading who else may use
+    // her account, with nothing suggesting anyone does, is prying.
+    if (!CRM_FIELDS.includes(card.word) || state.opened.includes(card.word)) continue;
+    state.opened.push(card.word);
+    state.fieldsRead.push(card.word);
+    const cat = RECORD[card.word] ? RECORD[card.word](call.sheet) : { rows: [], tail: '' };
+    for (const row of cat.rows) {
+      if (!state.entries.some((e) => e.id === row.id)) state.entries.push(row);
+    }
+    paid.push(card.word);
+    if (card.word === 'hands') state.ledger.readsBeyondNeed += 1;
+    // Opening it puts the rows on screen; each row can then be read for what
+    // is not on the face of the list.
+    const face = cat.rows.map((r) => `  · ${r.headline}`).join('\n');
+    found.push([`${card.word}:`, face, cat.tail ? `  ${cat.tail}` : '']
+      .filter(Boolean).join('\n'));
+  }
   for (const w of fresh) if (!call.known.includes(w)) call.known.push(w);
-  if (fresh.includes('subscriptions')) {
-    found.push(`${call.sheet.tier}, active, `
-      + `${allowanceFor(call.sheet.tier) - call.sheet.refillsUsed} refills left`);
-    paid.push('subscriptions');
-    state.entitlementKnown = true;
-  }
-  if (fresh.includes('account history')) {
-    found.push('address on file; no changes this term');
-    paid.push('account history');
-    state.partnerKnown = true;
-  }
-  if (fresh.includes('order history')) {
-    found.push(`last refill collected ${9 + (call.sheet.refillsUsed * 10)} days ago`);
-    paid.push('order history');
-  }
-  if (fresh.includes('billing')) {
-    found.push('paid to date, no lapse');
-    paid.push('billing');
-  }
-  if (fresh.includes('hands')) {
-    // Authorized users. She is an individual end customer, so there are none
-    // — and looking before anything suggests otherwise is prying.
-    state.ledger.readsBeyondNeed += 1;
-    found.push('no hands named on the account');
-    paid.push('hands');
-  }
-  for (const w of fresh) state.fieldsRead.push(w);
-  entry.paid = paid;
   if (!found.length) {
     entry.result = words.length && fresh.length === 0
       ? 'wasted — already read'

@@ -62,7 +62,7 @@ test('a full brief seeds more lines of inquiry than a thin one', () => {
   assert.ok(Math.min(...briefs) === 1, 'the thin brief must be reachable');
 });
 
-test('the same CRM field does not pay twice', () => {
+test('a category opens once, and its entries read once each', () => {
   const agent = {
     knowsApothecaries: true,
     chooseTurn(view) {
@@ -73,18 +73,26 @@ test('the same CRM field does not pay twice', () => {
     choosePlays(hand, view) {
       if (!view.handles.length) return hand.filter((c) => c.asks === 'identifier').slice(0, 1);
       if (!view.identified) return hand.slice(0, 1);
-      return hand.filter((c) => c.word === 'subscriptions').slice(0, 1);
+      // Always reach for order history, whether or not it is still there.
+      const cat = hand.find((c) => c.word === 'order history');
+      if (cat) return [cat];
+      return hand.slice(0, 1);
     },
   };
-  // Across seeds, because whether her phone contracts cleanly is a roll.
-  let sawReRead = 0;
-  for (let s = 1; s <= 30; s++) {
+  let openedTwice = 0;
+  for (let s = 1; s <= 25; s++) {
     const r = playCall({ sheet: sheet(), agent, rng: seededRng(s) });
-    const reads = r.log.filter((e) => e.result && String(e.result).includes('refills left'));
-    assert.ok(reads.length <= 1, 'a record should not pay twice');
-    if (r.log.some((e) => e.result === 'wasted — already read')) sawReRead += 1;
+    const opens = r.log.filter((e) => String(e.result).startsWith('order history:'));
+    if (opens.length > 1) openedTwice += 1;
+    const reads = {};
+    for (const e of r.log) {
+      for (const w of (e.paid || [])) {
+        reads[w] = (reads[w] || 0) + 1;
+        assert.ok(reads[w] === 1, `${w} paid ${reads[w]} times`);
+      }
+    }
   }
-  assert.ok(sawReRead > 0, 'reading the same field twice should show as wasted');
+  assert.strictEqual(openedTwice, 0, 'a category should only open once');
 });
 
 test('when nobody knows flasks, the hold returns nothing', () => {

@@ -1,6 +1,6 @@
 'use strict';
 
-const { SYMPTOM, BASELINE, BELIEFS, VOLUNTEERS, FAMILIES, FLAVOUR_COST } = require('./scenario');
+const { SYMPTOM, BASELINE, BELIEFS, VOLUNTEERS, GIVES, FAMILIES, FLAVOUR_COST } = require('./scenario');
 
 /**
  * The customer, and the only thing in the engine allowed to decide
@@ -186,6 +186,16 @@ function ask(call, hidden, cards, door, direction = 'ask') {
     }
   }
 
+  // What the answer itself put in play, over and above its neighbours — and
+  // only while she is still saying more than she was asked. A sour customer
+  // answers the question and stops.
+  for (const w of fresh) {
+    for (const given of (GIVES[w] || [])) {
+      if (seeds.length >= budget) break;
+      if (call.pool.includes(given) || call.said.has(given) || seeds.includes(given)) continue;
+      seeds.push(given);
+    }
+  }
   call.recent = seeds.concat(fresh);
   // What this particular trouble makes her mention. She volunteers it
   // only while the call is going well: being comfortable is what buys

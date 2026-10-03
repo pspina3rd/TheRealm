@@ -52,6 +52,30 @@ const BASELINE = {
 };
 
 /**
+ * What each answer puts into play.
+ *
+ * An answer is not just a reply to the subject asked: it has content, and the
+ * things in it are askable afterwards. Without this the pool only grows by
+ * adjacency and never leaves the opening — which is why hands came out thin
+ * and repetitive, the same word with a flavour on it.
+ */
+const GIVES = {
+  poof: ['neighbour', 'today'],
+  refill: ['deposit', 'empties'],
+  draught: ['strength', 'apothecary'],
+  flask: ['size', 'deposit'],
+  crate: ['label', 'depot'],
+  else: ['carriage'],
+  measure: ['apothecary'],
+  ingredients: ['apothecary', 'quality'],
+  when: ['today', 'weather'],
+  depot: ['handed', 'carriage'],
+  'order history': ['pattern', 'carriage'],
+  billing: ['counter', 'carriage'],
+  subscriptions: ['outright'],
+};
+
+/**
  * What she says when asked about her own account.
  *
  * Her belief, not the record's fact, and allowed to be wrong. The player has
@@ -205,11 +229,90 @@ const VOLUNTEERS = {
 
 const CRM_FIELDS = ['billing', 'account history', 'order history', 'subscriptions', 'hands'];
 
-/** Ways in. Only these are dealable before identification. */
+/**
+ * What a category contains once it is opened.
+ *
+ * The record is a hierarchy, not five facts: an account has categories, and a
+ * category has the things under it (settled.md:1232, the CRM). Opening Order
+ * History lists her orders; each order is then its own read, with its own
+ * date, strength and carriage. That is what makes the record deck deep enough
+ * for a hand to be a selection rather than the whole file.
+ */
+const RECORD = {
+  'order history': (sheet) => ({
+    // A list shows its rows. `headline` is what is on screen the moment you
+    // open it; `line` is what reading that row adds — the detail that is not
+    // on the face of the list.
+    rows: [
+      {
+        id: 'order-spring',
+        headline: 'Spring this year — 1 pint, standard, ordinary carriage, delivered.',
+        line: 'Spring: 1 silver, paid at the counter. Her own flask went down '
+          + 'and came back with it. Took two days.',
+      },
+      {
+        id: 'order-winter',
+        headline: 'Winter before — 1 pint, standard, ordinary carriage, delivered.',
+        line: 'Winter: 1 silver. Delivered to the village in two days. No note '
+          + 'of any trouble.',
+      },
+      {
+        id: 'order-autumn',
+        headline: 'Autumn before that — 1 pint, standard, ordinary carriage, delivered.',
+        line: 'Autumn: 1 silver. Same as the rest.',
+      },
+      {
+        id: 'order-first',
+        headline: `Nine years back — the flask itself, with a fill, under ${sheet.name}.`,
+        line: 'The flask was bought outright with its first fill. It is hers, '
+          + 'not ours, so it travels both ways each time.',
+      },
+    ],
+    tail: 'Eleven fills in all. Two a year, always standard, always a pint. '
+      + 'POOF never used on this account.',
+  }),
+  billing: () => ({
+    rows: [
+      {
+        id: 'bill-last',
+        headline: 'Spring fill — 1 silver, paid at the counter.',
+        line: 'Paid in coin at the village counter on collection.',
+      },
+      {
+        id: 'bill-carriage',
+        headline: 'Ordinary carriage — included in the price of a fill.',
+        line: 'Carriage to the village has never been charged separately. POOF '
+          + 'is priced on its own and is not included.',
+      },
+    ],
+    tail: 'Nothing outstanding. Nothing on account.',
+  }),
+  'account history': (sheet) => ({
+    rows: [
+      {
+        id: 'acct-opened',
+        headline: `Opened nine years ago under ${sheet.name}.`,
+        line: 'Sole contact and sole admin. No changes recorded since.',
+      },
+      {
+        id: 'acct-address',
+        headline: 'Village, by the green — unchanged throughout.',
+        line: 'Every delivery has gone to the same address.',
+      },
+    ],
+    tail: '',
+  }),
+  subscriptions: () => ({ rows: [], tail: 'No subscriptions. Every fill bought outright.' }),
+  hands: () => ({ rows: [], tail: 'No hands named on the account.' }),
+};
+
+/** Ways in. Only these are askable of her before identification. */
 const IDENTIFIERS = ['name', 'account number', 'subscription number', 'phone'];
 
 module.exports = {
   SYMPTOM,
+  RECORD,
+  GIVES,
   BASELINE,
   BELIEFS,
   VOLUNTEERS,
