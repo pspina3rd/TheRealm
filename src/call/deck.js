@@ -35,8 +35,11 @@ const CONTRACT_FLAVOURS = ['plain', 'support'];
  */
 function buildDeck({ pool, identified, source, mode, handles = [], ...opts }) {
   const cards = [];
+  // A scenario may bring its own word families; the fault scenario's are the
+  // default so existing callers are unchanged.
+  const families = opts.families || FAMILIES;
   const flavoursFor = (word) => {
-    const fam = FAMILIES[word];
+    const fam = families[word];
     const allowed = mode === 'contract' ? CONTRACT_FLAVOURS
       : mode === 'expand' ? EXPAND_FLAVOURS
         : EXPAND_FLAVOURS.concat(CONTRACT_FLAVOURS);
@@ -58,7 +61,7 @@ function buildDeck({ pool, identified, source, mode, handles = [], ...opts }) {
     for (const word of pool) {
       for (const flavour of flavoursFor(word)) cards.push({ word, flavour, source });
       if (mode !== 'contract') {
-        const fam = FAMILIES[word];
+        const fam = families[word];
         // Expand reaches the neighbours; contracting does not wander.
         for (const adj of (fam ? fam.adjacent : [])) {
           cards.push({ word: adj, flavour: 'plain', source });
