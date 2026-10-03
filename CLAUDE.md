@@ -11,7 +11,10 @@ memory shaping future encounters.
 **Read `docs/settled.md` before implementing anything.** It records
 what has been decided since the 12 September reframe. **[P]** is
 Phil's, **[C]** is Claude's unconfirmed inference, **[C·ok]** is an
-inference Phil confirmed, **[OPEN]** is unresolved. `LORE.md` and
+inference Phil confirmed, **[OPEN]** is unresolved, and **[HELD]** is Phil's, raised and deliberately
+not settled — see §17a of the record, where using one requires writing a note
+saying why. **[CONFLICT]** marks two of Phil's own statements that disagree
+and have not been reconciled. `LORE.md` and
 `PLAN.md` are archived; they describe the logistics-company frame the
 reframe replaced.
 

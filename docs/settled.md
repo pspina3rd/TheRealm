@@ -9,7 +9,7 @@ arise from that.
 
 Marked:
 
-- **[P]** yours · **[C]** my inference, unconfirmed · **[C·ok]** my inference you confirmed · **[OPEN]** unresolved
+- **[P]** yours · **[C]** my inference, unconfirmed · **[C·ok]** my inference you confirmed · **[OPEN]** unresolved · **[HELD]** yours, raised and deliberately not settled — see §17a, and using one requires a note saying why
 
 This is the source of truth. `LORE.md` is archived.
 
@@ -222,6 +222,46 @@ provenances for one object.
 
 **[P]** TLC is the company and the standard service. **POOF** is the new,
 experimental, express service.
+
+### POOF Instant **[P]**
+
+**[P] POOF Instant** is a delivery line, not one product: **Potions ·
+Weapons · Armour · Accessories**. Fantasy e-commerce, run by the co-op the
+guilds built to handle it.
+
+**[P] Nothing is refilled.** The process: ingredients are loaded into an
+appropriately sized flask, per the customer's request · the shipment is sent ·
+the customer receives a finished potion · **empty flasks may be returned for a
+refund of the flask deposit fee.** The flask is TLC's, on deposit; nothing of
+the customer's travels.
+
+**[C·ok]** So "refill" is the customer's word for it, and the wrong one — which
+is a correction worth making to her, and it stays on her sheet once made.
+
+**[P] Five ways an order can be made up:**
+1. **Standard** — predetermined ingredients, a consistent R&D recipe.
+2. **Standard on subscription** — the same recipe, on a standing arrangement.
+3. **Custom from TLC stock** — the customer chooses ingredients and pays for
+   higher quality, or for adding to the recipe.
+4. **Custom from the customer's bag** — made from what they have on hand in
+   the shared inventory.
+5. **Custom from both** — their bag plus TLC stock for the gaps.
+
+**[C·ok]** Options 4 and 5 need a bag with something in it. A villager who
+buys twice a year has none, so offering it spends a play and returns nothing.
+
+**[P] Supporting a POOF Instant that went wrong** — was the recipe followed ·
+what ingredients were in it · were there additional inclusions, and what ·
+what was the shipping container · was it custom or standard · what was the
+custom one made from. **[C]** And: what condition the ingredients were in ·
+whether the quantities matched the recipe · whether anything was in the
+container that was not part of the order · whose ingredients came out of the
+bag · how many went in one send · and who assembled it.
+
+**[P·C] The ordinary call is arranging a POOF Instant** and dealing with
+unexpected results, before battles. **Battles are the loud minority.**
+**[C] Superseded:** my earlier inference that parcels are the ordinary call
+and POOF the loud minority.
 
 **[P]** POOF is a spell. It does not ride ley lines. The Magicians' Guild
 provides it, and the Magicians' Guild is part of the co-op. There is no rival.
@@ -642,6 +682,41 @@ isn't the answer at all.
 
 ## 2. Cards
 
+**[P] The opening is free.** The greeting and the universal question are
+forced, so they cannot cost one of the nine.
+
+**[P] Identification is two plays** — ask her for something searchable, then
+search on it. The record deals nothing until she has given something.
+
+**[P] Order matters inside a turn.** The first card searches the record on the
+primary identifier; a second handle played after it is the agent checking the
+record against details she has already given. Both are searches; what differs
+is who retrieves.
+
+**[P] A statement is an inquiry.** A confirmation that invites a No: yes
+confirms in one beat, no corrects you and hands you the right thing anyway. A
+run of them reads as guessing at everything.
+
+**[P] A find is a card in hand, not a turn.** The hand stays at five, so every
+candidate carried is one fewer fresh card dealt, and a fix can be paired with a
+question. **[P]** A find is also playable in the moment it arrives — the chain
+carrying on is not a separate play — at the cost of acting on the first
+candidate, unverified.
+
+**[P·C] The aside** — asking over your shoulder while they are still on the
+line. Costs a play, returns less than a brief, cannot be refused, and costs
+the caller a little because she hears you not knowing. It is what a call has
+instead of a hold when the caller cannot be put on one.
+
+**[P] A record is a hierarchy, and a list shows its rows.** Opening a category
+puts its rows on screen; reading a row adds what is not on the face of the
+list. A list that returns a count is a blank screen with a number on it.
+
+**[P] An answer puts its own content in play.** What follows necessarily from
+it is never gated; what she volunteers on top is gated on how the call is
+going. **[P] Her side of the deck is single words**; only the record's own
+field labels may be two.
+
 **[P] Nine plays.** The game inherits the training game's budget (Appendix):
 the agent has **nine**, and asking the customer something, asking a coworker
 for help, or looking something up each uses one.
@@ -894,7 +969,11 @@ the thing.
 **[P]** Agent-to-customer and COOP-to-agent are separate conversations.
 
 **[P]** Search results give the agent context and options: **Billing,
-Account History, Order History, Subscriptions, Minions** (authorized users).
+Account History, Order History, Subscriptions, Party Members** (authorized
+users). **[P]** A party has an **Admin or Leader** with greater privileges
+than a standard party member. **[P]** *Minions* is one customer's own word for
+the same thing — a villain prefers it and will not be swayed — which costs the
+accuracy of the record rather than the call.
 
 **[P]** Registration is an irrelevant detail — required before an account,
 let alone a subscription, could exist.
@@ -1269,6 +1348,11 @@ wears one player down and leaves another untouched.
 **[P]** The Account has visibility to all sub-records, which may or may not
 be visible to a User. **Admins see all. Users see only what they created or
 were assigned by an Admin.**
+
+**[CONFLICT]** §17a holds a later statement of yours — *Account and Contact
+are co-parent variables*, with a Contact seeing what is assigned to or created
+by it — which sets visibility by ownership rather than by access level.
+Unresolved.
 
 **[P]** Sub-records include **Orders** (order numbers, purchase order
 numbers, confirmation numbers, order date, shipment date, invoices, packing
@@ -2053,7 +2137,7 @@ the other-drinker and Minion causes are **out for this call**, and live for
 something kept in a shop or a shared household store. **Rejected:** somewhere
 the refill couldn't reach; the supply running short.
 
-**[P]** Minions must be **registered** to use account benefits and
+**[P]** Party members must be **registered** to use account benefits and
 subscriptions — the same rule as products. A registered Minion drinking it
 gets a real draught; an unregistered person gets water. Either way the flask
 is empty by morning.
@@ -2325,6 +2409,10 @@ needing a No.
 
 ## 17. Open
 
+**[C]** See also **§17a Held** — three things of yours raised and
+deliberately not settled. They are not open items: they are not waiting on a
+decision, and using one requires a note saying why.
+
 Nothing open.
 
 **Closed 26 September:** whether the win categories belong on the customer
@@ -2345,6 +2433,67 @@ CRM (§10) · the trolley problem's placement (§14) · the team case queue
 (§11) · both memory-layer questions (§11) · and the four gaps — how traits
 grow and slip (§9), where alignment starts and stops (§8), reading drift
 (§6), and what tips the agent (§9).
+
+---
+
+## 17a. Held — raised, not settled **[HELD]**
+
+**These three are Phil's, raised in conversation and deliberately not
+settled.** They are recorded so they are not lost or reinvented worse.
+
+**Using one of these requires a note.** If a decision, a scenario, a mechanic
+or a line of code leans on anything in this section, write a note in the
+record saying it was used and **why** — what the work needed that only this
+could provide. No silent adoption, and no treating any of it as settled
+because it appears here.
+
+### Account and Contact as co-parents **[HELD]**
+
+**[P]** Every account should have at least one individual associated with it.
+Account and Contact are **co-parent variables**. Accounts can see all cases,
+orders, shipments and so on associated with them. A Contact can see everything
+assigned to it, or created by it.
+
+**[CONFLICT]** This sits against §10, which is also yours: *a hierarchy of
+hierarchies — the Company, the Accounts, the Contacts/Users under each
+Account* (:1341), with *Admins see all, Users see only what they created or
+were assigned by an Admin* (:1349). One places Contacts under Accounts with
+visibility by access level; the other makes them co-parents with visibility by
+ownership. **Unresolved, and yours to resolve** — not reconciled here.
+
+**[C]** *What it would change if used:* the same search returns different sets
+depending on which was opened, so an agent can be on the right account in the
+wrong scope — looking at a customer's problem and not seeing the order that
+explains it, because another party member created it. §10 already sets
+visibility by access level; this would set it by ownership instead, which is
+the conflict noted above.
+
+### The Portal, and Admin or User **[HELD]**
+
+**[P]** People use the **Wizard Fidelitas** network — WiFi — to reach
+**Portals**, where they have self-service access to their account according to
+whether they are an **Admin** or a **User**. Individual end customers are
+automatically Admins, though they may be unaware the Portal exists. Partners
+are more likely to be aware, and very rarely broadly or deeply familiar.
+
+**[C]** *What it would change if used:* it adds a play that reads as helpful and
+usually achieves nothing — *you can do that yourself on the Portal* — which is
+honest deflection rather than a cheat, and it only works once **awareness,
+knowledge and capability** below have been established.
+
+### Awareness, knowledge, capability **[HELD]**
+
+**[P]** Just because you know about Rock, Paper, Scissors doesn't mean you
+know how to play and/or what to do, plus the extra variable of being capable
+of doing it.
+
+**[C]** Read as three separate facts about a person: aware of it, able to do
+it, capable in the moment.
+
+**[C]** *What it would change if used:* it decides whether anything can be handed to
+the customer at all, so it is what makes the Portal play work or fail. It
+would sit on the customer sheet beside the other things that move at their own
+rates.
 
 ---
 
@@ -2444,6 +2593,43 @@ and now keep records. Sella had a name and a description.
 explanation of any given request. One of many examples: being burned before
 by a wrong department on a previous interaction can influence the
 explanation, the emotions, the tone and the language on the next one.
+
+---
+
+## 19. The ordering call **[P]**
+
+**[P]** An end user rings to order a POOF Instant. Net new shipment. Nothing
+has gone wrong, so there is nothing hidden to find: what there is instead is
+what has to be settled before it ships.
+
+**[P] Two stages, one budget.**
+- **Discovery** — identify what is actually wanted.
+- **Fulfilment** — entered once the request is identified as a POOF Instant.
+
+**[P] Arranging is free; questions still cost.** Laying out the makings while
+she is on the line is doing the work, not an inquiry. Any question asked
+during fulfilment spends one of the nine — like ordering at a counter, where
+walking the line is free and *black or pinto?* is a question.
+
+**[C·ok]** So banking plays is the skill, and a question asked during
+fulfilment is better than the same question asked at the start, because the
+choice is in front of her and she can answer it properly.
+
+**[P] The player is dealt the ingredients** and arranges them to ensure a
+proper delivery. **[P·C]** Dealt, not chosen from a full list: stock varies,
+and a substitution can be **offered at a stated price** — she agrees to it or
+accepts the thinner result, so nobody pays more than they expected.
+
+**[C·ok]** What it costs instead is exposure: she hears every choice. A player
+who never established her urgency or her budget is improvising audibly.
+
+**[P] Quantity** — a second of something is a second set of ingredients.
+**[C]** One container shares a roll between them; two containers cost more
+carriage and keep them independent.
+
+**[P] Switching what is being sent is free** — it is the customer's choice.
+**It does not reset the nine**, so plays spent on the order she has abandoned
+are gone.
 
 ---
 
