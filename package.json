@@ -6,8 +6,8 @@
   "license": "UNLICENSED",
   "type": "commonjs",
   "scripts": {
-    "test": "node --test src/*.test.js src/call/*.test.js",
-    "lint": "eslint src/*.js src/call/*.js",
+    "test": "node --test src/*.test.js src/call/*.test.js src/cards/*.test.js",
+    "lint": "eslint src/*.js src/call/*.js src/cards/*.js",
     "serve": "python3 -m http.server 5173"
   },
   "devDependencies": {

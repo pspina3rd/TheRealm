@@ -19,12 +19,20 @@ A rule that cannot be traced to one of those three does not get built.
 
 **3. Check it against the settled card rules before writing anything.** The
 record already fixes: nine plays with the opening free · what consumes one ·
-two cards a turn, discard and draw · Armour, Strength and Finesse as the
-three upgrade categories, up to three of the same or two with one doubled ·
-Finesse sitting on the card it is attached to · the last-three-turns check on
-both the door and the subject · a find held as a card · the aside. Any new
-structure either fits those or replaces one of them, and replacing one is a
-change to a [P] statement that needs saying out loud.
+six suits and four angles, always available, with Random as declining to
+choose · one deck, with the targets as the board — two a turn, discard and
+draw · the target's class deciding the result, the player as catalyst ·
+Armour, Strength and Finesse as the three upgrade categories, up to three of
+the same or two with one doubled · Finesse sitting on the card it is attached
+to · the last-three-turns check on both the angle and the subject · a find
+held until written down · the aside. Any new structure either fits those or
+replaces one of them, and replacing one is a change to a [P] statement that
+needs saying out loud.
+
+**Updated 4 October:** this list read *two cards a turn* and *the door and the
+subject*. The deck and the board are now one deck with the targets dealt
+(settled.md:888), and *door* was an analogy rather than a term
+(settled.md:836).
 
 ## While building
 
