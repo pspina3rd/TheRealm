@@ -258,6 +258,58 @@ whether the quantities matched the recipe · whether anything was in the
 container that was not part of the order · whose ingredients came out of the
 bag · how many went in one send · and who assembled it.
 
+### POOF Instant request types **[P]**
+
+**[P]** A request is **POOF Instant + the request type** — *POOF Instant
+Repair* is the official title of that one. **Quote** is a modifier rather
+than a sibling: a POOF Instant Quote is a quote *for* a request type, not a
+request of its own.
+
+**[P] Order** — customers requesting POOF shipments for their businesses:
+**Potions · Weapons · Armour · Accessories**.
+
+**[P] Repair** — the same list **minus Potions**, which are consumable rather
+than reusable. **Artifacts** are applicable, but a rare occurrence, and
+likely need very specific ingredients.
+
+**[P] Ingredients** — a **Guild** can order ingredients as a standalone
+order. Each item comes as its own container of ingredients, to avoid a POOF
+interaction.
+
+**[P] Deliveries** are the end result of a shipment, either to the recipient
+or to TLC. **[P] Customer Service** is the went-wrong category.
+
+**[P] Containers.** A flask is a container for a potion. A container for
+multiple flasks is needed. Otherwise a container is standard or custom based
+on the customer's choice.
+
+**[P] Flask and container returns** are done via a local Guild member, like a
+glass bottled pop used to be at stores, and **the Guild hands over the
+deposit refund**.
+
+**[C] Enhancement** — ingredients mixed with an item the customer already
+owns, for an enhancement rather than a net new item. It cannot be an Order,
+since nothing of the customer's travels on one, and it is not a Repair, since
+nothing is broken.
+
+**[C] Outbound against round trip.** Order, Ingredients and Quote are
+outbound only. Repair and Enhancement are **round trips** — the customer's
+own property travels. That is where the risk sits: a failed Order costs a
+shipment, a failed Enhancement costs them the item, and because existing
+upgrades **are** the item's nature, a mismatched send can step it somewhere
+they did not want and cannot undo.
+
+**[C]** So Enhancement carries a support question the others do not: what was
+**already** on the item, because that is half the reaction.
+
+**[C]** The standalone ingredient order is the first thing in the design that
+uses a POOF rule by **preventing** it — multiples share a roll, so separate
+containers are what stop stock mixing in transit.
+
+**[C]** The deposit being handed over at the counter means the customer is
+made whole on the spot and never chases money. **[C] Withdrawn, mine:** a
+category of calls disputing the handover; it made a mess of the rest.
+
 **[P·C] The ordinary call is arranging a POOF Instant** and dealing with
 unexpected results, before battles. **Battles are the loud minority.**
 **[C] Superseded:** my earlier inference that parcels are the ordinary call
@@ -752,6 +804,146 @@ in sequence, with a better cumulative effect.
 **[C]** Validate or Expand plus a target is what the agent does; the card is
 the move as it's actually delivered.
 
+### The six suits and the four angles
+
+**[P]** The base cards are six suits: **Who · What · Why · When · Where ·
+How**.
+
+**[P]** **Verify · Validate · Expand · Contract** are the four angles to an
+inquiry. **Random** is the player not making a distinct choice and letting
+the RNG gods run wild.
+
+**[C]** So Random is abdication rather than a mechanic — the apprentice who
+doesn't know which angle and says something anyway. It has to be genuinely
+available, genuinely sometimes fine, and worse in expectation. It also gives
+the card work a baseline it lacked: if choosing deliberately doesn't beat the
+dice over many calls, the angles are decoration, which is the **Flat**
+pathology in `docs/trust-and-verify-cards.md`.
+
+**[C]** Verify and Validate differ in what they check against: Verify against
+a source, Validate against the person. Validate is where the
+statement-as-inquiry lives.
+
+**[P]** Reasons are the other side of the coin from facts.
+
+**[C]** So a *Why* is verifiable through its consequences rather than
+directly — the record cannot confirm a reason, but it holds the facts that
+must be there if the reason is real. Verify returns **corroborated,
+contradicted, or silent**, and contradiction is the CRM's distinctive power:
+it kills a line of inquiry in one play, where the customer might agree with a
+wrong reason just to move things along. Silence is the expensive one.
+
+**[C] "Door" was an analogy, not a term.** Where Validate and Expand are
+called doors (§6, §7), the illustration is that verification and validation
+of provided information can lead to progress. **[C] Withdrawn, mine:**
+reading it as a mechanic sitting alongside the suits.
+
+### Targets
+
+**[P]** The targets are the customer's **minions** — the enemies the player's
+character fights. Key words and CRM categories are both targets; a CRM
+category triggers it to populate the results.
+
+**[P]** The real decider of the results is the target:
+
+- Inquire with the customer, **the customer decides**.
+- Inquire with the CRM, **the CRM responds**.
+- Inquire with a coworker, **the coworker decides**.
+
+**[P] The player is the catalyst** for the way it is presented, and the
+perception of the player's choice impacts the recipient's response.
+
+**[C]** So skill splits in two: whom you aim at, and how you deliver it. A
+mis-aim is a miss however well it was said — asking her what the record holds
+reads as not having read it, asking a coworker what the CRM holds reads as
+laziness. Delivery is live for the two targets with a mind and inert for the
+CRM, whose defence is structural rather than attitudinal: know the category,
+pay a play to read the row.
+
+**[P]** The number of targets is irrelevant. The player is attempting to
+attack the right targets from within the noise — almost a three-dimensional
+version of Battleship, except there are targets and there are Targets and
+there are TARGETS, and probably some in between.
+
+**[P]** A CRM is a hierarchical structure. Hitting one target might link back
+directly, indirectly, tangentially, or to red herrings. Working in three
+dimensions means there are multiple paths in any direction you can imagine.
+
+**[C]** So the signal is a **kind of link**, not warm or cold, and a
+tangential link and a red herring look identical at the moment they are
+found. They separate only by whether anything else reaches the same place —
+one path to a fact is a lead, two independent paths are a confirmation, and
+that is a judgement the player makes rather than a readout the game gives.
+Proximity in the hierarchy stops meaning proximity to the cause.
+
+**[C]** Nothing on the board is fake. The noise is genuine records: true,
+related, irrelevant.
+
+**[C] Superseded, mine:** that a hit yields a countable number of targets,
+that one target per hit and two on a critical was the number to tune, and
+that the board needs a slot cap. Yield is structural — what the target
+contains — so hitting an Account gives the Account with its children, and a
+slot count is meaningless against a subtree.
+
+### One deck, with the board dealt
+
+**[P]** The deck the player owns and the hand dealt from what has been said
+are a **single deck**, with the targets being the catalyst making the change
+necessary.
+
+**[C]** So what you own is the move — suit, angle, upgrades — and what the
+call supplies is the board. The hand mechanics move onto the targets rather
+than being lost: two a turn, discard and draw, wear, a find occupying a slot.
+Writing a fact down is how it stops taking space on this call's board and
+becomes something you own. And the same *Why* is a different move against
+her, against the record, and against a coworker, which is how the cards stay
+simple without being oversimplified.
+
+### Capability, not reach
+
+**[P]** How do you justify an apprentice not having the six most basic
+questions at the start? Having them doesn't mean you have the capability to
+use them properly.
+
+**[C]** So reach never changes across a run: all six suits and all four
+angles from the start, and the progression is how well what you already hold
+actually works — which is what drafting an upgrade is. An apprentice holds
+*Why* on day one and plays it badly; it misfires more, lands flat, and she
+hears someone fishing.
+
+**[C·note, required by §17a]** This leans on the Held item **awareness,
+knowledge, capability**. What the work needed was a distinction between
+holding a card and being able to play it, and nothing else in the record
+provides it: without it there is no account of why an apprentice who owns
+every question is still bad at the job.
+
+**[C] The counts.** Six in the deck to begin, and six in hand at all times,
+since there is no draw. Nothing is dealt from the deck — dealing happens on
+the board. Nine plays a call, the opening free, one move per play: one suit,
+one angle, one target.
+
+**[C] Superseded, mine:** that an apprentice starts with a partial set of
+suits and angles and unlocks the rest.
+
+### Critical
+
+**[P]** Leaning toward: a critical is a target that is an improved option.
+Instead of just a PO, it displays some options that PO could align with —
+Repair, Order, and so on.
+
+**[C]** So a critical removes noise rather than adding material, which is
+where the difficulty actually is. It generalises across the three classes
+with one rule — the yield is the target **plus some of its edges**: at the
+CRM a handle arrives with some of the request types it touches, from her a
+word arrives with what she connects it to, from a coworker a lead arrives
+with the cause it points at.
+
+**[C]** Some of the options, never all, and never which one is right. Show
+them all and one lucky roll ends the hunt, which is the **Solved** pathology.
+
+**[C] Superseded, mine:** that a critical means depth, the exact words
+instead of the gist, or something the target would not normally give up.
+
 ---
 
 ## 3. Upgrades
@@ -1089,6 +1281,22 @@ varies is how hard it is to find: which coworker answered, what their brief
 pointed at, what the customer volunteers, and whether the agent connects what
 they hear. A weaker brief makes the path longer, never absent.
 
+### Coworkers have sheets too
+
+**[P]** The coworker is similar to a customer: they have a character sheet,
+they have a **preferred method of communication**, and they have **baggage**
+too.
+
+**[C]** So the brief is not the whole input. An Organized brief delivered the
+wrong way still bounces — someone who wants it in three words resents the
+full account, someone who wants the story treats a summary as being fobbed
+off. The Paraphrase ladder gets the material; their preferred method decides
+whether it arrives.
+
+**[C]** And baggage means a coworker has a trigger as well, which is what
+stops a coworker being a lookup table. The apprentice is a coworker to them,
+with a sheet of her own.
+
 ---
 
 ## 8. The customer sheet
@@ -1293,6 +1501,37 @@ under paraphrasing.
 have, though one is worth noting: a wrong-department ending is *valid*, not a
 failure, which is our Transfer card.
 
+### Wards, and the trigger for a Need
+
+**[P]** The customer's character sheet impacts each target independently,
+setting the initial wards, shells and defences.
+
+**[C·ok]** Wards are learned by **bouncing** off them, and a bounce returns a
+reading. Visibility governs how much of the reaction is perceived.
+
+**[C·ok]** Which suit is better suited comes from three things together — the
+customer, their character sheet, and the target — so a suit is known-good,
+learnable, or unknowable for that pairing. A mismatched suit is answered
+**obliquely**, and she decides what it costs.
+
+**[P]** The customer has their own trigger to uncover a **Need**, based on
+**Baggage**. The trigger doesn't have to be met directly — it can be
+triggered obliquely.
+
+**[C]** So the trigger has a shape rather than being a key: a player can fire
+it without knowing they did, or what did it. No table of Need-revealing cards
+exists, and what unlocks it is the thing she has been missing, which is what
+baggage is. Warmth is therefore the only route to the Need on some calls and
+wasted effort on others.
+
+**[C]** Her noticing a technique delivered without meaning it stays where it
+was — trust and mood, not the gate. A hollow line can trip the trigger and
+still cost her goodwill: the Need surfaces, the goodwill does not come with
+it.
+
+**[C] Superseded, mine:** that a Why or a How aimed at something that looked
+like a fact is what reveals a Need.
+
 ---
 
 ## 9. The player
@@ -1349,10 +1588,70 @@ wears one player down and leaves another untouched.
 be visible to a User. **Admins see all. Users see only what they created or
 were assigned by an Admin.**
 
-**[CONFLICT]** §17a holds a later statement of yours — *Account and Contact
-are co-parent variables*, with a Contact seeing what is assigned to or created
-by it — which sets visibility by ownership rather than by access level.
-Unresolved.
+### Admin, Members, and the resolved conflict
+
+**[P]** An Account must have a Contact designated as the **Admin (Party
+Leader)**, for the other Contacts who are Party Members.
+
+- An end-user customer could have an Account and a single Contact (Party
+  Leader).
+- An end-user customer could have an Account and Contacts, but only **one**
+  Party Leader.
+- A Guild customer would have an Account and Contacts, only one of them
+  **Guild Leader** — the guild-specific Party Leader designation.
+- An organizational customer would have an Account and Contacts, only one
+  Party Leader.
+
+**[P]** Organizations can be Kingdoms, Castles, Strongholds, Baronies,
+Fiefdoms, Stockades, Militias, Mercenaries and so on.
+
+**[C] This resolves the conflict with §17a** rather than choosing a side.
+Contacts sit under an Account, exactly one of them is Admin, and *the Account
+has visibility to all sub-records* is **what the Admin sees** — not a second
+parent. Visibility is by access level, as above, and the two routes to a
+sub-record are two **scopes**: the Admin's account-wide view and the Member's
+ownership-scoped view. The multiple paths that search depends on survive as
+scopes plus cross-category keys, rather than as two parentages.
+
+**[P]** A **PO number** is a multi-category customer-provided variable. It
+may appear across Accounts, Contacts, and whichever child they could be
+related to.
+
+**[C]** So one probe on a customer-provided identifier returns several
+*paths*, not several rows: the same PO under two Contacts is two routes to
+different children.
+
+**[C]** One Admin per Account also makes the honest, unsatisfying No below
+structural rather than incidental — a Member who cannot see their own party's
+order has exactly one person who can, and may not know their own party's
+rules about it.
+
+### The Bag, and the party's privacy
+
+**[P]** An Admin can assign items to a User, moving them from the **Party's
+Bag of Holding** to the **Member's Inventory**.
+
+**[P]** The Party Leader / Member designation is TLC's own invention. Each
+Party can determine their own rules for it, and TLC is blissfully unaware of
+what those rules are.
+
+**[P]** TLC considers a Party's Bag to belong to the **Party**. A customer may
+feel differently — the party's own concept of privacy about what is in the Bag
+of Holding. **[P]** Which has a chance to bite TLC in the butt, triggering an
+**Angry** caller. Cozy game: they may know, or they may not.
+
+**[C]** So privacy here is not a permission setting. It is a mismatch between
+TLC's model and the party's, and the agent is reading from a record that is
+correct while saying the wrong thing out loud. Nothing in the CRM can warn
+them, because the party's rules were never told to TLC.
+
+**[C]** That gives an Angry opening with a source we did not have: not the
+agent's mistake and not the record's error, and not repairable by better
+searching. It can only be handled.
+
+**[C]** It also reaches the make-up options. Options 4 and 5 are made from
+what is in the shared inventory, so a custom order can tell one member what
+another member put in the Bag.
 
 **[P]** Sub-records include **Orders** (order numbers, purchase order
 numbers, confirmation numbers, order date, shipment date, invoices, packing
@@ -2411,9 +2710,21 @@ needing a No.
 
 **[C]** See also **§17a Held** — three things of yours raised and
 deliberately not settled. They are not open items: they are not waiting on a
-decision, and using one requires a note saying why.
+decision, and using one requires a note saying why. And **§17b Penned** —
+areas deliberately deferred to a future state, which are not in play at all.
 
 Nothing open.
+
+**Closed 4 October:** the §10 / §17a visibility conflict, resolved by the
+Admin (Party Leader) designation (§10, §17a) · the six suits and the four
+angles, with Random as abdication (§2) · the target as the decider and the
+player as the catalyst (§2) · one deck with the targets as the board (§2) ·
+capability rather than reach (§2) · what a critical yields (§2) · wards per
+target and the Baggage trigger for a Need (§8) · coworker sheets, preferred
+method and baggage (§7) · the POOF Instant request types, containers,
+standalone ingredient orders and Enhancement (§1) · the Admin assigning items from the Party's
+Bag to a Member's Inventory, and the party's own concept of privacy about the
+Bag (§10) · subscriptions penned (§17b).
 
 **Closed 26 September:** whether the win categories belong on the customer
 sheet (§8) · the original OVERSIMPLIFIED and SIMPLIFIED returns (deleted; in
@@ -2454,12 +2765,16 @@ Account and Contact are **co-parent variables**. Accounts can see all cases,
 orders, shipments and so on associated with them. A Contact can see everything
 assigned to it, or created by it.
 
-**[CONFLICT]** This sits against §10, which is also yours: *a hierarchy of
-hierarchies — the Company, the Accounts, the Contacts/Users under each
-Account* (:1341), with *Admins see all, Users see only what they created or
-were assigned by an Admin* (:1349). One places Contacts under Accounts with
-visibility by access level; the other makes them co-parents with visibility by
-ownership. **Unresolved, and yours to resolve** — not reconciled here.
+**[CONFLICT — resolved 4 October]** This sat against §10's hierarchy of
+hierarchies, with *Admins see all, Users see only what they created or were
+assigned by an Admin*. One placed Contacts under Accounts with visibility by
+access level; the other made them co-parents with visibility by ownership.
+**[P]** Resolved by: an Account must have a Contact designated as the Admin
+(Party Leader), for the other Contacts who are Party Members. **[C]** So the
+account-wide view is the Admin's view rather than a second parent, and the
+two visibilities are two scopes of one hierarchy — see §10, *Admin, Members,
+and the resolved conflict*. The co-parent statement stands as a description
+of those two scopes; it is no longer a competing structure.
 
 **[C]** *What it would change if used:* the same search returns different sets
 depending on which was opened, so an agent can be on the right account in the
@@ -2494,6 +2809,38 @@ it, capable in the moment.
 the customer at all, so it is what makes the Portal play work or fail. It
 would sit on the customer sheet beside the other things that move at their own
 rates.
+
+---
+
+## 17b. Penned — future state
+
+**[C]** A pen is not a Held item and not an Open one. A **[HELD]** thing may
+be used with a note saying why. A penned thing is simply **not in play**: do
+not extend it, do not reason from it, do not build a mechanic that needs it.
+What is already settled about it stays settled and stays as written — the pen
+stops the area from growing, it does not retract what is there.
+
+### Subscriptions **[P]**
+
+**[P]** Pinned 3 October. Subscriptions as a design area are penned for a
+future state.
+
+**[C]** *What stays as written:* the tier refill allowances — one on Copper,
+three on Silver, five on Gold, and half shop price beyond them (§1) · the
+flask being a subscription service rather than a one-time purchase, with a
+complimentary refill because crazy things happen, known from the Subscriptions
+record and not from the agent's basics (§15) · **Subscriptions** as a CRM
+category (§10) · the subscription answers inside the §15 calls · *it worked
+before, so it's unlikely to be the subscription* as a reading of history (§6).
+
+**[C]** *What is penned:* everything beyond that. Lapses, renewals, upgrades
+and downgrades between tiers, billing against a subscription, proration,
+what a subscription does when a party changes, and any call type whose
+business is the subscription itself.
+
+**[C]** *Known consequence, accepted:* transfer is unreachable on an ordering
+call, because the routes that would carry it are subscription and billing
+routes. That is now unbuilt by decision rather than by omission.
 
 ---
 
