@@ -373,13 +373,20 @@ function playCall({ agent, rng, baggage, causeIndex }) {
   }
 
   if (!ending) ending = 'held';
+  // OPEN RULE: a call can end with the cause known and the remedy never
+  // offered, because the nine ran out first. Telling her the cause and then
+  // not resolving it would manufacture a complaint, so the agent says
+  // nothing about it here — which means the player's own find goes unspoken.
+  // Either the closing fix is free when the cause is already in hand, or the
+  // last of the nine should be allowed to be the fix. Phil's to settle.
+  //
   // Her closing lines are placeholders. They do not vary with how the call
   // went or how she is holding the agent, because she has no mood: nothing in
   // the record says what her answers vary by, so there is no axis to vary
   // them on. Anything stronger than neutral here would be unprovoked.
   if (ending === 'held') {
     if (known === cause.id) {
-      say(lines, 'YOU', "I know what's gone wrong. I'll put a note in the case with the cause, and we'll get the batch sorted.");
+      say(lines, 'YOU', "There's something in the order I want checked before I tell you to change anything. Let me write it up and have someone call you back today.");
       say(lines, 'HER', "Right. I'll wait to hear, then.");
     } else {
       say(lines, 'YOU', "I don't want to guess at this one. Let me get it written up and someone will call you back today.");
