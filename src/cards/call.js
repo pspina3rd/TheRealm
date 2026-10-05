@@ -385,13 +385,12 @@ function playCall({ agent, rng, baggage, causeIndex }) {
   // the record says what her answers vary by, so there is no axis to vary
   // them on. Anything stronger than neutral here would be unprovoked.
   if (ending === 'held') {
-    if (known === cause.id) {
-      say(lines, 'YOU', "We've got that documented, and are forwarding the case for follow-up later today.");
-      say(lines, 'HER', "Right. I'll wait to hear, then.");
-    } else {
-      say(lines, 'YOU', "I'd be guessing. I'm forwarding the case to someone who'll know — today.");
-      say(lines, 'HER', "All right. Thank you.");
-    }
+    // One closing, found or not: from her side the two are the same thing —
+    // documented, forwarded, somebody will call. The difference is internal
+    // to the agent, and an agent never tells a customer they would be
+    // guessing.
+    say(lines, 'YOU', "We've got that documented, and are forwarding the case for follow-up later today.");
+    say(lines, 'HER', "Right. I'll wait to hear, then.");
   }
 
   return {
