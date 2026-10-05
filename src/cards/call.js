@@ -180,7 +180,7 @@ function playCall({ agent, rng, baggage, causeIndex }) {
     if (move.kind === 'hold') {
       left -= 1;
       const ok = sheet.patience + (stats.corroborated ? 1 : 0) >= 3;
-      say(lines, 'YOU', "Can you hold a minute while I check with someone?");
+      say(lines, 'YOU', "Can you hold while I check with someone?");
       if (ok) {
         say(lines, 'HER', 'Go on then.');
         const lead = askCoworker(cause, move.brief || 'long', rng, lines);
@@ -195,7 +195,7 @@ function playCall({ agent, rng, baggage, causeIndex }) {
     }
     if (move.kind === 'transfer') {
       left -= 1;
-      say(lines, 'YOU', "This one's Dispatch. Let me put you through.");
+      say(lines, 'YOU', "This one's Dispatch. Putting you through.");
       ending = 'transferred';
       continue;
     }
@@ -203,7 +203,7 @@ function playCall({ agent, rng, baggage, causeIndex }) {
       left -= 1;
       handle = move.target;
       stats.identified = true;
-      say(lines, 'YOU', "Have you got a number on anything in front of you? An order number, or your PO.");
+      say(lines, 'YOU', "Have you got an order number, or a PO?");
       say(lines, 'HER', `It's on the form. ${handle}.`);
       continue;
     }
@@ -386,10 +386,10 @@ function playCall({ agent, rng, baggage, causeIndex }) {
   // them on. Anything stronger than neutral here would be unprovoked.
   if (ending === 'held') {
     if (known === cause.id) {
-      say(lines, 'YOU', "There's something in the order I want checked before I tell you to change anything. Let me write it up and have someone call you back today.");
+      say(lines, 'YOU', "We've got that documented, and are forwarding the case for follow-up later today.");
       say(lines, 'HER', "Right. I'll wait to hear, then.");
     } else {
-      say(lines, 'YOU', "I don't want to guess at this one. Let me get it written up and someone will call you back today.");
+      say(lines, 'YOU', "I'd be guessing. I'm forwarding the case to someone who'll know — today.");
       say(lines, 'HER', "All right. Thank you.");
     }
   }
