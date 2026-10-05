@@ -373,13 +373,17 @@ function playCall({ agent, rng, baggage, causeIndex }) {
   }
 
   if (!ending) ending = 'held';
+  // Her closing lines are placeholders. They do not vary with how the call
+  // went or how she is holding the agent, because she has no mood: nothing in
+  // the record says what her answers vary by, so there is no axis to vary
+  // them on. Anything stronger than neutral here would be unprovoked.
   if (ending === 'held') {
     if (known === cause.id) {
       say(lines, 'YOU', "I know what's gone wrong. I'll put a note in the case with the cause, and we'll get the batch sorted.");
-      say(lines, 'HER', "In writing. Right. Thank you.");
+      say(lines, 'HER', "Right. I'll wait to hear, then.");
     } else {
-      say(lines, 'YOU', "There's nobody free who knows this one. I'd only be guessing. I'll put it all in the notes and someone will ring you back today.");
-      say(lines, 'HER', "Today. Not next week.");
+      say(lines, 'YOU', "I don't want to guess at this one. Let me get it written up and someone will call you back today.");
+      say(lines, 'HER', "All right. Thank you.");
     }
   }
 
