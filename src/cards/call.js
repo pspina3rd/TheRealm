@@ -180,7 +180,7 @@ function playCall({ agent, rng, baggage, causeIndex }) {
     if (move.kind === 'hold') {
       left -= 1;
       const ok = sheet.patience + (stats.corroborated ? 1 : 0) >= 3;
-      say(lines, 'YOU', "Can you hold a minute? I want to ask someone who knows this better than I do.");
+      say(lines, 'YOU', "Can you hold a minute while I check with someone?");
       if (ok) {
         say(lines, 'HER', 'Go on then.');
         const lead = askCoworker(cause, move.brief || 'long', rng, lines);
@@ -195,7 +195,7 @@ function playCall({ agent, rng, baggage, causeIndex }) {
     }
     if (move.kind === 'transfer') {
       left -= 1;
-      say(lines, 'YOU', "This one belongs with Dispatch. Let me put you through — don't hang up.");
+      say(lines, 'YOU', "This one's Dispatch. Let me put you through.");
       ending = 'transferred';
       continue;
     }
@@ -375,10 +375,10 @@ function playCall({ agent, rng, baggage, causeIndex }) {
   if (!ending) ending = 'held';
   if (ending === 'held') {
     if (known === cause.id) {
-      say(lines, 'YOU', "I know what's gone wrong, and it's fixable. I'll write a note in the case saying what caused it, so it's on record and not just the two of us saying it, and we'll get the batch sorted.");
+      say(lines, 'YOU', "I know what's gone wrong. I'll put a note in the case with the cause, and we'll get the batch sorted.");
       say(lines, 'HER', "In writing. Right. Thank you.");
     } else {
-      say(lines, 'YOU', "There's nobody free who knows this one, and I'm not going to guess at it. I'll put everything you've told me in the case notes and someone will ring you back today.");
+      say(lines, 'YOU', "There's nobody free who knows this one. I'd only be guessing. I'll put it all in the notes and someone will ring you back today.");
       say(lines, 'HER', "Today. Not next week.");
     }
   }
