@@ -180,7 +180,7 @@ function playCall({ agent, rng, baggage, causeIndex }) {
     if (move.kind === 'hold') {
       left -= 1;
       const ok = sheet.patience + (stats.corroborated ? 1 : 0) >= 3;
-      say(lines, 'YOU', 'Can I put you on hold a moment and check with our expert?');
+      say(lines, 'YOU', "Can you hold a minute? I want to ask someone who knows this better than I do.");
       if (ok) {
         say(lines, 'HER', 'Go on then.');
         const lead = askCoworker(cause, move.brief || 'long', rng, lines);
@@ -195,7 +195,7 @@ function playCall({ agent, rng, baggage, causeIndex }) {
     }
     if (move.kind === 'transfer') {
       left -= 1;
-      say(lines, 'YOU', 'This belongs with Dispatch. Let me put you through.');
+      say(lines, 'YOU', "This one belongs with Dispatch. Let me put you through — don't hang up.");
       ending = 'transferred';
       continue;
     }
@@ -203,8 +203,8 @@ function playCall({ agent, rng, baggage, causeIndex }) {
       left -= 1;
       handle = move.target;
       stats.identified = true;
-      say(lines, 'YOU', 'Have you anything with a number on it — an order, or a purchase order?');
-      say(lines, 'HER', `There's a PO on the form. ${handle}.`);
+      say(lines, 'YOU', "Have you got a number on anything in front of you? An order number, or your PO.");
+      say(lines, 'HER', `It's on the form. ${handle}.`);
       continue;
     }
     if (move.kind === 'write') {
@@ -375,11 +375,11 @@ function playCall({ agent, rng, baggage, causeIndex }) {
   if (!ending) ending = 'held';
   if (ending === 'held') {
     if (known === cause.id) {
-      say(lines, 'YOU', 'I know what has happened here. I am putting it on the case in writing so you have it, and we will come back to you.');
-      say(lines, 'HER', "In writing. That'll do, that will.");
+      say(lines, 'YOU', "I know what's gone wrong, and it's fixable. I'll write a note in the case saying what caused it, so it's on record and not just the two of us saying it, and we'll get the batch sorted.");
+      say(lines, 'HER', "In writing. Right. Thank you.");
     } else {
-      say(lines, 'YOU', 'Nobody who knows is free. I am putting it on the case and someone will come back to you.');
-      say(lines, 'HER', 'As long as somebody does.');
+      say(lines, 'YOU', "There's nobody free who knows this one, and I'm not going to guess at it. I'll put everything you've told me in the case notes and someone will ring you back today.");
+      say(lines, 'HER', "Today. Not next week.");
     }
   }
 
@@ -473,7 +473,7 @@ function askRecord({ handle, target, angle, cause, rng }) {
     const cats = [...new Set(paths.map((p) => p.category))];
     const rows = paths.map((p) => p.node);
     return {
-      question: `Let me see what else is under ${handle}.`,
+      question: 'Let me see what else is on that number.',
       note:
         `[record] ${cats.join(' · ')} — ` +
         [...new Set(rows)].map((id) => REC.node(REC.RECORD, id).spoken).join(' · '),
@@ -499,7 +499,7 @@ function askRecord({ handle, target, angle, cause, rng }) {
   void rng;
   const weakens = REC.node(REC.RECORD, target).weakens || null;
   return {
-    question: `Let me look at ${row.spoken}.`,
+    question: `Let me pull up ${row.spoken}.`,
     weakens,
     note:
       `[record] ${row.headline} — ${row.line}` +
@@ -566,10 +566,10 @@ function ask(suit, angle, word) {
       contract: `What was ${it}, exactly?`,
     },
     why: {
-      verify: `So ${it} is why it went the way it did — have I that right?`,
+      verify: `So it comes down to ${it} — have I got that right?`,
       validate: `Was it ${it} that decided it?`,
       expand: `Why does ${it} come into it?`,
-      contract: `Why would ${it} matter here?`,
+      contract: `What is it about ${it} that would change things?`,
     },
     when: {
       verify: `So ${it} was before the order went in — have I that right?`,
@@ -578,8 +578,8 @@ function ask(suit, angle, word) {
       contract: `When exactly did ${it} come into it?`,
     },
     where: {
-      verify: `So ${it} was all at your end — have I that right?`,
-      validate: `That was all at the hall, ${it} included?`,
+      verify: `So ${it} never left your end — have I got that right?`,
+      validate: `That all happened at the hall, ${it} included?`,
       expand: `Where does ${it} come in?`,
       contract: `Where exactly does ${it} sit?`,
     },

@@ -205,7 +205,7 @@ const NEED = {
   // has to read the same whichever of the four turned out to be true.
   line: "If I tell Hald it was something at our end, he'll say I ordered it wrong. He's been looking for a reason since the spring.",
   // The want that follows from it: something in writing that is not her word.
-  want: 'the finding on the case, in writing, so it is not her word against his',
+  want: 'a note in the case record saying what caused it, so it is not her word against his',
 };
 
 /**
