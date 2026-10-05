@@ -13,7 +13,7 @@
 
 const { seededRng } = require('../src/call/rng');
 const { playCall } = require('../src/cards/call');
-const { makeCardAgent } = require('../src/cards/cardAgents');
+const { makeCardAgent, makeWatson, makeHolmes } = require('../src/cards/cardAgents');
 
 function arg(name, dflt) {
   const i = process.argv.indexOf(`--${name}`);
@@ -26,7 +26,13 @@ const causeIndex = arg('cause', undefined);
 const baggage = arg('baggage', undefined);
 
 const rng = seededRng(seed);
-const agent = makeCardAgent({ name: randomMove ? 'dice' : 'apprentice', randomMove });
+const who = arg('agent', 'apprentice');
+const agent =
+  who === 'watson'
+    ? makeWatson()
+    : who === 'holmes'
+      ? makeHolmes()
+      : makeCardAgent({ name: randomMove ? 'dice' : 'apprentice', randomMove });
 const out = playCall({
   agent,
   rng,
@@ -49,7 +55,7 @@ function wrap(text, indent) {
   return rows.map((r, i) => (i === 0 ? r : indent + r)).join('\n');
 }
 
-console.log(`\nseed ${seed}${randomMove ? ' (dice)' : ''} — hidden cause: ${out.cause}`);
+console.log(`\nseed ${seed} — ${agent.name}${randomMove ? ' (dice)' : ''} — hidden cause: ${out.cause}`);
 console.log(`baggage: ${out.sheet.baggage.id} — "${out.sheet.baggage.line}"`);
 console.log(`patience ${out.sheet.patience}, empathy ${out.sheet.empathy}\n`);
 for (const l of out.lines) {

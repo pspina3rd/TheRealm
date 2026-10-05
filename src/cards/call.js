@@ -90,6 +90,10 @@ function playCall({ agent, rng, baggage, causeIndex }) {
   // Subjects she actually answered. A bounce is a reading, not a closed
   // door, so a bounced subject stays open to be come back to.
   const answered = [];
+  // Fixes she has turned down. A policy that cannot see this offers the same
+  // remedy until the call runs out, which is not characterisation, it is a
+  // loop.
+  const refused = [];
   const stats = {
     pairs: {},
     bounces: 0,
@@ -137,6 +141,7 @@ function playCall({ agent, rng, baggage, causeIndex }) {
       readings: readings.slice(),
       asked: asked.slice(),
       answered: answered.slice(),
+      refused: refused.slice(),
       // Two or three subjects the facts would fit, never which one is right
       // (settled.md:930). Handing over the exact subject would end the hunt
       // on one roll.
@@ -167,6 +172,7 @@ function playCall({ agent, rng, baggage, causeIndex }) {
       } else {
         // One line for every wrong fix. Two different refusals would tell
         // the player which cause they were close to.
+        refused.push(move.fix);
         say(lines, 'HER', "That's not it. I'd have noticed that.");
       }
       continue;
