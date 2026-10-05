@@ -13,7 +13,7 @@
 
 const { seededRng } = require('../src/call/rng');
 const { playCall } = require('../src/cards/call');
-const { makeCardAgent, makeWatson, makeHolmes } = require('../src/cards/cardAgents');
+const AGENTS = require('../src/cards/cardAgents');
 
 function arg(name, dflt) {
   const i = process.argv.indexOf(`--${name}`);
@@ -26,13 +26,19 @@ const causeIndex = arg('cause', undefined);
 const baggage = arg('baggage', undefined);
 
 const rng = seededRng(seed);
-const who = arg('agent', 'apprentice');
-const agent =
-  who === 'watson'
-    ? makeWatson()
-    : who === 'holmes'
-      ? makeHolmes()
-      : makeCardAgent({ name: randomMove ? 'dice' : 'apprentice', randomMove });
+const who = String(arg('agent', 'apprentice')).toLowerCase();
+const MAKERS = {
+  watson: AGENTS.makeWatson,
+  holmes: AGENTS.makeHolmes,
+  pooh: AGENTS.makePooh,
+  rabbit: AGENTS.makeRabbit,
+  tigger: AGENTS.makeTigger,
+  piglet: AGENTS.makePiglet,
+  eeyore: AGENTS.makeEeyore,
+};
+const agent = MAKERS[who]
+  ? MAKERS[who]()
+  : AGENTS.makeCardAgent({ name: randomMove ? 'dice' : 'apprentice', randomMove });
 const out = playCall({
   agent,
   rng,

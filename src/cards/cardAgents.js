@@ -172,6 +172,17 @@ const TRAITS_NOT_BUILT = {
     'acknowledging the complaint before working it',
     'taking her side against a third party, which is what answers the Need',
   ],
+  pooh: [
+    'saying plainly that he has not understood, which is an honest move and not a wasted play',
+    'sitting with it — a play that spends time rather than asking anything',
+  ],
+  rabbit: ['refusing to proceed until a field is filled in, as a move aimed at her'],
+  tigger: ['enthusiasm as a thing she can be carried along by, or worn down by'],
+  piglet: [
+    'apologising, which is a move with a target and a cost',
+    'reassurance as an aura that softens what came before (settled.md:801)',
+  ],
+  eeyore: ['saying out loud that it probably will not work, which is a real thing agents do'],
   holmes: [
     'asserting what she did from the record alone and sometimes being believed',
     'boredom: worse on a call with no puzzle',
@@ -333,4 +344,338 @@ function makeHolmes({ name = 'Holmes', assertFromRecord = true } = {}) {
 /** Record row ids, for counting how much of the file has been read. */
 const REC_ID = /^(ord|inv|trk|case)-/;
 
-module.exports = { makeCardAgent, makeWatson, makeHolmes, TRAITS_NOT_BUILT };
+/**
+ * The Hundred Acre Wood, as five agent sheets.
+ *
+ * Characterisation rather than tuning: each one is a disposition — what it
+ * does first, what it reaches for when stuck, what it refuses, what it never
+ * spends a play on — expressed only in moves the engine already has. Traits
+ * that would need a move that does not exist are named in
+ * `TRAITS_NOT_BUILT` rather than faked.
+ *
+ * Milne's 1926 and 1928 books are public domain in the US; what is borrowed
+ * here is behaviour, not prose.
+ */
+
+/** Her own words, in the order she said them. */
+function herWords(view) {
+  return view.board.targets
+    .filter((t) => t.cls === 'customer' && !t.id.startsWith('found:'))
+    .map((t) => t.id)
+    .filter((id) => !view.answered.includes(id) && tries(view.readings, id) < 3);
+}
+
+/** A row the record has put in play and nobody has read. */
+function unreadRow(view) {
+  return view.board.targets.find((t) => t.cls === 'record' && !view.asked.includes(t.id));
+}
+
+/** How much of the file has been read. */
+function rowsRead(view) {
+  return view.asked.filter((a) => REC_ID.test(String(a))).length;
+}
+
+/** The remedy that belongs to a cause the player has evidence for. */
+function remedyFor(id) {
+  const cause = CASE.CAUSES.find((c) => c.id === id);
+  return cause ? { kind: 'fix', fix: cause.fix.id, suit: 'how', angle: 'contract' } : null;
+}
+
+/**
+ * Pooh.
+ *
+ * Slow, literal and unhurried. Says plainly when he does not understand,
+ * asks the simple thing nobody thought to ask, and gets there by staying
+ * with it rather than by being clever. Never performs expertise.
+ *
+ * As a policy: her, almost entirely. He is the purest customer-first player,
+ * which makes him the test of whether the engine has a viable way to play
+ * that is not "read the file and treat her as confirmation".
+ */
+function makePooh({ name = 'Pooh' } = {}) {
+  return {
+    name,
+    sheet: {
+      first: 'ask her something simple',
+      whenStuck: 'ask her the same thing a different way',
+      refuses: 'hurrying her',
+      neverSpends: 'plays on the file',
+      recordRows: 0,
+    },
+    choose(view, rng) {
+      const { known, leads, readings, left } = view;
+      if (known) return remedyFor(known);
+
+      // A lead is still a thing she might know about, so he asks her.
+      const lead = (leads || []).find((l) => herWords(view).includes(l));
+      const open = herWords(view);
+      const subject = lead || open[0];
+
+      if (subject) {
+        const bounced = readings.find((r) => r.subject === subject);
+        return {
+          kind: 'play',
+          cls: 'customer',
+          target: subject,
+          // He comes back to the same thing with a different suit rather
+          // than giving up on it, which is what a bounce is for.
+          suit: fittingSuit(subject, bounced && bounced.suit, rng),
+          angle: bounced ? 'verify' : 'expand',
+        };
+      }
+
+      // Only when she has nothing left to say does he look anything up.
+      if (!view.handle && left > 2) return { kind: 'identify', target: 'PO-1183', suit: 'what', angle: 'contract' };
+      if (view.handle && !view.asked.some((a) => String(a).startsWith('list:'))) {
+        return { kind: 'play', cls: 'record', target: null, suit: 'what', angle: 'expand' };
+      }
+      const row = unreadRow(view);
+      if (row) return { kind: 'play', cls: 'record', target: row.id, suit: 'what', angle: 'verify' };
+      return { kind: 'play', cls: 'coworker', target: 'bram', brief: 'short', suit: 'what', angle: 'expand' };
+    },
+  };
+}
+
+/**
+ * Rabbit.
+ *
+ * Organised, officious, has a procedure and expects it to be followed.
+ * Assumes he knows best and is irritated by deviation. Keeps records
+ * because records are proper.
+ *
+ * As a policy: the whole file, in order, before a word to her — which is the
+ * Custom Container line turning into a checklist item, the thing the record
+ * warns about by name (settled.md:727). He is how that warning gets
+ * measured instead of merely honoured.
+ */
+function makeRabbit({ name = 'Rabbit' } = {}) {
+  return {
+    name,
+    sheet: {
+      first: 'the handle, then every row in order',
+      whenStuck: 'read the next row',
+      refuses: 'improvising',
+      neverSpends: 'plays on how she is taking it',
+      recordRows: 99,
+      writesEverything: true,
+    },
+    choose(view, rng) {
+      const { known, handle, leads, board, asked } = view;
+      if (known) return remedyFor(known);
+
+      const find = board.targets.find((t) => t.find && !t.id.startsWith('found:'));
+      if (find) return { kind: 'write', target: find.id, suit: 'what', angle: 'contract' };
+
+      if (!handle) return { kind: 'identify', target: 'PO-1183', suit: 'what', angle: 'contract' };
+      if (!asked.some((a) => String(a).startsWith('list:'))) {
+        return { kind: 'play', cls: 'record', target: null, suit: 'what', angle: 'expand' };
+      }
+      const row = unreadRow(view);
+      if (row) return { kind: 'play', cls: 'record', target: row.id, suit: 'what', angle: 'verify' };
+
+      // The file is exhausted, so now she may be consulted, in the order the
+      // leads were written down.
+      const open = herWords(view);
+      const subject = (leads || []).find((l) => open.includes(l)) || open[0];
+      if (subject) {
+        return {
+          kind: 'play',
+          cls: 'customer',
+          target: subject,
+          suit: fittingSuit(subject, null, rng),
+          angle: 'contract',
+        };
+      }
+      return { kind: 'play', cls: 'coworker', target: 'bram', brief: 'long', suit: 'what', angle: 'expand' };
+    },
+  };
+}
+
+/**
+ * Tigger.
+ *
+ * Bounces first. Reads nothing, is certain he can fix it, and is not
+ * discouraged by being wrong. The honest version of a confident new
+ * apprentice, which is a better control than dice because dice are not a
+ * person.
+ *
+ * As a policy: offer a remedy early and often, ask her as statements, never
+ * look anything up.
+ */
+function makeTigger({ name = 'Tigger' } = {}) {
+  return {
+    name,
+    sheet: {
+      first: 'a remedy, straight off',
+      whenStuck: 'another remedy',
+      refuses: 'reading the file',
+      neverSpends: 'plays on getting a reference number',
+    },
+    choose(view, rng) {
+      const { known, refused, readings } = view;
+      if (known) return remedyFor(known);
+
+      // He will try a remedy he has not tried yet whenever he fancies it.
+      const untried = CASE.CAUSES.filter((c) => !refused.includes(c.fix.id));
+      if (untried.length && rng() < 0.4) {
+        const pickOne = untried[Math.floor(rng() * untried.length)];
+        return { kind: 'fix', fix: pickOne.fix.id, suit: 'how', angle: 'contract' };
+      }
+
+      const open = herWords(view);
+      if (open.length) {
+        const subject = open[Math.floor(rng() * open.length)];
+        const bounced = readings.find((r) => r.subject === subject);
+        return {
+          kind: 'play',
+          cls: 'customer',
+          target: subject,
+          suit: fittingSuit(subject, bounced && bounced.suit, rng),
+          angle: 'validate',
+        };
+      }
+      const last = CASE.CAUSES.find((c) => !refused.includes(c.fix.id));
+      return last
+        ? { kind: 'fix', fix: last.fix.id, suit: 'how', angle: 'contract' }
+        : { kind: 'play', cls: 'coworker', target: 'bram', brief: 'short', suit: 'what', angle: 'expand' };
+    },
+  };
+}
+
+/**
+ * Piglet.
+ *
+ * Anxious, apologetic, and unwilling to bother anybody. Will not put her on
+ * hold, will not ask a colleague, will not escalate — he absorbs the whole
+ * nine himself. Lovely, and the customer is no better off.
+ *
+ * As a policy: her, gently, and nobody else. He is the only one of the five
+ * who makes the Hold card's six requirements earn their keep, by refusing to
+ * use it.
+ */
+function makePiglet({ name = 'Piglet' } = {}) {
+  return {
+    name,
+    sheet: {
+      first: 'ask her, carefully',
+      whenStuck: 'ask her something easier',
+      refuses: 'holding, escalating, or bothering a colleague',
+      neverSpends: 'plays on anyone but her',
+    },
+    choose(view, rng) {
+      const { known, leads, readings, handle, left } = view;
+      if (known) return remedyFor(known);
+
+      const open = herWords(view);
+      // He prefers the easy ground: what she has already brought up herself.
+      const easy = open.filter((id) => SHALLOW.includes(id));
+      const lead = (leads || []).find((l) => open.includes(l));
+      const subject = easy[0] || lead || open[0];
+
+      if (subject) {
+        const bounced = readings.find((r) => r.subject === subject);
+        return {
+          kind: 'play',
+          cls: 'customer',
+          target: subject,
+          suit: fittingSuit(subject, bounced && bounced.suit, rng),
+          angle: bounced ? 'validate' : 'expand',
+        };
+      }
+      if (!handle && left > 1) return { kind: 'identify', target: 'PO-1183', suit: 'what', angle: 'contract' };
+      if (handle && !view.asked.some((a) => String(a).startsWith('list:'))) {
+        return { kind: 'play', cls: 'record', target: null, suit: 'what', angle: 'expand' };
+      }
+      const row = unreadRow(view);
+      if (row) return { kind: 'play', cls: 'record', target: row.id, suit: 'what', angle: 'verify' };
+      // Rather than trouble anybody, he asks her one more time.
+      const again = view.board.targets.filter((t) => t.cls === 'customer').map((t) => t.id)[0];
+      return again
+        ? { kind: 'play', cls: 'customer', target: again, suit: fittingSuit(again, null, rng), angle: 'verify' }
+        : { kind: 'play', cls: 'customer', target: 'draughts', suit: 'what', angle: 'verify' };
+    },
+  };
+}
+
+/**
+ * Eeyore.
+ *
+ * Expects it not to work and says so in advance. Does the work anyway, with
+ * no confidence in it, and reaches for the case early because somebody else
+ * will have to deal with this eventually.
+ *
+ * As a policy: competent enough, slow to commit, and quick to put it in
+ * writing and let it go — which puts a real number on what hesitation costs.
+ */
+function makeEeyore({ name = 'Eeyore' } = {}) {
+  return {
+    name,
+    sheet: {
+      first: 'the handle, and low expectations',
+      whenStuck: 'the case',
+      refuses: 'believing a lead the first time',
+      neverSpends: 'plays on being certain',
+      recordRows: 2,
+    },
+    choose(view, rng) {
+      const { known, handle, leads, asked, readings, left, board } = view;
+
+      // Even with the answer he checks it once more before saying it, which
+      // costs a play he usually does not have.
+      if (known) {
+        const sure = asked.filter((a) => String(a).startsWith('sure:')).length;
+        if (sure === 0 && left > 1 && rng() < 0.5) {
+          const cause = CASE.CAUSES.find((c) => c.id === known);
+          const w = cause.reach[0][0];
+          if (board.targets.some((t) => t.id === w)) {
+            return { kind: 'play', cls: 'customer', target: w, suit: fittingSuit(w, null, rng), angle: 'verify' };
+          }
+        }
+        return remedyFor(known);
+      }
+
+      if (!handle && left > 4) return { kind: 'identify', target: 'PO-1183', suit: 'what', angle: 'contract' };
+      if (handle && !asked.some((a) => String(a).startsWith('list:'))) {
+        return { kind: 'play', cls: 'record', target: null, suit: 'what', angle: 'expand' };
+      }
+      if (handle && rowsRead(view) < 2) {
+        const row = unreadRow(view);
+        if (row) return { kind: 'play', cls: 'record', target: row.id, suit: 'what', angle: 'verify' };
+      }
+
+      // Nothing has come of it, so it goes on the case and somebody else can
+      // have it. This is a real ending, not a failure state.
+      if (left <= 3 && !(leads || []).length) {
+        return { kind: 'hold', brief: 'short', suit: 'what', angle: 'expand' };
+      }
+
+      const open = herWords(view);
+      const lead = (leads || []).find((l) => open.includes(l));
+      const subject = lead || open[0];
+      if (subject) {
+        const bounced = readings.find((r) => r.subject === subject);
+        return {
+          kind: 'play',
+          cls: 'customer',
+          target: subject,
+          suit: fittingSuit(subject, bounced && bounced.suit, rng),
+          angle: bounced ? 'verify' : 'contract',
+        };
+      }
+      return { kind: 'hold', brief: 'short', suit: 'what', angle: 'expand' };
+    },
+  };
+}
+
+
+module.exports = {
+  makeCardAgent,
+  makeWatson,
+  makeHolmes,
+  makePooh,
+  makeRabbit,
+  makeTigger,
+  makePiglet,
+  makeEeyore,
+  TRAITS_NOT_BUILT,
+};
