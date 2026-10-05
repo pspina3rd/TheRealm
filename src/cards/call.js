@@ -105,6 +105,8 @@ function playCall({ agent, rng, baggage, causeIndex }) {
     corroborated: false,
     coworkerLeads: 0,
     dropped: 0,
+    escalated: false,
+    autoPlayed: null,
     customerPlays: 0,
     customerPlaysBeforeFind: null,
     ledLead: false,
@@ -116,10 +118,16 @@ function playCall({ agent, rng, baggage, causeIndex }) {
   // say she did no such thing.
   let known = null;
   let suspect = null;
+  let lastWasDeparture = false;
   // The subjects a corroborating row points at. They are put in play when it
   // is read, because a lead is the record handing you something to aim at —
   // a hit yields targets (settled.md:863).
   let leadSubjects = [];
+  // What she has said she did differently. Each one is true; at most one of
+  // them explains the symptom. The engine knows which; the player does not.
+  const heard = [];
+  // Which innocent departures are live this call, and how many.
+  const herringSubjects = rollHerrings(cause, rng);
   let foundTurn = null;
   let handle = null;
   let ending = null;
@@ -135,9 +143,15 @@ function playCall({ agent, rng, baggage, causeIndex }) {
       left,
       board,
       handle,
-      known,
+      // The remedies her departures could point to, first heard first. Never
+      // which one is right: a cause is not necessarily THE cause
+      // (settled.md:793).
+      candidates: candidatesFrom(heard),
+      heard: heard.map((h) => ({ subject: h.subject, suggests: h.suggests.slice() })),
       recent: recent.slice(-3),
-      coworker: COWORKER,
+      // Who is free and how he likes to be asked — never what he knows,
+      // which is the cause list by another name and is his to tell you.
+      coworker: { name: COWORKER.name, prefers: COWORKER.prefers },
       readings: readings.slice(),
       asked: asked.slice(),
       answered: answered.slice(),
@@ -164,7 +178,7 @@ function playCall({ agent, rng, baggage, causeIndex }) {
       // A Fix is not always THE Fix. Knowing the cause is not the same as
       // offering the right remedy, so the fix played has to be the one that
       // belongs to the cause she described.
-      const right = known === cause.id && move.fix === cause.fix.id;
+      const right = heard.some((h) => h.causal) && move.fix === cause.fix.id;
       say(lines, 'YOU', fixLine(move.fix, cause, right));
       if (right) {
         say(lines, 'HER', cause.fix.reply);
@@ -277,6 +291,7 @@ function playCall({ agent, rng, baggage, causeIndex }) {
         lead: suspect === cause.id,
         answered,
         inPlay: board.targets.map((t) => t.id),
+        herrings: herringSubjects,
       });
       recent.push({ angle, subject: move.target });
       asked.push(move.target);
@@ -292,11 +307,19 @@ function playCall({ agent, rng, baggage, causeIndex }) {
         board = add(board, opens, lines);
         stats.dropped = board.dropped.length;
         if (res.departure) {
-          known = cause.id;
-          foundTurn = PLAYS - left;
-          stats.customerPlaysBeforeFind = stats.customerPlays;
-          board = BOARD.landed(board, [{ id: `found:${cause.id}`, cls: 'customer', find: true }]);
+          heard.push({ subject: move.target, suggests: res.suggests, causal: res.causal });
+          if (res.causal) {
+            known = cause.id;
+            foundTurn = PLAYS - left;
+            stats.customerPlaysBeforeFind = stats.customerPlays;
+          }
+          lastWasDeparture = true;
+          board = BOARD.landed(board, [
+            { id: `heard:${move.target}`, cls: 'customer', find: true },
+          ]);
           say(lines, 'NOTE', '[find] that is not how she says she normally does it');
+        } else {
+          lastWasDeparture = false;
         }
         if (res.critical) {
           stats.criticals += 1;
@@ -372,18 +395,46 @@ function playCall({ agent, rng, baggage, causeIndex }) {
 
   }
 
+  // **[P]** A departure heard on the ninth play auto-plays its remedy. There
+  // is no play left to spend on it, and an agent who has just been told what
+  // she did says so rather than ending the call in silence. It can be wrong,
+  // because a cause is not necessarily THE cause — and a wrong one on the
+  // last play is a failed attempt, which §13 makes a manager's business: it
+  // becomes a follow-up or an escalation, decided by her sheet in that
+  // moment.
+  if (!ending && lastWasDeparture) {
+    const cands = candidatesFrom(heard);
+    const offer = agent.closing ? agent.closing({ candidates: cands }, rng) : cands[0];
+    const right = heard.some((h) => h.causal) && offer === cause.fix.id;
+    stats.autoPlayed = offer || null;
+    say(lines, 'YOU', fixLine(offer, cause, right));
+    if (right) {
+      say(lines, 'HER', cause.fix.reply);
+      ending = 'resolved';
+    } else {
+      say(lines, 'HER', "That's not it. I'd have noticed that.");
+      // **[C]** Which door she reaches for comes off the sheet. The field is
+      // mine, not settled: patience, lowered by every bounce this call. A
+      // customer with none of it left asks for somebody senior; one who has
+      // some takes the callback.
+      const spent = sheet.patience - stats.bounces;
+      if (spent <= 1) {
+        stats.escalated = true;
+        ending = 'transferred';
+        say(lines, 'HER', 'No. Put me on to whoever it is that does know.');
+        say(lines, 'YOU', "Let me get you someone senior. One moment.");
+      } else {
+        ending = 'held';
+      }
+    }
+  }
+
   if (!ending) ending = 'held';
-  // OPEN RULE: a call can end with the cause known and the remedy never
-  // offered, because the nine ran out first. Telling her the cause and then
-  // not resolving it would manufacture a complaint, so the agent says
-  // nothing about it here — which means the player's own find goes unspoken.
-  // Either the closing fix is free when the cause is already in hand, or the
-  // last of the nine should be allowed to be the fix. Phil's to settle.
-  //
-  // Her closing lines are placeholders. They do not vary with how the call
-  // went or how she is holding the agent, because she has no mood: nothing in
-  // the record says what her answers vary by, so there is no axis to vary
-  // them on. Anything stronger than neutral here would be unprovoked.
+
+  // Her closing lines do not vary with how the call went or how she is
+  // holding the agent, because she has no mood: nothing settled says what her
+  // answers vary by, so there is no axis to vary them on. Anything stronger
+  // than neutral here would be unprovoked.
   if (ending === 'held') {
     // One closing, found or not: from her side the two are the same thing —
     // documented, forwarded, somebody will call. The difference is internal
@@ -426,8 +477,42 @@ function leadsFor(suspect, rng) {
   return out;
 }
 
+/**
+ * Which innocent departures are live this call.
+ *
+ * One or two, never on a subject the cause itself needs, because a subject
+ * cannot both be the explanation and not be it.
+ */
+function rollHerrings(cause, rng) {
+  const taken = new Set(cause.reach.flat());
+  const pool = Object.keys(CASE.HERRINGS).filter((k) => !taken.has(k));
+  const want = 1 + Math.floor(rng() * 2);
+  const out = [];
+  while (out.length < want && pool.length) {
+    out.push(pool.splice(Math.floor(rng() * pool.length), 1)[0]);
+  }
+  return out;
+}
+
+/** A new array in a new order, from the call's own rng. */
+function shuffle(arr, rng) {
+  const out = arr.slice();
+  for (let i = out.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(rng() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+/** Every remedy her departures could point to, first heard first. */
+function candidatesFrom(heard) {
+  const out = [];
+  for (const h of heard) for (const f of h.suggests) if (!out.includes(f)) out.push(f);
+  return out;
+}
+
 /** What asking her returns: a landing, a bounce, or a departure. */
-function askHer({ sheet, subject, suit, angle, cause, recent, rng, lead, answered, inPlay }) {
+function askHer({ sheet, subject, suit, angle, cause, recent, rng, lead, answered, inPlay, herrings }) {
   const fit = SHEET.fitness(suit, subject, sheet);
   let p = TUNING.landChance[fit];
   p += TUNING.angleBonus[angle] || 0;
@@ -446,9 +531,23 @@ function askHer({ sheet, subject, suit, angle, cause, recent, rng, lead, answere
   if (thrice) p -= TUNING.repeatPenalty;
   const landed = rng() < p;
   const question = ask(suit, angle, subject);
+  void 0;
   if (!landed) {
     const b = SHEET.bounce(sheet, subject, suit);
     return { landed: false, question, answer: oblique(rng), reading: b.reading };
+  }
+  // An innocent departure: true, unusual, and not the explanation.
+  if (herrings.includes(subject) && landed) {
+    const h = CASE.HERRINGS[subject];
+    return {
+      landed: true,
+      question,
+      answer: h.text,
+      departure: true,
+      causal: false,
+      suggests: shuffle(h.suggests, rng),
+      critical: null,
+    };
   }
   const whole = cause.reach.find((set) => set.includes(subject)) || [];
   // A cause reachable only by a pair costs two of the nine: she departs when
@@ -470,7 +569,17 @@ function askHer({ sheet, subject, suit, angle, cause, recent, rng, lead, answere
     .filter((w) => w !== subject && !answered.includes(w));
   const fresh = connects.filter((w) => !inPlay.includes(w));
   const critical = rng() < TUNING.criticalChance && fresh.length ? [fresh[Math.floor(rng() * fresh.length)]] : null;
-  return { landed: true, question, answer, departure, critical };
+  return {
+    landed: true,
+    question,
+    answer,
+    departure,
+    causal: departure,
+    // Shuffled: listing the right remedy first every time would make the
+    // choice a formality, and a cause is not necessarily THE cause.
+    suggests: departure ? shuffle(cause.suggests, rng) : [],
+    critical,
+  };
 }
 
 /** What the record returns: corroboration, contradiction, or silence. */
@@ -581,17 +690,21 @@ function ask(suit, angle, word) {
       expand: `Why does ${it} come into it?`,
       contract: `What is it about ${it} that would change things?`,
     },
+    // The subject sits at the end of these, as an object rather than a
+    // grammatical subject, so a plural label and a singular verb cannot
+    // disagree: "Where exactly does the lots you sent sit?" was the other
+    // way round.
     when: {
-      verify: `So ${it} was before the order went in — have I that right?`,
-      validate: `Was ${it} before the order went in?`,
-      expand: `When does ${it} come into it?`,
-      contract: `When exactly did ${it} come into it?`,
+      verify: `So that was before the order went in — ${it}?`,
+      validate: `Was that before the order went in — ${it}?`,
+      expand: `When does that come into it — ${it}?`,
+      contract: `When exactly did that happen — ${it}?`,
     },
     where: {
-      verify: `So ${it} never left your end — have I got that right?`,
+      verify: `So none of that left your end — ${it} included?`,
       validate: `That all happened at the hall, ${it} included?`,
-      expand: `Where does ${it} come in?`,
-      contract: `Where exactly does ${it} sit?`,
+      expand: `Whereabouts does that happen — ${it}?`,
+      contract: `Where exactly did that happen — ${it}?`,
     },
     how: {
       verify: `So ${it} went the way it always goes?`,

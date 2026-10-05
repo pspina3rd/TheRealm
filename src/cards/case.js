@@ -135,6 +135,10 @@ const CAUSES = [
       "They went in as one order, yes. Twelve sets in the one go — it's one form, one fee.",
       "All twelve on the one order. I'd not thought to split it; why would you?",
     ],
+    // What her departure looks like it could be. A cause is not
+    // necessarily THE cause (settled.md:793), so hearing what she did never
+    // names the remedy on its own.
+    suggests: ['split-the-send', 'one-lot'],
     fix: {
       id: 'split-the-send',
       line: "Twelve sets in one send share a single roll, and each one takes it by its own quality — that's why some are thin. Split the order and each gets its own.",
@@ -151,6 +155,7 @@ const CAUSES = [
       "I sent extra of the common stuff, to be safe. We had plenty and it seemed daft not to.",
       "I rounded the cheap one up. There was a sack going over anyway.",
     ],
+    suggests: ['the-measure', 'one-lot'],
     fix: {
       id: 'the-measure',
       line: 'Extra of the cheaper material dilutes it — the proportions decide the blend, so more of the cheap half makes a weaker draught. The recipe measure, exactly, and they come back even.',
@@ -170,6 +175,7 @@ const CAUSES = [
       "Some of it was the good stuff from the spring and the rest was whatever was left in the cold room.",
       "Two different lots went in. I didn't think it mattered which was which.",
     ],
+    suggests: ['one-lot', 'the-measure'],
     fix: {
       id: 'one-lot',
       line: "Mixed lots spread the result, and the good half doesn't lift the poor half — each takes the roll by its own quality. One lot per send and the twelve come out close.",
@@ -186,6 +192,7 @@ const CAUSES = [
       "Hald asked for our own crates — the ones with the iron bands. He likes them stacked his way in the hall.",
       "We send ours back and forth in the banded crates. They're the Company's, they've our mark on them.",
     ],
+    suggests: ['plain-container', 'split-the-send'],
     fix: {
       id: 'plain-container',
       line: "Metal on the container shapes what the spell does on the way through, and the banded crates are what spread the batch. A plain TLC container and the twelve come back even.",
@@ -193,6 +200,40 @@ const CAUSES = [
     },
   },
 ];
+
+/**
+ * Things she also did differently, none of which explains it.
+ *
+ * A find is a departure from how she says she normally works — and she can
+ * depart in more than one way on one order. These are true, unusual and
+ * innocent, and each of them makes one of the four remedies look right,
+ * which is what makes offering a remedy a judgement rather than a lookup.
+ *
+ * How many surface in a call is rolled; which ones is rolled; whether the
+ * causal one is among them is the whole game.
+ */
+const HERRINGS = {
+  store: {
+    text: "They sat in the cold room two nights before I got to them. We were out at the ford.",
+    suggests: ['one-lot'],
+  },
+  cart: {
+    text: "The carter came round the long way, he said the ford was up. Took him half a day over.",
+    suggests: ['split-the-send'],
+  },
+  who: {
+    text: "There was a different hand on the paperwork this time. Not the writing we usually get.",
+    suggests: ['the-measure'],
+  },
+  opened: {
+    text: "I opened them out in the yard. It was warmer out than in, that morning.",
+    suggests: ['plain-container'],
+  },
+  weather: {
+    text: "It poured the whole way. The crate came in wet through, though they were dry inside.",
+    suggests: ['plain-container'],
+  },
+};
 
 /**
  * The Request is twelve even draughts. The Need is underneath it and does not
@@ -236,7 +277,7 @@ const LABELS = {
   sets: 'the sets',
   strength: 'the strength',
   proportions: 'the proportions',
-  sourcing: 'the lots it came from',
+  sourcing: 'the lots you sent',
   fee: 'the fee on the invoice',
   form: 'the order form',
   pattern: 'your earlier orders',
@@ -296,4 +337,4 @@ function label(subject) {
  */
 const SUBJECTS = Object.keys(BASELINE);
 
-module.exports = { CALLER, OPENING, BASELINE, GIVES, BELIEFS, CAUSES, NEED, SUBJECTS, LABELS, label, SUIT_FIT, fits };
+module.exports = { CALLER, OPENING, BASELINE, GIVES, BELIEFS, CAUSES, NEED, SUBJECTS, LABELS, label, SUIT_FIT, fits, HERRINGS };

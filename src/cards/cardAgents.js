@@ -34,13 +34,13 @@ function makeCardAgent({ name = 'apprentice', randomMove = false, useRecord = tr
   return {
     name,
     choose(view, rng) {
-      const { board, handle, known, left, asked, readings, leads, answered } = view;
+      const { board, handle, candidates, refused, left, asked, readings, leads, answered } = view;
       const rowsRead = asked.filter((a) => String(a).startsWith('ord-') || String(a).startsWith('inv-') || String(a).startsWith('trk-') || String(a).startsWith('case-')).length;
 
-      // The fix, the moment there is evidence for one.
-      if (known) {
-        const cause = CASE.CAUSES.find((c) => c.id === known);
-        return { kind: 'fix', fix: cause.fix.id, suit: 'how', angle: 'contract' };
+      // A remedy the moment her own words point at one.
+      if (candidates && candidates.length) {
+        const offer = offerRemedy(candidates, refused, 'first', rng);
+        if (offer) return offer;
       }
 
       // A handle first: the record deals nothing until she has given
@@ -213,10 +213,15 @@ function makeWatson({ name = 'Watson' } = {}) {
       writesEverything: true,
     },
     choose(view, rng) {
-      const { board, handle, known, left, asked, readings, leads, answered } = view;
-      if (known) {
-        const cause = CASE.CAUSES.find((c) => c.id === known);
-        return { kind: 'fix', fix: cause.fix.id, suit: 'how', angle: 'contract' };
+      const { board, handle, candidates, refused, left, asked, readings, leads, answered } = view;
+      // Watson would rather be sure: with more than one remedy in play he
+      // asks her again before offering one.
+      if (candidates && candidates.length) {
+        const only = candidates.filter((c) => !(refused || []).includes(c));
+        if (only.length === 1 || left <= 2) {
+          const offer = offerRemedy(candidates, refused, 'first', rng);
+          if (offer) return offer;
+        }
       }
 
       // The note always, and early, because that is who he is rather than a
@@ -294,10 +299,12 @@ function makeHolmes({ name = 'Holmes', assertFromRecord = true } = {}) {
       writesEverything: false,
     },
     choose(view, rng) {
-      const { board, handle, known, asked, leads, answered, readings, refused } = view;
-      if (known) {
-        const cause = CASE.CAUSES.find((c) => c.id === known);
-        return { kind: 'fix', fix: cause.fix.id, suit: 'how', angle: 'contract' };
+      const { board, handle, candidates, asked, leads, answered, readings, refused } = view;
+      // The most recent evidence is the best evidence, as far as he is
+      // concerned.
+      if (candidates && candidates.length) {
+        const offer = offerRemedy(candidates, refused, 'last', rng);
+        if (offer) return offer;
       }
       if (!handle) return { kind: 'identify', target: 'PO-1183', suit: 'what', angle: 'contract' };
 
@@ -375,10 +382,27 @@ function rowsRead(view) {
   return view.asked.filter((a) => REC_ID.test(String(a))).length;
 }
 
-/** The remedy that belongs to a cause the player has evidence for. */
-function remedyFor(id) {
-  const cause = CASE.CAUSES.find((c) => c.id === id);
-  return cause ? { kind: 'fix', fix: cause.fix.id, suit: 'how', angle: 'contract' } : null;
+/**
+ * Offer one of the remedies her departures could point to.
+ *
+ * The engine no longer hands a policy the answer: hearing what she did
+ * yields two or three remedies it might be, and choosing is the play. A
+ * remedy she has already refused is not offered again.
+ *
+ * @param {string[]} candidates
+ * @param {string[]} refused
+ * @param {'first'|'last'|'random'} how - the sheet's habit.
+ */
+function offerRemedy(candidates, refused, how, rng) {
+  const left = (candidates || []).filter((c) => !(refused || []).includes(c));
+  if (!left.length) return null;
+  const pickOne =
+    how === 'last'
+      ? left[left.length - 1]
+      : how === 'random'
+        ? left[Math.floor(rng() * left.length)]
+        : left[0];
+  return { kind: 'fix', fix: pickOne, suit: 'how', angle: 'contract' };
 }
 
 /**
@@ -403,8 +427,9 @@ function makePooh({ name = 'Pooh' } = {}) {
       recordRows: 0,
     },
     choose(view, rng) {
-      const { known, leads, readings, left } = view;
-      if (known) return remedyFor(known);
+      const { candidates, refused, leads, readings, left } = view;
+      const offer = offerRemedy(candidates, refused, 'first', rng);
+      if (offer) return offer;
 
       // A lead is still a thing she might know about, so he asks her.
       const lead = (leads || []).find((l) => herWords(view).includes(l));
@@ -460,8 +485,10 @@ function makeRabbit({ name = 'Rabbit' } = {}) {
       writesEverything: true,
     },
     choose(view, rng) {
-      const { known, handle, leads, board, asked } = view;
-      if (known) return remedyFor(known);
+      const { candidates, refused, handle, leads, board, asked } = view;
+      // In the order they were written down.
+      const offer = offerRemedy(candidates, refused, 'first', rng);
+      if (offer) return offer;
 
       const find = board.targets.find((t) => t.find && !t.id.startsWith('found:'));
       if (find) return { kind: 'write', target: find.id, suit: 'what', angle: 'contract' };
@@ -512,8 +539,9 @@ function makeTigger({ name = 'Tigger' } = {}) {
       neverSpends: 'plays on getting a reference number',
     },
     choose(view, rng) {
-      const { known, refused, readings } = view;
-      if (known) return remedyFor(known);
+      const { candidates, refused, readings } = view;
+      const offer = offerRemedy(candidates, refused, 'random', rng);
+      if (offer) return offer;
 
       // He will try a remedy he has not tried yet whenever he fancies it.
       const untried = CASE.CAUSES.filter((c) => !refused.includes(c.fix.id));
@@ -563,8 +591,9 @@ function makePiglet({ name = 'Piglet' } = {}) {
       neverSpends: 'plays on anyone but her',
     },
     choose(view, rng) {
-      const { known, leads, readings, handle, left } = view;
-      if (known) return remedyFor(known);
+      const { candidates, refused, leads, readings, handle, left } = view;
+      const offer = offerRemedy(candidates, refused, 'first', rng);
+      if (offer) return offer;
 
       const open = herWords(view);
       // He prefers the easy ground: what she has already brought up herself.
@@ -618,20 +647,21 @@ function makeEeyore({ name = 'Eeyore' } = {}) {
       recordRows: 2,
     },
     choose(view, rng) {
-      const { known, handle, leads, asked, readings, left, board } = view;
+      const { candidates, refused, handle, leads, asked, readings, left, board, heard } = view;
 
       // Even with the answer he checks it once more before saying it, which
       // costs a play he usually does not have.
-      if (known) {
-        const sure = asked.filter((a) => String(a).startsWith('sure:')).length;
-        if (sure === 0 && left > 1 && rng() < 0.5) {
-          const cause = CASE.CAUSES.find((c) => c.id === known);
-          const w = cause.reach[0][0];
-          if (board.targets.some((t) => t.id === w)) {
+      if (candidates && candidates.length) {
+        // Even with something to offer he checks it once more, which costs a
+        // play he usually does not have.
+        if (left > 1 && heard.length && rng() < 0.5) {
+          const w = heard[heard.length - 1].subject;
+          if (board.targets.some((t) => t.id === w) && !readings.some((r) => r.subject === w)) {
             return { kind: 'play', cls: 'customer', target: w, suit: fittingSuit(w, null, rng), angle: 'verify' };
           }
         }
-        return remedyFor(known);
+        const offer = offerRemedy(candidates, refused, 'first', rng);
+        if (offer) return offer;
       }
 
       if (!handle && left > 4) return { kind: 'identify', target: 'PO-1183', suit: 'what', angle: 'contract' };

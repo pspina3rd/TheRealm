@@ -7,6 +7,20 @@ const { playCall, PLAYS } = require('./call');
 const { makeCardAgent } = require('./cardAgents');
 const { CAUSES } = require('./case');
 
+/**
+ * A probe policy: works through whatever she has not answered yet, with the
+ * suit that fits it. Asking the same word every play would never reach a
+ * departure, which is what made two of these tests pass vacuously at first.
+ */
+function probe(view) {
+  const open = view.board.targets
+    .filter((t) => t.cls === 'customer' && !view.answered.includes(t.id) && !t.id.startsWith('heard:'))
+    .map((t) => t.id);
+  const subject = (view.leads || []).find((l) => open.includes(l)) || open[0] || 'draughts';
+  const fit = (require('./case').SUIT_FIT[subject] || ['what'])[0];
+  return { kind: 'play', cls: 'customer', target: subject, suit: fit, angle: 'contract' };
+}
+
 function play(seed, opts = {}) {
   return playCall({
     agent: makeCardAgent(opts.agent || {}),
@@ -162,4 +176,120 @@ test('the refusal reads the same whichever cause the player was close to', () =>
     for (const l of out.lines) if (l.who === 'HER' && l.text.includes('not it')) refusals.add(l.text);
   }
   assert.strictEqual(refusals.size, 1, `refusals differ: ${[...refusals].join(' | ')}`);
+});
+
+test('a find tells the player what she did, never which cause it is', () => {
+  // The engine used to hand the policy the hidden cause id, so the right
+  // remedy was never in doubt and "a Fix is not always THE Fix" was a line
+  // in the record rather than a rule in the game.
+  const ids = CAUSES.map((c) => c.id);
+  let sawDeparture = false;
+  for (let seed = 1; seed <= 200; seed += 1) {
+    const out = playCall({
+      agent: {
+        choose: (view) => {
+          for (const k of Object.keys(view)) {
+            const blob = JSON.stringify(view[k]);
+            for (const id of ids) {
+              assert.ok(!String(blob).includes(id), `view.${k} leaked the cause id ${id}`);
+            }
+          }
+          if (view.candidates.length) sawDeparture = true;
+          return probe(view);
+        },
+      },
+      rng: seededRng(seed),
+    });
+    void out;
+  }
+  assert.ok(sawDeparture, 'no departure was ever heard across 200 seeds');
+});
+
+test('a causal departure offers two remedies it could be, in no fixed order', () => {
+  for (const c of CAUSES) {
+    assert.ok(c.suggests.length >= 2, `${c.id} points at only one remedy`);
+    assert.ok(c.suggests.includes(c.fix.id), `${c.id} does not suggest its own remedy`);
+  }
+  // And the right one is not always first, or choosing would be a formality.
+  const firsts = new Set();
+  for (let seed = 1; seed <= 400; seed += 1) {
+    playCall({
+      agent: {
+        choose: (view) => {
+          if (view.candidates.length) firsts.add(view.candidates[0]);
+          return probe(view);
+        },
+      },
+      rng: seededRng(seed),
+    });
+  }
+  assert.ok(firsts.size > 1, 'the same remedy was always listed first');
+});
+
+test('the wrong remedy is refused, so offering one is a real play', () => {
+  let refusals = 0;
+  for (let seed = 1; seed <= 400; seed += 1) {
+    const out = play(seed);
+    refusals += out.lines.filter((l) => l.who === 'HER' && l.text.startsWith("That's not it")).length;
+  }
+  assert.ok(refusals > 0, 'no remedy was ever refused, so the choice cannot be wrong');
+});
+
+test('a departure on the last play offers its remedy without a play to spend', () => {
+  // Phil's rule: a cause found on turn nine auto-plays.
+  let autos = 0;
+  for (let seed = 1; seed <= 400; seed += 1) {
+    const out = play(seed, { agent: {} });
+    if (out.stats.autoPlayed) {
+      autos += 1;
+      assert.ok(out.plays <= PLAYS, 'the auto-play must not spend a tenth play');
+      assert.ok(['resolved', 'held', 'transferred'].includes(out.ending));
+    }
+  }
+  assert.ok(autos > 0, 'the ninth-play auto-play never fired');
+});
+
+test('a wrong auto-play becomes a follow-up or an escalation, never a resolution', () => {
+  let wrongAutos = 0;
+  for (let seed = 1; seed <= 600; seed += 1) {
+    const out = play(seed);
+    if (!out.stats.autoPlayed) continue;
+    const refused = out.lines.some((l) => l.who === 'HER' && l.text.startsWith("That's not it"));
+    if (!refused) continue;
+    wrongAutos += 1;
+    assert.notStrictEqual(out.ending, 'resolved', 'a refused remedy resolved the call');
+  }
+  assert.ok(wrongAutos > 0, 'no auto-play was ever wrong, so the rule is untested');
+});
+
+test('escalation is reachable, and it is the customer who reaches for it', () => {
+  let escalated = 0;
+  for (let seed = 1; seed <= 600; seed += 1) {
+    const out = play(seed);
+    if (!out.stats.escalated) continue;
+    escalated += 1;
+    assert.strictEqual(out.ending, 'transferred');
+    assert.ok(
+      out.lines.some((l) => l.who === 'HER' && l.text.includes('whoever it is that does know')),
+      'the transfer happened without her asking for it',
+    );
+  }
+  assert.ok(escalated > 0, 'no call escalated across 600 seeds');
+});
+
+test('an innocent departure can be the only one heard, and it is not the answer', () => {
+  // She does more than one thing differently on one order, and only one of
+  // them explains the symptom. A policy that asks her widely will hear the
+  // innocent ones, and a remedy offered off one of those is wrong.
+  const { makePooh } = require('./cardAgents');
+  let innocentOnly = 0;
+  for (let seed = 1; seed <= 500; seed += 1) {
+    const out = playCall({ agent: makePooh(), rng: seededRng(seed) });
+    const finds = out.lines.filter((l) => l.who === 'NOTE' && l.text.startsWith('[find]')).length;
+    if (finds > 0 && !out.found) {
+      innocentOnly += 1;
+      assert.notStrictEqual(out.ending, 'resolved', 'an innocent departure resolved the call');
+    }
+  }
+  assert.ok(innocentOnly > 0, 'an innocent departure was never heard');
 });
