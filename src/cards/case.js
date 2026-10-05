@@ -202,6 +202,115 @@ const CAUSES = [
 ];
 
 /**
+ * The order's own facts, as slots.
+ *
+ * These are what her fragments are filled from, so a fragment is never
+ * invented: it is a true thing about this order, said in passing.
+ */
+const ORDER = {
+  day: 'Tuesday',
+  arrived: 'after dark',
+  items: 'twelve healing draughts',
+  count: 'twelve',
+  strength: 'the standard',
+  purpose: 'the passes',
+  who: 'Hald',
+  where: 'the hall',
+  carrier: 'the usual carter',
+  paid: 'the guild account',
+};
+
+/**
+ * What she says when the question does not parse against the subject.
+ *
+ * A nonsense question — *why did your order get delivered?* — is not heard as
+ * nonsense. It is heard as someone misspeaking, and she answers the nearest
+ * sensible question instead, handing over a **fragment**: one true thing
+ * about the order, with a slot filled in.
+ *
+ * Fragments link. Three of them give the shape of the order that no single
+ * question earned, which is what keeps a badly asked call from being a
+ * wasted one — a new apprentice is softly limited, not hard limited
+ * (settled.md:1044).
+ *
+ * `opens` is what the fragment puts in play, so the bricks can be built on.
+ */
+const FRAGMENTS = {
+  arrived: [
+    { say: () => `It was delivered ${ORDER.day}, ${ORDER.arrived}.`, opens: ['arrived', 'cart'] },
+    { say: () => `${ORDER.carrier[0].toUpperCase()}${ORDER.carrier.slice(1)} brought it round.`, opens: ['cart'] },
+  ],
+  draughts: [
+    { say: () => `It was a shipment of ${ORDER.items}.`, opens: ['dozen', 'strength'] },
+    { say: () => `We needed them for ${ORDER.purpose}.`, opens: ['season'] },
+  ],
+  dozen: [
+    { say: () => `${ORDER.count[0].toUpperCase()}${ORDER.count.slice(1)}, for ${ORDER.purpose}.`, opens: ['season'] },
+  ],
+  ordered: [
+    { say: () => `${ORDER.who} put it in. I wrote it up.`, opens: ['form', 'who'] },
+  ],
+  paid: [
+    { say: () => `It goes on ${ORDER.paid}.`, opens: ['billing'] },
+  ],
+  container: [
+    { say: () => `Whatever went round them came from your end — or ours, I'd have to ask ${ORDER.who}.`, opens: ['who', 'fee'] },
+  ],
+  store: [
+    { say: () => `They're kept at ${ORDER.where}, in the cold room.`, opens: ['store'] },
+  ],
+  used: [
+    { say: () => `Two of ${ORDER.count} have been opened. One was fine.`, opens: ['strength'] },
+  ],
+};
+
+/** Her fallback when a nonsense question has no fragment for its subject. */
+const FRAGMENT_FALLBACK = [
+  { say: () => `The order was ${ORDER.items}, delivered ${ORDER.day}.`, opens: ['dozen', 'arrived'] },
+  { say: () => `We needed them for ${ORDER.purpose}, if that's what you're after.`, opens: ['season'] },
+];
+
+/**
+ * Suits that do not parse against a subject at all.
+ *
+ * Not a judgement about her voice — a judgement about the thing. Nobody asks
+ * *why* a delivery happened or *who* did the weather. Everything not listed
+ * here and not in SUIT_FIT is merely oblique: the wrong register for the
+ * thing, answered sideways.
+ */
+const SUIT_NONSENSE = {
+  draughts: ['when', 'where'],
+  poof: ['who'],
+  dozen: ['who', 'where'],
+  same: ['who', 'where'],
+  recipe: ['when'],
+  container: ['when'],
+  ordered: ['where'],
+  paid: ['where'],
+  arrived: ['why'],
+  opened: ['why'],
+  used: ['where'],
+  who: ['when', 'where'],
+  cart: ['where'],
+  weather: ['who', 'why'],
+  store: ['when', 'why'],
+  season: ['who', 'where'],
+  sets: ['when', 'where'],
+  strength: ['when', 'who', 'where'],
+  proportions: ['when', 'where'],
+  sourcing: ['when'],
+  fee: ['when', 'where'],
+  form: ['when', 'where'],
+  pattern: ['who', 'where'],
+  ingredients: ['when'],
+};
+
+/** Whether this suit makes no sense asked of this subject. */
+function nonsense(suit, subject) {
+  return (SUIT_NONSENSE[subject] || []).includes(suit);
+}
+
+/**
  * Things she also did differently, none of which explains it.
  *
  * A find is a departure from how she says she normally works — and she can
@@ -337,4 +446,4 @@ function label(subject) {
  */
 const SUBJECTS = Object.keys(BASELINE);
 
-module.exports = { CALLER, OPENING, BASELINE, GIVES, BELIEFS, CAUSES, NEED, SUBJECTS, LABELS, label, SUIT_FIT, fits, HERRINGS };
+module.exports = { CALLER, OPENING, BASELINE, GIVES, BELIEFS, CAUSES, NEED, SUBJECTS, LABELS, label, SUIT_FIT, fits, HERRINGS, ORDER, FRAGMENTS, FRAGMENT_FALLBACK, SUIT_NONSENSE, nonsense };

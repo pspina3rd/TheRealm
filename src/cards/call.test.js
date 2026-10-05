@@ -293,3 +293,44 @@ test('an innocent departure can be the only one heard, and it is not the answer'
   }
   assert.ok(innocentOnly > 0, 'an innocent departure was never heard');
 });
+
+test('a question that does not parse gets a fragment, not a wasted play', () => {
+  const CASEDATA = require('./case');
+  const out = playCall({
+    agent: {
+      choose: (view) => {
+        const open = view.board.targets
+          .filter((t) => t.cls === 'customer' && !t.id.startsWith('heard:'))
+          .map((t) => t.id);
+        for (const s of open) {
+          const bad = (CASEDATA.SUIT_NONSENSE[s] || [])[0];
+          if (bad) return { kind: 'play', cls: 'customer', target: s, suit: bad, angle: 'expand' };
+        }
+        return { kind: 'play', cls: 'customer', target: open[0], suit: 'what', angle: 'expand' };
+      },
+    },
+    rng: seededRng(3),
+  });
+  assert.ok(out.stats.fragments > 0, 'no fragment was ever offered');
+  const said = out.lines.filter((l) => l.who === 'HER').map((l) => l.text);
+  const fragments = said.filter((t) => /twelve|Tuesday|passes|carter|guild account|cold room/.test(t));
+  assert.ok(fragments.length >= 2, 'fragments should carry facts about the order');
+});
+
+test('she repairs a slip once, and the same slip twice gets nothing', () => {
+  const CASEDATA = require('./case');
+  const out = playCall({
+    agent: {
+      choose: () => ({ kind: 'play', cls: 'customer', target: 'draughts', suit: 'when', angle: 'expand' }),
+    },
+    rng: seededRng(3),
+  });
+  void CASEDATA;
+  const said = out.lines.filter((l) => l.who === 'HER').map((l) => l.text);
+  const repeats = said.filter((t, i) => said.indexOf(t) !== i && /shipment of|order was|needed them/.test(t));
+  assert.strictEqual(repeats.length, 0, `she handed over the same fragment twice: ${repeats[0]}`);
+  assert.ok(
+    said.some((t) => t.includes("We've been round this")),
+    'her generosity should run out',
+  );
+});

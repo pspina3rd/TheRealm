@@ -107,6 +107,7 @@ function playCall({ agent, rng, baggage, causeIndex }) {
     dropped: 0,
     escalated: false,
     autoPlayed: null,
+    fragments: 0,
     customerPlays: 0,
     customerPlaysBeforeFind: null,
     ledLead: false,
@@ -128,6 +129,8 @@ function playCall({ agent, rng, baggage, causeIndex }) {
   const heard = [];
   // Which innocent departures are live this call, and how many.
   const herringSubjects = rollHerrings(cause, rng);
+  // Fragments she has already handed over. She repairs a slip once.
+  const fragmentsGiven = [];
   let foundTurn = null;
   let handle = null;
   let ending = null;
@@ -292,6 +295,7 @@ function playCall({ agent, rng, baggage, causeIndex }) {
         answered,
         inPlay: board.targets.map((t) => t.id),
         herrings: herringSubjects,
+        given: fragmentsGiven,
       });
       recent.push({ angle, subject: move.target });
       asked.push(move.target);
@@ -326,6 +330,19 @@ function playCall({ agent, rng, baggage, causeIndex }) {
           board = add(board, res.critical.map((w) => ({ id: w, cls: 'customer' })), lines);
           say(lines, 'NOTE', `[critical] she connects it to ${CASE.label(res.critical[0])}`);
         }
+      } else if (res.fragment) {
+        // Not an answer to what was asked, and not nothing: a brick. Several
+        // of them give the shape of the order that no single question earned.
+        stats.fragments = (stats.fragments || 0) + 1;
+        fragmentsGiven.push(res.answer);
+        stats.pairs[pair].paid += 1;
+        board = add(
+          board,
+          res.opens.map((w) => ({ id: w, cls: 'customer' })),
+          lines,
+        );
+        say(lines, 'NOTE', '[fragment] she took that as a slip and answered the nearest thing');
+        lastWasDeparture = false;
       } else {
         stats.bounces += 1;
         readings.push({ subject: move.target, suit, reading: res.reading });
@@ -512,7 +529,7 @@ function candidatesFrom(heard) {
 }
 
 /** What asking her returns: a landing, a bounce, or a departure. */
-function askHer({ sheet, subject, suit, angle, cause, recent, rng, lead, answered, inPlay, herrings }) {
+function askHer({ sheet, subject, suit, angle, cause, recent, rng, lead, answered, inPlay, herrings, given }) {
   const fit = SHEET.fitness(suit, subject, sheet);
   let p = TUNING.landChance[fit];
   p += TUNING.angleBonus[angle] || 0;
@@ -529,9 +546,38 @@ function askHer({ sheet, subject, suit, angle, cause, recent, rng, lead, answere
   const thrice =
     recent.slice(-3).filter((r) => r.subject === subject || r.angle === angle).length >= 2;
   if (thrice) p -= TUNING.repeatPenalty;
-  const landed = rng() < p;
   const question = ask(suit, angle, subject);
-  void 0;
+
+  // A question that does not parse against the subject is not heard as
+  // nonsense. She takes it as misspeaking and answers the nearest sensible
+  // question instead, handing over one true thing about the order. The ward
+  // never comes into it: she is being generous, not opening up.
+  if (CASE.nonsense(suit, subject)) {
+    const pool = (CASE.FRAGMENTS[subject] || CASE.FRAGMENT_FALLBACK)
+      .concat(CASE.FRAGMENT_FALLBACK)
+      .filter((f) => !given.includes(f.say()));
+    // She will repair a slip, and she will not repair the same slip twice.
+    // Having nothing left to offer is where generosity runs out.
+    if (!pool.length) {
+      return {
+        landed: false,
+        question,
+        answer: "We've been round this. Is there something on the order you're not telling me?",
+        reading: 'she has nothing left to give on that one',
+      };
+    }
+    const f = pool[Math.floor(rng() * pool.length)];
+    return {
+      landed: false,
+      fragment: true,
+      question,
+      answer: f.say(),
+      opens: f.opens.slice(),
+      reading: null,
+    };
+  }
+
+  const landed = rng() < p;
   if (!landed) {
     const b = SHEET.bounce(sheet, subject, suit);
     return { landed: false, question, answer: oblique(rng), reading: b.reading };
