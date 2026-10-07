@@ -619,7 +619,7 @@ function askHer({ sc, sheet, subject, suit, angle, cause, recent, rng, lead, ans
   const landed = rng() < p;
   if (!landed) {
     const b = SHEET.bounce(sheet, subject, suit);
-    return { landed: false, question, answer: oblique(rng), reading: b.reading };
+    return { landed: false, question, answer: oblique(sc, rng), reading: b.reading };
   }
   // An innocent departure: true, unusual, and not the explanation.
   if (herrings.includes(subject) && landed) {
@@ -752,6 +752,10 @@ function askCoworker(sc, cause, brief, rng, lines) {
 
 /** A question, in words rather than labels. */
 function ask(sc, suit, angle, word) {
+  // A written question, where the scenario has one. The grid below is for
+  // the cells where the question is meant to be malformed.
+  const written = sc.QUESTIONS && sc.QUESTIONS[word] && sc.QUESTIONS[word][`${suit}/${angle}`];
+  if (written) return written;
   const it = sc.label(word);
   // Every stem has to work with every label, because a mismatched suit is a
   // legal move that she answers obliquely — so the question still has to be
@@ -807,8 +811,8 @@ function ask(sc, suit, angle, word) {
  * Drawn from the call's own rng rather than from the word, so two deflections
  * in a row are not the same sentence twice — which read as a script.
  */
-function oblique(rng) {
-  const outs = [
+function oblique(sc, rng) {
+  const outs = sc.OBLIQUE || [
     "That's more Hald's end than mine.",
     "I'd have to look, and I've the hall to open.",
     "Does that matter? It came back wrong, that's what matters.",

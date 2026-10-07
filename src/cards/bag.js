@@ -55,7 +55,7 @@ const OPENING = {
  * for or what she was trying to do.
  */
 const BASELINE = {
-  working: "It isn't working. I do what I think I'm meant to do and nothing moves.",
+  working: "I do the thing I think I'm meant to do, and the draught just sits there.",
   bag: "The party's bag. There's nothing wrong with the bag — I can see every item in it, plain as day.",
   draught: 'A healing draught. The standard one, we keep three.',
   pell: "Pell. He's the one who takes the hits, so he's the one who ought to be carrying it.",
@@ -197,6 +197,165 @@ const FRAGMENT_FALLBACK = [
   { say: () => `There's ${ORDER.party} on the account, if that's what you're after.`, opens: ['party'] },
 ];
 
+/**
+ * The questions, written out.
+ *
+ * Every cell where a suit fits a subject, said the way an agent says it.
+ * Nothing here is assembled from a stem and a label, because a stem crossed
+ * with a label produces *What was what isn't working, exactly?* at the edges
+ * and there is no amount of narrowing that fixes it. The generated grid
+ * survives only for the nonsense cells, where a malformed question is what
+ * misspeaking looks like.
+ *
+ * Keyed `suit/angle`.
+ */
+const QUESTIONS = {
+  working: {
+    'what/expand': "Tell me what's happening.",
+    'what/contract': 'What happens when you try it?',
+    'what/verify': "Let me make sure I have it — nothing moves at all?",
+    'what/validate': "So nothing happens at all, not even a message?",
+  },
+  bag: {
+    'what/expand': 'Tell me about the bag.',
+    'what/contract': "Which bag is it — the party's, or your own?",
+    'what/verify': "The party's bag, that's the one?",
+    'what/validate': 'And the bag itself seems all right?',
+  },
+  draught: {
+    'what/expand': "What is it you're trying to move?",
+    'what/contract': 'Which draught, exactly?',
+    'what/verify': 'A standard healing draught, yes?',
+    'what/validate': "It's one of the standard ones?",
+  },
+  pell: {
+    'who/expand': "Who's it for?",
+    'who/contract': 'Who is it meant to end up with?',
+    'who/verify': "Pell — have I got the name right?",
+    'who/validate': "And Pell's in the party with you?",
+  },
+  looking: {
+    'what/expand': 'What were you looking for, when you were trying to do it?',
+    'what/contract': 'What were you looking for it to say?',
+    'what/verify': "So you couldn't find the thing that does it — is that it?",
+    'what/validate': "You couldn't find where to do it at all?",
+  },
+  tried: {
+    'what/expand': 'What have you tried?',
+    'what/contract': 'What did you try first?',
+    'what/verify': 'Four times, you said?',
+    'what/validate': "You've had more than one go at it?",
+    'how/expand': 'How are you going about it?',
+    'how/contract': 'Talk me through what you did.',
+    'how/verify': "So you've been doing the same thing each time?",
+    'how/validate': 'Doing it the same way each time?',
+  },
+  party: {
+    'who/expand': "Who else is in the party?",
+    'who/contract': "Who's on the account besides you?",
+    'who/verify': 'Four of you altogether, is that right?',
+    'who/validate': "And they're all on the account?",
+    'what/expand': 'Tell me about the party.',
+    'what/contract': 'How many of you are there?',
+    'what/verify': "It's the one party account, yes?",
+    'what/validate': 'One account between the four of you?',
+  },
+  leader: {
+    'who/expand': "Who set the account up?",
+    'who/contract': "Who's the leader of it?",
+    'who/verify': "You're the leader — have I that right?",
+    'who/validate': "You're the one who runs it?",
+  },
+  permission: {
+    'what/expand': "What have you been told about what you're allowed to do?",
+    'what/contract': 'Has anyone ever set limits on your account?',
+    'what/verify': 'Nobody has mentioned permissions to you?',
+    'what/validate': 'So nothing has ever been locked off for you?',
+  },
+  before: {
+    'when/expand': "When did you last move something to one of them?",
+    'when/contract': 'Have you done this before?',
+    'when/verify': "So this is the first time you've tried it?",
+    'when/validate': "First time doing it, then?",
+  },
+  since: {
+    'when/expand': 'When did it start?',
+    'when/contract': 'How long have you been at it?',
+    'when/verify': 'Since last night, you said?',
+    'when/validate': 'It started last night?',
+  },
+  morning: {
+    'when/expand': 'When do you need it by?',
+    'when/contract': 'When are you leaving?',
+    'when/verify': 'First light, is that right?',
+    'when/validate': 'You need it before you go?',
+    'why/expand': "Why does it have to be before you leave?",
+    'why/contract': 'What happens if it stays in the bag?',
+    'why/verify': "It's because he's the one who gets hurt?",
+    'why/validate': "He's the one who needs it on him, is he?",
+  },
+  members: {
+    'who/expand': 'Who else is on the account?',
+    'who/contract': 'Who put them on it?',
+    'who/verify': 'All four of you on it, yes?',
+    'who/validate': 'They were all added at the start?',
+  },
+  item: {
+    'what/expand': 'Where is the draught now?',
+    'what/contract': 'Can you see it in there?',
+    'what/verify': "It's still showing in the bag?",
+    'what/validate': "So it's definitely in the bag?",
+  },
+  account: {
+    'what/expand': 'Tell me about the account.',
+    'what/contract': 'How long have you had it?',
+    'what/verify': 'Since last autumn, yes?',
+    'what/validate': "It's the party account, not a personal one?",
+  },
+  tier: {
+    'what/expand': "What plan are you on?",
+    'what/contract': 'Which tier is it?',
+    'what/verify': 'Silver, is that right?',
+    'what/validate': "You're on Silver?",
+  },
+  stores: {
+    'what/expand': "What else is in the bag?",
+    'what/contract': 'How much is in there?',
+    'what/verify': 'Rope, torches, stores — that sort of thing?',
+    'what/validate': "It's fairly full, then?",
+  },
+  paid: {
+    'what/expand': 'Tell me about the payments.',
+    'what/contract': 'Is there anything outstanding on it?',
+    'what/verify': "It's paid up, yes?",
+    'what/validate': 'Nothing owing on it?',
+    'when/expand': 'When does it go out?',
+    'when/contract': 'When did you last pay it?',
+    'when/verify': 'Every month, is that right?',
+    'when/validate': "It goes out monthly?",
+  },
+  ryles: {
+    'who/expand': 'Tell me about the Ryle brothers.',
+    'who/contract': 'Have they ever had anything out of the bag?',
+    'who/verify': "They've never asked you for anything?",
+    'who/validate': "They don't use it much?",
+  },
+};
+
+/**
+ * Her deflections, when the suit is the wrong register for the subject.
+ *
+ * Scenario-specific because a deflection has to be about something: "I've not
+ * got that in front of me" is no answer to *when did it start*.
+ */
+const OBLIQUE = [
+  "I couldn't tell you that.",
+  "Does that matter? It still isn't working.",
+  "I'd have to go and look, and I've the morning to get through.",
+  "You'd know that better than me, surely.",
+  "I've told you everything I know about that.",
+];
+
 /** What the note says when she has given the agent the thing. */
 const FIND_NOTE = 'she has just told you what she calls it';
 
@@ -316,6 +475,8 @@ const NEED = {
 
 module.exports = {
   HANDLE,
+  QUESTIONS,
+  OBLIQUE,
   CALLER,
   FIND_NOTE,
   OPENING,

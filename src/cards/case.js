@@ -396,6 +396,252 @@ const LABELS = {
 };
 
 /**
+ * The questions, written out — every cell where a suit fits a subject, said
+ * the way an agent says it. The generated grid in `call.js` survives only for
+ * the nonsense cells, where a malformed question is what misspeaking looks
+ * like.
+ *
+ * Keyed `suit/angle`.
+ */
+const QUESTIONS = {
+  draughts: {
+    'what/expand': 'Tell me about the draughts.',
+    'what/contract': 'Which draughts are we talking about?',
+    'what/verify': 'Standard healing draughts, yes?',
+    'what/validate': 'They\'re the standard ones?',
+  },
+  poof: {
+    'what/expand': 'Tell me how you order through POOF.',
+    'what/contract': 'What did you order, exactly?',
+    'what/verify': 'You\'ve ordered this way before, yes?',
+    'what/validate': 'You order through POOF as a rule?',
+    'how/expand': 'How do you usually put a POOF order in?',
+    'how/contract': 'How was this one sent?',
+    'how/verify': 'So it went the way they always go?',
+    'how/validate': 'Same way as always?',
+  },
+  dozen: {
+    'what/expand': 'Tell me about the twelve.',
+    'what/contract': 'How many came?',
+    'what/verify': 'Twelve, you said?',
+    'what/validate': 'You always order twelve?',
+  },
+  same: {
+    'what/expand': 'Tell me how they differ.',
+    'what/contract': 'What\'s different about them?',
+    'what/verify': 'Some weaker than others, yes?',
+    'what/validate': 'They should all be the same?',
+    'why/expand': 'Why would twelve come back different?',
+    'why/contract': 'What would make one weaker than the next?',
+    'why/verify': 'You\'ve never had that before, have you?',
+    'why/validate': 'That\'s not happened before?',
+  },
+  recipe: {
+    'what/expand': 'Tell me about the recipe.',
+    'what/contract': 'Which recipe did you ask for?',
+    'what/verify': 'The standard recipe, yes?',
+    'what/validate': 'Nothing clever asked for?',
+    'how/expand': 'How do you set the recipe out?',
+    'how/contract': 'How was the recipe given this time?',
+    'how/verify': 'The usual way of writing it up?',
+    'how/validate': 'Written out as always?',
+  },
+  ingredients: {
+    'what/expand': 'Tell me about the ingredients.',
+    'what/contract': 'What went in?',
+    'what/verify': 'Your own ingredients, yes?',
+    'what/validate': 'You send your own in?',
+    'where/expand': 'Where do your ingredients come from?',
+    'where/contract': 'Where were these kept before they went?',
+    'where/verify': 'Out of your own stock, yes?',
+    'where/validate': 'All from your stores?',
+  },
+  container: {
+    'what/expand': 'Tell me about the container.',
+    'what/contract': 'What were they packed in?',
+    'what/verify': 'A TLC container, yes?',
+    'what/validate': 'Whatever they send them in?',
+    'who/expand': 'Who decides what they go in?',
+    'who/contract': 'Who asked for that container?',
+    'who/verify': 'That\'s your end, is it?',
+    'who/validate': 'Somebody there chose it?',
+  },
+  ordered: {
+    'how/expand': 'How did the order go in?',
+    'how/contract': 'How was it put in this time?',
+    'how/verify': 'Same way as always?',
+    'how/validate': 'The usual way?',
+    'who/expand': 'Who puts the orders in?',
+    'who/contract': 'Who put this one in?',
+    'who/verify': 'You write it up yourself, yes?',
+    'who/validate': 'You do it yourself?',
+  },
+  paid: {
+    'who/expand': 'Who pays for it?',
+    'who/contract': 'Whose account does it go on?',
+    'who/verify': 'The guild account, yes?',
+    'who/validate': 'It goes through the Company?',
+    'how/expand': 'How is it paid?',
+    'how/contract': 'How did this one get paid?',
+    'how/verify': 'On the account as always?',
+    'how/validate': 'Nothing different about the payment?',
+  },
+  arrived: {
+    'when/expand': 'When did it come?',
+    'when/contract': 'What time did it get to you?',
+    'when/verify': 'Yesterday, you said?',
+    'when/validate': 'It came yesterday?',
+    'how/expand': 'How did it come?',
+    'how/contract': 'How was it brought round?',
+    'how/verify': 'By the usual carter?',
+    'how/validate': 'Same carter as always?',
+  },
+  opened: {
+    'when/expand': 'When did you open them?',
+    'when/contract': 'How soon did you open them?',
+    'when/verify': 'This morning, you said?',
+    'when/validate': 'You opened them straight away?',
+    'who/expand': 'Who opened them?',
+    'who/contract': 'Who was there when they came out?',
+    'who/verify': 'You did that yourself, yes?',
+    'who/validate': 'You counted them in yourself?',
+  },
+  used: {
+    'what/expand': 'What happened when you used one?',
+    'what/contract': 'How many have you tried?',
+    'what/verify': 'Two of them, you said?',
+    'what/validate': 'You\'ve tried a couple?',
+    'when/expand': 'When did you try one?',
+    'when/contract': 'When was the last one used?',
+    'when/verify': 'This morning, yes?',
+    'when/validate': 'Since they came?',
+  },
+  who: {
+    'who/expand': 'Who made them up at our end?',
+    'who/contract': 'Who was on the bench that day?',
+    'who/verify': 'Nobody\'s named on it, no?',
+    'who/validate': 'You wouldn\'t know who?',
+  },
+  sets: {
+    'what/expand': 'Tell me about the sets.',
+    'what/contract': 'How many sets went in?',
+    'what/verify': 'Twelve sets, yes?',
+    'what/validate': 'A set for each draught?',
+    'how/expand': 'How did the sets go in?',
+    'how/contract': 'How were they sent — together or apart?',
+    'how/verify': 'All on the one order, yes?',
+    'how/validate': 'All in the one go?',
+  },
+  strength: {
+    'what/expand': 'What strength should they be?',
+    'what/contract': 'Which strength did you pay for?',
+    'what/verify': 'The standard, yes?',
+    'what/validate': 'Standard strength?',
+  },
+  proportions: {
+    'how/expand': 'How did you measure it out?',
+    'how/contract': 'How much of the common one went in?',
+    'how/verify': 'The recipe amount, yes?',
+    'how/validate': 'Measured as the recipe says?',
+    'why/expand': 'Why that much?',
+    'why/contract': 'What made you settle on that amount?',
+    'why/verify': 'To be on the safe side, was it?',
+    'why/validate': 'You judged it yourself?',
+  },
+  sourcing: {
+    'where/expand': 'Where did the ingredients come from?',
+    'where/contract': 'Which lot did you use?',
+    'where/verify': 'All one lot, yes?',
+    'where/validate': 'Same lot for all twelve?',
+    'who/expand': 'Who buys the ingredients?',
+    'who/contract': 'Who picked the stock for this one?',
+    'who/verify': 'You buy them yourself, yes?',
+    'who/validate': 'You choose the stock?',
+  },
+  fee: {
+    'why/expand': 'Why would there be a fee on this?',
+    'why/contract': 'What\'s that fee for?',
+    'why/verify': 'Nobody mentioned a charge to you?',
+    'why/validate': 'You weren\'t told about a fee?',
+    'what/expand': 'Tell me about the fee on the invoice.',
+    'what/contract': 'What does the invoice show?',
+    'what/verify': 'A container charge, yes?',
+    'what/validate': 'You don\'t see the invoices?',
+  },
+  form: {
+    'who/expand': 'Who fills the form in?',
+    'who/contract': 'Who filled this one in?',
+    'who/verify': 'You do the form yourself, yes?',
+    'who/validate': 'You write it up?',
+    'how/expand': 'How do you fill the form in?',
+    'how/contract': 'How was this one written up?',
+    'how/verify': 'The usual way?',
+    'how/validate': 'Nothing different on the form?',
+  },
+  pattern: {
+    'when/expand': 'When did you last order?',
+    'when/contract': 'How often do you order?',
+    'when/verify': 'Every season, yes?',
+    'when/validate': 'Same order each season?',
+    'what/expand': 'Tell me about your earlier orders.',
+    'what/contract': 'What did you order last time?',
+    'what/verify': 'The same twelve, yes?',
+    'what/validate': 'Always the same order?',
+  },
+  cart: {
+    'who/expand': 'Who brings it round?',
+    'who/contract': 'Which carter was it?',
+    'who/verify': 'The usual one, yes?',
+    'who/validate': 'Same carter as always?',
+    'when/expand': 'When did the cart come?',
+    'when/contract': 'What time did he get to you?',
+    'when/verify': 'After dark, you said?',
+    'when/validate': 'He was late, then?',
+  },
+  weather: {
+    'when/expand': 'What was the weather when it came?',
+    'when/contract': 'When did the rain start?',
+    'when/verify': 'Wet that day, you said?',
+    'when/validate': 'It was raining?',
+    'what/expand': 'Tell me about the weather that day.',
+    'what/contract': 'How bad was it?',
+    'what/verify': 'They came in dry, yes?',
+    'what/validate': 'They weren\'t wet when you opened them?',
+  },
+  store: {
+    'where/expand': 'Where do you keep them?',
+    'where/contract': 'Where did they sit before you opened them?',
+    'where/verify': 'In the cold room, yes?',
+    'where/validate': 'They go in the cold room?',
+  },
+  season: {
+    'when/expand': 'When are you outfitting for?',
+    'when/contract': 'When do you set out?',
+    'when/verify': 'For the passes, you said?',
+    'when/validate': 'You\'re kitting out for the passes?',
+    'why/expand': 'Why twelve this season?',
+    'why/contract': 'What are they for?',
+    'why/verify': 'For the passes, is it?',
+    'why/validate': 'Is it the passes you\'re stocking for?',
+  },
+};
+
+/**
+ * Her deflections, when the suit is the wrong register for the subject.
+ */
+const OBLIQUE = [
+  "That's more Hald's end than mine.",
+  "I'd have to look, and I've the hall to open.",
+  "Does that matter? It came back wrong, that's what matters.",
+  "I couldn't tell you offhand.",
+  "You'd have to ask Hald about that one.",
+  "I've not got that in front of me.",
+];
+
+/** What the note says when she departs from her own practice. */
+const FIND_NOTE = 'that is not how she says she normally does it';
+
+/**
  * Which suits fit which subject.
  *
  * Which suit is better suited comes from the customer, her sheet and the
@@ -449,4 +695,4 @@ function label(subject) {
  */
 const SUBJECTS = Object.keys(BASELINE);
 
-module.exports = { HANDLE, CALLER, OPENING, BASELINE, GIVES, BELIEFS, CAUSES, NEED, SUBJECTS, LABELS, label, SUIT_FIT, fits, HERRINGS, ORDER, FRAGMENTS, FRAGMENT_FALLBACK, SUIT_NONSENSE, nonsense };
+module.exports = { HANDLE, QUESTIONS, OBLIQUE, FIND_NOTE, CALLER, OPENING, BASELINE, GIVES, BELIEFS, CAUSES, NEED, SUBJECTS, LABELS, label, SUIT_FIT, fits, HERRINGS, ORDER, FRAGMENTS, FRAGMENT_FALLBACK, SUIT_NONSENSE, nonsense };

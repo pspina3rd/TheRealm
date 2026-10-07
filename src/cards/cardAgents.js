@@ -73,10 +73,13 @@ function makeCardAgent({ name = 'apprentice', randomMove = false, useRecord = tr
       const untried = (leads || []).filter((l) => !answered.includes(l) && tries(readings, l) < 2);
       if (untried.length) {
         const pickOne = untried[Math.floor(rng() * untried.length)];
+        const bouncedBefore = readings.find((r) => r.subject === pickOne);
         return pickMove(
           { kind: 'play', cls: 'customer', target: pickOne },
-          fittingSuit(view, pickOne, null, rng),
-          'validate',
+          fittingSuit(view, pickOne, bouncedBefore && bouncedBefore.suit, rng),
+          // Coming back to a lead that bounced, put it a different way
+          // rather than saying the same sentence twice.
+          bouncedBefore ? 'contract' : 'validate',
           randomMove,
           rng,
         );

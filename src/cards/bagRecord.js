@@ -30,7 +30,7 @@ const NODES = [
   },
   {
     id: 'con-sella',
-    spoken: 'her own record',
+    spoken: 'your record on the account',
     kind: 'contact',
     category: 'party members',
     parents: ['acc-fairweather'],
