@@ -20,6 +20,9 @@ function arg(name, dflt) {
 }
 
 const RUNS = Number(arg('runs', 2000));
+const SCENARIOS = { batch: require('../src/cards/case'), bag: require('../src/cards/bag') };
+const WHICH = String(arg('case', 'batch')).toLowerCase();
+const scenario = SCENARIOS[WHICH] || SCENARIOS.batch;
 
 const SHEETS = [
   ['apprentice', () => A.makeCardAgent({})],
@@ -40,7 +43,7 @@ function num(s, n, d = 1) {
   return String(Number(s).toFixed(d)).padStart(n);
 }
 
-console.log(`\ncardAgentsCompare: ${RUNS} calls each, the same seeds for every sheet\n`);
+console.log(`\ncardAgentsCompare [${WHICH}]: ${RUNS} calls each, the same seeds for every sheet\n`);
 console.log(
   `  ${pad('sheet', 11)}${pad('found', 8)}${pad('resolved', 10)}${pad('held', 7)}${pad('find@', 7)}${pad('plays', 7)}${pad('asked her', 11)}${pad('rows read', 11)}${pad('need', 7)}${pad('notes', 7)}${pad('wrong fix', 10)}${pad('misaim', 7)}`,
 );
@@ -58,7 +61,7 @@ for (const [label, make] of SHEETS) {
   let wrong = 0;
   let misaim = 0;
   for (let seed = 0; seed < RUNS; seed += 1) {
-    const out = playCall({ agent: make(), rng: seededRng(seed) });
+    const out = playCall({ agent: make(), rng: seededRng(seed), scenario });
     if (out.found) {
       found += 1;
       turns += out.foundTurn;
@@ -72,7 +75,10 @@ for (const [label, make] of SHEETS) {
       .reduce((a, [, v]) => a + v.plays, 0);
     if (out.stats.needSeen) need += 1;
     notes += out.board.written.length;
-    wrong += out.lines.filter((l) => l.who === 'HER' && l.text.startsWith("That's not it")).length;
+    // Counted from the engine, not by matching a line: a scenario can give
+    // each wrong remedy its own refusal, and matching one phrasing missed
+    // every one of them.
+    wrong += (out.refused || []).length;
     misaim += out.stats.misaimed || 0;
   }
   console.log(

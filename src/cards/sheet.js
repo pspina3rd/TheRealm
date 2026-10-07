@@ -62,11 +62,13 @@ function roll(lo, hi, rng) {
  * @returns {{who: string, baggage: object, wards: Object<string, number>,
  *   learned: string[], empathy: number, patience: number}}
  */
-function newSheet({ who, baggage, rng }) {
+function newSheet({ who, baggage, rng, subjects }) {
   const kind = typeof baggage === 'string' ? BAGGAGE[baggage] : baggage;
   if (!kind) throw new Error(`unknown baggage: ${baggage}`);
   const wards = {};
-  for (const s of SUBJECTS) wards[s] = roll(1, 3, rng);
+  // The scenario's own subjects when it has them: a ward is per target, and
+  // the targets belong to the call being played.
+  for (const s of subjects || SUBJECTS) wards[s] = roll(1, 3, rng);
   const empathy = roll(1, 5, rng);
   const patience = roll(1, 5, rng);
   return Object.freeze({

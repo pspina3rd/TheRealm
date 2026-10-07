@@ -1,6 +1,5 @@
 'use strict';
 
-const CASE = require('./case');
 const { SUITS, ANGLES } = require('./suits');
 
 /**
@@ -12,8 +11,17 @@ const { SUITS, ANGLES } = require('./suits');
  * customer sheet. Nothing in here reads the hidden cause.
  */
 
-/** Subjects the opening already put in play: shallow, and cheap to ask about. */
-const SHALLOW = CASE.OPENING.words;
+/**
+ * A policy knows nothing about the scenario.
+ *
+ * Everything a sheet is allowed to reason about arrives in the view: which
+ * suits fit a subject, which remedies her words point at, which words she
+ * opened with. A policy that imported the scenario could read the answer
+ * key's own shape, which is how I handed Holmes a cause he had not earned.
+ */
+function shallow(view) {
+  return view.opening || [];
+}
 
 /**
  * A policy that plays deliberately.
@@ -35,7 +43,7 @@ function makeCardAgent({ name = 'apprentice', randomMove = false, useRecord = tr
     name,
     choose(view, rng) {
       const { board, handle, candidates, refused, left, asked, readings, leads, answered } = view;
-      const rowsRead = asked.filter((a) => String(a).startsWith('ord-') || String(a).startsWith('inv-') || String(a).startsWith('trk-') || String(a).startsWith('case-')).length;
+      const rowsRead = view.rowsRead;
 
       // A remedy the moment her own words point at one.
       if (candidates && candidates.length) {
@@ -46,7 +54,7 @@ function makeCardAgent({ name = 'apprentice', randomMove = false, useRecord = tr
       // A handle first: the record deals nothing until she has given
       // something (settled.md:740).
       if (useRecord && !handle && left > 3) {
-        return { kind: 'identify', target: 'PO-1183', suit: 'what', angle: 'contract' };
+        return { kind: 'identify', suit: 'what', angle: 'contract' };
       }
 
       // A find in hand is worth writing down only while there is time; late
@@ -67,7 +75,7 @@ function makeCardAgent({ name = 'apprentice', randomMove = false, useRecord = tr
         const pickOne = untried[Math.floor(rng() * untried.length)];
         return pickMove(
           { kind: 'play', cls: 'customer', target: pickOne },
-          fittingSuit(pickOne, null, rng),
+          fittingSuit(view, pickOne, null, rng),
           'validate',
           randomMove,
           rng,
@@ -83,7 +91,7 @@ function makeCardAgent({ name = 'apprentice', randomMove = false, useRecord = tr
       if (sore) {
         return pickMove(
           { kind: 'play', cls: 'customer', target: sore.subject },
-          fittingSuit(sore.subject, sore.suit, rng),
+          fittingSuit(view, sore.subject, sore.suit, rng),
           'verify',
           randomMove,
           rng,
@@ -109,7 +117,7 @@ function makeCardAgent({ name = 'apprentice', randomMove = false, useRecord = tr
         .filter((t) => t.cls === 'customer' && !t.id.startsWith('found:'))
         .map((t) => t.id)
         .filter((id) => !answered.includes(id) && tries(readings, id) < 2);
-      const deep = open.filter((id) => !SHALLOW.includes(id));
+      const deep = open.filter((id) => !shallow(view).includes(id));
       const subject = deep.length ? deep[0] : open[0];
 
       if (!subject) {
@@ -122,7 +130,7 @@ function makeCardAgent({ name = 'apprentice', randomMove = false, useRecord = tr
       // Choosing the suit that fits the subject is the skill. A bounce is a
       // reading, so a subject that bounced is approached with a different
       // one of its fitting suits rather than the same one again.
-      const suit = fittingSuit(subject, bounced && bounced.suit, rng);
+      const suit = fittingSuit(view, subject, bounced && bounced.suit, rng);
       return pickMove({ kind: 'play', cls: 'customer', target: subject }, suit, angle, randomMove, rng);
     },
   };
@@ -149,9 +157,10 @@ function tries(readings, subject) {
  * The fit belongs to the target (see `SUIT_FIT` in case.js). Knowing it is
  * what the player learns; a policy that picks at random is the Flat control.
  */
-function fittingSuit(subject, avoid, rng) {
-  const list = (CASE.SUIT_FIT[subject] || SUITS).filter((s) => s !== avoid);
-  const pool = list.length ? list : CASE.SUIT_FIT[subject] || SUITS;
+function fittingSuit(view, subject, avoid, rng) {
+  const fits = (view.fit && view.fit[subject]) || SUITS;
+  const list = fits.filter((s) => s !== avoid);
+  const pool = list.length ? list : fits;
   return pool[Math.floor(rng() * pool.length)];
 }
 
@@ -235,7 +244,7 @@ function makeWatson({ name = 'Watson' } = {}) {
         .map((t) => t.id)
         .filter((id) => !answered.includes(id) && tries(readings, id) < 2);
       const lead = (leads || []).find((l) => open.includes(l));
-      const subject = lead || open.find((id) => !SHALLOW.includes(id)) || open[0];
+      const subject = lead || open.find((id) => !shallow(view).includes(id)) || open[0];
       // Two questions of her first, then the handle. Without the second
       // clause he never stops asking and never searches at all.
       if (subject && (asked.length < 2 || lead)) {
@@ -244,15 +253,14 @@ function makeWatson({ name = 'Watson' } = {}) {
           kind: 'play',
           cls: 'customer',
           target: subject,
-          suit: fittingSuit(subject, bounced && bounced.suit, rng),
+          suit: fittingSuit(view, subject, bounced && bounced.suit, rng),
           angle: bounced ? 'verify' : 'contract',
         };
       }
 
       // One handle, one row, and no more file-reading than that.
-      if (!handle && left > 3) return { kind: 'identify', target: 'PO-1183', suit: 'what', angle: 'contract' };
-      const rowsRead = asked.filter((a) => REC_ID.test(String(a))).length;
-      if (handle && rowsRead < 1) {
+      if (!handle && left > 3) return { kind: 'identify', suit: 'what', angle: 'contract' };
+      if (handle && view.rowsRead < 1) {
         const listed = asked.some((a) => String(a).startsWith('list:'));
         if (!listed) return { kind: 'play', cls: 'record', target: null, suit: 'what', angle: 'expand' };
         const row = board.targets.find((t) => t.cls === 'record' && !asked.includes(t.id));
@@ -265,7 +273,7 @@ function makeWatson({ name = 'Watson' } = {}) {
           kind: 'play',
           cls: 'customer',
           target: subject,
-          suit: fittingSuit(subject, bounced && bounced.suit, rng),
+          suit: fittingSuit(view, subject, bounced && bounced.suit, rng),
           angle: bounced ? 'verify' : 'expand',
         };
       }
@@ -306,14 +314,13 @@ function makeHolmes({ name = 'Holmes', assertFromRecord = true } = {}) {
         const offer = offerRemedy(candidates, refused, 'last', rng);
         if (offer) return offer;
       }
-      if (!handle) return { kind: 'identify', target: 'PO-1183', suit: 'what', angle: 'contract' };
+      if (!handle) return { kind: 'identify', suit: 'what', angle: 'contract' };
 
       const listed = asked.some((a) => String(a).startsWith('list:'));
       if (!listed) return { kind: 'play', cls: 'record', target: null, suit: 'what', angle: 'expand' };
 
-      const rowsRead = asked.filter((a) => REC_ID.test(String(a))).length;
       const row = board.targets.find((t) => t.cls === 'record' && !asked.includes(t.id));
-      if (row && rowsRead < 4 && !(leads || []).length) {
+      if (row && view.rowsRead < 4 && !(leads || []).length) {
         return { kind: 'play', cls: 'record', target: row.id, suit: 'what', angle: 'verify' };
       }
 
@@ -324,32 +331,40 @@ function makeHolmes({ name = 'Holmes', assertFromRecord = true } = {}) {
         // He asserts once. Being told no is data, and he does not repeat
         // himself; after that he asks her, which he considers a concession.
         if (assertFromRecord && !refused.length && !readings.length) {
-          const cause = CASE.CAUSES.find((c) => (c.reach[0] || [])[0] === guess);
-          if (cause) return { kind: 'fix', fix: cause.fix.id, suit: 'how', angle: 'contract' };
+          const offer = offerRemedy(candidates, refused, 'last', rng);
+          if (offer) return offer;
         }
         return {
           kind: 'play',
           cls: 'customer',
           target: guess,
-          suit: fittingSuit(guess, null, rng),
+          suit: fittingSuit(view, guess, null, rng),
           angle: 'validate',
         };
       }
       if (row) return { kind: 'play', cls: 'record', target: row.id, suit: 'what', angle: 'verify' };
+      // Twice at the same subject and no more: a third check of the same
+      // thing is dangerous for anyone (settled.md:1036), and a policy that
+      // asks it seven times is not characterisation, it is a loop.
       const open = board.targets
-        .filter((t) => t.cls === 'customer' && !t.id.startsWith('found:'))
+        .filter((t) => t.cls === 'customer' && !t.id.startsWith('heard:'))
         .map((t) => t.id)
-        .filter((id) => !answered.includes(id));
+        .filter((id) => !answered.includes(id) && tries(readings, id) < 2);
       if (open.length) {
-        return { kind: 'play', cls: 'customer', target: open[0], suit: fittingSuit(open[0], null, rng), angle: 'validate' };
+        const subject = open[0];
+        return {
+          kind: 'play',
+          cls: 'customer',
+          target: subject,
+          suit: fittingSuit(view, subject, null, rng),
+          angle: 'validate',
+        };
       }
       return { kind: 'play', cls: 'coworker', target: 'bram', brief: 'long', suit: 'what', angle: 'expand' };
     },
   };
 }
 
-/** Record row ids, for counting how much of the file has been read. */
-const REC_ID = /^(ord|inv|trk|case)-/;
 
 /**
  * The Hundred Acre Wood, as five agent sheets.
@@ -375,11 +390,6 @@ function herWords(view) {
 /** A row the record has put in play and nobody has read. */
 function unreadRow(view) {
   return view.board.targets.find((t) => t.cls === 'record' && !view.asked.includes(t.id));
-}
-
-/** How much of the file has been read. */
-function rowsRead(view) {
-  return view.asked.filter((a) => REC_ID.test(String(a))).length;
 }
 
 /**
@@ -444,13 +454,13 @@ function makePooh({ name = 'Pooh' } = {}) {
           target: subject,
           // He comes back to the same thing with a different suit rather
           // than giving up on it, which is what a bounce is for.
-          suit: fittingSuit(subject, bounced && bounced.suit, rng),
+          suit: fittingSuit(view, subject, bounced && bounced.suit, rng),
           angle: bounced ? 'verify' : 'expand',
         };
       }
 
       // Only when she has nothing left to say does he look anything up.
-      if (!view.handle && left > 2) return { kind: 'identify', target: 'PO-1183', suit: 'what', angle: 'contract' };
+      if (!view.handle && left > 2) return { kind: 'identify', suit: 'what', angle: 'contract' };
       if (view.handle && !view.asked.some((a) => String(a).startsWith('list:'))) {
         return { kind: 'play', cls: 'record', target: null, suit: 'what', angle: 'expand' };
       }
@@ -493,7 +503,7 @@ function makeRabbit({ name = 'Rabbit' } = {}) {
       const find = board.targets.find((t) => t.find && !t.id.startsWith('found:'));
       if (find) return { kind: 'write', target: find.id, suit: 'what', angle: 'contract' };
 
-      if (!handle) return { kind: 'identify', target: 'PO-1183', suit: 'what', angle: 'contract' };
+      if (!handle) return { kind: 'identify', suit: 'what', angle: 'contract' };
       if (!asked.some((a) => String(a).startsWith('list:'))) {
         return { kind: 'play', cls: 'record', target: null, suit: 'what', angle: 'expand' };
       }
@@ -509,7 +519,7 @@ function makeRabbit({ name = 'Rabbit' } = {}) {
           kind: 'play',
           cls: 'customer',
           target: subject,
-          suit: fittingSuit(subject, null, rng),
+          suit: fittingSuit(view, subject, null, rng),
           angle: 'contract',
         };
       }
@@ -544,10 +554,10 @@ function makeTigger({ name = 'Tigger' } = {}) {
       if (offer) return offer;
 
       // He will try a remedy he has not tried yet whenever he fancies it.
-      const untried = CASE.CAUSES.filter((c) => !refused.includes(c.fix.id));
+      // He will try any remedy he has heard of and not yet had refused.
+      const untried = (view.remedies || []).filter((f) => !refused.includes(f));
       if (untried.length && rng() < 0.4) {
-        const pickOne = untried[Math.floor(rng() * untried.length)];
-        return { kind: 'fix', fix: pickOne.fix.id, suit: 'how', angle: 'contract' };
+        return { kind: 'fix', fix: untried[Math.floor(rng() * untried.length)], suit: 'how', angle: 'contract' };
       }
 
       const open = herWords(view);
@@ -558,13 +568,13 @@ function makeTigger({ name = 'Tigger' } = {}) {
           kind: 'play',
           cls: 'customer',
           target: subject,
-          suit: fittingSuit(subject, bounced && bounced.suit, rng),
+          suit: fittingSuit(view, subject, bounced && bounced.suit, rng),
           angle: 'validate',
         };
       }
-      const last = CASE.CAUSES.find((c) => !refused.includes(c.fix.id));
+      const last = (view.remedies || []).find((f) => !refused.includes(f));
       return last
-        ? { kind: 'fix', fix: last.fix.id, suit: 'how', angle: 'contract' }
+        ? { kind: 'fix', fix: last, suit: 'how', angle: 'contract' }
         : { kind: 'play', cls: 'coworker', target: 'bram', brief: 'short', suit: 'what', angle: 'expand' };
     },
   };
@@ -597,7 +607,7 @@ function makePiglet({ name = 'Piglet' } = {}) {
 
       const open = herWords(view);
       // He prefers the easy ground: what she has already brought up herself.
-      const easy = open.filter((id) => SHALLOW.includes(id));
+      const easy = open.filter((id) => shallow(view).includes(id));
       const lead = (leads || []).find((l) => open.includes(l));
       const subject = easy[0] || lead || open[0];
 
@@ -607,11 +617,11 @@ function makePiglet({ name = 'Piglet' } = {}) {
           kind: 'play',
           cls: 'customer',
           target: subject,
-          suit: fittingSuit(subject, bounced && bounced.suit, rng),
+          suit: fittingSuit(view, subject, bounced && bounced.suit, rng),
           angle: bounced ? 'validate' : 'expand',
         };
       }
-      if (!handle && left > 1) return { kind: 'identify', target: 'PO-1183', suit: 'what', angle: 'contract' };
+      if (!handle && left > 1) return { kind: 'identify', suit: 'what', angle: 'contract' };
       if (handle && !view.asked.some((a) => String(a).startsWith('list:'))) {
         return { kind: 'play', cls: 'record', target: null, suit: 'what', angle: 'expand' };
       }
@@ -620,7 +630,7 @@ function makePiglet({ name = 'Piglet' } = {}) {
       // Rather than trouble anybody, he asks her one more time.
       const again = view.board.targets.filter((t) => t.cls === 'customer').map((t) => t.id)[0];
       return again
-        ? { kind: 'play', cls: 'customer', target: again, suit: fittingSuit(again, null, rng), angle: 'verify' }
+        ? { kind: 'play', cls: 'customer', target: again, suit: fittingSuit(view, again, null, rng), angle: 'verify' }
         : { kind: 'play', cls: 'customer', target: 'draughts', suit: 'what', angle: 'verify' };
     },
   };
@@ -657,18 +667,18 @@ function makeEeyore({ name = 'Eeyore' } = {}) {
         if (left > 1 && heard.length && rng() < 0.5) {
           const w = heard[heard.length - 1].subject;
           if (board.targets.some((t) => t.id === w) && !readings.some((r) => r.subject === w)) {
-            return { kind: 'play', cls: 'customer', target: w, suit: fittingSuit(w, null, rng), angle: 'verify' };
+            return { kind: 'play', cls: 'customer', target: w, suit: fittingSuit(view, w, null, rng), angle: 'verify' };
           }
         }
         const offer = offerRemedy(candidates, refused, 'first', rng);
         if (offer) return offer;
       }
 
-      if (!handle && left > 4) return { kind: 'identify', target: 'PO-1183', suit: 'what', angle: 'contract' };
+      if (!handle && left > 4) return { kind: 'identify', suit: 'what', angle: 'contract' };
       if (handle && !asked.some((a) => String(a).startsWith('list:'))) {
         return { kind: 'play', cls: 'record', target: null, suit: 'what', angle: 'expand' };
       }
-      if (handle && rowsRead(view) < 2) {
+      if (handle && view.rowsRead < 2) {
         const row = unreadRow(view);
         if (row) return { kind: 'play', cls: 'record', target: row.id, suit: 'what', angle: 'verify' };
       }
@@ -688,7 +698,7 @@ function makeEeyore({ name = 'Eeyore' } = {}) {
           kind: 'play',
           cls: 'customer',
           target: subject,
-          suit: fittingSuit(subject, bounced && bounced.suit, rng),
+          suit: fittingSuit(view, subject, bounced && bounced.suit, rng),
           angle: bounced ? 'verify' : 'contract',
         };
       }

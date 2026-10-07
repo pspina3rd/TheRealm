@@ -20,6 +20,8 @@ function arg(name, dflt) {
   return i === -1 ? dflt : process.argv[i + 1];
 }
 
+const SCENARIOS = { batch: require('../src/cards/case'), bag: require('../src/cards/bag') };
+const scenario = SCENARIOS[String(arg('case', 'batch')).toLowerCase()] || SCENARIOS.batch;
 const seed = Number(arg('seed', 1));
 const randomMove = process.argv.includes('--random');
 const causeIndex = arg('cause', undefined);
@@ -43,6 +45,7 @@ const out = playCall({
   agent,
   rng,
   baggage,
+  scenario,
   causeIndex: causeIndex === undefined ? undefined : Number(causeIndex),
 });
 

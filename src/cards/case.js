@@ -24,6 +24,9 @@
  * and exactly one person on her account can.
  */
 
+/** What she can give when asked for something searchable. */
+const HANDLE = { key: 'PO-1183', say: "It's on the form. PO-1183." };
+
 /** Who is calling. */
 const CALLER = {
   name: 'Oda Varn',
@@ -446,4 +449,4 @@ function label(subject) {
  */
 const SUBJECTS = Object.keys(BASELINE);
 
-module.exports = { CALLER, OPENING, BASELINE, GIVES, BELIEFS, CAUSES, NEED, SUBJECTS, LABELS, label, SUIT_FIT, fits, HERRINGS, ORDER, FRAGMENTS, FRAGMENT_FALLBACK, SUIT_NONSENSE, nonsense };
+module.exports = { HANDLE, CALLER, OPENING, BASELINE, GIVES, BELIEFS, CAUSES, NEED, SUBJECTS, LABELS, label, SUIT_FIT, fits, HERRINGS, ORDER, FRAGMENTS, FRAGMENT_FALLBACK, SUIT_NONSENSE, nonsense };
