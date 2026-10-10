@@ -334,3 +334,84 @@ test('she repairs a slip once, and the same slip twice gets nothing', () => {
     'her generosity should run out',
   );
 });
+
+test('a paused call charges nothing, closes nothing, and replays to the same place', () => {
+  const first = [{ kind: 'identify', suit: 'what', angle: 'contract' }];
+  const run = (moves) => {
+    let i = 0;
+    return playCall({
+      agent: { choose: () => (i < moves.length ? moves[i++] : { kind: 'pause' }) },
+      rng: seededRng(7),
+    });
+  };
+  const a = run(first);
+  assert.strictEqual(a.paused, true);
+  assert.strictEqual(a.ending, null, 'a pause is not an ending');
+  assert.strictEqual(a.plays, 1, 'the pause itself must not cost a play');
+  assert.strictEqual(a.view.left, PLAYS - 1);
+  assert.ok(
+    !a.lines.some((l) => l.text.includes('forwarding the case')),
+    'a paused call must not say its closing line',
+  );
+  // The same seed and the same moves give the same lines, which is the whole
+  // basis for asking a person one move at a time.
+  const b = run(first);
+  assert.deepStrictEqual(b.lines, a.lines);
+});
+
+test('the budget can be changed for a measurement, and nine is still the default', () => {
+  for (const plays of [5, 12]) {
+    for (let seed = 1; seed <= 30; seed += 1) {
+      const out = playCall({ agent: makeCardAgent({}), rng: seededRng(seed), plays });
+      assert.ok(out.plays <= plays, `seed ${seed} spent ${out.plays} of ${plays}`);
+    }
+  }
+  const bad = playCall({ agent: makeCardAgent({}), rng: seededRng(1), plays: 0 });
+  const dflt = playCall({ agent: makeCardAgent({}), rng: seededRng(1) });
+  assert.deepStrictEqual(bad.lines, dflt.lines, 'a nonsense budget falls back to nine');
+});
+
+test('steering is off unless asked for, so every existing call is unchanged', () => {
+  for (let seed = 1; seed <= 40; seed += 1) {
+    const out = play(seed);
+    assert.strictEqual(out.stats.steers, 0);
+    assert.ok(!out.lines.some((l) => l.text.startsWith('[steer]')));
+  }
+});
+
+test('a steer points where it says, in a line she already has, and never at what was just asked', () => {
+  const CASEDATA = require('./case');
+  const stock = new Set(Object.values(CASEDATA.BASELINE));
+  let steers = 0;
+  for (const steer of ['answer', 'own']) {
+    for (let seed = 1; seed <= 80; seed += 1) {
+      const out = playCall({ agent: { choose: probe }, rng: seededRng(seed), steer });
+      const cause = CASEDATA.CAUSES.find((c) => c.id === out.cause);
+      const reach = cause.reach.flat();
+      out.lines.forEach((l, i) => {
+        if (!l.text.startsWith('[steer]')) return;
+        steers += 1;
+        // Something falling off the board can be noted in between.
+        const said = out.lines.slice(0, i).reverse().find((x) => x.who !== 'NOTE');
+        assert.strictEqual(said.who, 'HER');
+        assert.ok(stock.has(said.text), `a steer must use a line she already has: ${said.text}`);
+        const to = Object.keys(CASEDATA.BASELINE).find((k) => CASEDATA.BASELINE[k] === said.text);
+        if (steer === 'answer') assert.ok(reach.includes(to), `seed ${seed}: ${to} is not on the cause`);
+        // The inverse that matters: a caller steering toward her own belief
+        // must never hand over the explanation by accident.
+        if (steer === 'own') assert.ok(!reach.includes(to), `seed ${seed}: ${to} is the explanation`);
+      });
+      const pointed = out.view ? out.view.steered : [];
+      assert.strictEqual(new Set(pointed).size, pointed.length);
+    }
+  }
+  assert.ok(steers > 20, `too few steers to mean anything: ${steers}`);
+});
+
+test('she does not point at the same thing twice in one call', () => {
+  for (let seed = 1; seed <= 80; seed += 1) {
+    const out = playCall({ agent: { choose: probe }, rng: seededRng(seed), steer: 'answer' });
+    const notes = out.lines.filter((l) => l.text.startsWith('[steer]')).map((l) => l.text);
+    assert.strictEqual(new Set(notes).size, notes.length, `seed ${seed} steered twice to one place`);
+  }
+});

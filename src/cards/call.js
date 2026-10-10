@@ -72,10 +72,22 @@ const COWORKER = {
  * @param {() => number} args.rng - injected; nothing calls Math.random.
  * @param {string} [args.baggage] - which baggage she carries.
  * @param {number} [args.causeIndex] - force the hidden cause, for tests.
+ * @param {number} [args.plays] - the budget, for measuring what nine buys
+ *   against other numbers. Nine unless a measurement says otherwise.
+ * @param {'answer'|'own'} [args.steer] - **[C] an experiment, off by
+ *   default.** On a miss she volunteers a subject instead of deflecting:
+ *   `answer` is a caller who points at what would explain it (the customer at
+ *   the training table), `own` one who points at what she believes matters
+ *   (settled.md §8, Steering). The words are her existing line on that
+ *   subject; nothing is written for it. Which callers steer, and how often,
+ *   is the sheet's to say and is not decided here.
  * @returns {{ending: string, cause: string, found: boolean, plays: number,
- *   lines: object[], board: object, sheet: object, stats: object}}
+ *   lines: object[], board: object, sheet: object, stats: object}} — or, when
+ *   the agent returns `{kind: 'pause'}`, the same shape with `paused: true`,
+ *   `ending: null` and the `view` it was shown, so a person can be asked for
+ *   the next move and the call replayed from its seed.
  */
-function playCall({ agent, rng, baggage, causeIndex, scenario }) {
+function playCall({ agent, rng, baggage, causeIndex, scenario, plays, steer }) {
   // The scenario is data. `case.js` is the default only because it was
   // first; nothing in the loop knows which call it is playing.
   const sc = scenario || CASE;
@@ -94,7 +106,11 @@ function playCall({ agent, rng, baggage, causeIndex, scenario }) {
     typeof causeIndex === 'number' ? sc.CAUSES[causeIndex] : pick(sc.CAUSES, rng);
 
   let board = BOARD.newBoard(sc.OPENING.words);
-  let left = PLAYS;
+  const budget = Number.isInteger(plays) && plays > 0 ? plays : PLAYS;
+  let left = budget;
+  // Subjects she has pointed at on a miss. Only ever filled when `steer` is
+  // on.
+  const steered = [];
   const lines = [];
   const recent = [];
   const readings = [];
@@ -123,6 +139,7 @@ function playCall({ agent, rng, baggage, causeIndex, scenario }) {
     customerPlays: 0,
     customerPlaysBeforeFind: null,
     ledLead: false,
+    steers: 0,
   };
   // What she has actually told you, which is the only thing a fix can rest
   // on. The record can corroborate a reason by holding the facts that must be
@@ -187,9 +204,30 @@ function playCall({ agent, rng, baggage, causeIndex, scenario }) {
       // (settled.md:930). Handing over the exact subject would end the hunt
       // on one roll.
       leads: leadSubjects.slice(),
+      steered: steered.slice(),
+      // What a find in play is called, so a person can be shown it.
+      label: sc.label,
     };
     const move = agent.choose(view, rng);
     if (!move) break;
+    // A person's turn. Nothing is charged and nothing is closed: the caller
+    // replays the call from its seed with one more move.
+    if (move.kind === 'pause') {
+      return {
+        paused: true,
+        view,
+        refused: refused.slice(),
+        ending: null,
+        cause: cause.id,
+        found: known === cause.id,
+        foundTurn,
+        plays: budget - left,
+        lines,
+        board,
+        sheet,
+        stats,
+      };
+    }
 
     // Random is the player declining to choose (settled.md:812).
     let { suit, angle } = move;
@@ -328,7 +366,21 @@ function playCall({ agent, rng, baggage, causeIndex, scenario }) {
       recent.push({ angle, subject: move.target });
       asked.push(move.target);
       say(lines, 'YOU', res.question);
-      say(lines, 'HER', res.answer);
+      // A steer replaces the deflection: she does not answer what was asked,
+      // and she says something about what she would rather talk about.
+      const to =
+        steer && !res.landed && !res.fragment && !res.spent
+          ? steerTo({ sc, steer, cause, herrings: herringSubjects, answered, steered, asking: move.target })
+          : null;
+      say(lines, 'HER', to ? sc.BASELINE[to] : res.answer);
+      if (to) {
+        stats.steers += 1;
+        steered.push(to);
+        // She raised it herself, so asking about it is not cold any more.
+        sheet = SHEET.remember(sheet, to);
+        board = add(rec, sc, board, [{ id: to, cls: 'customer' }], lines);
+        say(lines, 'NOTE', `[steer] she would rather talk about ${sc.label(to)}`);
+      }
       if (res.landed) {
         answered.push(move.target);
         // A ward learned is a ward learned: once she has talked about
@@ -342,7 +394,7 @@ function playCall({ agent, rng, baggage, causeIndex, scenario }) {
           heard.push({ subject: move.target, suggests: res.suggests, causal: res.causal });
           if (res.causal) {
             known = cause.id;
-            foundTurn = PLAYS - left;
+            foundTurn = budget - left;
             stats.customerPlaysBeforeFind = stats.customerPlays;
           }
           lastWasDeparture = true;
@@ -497,12 +549,33 @@ function playCall({ agent, rng, baggage, causeIndex, scenario }) {
     cause: cause.id,
     found: known === cause.id,
     foundTurn,
-    plays: PLAYS - left,
+    plays: budget - left,
     lines,
     board,
     sheet,
     stats,
   };
+}
+
+/**
+ * Where she points on a miss, when she is a caller who steers.
+ *
+ * Steering is volunteering where the steerer would like the call to go
+ * (settled.md §8). `answer` picks a subject the explanation runs through;
+ * `own` picks something she did differently that is true and is not the
+ * explanation, because where she wants it to go is not always where the
+ * answer is. Never the subject just asked about, never one she has already
+ * answered or already pointed at, and only one she has a line for.
+ *
+ * @returns {string|null} a subject, or null when she has nowhere to point.
+ */
+function steerTo({ sc, steer, cause, herrings, answered, steered, asking }) {
+  const pool = steer === 'answer' ? cause.reach.flat() : steer === 'own' ? herrings : [];
+  return (
+    pool.find(
+      (w) => w !== asking && sc.BASELINE[w] && !answered.includes(w) && !steered.includes(w),
+    ) || null
+  );
 }
 
 /**
@@ -603,6 +676,9 @@ function askHer({ sc, sheet, subject, suit, angle, cause, recent, rng, lead, ans
         question,
         answer: "We've been round this. Is there something on the order you're not telling me?",
         reading: 'she has nothing left to give on that one',
+        // Not a miss: her generosity has run out, which is its own answer
+        // and not somewhere a steer belongs.
+        spent: true,
       };
     }
     const f = pool[Math.floor(rng() * pool.length)];
@@ -875,4 +951,4 @@ function pick(arr, rng) {
   return arr[Math.floor(rng() * arr.length)];
 }
 
-module.exports = { playCall, PLAYS, TUNING, COWORKER, SUITS, ANGLES };
+module.exports = { playCall, PLAYS, TUNING, COWORKER, SUITS, ANGLES, ask, askRecord };

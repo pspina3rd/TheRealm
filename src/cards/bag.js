@@ -473,7 +473,50 @@ const NEED = {
   want: 'to be told it was the word and not her',
 };
 
+/**
+ * Her voice: the words each layer of her sheet offers for a base feeling
+ * (settled.md §8, Her words).
+ *
+ * **[C] Every word in here is mine and none of it is settled.** It exists so
+ * the template has something to pick from and Phil has something to judge.
+ * `person` is what she reaches for whoever she is talking to, and is weighted
+ * so she returns to it. `baggage` is keyed by the baggage she is carrying on
+ * this call, with the feeling it leans to when the call is going badly. `at`
+ * is what a feeling can land on (settled.md §13).
+ */
+const VOICE = {
+  person: {
+    mad: [{ word: 'ridiculous', frame: '{At} is ridiculous' }],
+    glad: [{ word: 'about time', frame: 'About time something made sense' }],
+  },
+  baggage: {
+    'set-it-up-herself': {
+      lean: 'sad',
+      sad: [{ word: 'stupid', frame: 'I feel stupid, not being able to work this' }],
+    },
+    'no-one-told-her': {
+      lean: 'mad',
+      mad: [{ word: 'nobody tells you', frame: 'Nobody tells you a thing about any of this' }],
+    },
+    'pell-gets-hurt': {
+      lean: 'sad',
+      sad: [{ word: 'worried sick', frame: "I'm worried sick about him going out without it" }],
+    },
+  },
+  // Only what every frame reads right against. The company and the agent
+  // are things a feeling can land on (settled.md §13) and are left out until
+  // there are frames written for them.
+  at: {
+    product: 'this bag',
+    service: 'this whole process',
+  },
+};
+
 module.exports = {
+  TALK: require('./bagTalk'),
+  // Her remembrances, and how they are said (settled.md §8).
+  LIFE: require('./sellaLife'),
+  VOICE,
   HANDLE,
   QUESTIONS,
   OBLIQUE,

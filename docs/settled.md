@@ -922,8 +922,48 @@ since there is no draw. Nothing is dealt from the deck — dealing happens on
 the board. Nine plays a call, the opening free, one move per play: one suit,
 one angle, one target.
 
+**[C] Superseded 8 October, mine:** *one move per play*. Phil's is one or two
+inquiries a turn — see *The turn, and her side of it* below. The card build
+in `src/cards/` still plays one, and `docs/plan-cards.md` tags that claim
+**[P]** when it was mine.
+
 **[C] Superseded, mine:** that an apprentice starts with a partial set of
 suits and angles and unlocks the rest.
+
+### The turn, and her side of it
+
+**[P] A word appears to the player only after the customer or the CRM has
+introduced it.** A word nobody has introduced cannot be played upon.
+*(8 October, restating what 28 September settled: what can be played is
+based entirely on what has happened.)*
+
+**[P]** The player offers **one or two inquiries per turn**. *(28 September:
+"play 2, or discard and play 1"; restated 8 October.)*
+
+**[P]** The customer chooses whether she responds to **the first, the second,
+both, or the random option**. Her choice is based entirely on her character
+sheet — roughly like an AI or an actor given a role.
+
+**[P]** The random option is where a bad-experience template, a frustration
+template, and any number of non-sequiturs can be generated, which creates a
+sense of variety and the unexpected. **[C]** Those three are examples of a
+wider set, not the list.
+
+**[P] Why it is needed.** As built on 8 October her reply did not depend on
+what was asked: *"So no matter what I ask I get the same response? That's
+boring."* and *"There's one right answer and six wrong ones. That will become
+repetitive and memorized quickly."*
+
+**[C]** A turn is one of the nine whether it carries one inquiry or two.
+Mine, from Phil's "nine turns" on 28 September.
+
+**[C]** Which inquiry she takes up is itself information, so steering (§8)
+happens on every turn and not only on a miss: taking the second and leaving
+the first is her pointing.
+
+**[C]** Pairing is then the player's skill, and it is *offers are paths with
+edges* (§12): two inquiries are A and B, and when she goes to C the player
+judges whether C sits inside them.
 
 ### Critical
 
@@ -1531,6 +1571,220 @@ it.
 
 **[C] Superseded, mine:** that a Why or a How aimed at something that looked
 like a fact is what reveals a Need.
+
+### Steering **[P]**
+
+**[P]** Steering someone in a conversation is volunteering where you, as the
+steerer, would like it to go. **[P]** In this context it is the same thing as
+volunteering.
+
+**[P]** Whether a caller steers depends on the customer. At the training
+table (Appendix) the person playing the customer steered the trainees back
+when they went off course; a real caller does it too, and not every one does.
+
+**[C·ok]** So steering is the volunteering rule (§2) applied to a miss: she
+does not answer the question asked, and she volunteers where to look instead.
+Whether she does comes from her sheet and from how the call is going, like
+everything else she volunteers.
+
+**[C]** She steers toward where *she* wants the call to go, which is not
+always where the answer is. A steer therefore tells the player what she wants
+or believes, and it still has to be trusted and verified. Mine — folded 8
+October on Phil's instruction without a separate confirmation.
+
+**[C]** Both sides steer. The agent's side is already *offers are paths with
+edges* (§12).
+
+### Her words **[P]**
+
+**[P]** Having chosen what she responds to, the customer chooses her words,
+like a Mad Lib. The filled template is then treated as a **prompt** for the
+generated response, applying the perspective of this character — like an
+improv prompt.
+
+**[C·ok]** So the reply is two jobs. Her sheet decides what she gives; the
+generator decides only how she says it.
+
+**[P]** Each aspect of the sheet — PEOPLE, PERSON, baggage, and any others —
+can offer suggested words to fill the template, very roughly as if she had a
+thesaurus and picked synonyms for the basic word (*mad, sad, bad, glad, not
+bad, not good, good*). This can lead to things like *The Princess Bride*'s
+"Inconceivable". *(Raised by Phil as a question, 8 October; folded with the
+rest on his instruction.)*
+
+**[P]** Illustrations, his: *"I'm going insane dealing with this frustrating
+product!"* · *"This process is driving me crazy!"* · *"How do you not go
+insane dealing with the ridiculous bureaucracy?"*
+
+**[P]** She has words she returns to, and she can also capture words the
+player says, or the gist of them (*transfer* against *assign*).
+
+**[C]** What each layer offers, mine: PEOPLE the common pool, always
+available, as the generic is in the player's own Mad Lib (§11) · PERSON her
+habits and how strongly she puts things · baggage the charged words · and
+what she knows, which gives her names for things and is where a word used
+with confidence and wrongly lives (*transfer*, *Minions*).
+
+**[C]** The question asked has to be one of the slots, or the generated line
+still will not answer it.
+
+**[C]** The word and the sentence shape are chosen together: *mad* sits in
+"I'm mad at this" and *insane* needs "I'm going insane dealing with this".
+An odd word is character rather than error. **[C] Withdrawn, mine:** that a
+thesaurus misfires on words like *insane*.
+
+**[C]** Her word shows how she expresses a feeling and not how much of it
+there is, so it never becomes a gauge (§8 Fields, *High*: absorbs a great
+deal and stops signaling).
+
+**[C]** A generator may not invent a fact, so what is authored moves from
+sentences to facts, and each spoken line can be checked against the template
+it was generated from.
+
+**[C]** Memory by type applies to what she takes from the player: the exact
+word inside the call, the gist by the next one.
+
+### What the random option brings in **[P]**
+
+**[P]** The random option is supposed to at least introduce *something* to
+the mix. What is introduced is a **non-sequitur**, and it could be emotion,
+baggage, another agent, an experience, a co-worker, an enemy, an ally, a
+minion, a guild member, a spouse, a child, a pet, a sporting event.
+**[C]** Those show how wide it is; they are not the list.
+
+**[C]** So it reaches outside the problem being called about, into her
+life and her world. As first built on 8 October it drew only on the problem
+itself, which read as a caller dodging the question.
+
+**[C]** How much of the question it displaces is a range: she can answer and
+bring something in alongside, half-answer and drift, or leave the question
+entirely. Mine — raised 8 October; Phil answered with what is introduced and
+did not rule on the range.
+
+### What a sheet is asked **[P]**
+
+**[P]** A customer's life comes from asking what must follow from what she
+has. *She has party members: who are they? She must go on adventures: what
+happened? She must do something for fun: what does she do? She must have
+frustrations: what or who are they?* There are more than these four.
+
+**[P]** *What are their motivations? · hopes? · dreams? · fears? · What drives
+them? · What annoys them? · What makes them happy? · What makes them angry? ·
+What inspires them? · What frustrates them? · What friends do they have? ·
+What companions do they have? · What enemies do they have? · What tragedies
+have befallen them?*
+
+**[P]** A past adventure does not have to relate to the call at hand at all.
+It can be an aside, or backstory about other customers in the game — villains,
+heroes and so on. **[P]** *"You are putting the story about the past adventures
+into a neat box that fits the game."*
+
+**[P]** The number of answers varies for each customer. Not everyone has
+people they think of as enemies.
+
+**[P]** *Party, team, group, clan* are just ways people describe the same
+thing.
+
+**[C]** The near-pairs stay separate — annoys, frustrates and angers;
+hopes and dreams; friends and companions — because the differences are where
+two callers stop sounding alike.
+
+**[C]** Answers are written as what she knows and believes, which may be
+incomplete or wrong, never as what is true. From Phil's rewrite of the
+watchtower entry, below, where she does not know whose tower it was.
+
+**[C]** Ten more were offered by me on 8 October (who is under her roof, who
+she answers to, who relies on her, what she owes, who helped her last time,
+and others). Phil did not take them up; *"that is not in my list."* **[C]**
+*What triumphs have they had?* was offered as the partner to tragedies and
+not confirmed.
+
+**[P]** Six are being tried first, to see whether they make any difference
+before all are applied: **companions · enemies · tragedies · fun · what
+annoys them · what happened on their adventures**.
+
+### Remembrances and lenses **[P]**
+
+**[P]** The answers on her sheet are **remembrances**. The character sheet,
+based on its current status, **interprets them into dialogue**. **[P]** The
+sheet's current status is the set of **interpretive lenses**.
+
+**[C·ok]** So what she says about a memory is made fresh each time, and the
+same remembrance comes out differently on a good call and a sour one. A
+fixed line per memory freezes the thing that is supposed to move.
+
+**[P]** The templates — the Mad Libs the customer applies her word cards to —
+are to be developed from options generated by delegated play-throughs.
+*(9 October.)*
+**[P]** *"We are seeking the customers' patterns."* **[C]** Plural: what
+recurs across different callers is the template, and what differs between
+them is their word cards, so the play-throughs use several callers.
+
+**[P] How she talks**, from the lines worked through on 9 October:
+- *Leave something unsaid.* "Out of the same hall, no less" already carries
+  the unease; adding that they are civil is unneeded.
+- *She is normal.* She does not refer to everyone by their formal name.
+- *"Feels like written by someone who doesn't know how people speak"* is
+  grounds to reject a line.
+- **[C]** A trait read out (*"Pell eats enough for two"*) is how a writer
+  introduces a character; people bring someone up through something that
+  happened. Mine, from two Pell lines Phil rejected.
+
+### Sella's remembrances **[P·C]** — the bag call
+
+Drafted by Claude one at a time and corrected by Phil, 8–9 October. Where the
+wording is Phil's it is marked.
+
+**Companions.** Pell — takes the hits, joined in the spring *(already in the
+call)*; came over from a merchant's escort crew, eats twice what anyone else
+does, and will not say when he is hurt **[C]**. **Garrick Ryle**, the older —
+talks to everyone, does the party's haggling, will talk about anything except
+what he himself needs. **Tobin Ryle**, the younger — starts a thought slowly
+and Garrick finishes it for him, usually wrongly; he is the one who notices
+things. Sella has learned to watch Tobin's face while Garrick is talking.
+**[C·ok]** *("Better.")* A mule called **Biscuit** carries what the bag does
+not. **[C·ok]**
+
+**Enemies. [P]** *Maud Kessel used to be my teammate and partner. Now, Maud
+runs her own party, and out of the same guild hall no less. While we maintain
+a civil front, I secretly hate her for taking with her the heart of the team:
+Les Parsects, a noble and capable warrior.*
+
+**[P]** *Last year Sella's party cleared out an old watchtower for a village.
+It turned out to actually be occupied, though no one was home at the time. It
+filled with the work of at least a season or two. While it was considered odd
+at the time, notes keep appearing addressed directly to Sella indicating
+someone's minions are watching her and her party.*
+
+**Tragedies. [P·C]** *My brother Atrem went down into the Dungeon with his
+party, four years ago. They only found his pack. I still pay his guild dues
+every year, which I know is stupid.*
+
+**Fun. [C·ok]** *On rest days I'm at the wrestling in the guild hall. I back
+Gregor Roman every time, and he loses every time. I've stopped telling people
+what it has cost me.* · *I'm teaching myself to whittle. So far I have made a
+great many things that were meant to be spoons.*
+
+**What annoys her. [C·ok]** The clerk at the guild hall, who wants a form for
+everything and then a second form to say the first one was filled in ·
+Garrick telling a story she was there for, and getting it wrong · people who
+tell her "you'll want to be careful out there."
+
+**What happened on her adventures. [C·ok, may be revisited]** They took a
+merchant through the hill roads and lost two days because the map was the
+wrong way up; Garrick was holding it · she stood behind a man in the guild
+shop whose cloak had come back from POOF heavier and shedding water, and who
+could not decide whether to be angry · they shared a fire with a man
+everybody says cleared the lower levels on his own, who spent the evening
+asking where to get his boots resoled.
+
+**Readings of two of them, settled as examples and not as her lines:**
+- Maud — *"My old partner runs her own party now, out of the same hall, no
+  less. Took Les with her when she went."* · *"Les would've known what to
+  do."*
+- The watchtower — **[P]** *"We cleared out an old abandoned watchtower last
+  year. Apparently it wasn't, turns out someone lived there."* · **[P]** *"I
+  keep getting these notes. They claim their minions are watching us."*
 
 ---
 
@@ -2714,6 +2968,15 @@ decision, and using one requires a note saying why. And **§17b Penned** —
 areas deliberately deferred to a future state, which are not in play at all.
 
 Nothing open.
+
+**Closed 9 October:** what the random option brings in · the questions a sheet
+is asked, and the six being tried · remembrances and lenses · Sella's
+remembrances for the bag call (all §8) · a word appears only once introduced
+(§2).
+
+**Closed 8 October:** steering as volunteering on a miss (§8) · one or two
+inquiries a turn and her choice among them (§2) · her words as a Mad Lib that
+becomes the prompt, and where the words come from (§8).
 
 **Closed 4 October:** the §10 / §17a visibility conflict, resolved by the
 Admin (Party Leader) designation (§10, §17a) · the six suits and the four

@@ -10,3 +10,6 @@ npm-debug.log*
 # Keep them out of version control; track what we actually use, once
 # it is exported and its licence is confirmed.
 Possible Assets/
+
+# Per-call detail written by scripts/playTurns.js
+logs/
