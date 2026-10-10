@@ -940,6 +940,12 @@ based entirely on what has happened.)*
 **[P]** The player offers **one or two inquiries per turn**. *(28 September:
 "play 2, or discard and play 1"; restated 8 October.)*
 
+**[P]** The choices available to the customer are **0, 1 or 2**: she
+responds to **neither, the first, the second, or both**. **[P]** Neither is
+also what Phil called *the random option*. **[C]** Corrected 10 October: Claude
+had been writing this as "1, 2 or both" and treating her answering neither as
+a fault to be reduced, when it is one of the choices.
+
 **[P]** The customer chooses whether she responds to **the first, the second,
 both, or the random option**. Her choice is based entirely on her character
 sheet — roughly like an AI or an actor given a role.
@@ -1578,9 +1584,12 @@ like a fact is what reveals a Need.
 steerer, would like it to go. **[P]** In this context it is the same thing as
 volunteering.
 
-**[P]** Whether a caller steers depends on the customer. At the training
-table (Appendix) the person playing the customer steered the trainees back
-when they went off course; a real caller does it too, and not every one does.
+**[P]** Asked whether he steered the trainees as the trainer, or whether a
+real caller does it too: *"Both, depends on the customer."* At the training
+table (Appendix) the person playing the customer could steer the trainees in
+the right direction if they went off course.
+**[C]** So not every caller steers. Mine; corrected 10 October from a line
+that had put those words in Phil's mouth.
 
 **[C·ok]** So steering is the volunteering rule (§2) applied to a miss: she
 does not answer the question asked, and she volunteers where to look instead.
@@ -1602,22 +1611,28 @@ like a Mad Lib. The filled template is then treated as a **prompt** for the
 generated response, applying the perspective of this character — like an
 improv prompt.
 
-**[C·ok]** So the reply is two jobs. Her sheet decides what she gives; the
-generator decides only how she says it.
+**[C]** So the reply is two jobs. Her sheet decides what she gives; the
+generator decides only how she says it. Mine; it was tagged confirmed and had
+not been — corrected 10 October.
 
-**[P]** Each aspect of the sheet — PEOPLE, PERSON, baggage, and any others —
-can offer suggested words to fill the template, very roughly as if she had a
-thesaurus and picked synonyms for the basic word (*mad, sad, bad, glad, not
-bad, not good, good*). This can lead to things like *The Princess Bride*'s
-"Inconceivable". *(Raised by Phil as a question, 8 October; folded with the
-rest on his instruction.)*
+**[P]** Raised as a question, 8 October: *"Does each aspect of the personality
+sheet (people & person & baggage & any others I'm forgetting) offer suggested
+words to fill the template? Very roughly, as if they have access to a
+thesaurus and pick synonyms for the basic word (mad, sad, bad, glad, not bad,
+not good, good, etc). This might potentially lead to things like The Princess
+Bride's famous Inconceivable joke."*
+**[C]** Claude's answer was yes, and Phil went on from it without ruling.
+Corrected 10 October: it had been written here as a statement of his.
 
 **[P]** Illustrations, his: *"I'm going insane dealing with this frustrating
 product!"* · *"This process is driving me crazy!"* · *"How do you not go
 insane dealing with the ridiculous bureaucracy?"*
 
-**[P]** She has words she returns to, and she can also capture words the
-player says, or the gist of them (*transfer* against *assign*).
+**[P]** Asked whether she can pick up the agent's words: *"Regarding a
+repeated word, yes I think it does, and it could also capture words the
+player says or the 'gist' of it (transfer vs assign)."*
+**[C]** Read by Claude as: she has words she returns to. That reading is
+mine — corrected 10 October from a line that stated it as his.
 
 **[C]** What each layer offers, mine: PEOPLE the common pool, always
 available, as the generic is in the player's own Mad Lib (§11) · PERSON her

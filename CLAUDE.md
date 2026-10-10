@@ -31,6 +31,14 @@ reframe replaced.
 | `src/cards/` | **The card call** — the build of the card system settled 3–4 October. Six suits and four angles with Random as declining to choose, three target classes that each decide their own results, a CRM hierarchy whose links are direct, indirect, tangential or red herrings, wards per subject learned by bouncing, and a Baggage trigger that can fire obliquely. `case.js` is the scenario (a POOF Instant Order that came back uneven — record-compliant, unlike `src/call/scenario.js`), `record.js` the hierarchy, `call.js` the loop. Deliberately separate from `src/call/` so the old engine stays runnable as a comparison. **Upgrades and the run are not built** — see `docs/plan-cards.md` §1 for why, and §7 for what is declared invention. |
 | `scripts/cards.js` | Plays one card call and prints it: `node scripts/cards.js --seed 12`, `--random` for the dice policy, `--cause N --baggage blamed` to pin it. Six real faults in this engine were found by reading this and none by the suite. |
 | `scripts/cardsAudit.js` | The four deck pathologies from `docs/trust-and-verify-cards.md`, measured over 2,000 calls. Two pass, Tax fails, and Lottery passes on a number that cannot be anything else — read the diagnostics beside it, not the verdict. |
+| `src/cards/turn.js` | **The call in turns** — nine turns, one or two inquiries a turn, and the customer choosing whether to respond to neither, the first, the second or both (settled.md §2). Bag scenario only. Kept beside `call.js`, which still plays one inquiry a turn. No coworker or hold yet. |
+| `src/cards/reply.js` | Her choice, from her sheet, and the template of what she gives. Every number in `LEAN` is a guess. |
+| `src/cards/bagTalk.js` | Sella's written answers for the bag call, one per question that can be put to her, each tagged with what it introduces (`SAYS`) and each question with what it needs (`NEEDS`). A word is in front of the player only once she or the record has introduced it. |
+| `src/cards/sellaLife.js` | Her remembrances (settled.md §8) held in parts, the templates that say them, and what each hangs off. A memory comes up only when its subject has just been asked about. |
+| `src/cards/speak.js`, `src/cards/words.js` | Turning a turn into words without a generator; and feeling words by layer of her sheet, unused in speech until a generator exists. |
+| `scripts/playTurns.js` | Play the bag call yourself, in turns. Prints the conversation only; per-turn detail goes to `logs/` (git-ignored). |
+| `scripts/playCards.js`, `scripts/lineInventory.js`, `scripts/tableTest.js` | Play the older one-inquiry call by hand · count questions against replies · the budget sweep and the steering experiment. |
+| `docs/notes-reply-engine.md`, `docs/templates-from-playthroughs.md` | Working notes, not the record: what was built 8–10 October, every invention in it, the three rounds of play-throughs, what independent readers found, and what is still wrong. **Read both before touching `src/cards/turn.js` or its neighbours.** |
 | `docs/plan-cards.md` | The plan for the card call: scope, a 25-item claim set with each item tagged and cited, acceptance criteria per module, the four measurement definitions fixed before building, what an independent audit changed, and the measurements as of 4 October. |
 | `src/call/score.js` | What each perspective got out of a call, as vectors on the record's fifteen categories plus each seat's extras. **Never a total** — an axis that was not in play is absent rather than zero, and the same event reads differently depending on who is holding it. |
 | `scripts/playShifts.js` | Plays the engine over many seeds and prints transcripts and an outcome distribution. Green tests do not tell you whether a call works — read what this prints. |
@@ -44,6 +52,23 @@ reframe replaced.
 | `.eslintrc.json` | `eslint:recommended`, CommonJS/Node. Ignores the JSX (it's ESM + JSX syntax and would need a different parser); lint covers every `src/*.js` file, matching the command below. |
 
 ## Conventions already established — follow them, don't reinvent
+
+- **Raise every invention before building it.** A word in a customer's
+  mouth, a number, a rule, a field on a sheet: each one of Claude's is put to
+  Phil individually first, and marked as Claude's wherever it is written
+  down. Listing them in a report afterwards is not raising them.
+- **Run the Trust and Verify loop before reporting anything as done** —
+  `docs/trust-and-verify.md`, and `docs/trust-and-verify-cards.md` for card
+  work. That includes checking the work against the record *before* building
+  (several faults in October were rules the record already held), reading
+  generated dialogue as the person on the other end of the call, and an
+  independent read. A delegated agent's report is a claim, not evidence: look
+  for the file.
+- **Details go in a file; problems go to Phil.** Record measurements and
+  working detail in `docs/` or `logs/`, and report only what is wrong, each
+  with three ways to solve it.
+- **Say what a delegated run will use before launching it**, and pick the
+  model for the task.
 
 - **Every exported function is pure** with respect to its arguments.
   No mutation of inputs; return new objects. Every existing function
