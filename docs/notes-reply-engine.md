@@ -1,5 +1,42 @@
 # Notes — the reply engine (bag call), 8 October
 
+## Where to pick up — written 10 October, at the end of that session
+
+Committed on `record-into-repo` (`1b2a797`, `6e43a3a`). 388 tests pass.
+`node scripts/playTurns.js` plays the bag call.
+
+**Next, in this order. Neither is built.**
+
+1. **Restore her choosing neither.** Phil gave her choices as 0, 1 or 2:
+   neither, the first, the second, or both (settled.md §2). On 10 October I
+   made "neither" rare, treating it as a fault, and the call became winnable
+   by one fixed line of play every time (see *Still wrong* in
+   `docs/templates-from-playthroughs.md`). It has to be a real choice her
+   sheet makes — when what is asked is something she guards — and when she
+   takes it she still brings something in. This changes `ownOptions` and the
+   `cause` test in `src/cards/reply.js`. Nothing has to be made up to do it.
+2. **Give the bag call more than one cause.** It has one, which the record
+   has ruled out since 7 September ("a singular root cause is lazy work").
+   Every candidate cause is an invention: **bring them to Phil one at a
+   time, before building any.** He has said there is no cause in the CRM for
+   this call; the cause is on her side.
+
+**Then:** the generator. Phil has said yes to a model called at play time
+for her voice. Everything here — her choice, the tags for what is in play,
+her remembrances and what they hang off, the templates — is its brief.
+
+**How Phil wants this worked** is in `CLAUDE.md` under Conventions, and in
+the memory notes. In short: restate before building; raise each invention
+first; check the record before building; read output as the caller would;
+record detail in a file and bring him only problems, each with three
+solutions; say what a delegated run will use before launching one.
+
+**What the delegated runs cost on 10 October** is at the end of
+`docs/templates-from-playthroughs.md`. Do reads and counts yourself where
+you can.
+
+---
+
 The detail behind what was reported in conversation. Not part of the record;
 nothing here is settled. `docs/settled.md` §2 *The turn, and her side of it*
 and §8 *Her words* are the authority.
