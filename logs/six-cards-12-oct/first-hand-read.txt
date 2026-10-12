@@ -1,0 +1,40 @@
+pass | 1 | from when | And Pell's in the party with you? | Yes, he joined in the spring.
+pass | 2 | from how | Have you done this before? | No, I've never had to try it this way before.
+pass | 3 | from when | Which bag is it — the party's, or your own? | It's been the party's bag since we started out.
+FAIL | 4 | from when | Have they ever had anything out of the bag? | Not that I've noticed, no particular time.
+FAIL | 5 | from when | How are you going about it? | I've been going about it since last night.
+FAIL | 6 | from where | So nothing happens at all, not even a message? | Nothing shows up, nowhere.
+pass | 7 | from where | He's the one who needs it on him, is he? | Yes, out on the road, wherever the fighting is.
+pass | 8 | from when | It's the party account, not a personal one? | Has been since last autumn.
+pass | 9 | from who | It's one of the standard ones? | Yes — the kind we keep for Pell and anyone else who takes a hit.
+FAIL | 10 | from why | They don't use it much? | Because they never ask for anything, simple as that.
+pass | 11 | from when | Tell me about the party. | Pell joined in the spring.
+FAIL | 12 | from when | Who else is in the party? | Pell's been with us since the spring; the Ryles since they joined.
+pass | 13 | from when | They don't use it much? | Never, not once that I've seen.
+FAIL | 14 | from when | What is it you're trying to move? | I started trying last night.
+pass | 15 | from where | Can you see it in there? | Right there in the bag.
+pass | 16 | from when | Tell me about the bag. | I've been looking at it since last night.
+pass | 17 | from why | Which draught, exactly? | The one he needs, since he's the one taking the hits.
+FAIL | 18 | from where | How are you going about it? | Right there on the account, page by page.
+pass | 19 | from who | You're on Silver? | Yes, all four of us are on it.
+pass | 20 | from what | Have you done this before? | No, nothing like this, not before.
+FAIL | 21 | from where | Who's the leader of it? | Out on the road, I'm the one leading.
+pass | 22 | from who | Which draught, exactly? | The one that's meant for Pell.
+FAIL | 23 | from where | What were you looking for it to say? | I wanted to find it somewhere on the account, anywhere at all.
+pass | 24 | from when | They don't use it much? | Not since they joined, not once.
+FAIL | 25 | from where | And they're all on the account? | Nowhere else, just the one account.
+pass | 26 | from who | So it's definitely in the bag? | I've seen it with my own eyes.
+pass | 27 | from where | Which draught, exactly? | The one that's right there in the bag.
+pass | 28 | from how | When did you last move something to one of them? | I've never had to, so I just don't know the way.
+FAIL | 29 | from when | What did you try first? | Last night, first thing.
+FAIL | 30 | from how | So nothing happens at all, not even a message? | No — it just fails the same quiet way every time.
+pass | 31 | from who | How many of you are there? | There's me, Pell, and the Ryle brothers.
+pass | 32 | from when | Who's the leader of it? | Since we started, I've always led it.
+pass | 33 | from who | He's the one who needs it on him, is he? | Yes, Pell, he's the one who takes the hits.
+pass | 34 | from how | First time doing it, then? | Yes, and I don't know the way to do it.
+FAIL | 35 | from what | You need it before you go? | Yes, the draught, before we go.
+FAIL | 36 | from why | Who's the leader of it? | Because I set the whole thing up myself.
+FAIL | 37 | from why | Tell me about the bag. | There's no reason to doubt the bag — I can see every item in it.
+pass | 38 | from why | You need it before you go? | Yes, because he's the one who takes the hits.
+FAIL | 39 | from where | What did you try first? | Right there on the account, same place I've tried since.
+pass | 40 | from where | You've had more than one go at it? | Yes, every page of the account, twice over.

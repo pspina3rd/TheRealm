@@ -178,3 +178,24 @@ test('odd offers do not break her: one inquiry picked as second, and the same th
   const twice = REPLY.fill({ sc: BAG, sheet, pick: 'both', inquiries: [q('what', 'bag', 'expand'), q('what', 'bag')], cause, herrings: [], state: {}, rng: seededRng(1) });
   assert.strictEqual(twice.gives.length, 1, 'the same fact must not be given twice in one reply');
 });
+
+test('follows: a line is tied to the wording of a question, not to its subject', () => {
+  const table = { tried: { 'what/expand': [] }, morning: { 'why/expand': ['pell'] } };
+  const what = { suit: 'what', angle: 'expand', subject: 'tried' };
+  const how = { suit: 'how', angle: 'contract', subject: 'tried' };
+  const why = { suit: 'why', angle: 'expand', subject: 'morning' };
+  assert.deepStrictEqual(REPLY.follows(table, [what], []), what);
+  // Same subject, another question: "Talk me through what you did."
+  assert.strictEqual(REPLY.follows(table, [how], []), null);
+  // Only the last thing asked counts: set off by the first of two, the line
+  // skips what was just said.
+  assert.deepStrictEqual(REPLY.follows(table, [how, what], []), what);
+  assert.strictEqual(REPLY.follows(table, [what, how], []), null);
+  // A tie that needs a word in play is closed until it is.
+  assert.strictEqual(REPLY.follows(table, [why], []), null);
+  assert.deepStrictEqual(REPLY.follows(table, [why], ['pell']), why);
+  assert.strictEqual(REPLY.follows({}, [what], []), null);
+  assert.strictEqual(REPLY.follows(table, [], []), null);
+  const frozen = Object.freeze([Object.freeze({ ...what })]);
+  assert.notStrictEqual(REPLY.follows(table, frozen, []), frozen[0], 'it hands back a copy');
+});

@@ -415,3 +415,95 @@ test('she does not point at the same thing twice in one call', () => {
     assert.strictEqual(new Set(notes).size, notes.length, `seed ${seed} steered twice to one place`);
   }
 });
+
+test('a question that was never written does not exist: asked of her, it is refused and costs the play', () => {
+  const BAG = require('./bag');
+  const BATCH = require('./case');
+  // Asks her to confirm the first thing in front of the agent, every play.
+  const readsBack = {
+    choose: (view) => {
+      const t = view.board.targets.find((x) => x.cls === 'customer');
+      return { kind: 'play', cls: 'customer', target: t.id, suit: 'what', angle: 'verify' };
+    },
+  };
+  for (let seed = 1; seed <= 40; seed += 1) {
+    const out = playCall({ agent: readsBack, rng: seededRng(seed), scenario: BAG });
+    const refusals = out.lines.filter((l) => l.who === 'NOTE' && /there is no such question/.test(l.text));
+    assert.strictEqual(refusals.length, PLAYS, `seed ${seed}: a read-back was not refused`);
+    // Between her opening line and the last refusal, nobody speaks: no
+    // question is put and she answers none. (The call's closing exchange
+    // comes after.)
+    const last = out.lines.lastIndexOf(refusals[refusals.length - 1]);
+    const during = out.lines.slice(1, last);
+    assert.ok(!during.some((l) => l.who === 'YOU'), `seed ${seed}: the agent spoke a read-back`);
+    assert.ok(!during.some((l) => l.who === 'HER'), `seed ${seed}: she answered a read-back`);
+    assert.ok(!Object.keys(out.stats.pairs).some((k) => /^customer \w+\/verify$/.test(k)), 'it was counted as a play at her');
+  }
+  // The same policy on a scenario that does write read-backs is not refused.
+  const other = playCall({ agent: readsBack, rng: seededRng(1), scenario: BATCH });
+  assert.ok(!other.lines.some((l) => /there is no such question/.test(l.text)));
+  // And on the bag call the record can still be verified against.
+  const looksUp = {
+    choose: (view) => {
+      if (!view.handle) return { kind: 'identify', suit: 'what', angle: 'contract' };
+      const row = view.board.targets.find((x) => x.cls === 'record');
+      return row
+        ? { kind: 'play', cls: 'record', target: row.id, suit: 'what', angle: 'verify' }
+        : { kind: 'play', cls: 'record', target: null, suit: 'what', angle: 'expand' };
+    },
+  };
+  const rec = playCall({ agent: looksUp, rng: seededRng(2), scenario: BAG });
+  assert.ok(!rec.lines.some((l) => /there is no such question/.test(l.text)), 'a Verify at the record was refused');
+  assert.ok(rec.stats.pairs['record what/verify'] && rec.stats.pairs['record what/verify'].plays > 0);
+});
+
+test('a policy is kept to questions that exist, and says what it would rather ask than repeat itself', () => {
+  const { exists, sayable, makePooh, makeWatson, makeHolmes, makeTigger, makePiglet } = require('./cardAgents');
+  const view = { written: { tried: ['what/expand', 'what/contract', 'how/expand'], since: ['when/expand'] } };
+  assert.ok(exists(view, 'tried', 'what', 'expand'));
+  assert.ok(!exists(view, 'tried', 'what', 'verify'));
+  assert.ok(!exists(view, 'nothing-here', 'what', 'expand'));
+  // A scenario that writes no questions has no such limit.
+  assert.ok(exists({ written: null }, 'tried', 'what', 'verify'));
+  assert.ok(exists({}, 'tried', 'what', 'verify'));
+
+  const at = (angle, extra) => ({ kind: 'play', cls: 'customer', target: 'tried', suit: 'what', angle, ...extra });
+  // A question that exists is left alone, and the same object comes back.
+  const fine = at('expand');
+  assert.strictEqual(sayable(view, fine), fine);
+  // One that does not is swapped for one that does — the policy's own
+  // second choice first, so coming back is not the same sentence again.
+  assert.strictEqual(sayable(view, at('verify', { orElse: 'expand' })).angle, 'expand');
+  assert.strictEqual(sayable(view, at('verify')).angle, 'contract');
+  // A second choice that does not exist either is passed over.
+  assert.strictEqual(sayable(view, at('verify', { orElse: 'validate' })).angle, 'contract');
+  // Nothing to swap to: it goes through as asked, for the engine to refuse.
+  const stuck = { kind: 'play', cls: 'customer', target: 'since', suit: 'who', angle: 'verify' };
+  assert.strictEqual(sayable(view, stuck).angle, 'verify');
+  // The record, a coworker, the dice and a remedy are none of its business.
+  for (const m of [
+    { kind: 'play', cls: 'record', target: 'tried', suit: 'what', angle: 'verify' },
+    { kind: 'play', cls: 'coworker', target: 'bram', suit: 'what', angle: 'expand' },
+    { kind: 'play', cls: 'customer', target: 'tried', suit: 'random', angle: 'random' },
+    { kind: 'fix', fix: 'the-word' },
+    null,
+  ]) assert.strictEqual(sayable(view, m), m);
+  // The move handed in is not changed.
+  const frozen = Object.freeze(at('verify', { orElse: 'expand' }));
+  assert.notStrictEqual(sayable(view, frozen), frozen);
+  assert.strictEqual(frozen.angle, 'verify');
+
+  // In play: no policy puts a question to her that was never written, on a
+  // call where two of the policies' usual questions do not exist.
+  const BAG = require('./bag');
+  for (const make of [makePooh, makeWatson, makeHolmes, makeTigger, makePiglet]) {
+    for (let seed = 1; seed <= 60; seed += 1) {
+      const out = playCall({ agent: make({}), rng: seededRng(seed), scenario: BAG });
+      assert.ok(!out.lines.some((l) => /there is no such question/.test(l.text)), `seed ${seed}: a policy asked a question that does not exist`);
+      for (const pair of Object.keys(out.stats.pairs)) {
+        const m = pair.match(/^customer (\w+)\/(\w+)$/);
+        if (m) assert.notStrictEqual(m[2], 'verify', `seed ${seed}: a read-back was played at her`);
+      }
+    }
+  }
+});

@@ -1,0 +1,201 @@
+1 | A | 1 | natural, names who is involved
+2 | A | 1 | plain statement of the thing
+3 | A | 1 | natural, time-framed
+4 | A | 1 | natural, place-framed
+5 | A | 0 | about why; "reason" is not a reason
+6 | A | 0 | manner-framed; "way" is generic
+7 | B | 1 | people tacked onto a what-answer
+8 | A | 1 | direct, about the thing
+9 | C | 1 | "it happens" never says what happens
+10 | A | 1 | natural, two places named
+11 | A | 0 | about why; key word generic
+12 | A | 0 | manner-framed; key word generic
+13 | A | 1 | natural, about who is silent
+14 | A | 1 | direct echo, about the thing
+15 | A | 1 | natural, time-framed
+16 | A | 1 | short but natural, place-framed
+17 | A | 0 | passable; key word names no reason
+18 | C | 0 | stilted; nothing "happens in a way"
+19 | A | 1 | natural, about whose it is
+20 | A | 1 | natural listing of contents
+21 | A | 1 | time-framed; tail slightly odd
+22 | A | 0 | natural; "front" alone is no place
+23 | C | 0 | double negative, stilted
+24 | B | 0 | about seeing contents, not manner
+25 | A | 1 | answers directly with people
+26 | C | 1 | does not say which bag
+27 | A | 0 | answers, time-framed; key not time word
+28 | C | 1 | dodges party's-or-own question
+29 | B | 0 | why only nominal; restates ownership
+30 | A | 1 | answers, framed as manner
+31 | B | 1 | people tacked on, nominal
+32 | A | 1 | direct, about the thing
+33 | A | 1 | natural, time-framed
+34 | A | 0 | natural; "front" alone is no place
+35 | A | 0 | gives reasoning; key word generic
+36 | B | 0 | state described, not manner
+37 | A | 1 | natural sidestep toward the person
+38 | A | 1 | direct answer
+39 | A | 1 | natural, time-framed
+40 | A | 1 | natural, from and to places
+41 | A | 0 | real reason; "hits" alone is not
+42 | A | 1 | method named plainly
+43 | A | 1 | natural, identifies by person
+44 | A | 1 | direct answer
+45 | A | 1 | identifies by time, natural
+46 | A | 1 | identifies by place, natural
+47 | A | 0 | reason given; key word is not one
+48 | B | 0 | describes kind, not manner
+49 | A | 1 | natural, person-framed
+50 | A | 1 | direct confirmation
+51 | B | 1 | time bolted on, adds nothing
+52 | A | 1 | natural, place-framed
+53 | A | 0 | natural; key word generic
+54 | B | 0 | describes kind, not manner
+55 | A | 1 | direct answer
+56 | C | 1 | nonsense; draught for the draught
+57 | C | 0 | stilted; "him" names nobody
+58 | A | 1 | place-framed; "him" is vague
+59 | A | 0 | reason given; key word is not one
+60 | C | 0 | convoluted, nobody talks like this
+61 | A | 1 | direct answer
+62 | C | 1 | stilted inversion, ignores who
+63 | A | 0 | natural shift; "light" alone not time
+64 | A | 1 | natural, place-framed
+65 | A | 0 | answers with reason; key not reason
+66 | C | 1 | "by transferring" cannot answer who
+67 | A | 1 | natural, lists the people
+68 | C | 1 | likens Pell to bag and account
+69 | A | 1 | natural, time-framed
+70 | A | 1 | natural, place-framed
+71 | A | 0 | reason given; key word is not one
+72 | B | 0 | when in disguise
+73 | A | 1 | natural, about a name
+74 | A | 1 | direct answer
+75 | A | 1 | natural, time-framed
+76 | A | 1 | natural, place-framed
+77 | A | 0 | reason given; key word is topic
+78 | A | 0 | manner-framed; "twice" is a count
+79 | A | 1 | natural, about whose name
+80 | A | 1 | direct answer
+81 | C | 1 | "say so" answers nothing, stilted
+82 | A | 1 | natural, place-framed
+83 | C | 0 | "say so" stilted, reason does not follow
+84 | A | 0 | manner-framed; "twice" is a count
+85 | A | 1 | natural, about who never showed her
+86 | A | 1 | natural, about the missing word
+87 | A | 1 | natural, time-framed
+88 | A | 1 | direct, place-framed
+89 | A | 0 | reason given; key word is topic
+90 | A | 0 | manner-framed; key word generic
+91 | A | 1 | natural, about who tried
+92 | A | 1 | direct answer
+93 | A | 1 | natural, time-framed
+94 | A | 1 | natural, place-framed
+95 | C | 0 | "I've tried because" does not answer
+96 | A | 0 | manner-framed; key word generic
+97 | A | 1 | natural, about who tried
+98 | A | 1 | direct answer
+99 | A | 1 | natural, time-framed
+100 | A | 1 | natural, place-framed
+101 | C | 0 | reason does not explain "first"
+102 | A | 0 | manner-framed; key word generic
+103 | A | 1 | natural, about who tried
+104 | A | 1 | natural, same things each time
+105 | A | 1 | direct, time-framed
+106 | A | 1 | natural, place-framed
+107 | A | 0 | real reason; key word is not one
+108 | A | 0 | manner-framed; key word is a count
+109 | A | 1 | natural, about who
+110 | A | 0 | answers; key word used as verb
+111 | A | 1 | passable, time-framed
+112 | A | 1 | natural, place-framed
+113 | C | 0 | "because" cannot answer "how"
+114 | A | 0 | direct; "twice" is a count
+115 | A | 1 | natural, about who
+116 | A | 1 | direct account of the thing
+117 | A | 1 | natural, time-framed
+118 | A | 1 | natural, place-framed
+119 | A | 0 | reason given; key word is not one
+120 | A | 0 | manner-framed; key is thing sought
+121 | A | 1 | direct answer with names
+122 | C | 1 | stilted, names nobody
+123 | A | 1 | natural, time-framed
+124 | A | 1 | place-framed; names nobody
+125 | C | 0 | stilted, reason does not follow
+126 | B | 0 | who in disguise, manner tacked on
+127 | A | 1 | direct answer with names
+128 | C | 1 | stilted, names nobody
+129 | A | 0 | time-framed; key not a time word
+130 | C | 1 | circular, names nobody
+131 | A | 0 | a reason; key word is not one
+132 | C | 0 | "same as me" makes no sense
+133 | A | 1 | direct confirmation with names
+134 | A | 1 | plain confirmation
+135 | A | 0 | time-framed; key not a time word
+136 | C | 1 | answers a different question entirely
+137 | B | 0 | how and when, no reason given
+138 | C | 0 | does not answer; unclear what is meant
+139 | A | 1 | natural, names the people
+140 | A | 1 | natural, about what they have
+141 | A | 1 | natural, time-framed
+142 | A | 1 | plausible anecdote, place-framed
+143 | A | 0 | reason-shaped; key word is not one
+144 | A | 0 | manner of running; key is a verb
+145 | A | 1 | answers by naming people
+146 | A | 1 | direct, adds the mule
+147 | A | 1 | answers, time-framed
+148 | C | 1 | gives no number, sounds unhearing
+149 | C | 0 | non sequitur to a count question
+150 | B | 0 | manner nominal; really the count
+151 | A | 1 | natural, about who
+152 | A | 1 | natural, about the thing
+153 | A | 1 | natural, time-framed
+154 | A | 1 | natural, place-framed
+155 | A | 0 | reason given; key word is not one
+156 | A | 0 | manner-framed; key word generic
+157 | A | 1 | direct answer
+158 | C | 1 | names account, not who
+159 | A | 1 | natural shift to time
+160 | B | 1 | place only nominal, really manner
+161 | A | 0 | answers with reason; key not reason
+162 | B | 0 | who in disguise
+163 | A | 1 | direct answer
+164 | C | 1 | stilted inversion
+165 | A | 0 | answers, time-framed; key not time word
+166 | A | 1 | answers, place-framed
+167 | A | 0 | implies herself with reason; key not reason
+168 | A | 0 | answers, manner-framed; key is who
+169 | A | 1 | direct confirmation
+170 | A | 1 | natural, lists the things
+171 | A | 1 | natural, time-framed
+172 | A | 0 | place-framed; "guild" alone not place
+173 | A | 0 | reason given; key word is not one
+174 | A | 0 | manner-framed; key is who
+175 | A | 1 | direct, about who
+176 | A | 1 | direct answer
+177 | A | 1 | natural, time-framed
+178 | A | 1 | natural, place-framed
+179 | A | 0 | reason-framed; key word generic
+180 | A | 1 | natural, manner of what is allowed
+181 | A | 1 | direct answer
+182 | A | 1 | direct answer
+183 | A | 1 | natural, time-framed
+184 | A | 1 | natural, place-framed
+185 | A | 0 | reason-framed; key word generic
+186 | C | 1 | "however it runs" is stilted filler
+187 | A | 1 | direct answer
+188 | A | 1 | natural denial
+189 | A | 1 | direct, time-framed
+190 | A | 1 | natural, place-framed
+191 | A | 0 | reason-framed; key word generic
+192 | A | 1 | natural, manner of looking
+193 | A | 1 | natural, person-framed
+194 | A | 1 | natural denial
+195 | A | 1 | direct answer
+196 | A | 1 | natural, place-framed
+197 | A | 0 | reason-framed; key word generic
+198 | A | 0 | natural; key word generic
+199 | A | 1 | natural, person-framed
+200 | A | 1 | natural denial
+201 | A | 1 | direct, time-framed

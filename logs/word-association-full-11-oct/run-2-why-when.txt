@@ -1,0 +1,228 @@
+working | why | open | ordinary |
+working | why | open | worn | Garrick
+working | why | narrow | ordinary |
+working | why | narrow | worn |
+working | why | check | ordinary |
+working | why | check | worn |
+working | when | open | ordinary |
+working | when | open | worn |
+working | when | narrow | ordinary |
+working | when | narrow | worn |
+working | when | check | ordinary |
+working | when | check | worn |
+bag | why | open | ordinary | Biscuit
+bag | why | open | worn | Biscuit
+bag | why | narrow | ordinary |
+bag | why | narrow | worn |
+bag | why | check | ordinary |
+bag | why | check | worn |
+bag | when | open | ordinary |
+bag | when | open | worn |
+bag | when | narrow | ordinary |
+bag | when | narrow | worn |
+bag | when | check | ordinary |
+bag | when | check | worn |
+draught | why | open | ordinary | Atrem
+draught | why | open | worn | Atrem
+draught | why | narrow | ordinary |
+draught | why | narrow | worn |
+draught | why | check | ordinary |
+draught | why | check | worn |
+draught | when | open | ordinary |
+draught | when | open | worn |
+draught | when | narrow | ordinary |
+draught | when | narrow | worn |
+draught | when | check | ordinary |
+draught | when | check | worn |
+pell | why | open | ordinary |
+pell | why | open | worn | Garrick
+pell | why | narrow | ordinary |
+pell | why | narrow | worn |
+pell | why | check | ordinary |
+pell | why | check | worn |
+pell | when | open | ordinary |
+pell | when | open | worn |
+pell | when | narrow | ordinary |
+pell | when | narrow | worn |
+pell | when | check | ordinary |
+pell | when | check | worn |
+tried | why | open | ordinary |
+tried | why | open | worn |
+tried | why | narrow | ordinary |
+tried | why | narrow | worn |
+tried | why | check | ordinary |
+tried | why | check | worn |
+tried | when | open | ordinary |
+tried | when | open | worn |
+tried | when | narrow | ordinary |
+tried | when | narrow | worn |
+tried | when | check | ordinary |
+tried | when | check | worn |
+looking | why | open | ordinary |
+looking | why | open | worn |
+looking | why | narrow | ordinary |
+looking | why | narrow | worn |
+looking | why | check | ordinary |
+looking | why | check | worn |
+looking | when | open | ordinary |
+looking | when | open | worn |
+looking | when | narrow | ordinary |
+looking | when | narrow | worn |
+looking | when | check | ordinary |
+looking | when | check | worn |
+party | why | open | ordinary | Garrick, Tobin
+party | why | open | worn | Garrick, Tobin, Pell
+party | why | narrow | ordinary |
+party | why | narrow | worn |
+party | why | check | ordinary |
+party | why | check | worn |
+party | when | open | ordinary |
+party | when | open | worn |
+party | when | narrow | ordinary |
+party | when | narrow | worn |
+party | when | check | ordinary |
+party | when | check | worn |
+leader | why | open | ordinary |
+leader | why | open | worn | Maud
+leader | why | narrow | ordinary |
+leader | why | narrow | worn |
+leader | why | check | ordinary |
+leader | why | check | worn |
+leader | when | open | ordinary |
+leader | when | open | worn | Atrem
+leader | when | narrow | ordinary |
+leader | when | narrow | worn |
+leader | when | check | ordinary |
+leader | when | check | worn |
+permission | why | open | ordinary |
+permission | why | open | worn | guild hall
+permission | why | narrow | ordinary |
+permission | why | narrow | worn |
+permission | why | check | ordinary |
+permission | why | check | worn |
+permission | when | open | ordinary |
+permission | when | open | worn |
+permission | when | narrow | ordinary |
+permission | when | narrow | worn |
+permission | when | check | ordinary |
+permission | when | check | worn |
+before | why | open | ordinary |
+before | why | open | worn | map
+before | why | narrow | ordinary |
+before | why | narrow | worn |
+before | why | check | ordinary |
+before | why | check | worn |
+before | when | open | ordinary |
+before | when | open | worn |
+before | when | narrow | ordinary |
+before | when | narrow | worn |
+before | when | check | ordinary |
+before | when | check | worn |
+since | why | open | ordinary |
+since | why | open | worn |
+since | why | narrow | ordinary |
+since | why | narrow | worn |
+since | why | check | ordinary |
+since | why | check | worn |
+since | when | open | ordinary |
+since | when | open | worn | Atrem
+since | when | narrow | ordinary |
+since | when | narrow | worn |
+since | when | check | ordinary |
+since | when | check | worn |
+morning | why | open | ordinary |
+morning | why | open | worn |
+morning | why | narrow | ordinary |
+morning | why | narrow | worn |
+morning | why | check | ordinary |
+morning | why | check | worn |
+morning | when | open | ordinary |
+morning | when | open | worn |
+morning | when | narrow | ordinary |
+morning | when | narrow | worn |
+morning | when | check | ordinary |
+morning | when | check | worn |
+members | why | open | ordinary | Garrick, Tobin, Pell
+members | why | open | worn |
+members | why | narrow | ordinary |
+members | why | narrow | worn |
+members | why | check | ordinary |
+members | why | check | worn |
+members | when | open | ordinary |
+members | when | open | worn |
+members | when | narrow | ordinary |
+members | when | narrow | worn |
+members | when | check | ordinary |
+members | when | check | worn |
+item | why | open | ordinary |
+item | why | open | worn |
+item | why | narrow | ordinary |
+item | why | narrow | worn |
+item | why | check | ordinary |
+item | why | check | worn |
+item | when | open | ordinary |
+item | when | open | worn |
+item | when | narrow | ordinary |
+item | when | narrow | worn |
+item | when | check | ordinary |
+item | when | check | worn |
+account | why | open | ordinary |
+account | why | open | worn | Maud
+account | why | narrow | ordinary |
+account | why | narrow | worn |
+account | why | check | ordinary |
+account | why | check | worn |
+account | when | open | ordinary |
+account | when | open | worn |
+account | when | narrow | ordinary |
+account | when | narrow | worn |
+account | when | check | ordinary |
+account | when | check | worn |
+tier | why | open | ordinary |
+tier | why | open | worn |
+tier | why | narrow | ordinary |
+tier | why | narrow | worn |
+tier | why | check | ordinary |
+tier | why | check | worn |
+tier | when | open | ordinary |
+tier | when | open | worn |
+tier | when | narrow | ordinary |
+tier | when | narrow | worn |
+tier | when | check | ordinary |
+tier | when | check | worn |
+stores | why | open | ordinary | Biscuit
+stores | why | open | worn | Biscuit
+stores | why | narrow | ordinary |
+stores | why | narrow | worn |
+stores | why | check | ordinary |
+stores | why | check | worn |
+stores | when | open | ordinary |
+stores | when | open | worn |
+stores | when | narrow | ordinary |
+stores | when | narrow | worn |
+stores | when | check | ordinary |
+stores | when | check | worn |
+paid | why | open | ordinary | Atrem
+paid | why | open | worn | Atrem
+paid | why | narrow | ordinary |
+paid | why | narrow | worn |
+paid | why | check | ordinary |
+paid | why | check | worn |
+paid | when | open | ordinary | Atrem
+paid | when | open | worn | Atrem
+paid | when | narrow | ordinary |
+paid | when | narrow | worn |
+paid | when | check | ordinary |
+paid | when | check | worn |
+ryles | why | open | ordinary |
+ryles | why | open | worn | map
+ryles | why | narrow | ordinary |
+ryles | why | narrow | worn |
+ryles | why | check | ordinary |
+ryles | why | check | worn |
+ryles | when | open | ordinary |
+ryles | when | open | worn |
+ryles | when | narrow | ordinary |
+ryles | when | narrow | worn |
+ryles | when | check | ordinary |
+ryles | when | check | worn |

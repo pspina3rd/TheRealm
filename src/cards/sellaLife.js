@@ -9,7 +9,13 @@
  * The same memory therefore comes out short when she is guarded and fuller
  * when she has warmed to the agent.
  *
- * `hangsOff` lists the words that can pull the memory out. She brings one in
+ * `inPlaceOf` lists the questions a memory can be said in place of answering,
+ * as `{subject: {'suit/angle': [words that must be in play]}}`. **[C] Every
+ * entry is mine**, chosen by reading the question and the memory aloud
+ * together: something in the wording of the question has to set it off. A
+ * memory without one is only ever said beside an answer.
+ *
+ * `hangsOff` lists the words that can pull the memory out beside an answer. She brings one in
  * only when one of those words has just been said, by her or to her — the
  * same rule that governs what the player can play (settled.md §2: a word
  * appears only once it has been introduced). An entry with nothing to hang
@@ -60,6 +66,7 @@ const TEMPLATES = {
 const LIFE = [
   {
     id: 'maud',
+    inPlaceOf: { party: { 'what/expand': [] }, leader: { 'who/validate': [] } },
     from: 'enemy',
     hangsOff: ['party', 'leader'],
     shape: 'name-did',
@@ -71,6 +78,7 @@ const LIFE = [
   },
   {
     id: 'les',
+    inPlaceOf: { tried: { 'what/expand': [], 'what/contract': [] } },
     from: 'enemy',
     hangsOff: ['tried'],
     shape: 'fixed',
@@ -80,6 +88,9 @@ const LIFE = [
     id: 'atrem',
     from: 'tragedy',
     hangsOff: ['paid'],
+    // **[C] Mine:** no `inPlaceOf`, so only ever beside an answer. Said in
+    // place of one, a death after a routine question was heard as the wrong
+    // moment in the play-throughs even where the wording passed.
     shape: 'still',
     habit: "pay my brother's guild dues every year",
     // Once she has said who he is, she does not say it again.
@@ -89,6 +100,7 @@ const LIFE = [
   },
   {
     id: 'clerk',
+    inPlaceOf: { permission: { 'what/expand': [], } },
     from: 'annoys',
     hangsOff: ['permission'],
     shape: 'habit',
@@ -99,6 +111,7 @@ const LIFE = [
   },
   {
     id: 'biscuit',
+    inPlaceOf: { stores: { 'what/contract': [], 'what/validate': [] } },
     from: 'companion',
     hangsOff: ['stores'],
     shape: 'habit',
@@ -121,6 +134,7 @@ const LIFE = [
   },
   {
     id: 'garrick-map',
+    inPlaceOf: { ryles: { 'who/expand': [] } },
     from: 'adventure',
     hangsOff: ['ryles'],
     shape: 'name-did',
@@ -131,6 +145,7 @@ const LIFE = [
   },
   {
     id: 'tobin',
+    inPlaceOf: { ryles: { 'who/expand': [] } },
     from: 'companion',
     hangsOff: ['ryles', 'members'],
     shape: 'habit',

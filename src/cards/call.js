@@ -185,6 +185,12 @@ function playCall({ agent, rng, baggage, causeIndex, scenario, plays, steer }) {
       fit: sc.SUIT_FIT,
       opening: sc.OPENING.words,
       remedies: sc.REMEDIES ? Object.keys(sc.REMEDIES) : sc.CAUSES.map((c) => c.fix.id),
+      // The questions that exist to be put to her, by subject, where the
+      // scenario writes them out — so a policy need not spend a play finding
+      // out that one does not.
+      written: sc.QUESTIONS
+        ? Object.fromEntries(Object.entries(sc.QUESTIONS).map(([s, cells]) => [s, Object.keys(cells)]))
+        : null,
       // Counted by the engine. Policies used to count rows by matching id
       // prefixes, which were one scenario's paperwork hard-coded into every
       // sheet, so on another call they all believed they had read nothing.
@@ -303,7 +309,19 @@ function playCall({ agent, rng, baggage, causeIndex, scenario, plays, steer }) {
       continue;
     }
 
-    const why = legal(suit, angle, move.cls);
+    // An inquiry to a target has to make some sort of sense (Phil, 10
+    // October). Where the scenario writes its questions out, one that is not
+    // written does not exist, and nothing is made up in its place. The cells
+    // a scenario keeps malformed on purpose are the one exception: that is
+    // how a slip of the tongue is played.
+    const cell = `${suit}/${angle}`;
+    const noSuch =
+      move.cls === 'customer' &&
+      sc.QUESTIONS &&
+      (sc.BASELINE[move.target] || sc.BELIEFS[move.target]) &&
+      !(sc.QUESTIONS[move.target] && sc.QUESTIONS[move.target][cell]) &&
+      !sc.nonsense(suit, move.target);
+    const why = noSuch ? 'there is no such question to put to her' : legal(suit, angle, move.cls);
     if (why) {
       left -= 1;
       say(lines, 'NOTE', `[illegal] ${suit}/${angle} at the ${move.cls}: ${why}`);

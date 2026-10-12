@@ -24,6 +24,57 @@ function shallow(view) {
 }
 
 /**
+ * Whether a question exists to be put to her on this call.
+ *
+ * Where the scenario writes its questions out (`view.written`), one that is
+ * not written does not exist: an inquiry to a target has to make some sort of
+ * sense (Phil, 10 October), and the questions that do are the written ones.
+ * A scenario with no written questions has no such limit.
+ *
+ * @param {{written?: Object<string, string[]>|null}} view
+ * @param {string} subject
+ * @param {string} suit
+ * @param {string} angle
+ * @returns {boolean}
+ */
+function exists(view, subject, suit, angle) {
+  return !view.written || (view.written[subject] || []).includes(`${suit}/${angle}`);
+}
+
+/** What to try instead, by the angle that turned out not to exist. */
+const INSTEAD = {
+  verify: ['contract', 'expand', 'validate'],
+  validate: ['contract', 'expand'],
+  contract: ['expand', 'validate'],
+  expand: ['contract', 'validate'],
+};
+
+/**
+ * A policy's move, kept to questions that exist.
+ *
+ * A policy names a suit and an angle without knowing whether that question
+ * was ever written for that subject. Where it was not, this swaps the angle
+ * for one that was: the move's own `orElse` first — a policy coming back to
+ * something says what it would rather ask than repeat itself — then the
+ * nearest other angle. A move at the record, a coworker, or left to the dice
+ * passes through untouched, as does one with nothing to swap to (the engine
+ * refuses it). The move passed in is not changed.
+ *
+ * @param {object} view
+ * @param {object|null} move
+ * @returns {object|null}
+ */
+function sayable(view, move) {
+  if (!move || move.kind !== 'play' || move.cls !== 'customer') return move;
+  if (!ANGLES.includes(move.angle) || !SUITS.includes(move.suit)) return move;
+  if (exists(view, move.target, move.suit, move.angle)) return move;
+  const tries = [move.orElse].concat(INSTEAD[move.angle] || []).filter(Boolean);
+  const angle = tries.find((a) => exists(view, move.target, move.suit, a));
+  return angle ? { ...move, angle } : move;
+}
+
+
+/**
  * A policy that plays deliberately.
  *
  * Its order of business: get a handle so the record will answer at all, grow
@@ -258,6 +309,8 @@ function makeWatson({ name = 'Watson' } = {}) {
           target: subject,
           suit: fittingSuit(view, subject, bounced && bounced.suit, rng),
           angle: bounced ? 'verify' : 'contract',
+          // Coming back with no read-back to make, ask wider, not the same again.
+          orElse: 'expand',
         };
       }
 
@@ -278,6 +331,8 @@ function makeWatson({ name = 'Watson' } = {}) {
           target: subject,
           suit: fittingSuit(view, subject, bounced && bounced.suit, rng),
           angle: bounced ? 'verify' : 'expand',
+          // Coming back with no read-back to make, ask narrower, not the same again.
+          orElse: 'contract',
         };
       }
       return { kind: 'play', cls: 'coworker', target: 'bram', brief: 'short', suit: 'what', angle: 'expand' };
@@ -459,6 +514,8 @@ function makePooh({ name = 'Pooh' } = {}) {
           // than giving up on it, which is what a bounce is for.
           suit: fittingSuit(view, subject, bounced && bounced.suit, rng),
           angle: bounced ? 'verify' : 'expand',
+          // Coming back with no read-back to make, ask narrower, not the same again.
+          orElse: 'contract',
         };
       }
 
@@ -670,7 +727,10 @@ function makeEeyore({ name = 'Eeyore' } = {}) {
         if (left > 1 && heard.length && rng() < 0.5) {
           const w = heard[heard.length - 1].subject;
           if (board.targets.some((t) => t.id === w) && !readings.some((r) => r.subject === w)) {
-            return { kind: 'play', cls: 'customer', target: w, suit: fittingSuit(view, w, null, rng), angle: 'verify' };
+            // Where nothing can be read back to her there is no such check
+            // to make, and he goes on to the offer.
+            const suit = fittingSuit(view, w, null, rng);
+            if (exists(view, w, suit, 'verify')) return { kind: 'play', cls: 'customer', target: w, suit, angle: 'verify' };
           }
         }
         const offer = offerRemedy(candidates, refused, 'first', rng);
@@ -703,6 +763,8 @@ function makeEeyore({ name = 'Eeyore' } = {}) {
           target: subject,
           suit: fittingSuit(view, subject, bounced && bounced.suit, rng),
           angle: bounced ? 'verify' : 'contract',
+          // Coming back with no read-back to make, ask wider, not the same again.
+          orElse: 'expand',
         };
       }
       return { kind: 'hold', brief: 'short', suit: 'what', angle: 'expand' };
@@ -711,14 +773,22 @@ function makeEeyore({ name = 'Eeyore' } = {}) {
 }
 
 
+/** Every policy is kept to questions that exist, in one place. */
+const kept = (make) => (opts) => {
+  const agent = make(opts);
+  return { ...agent, choose: (view, rng) => sayable(view, agent.choose(view, rng)) };
+};
+
 module.exports = {
-  makeCardAgent,
-  makeWatson,
-  makeHolmes,
-  makePooh,
-  makeRabbit,
-  makeTigger,
-  makePiglet,
-  makeEeyore,
+  makeCardAgent: kept(makeCardAgent),
+  makeWatson: kept(makeWatson),
+  makeHolmes: kept(makeHolmes),
+  makePooh: kept(makePooh),
+  makeRabbit: kept(makeRabbit),
+  makeTigger: kept(makeTigger),
+  makePiglet: kept(makePiglet),
+  makeEeyore: kept(makeEeyore),
+  exists,
+  sayable,
   TRAITS_NOT_BUILT,
 };

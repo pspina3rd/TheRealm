@@ -1,0 +1,201 @@
+202 | Have you done this before? | where | No, nowhere, I've never had to. | nowhere
+203 | Have you done this before? | why | No, there's never been a need before. | need
+204 | Have you done this before? | how | No, I don't know the way, I've never done it. | way
+205 | First time doing it, then? | who | Yes, just me, first time for me. | me
+206 | First time doing it, then? | what | Yes, this transfer, first time for it. | transfer
+207 | First time doing it, then? | when | Yes, first time, since last night. | night
+208 | First time doing it, then? | where | Yes, right here on this account, first time. | account
+209 | First time doing it, then? | why | Yes, because there was never a need before. | need
+210 | First time doing it, then? | how | Yes, and I don't know the way to do it. | way
+211 | When did it start? | who | It was me, I started trying last night. | me
+212 | When did it start? | what | The trouble with the draught, since last night. | draught
+213 | When did it start? | when | Since last night, it started. | night
+214 | When did it start? | where | Right here, in the bag, where it still sits. | bag
+215 | When did it start? | why | Because I tried the transfer and it wouldn't take. | transfer
+216 | When did it start? | how | The same way every time, and it never moves. | same
+217 | How long have you been at it? | who | Just me, on my own, since last night. | me
+218 | How long have you been at it? | what | At the transfer, trying to move the draught. | transfer
+219 | How long have you been at it? | when | Since last night, and again this morning. | night
+220 | How long have you been at it? | where | Right here, going through every page of the account. | account
+221 | How long have you been at it? | why | Because it still won't go where it should. | go
+222 | How long have you been at it? | how | Four times now, tried the same way each time. | same
+223 | When do you need it by? | who | For Pell, he needs it on him. | Pell
+224 | When do you need it by? | what | The draught, before we leave. | draught
+225 | When do you need it by? | when | Before first light. | light
+226 | When do you need it by? | where | Out on the road, same as always. | road
+227 | When do you need it by? | why | Because he's the one who takes the hits. | hits
+228 | When do you need it by? | how | However it has to happen, before we go. | however
+229 | When are you leaving? | who | All four of us go together. | us
+230 | When are you leaving? | what | The whole party, heading out. | party
+231 | When are you leaving? | when | At first light. | light
+232 | When are you leaving? | where | Out on the road again. | road
+233 | When are you leaving? | why | Because that's when the work starts. | starts
+234 | When are you leaving? | how | However we always do, together. | together
+235 | You need it before you go? | who | Yes, for Pell, before we go. | Pell
+236 | You need it before you go? | what | Yes, the draught, before we go. | draught
+237 | You need it before you go? | when | Yes, before first light. | light
+238 | You need it before you go? | where | Yes, before we're out on the road. | road
+239 | You need it before you go? | why | Yes, because he's the one who takes the hits. | hits
+240 | You need it before you go? | how | Yes, however I can manage it. | manage
+241 | Why does it have to be before you leave? | who | Because of Pell, he's the one who needs it. | Pell
+242 | Why does it have to be before you leave? | what | Because of the draught, it has to be on him. | draught
+243 | Why does it have to be before you leave? | when | Because we leave at first light, and after that it's too late. | light
+244 | Why does it have to be before you leave? | where | Because out on the road, there's no going back for it. | road
+245 | Why does it have to be before you leave? | why | Because he takes the hits, and he needs it then. | hits
+246 | Why does it have to be before you leave? | how | However it works, it has to be done before we go. | however
+247 | What happens if it stays in the bag? | who | Then Pell goes without it, that's who it affects. | Pell
+248 | What happens if it stays in the bag? | what | Then the draught just sits there, useless. | draught
+249 | What happens if it stays in the bag? | when | Then it's too late, once we've left. | left
+250 | What happens if it stays in the bag? | where | Then it stays in the bag, same as now. | bag
+251 | What happens if it stays in the bag? | why | Because then he won't have it when he needs it. | needs
+252 | What happens if it stays in the bag? | how | However it happens, he goes without, same as now. | without
+253 | He's the one who needs it on him, is he? | who | Yes, Pell, he's the one who takes the hits. | Pell
+254 | He's the one who needs it on him, is he? | what | Yes, the draught, that's what he needs. | draught
+255 | He's the one who needs it on him, is he? | when | Yes, especially before we leave. | leave
+256 | He's the one who needs it on him, is he? | where | Yes, out on the road, wherever the fighting is. | road
+257 | He's the one who needs it on him, is he? | why | Yes, because he's the one who takes the hits for all of us. | hits
+258 | He's the one who needs it on him, is he? | how | Yes, same as always, he's the one who goes first. | same
+259 | Who else is on the account? | who | Pell, and the Ryle brothers. | Pell
+260 | Who else is on the account? | what | The whole party's on it, all of us. | party
+261 | Who else is on the account? | when | Since we started, they've all been on it. | started
+262 | Who else is on the account? | where | Right there on the account, same as me. | account
+263 | Who else is on the account? | why | Because I put them on it myself. | myself
+264 | Who else is on the account? | how | The same way I put myself on it. | same
+265 | Who put them on it? | who | I did, I put them on myself. | myself
+266 | Who put them on it? | what | The account, I added them to it. | account
+267 | Who put them on it? | when | When we started, right from the beginning. | started
+268 | Who put them on it? | where | Nowhere else, just the one account, same as me. | nowhere
+269 | Who put them on it? | why | Because we all need the same things out of that bag. | need
+270 | Who put them on it? | how | I set it up myself, same as everything else. | myself
+271 | They were all added at the start? | who | Me, Pell, and the Ryle brothers — all of us. | us
+272 | They were all added at the start? | what | It was the account, same one we've always used. | account
+273 | They were all added at the start? | when | When we started. | started
+274 | They were all added at the start? | where | On the account, that's where. | account
+275 | They were all added at the start? | why | Because they're part of the party, same as anyone. | part
+276 | They were all added at the start? | how | All at once, I did it myself. | myself
+277 | Where is the draught now? | who | I'm the one looking right at it. | I
+278 | Where is the draught now? | what | The draught, the standard one. | draught
+279 | Where is the draught now? | when | Right now, this very moment. | now
+280 | Where is the draught now? | where | In the bag. | bag
+281 | Where is the draught now? | why | Because there's been no reason to move it anywhere else. | reason
+282 | Where is the draught now? | how | Sitting there plain as day. | plain
+283 | Can you see it in there? | who | I can see it, yes — me. | I
+284 | Can you see it in there? | what | Yes, the draught, right there. | draught
+285 | Can you see it in there? | when | I'm looking at it right now. | now
+286 | Can you see it in there? | where | It's sitting in the bag. | bag
+287 | Can you see it in there? | why | Because I've just checked, that's why I know. | checked
+288 | Can you see it in there? | how | Plain as day, clear as anything. | plain
+289 | So it's definitely in the bag? | who | I've seen it with my own eyes. | I
+290 | So it's definitely in the bag? | what | The draught, yes, right there. | draught
+291 | So it's definitely in the bag? | when | It was there this morning when I looked. | morning
+292 | So it's definitely in the bag? | where | In the bag, nowhere else. | bag
+293 | So it's definitely in the bag? | why | Because I've been through it twice myself. | twice
+294 | So it's definitely in the bag? | how | Plain as day, I tell you. | plain
+295 | Tell me about the account. | who | It's mine — I set it up myself. | I
+296 | Tell me about the account. | what | It's the party account, the one we keep everything on. | account
+297 | Tell me about the account. | when | I've had it since last autumn. | autumn
+298 | Tell me about the account. | where | I've gone through every page of it, everywhere. | everywhere
+299 | Tell me about the account. | why | Because the whole party needed one place to keep things. | needed
+300 | Tell me about the account. | how | I set the whole thing up myself. | myself
+301 | How long have you had it? | who | I've had it, me, since I set it up. | I
+302 | How long have you had it? | what | The account, the one the whole party's on. | account
+303 | How long have you had it? | when | Since last autumn. | autumn
+304 | How long have you had it? | where | It covers everywhere we've been, that account. | everywhere
+305 | How long have you had it? | why | Because the party needed somewhere to keep things together. | needed
+306 | How long have you had it? | how | Bit by bit, since I set it up myself. | myself
+307 | It's the party account, not a personal one? | who | It's all four of us on it, not just me. | us
+308 | It's the party account, not a personal one? | what | It's the party account, shared stores and all. | account
+309 | It's the party account, not a personal one? | when | Has been since last autumn. | autumn
+310 | It's the party account, not a personal one? | where | It covers everywhere the party does its business. | everywhere
+311 | It's the party account, not a personal one? | why | Because none of this belongs to just one of us. | none
+312 | It's the party account, not a personal one? | how | Shared the same way everything in the party is. | shared
+313 | What plan are you on? | who | I'm the one who signed us up for it. | I
+314 | What plan are you on? | what | Silver, that's the one we're on. | Silver
+315 | What plan are you on? | when | It went up when the Ryles joined. | joined
+316 | What plan are you on? | where | It's on the same account as everything else, nowhere separate. | nowhere
+317 | What plan are you on? | why | Because the Ryles joining meant we needed more. | needed
+318 | What plan are you on? | how | It changed automatically when they joined. | automatically
+319 | Which tier is it? | who | Mine, the leader's — well, the whole party's really. | mine
+320 | Which tier is it? | what | Silver. | Silver
+321 | Which tier is it? | when | Since the Ryles joined. | joined
+322 | Which tier is it? | where | Same place as everything else, the one account. | account
+323 | Which tier is it? | why | Because the Ryles joining pushed it up. | joining
+324 | Which tier is it? | how | It moved up on its own, nothing I did. | own
+325 | You're on Silver? | who | Yes, all four of us are on it. | us
+326 | You're on Silver? | what | Yes, Silver. | Silver
+327 | You're on Silver? | when | Since the Ryles joined, yes. | joined
+328 | You're on Silver? | where | On the one account, same as always. | account
+329 | You're on Silver? | why | Because the Ryles joining meant we needed it. | needed
+330 | You're on Silver? | how | It went up by itself, I didn't ask for it. | itself
+331 | What else is in the bag? | who | Whatever Biscuit can't carry, it's in there. | Biscuit
+332 | What else is in the bag? | what | Rope, torches, a spare blade, and the dried stores. | rope
+333 | What else is in the bag? | when | Same as it's been since we started. | started
+334 | What else is in the bag? | where | All of it's in the bag, right there. | bag
+335 | What else is in the bag? | why | Because that's what we need out on the road. | need
+336 | What else is in the bag? | how | Packed in plain as day, nothing hidden. | plain
+337 | How much is in there? | who | Enough for all four of us. | four
+338 | How much is in there? | what | Rope, torches, a blade, stores — plenty. | plenty
+339 | How much is in there? | when | As much as we've needed since we started. | started
+340 | How much is in there? | where | All in the one bag. | bag
+341 | How much is in there? | why | Because we keep what we need for the road. | need
+342 | How much is in there? | how | Packed tight, same as always. | tight
+343 | It's fairly full, then? | who | Enough for the four of us and Biscuit besides. | Biscuit
+344 | It's fairly full, then? | what | Rope, torches, a blade, the stores, the draughts — yes, full. | full
+345 | It's fairly full, then? | when | Same as it's always been. | always
+346 | It's fairly full, then? | where | Full in there, in the bag. | bag
+347 | It's fairly full, then? | why | Because we carry what we might need. | need
+348 | It's fairly full, then? | how | Packed plain as day, nothing out of place. | plain
+349 | Tell me about the payments. | who | I'm the one who pays it. | I
+350 | Tell me about the payments. | what | It's paid, that's all there is to it. | paid
+351 | Tell me about the payments. | when | It's always been paid, right on time. | always
+352 | Tell me about the payments. | where | It comes off the party's account. | account
+353 | Tell me about the payments. | why | Because I keep it paid, same as everything else. | keep
+354 | Tell me about the payments. | how | It's always paid, no trouble. | always
+355 | Is there anything outstanding on it? | who | No, I keep on top of it myself. | I
+356 | Is there anything outstanding on it? | what | No, nothing owing. | nothing
+357 | Is there anything outstanding on it? | when | Never has been, not once. | never
+358 | Is there anything outstanding on it? | where | Nowhere, it's clean. | nowhere
+359 | Is there anything outstanding on it? | why | Because I never let it go unpaid. | never
+360 | Is there anything outstanding on it? | how | Kept paid, plain and simple. | paid
+361 | Nothing owing on it? | who | No, not from any of us. | us
+362 | Nothing owing on it? | what | No, nothing. | nothing
+363 | Nothing owing on it? | when | Not ever, no. | never
+364 | Nothing owing on it? | where | Nowhere on the account. | nowhere
+365 | Nothing owing on it? | why | Because it's always paid, that's why. | always
+366 | Nothing owing on it? | how | Paid in full, same as always. | full
+367 | When does it go out? | who | I'm the one who sees to it. | I
+368 | When does it go out? | what | The payment, same as every time. | payment
+369 | When does it go out? | when | I couldn't say the day, only that it's always paid. | always
+370 | When does it go out? | where | Off the party's account, same as everything. | account
+371 | When does it go out? | why | Because I make sure it's paid, that's the reason. | paid
+372 | When does it go out? | how | It just goes out and gets paid, simple as that. | simple
+373 | When did you last pay it? | who | I did, same as I always do. | I
+374 | When did you last pay it? | what | The payment — it's paid. | paid
+375 | When did you last pay it? | when | It's always paid, I couldn't give you the exact day. | always
+376 | When did you last pay it? | where | Off the account, same place as ever. | account
+377 | When did you last pay it? | why | Because I keep it paid without fail. | keep
+378 | When did you last pay it? | how | Same way every time, it just goes out paid. | same
+379 | It goes out monthly? | who | I couldn't tell you that, I just know I keep it paid. | I
+380 | It goes out monthly? | what | It's paid, whatever the schedule. | paid
+381 | It goes out monthly? | when | It's always paid, that's all I can tell you about when. | always
+382 | It goes out monthly? | where | Off the one account, same as ever. | account
+383 | It goes out monthly? | why | Because it's always paid, I don't let it slip. | always
+384 | It goes out monthly? | how | However it goes, it's always paid. | always
+385 | Tell me about the Ryle brothers. | who | Garrick and Tobin, the pair of them. | Garrick
+386 | Tell me about the Ryle brothers. | what | They do as they're told and never ask for anything. | told
+387 | Tell me about the Ryle brothers. | when | They joined us, that's when things changed. | joined
+388 | Tell me about the Ryle brothers. | where | Wherever the party goes, they go. | wherever
+389 | Tell me about the Ryle brothers. | why | Because they do as they're told, never ask for anything. | told
+390 | Tell me about the Ryle brothers. | how | Quiet, mostly — they do as they're told. | quiet
+391 | Have they ever had anything out of the bag? | who | Garrick and Tobin, same as any of us. | Garrick
+392 | Have they ever had anything out of the bag? | what | Whatever's needed — rope, stores, same as the rest of us. | stores
+393 | Have they ever had anything out of the bag? | when | Not that I've noticed, no particular time. | never
+394 | Have they ever had anything out of the bag? | where | Out of the bag, same as the rest of us would. | bag
+395 | Have they ever had anything out of the bag? | why | Because they never ask for anything, so I wouldn't know. | never
+396 | Have they ever had anything out of the bag? | how | Quietly, if at all — they never ask. | quietly
+397 | They don't use it much? | who | No, not Garrick or Tobin, they never ask for anything. | Garrick
+398 | They don't use it much? | what | No, nothing much, they never ask for anything. | nothing
+399 | They don't use it much? | when | Never, not once that I've seen. | never
+400 | They don't use it much? | where | Not out of the bag, not that I've seen. | bag
+401 | They don't use it much? | why | Because they never ask for anything, simple as that. | never
+402 | They don't use it much? | how | Quietly — they just do as they're told. | quietly

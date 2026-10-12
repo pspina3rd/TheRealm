@@ -1,0 +1,46 @@
+working | what | ordinary | Pell, spoons
+working | what | worn | Pell
+bag | what | ordinary | Biscuit
+bag | what | worn | Biscuit
+draught | what | ordinary | Pell
+draught | what | worn | Pell
+pell | who | ordinary | merchant
+pell | who | worn | merchant
+tried | what | ordinary | Pell, Gregor
+tried | what | worn | Pell
+tried | how | ordinary | Gregor
+tried | how | worn |
+looking | what | ordinary |
+looking | what | worn |
+party | who | ordinary | Pell, Garrick, Tobin
+party | who | worn | Pell, Garrick, Tobin
+party | what | ordinary | Pell, Garrick, Tobin, Biscuit
+party | what | worn | Biscuit
+leader | who | ordinary |
+leader | who | worn | Maud
+permission | what | ordinary | clerk
+permission | what | worn | clerk
+before | when | ordinary |
+before | when | worn |
+since | when | ordinary |
+since | when | worn |
+morning | when | ordinary |
+morning | when | worn |
+morning | why | ordinary | Pell
+morning | why | worn | Pell
+members | who | ordinary | Pell, Garrick, Tobin
+members | who | worn | Pell, Garrick, Tobin
+item | what | ordinary | Biscuit
+item | what | worn |
+account | what | ordinary |
+account | what | worn |
+tier | what | ordinary |
+tier | what | worn |
+stores | what | ordinary | Biscuit
+stores | what | worn | Biscuit
+paid | what | ordinary | Atrem
+paid | what | worn | Atrem
+paid | when | ordinary | Atrem
+paid | when | worn | Atrem
+ryles | who | ordinary | Garrick, Tobin
+ryles | who | worn | Garrick, Tobin

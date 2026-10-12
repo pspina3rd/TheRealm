@@ -1,0 +1,104 @@
+1-where-how: lines 228/228 · missing 0 · extra 0 · repeated 0 · filled 14 (6%) · words 14 · not single 4 · the call's own words 0 · not on her sheet: none
+1-who-what: lines 228/228 · missing 0 · extra 0 · repeated 0 · filled 27 (12%) · words 47 · not single 2 · the call's own words 6 · not on her sheet: none
+1-why-when: lines 228/228 · missing 0 · extra 0 · repeated 0 · filled 14 (6%) · words 16 · not single 0 · the call's own words 0 · not on her sheet: none
+2-where-how: lines 228/228 · missing 0 · extra 0 · repeated 0 · filled 24 (11%) · words 30 · not single 12 · the call's own words 0 · not on her sheet: none
+2-who-what: lines 228/228 · missing 0 · extra 0 · repeated 0 · filled 28 (12%) · words 44 · not single 2 · the call's own words 6 · not on her sheet: none
+2-why-when: lines 228/228 · missing 0 · extra 0 · repeated 0 · filled 22 (10%) · words 27 · not single 1 · the call's own words 2 · not on her sheet: none
+3-where-how: lines 228/228 · missing 0 · extra 0 · repeated 0 · filled 21 (9%) · words 22 · not single 2 · the call's own words 0 · not on her sheet: none
+3-who-what: lines 228/228 · missing 0 · extra 0 · repeated 0 · filled 34 (15%) · words 45 · not single 6 · the call's own words 3 · not on her sheet: none
+3-why-when: lines 228/228 · missing 0 · extra 0 · repeated 0 · filled 29 (13%) · words 32 · not single 0 · the call's own words 0 · not on her sheet: none
+NOT ALL PASS
+who-what: 3 runs
+subject | kind | all three | two | one
+account | what | — | — | guild hall, clerk
+account | who | — | maud | pell, garrick, tobin
+bag | what | — | biscuit | —
+bag | who | — | — | biscuit
+before | what | — | — | garrick
+item | what | — | biscuit | —
+leader | who | — | maud | —
+looking | what | — | — | map
+members | who | pell, garrick, tobin | — | biscuit
+paid | what | — | — | atrem, gregor, guild dues
+paid | who | atrem | — | —
+party | what | — | — | atrem, dungeon, map, boots, watchtower, hill roads
+party | who | garrick, tobin, biscuit | pell | —
+pell | what | — | — | merchant
+pell | who | — | — | garrick, tobin
+permission | what | — | guild hall | —
+ryles | what | — | — | map
+ryles | who | — | — | pell, biscuit
+since | who | — | — | atrem
+stores | what | — | biscuit | —
+stores | who | — | — | biscuit
+tried | what | — | — | whittling, spoons
+tried | who | — | — | gregor, garrick
+working | what | — | — | map, spoons
+
+associations made by all three: 7 · by two: 7 · by one only: 32
+at the level of one exact line (manner and state too): 22 of 103 made by more than one actor
+filled lines by manner and state: {"open":74,"ordinary":48,"worn":41,"narrow":3,"check":12}
+
+why-when: 3 runs
+subject | kind | all three | two | one
+account | why | — | — | maud, clerk
+bag | why | biscuit | — | —
+before | why | — | — | watchtower, map, gregor
+draught | why | — | atrem | —
+item | why | — | biscuit | —
+leader | when | — | — | atrem
+leader | why | maud | — | les
+looking | why | — | — | atrem, notes
+members | why | — | garrick, tobin | pell, les, maud
+morning | why | — | — | notes
+paid | when | — | — | atrem
+paid | why | atrem | — | gregor
+party | why | — | maud | garrick, tobin, pell, les
+pell | why | — | garrick | merchant
+permission | when | — | — | clerk
+permission | why | — | — | guild hall, clerk
+ryles | why | — | map | —
+since | when | atrem | — | —
+stores | why | biscuit | — | —
+tier | why | — | — | clerk
+tried | when | — | — | watchtower
+tried | why | — | — | gregor, map, spoons
+working | why | — | — | garrick
+
+associations made by all three: 5 · by two: 7 · by one only: 29
+at the level of one exact line (manner and state too): 14 of 56 made by more than one actor
+filled lines by manner and state: {"open":63,"ordinary":23,"worn":42,"narrow":1,"check":1}
+
+where-how: 3 runs
+subject | kind | all three | two | one
+account | where | — | — | guild hall, clerk
+bag | where | — | biscuit | —
+before | how | — | — | spoons
+before | where | — | — | watchtower
+draught | how | — | — | atrem
+draught | where | — | — | dungeon
+item | where | — | biscuit | —
+leader | how | — | — | tobin
+leader | where | — | — | maud
+members | how | — | — | garrick, tobin
+morning | how | — | — | biscuit
+paid | how | — | — | atrem, clerk
+paid | where | — | guild hall | —
+party | how | — | — | garrick
+party | where | — | guild hall | hill roads, watchtower
+pell | where | merchant | — | —
+permission | how | — | — | clerk
+permission | where | — | — | guild hall
+ryles | how | — | — | map
+ryles | where | — | — | hill roads
+since | where | — | — | dungeon, notes
+stores | how | — | — | biscuit
+stores | where | — | biscuit | —
+tried | how | — | — | spoons, whittle
+working | how | — | — | spoons, map
+working | where | — | — | watchtower
+
+associations made by all three: 1 · by two: 5 · by one only: 28
+at the level of one exact line (manner and state too): 6 of 59 made by more than one actor
+filled lines by manner and state: {"open":38,"ordinary":33,"worn":26,"narrow":9,"check":12}
+

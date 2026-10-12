@@ -1,0 +1,228 @@
+working | who | open | ordinary |
+working | who | open | worn |
+working | who | narrow | ordinary |
+working | who | narrow | worn |
+working | who | check | ordinary |
+working | who | check | worn |
+working | what | open | ordinary | spoons
+working | what | open | worn |
+working | what | narrow | ordinary |
+working | what | narrow | worn |
+working | what | check | ordinary |
+working | what | check | worn |
+bag | who | open | ordinary | Biscuit
+bag | who | open | worn | Biscuit
+bag | who | narrow | ordinary |
+bag | who | narrow | worn |
+bag | who | check | ordinary | Biscuit
+bag | who | check | worn |
+bag | what | open | ordinary |
+bag | what | open | worn |
+bag | what | narrow | ordinary |
+bag | what | narrow | worn |
+bag | what | check | ordinary |
+bag | what | check | worn |
+draught | who | open | ordinary |
+draught | who | open | worn |
+draught | who | narrow | ordinary |
+draught | who | narrow | worn |
+draught | who | check | ordinary |
+draught | who | check | worn |
+draught | what | open | ordinary |
+draught | what | open | worn |
+draught | what | narrow | ordinary |
+draught | what | narrow | worn |
+draught | what | check | ordinary |
+draught | what | check | worn |
+pell | who | open | ordinary | Garrick, Tobin
+pell | who | open | worn | Garrick
+pell | who | narrow | ordinary |
+pell | who | narrow | worn |
+pell | who | check | ordinary |
+pell | who | check | worn |
+pell | what | open | ordinary | merchant
+pell | what | open | worn | merchant
+pell | what | narrow | ordinary |
+pell | what | narrow | worn |
+pell | what | check | ordinary |
+pell | what | check | worn |
+tried | who | open | ordinary | Garrick
+tried | who | open | worn |
+tried | who | narrow | ordinary |
+tried | who | narrow | worn |
+tried | who | check | ordinary |
+tried | who | check | worn |
+tried | what | open | ordinary | spoons
+tried | what | open | worn |
+tried | what | narrow | ordinary |
+tried | what | narrow | worn |
+tried | what | check | ordinary |
+tried | what | check | worn |
+looking | who | open | ordinary |
+looking | who | open | worn |
+looking | who | narrow | ordinary |
+looking | who | narrow | worn |
+looking | who | check | ordinary |
+looking | who | check | worn |
+looking | what | open | ordinary |
+looking | what | open | worn |
+looking | what | narrow | ordinary |
+looking | what | narrow | worn |
+looking | what | check | ordinary |
+looking | what | check | worn |
+party | who | open | ordinary | Garrick, Tobin, Biscuit
+party | who | open | worn | Garrick, Tobin
+party | who | narrow | ordinary |
+party | who | narrow | worn |
+party | who | check | ordinary |
+party | who | check | worn |
+party | what | open | ordinary | watchtower, hill roads
+party | what | open | worn | watchtower
+party | what | narrow | ordinary |
+party | what | narrow | worn |
+party | what | check | ordinary |
+party | what | check | worn |
+leader | who | open | ordinary | Maud
+leader | who | open | worn | Maud
+leader | who | narrow | ordinary |
+leader | who | narrow | worn |
+leader | who | check | ordinary | Maud
+leader | who | check | worn |
+leader | what | open | ordinary |
+leader | what | open | worn |
+leader | what | narrow | ordinary |
+leader | what | narrow | worn |
+leader | what | check | ordinary |
+leader | what | check | worn |
+permission | who | open | ordinary |
+permission | who | open | worn |
+permission | who | narrow | ordinary |
+permission | who | narrow | worn |
+permission | who | check | ordinary |
+permission | who | check | worn |
+permission | what | open | ordinary |
+permission | what | open | worn |
+permission | what | narrow | ordinary |
+permission | what | narrow | worn |
+permission | what | check | ordinary |
+permission | what | check | worn |
+before | who | open | ordinary |
+before | who | open | worn |
+before | who | narrow | ordinary |
+before | who | narrow | worn |
+before | who | check | ordinary |
+before | who | check | worn |
+before | what | open | ordinary |
+before | what | open | worn |
+before | what | narrow | ordinary |
+before | what | narrow | worn |
+before | what | check | ordinary |
+before | what | check | worn |
+since | who | open | ordinary |
+since | who | open | worn |
+since | who | narrow | ordinary |
+since | who | narrow | worn |
+since | who | check | ordinary |
+since | who | check | worn |
+since | what | open | ordinary |
+since | what | open | worn |
+since | what | narrow | ordinary |
+since | what | narrow | worn |
+since | what | check | ordinary |
+since | what | check | worn |
+morning | who | open | ordinary |
+morning | who | open | worn |
+morning | who | narrow | ordinary |
+morning | who | narrow | worn |
+morning | who | check | ordinary |
+morning | who | check | worn |
+morning | what | open | ordinary |
+morning | what | open | worn |
+morning | what | narrow | ordinary |
+morning | what | narrow | worn |
+morning | what | check | ordinary |
+morning | what | check | worn |
+members | who | open | ordinary | Garrick, Tobin, Pell, Biscuit
+members | who | open | worn | Garrick, Tobin
+members | who | narrow | ordinary |
+members | who | narrow | worn |
+members | who | check | ordinary |
+members | who | check | worn |
+members | what | open | ordinary |
+members | what | open | worn |
+members | what | narrow | ordinary |
+members | what | narrow | worn |
+members | what | check | ordinary |
+members | what | check | worn |
+item | who | open | ordinary |
+item | who | open | worn |
+item | who | narrow | ordinary |
+item | who | narrow | worn |
+item | who | check | ordinary |
+item | who | check | worn |
+item | what | open | ordinary | Biscuit
+item | what | open | worn |
+item | what | narrow | ordinary |
+item | what | narrow | worn |
+item | what | check | ordinary |
+item | what | check | worn |
+account | who | open | ordinary | Maud
+account | who | open | worn | Maud
+account | who | narrow | ordinary |
+account | who | narrow | worn |
+account | who | check | ordinary | Maud
+account | who | check | worn |
+account | what | open | ordinary | guild hall, clerk
+account | what | open | worn | guild hall
+account | what | narrow | ordinary |
+account | what | narrow | worn |
+account | what | check | ordinary |
+account | what | check | worn |
+tier | who | open | ordinary |
+tier | who | open | worn |
+tier | who | narrow | ordinary |
+tier | who | narrow | worn |
+tier | who | check | ordinary |
+tier | who | check | worn |
+tier | what | open | ordinary |
+tier | what | open | worn |
+tier | what | narrow | ordinary |
+tier | what | narrow | worn |
+tier | what | check | ordinary |
+tier | what | check | worn |
+stores | who | open | ordinary | Biscuit
+stores | who | open | worn |
+stores | who | narrow | ordinary |
+stores | who | narrow | worn |
+stores | who | check | ordinary |
+stores | who | check | worn |
+stores | what | open | ordinary |
+stores | what | open | worn |
+stores | what | narrow | ordinary |
+stores | what | narrow | worn |
+stores | what | check | ordinary |
+stores | what | check | worn |
+paid | who | open | ordinary | Atrem
+paid | who | open | worn | Atrem
+paid | who | narrow | ordinary |
+paid | who | narrow | worn |
+paid | who | check | ordinary | Atrem
+paid | who | check | worn |
+paid | what | open | ordinary | guild dues
+paid | what | open | worn | guild dues
+paid | what | narrow | ordinary |
+paid | what | narrow | worn |
+paid | what | check | ordinary | guild dues
+paid | what | check | worn |
+ryles | who | open | ordinary | Pell, Biscuit
+ryles | who | open | worn | Pell
+ryles | who | narrow | ordinary |
+ryles | who | narrow | worn |
+ryles | who | check | ordinary |
+ryles | who | check | worn |
+ryles | what | open | ordinary |
+ryles | what | open | worn |
+ryles | what | narrow | ordinary |
+ryles | what | narrow | worn |
+ryles | what | check | ordinary |
+ryles | what | check | worn |

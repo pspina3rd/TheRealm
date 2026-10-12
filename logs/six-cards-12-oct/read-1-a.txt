@@ -1,0 +1,201 @@
+1 | C | 1 | Never says what is happening at all
+2 | A | 1 | Direct, natural statement of the problem
+3 | A | 1 | Natural; duration since last night
+4 | B | 1 | Vents about searching; place only nominal
+5 | A | 0 | Plausible opener; key word not a reason
+6 | A | 0 | Describes manner; key word is bare verb
+7 | B | 1 | Answers what; who only tacked on
+8 | A | 1 | Direct and natural
+9 | A | 1 | Answers, framed by time
+10 | A | 1 | Answers, framed by place looked
+11 | A | 0 | Says she lacks the why; pronoun key
+12 | A | 0 | Manner of trying; key word bare verb
+13 | A | 1 | Natural, framed on nobody telling her
+14 | A | 1 | Direct echo, natural
+15 | A | 1 | Sayable, slightly muddled timing
+16 | A | 1 | Natural, located on account
+17 | A | 1 | Natural; no reason given
+18 | A | 1 | Natural, describes manner of failing
+19 | B | 1 | Really about what she sees
+20 | A | 1 | Natural, about the thing
+21 | A | 1 | Natural, time framed
+22 | A | 1 | Natural, says where it is
+23 | A | 1 | Natural, reason framed
+24 | B | 1 | Describes contents, not manner
+25 | A | 1 | Direct, names whose
+26 | A | 1 | Direct answer
+27 | A | 0 | Fine; key word not a time word
+28 | A | 1 | Answers; place lightly present
+29 | A | 1 | Gives reason naturally
+30 | B | 0 | However is filler; ownership not manner
+31 | A | 1 | Natural, vouches personally
+32 | A | 1 | Direct
+33 | A | 1 | Natural, time framed
+34 | A | 1 | Natural, place framed
+35 | A | 1 | Natural, reason framed
+36 | B | 1 | States condition, not manner
+37 | A | 1 | Sidesteps what but sayable, names recipient
+38 | A | 1 | Direct answer
+39 | A | 1 | Sidesteps slightly; time framed, sayable
+40 | A | 1 | Sayable, from-and-to places
+41 | C | 0 | Because answers a question not asked
+42 | B | 0 | Says what and where, not manner
+43 | A | 1 | Natural identification by person
+44 | A | 1 | Direct
+45 | A | 1 | Natural identification by time
+46 | A | 1 | Natural identification by place
+47 | A | 0 | Natural; key word not a reason
+48 | B | 0 | Describes kind, not manner
+49 | A | 1 | Natural, person framed
+50 | A | 1 | Direct
+51 | B | 1 | Always is filler; really about quantity
+52 | A | 1 | Natural, place framed
+53 | A | 0 | Natural reason; key word a noun
+54 | B | 0 | Describes kind, not manner
+55 | A | 1 | Direct
+56 | C | 1 | "For his draught" is nonsense
+57 | A | 0 | Slightly stiff; light alone not time
+58 | A | 1 | Natural, destination framed
+59 | A | 0 | Natural reason; key word a noun
+60 | B | 0 | Plain and simple is filler, not manner
+61 | A | 1 | Direct
+62 | C | 1 | Stilted; restates question, dodges the who
+63 | A | 0 | Natural; light alone not time
+64 | A | 1 | Natural, place framed
+65 | A | 0 | Natural reason; key word a noun
+66 | B | 0 | However is empty; no manner given
+67 | A | 1 | Direct, lists people
+68 | A | 1 | Natural confirmation
+69 | A | 1 | Natural, time framed
+70 | B | 0 | Lists things shared, not a place
+71 | A | 0 | Natural reason; key word a noun
+72 | B | 0 | However is filler; no manner
+73 | B | 1 | Answers what; who only nominal
+74 | A | 1 | Direct, names the thing sought
+75 | A | 1 | Sayable, time framed
+76 | A | 1 | Sayable, place framed
+77 | A | 1 | Natural, reason sought
+78 | A | 1 | Natural, describes manner of looking
+79 | A | 1 | Natural, about doing it herself
+80 | A | 1 | Direct
+81 | A | 0 | Slightly stiff; light alone not time
+82 | A | 1 | Natural, wants a place
+83 | A | 1 | Natural, wants a reason
+84 | A | 0 | Natural; key word is a thing
+85 | A | 1 | Natural, person framed
+86 | A | 1 | Natural
+87 | A | 1 | Natural, time framed
+88 | A | 1 | Direct, place framed
+89 | A | 1 | Natural, reason framed
+90 | A | 0 | Natural; key word is a thing
+91 | C | 1 | "Just me" does not follow question
+92 | A | 1 | Direct
+93 | A | 1 | Sayable, time framed
+94 | A | 1 | Sayable, place framed
+95 | A | 0 | Sayable reason; light not a reason
+96 | A | 0 | Manner given; key word bare verb
+97 | C | 1 | Mishears "what first" as "who first"
+98 | A | 1 | Natural
+99 | A | 1 | Natural, time framed
+100 | A | 1 | Natural, place framed
+101 | A | 1 | Natural reason
+102 | A | 0 | Manner given; key word bare verb
+103 | A | 1 | Natural
+104 | A | 1 | Natural
+105 | A | 1 | Natural, time framed
+106 | A | 1 | Natural, place framed
+107 | A | 0 | Natural; "worked" alone inverts the reason
+108 | A | 0 | Manner given; key word is a count
+109 | A | 1 | Natural, person framed
+110 | A | 1 | Natural
+111 | A | 1 | Circular but sayable, time framed
+112 | A | 1 | Sayable, place framed
+113 | A | 0 | Natural; light not a reason
+114 | A | 0 | Direct; key word bare verb
+115 | A | 1 | Evasive but human, person framed
+116 | A | 1 | Direct
+117 | A | 1 | Natural, time framed
+118 | A | 1 | Natural, place framed
+119 | A | 0 | Sayable reason; key word a noun
+120 | A | 0 | Manner given; key word bare verb
+121 | A | 1 | Direct
+122 | B | 0 | Still who; key word absent from reply
+123 | A | 1 | Natural, names people by time
+124 | C | 1 | Names nobody; sounds like not listening
+125 | C | 0 | Names nobody; answers a different question
+126 | B | 0 | Who in disguise; however is filler
+127 | A | 1 | Direct
+128 | B | 0 | Who in disguise; key word not said
+129 | A | 0 | Sayable; key word not a time word
+130 | A | 1 | Sayable, place framed
+131 | C | 0 | Because answers a question not asked
+132 | B | 0 | However is filler; really who did it
+133 | A | 1 | Direct
+134 | C | 1 | "Yes, the whole account" is nonsense
+135 | A | 0 | Natural; key word not a time word
+136 | A | 1 | Natural, place framed
+137 | C | 0 | Non sequitur reason to a yes/no
+138 | B | 0 | However is filler; really who
+139 | A | 1 | Direct
+140 | A | 1 | Odd pick but sayable, thing framed
+141 | A | 1 | Natural
+142 | A | 1 | Natural, place framed
+143 | A | 0 | Natural reason; key word a noun
+144 | A | 0 | How party works; key word a verb
+145 | A | 1 | Direct
+146 | A | 1 | Slightly stiff but sayable
+147 | A | 0 | Natural; key word not a time word
+148 | B | 1 | Roads tacked on; place only nominal
+149 | C | 0 | Because given to a how-many question
+150 | B | 0 | However is filler; no real manner
+151 | A | 1 | Natural, names people
+152 | A | 1 | Natural, thing framed
+153 | A | 1 | Natural
+154 | A | 1 | Natural, place framed
+155 | A | 0 | Sayable; key word absent from reply
+156 | B | 0 | However is filler; restates the fact
+157 | A | 1 | Direct
+158 | C | 1 | Dodges who; sounds like not listening
+159 | C | 1 | "That's when" stilted to a who question
+160 | B | 1 | Wherever is empty; really who
+161 | A | 0 | Natural reason; key word a person noun
+162 | B | 0 | However is filler; really who
+163 | A | 1 | Direct
+164 | A | 1 | Natural, things framed
+165 | A | 1 | Sayable, implies herself
+166 | A | 1 | Natural, place framed
+167 | C | 0 | Because without ever saying who
+168 | B | 0 | However is filler; really who
+169 | A | 1 | Direct
+170 | A | 1 | Natural
+171 | A | 1 | Natural
+172 | A | 1 | Fragment but sayable
+173 | A | 0 | Natural reason; key word a pronoun
+174 | B | 0 | However is filler; really who
+175 | A | 1 | Direct, natural
+176 | A | 1 | Natural, thing framed
+177 | A | 0 | Natural; key word not in reply
+178 | A | 1 | Natural
+179 | A | 0 | Natural; key word a pronoun
+180 | A | 1 | Natural, manner framed
+181 | A | 1 | Direct
+182 | A | 1 | Direct
+183 | A | 1 | Direct
+184 | C | 1 | "Never missed reaching anywhere" is nonsense
+185 | A | 1 | Natural reason
+186 | A | 1 | Natural manner
+187 | A | 1 | Direct
+188 | A | 1 | Direct
+189 | A | 1 | Direct
+190 | A | 1 | Slightly stiff but sayable
+191 | A | 1 | Natural
+192 | B | 1 | However is filler; no manner given
+193 | A | 1 | Natural, person framed
+194 | A | 1 | Natural
+195 | A | 1 | Direct
+196 | A | 1 | Natural, place framed
+197 | C | 1 | Because given to a when question
+198 | A | 1 | Natural
+199 | B | 1 | Me tacked on; who only nominal
+200 | A | 1 | Direct
+201 | A | 1 | Direct, time framed

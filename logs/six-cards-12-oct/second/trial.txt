@@ -1,0 +1,72 @@
+1 | Tell me what's happening. | who | Pell's not getting it. | Pell
+2 | Tell me what's happening. | what | A healing draught won't move. | draught
+3 | Tell me what's happening. | when | Since last night. | last night
+4 | Tell me what's happening. | where | It's sitting in the bag. | bag
+5 | Tell me what's happening. | why | CANNOT |
+6 | Tell me what's happening. | how | I keep trying and it won't go. | trying
+7 | What is it you're trying to move? | who | To Pell. | Pell
+8 | What is it you're trying to move? | what | A healing draught. | draught
+9 | What is it you're trying to move? | when | CANNOT |
+10 | What is it you're trying to move? | where | Out of the shared one, into his. | shared
+11 | What is it you're trying to move? | why | So he has it by first light. | first light
+12 | What is it you're trying to move? | how | CANNOT |
+13 | What were you looking for, when you were trying to do it? | who | CANNOT |
+14 | What were you looking for, when you were trying to do it? | what | The word "transfer." | transfer
+15 | What were you looking for, when you were trying to do it? | when | Last night, and again this morning. | last night
+16 | What were you looking for, when you were trying to do it? | where | Everywhere on the account. | everywhere
+17 | What were you looking for, when you were trying to do it? | why | CANNOT |
+18 | What were you looking for, when you were trying to do it? | how | By reading every word on it twice. | reading
+19 | How are you going about it? | who | CANNOT |
+20 | How are you going about it? | what | The draught. | draught
+21 | How are you going about it? | when | CANNOT |
+22 | How are you going about it? | where | In the account. | account
+23 | How are you going about it? | why | CANNOT |
+24 | How are you going about it? | how | I do what I think is right and it just sits there. | sits
+25 | How many of you are there? | who | Four of us. | four
+26 | How many of you are there? | what | CANNOT |
+27 | How many of you are there? | when | Since the Ryles joined. | joined
+28 | How many of you are there? | where | CANNOT |
+29 | How many of you are there? | why | CANNOT |
+30 | How many of you are there? | how | CANNOT |
+31 | Has anyone ever set limits on your account? | who | Nobody's ever mentioned it to me. | Nobody
+32 | Has anyone ever set limits on your account? | what | Permissions. I don't know the first thing about them. | permissions
+33 | Has anyone ever set limits on your account? | when | CANNOT |
+34 | Has anyone ever set limits on your account? | where | CANNOT |
+35 | Has anyone ever set limits on your account? | why | CANNOT |
+36 | Has anyone ever set limits on your account? | how | CANNOT |
+37 | How long have you been at it? | who | CANNOT |
+38 | How long have you been at it? | what | CANNOT |
+39 | How long have you been at it? | when | Since last night. | last night
+40 | How long have you been at it? | where | CANNOT |
+41 | How long have you been at it? | why | CANNOT |
+42 | How long have you been at it? | how | CANNOT |
+43 | He's the one who needs it on him, is he? | who | Pell. | Pell
+44 | He's the one who needs it on him, is he? | what | The draught, yes. | draught
+45 | He's the one who needs it on him, is he? | when | CANNOT |
+46 | He's the one who needs it on him, is he? | where | CANNOT |
+47 | He's the one who needs it on him, is he? | why | He's the one who takes the hits. | hits
+48 | He's the one who needs it on him, is he? | how | CANNOT |
+49 | So it's definitely in the bag? | who | CANNOT |
+50 | So it's definitely in the bag? | what | The draught, yes. | draught
+51 | So it's definitely in the bag? | when | CANNOT |
+52 | So it's definitely in the bag? | where | In the bag. I'm looking at it now. | bag
+53 | So it's definitely in the bag? | why | CANNOT |
+54 | So it's definitely in the bag? | how | CANNOT |
+55 | You're on Silver? | who | CANNOT |
+56 | You're on Silver? | what | Silver, yes. | Silver
+57 | You're on Silver? | when | Since the Ryles joined. | joined
+58 | You're on Silver? | where | CANNOT |
+59 | You're on Silver? | why | CANNOT |
+60 | You're on Silver? | how | CANNOT |
+61 | Nothing owing on it? | who | CANNOT |
+62 | Nothing owing on it? | what | It's paid. It's always paid. | paid
+63 | Nothing owing on it? | when | CANNOT |
+64 | Nothing owing on it? | where | CANNOT |
+65 | Nothing owing on it? | why | CANNOT |
+66 | Nothing owing on it? | how | CANNOT |
+67 | They don't use it much? | who | The Ryle brothers do as they're told. | Ryles
+68 | They don't use it much? | what | CANNOT |
+69 | They don't use it much? | when | CANNOT |
+70 | They don't use it much? | where | CANNOT |
+71 | They don't use it much? | why | They never ask for anything. | ask
+72 | They don't use it much? | how | CANNOT |

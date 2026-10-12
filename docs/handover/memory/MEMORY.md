@@ -1,0 +1,10 @@
+- [Call center, not front desk](call-center-not-front-desk.md) — TheRealm has no walk-in counter; Phil has corrected this more than once.
+- [Verify by reading output](phil-verify-by-reading-output.md) — green tests never mean it works; print the dialogue and read it.
+- [TheRealm lore inflation](therealm-lore-inflation.md) — design outrunning build; LORE.md is archived, the risk now applies to docs/settled.md.
+- [TheRealm design frame](therealm-design-frame.md) — a cooperative prisoner's dilemma with information.
+- [How Phil teaches](phil-teaches-by-register.md) — concept vs illustration; don't take it literally or flatten his vectors.
+- [Change only what was asked](phil-change-only-what-was-asked.md) — a question gets an answer, not a rewrite; untouched lines stay put.
+- [Write, strip, plus back up](phil-write-strip-plus.md) — Phil's drafting method; step 2 is the one Claude skips.
+- [Raise inventions before building](phil-raise-inventions-before-building.md) — standing rule: each invention raised individually first; run the Trust and Verify loop before reporting.
+- [Record details, report problems](phil-record-details-report-problems.md) — details go in a file; tell him only problems, each with three solutions.
+- [What Trust and Verify means](phil-trust-and-verify-means.md) — Phil's seven lines: check, fix, re-check, up and downstream, the obvious, the unexpected, the leaps; the last commit is not the target.

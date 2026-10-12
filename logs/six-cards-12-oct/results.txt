@@ -1,0 +1,210 @@
+judged 804 of 804 · missing 0
+
+all
+  all                    n 804 · A  66% · B  11% · C  23% · D 0 · key word fits 63%
+
+by the card she answered from
+  who                    n 134 · A  76% · B   6% · C  18% · D 0 · key word fits 96%
+  what                   n 134 · A  72% · B   5% · C  23% · D 0 · key word fits 90%
+  when                   n 134 · A  80% · B   6% · C  14% · D 0 · key word fits 68%
+  where                  n 134 · A  61% · B  13% · C  26% · D 0 · key word fits 86%
+  why                    n 134 · A  57% · B   2% · C  41% · D 0 · key word fits 15%
+  how                    n 134 · A  50% · B  32% · C  18% · D 0 · key word fits 25%
+
+by whether her card matched the question
+  different              n 670 · A  61% · B  12% · C  27% · D 0 · key word fits 59%
+  same as asked          n 134 · A  90% · B   3% · C   7% · D 0 · key word fits 84%
+
+by the kind of question asked
+  what                   n 432 · A  73% · B  10% · C  17% · D 0 · key word fits 68%
+  who                    n 180 · A  56% · B  13% · C  31% · D 0 · key word fits 54%
+  how                    n  24 · A  96% · B   0% · C   4% · D 0 · key word fits 63%
+  when                   n 132 · A  48% · B   8% · C  43% · D 0 · key word fits 62%
+  why                    n  36 · A  72% · B  19% · C   8% · D 0 · key word fits 56%
+
+by the manner of the question
+  expand                 n 276 · A  60% · B  11% · C  29% · D 0 · key word fits 62%
+  contract               n 276 · A  61% · B  10% · C  29% · D 0 · key word fits 63%
+  validate               n 252 · A  78% · B  12% · C  10% · D 0 · key word fits 65%
+
+by actor
+  actor 1                n 402 · A  66% · B  12% · C  21% · D 0 · key word fits 64%
+  actor 2                n 402 · A  65% · B   9% · C  25% · D 0 · key word fits 62%
+
+cells where BOTH actors' replies were judged C: 58 of 402
+  56 "Who's it for?" from what
+     1: It's for his draught — the one he needs to carry.  ["For his draught" is nonsense]
+     2: It's for the draught I'm trying to move to him.  [nonsense; draught for the draught]
+  62 "Who is it meant to end up with?" from what
+     1: The draught — that's what's meant to end up with him.  [Stilted; restates question, dodges the who]
+     2: The healing draught — that's what's meant to end up with him.  [stilted inversion, ignores who]
+  125 "Who else is in the party?" from why
+     1: They're with me because I set the whole thing up myself.  [Names nobody; answers a different question]
+     2: They're in the party because I set the whole thing up myself.  [stilted, reason does not follow]
+  149 "How many of you are there?" from why
+     1: Because that's who turned up and stayed.  [Because given to a how-many question]
+     2: Because the Ryles do as they're told, and we keep them close.  [non sequitur to a count question]
+  158 "Who set the account up?" from what
+     1: The party's account, since last autumn.  [Dodges who; sounds like not listening]
+     2: The party's account, the one we all share.  [names account, not who]
+  218 "How long have you been at it?" from what
+     1: At the transfer, trying to get the draught across.  [mishears "at it"; no duration]
+     2: At the transfer, trying to move the draught.  [asked duration, restates the task]
+  221 "How long have you been at it?" from why
+     1: Because I'd rather it was done before we leave.  [reason given for a duration question]
+     2: Because it still won't go where it should.  ["because" to how long; not listening]
+  226 "When do you need it by?" from where
+     1: In his hands, that's where it needs to be.  [asked when, answers where; not listening]
+     2: Out on the road, same as always.  [asked when, answers a place]
+  227 "When do you need it by?" from why
+     1: Because he's the one who takes the hits out there.  ["because" to a when question]
+     2: Because he's the one who takes the hits.  ["because" to when; no time given]
+  229 "When are you leaving?" from who
+     1: All four of us, out together.  [asked when, lists who; number not person]
+     2: All four of us go together.  [asked when, answers who goes]
+  230 "When are you leaving?" from what
+     1: The whole party, bag and all.  [no time; really who, not what]
+     2: The whole party, heading out.  [ignores when; party is people not thing]
+  232 "When are you leaving?" from where
+     1: Out on the roads again.  [asked when, answers where]
+     2: Out on the road again.  [asked when, answers where]
+  233 "When are you leaving?" from why
+     1: Because that's when the work starts.  ["because" to when; when in disguise]
+     2: Because that's when the work starts.  ["because" with no time given]
+  234 "When are you leaving?" from how
+     1: However we always go — all together.  ["however" opener, ignores when]
+     2: However we always do, together.  [ignores when; "however we always do" stilted]
+  261 "Who else is on the account?" from when
+     1: They've been on it since the Ryles joined.  [names nobody; circular]
+     2: Since we started, they've all been on it.  ["they" unnamed; ignores who]
+  262 "Who else is on the account?" from where
+     1: All on the one account, no one anywhere else.  [names nobody; stilted]
+     2: Right there on the account, same as me.  [names nobody; not listening]
+  263 "Who else is on the account?" from why
+     1: Because I put them on it myself when we started.  ["because" to who else; names nobody]
+     2: Because I put them on it myself.  ["because" to who; names nobody]
+  264 "Who else is on the account?" from how
+     1: However it's arranged, they're all on it, same as me.  [names nobody; stilted "however"]
+     2: The same way I put myself on it.  [names nobody; not listening]
+  267 "Who put them on it?" from when
+     1: When we started, right at the beginning.  [asked who, answers when]
+     2: When we started, right from the beginning.  [asked who, answers when]
+  268 "Who put them on it?" from where
+     1: Right there on the one account, all of them.  [asked who, answers where]
+     2: Nowhere else, just the one account, same as me.  [asked who, answers nowhere; nonsense]
+  269 "Who put them on it?" from why
+     1: So that none of them would be shut out if I wasn't there.  [never says who; key is a conjunction]
+     2: Because we all need the same things out of that bag.  ["because" to who; names nobody]
+  272 "They were all added at the start?" from what
+     1: Access to the account, that's all it was.  [does not answer; odd drift]
+     2: It was the account, same one we've always used.  [does not confirm; off the question]
+  274 "They were all added at the start?" from where
+     1: On the account, nowhere else.  [place for a timing yes/no]
+     2: On the account, that's where.  ["that's where" stilted; ignores question]
+  275 "They were all added at the start?" from why
+     1: Because I trust the three of them completely.  ["because" to yes/no; no confirmation]
+     2: Because they're part of the party, same as anyone.  [bare "because" to yes/no question]
+  277 "Where is the draught now?" from who
+     1: Pell's the one meant to have it.  [asked where, answers who]
+     2: I'm the one looking right at it.  [asked where, never says where]
+  278 "Where is the draught now?" from what
+     1: The healing draught, the standard one.  [asked where, describes item]
+     2: The draught, the standard one.  [repeats the thing; no location]
+  279 "Where is the draught now?" from when
+     1: It's been sitting there since last night.  ["there" has no referent; no place]
+     2: Right now, this very moment.  [echoes "now"; no location]
+  281 "Where is the draught now?" from why
+     1: Because nothing I do seems to move it.  ["because" to a where question]
+     2: Because there's been no reason to move it anywhere else.  ["because" with no location given]
+  299 "Tell me about the account." from why
+     1: Because the four of us needed one place for it all.  ["because" opener to "tell me about"]
+     2: Because the whole party needed one place to keep things.  [opening "because" to "tell me about"]
+  302 "How long have you had it?" from what
+     1: The party's account, the very one causing the trouble.  [no duration; not listening]
+     2: The account, the one the whole party's on.  [asked how long, restates the account]
+  305 "How long have you had it?" from why
+     1: Because someone has to be the one holding it.  [reason for a duration question]
+     2: Because the party needed somewhere to keep things together.  ["because" to how long]
+  306 "How long have you had it?" from how
+     1: The same way the whole time, nothing's changed about it.  [no duration; ignores question]
+     2: Bit by bit, since I set it up myself.  ["bit by bit" makes no sense here]
+  313 "What plan are you on?" from who
+     1: That's mine to answer, I'm the leader.  [never names the plan; stilted]
+     2: I'm the one who signed us up for it.  [asked which plan, never names it]
+  315 "What plan are you on?" from when
+     1: It went up to that when the Ryles joined.  ["that" has no referent]
+     2: It went up when the Ryles joined.  [never names the plan]
+  316 "What plan are you on?" from where
+     1: It's attached to the account, nowhere else.  [never names plan; nonsense place]
+     2: It's on the same account as everything else, nowhere separate.  [never names plan; "nowhere separate" odd]
+  317 "What plan are you on?" from why
+     1: Because it went up when the Ryles joined, more of us needing it.  ["it went up" to what; no answer]
+     2: Because the Ryles joining meant we needed more.  ["because" with no plan named]
+  319 "Which tier is it?" from who
+     1: Mine, the party's, whichever way you want it.  [never names tier; stilted]
+     2: Mine, the leader's — well, the whole party's really.  [asked which tier, answers whose]
+  322 "Which tier is it?" from where
+     1: It's on the account, nowhere I can point to beyond that.  [stilted; never names tier]
+     2: Same place as everything else, the one account.  [never names tier; account not place]
+  323 "Which tier is it?" from why
+     1: Because it went up when the Ryles came on.  [no tier named; key is people]
+     2: Because the Ryles joining pushed it up.  ["because" with no tier named]
+  334 "What else is in the bag?" from where
+     1: All of it, right there in the bag with the draught.  [lists nothing; restates the bag]
+     2: All of it's in the bag, right there.  [asked what else, answers where]
+  335 "What else is in the bag?" from why
+     1: Because that's what a party needs on the road.  ["because" to what else; lists nothing]
+     2: Because that's what we need out on the road.  ["because" to what else; lists nothing]
+  336 "What else is in the bag?" from how
+     1: Packed in the same way it always is.  [lists nothing]
+     2: Packed in plain as day, nothing hidden.  [lists nothing; "packed in plain as day" stilted]
+  340 "How much is in there?" from where
+     1: All of it in the one bag.  [no amount; restates the bag]
+     2: All in the one bag.  [asked how much, answers where]
+  341 "How much is in there?" from why
+     1: Because we pack for what we'll need out there.  ["because" to how much]
+     2: Because we keep what we need for the road.  ["because" to how much]
+  353 "Tell me about the payments." from why
+     1: Because I keep it paid so nothing's ever at risk.  ["because" opener to "tell me about"]
+     2: Because I keep it paid, same as everything else.  [opening "because" to "tell me about"]
+  367 "When does it go out?" from who
+     1: I'm the one who sends it.  [asked when, answers who]
+     2: I'm the one who sees to it.  [asked when, answers who]
+  368 "When does it go out?" from what
+     1: The payment, same one every time.  [asked when, names the thing]
+     2: The payment, same as every time.  [restates the thing; no time]
+  370 "When does it go out?" from where
+     1: Straight from the account.  [asked when, answers where]
+     2: Off the party's account, same as everything.  [asked when, answers where from]
+  371 "When does it go out?" from why
+     1: Because I keep it on schedule.  ["because" to when]
+     2: Because I make sure it's paid, that's the reason.  ["because" to when; stilted]
+  373 "When did you last pay it?" from who
+     1: I did, same as always.  ["I did" to a when question]
+     2: I did, same as I always do.  [asked when, answers who]
+  374 "When did you last pay it?" from what
+     1: The payment on the account.  [no time; not listening]
+     2: The payment — it's paid.  [no time; "paid" not a thing]
+  376 "When did you last pay it?" from where
+     1: Off the account, same place as ever.  [asked when, answers where]
+     2: Off the account, same place as ever.  [asked when, answers where from]
+  377 "When did you last pay it?" from why
+     1: Because I never let it slip.  ["because" to when]
+     2: Because I keep it paid without fail.  ["because" to when]
+  378 "When did you last pay it?" from how
+     1: The same way it's always done.  [asked when, answers manner]
+     2: Same way every time, it just goes out paid.  ["goes out paid" stilted; no time]
+  382 "It goes out monthly?" from where
+     1: Off the one account, same as ever.  [place for a frequency yes/no]
+     2: Off the one account, same as ever.  [ignores monthly; account not place]
+  383 "It goes out monthly?" from why
+     1: Because I keep on top of it, whatever the schedule.  ["because" to yes/no; no answer]
+     2: Because it's always paid, I don't let it slip.  ["because" to yes/no; no answer]
+  387 "Tell me about the Ryle brothers." from when
+     1: They've been with us since they joined.  [tautology; says nothing]
+     2: They joined us, that's when things changed.  [stilted; "that's when" with no time]
+  389 "Tell me about the Ryle brothers." from why
+     1: Because every party needs someone who notices and someone who talks.  ["because" opener to "tell me about"]
+     2: Because they do as they're told, never ask for anything.  [opening "because" to "tell me about"]
+
+cells where at least one actor's reply was judged A: 306 of 402

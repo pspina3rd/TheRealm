@@ -1,0 +1,134 @@
+135 | And they're all on the account? | when | I put them on when we first started. | started
+136 | And they're all on the account? | where | Nowhere else, just the one account. | nowhere
+137 | And they're all on the account? | why | Because they do as they're told, same as ever. | told
+138 | And they're all on the account? | how | However it's done, I put them on myself. | myself
+139 | Tell me about the party. | who | There's me, Pell, and the Ryle brothers. | Pell
+140 | Tell me about the party. | what | We carry three healing draughts, standard ones. | draughts
+141 | Tell me about the party. | when | Pell joined in the spring. | spring
+142 | Tell me about the party. | where | We cleared an old watchtower last year. | watchtower
+143 | Tell me about the party. | why | Pell's the one who takes the hits, that's why he's with us. | hits
+144 | Tell me about the party. | how | Garrick talks everyone round and Tobin notices what he misses. | notices
+145 | How many of you are there? | who | Four of us — me, Pell, and the Ryle brothers. | me
+146 | How many of you are there? | what | The bag, and the account, has to stretch to four. | bag
+147 | How many of you are there? | when | We've been four since the Ryles joined. | joined
+148 | How many of you are there? | where | All four of us, same roads, same party. | roads
+149 | How many of you are there? | why | Because that's who turned up and stayed. | stayed
+150 | How many of you are there? | how | However it happened, we've held together as four. | together
+151 | One account between the four of you? | who | Me, Pell, and the Ryle brothers, all on the one. | brothers
+152 | One account between the four of you? | what | One account, silver on it. | silver
+153 | One account between the four of you? | when | Since last autumn, when I opened it. | autumn
+154 | One account between the four of you? | where | All in the one place, nothing split off. | place
+155 | One account between the four of you? | why | Because I set the whole thing up for all of us. | myself
+156 | One account between the four of you? | how | However you look at it, one account carries four. | carries
+157 | Who set the account up? | who | I did. I set it up myself. | I
+158 | Who set the account up? | what | The party's account, since last autumn. | account
+159 | Who set the account up? | when | Last autumn, that's when. | autumn
+160 | Who set the account up? | where | Wherever it needed doing, I did it. | wherever
+161 | Who set the account up? | why | Because somebody had to, and I'm the leader. | leader
+162 | Who set the account up? | how | However it's done, I did it myself. | myself
+163 | Who's the leader of it? | who | I am. I'm the leader. | I
+164 | Who's the leader of it? | what | The account and the bag, both fall to me. | account
+165 | Who's the leader of it? | when | Since last autumn, when I set it up. | autumn
+166 | Who's the leader of it? | where | I lead wherever we go, hill roads or the Dungeon. | Dungeon
+167 | Who's the leader of it? | why | Because I set the whole thing up myself. | myself
+168 | Who's the leader of it? | how | However you count it, I'm the one who runs it. | runs
+169 | You're the one who runs it? | who | Yes. Me. | Me
+170 | You're the one who runs it? | what | I run the account, same as the bag. | account
+171 | You're the one who runs it? | when | Since last autumn. | autumn
+172 | You're the one who runs it? | where | Wherever the four of us are standing. | wherever
+173 | You're the one who runs it? | why | Because nobody else was going to. | nobody
+174 | You're the one who runs it? | how | However it gets run, it runs through me, same as always. | same
+175 | What have you been told about what you're allowed to do? | who | Nobody's ever told me a thing. | Nobody
+176 | What have you been told about what you're allowed to do? | what | Permissions — I don't know the first thing about them. | permissions
+177 | What have you been told about what you're allowed to do? | when | Nobody's ever mentioned it, not once. | never
+178 | What have you been told about what you're allowed to do? | where | Nowhere. No one's sat me down anywhere about it. | nowhere
+179 | What have you been told about what you're allowed to do? | why | Why would they? Nobody's ever brought it up. | nobody
+180 | What have you been told about what you're allowed to do? | how | I've just gone on my own way, nobody showed me different. | way
+181 | Has anyone ever set limits on your account? | who | No one. Nobody's ever done that to me. | Nobody
+182 | Has anyone ever set limits on your account? | what | No limits, nothing. | nothing
+183 | Has anyone ever set limits on your account? | when | Never, not once since I opened it. | Never
+184 | Has anyone ever set limits on your account? | where | Nowhere — it's never missed reaching anywhere. | nowhere
+185 | Has anyone ever set limits on your account? | why | No reason to — there's never been a need. | need
+186 | Has anyone ever set limits on your account? | how | It's just run free the whole time. | free
+187 | So nothing has ever been locked off for you? | who | Nobody's ever locked anything off for me. | Nobody
+188 | So nothing has ever been locked off for you? | what | Nothing. Not one thing. | Nothing
+189 | So nothing has ever been locked off for you? | when | Never, not since I've had it. | Never
+190 | So nothing has ever been locked off for you? | where | Nowhere on it has ever been shut off from me. | nowhere
+191 | So nothing has ever been locked off for you? | why | There's never been a reason to, that I know of. | reason
+192 | So nothing has ever been locked off for you? | how | However it's done, it's simply never happened to me. | simply
+193 | When did you last move something to one of them? | who | None of them — I've never moved anything to any of them. | none
+194 | When did you last move something to one of them? | what | Nothing. I've never moved a thing. | Nothing
+195 | When did you last move something to one of them? | when | Never, not till now. | Never
+196 | When did you last move something to one of them? | where | Nowhere — it's never left the shared account. | nowhere
+197 | When did you last move something to one of them? | why | Because there's never been a need before now. | need
+198 | When did you last move something to one of them? | how | I've never had to try it before, there's no way I know of. | way
+199 | Have you done this before? | who | No, never — it's always been me and the shared account. | me
+200 | Have you done this before? | what | No. Nothing like this. | Nothing
+201 | Have you done this before? | when | No. Never, not until last night. | night
+202 | Have you done this before? | where | No, nowhere — it's always stayed in the one account. | nowhere
+203 | Have you done this before? | why | No, there's never been a reason to before now. | reason
+204 | Have you done this before? | how | No, I've never had to try it this way before. | way
+205 | First time doing it, then? | who | Yes, just me, trying it myself. | me
+206 | First time doing it, then? | what | Yes — the transfer. First time I've tried one. | transfer
+207 | First time doing it, then? | when | Yes. Since last night, that's when I started. | night
+208 | First time doing it, then? | where | Yes, right here in the account. | account
+209 | First time doing it, then? | why | Yes, because there's never been a need before. | need
+210 | First time doing it, then? | how | Yes — I've tried it the only way I know. | way
+211 | When did it start? | who | It was me, trying to get it to Pell. | Pell
+212 | When did it start? | what | It started with the draught just sitting there. | draught
+213 | When did it start? | when | Since last night. | night
+214 | When did it start? | where | It started right here, in the bag. | bag
+215 | When did it start? | why | It started because I was trying to get it to Pell. | Pell
+216 | When did it start? | how | It started with me trying the same thing again. | again
+217 | How long have you been at it? | who | Just me. I've been the one trying. | me
+218 | How long have you been at it? | what | At the transfer, trying to get the draught across. | transfer
+219 | How long have you been at it? | when | Since last night, and again this morning. | morning
+220 | How long have you been at it? | where | Right here, on the account, the whole time. | account
+221 | How long have you been at it? | why | Because I'd rather it was done before we leave. | leave
+222 | How long have you been at it? | how | I've tried it four times now, same way each time. | way
+223 | When do you need it by? | who | Pell needs it, before we go. | Pell
+224 | When do you need it by? | what | The draught — I need it in his hands. | draught
+225 | When do you need it by? | when | Before first light, when we leave. | light
+226 | When do you need it by? | where | In his hands, that's where it needs to be. | hands
+227 | When do you need it by? | why | Because he's the one who takes the hits out there. | hits
+228 | When do you need it by? | how | However it's done, it needs to go by hand. | hand
+229 | When are you leaving? | who | All four of us, out together. | four
+230 | When are you leaving? | what | The whole party, bag and all. | bag
+231 | When are you leaving? | when | First light. | light
+232 | When are you leaving? | where | Out on the roads again. | roads
+233 | When are you leaving? | why | Because that's when the work starts. | work
+234 | When are you leaving? | how | However we always go — all together. | together
+235 | You need it before you go? | who | Pell does, yes. | Pell
+236 | You need it before you go? | what | The draught, yes, before we go. | draught
+237 | You need it before you go? | when | Yes, before first light. | light
+238 | You need it before you go? | where | Yes, in his hands before we're out the door. | hands
+239 | You need it before you go? | why | Yes, because he's the one who takes the hits. | hits
+240 | You need it before you go? | how | Yes, it has to go to him by hand. | hand
+241 | Why does it have to be before you leave? | who | Because Pell's the one who needs it on him. | Pell
+242 | Why does it have to be before you leave? | what | Because of the draught — it has to be on him, not in the bag. | draught
+243 | Why does it have to be before you leave? | when | Because we're out at first light, there's no time after. | light
+244 | Why does it have to be before you leave? | where | Because once we're out on the roads, there's no fixing it. | roads
+245 | Why does it have to be before you leave? | why | Because he's the one who takes the hits. | hits
+246 | Why does it have to be before you leave? | how | However I manage it, it has to go by hand. | hand
+247 | What happens if it stays in the bag? | who | Pell goes without it, that's what happens. | Pell
+248 | What happens if it stays in the bag? | what | The draught just sits there, same as it has. | draught
+249 | What happens if it stays in the bag? | when | It'll sit there same as it has since last night. | night
+250 | What happens if it stays in the bag? | where | It stays right where it is, in the bag. | bag
+251 | What happens if it stays in the bag? | why | Because then Pell doesn't have it when he takes a hit. | hit
+252 | What happens if it stays in the bag? | how | However it goes, it just sits there. | sits
+253 | He's the one who needs it on him, is he? | who | Yes. Pell. He takes the hits. | Pell
+254 | He's the one who needs it on him, is he? | what | Yes, the draught, on him, not in the bag. | draught
+255 | He's the one who needs it on him, is he? | when | Yes, and he's needed it since last night. | night
+256 | He's the one who needs it on him, is he? | where | Yes — on him, not left in the bag. | him
+257 | He's the one who needs it on him, is he? | why | Yes, because he's the one who takes the hits. | hits
+258 | He's the one who needs it on him, is he? | how | Yes, however it's done, it should go straight to him. | straight
+259 | Who else is on the account? | who | Pell, and the Ryle brothers, Garrick and Tobin. | Garrick
+260 | Who else is on the account? | what | The same account — silver, same as always. | silver
+261 | Who else is on the account? | when | They've been on it since the Ryles joined. | joined
+262 | Who else is on the account? | where | All on the one account, no one anywhere else. | account
+263 | Who else is on the account? | why | Because I put them on it myself when we started. | myself
+264 | Who else is on the account? | how | However it's arranged, they're all on it, same as me. | same
+265 | Who put them on it? | who | I did. I put them on it myself. | I
+266 | Who put them on it? | what | The account — I put all of them on it. | account
+267 | Who put them on it? | when | When we started, right at the beginning. | started
+268 | Who put them on it? | where | Right there on the one account, all of them. | account

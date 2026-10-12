@@ -1,0 +1,201 @@
+1 | Tell me what's happening. | who | It's me and Pell — I'm trying to get this into his hands. | Pell
+2 | Tell me what's happening. | what | The draught just sits there, no matter what I do. | draught
+3 | Tell me what's happening. | when | This has been going on since last night. | night
+4 | Tell me what's happening. | where | It's sitting right there in the bag, plain as day. | bag
+5 | Tell me what's happening. | why | I don't know why it won't go through — no reason I can find. | reason
+6 | Tell me what's happening. | how | I'm doing it the same way every time, and it still won't move. | way
+7 | What happens when you try it? | who | Nothing happens — not to me, not to Pell. | Pell
+8 | What happens when you try it? | what | The draught just sits there. | draught
+9 | What happens when you try it? | when | It happens every time I try, last night and again this morning. | morning
+10 | What happens when you try it? | where | Nothing changes, not in the bag, not on the account. | account
+11 | What happens when you try it? | why | There's no reason given — it just doesn't work. | reason
+12 | What happens when you try it? | how | I try it the same way each time and nothing happens. | way
+13 | So nothing happens at all, not even a message? | who | Nobody tells me anything — not a word from anyone. | nobody
+14 | So nothing happens at all, not even a message? | what | Not even a message, nothing at all. | message
+15 | So nothing happens at all, not even a message? | when | Not once, not last night, not this morning. | morning
+16 | So nothing happens at all, not even a message? | where | Nothing shows up, nowhere. | nowhere
+17 | So nothing happens at all, not even a message? | why | No reason, nothing, not even an explanation. | reason
+18 | So nothing happens at all, not even a message? | how | It happens in exactly the same way — nothing. | way
+19 | Tell me about the bag. | who | It's the party's bag — mine, Pell's, the Ryles', all of ours. | Pell
+20 | Tell me about the bag. | what | It's got rope, torches, a spare blade, the dried stores, and the draughts. | draughts
+21 | Tell me about the bag. | when | I've been looking at it since last night, same as everything else. | night
+22 | Tell me about the bag. | where | It's right here, in front of me. | front
+23 | Tell me about the bag. | why | There's no reason it isn't fine — I can see every item in it. | reason
+24 | Tell me about the bag. | how | I can see every item in it, plain as day. | plain
+25 | Which bag is it — the party's, or your own? | who | It's the party's — mine, Pell's, the Ryles', everyone's. | everyone
+26 | Which bag is it — the party's, or your own? | what | It's the bag, the same one, nothing wrong with it. | bag
+27 | Which bag is it — the party's, or your own? | when | It's been the party's bag since we started out. | start
+28 | Which bag is it — the party's, or your own? | where | It's right here with me, not off with Biscuit. | here
+29 | Which bag is it — the party's, or your own? | why | It's the party's — there's no reason it would be anyone else's. | reason
+30 | Which bag is it — the party's, or your own? | how | It's shared, the same way everything in the party is. | shared
+31 | And the bag itself seems all right? | who | Nothing's wrong with it, not for me or anyone else. | anyone
+32 | And the bag itself seems all right? | what | There's nothing wrong with the bag — I can see every item in it. | bag
+33 | And the bag itself seems all right? | when | It's been fine the whole time, since last night even. | night
+34 | And the bag itself seems all right? | where | I can see everything in it, right here in front of me. | front
+35 | And the bag itself seems all right? | why | There's no reason to think it's the bag — I can see everything in it. | reason
+36 | And the bag itself seems all right? | how | It's fine, plain as day, every item accounted for. | plain
+37 | What is it you're trying to move? | who | I'm trying to get it to Pell. | Pell
+38 | What is it you're trying to move? | what | A healing draught, the standard one. | draught
+39 | What is it you're trying to move? | when | I've been trying since last night. | night
+40 | What is it you're trying to move? | where | I'm trying to move it out of the shared account and into his. | account
+41 | What is it you're trying to move? | why | He's the one who takes the hits, so he ought to carry it. | hits
+42 | What is it you're trying to move? | how | I'm trying to transfer it, out of the shared one and into his. | transfer
+43 | Which draught, exactly? | who | The one meant for Pell. | Pell
+44 | Which draught, exactly? | what | A healing draught, the standard one — we keep three. | draught
+45 | Which draught, exactly? | when | The one I've been trying to move since last night. | night
+46 | Which draught, exactly? | where | The one sitting right there in the bag. | bag
+47 | Which draught, exactly? | why | The one he needs, because he's the one who takes the hits. | hits
+48 | Which draught, exactly? | how | The standard one, same as the other two we keep. | standard
+49 | It's one of the standard ones? | who | Yes, the kind we give to Pell. | Pell
+50 | It's one of the standard ones? | what | Yes, the standard draught, we keep three of them. | draught
+51 | It's one of the standard ones? | when | Yes, same as always, same as last night. | night
+52 | It's one of the standard ones? | where | Yes, it's the one sitting in the bag. | bag
+53 | It's one of the standard ones? | why | Yes, there's no reason it'd be anything else. | reason
+54 | It's one of the standard ones? | how | Yes, the same kind, nothing special about it. | same
+55 | Who's it for? | who | It's for Pell. | Pell
+56 | Who's it for? | what | It's for the draught I'm trying to move to him. | draught
+57 | Who's it for? | when | It's for him before first light, that's when we leave. | light
+58 | Who's it for? | where | It's for him, out there, not sitting in the bag. | bag
+59 | Who's it for? | why | It's for him because he's the one who takes the hits. | hits
+60 | Who's it for? | how | It's for him, the same way the other two draughts are for whoever needs them. | same
+61 | Who is it meant to end up with? | who | Pell. He's the one who should have it. | Pell
+62 | Who is it meant to end up with? | what | The healing draught — that's what's meant to end up with him. | draught
+63 | Who is it meant to end up with? | when | Before first light, that's when we leave. | light
+64 | Who is it meant to end up with? | where | In his hands, not sitting in the shared bag. | bag
+65 | Who is it meant to end up with? | why | With Pell, because he's the one who takes the hits. | hits
+66 | Who is it meant to end up with? | how | By transferring it out of the shared account into his. | transfer
+67 | And Pell's in the party with you? | who | Yes — me, Pell, and the Ryle brothers. | Pell
+68 | And Pell's in the party with you? | what | Yes, he's part of the party, same as the bag and the account. | party
+69 | And Pell's in the party with you? | when | Yes, he joined in the spring. | spring
+70 | And Pell's in the party with you? | where | Yes, he's right here with the rest of us. | here
+71 | And Pell's in the party with you? | why | Yes, he's with us because he's the one who takes the hits. | hits
+72 | And Pell's in the party with you? | how | Yes, he's with us the way he has been since the spring. | spring
+73 | What were you looking for, when you were trying to do it? | who | I was looking for Pell's name, so I could put it where it needed to go. | Pell
+74 | What were you looking for, when you were trying to do it? | what | I was looking for the word "transfer." | transfer
+75 | What were you looking for, when you were trying to do it? | when | I was looking last night and again this morning. | morning
+76 | What were you looking for, when you were trying to do it? | where | I was looking through every page of the account. | account
+77 | What were you looking for, when you were trying to do it? | why | I was looking because I don't know the first thing about permissions. | permissions
+78 | What were you looking for, when you were trying to do it? | how | I went through it twice, page by page. | twice
+79 | What were you looking for it to say? | who | I wanted it to say Pell's name, not mine. | Pell
+80 | What were you looking for it to say? | what | I wanted it to say "transfer." | transfer
+81 | What were you looking for it to say? | when | I wanted it to say so last night, when I first tried. | night
+82 | What were you looking for it to say? | where | I wanted to find it somewhere on the account, anywhere at all. | account
+83 | What were you looking for it to say? | why | I wanted it to say so, because nobody's ever mentioned permissions to me. | permissions
+84 | What were you looking for it to say? | how | I read every single word on it, twice, looking for it. | twice
+85 | You couldn't find where to do it at all? | who | Nobody showed me where — nobody's ever mentioned it. | nobody
+86 | You couldn't find where to do it at all? | what | Not one word on that account says transfer. | transfer
+87 | You couldn't find where to do it at all? | when | No, not last night, not this morning, not either time. | morning
+88 | You couldn't find where to do it at all? | where | No, nowhere — I went through every page of it twice. | nowhere
+89 | You couldn't find where to do it at all? | why | No, because I don't know the first thing about permissions. | permissions
+90 | You couldn't find where to do it at all? | how | No, I looked the same way both times and found nothing. | same
+91 | What have you tried? | who | I've tried it myself, just me. | me
+92 | What have you tried? | what | I've tried moving the draught, that's all. | draught
+93 | What have you tried? | when | I tried it last night and again this morning. | morning
+94 | What have you tried? | where | I've tried it everywhere I can think of on the account. | account
+95 | What have you tried? | why | I've tried because he's the one who takes the hits. | hits
+96 | What have you tried? | how | I've tried it the same way every time. | same
+97 | What did you try first? | who | I tried it myself, first, before asking anyone. | me
+98 | What did you try first? | what | I tried moving the draught out of the shared account. | draught
+99 | What did you try first? | when | I tried it first last night. | night
+100 | What did you try first? | where | I tried it right there on the account, first page to last. | account
+101 | What did you try first? | why | I tried it first because he's the one who takes the hits. | hits
+102 | What did you try first? | how | I tried it the same way I always do. | way
+103 | You've had more than one go at it? | who | Yes, just me, nobody else has tried. | nobody
+104 | You've had more than one go at it? | what | Yes, the same draught, the same transfer, every time. | transfer
+105 | You've had more than one go at it? | when | Yes — last night, and again this morning. | morning
+106 | You've had more than one go at it? | where | Yes, every page of the account, twice over. | account
+107 | You've had more than one go at it? | why | Yes, because nothing happened the first time. | nothing
+108 | You've had more than one go at it? | how | Yes, four times now, the same way each time. | four
+109 | How are you going about it? | who | Just me, doing it myself. | me
+110 | How are you going about it? | what | I'm trying to transfer the draught out of the shared account. | transfer
+111 | How are you going about it? | when | I've been going about it since last night. | night
+112 | How are you going about it? | where | Right there on the account, page by page. | account
+113 | How are you going about it? | why | Because Pell's the one who takes the hits. | hits
+114 | How are you going about it? | how | By going through every page of the account, twice. | twice
+115 | Talk me through what you did. | who | It was just me — I did it myself. | me
+116 | Talk me through what you did. | what | I tried to move the draught out of the shared account into his. | draught
+117 | Talk me through what you did. | when | I did it last night, then again this morning. | morning
+118 | Talk me through what you did. | where | I went through the account, every page of it, twice. | account
+119 | Talk me through what you did. | why | I did it because Pell's the one who takes the hits. | hits
+120 | Talk me through what you did. | how | I read every word on it, looking for "transfer," and found nothing. | transfer
+121 | Who else is in the party? | who | Me, Pell, and the Ryle brothers — Garrick and Tobin. | Garrick
+122 | Who else is in the party? | what | The party — four of us, that's what it is. | party
+123 | Who else is in the party? | when | Pell joined in the spring; the Ryles have been with us a while. | spring
+124 | Who else is in the party? | where | They're all here, with me, same as always. | here
+125 | Who else is in the party? | why | They're in the party because I set the whole thing up myself. | myself
+126 | Who else is in the party? | how | Four of us — me, Pell, and the Ryle brothers — doing it the way we always have. | four
+127 | Who's on the account besides you? | who | Pell, and the Ryle brothers — Garrick and Tobin. | Pell
+128 | Who's on the account besides you? | what | The account — that's what they're all on. | account
+129 | Who's on the account besides you? | when | They've been on it since I put them on myself, when we started. | start
+130 | Who's on the account besides you? | where | Right there on the account, same as me. | account
+131 | Who's on the account besides you? | why | They're on it because I put them there myself. | myself
+132 | Who's on the account besides you? | how | I put them on it myself, same as me. | myself
+133 | And they're all on the account? | who | Yes — Pell and the Ryle brothers, same as me. | Pell
+134 | And they're all on the account? | what | Yes, the account — they're all on it. | account
+135 | And they're all on the account? | when | They've been on it since we started, same as me. | started
+136 | And they're all on the account? | where | It's in the bag, right in front of me. | bag
+137 | And they're all on the account? | why | I put them there myself, when we set out. | myself
+138 | And they're all on the account? | how | On my own, same as always. | own
+139 | Tell me about the party. | who | There's Pell, and the two Ryles. | Pell
+140 | Tell me about the party. | what | We've got the bag and Biscuit between us. | bag
+141 | Tell me about the party. | when | We've been together since the spring, since Pell joined. | spring
+142 | Tell me about the party. | where | We took a merchant through the hill roads once. | roads
+143 | Tell me about the party. | why | Pell takes the hits, so we look after him. | hits
+144 | Tell me about the party. | how | Garrick talks us through everything, he always has. | talks
+145 | How many of you are there? | who | There's me, Pell, and the Ryle brothers. | Pell
+146 | How many of you are there? | what | Four of us, and the mule besides. | mule
+147 | How many of you are there? | when | We've been four since Pell joined us in spring. | spring
+148 | How many of you are there? | where | All of us together, out on the road. | road
+149 | How many of you are there? | why | Because the Ryles do as they're told, and we keep them close. | told
+150 | How many of you are there? | how | We manage however we always have, the four of us. | manage
+151 | One account between the four of you? | who | All four of us are on it, same as always. | us
+152 | One account between the four of you? | what | It's the party's account, the one we've always used. | account
+153 | One account between the four of you? | when | We've had it since last autumn. | autumn
+154 | One account between the four of you? | where | Nowhere else, it's the only one we've got. | nowhere
+155 | One account between the four of you? | why | Because I set it up that way from the start. | start
+156 | One account between the four of you? | how | The same way it's always been, one account for all of us. | same
+157 | Who set the account up? | who | I did, I set it up myself. | myself
+158 | Who set the account up? | what | The party's account, the one we all share. | account
+159 | Who set the account up? | when | Last autumn, when we started it. | autumn
+160 | Who set the account up? | where | Nowhere special, just put together as we went. | nowhere
+161 | Who set the account up? | why | Because I'm the leader, so it fell to me. | leader
+162 | Who set the account up? | how | I did it myself, same as I do most things. | myself
+163 | Who's the leader of it? | who | I am, I'm the leader. | I
+164 | Who's the leader of it? | what | It's the party, the whole thing, that I lead. | party
+165 | Who's the leader of it? | when | Since we started, I've always led it. | started
+166 | Who's the leader of it? | where | Out on the road, I'm the one leading. | road
+167 | Who's the leader of it? | why | Because I set the whole thing up myself. | myself
+168 | Who's the leader of it? | how | I run it the same way I always have, myself. | myself
+169 | You're the one who runs it? | who | Yes, me, I'm the leader. | me
+170 | You're the one who runs it? | what | The account, the bag, all of it, mine to run. | account
+171 | You're the one who runs it? | when | Since last autumn, when I set it up. | autumn
+172 | You're the one who runs it? | where | From the guild hall, same as everyone else. | guild
+173 | You're the one who runs it? | why | Because it's mine, I set it up myself. | mine
+174 | You're the one who runs it? | how | However it needs running, I handle it myself. | myself
+175 | What have you been told about what you're allowed to do? | who | Nobody's ever told me anything, no one at all. | nobody
+176 | What have you been told about what you're allowed to do? | what | Nothing, not a word about what I can or can't do. | nothing
+177 | What have you been told about what you're allowed to do? | when | Never, not once, in all this time. | never
+178 | What have you been told about what you're allowed to do? | where | Nowhere, not on the account, not anywhere. | nowhere
+179 | What have you been told about what you're allowed to do? | why | Because there was never any reason to tell me. | reason
+180 | What have you been told about what you're allowed to do? | how | However I like, since no one's ever said otherwise. | however
+181 | Has anyone ever set limits on your account? | who | No one, nobody's ever done that. | nobody
+182 | Has anyone ever set limits on your account? | what | Nothing like that, no limits at all. | nothing
+183 | Has anyone ever set limits on your account? | when | Never, not since I've had it. | never
+184 | Has anyone ever set limits on your account? | where | Nowhere on it, not that I've ever seen. | nowhere
+185 | Has anyone ever set limits on your account? | why | No reason to, there was never a need. | reason
+186 | Has anyone ever set limits on your account? | how | However it runs, it's never been limited. | however
+187 | So nothing has ever been locked off for you? | who | No, nobody's ever locked anything off for me. | nobody
+188 | So nothing has ever been locked off for you? | what | No, nothing, I've never seen it. | nothing
+189 | So nothing has ever been locked off for you? | when | Never, not once. | never
+190 | So nothing has ever been locked off for you? | where | Nowhere on that account, not that I've found. | nowhere
+191 | So nothing has ever been locked off for you? | why | No reason, there's never been a need to. | reason
+192 | So nothing has ever been locked off for you? | how | However I look, I've never found anything locked. | however
+193 | When did you last move something to one of them? | who | Never to Pell, not before now. | Pell
+194 | When did you last move something to one of them? | what | Nothing, I've never moved anything to anybody. | nothing
+195 | When did you last move something to one of them? | when | Never, this is the first time. | never
+196 | When did you last move something to one of them? | where | Nowhere, I've never sent anything anywhere. | nowhere
+197 | When did you last move something to one of them? | why | There was never a reason to before now. | reason
+198 | When did you last move something to one of them? | how | I've never had to, so I just don't know the way. | way
+199 | Have you done this before? | who | No, I've never moved anything to anybody before. | anybody
+200 | Have you done this before? | what | No, nothing like this, not before. | nothing
+201 | Have you done this before? | when | No, never until now. | never

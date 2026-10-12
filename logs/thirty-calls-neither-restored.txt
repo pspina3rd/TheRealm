@@ -1,0 +1,694 @@
+
+=== seed 20 · pell-gets-hurt · held
+SELLA It isn't working.
+YOU   What happens when you try it?
+SELLA Nothing. I do the thing I think I'm meant to do, and the draught just sits there.
+YOU   You've had more than one go at it?
+SELLA Four goes at it. Les would've known what to do.
+YOU   Which draught, exactly?
+SELLA A healing draught. The standard one — we keep three.
+YOU   Let me make sure I have it — nothing moves at all?
+SELLA Yes. Nothing moves. The draught just sits there.
+YOU   So you've been doing the same thing each time?
+SELLA Yes. The same thing each time.
+YOU   What did you try first? And where is the draught now?
+SELLA In the bag. I'm looking at it now.
+YOU   Talk me through what you did. And the bag itself seems all right?
+SELLA The bag's fine. I can see every item in it, plain as day.
+YOU   The party's bag, that's the one?
+SELLA That's the one.
+YOU   Which bag is it — the party's, or your own?
+SELLA The party's.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 21 · no-one-told-her · held
+SELLA It isn't working.
+YOU   Tell me what's happening.
+SELLA I'm trying to get a draught out of the bag to one of my party, and it won't go. It just sits there.
+YOU   Who is it meant to end up with? And tell me about the bag.
+SELLA Pell.
+YOU   It's one of the standard ones? And talk me through what you did.
+SELLA That's right. We keep three of them.
+YOU   What did you try first?
+SELLA The only thing I could think to try. I've done it four times now.
+YOU   Pell — have I got the name right?
+SELLA That's right. Pell.
+YOU   Who's it for? And what happens when you try it?
+SELLA Nothing. I do the thing I think I'm meant to do, and the draught just sits there.
+YOU   What have you tried?
+SELLA The same thing, four times. Last night and again this morning. Les would've known what to do.
+YOU   How many of you are there?
+SELLA Four.
+YOU   Doing it the same way each time? And it's definitely in the bag?
+SELLA It's definitely in the bag.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 22 · no-one-told-her · held
+SELLA It isn't working.
+YOU   What happens when you try it?
+SELLA Nothing. I do the thing I think I'm meant to do, and the draught just sits there.
+YOU   Where is the draught now? And what have you tried?
+SELLA In the bag. I'm looking at it now. The same thing, four times. Last night and again this morning. Les would've known what to do.
+YOU   So nothing happens at all, not even a message? And the bag itself seems all right?
+SELLA Nothing at all. It just sits there.
+YOU   How are you going about it? And tell me what's happening.
+SELLA I'm trying to get a draught out of the bag to one of my party, and it won't go. It just sits there.
+YOU   When did it start?
+SELLA I started on it last night, and I'll own I was tired by then.
+YOU   It's still showing in the bag?
+SELLA Yes. It's still there.
+YOU   What did you try first? And which draught, exactly?
+SELLA A healing draught. The standard one — we keep three.
+YOU   How many of you are there? And talk me through what you did.
+SELLA Four.
+YOU   So it's definitely in the bag? And who else is in the party?
+SELLA It's definitely in the bag.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 23 · set-it-up-herself · held
+SELLA It isn't working.
+YOU   What happens when you try it?
+SELLA Nothing. I do the thing I think I'm meant to do, and the draught just sits there.
+YOU   What have you tried? And nothing happens at all, not even a message?
+SELLA The same thing, four times. Last night and again this morning. Nothing at all. It just sits there.
+YOU   What is it you're trying to move?
+SELLA A healing draught.
+YOU   What did you try first? And where is the draught now?
+SELLA In the bag. I'm looking at it now.
+YOU   It's one of the standard ones? And doing it the same way each time?
+SELLA That's right. We keep three of them.
+YOU   It's still showing in the bag? And when did it start?
+SELLA I started on it last night, and I'll own I was tired by then.
+YOU   So you've been doing the same thing each time? And which bag is it — the party's, or your own?
+SELLA The party's.
+YOU   So it's definitely in the bag? And tell me about the party.
+SELLA There's four of us. Me, Pell, and the Ryle brothers. My old partner runs her own party now.
+YOU   How long have you been at it?
+SELLA Since last night.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 24 · set-it-up-herself · held
+SELLA It isn't working.
+YOU   Tell me what's happening.
+SELLA I'm trying to get a draught out of the bag to one of my party, and it won't go. It just sits there.
+YOU   Talk me through what you did. And which draught, exactly?
+SELLA I found the draught in the bag, then went through the account for how to get it to him. Four times.
+YOU   Which bag is it — the party's, or your own? And you've had more than one go at it?
+SELLA Four goes at it.
+YOU   How long have you had it?
+SELLA Since last autumn.
+YOU   And they're all on the account?
+SELLA All of them. My old partner runs her own party now.
+YOU   Tell me about the party.
+SELLA There's four of us. Me, Pell, and the Ryle brothers.
+YOU   So you've been doing the same thing each time? And who else is on the account?
+SELLA That's right. The same thing each time.
+YOU   You couldn't find where to do it at all?
+SELLA No. There's no transfer anywhere. How am I meant to transfer a thing with nothing to transfer it with?
+YOU   Who's on the account besides you?
+SELLA Pell and the Ryle brothers.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 25 · no-one-told-her · held
+SELLA It isn't working.
+YOU   What happens when you try it?
+SELLA Nothing. I do the thing I think I'm meant to do, and the draught just sits there.
+YOU   What have you tried?
+SELLA The same thing, four times. Last night and again this morning. Les would've known what to do.
+YOU   What is it you're trying to move? And nothing happens at all, not even a message?
+SELLA A healing draught.
+YOU   Which draught, exactly? And you've had more than one go at it?
+SELLA Four goes at it.
+YOU   Where is the draught now? And when did it start?
+SELLA I started on it last night, and I'll own I was tired by then.
+YOU   It's one of the standard ones? And how long have you been at it?
+SELLA That's right. We keep three of them.
+YOU   Four times, you said?
+SELLA Four times, yes. I've been at this since last night thinking I was doing something stupid.
+YOU   It started last night? And you've been doing the same thing each time?
+SELLA Last night, yes.
+YOU   What did you try first? And since last night, you said?
+SELLA The only thing I could think to try. I've done it four times now. Yes. Since last night.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 26 · no-one-told-her · held
+SELLA It isn't working.
+YOU   Tell me what's happening.
+SELLA I'm trying to get a draught out of the bag to one of my party, and it won't go. It just sits there.
+YOU   Let me make sure I have it — nothing moves at all?
+SELLA Yes. Nothing moves. The draught just sits there.
+YOU   Which draught, exactly?
+SELLA A healing draught. The standard one — we keep three.
+YOU   So nothing happens at all, not even a message? And how many of you are there?
+SELLA Four.
+YOU   What did you try first? And can you see it in there?
+SELLA I can. I'm looking at it now.
+YOU   Which bag is it — the party's, or your own? And tell me about the party.
+SELLA [N] My old partner runs her own party now.
+YOU   What have you tried?
+SELLA The same thing, four times. Last night and again this morning. Les would've known what to do.
+YOU   It started last night? And four of you altogether, is that right?
+SELLA I started on it last night, and I'll own I was tired by then.
+YOU   You've had more than one go at it?
+SELLA Four goes at it.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 27 · no-one-told-her · held
+SELLA It isn't working.
+YOU   Tell me what's happening.
+SELLA I'm trying to get a draught out of the bag to one of my party, and it won't go. It just sits there.
+YOU   Which draught, exactly? And what have you tried?
+SELLA A healing draught. The standard one — we keep three. The same thing, four times. Last night and again this morning. Les would've known what to do.
+YOU   When did it start? And doing it the same way each time?
+SELLA Last night.
+YOU   Talk me through what you did.
+SELLA I found the draught in the bag, then went through the account for how to get it to him. Four times.
+YOU   Who's it for? And you couldn't find where to do it at all?
+SELLA No. There's no transfer anywhere. How am I meant to transfer a thing with nothing to transfer it with?
+YOU   So you couldn't find the thing that does it — is that it? And four times, you said?
+SELLA That's it. There's no transfer anywhere. I've looked at every page twice.
+YOU   Which bag is it — the party's, or your own? And since last night, you said?
+SELLA The party's. Yes. Since last night.
+YOU   What were you looking for it to say?
+SELLA Transfer. I've read every word on that account and not one of them says it.
+YOU   So you've been doing the same thing each time? And who's on the account besides you?
+SELLA Pell and the Ryle brothers. My old partner runs her own party now.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 28 · no-one-told-her · held
+SELLA It isn't working.
+YOU   So nothing happens at all, not even a message?
+SELLA Nothing at all. It just sits there.
+YOU   Let me make sure I have it — nothing moves at all?
+SELLA Yes. Nothing moves. The draught just sits there.
+YOU   What happens when you try it?
+SELLA Nothing. I do the thing I think I'm meant to do, and the draught just sits there.
+YOU   What have you tried? And where is the draught now?
+SELLA The same thing, four times. Last night and again this morning.
+YOU   You've had more than one go at it? And what is it you're trying to move?
+SELLA A healing draught.
+YOU   So you've been doing the same thing each time?
+SELLA That's right. The same thing each time. Les would've known what to do.
+YOU   How are you going about it? And it started last night?
+SELLA Last night, yes.
+YOU   When did it start? And which draught, exactly?
+SELLA A healing draught. The standard one — we keep three.
+YOU   Doing it the same way each time? And a standard healing draught, yes?
+SELLA The same way each time.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 29 · set-it-up-herself · held
+SELLA It isn't working.
+YOU   What happens when you try it?
+SELLA Nothing. I do the thing I think I'm meant to do, and the draught just sits there.
+YOU   Talk me through what you did.
+SELLA I found the draught in the bag, then went through the account for how to get it to him. Four times. Les would've known what to do.
+YOU   The bag itself seems all right? And what were you looking for it to say?
+SELLA The bag's fine. I can see every item in it, plain as day.
+YOU   So it's definitely in the bag? And what did you try first?
+SELLA It's definitely in the bag.
+YOU   Tell me about the account. And you couldn't find where to do it at all?
+SELLA It's the party's account. I've had it since last autumn.
+YOU   So you've been doing the same thing each time? And how much is in there?
+SELLA A fair bit. Rope, torches, a spare blade, the dried stores, and the draughts. What doesn't fit goes on Biscuit.
+YOU   Tell me about the party.
+SELLA There's four of us. Me, Pell, and the Ryle brothers. My old partner runs her own party now.
+YOU   And they're all on the account?
+SELLA All of them.
+YOU   They were all added at the start? And it's fairly full, then?
+SELLA It is.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 30 · pell-gets-hurt · held
+SELLA It isn't working.
+YOU   So nothing happens at all, not even a message?
+SELLA Nothing at all. It just sits there.
+YOU   Tell me what's happening.
+SELLA I'm trying to get a draught out of the bag to one of my party, and it won't go. It just sits there.
+YOU   Who is it meant to end up with? And how are you going about it?
+SELLA Pell. Pell only came in with us in the spring, if that makes a difference. I go through the account looking for the way to do it, and I can't find one.
+YOU   You've had more than one go at it? And who's on the account besides you?
+SELLA Four goes at it. Les would've known what to do.
+YOU   Pell's in the party with you? And the bag itself seems all right?
+SELLA He is.
+YOU   What have you tried?
+SELLA The same thing, four times. Last night and again this morning.
+YOU   How long have you had it?
+SELLA Since last autumn.
+YOU   When did it start? And which bag is it — the party's, or your own?
+SELLA I started on it last night, and I'll own I was tired by then.
+YOU   Who's it for? And four times, you said?
+SELLA Pell. He's the one who takes the hits, so he ought to be the one carrying it.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 31 · pell-gets-hurt · held
+SELLA It isn't working.
+YOU   Tell me what's happening.
+SELLA I'm trying to get a draught out of the bag to one of my party, and it won't go. It just sits there.
+YOU   Tell me about the bag. And what have you tried?
+SELLA The same thing, four times. Last night and again this morning. Les would've known what to do.
+YOU   Who's it for?
+SELLA Pell. He's the one who takes the hits, so he ought to be the one carrying it. Pell only came in with us in the spring, if that makes a difference.
+YOU   Four times, you said?
+SELLA Four times, yes.
+YOU   Who is it meant to end up with?
+SELLA Pell.
+YOU   It's one of the standard ones? And who else is in the party?
+SELLA That's right. We keep three of them.
+YOU   Pell — have I got the name right?
+SELLA That's right. Pell.
+YOU   Can you see it in there?
+SELLA I can. I'm looking at it now.
+YOU   What is it you're trying to move? And talk me through what you did.
+SELLA I found the draught in the bag, then went through the account for how to get it to him. Four times.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 32 · no-one-told-her · resolved
+SELLA It isn't working.
+YOU   So nothing happens at all, not even a message?
+SELLA Nothing at all. It just sits there.
+YOU   What happens when you try it?
+SELLA Nothing. I do the thing I think I'm meant to do, and the draught just sits there.
+YOU   What have you tried? And which draught, exactly?
+SELLA The same thing, four times. Last night and again this morning. Les would've known what to do. A healing draught. The standard one — we keep three.
+YOU   When did it start?
+SELLA I started on it last night, and I'll own I was tired by then.
+YOU   Let me make sure I have it — nothing moves at all? And talk me through what you did.
+SELLA I found the draught in the bag, then went through the account for how to get it to him. Four times.
+YOU   It's the party account, not a personal one?
+SELLA The party's.
+YOU   So you've been doing the same thing each time? And tell me about the party.
+SELLA There's four of us. Me, Pell, and the Ryle brothers. My old partner runs her own party now.
+YOU   Who else is in the party?
+SELLA Pell, and the Ryle brothers. Four of us, with me.
+YOU   Who's on the account besides you? And what were you looking for, when you were trying to do it?
+SELLA I've read every word on that account and not one of them says transfer. That's all I'm trying to do — transfer it.
+YOU   Our side calls it assigning — you assign the draught to Pell, and it lands in his. Same thing you're calling transferring, and a worse word for it.
+SELLA Assigning. Then why doesn't it say transferring, when transferring is plainly what it does?
+
+=== seed 33 · no-one-told-her · held
+SELLA It isn't working.
+YOU   Tell me what's happening.
+SELLA I'm trying to get a draught out of the bag to one of my party, and it won't go. It just sits there.
+YOU   Which draught, exactly?
+SELLA A healing draught. The standard one — we keep three.
+YOU   Who is it meant to end up with?
+SELLA Pell. Pell only came in with us in the spring, if that makes a difference.
+YOU   Pell — have I got the name right? And it's definitely in the bag?
+SELLA It's definitely in the bag.
+YOU   How many of you are there? And nothing happens at all, not even a message?
+SELLA Nothing at all. It just sits there.
+YOU   Who else is in the party? And where is the draught now?
+SELLA Pell, and the Ryle brothers. Four of us, with me. My old partner runs her own party now.
+YOU   What have you tried? And tell me about the Ryle brothers.
+SELLA They do as they're told and never ask for anything.
+YOU   They've never asked you for anything? And tell me about the party.
+SELLA Never. Tobin starts a thought and Garrick finishes it for him.
+YOU   Pell's in the party with you? And you've had more than one go at it?
+SELLA He is.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 34 · no-one-told-her · held
+SELLA It isn't working.
+YOU   What happens when you try it?
+SELLA Nothing. I do the thing I think I'm meant to do, and the draught just sits there.
+YOU   You've had more than one go at it? And nothing happens at all, not even a message?
+SELLA Four goes at it. Les would've known what to do. Nothing at all. It just sits there.
+YOU   Tell me what's happening. And four times, you said?
+SELLA Four times, yes.
+YOU   Where is the draught now?
+SELLA In the bag. I'm looking at it now.
+YOU   Tell me about the bag.
+SELLA It's the party's bag. Everything we carry is in it.
+YOU   Let me make sure I have it — nothing moves at all?
+SELLA Yes. Nothing moves. The draught just sits there.
+YOU   The party's bag, that's the one? And it's definitely in the bag?
+SELLA That's the one.
+YOU   What is it you're trying to move?
+SELLA A healing draught.
+YOU   It's one of the standard ones? And how much is in there?
+SELLA A fair bit. Rope, torches, a spare blade, the dried stores, and the draughts. What doesn't fit goes on Biscuit.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 35 · set-it-up-herself · held
+SELLA It isn't working.
+YOU   Tell me what's happening.
+SELLA I'm trying to get a draught out of the bag to one of my party, and it won't go. It just sits there.
+YOU   So it's definitely in the bag? And how are you going about it?
+SELLA It's definitely in the bag.
+YOU   It's still showing in the bag? And what is it you're trying to move?
+SELLA A healing draught.
+YOU   What have you tried? And the bag itself seems all right?
+SELLA The same thing, four times. Last night and again this morning.
+YOU   Four times, you said? And how many of you are there?
+SELLA Four. My old partner runs her own party now.
+YOU   Who else is in the party?
+SELLA Pell, and the Ryle brothers. Four of us, with me.
+YOU   Tell me about the party. And when did it start?
+SELLA There's four of us. Me, Pell, and the Ryle brothers.
+YOU   Doing it the same way each time? And which bag is it — the party's, or your own?
+SELLA The party's.
+YOU   Tell me about the Ryle brothers.
+SELLA They do as they're told and never ask for anything. The Ryles have never had anything off me either, come to think of it.
+YOU   I'll have your permissions looked at — that's usually what sits behind this.
+SELLA I'm the leader. I set the whole thing up myself — why wouldn't I be allowed?
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 36 · pell-gets-hurt · held
+SELLA It isn't working.
+YOU   What happens when you try it?
+SELLA Nothing. I do the thing I think I'm meant to do, and the draught just sits there.
+YOU   What did you try first? And where is the draught now?
+SELLA The only thing I could think to try. I've done it four times now.
+YOU   Which draught, exactly? And you've had more than one go at it?
+SELLA A healing draught. The standard one — we keep three. Four goes at it. Les would've known what to do.
+YOU   How are you going about it? And tell me what's happening.
+SELLA I'm trying to get a draught out of the bag to one of my party, and it won't go. It just sits there.
+YOU   How many of you are there?
+SELLA Four. My old partner runs her own party now.
+YOU   Four of you altogether, is that right? And what have you tried?
+SELLA The same thing, four times. Last night and again this morning.
+YOU   So you've been doing the same thing each time? And a standard healing draught, yes?
+SELLA That's right. The standard one.
+YOU   It started last night?
+SELLA I started on it last night, and I'll own I was tired by then.
+YOU   And the bag itself seems all right?
+SELLA The bag's fine. I can see every item in it, plain as day.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 37 · no-one-told-her · held
+SELLA It isn't working.
+YOU   So nothing happens at all, not even a message?
+SELLA Nothing at all. It just sits there.
+YOU   What happens when you try it?
+SELLA Nothing. I do the thing I think I'm meant to do, and the draught just sits there.
+YOU   What did you try first? And which draught, exactly?
+SELLA The only thing I could think to try. I've done it four times now. Les would've known what to do. A healing draught. The standard one — we keep three.
+YOU   Four times, you said?
+SELLA Four times, yes. I've been at this since last night thinking I was doing something stupid.
+YOU   How long have you been at it?
+SELLA Since last night.
+YOU   Since last night, you said? And what have you tried?
+SELLA The same thing, four times. Last night and again this morning.
+YOU   A standard healing draught, yes? And you've been doing the same thing each time?
+SELLA That's right. The standard one.
+YOU   It's one of the standard ones?
+SELLA That's right. We keep three of them.
+YOU   Let me make sure I have it — nothing moves at all?
+SELLA Yes. Nothing moves. The draught just sits there.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 38 · pell-gets-hurt · held
+SELLA It isn't working.
+YOU   Tell me what's happening.
+SELLA I'm trying to get a draught out of the bag to one of my party, and it won't go. It just sits there.
+YOU   What did you try first?
+SELLA The only thing I could think to try. I've done it four times now.
+YOU   The bag itself seems all right? And it's one of the standard ones?
+SELLA That's right. We keep three of them.
+YOU   How are you going about it?
+SELLA I go through the account looking for the way to do it, and I can't find one.
+YOU   Who's it for?
+SELLA Pell. He's the one who takes the hits, so he ought to be the one carrying it. Pell only came in with us in the spring, if that makes a difference.
+YOU   Pell's in the party with you? And which bag is it — the party's, or your own?
+SELLA He is. The party's.
+YOU   How long have you had it? And talk me through what you did.
+SELLA I found the draught in the bag, then went through the account for how to get it to him. Four times. Les would've known what to do.
+YOU   Who's on the account besides you?
+SELLA Pell and the Ryle brothers.
+YOU   Who else is in the party? And four times, you said?
+SELLA Pell, and the Ryle brothers. Four of us, with me. My old partner runs her own party now.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 39 · set-it-up-herself · held
+SELLA It isn't working.
+YOU   What happens when you try it?
+SELLA Nothing. I do the thing I think I'm meant to do, and the draught just sits there.
+YOU   How are you going about it? And tell me what's happening.
+SELLA I go through the account looking for the way to do it, and I can't find one.
+YOU   What were you looking for, when you were trying to do it? And what have you tried?
+SELLA I've read every word on that account and not one of them says transfer. That's all I'm trying to do — transfer it. The same thing, four times. Last night and again this morning.
+YOU   What did you try first? And it's one of the standard ones?
+SELLA Yes. We keep three of them.
+YOU   Which draught, exactly?
+SELLA A healing draught. The standard one — we keep three.
+YOU   How long have you had it?
+SELLA Since last autumn.
+YOU   Since last autumn, yes? And when did it start?
+SELLA Last night.
+YOU   You couldn't find where to do it at all? And a standard healing draught, yes?
+SELLA No. There's no transfer anywhere. How am I meant to transfer a thing with nothing to transfer it with?
+YOU   So nothing happens at all, not even a message? And doing it the same way each time?
+SELLA The same way each time. Les would've known what to do.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 40 · no-one-told-her · held
+SELLA It isn't working.
+YOU   So nothing happens at all, not even a message?
+SELLA Nothing at all. It just sits there.
+YOU   Let me make sure I have it — nothing moves at all?
+SELLA That's right. Nothing moves. The draught just sits there.
+YOU   What is it you're trying to move?
+SELLA A healing draught.
+YOU   Where is the draught now? And it's one of the standard ones?
+SELLA In the bag. I'm looking at it now.
+YOU   Tell me about the bag. And can you see it in there?
+SELLA It's the party's bag. Everything we carry is in it.
+YOU   It's still showing in the bag? And tell me what's happening.
+SELLA Yes. It's still there.
+YOU   Which bag is it — the party's, or your own? And how much is in there?
+SELLA The party's.
+YOU   The bag itself seems all right? And tell me about the party.
+SELLA There's four of us. Me, Pell, and the Ryle brothers.
+YOU   What else is in the bag? And tell me about the Ryle brothers.
+SELLA [N] Garrick had a map the wrong way up once.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 41 · pell-gets-hurt · held
+SELLA It isn't working.
+YOU   So nothing happens at all, not even a message?
+SELLA Nothing at all. It just sits there.
+YOU   Let me make sure I have it — nothing moves at all?
+SELLA That's right. Nothing moves. The draught just sits there.
+YOU   What happens when you try it?
+SELLA Nothing. I do the thing I think I'm meant to do, and the draught just sits there.
+YOU   What is it you're trying to move?
+SELLA A healing draught.
+YOU   It's one of the standard ones? And where is the draught now?
+SELLA In the bag. I'm looking at it now.
+YOU   What have you tried? And tell me what's happening.
+SELLA The same thing, four times. Last night and again this morning. Les would've known what to do.
+YOU   Doing it the same way each time?
+SELLA The same way each time.
+YOU   And the bag itself seems all right?
+SELLA The bag's fine. I can see every item in it, plain as day.
+YOU   You've had more than one go at it?
+SELLA Four goes at it.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 42 · no-one-told-her · held
+SELLA It isn't working.
+YOU   What happens when you try it?
+SELLA Nothing. I do the thing I think I'm meant to do, and the draught just sits there.
+YOU   Which draught, exactly? And nothing happens at all, not even a message?
+SELLA A healing draught. The standard one — we keep three.
+YOU   Let me make sure I have it — nothing moves at all? And you've had more than one go at it?
+SELLA Four goes at it. I've been at this since last night thinking I was doing something stupid.
+YOU   What have you tried? And it started last night?
+SELLA Last night, yes.
+YOU   Talk me through what you did.
+SELLA I found the draught in the bag, then went through the account for how to get it to him. Four times. Les would've known what to do.
+YOU   So you've been doing the same thing each time? And where is the draught now?
+SELLA In the bag. I'm looking at it now.
+YOU   So it's definitely in the bag? And who's it for?
+SELLA Pell. He's the one who takes the hits, so he ought to be the one carrying it. Pell only came in with us in the spring, if that makes a difference.
+YOU   How many of you are there? And tell me about the account.
+SELLA Four. My old partner runs her own party now.
+YOU   What did you try first?
+SELLA The only thing I could think to try. I've done it four times now.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 43 · pell-gets-hurt · held
+SELLA It isn't working.
+YOU   So nothing happens at all, not even a message?
+SELLA Nothing at all. It just sits there.
+YOU   What happens when you try it?
+SELLA Nothing. I do the thing I think I'm meant to do, and the draught just sits there.
+YOU   You've had more than one go at it? And what is it you're trying to move?
+SELLA A healing draught.
+YOU   How are you going about it? And it's one of the standard ones?
+SELLA I go through the account looking for the way to do it, and I can't find one. Les would've known what to do. Yes. We keep three of them.
+YOU   Where is the draught now?
+SELLA In the bag. I'm looking at it now.
+YOU   You couldn't find where to do it at all?
+SELLA No. There's no transfer anywhere. How am I meant to transfer a thing with nothing to transfer it with?
+YOU   How long have you had it?
+SELLA Since last autumn.
+YOU   What were you looking for, when you were trying to do it? And can you see it in there?
+SELLA I can. I'm looking at it now.
+YOU   What have you tried? And it's still showing in the bag?
+SELLA That's right. It's still there.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 44 · pell-gets-hurt · held
+SELLA It isn't working.
+YOU   What happens when you try it?
+SELLA Nothing. I do the thing I think I'm meant to do, and the draught just sits there.
+YOU   So nothing happens at all, not even a message?
+SELLA Nothing at all. It just sits there.
+YOU   Tell me what's happening.
+SELLA I'm trying to get a draught out of the bag to one of my party, and it won't go. It just sits there.
+YOU   You've had more than one go at it? And who's it for?
+SELLA Four goes at it. Les would've known what to do.
+YOU   Where is the draught now? And what did you try first?
+SELLA In the bag. I'm looking at it now.
+YOU   Tell me about the party.
+SELLA There's four of us. Me, Pell, and the Ryle brothers.
+YOU   Tell me about the bag.
+SELLA It's the party's bag. Everything we carry is in it.
+YOU   What else is in the bag?
+SELLA Rope, torches, a spare blade, and the dried stores. And the draughts.
+YOU   Can you see it in there? And what have you tried?
+SELLA I can. I'm looking at it now.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 45 · set-it-up-herself · held
+SELLA It isn't working.
+YOU   Tell me what's happening.
+SELLA I'm trying to get a draught out of the bag to one of my party, and it won't go. It just sits there.
+YOU   How many of you are there? And it's definitely in the bag?
+SELLA Four. My old partner runs her own party now, out of the same hall, no less. It's definitely in the bag.
+YOU   It's still showing in the bag?
+SELLA That's right. It's still there.
+YOU   Tell me about the bag.
+SELLA It's the party's bag. Everything we carry is in it.
+YOU   What have you tried? And tell me about the party.
+SELLA The same thing, four times. Last night and again this morning. Les would've known what to do.
+YOU   Which bag is it — the party's, or your own? And who else is in the party?
+SELLA Pell, and the Ryle brothers. Four of us, with me.
+YOU   The bag itself seems all right? And who's it for?
+SELLA The bag's fine. I can see every item in it, plain as day.
+YOU   What else is in the bag? And when did it start?
+SELLA I started on it last night, and I'll own I was tired by then.
+YOU   So you've been doing the same thing each time?
+SELLA That's right. The same thing each time.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 46 · set-it-up-herself · held
+SELLA It isn't working.
+YOU   What happens when you try it?
+SELLA Nothing. I do the thing I think I'm meant to do, and the draught just sits there.
+YOU   Talk me through what you did. And nothing happens at all, not even a message?
+SELLA Nothing at all. It just sits there.
+YOU   Let me make sure I have it — nothing moves at all? And what did you try first?
+SELLA The only thing I could think to try. I've done it four times now.
+YOU   It's one of the standard ones?
+SELLA That's right. We keep three of them.
+YOU   Which draught, exactly?
+SELLA A healing draught. The standard one — we keep three.
+YOU   You've had more than one go at it? And what is it you're trying to move?
+SELLA A healing draught.
+YOU   So you've been doing the same thing each time?
+SELLA Yes. The same thing each time.
+YOU   What have you tried? And where is the draught now?
+SELLA In the bag. I'm looking at it now.
+YOU   Doing it the same way each time? And a standard healing draught, yes?
+SELLA The same way each time.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 47 · no-one-told-her · held
+SELLA It isn't working.
+YOU   Tell me what's happening.
+SELLA I'm trying to get a draught out of the bag to one of my party, and it won't go. It just sits there.
+YOU   What have you tried? And what is it you're trying to move?
+SELLA The same thing, four times. Last night and again this morning. Les would've known what to do.
+YOU   So you've been doing the same thing each time? And how long have you been at it?
+SELLA Since last night.
+YOU   Four times, you said? And it's definitely in the bag?
+SELLA Four times, yes.
+YOU   Can you see it in there?
+SELLA I can. I'm looking at it now.
+YOU   Since last night, you said? And you've had more than one go at it?
+SELLA Four goes at it.
+YOU   When did it start? And how many of you are there?
+SELLA Last night.
+YOU   Where is the draught now? And it's one of the standard ones?
+SELLA In the bag. I'm looking at it now.
+YOU   Who is it meant to end up with? And doing it the same way each time?
+SELLA Pell. Pell only came in with us in the spring, if that makes a difference.
+YOU   I'll have your permissions looked at — that's usually what sits behind this.
+SELLA I'm the leader. I set the whole thing up myself — why wouldn't I be allowed?
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 48 · pell-gets-hurt · held
+SELLA It isn't working.
+YOU   So nothing happens at all, not even a message?
+SELLA Nothing at all. It just sits there.
+YOU   Let me make sure I have it — nothing moves at all?
+SELLA That's right. Nothing moves. The draught just sits there.
+YOU   What happens when you try it? And where is the draught now?
+SELLA In the bag. I'm looking at it now.
+YOU   What is it you're trying to move?
+SELLA A healing draught.
+YOU   It's still showing in the bag? And it's one of the standard ones?
+SELLA Yes. It's still there.
+YOU   So it's definitely in the bag?
+SELLA It's definitely in the bag.
+YOU   Tell me what's happening.
+SELLA I'm trying to get a draught out of the bag to one of my party, and it won't go. It just sits there.
+YOU   You've had more than one go at it?
+SELLA Four goes at it. Les would've known what to do.
+YOU   Can you see it in there? And what did you try first?
+SELLA The only thing I could think to try. I've done it four times now.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.
+
+=== seed 49 · no-one-told-her · held
+SELLA It isn't working.
+YOU   So nothing happens at all, not even a message?
+SELLA Nothing at all. It just sits there.
+YOU   Let me make sure I have it — nothing moves at all?
+SELLA That's right. Nothing moves. The draught just sits there.
+YOU   What happens when you try it? And where is the draught now?
+SELLA In the bag. I'm looking at it now.
+YOU   Which draught, exactly? And it's definitely in the bag?
+SELLA A healing draught. The standard one — we keep three.
+YOU   It's one of the standard ones? And which bag is it — the party's, or your own?
+SELLA The party's.
+YOU   What is it you're trying to move? And the party's bag, that's the one?
+SELLA A healing draught.
+YOU   Tell me what's happening.
+SELLA I'm trying to get a draught out of the bag to one of my party, and it won't go. It just sits there.
+YOU   Tell me about the party.
+SELLA [N] My old partner runs her own party now.
+YOU   A standard healing draught, yes?
+SELLA Yes. The standard one.
+YOU   We've got that documented, and are forwarding the case for follow-up later today.
+SELLA Right. I'll wait to hear, then.

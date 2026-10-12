@@ -193,17 +193,49 @@ function give({ sc, inquiry, cause, herrings, answered, given, pointed = [], rng
 }
 
 /**
+ * The inquiry a line can be said in place of answering — or null.
+ *
+ * Only the last thing asked counts (Phil, 10 October): with two questions,
+ * a line set off by the first reads as skipping what was just said ("What
+ * did you try first? And where is the draught now?" — "Les would've known
+ * what to do.").
+ *
+ * `table` is `{subject: {'suit/angle': [words that must already be in
+ * play]}}`, the same shape as the scenario's `NEEDS`. It is per question and
+ * not per subject because the tie is in the wording of the question: "What
+ * have you tried?" can be met with "Les would've known what to do", and
+ * "Talk me through what you did" cannot.
+ *
+ * @param {Object<string, Object<string, string[]>>} table
+ * @param {Array<{suit: string, angle: string, subject: string}>} inquiries
+ * @param {string[]} have - what has been introduced on this call.
+ * @returns {{suit: string, angle: string, subject: string}|null} a copy of
+ *   the last inquiry, if the line is tied to it.
+ */
+function follows(table, inquiries, have) {
+  const q = inquiries[inquiries.length - 1];
+  if (!q) return null;
+  const needs = (table[q.subject] || {})[`${q.suit}/${q.angle}`];
+  if (!needs || !needs.every((w) => have.includes(w))) return null;
+  return { suit: q.suit, angle: q.angle, subject: q.subject };
+}
+
+/**
  * What she could say if she went her own way this turn.
  *
- * Her baggage, once; a live departure; or a statement the scenario has
- * written for her to make unasked. Where the scenario tags what its lines
+ * Her baggage, once; a memory; or, in a scenario with no life written for
+ * her, a live departure or a statement written for her to make unasked. Her
+ * baggage and her memories are offered only straight after a question the
+ * scenario says they can follow. Where the scenario tags what its lines
  * introduce, an option counts only if it would put something new in play —
  * the random option is supposed to add something to the mix, so a line that
  * adds nothing is not an option. Plain frustration is left out until a
  * generator can tie it to what was asked.
  *
- * @returns {Array<{kind: string, about: string|null, fact: string,
- *   says: string[], suggests: string[], mind: boolean}>}
+ * @returns {Array<{kind: string, about: string|null, fact: string|null,
+ *   says: string[], suggests: string[], mind: boolean, life?: string,
+ *   follows?: object|null}>} `follows` is the inquiry the line was said in
+ *   place of answering, where the scenario ties its lines to questions.
  */
 function ownOptions({ sc, sheet, inquiries, herrings, answered, state }) {
   const asked = inquiries.map((q) => q.subject);
@@ -214,24 +246,37 @@ function ownOptions({ sc, sheet, inquiries, herrings, answered, state }) {
   const t = sheet.baggage.trigger || { subject: null, near: [] };
   const onMind = (w) => w === t.subject || (t.near || []).includes(w);
   const out = [];
-  // With a life on her sheet, leaving the question unanswered takes cause:
-  // the call has soured, or it has started to and everything asked is
-  // something she guards. Thirty
-  // calls read side by side showed that without cause it is heard as not
-  // listening.
-  const cause =
-    !sc.LIFE ||
-    (state.sour || 0) >= 2 ||
-    ((state.sour || 0) >= 0.5 && asked.every((w) => SHEET.ward(sheet, w) === 3));
-  if (!state.saidBaggage && cause) {
-    const says = tags ? tags.baggage[sheet.baggage.id] || [] : [];
-    if (fresh(says)) out.push({ kind: 'bad experience', about: null, fact: sheet.baggage.line, says, suggests: [], mind: true });
+  // Neither is one of her choices (settled.md §2), and whether she takes it
+  // is her wards' to decide, in `odds`. What is decided here is only what she
+  // has to say when she does.
+  // **[C] Mine:** where the scenario lists the questions a line can be said
+  // in place of answering (`inPlaceOf`), it is offered only straight after
+  // one of them. Her line has to come from what she was just asked: tied by
+  // subject alone it was heard as not listening ("Talk me through what you
+  // did." — "Nobody has ever sat down and told me how any of this is meant
+  // to go.").
+  const tied = sheet.baggage.inPlaceOf;
+  const after = tied ? follows(tied, inquiries, have) : null;
+  // **[C] Mine:** with a life on her sheet, never as her first reply.
+  const first = sc.LIFE && (state.turnAtHer || 0) < 1;
+  if (!state.saidBaggage && !first && (!tied || after)) {
+    // Her baggage is itself the new thing she brings in.
+    const says = (tags ? tags.baggage[sheet.baggage.id] || [] : []).concat(tied ? [`baggage:${sheet.baggage.id}`] : []);
+    if (fresh(says)) out.push({ kind: 'bad experience', about: null, fact: sheet.baggage.line, says, suggests: [], mind: true, follows: after });
   }
-  // Her memories are not offered here: said in place of an answer, a line
-  // like "He came to us in the spring" has nobody for "he" to be. They are
-  // added to an answer instead (`lifeAside`). Nor are unasked statements
-  // about the problem, which were the problem again, said sideways.
-  if (sc.LIFE) return out;
+  if (sc.LIFE) {
+    // A memory with no `inPlaceOf` only ever comes beside an answer
+    // (`lifeAside`). Unasked statements about the problem are not offered:
+    // they were the problem again, said sideways.
+    const used = state.usedLife || [];
+    if (!first) {
+      for (const m of sc.LIFE.LIFE) {
+        const q = m.inPlaceOf && !used.includes(m.id) ? follows(m.inPlaceOf, inquiries, have) : null;
+        if (q) out.push({ kind: 'life', about: null, fact: null, life: m.id, says: [`life:${m.id}`], suggests: [], mind: true, follows: q });
+      }
+    }
+    return out;
+  }
   for (const w of herrings.filter(free)) {
     const says = tags ? tags.departure[w] || [] : [w];
     if (fresh(says)) out.push({ kind: 'non-sequitur', about: w, fact: sc.HERRINGS[w].text, says, suggests: sc.HERRINGS[w].suggests.slice(), mind: onMind(w) });
@@ -267,6 +312,7 @@ function ownWay({ sc, sheet, inquiries, herrings, answered, state, rng }) {
     suggests: o.suggests,
     opens: o.about ? [o.about] : [],
     life: o.life || null,
+    follows: o.follows || null,
     how: o.life ? sc.LIFE.fullness(state, sheet) : null,
   };
 }
@@ -484,4 +530,4 @@ function render(t, label) {
   return out;
 }
 
-module.exports = { PICKS, LEAN, ASIDE, pull, odds, choose, give, ownOptions, hanging, fill, render };
+module.exports = { PICKS, LEAN, ASIDE, pull, odds, choose, give, follows, ownOptions, hanging, fill, render };

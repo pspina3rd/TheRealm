@@ -82,16 +82,17 @@ test('the agent never reads back what she has not said, and never names someone 
       if (l.who === 'YOU') assert.ok(pellNamed || !l.text.includes('Pell'), `seed ${seed}: ${l.text}`);
     }
   }
-  // A read-back is offered only for something she has answered.
-  const out = play(1, (view) => {
-    for (const [subject, cells] of Object.entries(view.canAsk)) {
-      for (const k of cells) {
-        if (k.endsWith('/verify')) assert.ok(view.answered.includes(subject), `${subject} could be read back cold`);
+  // Nothing she has said can be read back to her: asking the person who
+  // said a thing whether it is so confirms nothing (Phil, 10 October).
+  for (let seed = 1; seed <= 60; seed += 1) {
+    const out = play(seed, (view) => {
+      for (const [subject, cells] of Object.entries(view.canAsk)) {
+        for (const k of cells) assert.ok(!k.endsWith('/verify'), `seed ${seed}: ${subject} can be read back to her`);
       }
-    }
-    return anything(1)(view);
-  });
-  assert.ok(out.turns > 0);
+      return anything(seed)(view);
+    });
+    assert.ok(out.turns > 0);
+  }
 });
 
 test('the bag is not in front of the player until she has said it', () => {

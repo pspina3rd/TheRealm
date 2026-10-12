@@ -19,131 +19,106 @@ const ANSWERS = {
   working: {
     'what/expand': "I'm trying to get a draught out of the bag to one of my party, and it won't go. It just sits there.",
     'what/contract': "Nothing. I do the thing I think I'm meant to do, and the draught just sits there.",
-    'what/verify': '{yes} Nothing moves. The draught just sits there.',
     'what/validate': 'Nothing at all. It just sits there.',
   },
   bag: {
     'what/expand': "It's the party's bag. Everything we carry is in it.",
     'what/contract': "The party's.",
-    'what/verify': "That's the one.",
     'what/validate': "The bag's fine. I can see every item in it, plain as day.",
   },
   draught: {
     'what/expand': 'A healing draught.',
     'what/contract': 'A healing draught. The standard one — we keep three.',
-    'what/verify': '{yes} The standard one.',
     'what/validate': '{yes} We keep three of them.',
   },
   pell: {
     'who/expand': "Pell. He's the one who takes the hits, so he ought to be the one carrying it.",
     'who/contract': 'Pell.',
-    'who/verify': '{yes} Pell.',
     'who/validate': 'He is.',
   },
   tried: {
     'what/expand': 'The same thing, four times. Last night and again this morning.',
     'what/contract': "The only thing I could think to try. I've done it four times now.",
-    'what/verify': 'Four times, yes.',
     'what/validate': 'Four goes at it.',
     'how/expand': "I go through the account looking for the way to do it, and I can't find one.",
     'how/contract': 'I found the draught in the bag, then went through the account for how to get it to him. Four times.',
-    'how/verify': '{yes} The same thing each time.',
-    'how/validate': 'The same way each time.',
   },
   looking: {
     'what/expand': "I've read every word on that account and not one of them says transfer. That's all I'm trying to do — transfer it.",
     'what/contract': "Transfer. I've read every word on that account and not one of them says it.",
-    'what/verify': "That's it. There's no transfer anywhere. I've looked at every page twice.",
     'what/validate': "No. There's no transfer anywhere. How am I meant to transfer a thing with nothing to transfer it with?",
   },
   party: {
     'who/expand': 'Pell, and the Ryle brothers. Four of us, with me.',
     'who/contract': 'Pell and the Ryle brothers.',
-    'who/verify': '{yes} Four.',
     'who/validate': 'All of them.',
     'what/expand': "There's four of us. Me, Pell, and the Ryle brothers.",
     'what/contract': 'Four.',
-    'what/verify': '{yes} The one account.',
     'what/validate': '{yes} One between the four of us.',
   },
   leader: {
     'who/expand': 'I did. I set the whole thing up myself.',
     'who/contract': 'I am.',
-    'who/verify': "{yes} I'm the leader.",
     'who/validate': 'I am. I set it up myself.',
   },
   permission: {
     'what/expand': 'Nothing. Nobody has ever mentioned it to me.',
     'what/contract': 'Not that anyone has told me.',
-    'what/verify': "Nobody. I don't know the first thing about them.",
     'what/validate': 'Not that I know of.',
   },
   before: {
     'when/expand': "Never. There's never been a need.",
     'when/contract': "No. I've never moved anything to anybody before.",
-    'when/verify': '{yes} The first time.',
     'when/validate': "First time. There's never been a need.",
   },
   since: {
     'when/expand': 'Last night.',
     'when/contract': 'Since last night.',
-    'when/verify': '{yes} Since last night.',
-    'when/validate': 'Last night, yes.',
   },
   morning: {
     'when/expand': "First light. That's when we're out.",
     'when/contract': 'First light.',
-    'when/verify': '{yes} First light.',
     'when/validate': "I'd rather it was in his hands before then, yes.",
     'why/expand': "Because he's the one who takes the hits. I'd rather he had it on him.",
     'why/contract': "Then he hasn't got it when he needs it.",
-    'why/verify': "{yes} He's the one who takes the hits.",
     'why/validate': 'He is.',
   },
   members: {
     'who/expand': 'All of them. Pell and both the Ryles.',
     'who/contract': 'I did, when we started.',
-    'who/verify': '{yes} All four.',
     'who/validate': '{yes} I put them on myself.',
   },
   item: {
     'what/expand': "In the bag. I'm looking at it now.",
     'what/contract': "I can. I'm looking at it now.",
-    'what/verify': "{yes} It's still there.",
     'what/validate': "It's definitely in the bag.",
   },
   account: {
     'what/expand': "It's the party's account. I've had it since last autumn.",
     'what/contract': 'Since last autumn.',
-    'what/verify': '{yes} Last autumn.',
     'what/validate': "The party's.",
   },
   tier: {
     'what/expand': 'Silver.',
     'what/contract': 'Silver. It went up when the Ryles joined.',
-    'what/verify': '{yes} Silver.',
     'what/validate': 'Silver, yes.',
   },
   stores: {
     'what/expand': 'Rope, torches, a spare blade, and the dried stores. And the draughts.',
     'what/contract': 'A fair bit. Rope, torches, a spare blade, the dried stores, and the draughts.',
-    'what/verify': '{yes} And a spare blade, and the draughts.',
     'what/validate': 'It is.',
   },
   paid: {
     'what/expand': "It's paid every month without fail.",
     'what/contract': "No. It's always paid.",
-    'what/verify': "{yes} It's always paid.",
     'what/validate': 'Nothing.',
     'when/expand': 'Every month.',
     'when/contract': 'It goes every month, without fail.',
-    'when/verify': '{yes} Every month.',
     'when/validate': 'Monthly, yes.',
   },
   ryles: {
     'who/expand': "They do as they're told and never ask for anything.",
     'who/contract': 'No. They never ask for anything.',
-    'who/verify': 'Never.',
     'who/validate': "They don't. They do as they're told.",
   },
 };
@@ -185,7 +160,7 @@ const NOTHING = "I couldn't tell you that.";
  * introduced it (Phil, 8 October; settled.md §2 on what can be played). So
  * every answer is tagged with what it says, by hand: a subject she names
  * becomes something the player can ask about, and a detail she gives
- * (`last-night`, `four-times`) becomes something the agent may read back or
+ * (`last-night`, `four-times`) becomes something the agent may
  * build a question on. An answer that names nothing new puts nothing new in
  * play.
  */
@@ -193,113 +168,92 @@ const SAYS = {
   working: {
     'what/expand': ['draught', 'bag', 'party', 'pell', 'tried'],
     'what/contract': ['draught', 'tried'],
-    'what/verify': ['draught'],
     'what/validate': [],
   },
   bag: {
     'what/expand': ['party', 'stores'],
     'what/contract': ['party'],
-    'what/verify': [],
     'what/validate': ['stores'],
   },
   draught: {
     'what/expand': ['healing'],
     'what/contract': ['healing', 'standard', 'three'],
-    'what/verify': ['standard'],
     'what/validate': ['three'],
   },
   pell: {
     'who/expand': ['takes-hits'],
     'who/contract': [],
-    'who/verify': [],
     'who/validate': ['party'],
   },
   tried: {
     'what/expand': ['four-times', 'since', 'last-night'],
     'what/contract': ['four-times'],
-    'what/verify': ['four-times'],
     'what/validate': ['four-times'],
     'how/expand': ['account', 'looking'],
     'how/contract': ['draught', 'bag', 'account', 'looking', 'pell', 'four-times'],
-    'how/verify': [],
-    'how/validate': [],
   },
   looking: {
     'what/expand': ['account'],
     'what/contract': ['account'],
-    'what/verify': ['account'],
     'what/validate': [],
   },
   party: {
     'who/expand': ['ryles', 'four-people'],
     'who/contract': ['ryles'],
-    'who/verify': ['four-people'],
     'who/validate': ['members', 'account'],
     'what/expand': ['four-people', 'ryles'],
     'what/contract': ['four-people'],
-    'what/verify': ['account'],
     'what/validate': ['account', 'four-people'],
   },
-  leader: { 'who/expand': [], 'who/contract': [], 'who/verify': [], 'who/validate': [] },
-  permission: { 'what/expand': [], 'what/contract': [], 'what/verify': [], 'what/validate': [] },
-  before: { 'when/expand': [], 'when/contract': [], 'when/verify': [], 'when/validate': [] },
+  leader: { 'who/expand': [], 'who/contract': [], 'who/validate': [] },
+  permission: { 'what/expand': [], 'what/contract': [], 'what/validate': [] },
+  before: { 'when/expand': [], 'when/contract': [], 'when/validate': [] },
   since: {
     'when/expand': ['last-night'],
     'when/contract': ['last-night'],
-    'when/verify': ['last-night'],
-    'when/validate': ['last-night'],
   },
   morning: {
     'when/expand': ['first-light'],
     'when/contract': ['first-light'],
-    'when/verify': ['first-light'],
     'when/validate': ['pell'],
     'why/expand': ['pell', 'takes-hits'],
     'why/contract': ['pell'],
-    'why/verify': ['takes-hits'],
     'why/validate': [],
   },
   members: {
     'who/expand': ['ryles'],
     'who/contract': ['leader'],
-    'who/verify': ['four-people'],
     'who/validate': ['leader'],
   },
   item: {
     'what/expand': ['bag'],
     'what/contract': [],
-    'what/verify': [],
     'what/validate': ['bag'],
   },
   account: {
     'what/expand': ['party', 'autumn'],
     'what/contract': ['autumn'],
-    'what/verify': ['autumn'],
     'what/validate': ['party'],
   },
   tier: {
     'what/expand': ['silver'],
     'what/contract': ['silver', 'ryles'],
-    'what/verify': ['silver'],
     'what/validate': ['silver'],
   },
   stores: {
     'what/expand': ['draught', 'stores-list'],
     'what/contract': ['draught', 'stores-list', 'full'],
-    'what/verify': ['draught', 'stores-list'],
     'what/validate': ['full'],
   },
   paid: {
     'what/expand': ['monthly'],
     'what/contract': [],
-    'what/verify': [],
     'what/validate': [],
     'when/expand': ['monthly'],
     'when/contract': ['monthly'],
-    'when/verify': ['monthly'],
     'when/validate': ['monthly'],
   },
-  ryles: { 'who/expand': [], 'who/contract': [], 'who/verify': [], 'who/validate': [] },
+  ryles: { 'who/expand': [], 'who/contract': [], 'who/validate': [] },
 };
 
 /** What her other lines introduce: opening, number, unasked statements, baggage, departures. */
@@ -344,47 +298,46 @@ const ALSO = { draught: ['item'] };
 /**
  * What must already have been said before a question can be asked.
  *
- * Unlisted questions need only their own subject to be in play. A read-back
- * (Verify) additionally needs her to have answered on that subject, and a
- * question with a name in it needs the name — both enforced in `turn.js`.
+ * Unlisted questions need only their own subject to be in play, and a
+ * question with a name in it needs the name — enforced in `turn.js`.
+ *
+ * There are no read-backs. The 23 written on 8 October each read her own
+ * words back to her ("You're the leader — have I got that right?" after she
+ * had said "I am"), which confirms nothing: the only source is her, and on
+ * this call she is the one who has it wrong. Phil, 10 October. Checking what
+ * she said is done against the record.
+ *
+ * Two Validate questions were the same move under another label and went
+ * with them: "It started last night?" and "Doing it the same way each
+ * time?" could each be asked only once she had said exactly that, and
+ * nothing but her could have said it (`logs/find-read-backs.js`).
  */
 const NEEDS = {
-  draught: { 'what/verify': ['standard'] },
   pell: { 'who/validate': ['party'] },
-  tried: { 'what/verify': ['four-times'], 'how/verify': ['four-times'], 'how/validate': ['four-times'] },
   party: {
     'who/contract': ['account'],
-    'who/verify': ['four-people'],
     'who/validate': ['account'],
-    'what/verify': ['account'],
     'what/validate': ['account', 'four-people'],
   },
   leader: { 'who/expand': ['account'] },
   permission: { 'what/contract': ['account'] },
   before: { 'when/expand': ['party'] },
-  since: { 'when/verify': ['last-night'], 'when/validate': ['last-night'] },
   morning: {
-    'when/verify': ['first-light'],
     'why/contract': ['bag'],
-    'why/verify': ['takes-hits'],
     'why/validate': ['pell'],
   },
   members: {
     'who/expand': ['account'],
     'who/contract': ['account'],
-    'who/verify': ['four-people'],
     'who/validate': ['account'],
   },
-  item: { 'what/contract': ['bag'], 'what/verify': ['bag'], 'what/validate': ['bag'] },
-  account: { 'what/verify': ['autumn'] },
-  tier: { 'what/verify': ['silver'], 'what/validate': ['silver'] },
+  item: { 'what/contract': ['bag'], 'what/validate': ['bag'] },
+  tier: { 'what/validate': ['silver'] },
   stores: {
     'what/expand': ['bag'],
     'what/contract': ['bag'],
-    'what/verify': ['stores-list'],
     'what/validate': ['stores-list'],
   },
-  paid: { 'when/verify': ['monthly'] },
   ryles: { 'who/contract': ['bag'], 'who/validate': ['bag'] },
 };
 

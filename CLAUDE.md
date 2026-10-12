@@ -8,6 +8,8 @@ every guild. Currently a
 vertical-slice prototype validating one core loop: imperfect customer
 memory shaping future encounters.
 
+**Picking this up in a new session? Start at the top of `docs/notes-reply-engine.md`** — *Where to pick up* — and read `docs/handover/memory/`, which holds Phil's working rules copied from a local memory a cloud session does not have.
+
 **Read `docs/settled.md` before implementing anything.** It records
 what has been decided since the 12 September reframe. **[P]** is
 Phil's, **[C]** is Claude's unconfirmed inference, **[C·ok]** is an
@@ -39,6 +41,8 @@ reframe replaced.
 | `scripts/playTurns.js` | Play the bag call yourself, in turns. Prints the conversation only; per-turn detail goes to `logs/` (git-ignored). |
 | `scripts/playCards.js`, `scripts/lineInventory.js`, `scripts/tableTest.js` | Play the older one-inquiry call by hand · count questions against replies · the budget sweep and the steering experiment. |
 | `docs/notes-reply-engine.md`, `docs/templates-from-playthroughs.md` | Working notes, not the record: what was built 8–10 October, every invention in it, the three rounds of play-throughs, what independent readers found, and what is still wrong. **Read both before touching `src/cards/turn.js` or its neighbours.** |
+| `docs/handover/memory/` | Phil's working rules, copied 12 October from the local Claude memory so a cloud session has them. How he wants replies written, what Trust and Verify means in his words, and corrections he has had to repeat. |
+| `logs/` (selected files force-added) | Evidence from 10–12 October: the word-association runs, the six-card test, the check scripts. The directory is otherwise git-ignored. |
 | `docs/plan-cards.md` | The plan for the card call: scope, a 25-item claim set with each item tagged and cited, acceptance criteria per module, the four measurement definitions fixed before building, what an independent audit changed, and the measurements as of 4 October. |
 | `src/call/score.js` | What each perspective got out of a call, as vectors on the record's fifteen categories plus each seat's extras. **Never a total** — an axis that was not in play is absent rather than zero, and the same event reads differently depending on who is holding it. |
 | `scripts/playShifts.js` | Plays the engine over many seeds and prints transcripts and an outcome distribution. Green tests do not tell you whether a call works — read what this prints. |

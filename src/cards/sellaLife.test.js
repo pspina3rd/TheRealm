@@ -117,28 +117,62 @@ test('without her remembrances the same caller says none of them', () => {
   }
 });
 
-test('her Need is rare, and her own way takes cause', () => {
+test('her Need is rare, and she never opens a statement about the problem with a stock pivot', () => {
   let need = 0;
-  let own = 0;
-  let replies = 0;
   const N = 300;
   for (let seed = 1; seed <= N; seed += 1) {
     const out = playTurns({ agent: { choose: anything(seed) }, rng: seededRng(seed), scenario: BAG });
     if (out.lines.some((l) => l.text.includes(BAG.NEED.line))) need += 1;
     for (const l of out.lines) {
-      if (!l.template) continue;
-      replies += 1;
-      if (!l.template.own) continue;
-      own += 1;
-      // Never a statement about the problem behind a stock opener.
+      if (!l.template || !l.template.own) continue;
       assert.ok(!/^(The thing is|What I do know is),/.test(l.text), `seed ${seed}: ${l.text}`);
     }
   }
   // It was in 28 of 30 calls. The record says the rate is small.
   assert.ok(need / N < 0.5, `her Need surfaced in ${need} of ${N} calls`);
   assert.ok(need > 0, 'her Need never surfaced at all');
-  // It was one reply in five. It is her baggage, said once, and only when the
-  // call has given her cause; this policy re-asks about the same things, which
-  // is cause.
-  assert.ok(own / replies < 0.1, `she left the question unanswered in ${own} of ${replies} replies`);
+});
+
+test('answering neither, she says only a line tied to a question she was just asked', () => {
+  // Recomputed from what she was asked and the scenario's tables, not from
+  // what the engine recorded about itself.
+  // The last thing asked, and no other.
+  const tiedTo = (table, t) => {
+    const q = t.left[t.left.length - 1];
+    return !!(q && table && table[q.subject] && table[q.subject][`${q.suit}/${q.angle}`]);
+  };
+  let seen = 0;
+  for (let seed = 1; seed <= 600; seed += 1) {
+    const out = playTurns({ agent: { choose: anything(seed) }, rng: seededRng(seed), scenario: BAG });
+    const said = [];
+    out.lines.filter((l) => l.template).forEach((l, i) => {
+      const o = l.template.own;
+      if (!o) return;
+      seen += 1;
+      assert.ok(i > 0, `seed ${seed}: she answered neither as her first reply`);
+      assert.strictEqual(l.template.gives.length, 0);
+      const key = o.life || 'baggage';
+      assert.ok(!said.includes(key), `seed ${seed}: ${key} said twice in one call`);
+      said.push(key);
+      const table = o.life ? byId(o.life).inPlaceOf : out.sheet.baggage.inPlaceOf;
+      assert.ok(tiedTo(table, l.template), `seed ${seed}: "${l.text}" follows nothing she was asked`);
+      const line = o.life ? L.say(byId(o.life), o.how) : out.sheet.baggage.line;
+      assert.strictEqual(l.text, line, `seed ${seed}: something was added to the line`);
+    });
+  }
+  assert.ok(seen > 30, `she answered neither only ${seen} times in 600 calls — it is not a real choice`);
+});
+
+test('every tie names a question that exists, and her brother is never said in place of an answer', () => {
+  const tables = L.LIFE.filter((m) => m.inPlaceOf).map((m) => m.inPlaceOf).concat(Object.values(BAG.BAGGAGE).map((b) => b.inPlaceOf));
+  for (const table of tables) {
+    assert.ok(table, 'a baggage line with no ties would be said after anything');
+    for (const s of Object.keys(table)) {
+      for (const cell of Object.keys(table[s])) {
+        assert.ok(BAG.QUESTIONS[s] && BAG.QUESTIONS[s][cell], `no question ${s} ${cell}`);
+        assert.ok(Array.isArray(table[s][cell]));
+      }
+    }
+  }
+  assert.strictEqual(byId('atrem').inPlaceOf, undefined);
 });

@@ -1,0 +1,87 @@
+18 possible exchanges
+
+[baggage set-it-up-herself]
+  "Who set the account up?"
+  — "I set this whole thing up myself and now I cannot work it."
+
+[baggage set-it-up-herself]
+  "Who's the leader of it?"
+  — "I set this whole thing up myself and now I cannot work it."
+
+[baggage set-it-up-herself]
+  "You're the one who runs it?"
+  — "I set this whole thing up myself and now I cannot work it."
+
+[baggage set-it-up-herself]
+  "Who put them on it?"
+  — "I set this whole thing up myself and now I cannot work it."
+
+[baggage set-it-up-herself]
+  "Tell me about the account."
+  — "I set this whole thing up myself and now I cannot work it."
+
+[baggage no-one-told-her]
+  "What have you been told about what you're allowed to do?"
+  — "Nobody has ever sat down and told me how any of this is meant to go."
+
+[baggage pell-gets-hurt] (only once pell is in play)
+  "Why does it have to be before you leave?"
+  — "If he goes out without it and something happens, that's on me."
+
+[baggage pell-gets-hurt] (only once pell is in play)
+  "What happens if it stays in the bag?"
+  — "If he goes out without it and something happens, that's on me."
+
+[baggage pell-gets-hurt]
+  "He's the one who needs it on him, is he?"
+  — "If he goes out without it and something happens, that's on me."
+
+[memory maud]
+  "Tell me about the party."
+  — "My old partner runs her own party now.  /  My old partner runs her own party now, out of the same hall, no less.  /  My old partner Maud runs her own party now, out of the same hall, no less. Took Les with her when she went."
+
+[memory maud]
+  "You're the one who runs it?"
+  — "My old partner runs her own party now.  /  My old partner runs her own party now, out of the same hall, no less.  /  My old partner Maud runs her own party now, out of the same hall, no less. Took Les with her when she went."
+
+[memory les]
+  "What have you tried?"
+  — "Les would've known what to do."
+
+[memory les]
+  "What did you try first?"
+  — "Les would've known what to do."
+
+[memory clerk]
+  "What have you been told about what you're allowed to do?"
+  — "The clerk at the guild hall wants a form for everything.  /  The clerk at the guild hall wants a form for everything, and then a second form to say the first one's filled in."
+
+[memory biscuit]
+  "How much is in there?"
+  — "What doesn't fit goes on Biscuit.  /  What doesn't fit goes on Biscuit, our mule."
+
+[memory biscuit]
+  "It's fairly full, then?"
+  — "What doesn't fit goes on Biscuit.  /  What doesn't fit goes on Biscuit, our mule."
+
+[memory garrick-map]
+  "Tell me about the Ryle brothers."
+  — "Garrick had a map the wrong way up once.  /  Garrick had a map the wrong way up once, on the hill roads.  /  Garrick had a map the wrong way up once, on the hill roads. We lost two days."
+
+[memory tobin]
+  "Tell me about the Ryle brothers."
+  — "Tobin starts a thought and Garrick finishes it for him.  /  Tobin starts a thought and Garrick finishes it for him. Usually wrong."
+
+ties naming a question that does not exist: 0
+
+random agent, 2000 calls: neither 376 of 18000 replies (2.1%) · not tied 0 · as first reply 0 · same line twice in a call 0
+possible exchanges never seen in play: 9
+  baggage set-it-up-herself after leader who/expand
+  baggage set-it-up-herself after leader who/contract
+  baggage set-it-up-herself after leader who/validate
+  baggage no-one-told-her after permission what/expand
+  baggage pell-gets-hurt after morning why/expand
+  baggage pell-gets-hurt after morning why/contract
+  baggage pell-gets-hurt after morning why/validate
+  memory maud after leader who/validate
+  memory clerk after permission what/expand

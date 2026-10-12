@@ -213,131 +213,106 @@ const QUESTIONS = {
   working: {
     'what/expand': "Tell me what's happening.",
     'what/contract': 'What happens when you try it?',
-    'what/verify': "Let me make sure I have it — nothing moves at all?",
     'what/validate': "So nothing happens at all, not even a message?",
   },
   bag: {
     'what/expand': 'Tell me about the bag.',
     'what/contract': "Which bag is it — the party's, or your own?",
-    'what/verify': "The party's bag, that's the one?",
     'what/validate': 'And the bag itself seems all right?',
   },
   draught: {
     'what/expand': "What is it you're trying to move?",
     'what/contract': 'Which draught, exactly?',
-    'what/verify': 'A standard healing draught, yes?',
     'what/validate': "It's one of the standard ones?",
   },
   pell: {
     'who/expand': "Who's it for?",
     'who/contract': 'Who is it meant to end up with?',
-    'who/verify': "Pell — have I got the name right?",
     'who/validate': "And Pell's in the party with you?",
   },
   looking: {
     'what/expand': 'What were you looking for, when you were trying to do it?',
     'what/contract': 'What were you looking for it to say?',
-    'what/verify': "So you couldn't find the thing that does it — is that it?",
     'what/validate': "You couldn't find where to do it at all?",
   },
   tried: {
     'what/expand': 'What have you tried?',
     'what/contract': 'What did you try first?',
-    'what/verify': 'Four times, you said?',
     'what/validate': "You've had more than one go at it?",
     'how/expand': 'How are you going about it?',
     'how/contract': 'Talk me through what you did.',
-    'how/verify': "So you've been doing the same thing each time?",
-    'how/validate': 'Doing it the same way each time?',
   },
   party: {
     'who/expand': "Who else is in the party?",
     'who/contract': "Who's on the account besides you?",
-    'who/verify': 'Four of you altogether, is that right?',
     'who/validate': "And they're all on the account?",
     'what/expand': 'Tell me about the party.',
     'what/contract': 'How many of you are there?',
-    'what/verify': "It's the one party account, yes?",
     'what/validate': 'One account between the four of you?',
   },
   leader: {
     'who/expand': "Who set the account up?",
     'who/contract': "Who's the leader of it?",
-    'who/verify': "You're the leader — have I that right?",
     'who/validate': "You're the one who runs it?",
   },
   permission: {
     'what/expand': "What have you been told about what you're allowed to do?",
     'what/contract': 'Has anyone ever set limits on your account?',
-    'what/verify': 'Nobody has mentioned permissions to you?',
     'what/validate': 'So nothing has ever been locked off for you?',
   },
   before: {
     'when/expand': "When did you last move something to one of them?",
     'when/contract': 'Have you done this before?',
-    'when/verify': "So this is the first time you've tried it?",
     'when/validate': "First time doing it, then?",
   },
   since: {
     'when/expand': 'When did it start?',
     'when/contract': 'How long have you been at it?',
-    'when/verify': 'Since last night, you said?',
-    'when/validate': 'It started last night?',
   },
   morning: {
     'when/expand': 'When do you need it by?',
     'when/contract': 'When are you leaving?',
-    'when/verify': 'First light, is that right?',
     'when/validate': 'You need it before you go?',
     'why/expand': "Why does it have to be before you leave?",
     'why/contract': 'What happens if it stays in the bag?',
-    'why/verify': "It's because he's the one who gets hurt?",
     'why/validate': "He's the one who needs it on him, is he?",
   },
   members: {
     'who/expand': 'Who else is on the account?',
     'who/contract': 'Who put them on it?',
-    'who/verify': 'All four of you on it, yes?',
     'who/validate': 'They were all added at the start?',
   },
   item: {
     'what/expand': 'Where is the draught now?',
     'what/contract': 'Can you see it in there?',
-    'what/verify': "It's still showing in the bag?",
     'what/validate': "So it's definitely in the bag?",
   },
   account: {
     'what/expand': 'Tell me about the account.',
     'what/contract': 'How long have you had it?',
-    'what/verify': 'Since last autumn, yes?',
     'what/validate': "It's the party account, not a personal one?",
   },
   tier: {
     'what/expand': "What plan are you on?",
     'what/contract': 'Which tier is it?',
-    'what/verify': 'Silver, is that right?',
     'what/validate': "You're on Silver?",
   },
   stores: {
     'what/expand': "What else is in the bag?",
     'what/contract': 'How much is in there?',
-    'what/verify': 'Rope, torches, stores — that sort of thing?',
     'what/validate': "It's fairly full, then?",
   },
   paid: {
     'what/expand': 'Tell me about the payments.',
     'what/contract': 'Is there anything outstanding on it?',
-    'what/verify': "It's paid up, yes?",
     'what/validate': 'Nothing owing on it?',
     'when/expand': 'When does it go out?',
     'when/contract': 'When did you last pay it?',
-    'when/verify': 'Every month, is that right?',
     'when/validate': "It goes out monthly?",
   },
   ryles: {
     'who/expand': 'Tell me about the Ryle brothers.',
     'who/contract': 'Have they ever had anything out of the bag?',
-    'who/verify': "They've never asked you for anything?",
     'who/validate': "They don't use it much?",
   },
 };
@@ -447,22 +422,37 @@ function nonsense(suit, subject) {
   return (SUIT_NONSENSE[subject] || []).includes(suit);
 }
 
-/** Her baggage, with triggers on this call's own subjects. */
+/**
+ * Her baggage, with triggers on this call's own subjects.
+ *
+ * `inPlaceOf` lists the questions each line can be said in place of
+ * answering, in the shape of `NEEDS`. **[C] Every entry is mine**, chosen by
+ * reading the question and the line aloud together.
+ */
 const BAGGAGE = {
   'set-it-up-herself': {
     id: 'set-it-up-herself',
     line: 'I set this whole thing up myself and now I cannot work it.',
     trigger: { subject: 'leader', near: ['party', 'before', 'account'], suits: ['who', 'how'] },
+    inPlaceOf: {
+      leader: { 'who/expand': [], 'who/contract': [], 'who/validate': [] },
+      members: { 'who/contract': [] },
+      account: { 'what/expand': [] },
+    },
   },
   'no-one-told-her': {
     id: 'no-one-told-her',
     line: 'Nobody has ever sat down and told me how any of this is meant to go.',
     trigger: { subject: 'permission', near: ['looking', 'tried'], suits: ['what', 'why'] },
+    inPlaceOf: { permission: { 'what/expand': [], } },
   },
   'pell-gets-hurt': {
     id: 'pell-gets-hurt',
     line: "If he goes out without it and something happens, that's on me.",
     trigger: { subject: 'morning', near: ['pell', 'draught'], suits: ['when', 'why'] },
+    // "He" has to be somebody: the two questions that do not say "he"
+    // themselves need Pell in play first.
+    inPlaceOf: { morning: { 'why/expand': ['pell'], 'why/contract': ['pell'], 'why/validate': [] } },
   },
 };
 

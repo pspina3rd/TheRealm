@@ -1,0 +1,46 @@
+working | what | ordinary | bag, Pell
+working | what | worn | bag
+bag | what | ordinary | Biscuit, party
+bag | what | worn | Biscuit
+draught | what | ordinary | Pell
+draught | what | worn | Pell
+pell | who | ordinary | Garrick, Tobin, Biscuit
+pell | who | worn | Garrick
+tried | what | ordinary | whittling, spoons
+tried | what | worn | spoons
+tried | how | ordinary | whittling, spoons
+tried | how | worn | whittling
+looking | what | ordinary |
+looking | what | worn |
+party | who | ordinary | Pell, Garrick, Tobin, Biscuit
+party | who | worn | Pell, Garrick
+party | what | ordinary | bag, Biscuit
+party | what | worn | bag
+leader | who | ordinary | Sella
+leader | who | worn | Maud
+permission | what | ordinary |
+permission | what | worn |
+before | when | ordinary |
+before | when | worn |
+since | when | ordinary |
+since | when | worn |
+morning | when | ordinary |
+morning | when | worn |
+morning | why | ordinary |
+morning | why | worn |
+members | who | ordinary | Pell, Garrick, Tobin
+members | who | worn | Garrick, Tobin
+item | what | ordinary | bag
+item | what | worn | bag
+account | what | ordinary | party, Sella
+account | what | worn | party
+tier | what | ordinary |
+tier | what | worn |
+stores | what | ordinary | Biscuit
+stores | what | worn | Biscuit
+paid | what | ordinary | Atrem, guild
+paid | what | worn | Atrem
+paid | when | ordinary | year
+paid | when | worn |
+ryles | who | ordinary | Garrick, Tobin
+ryles | who | worn | Garrick, Tobin

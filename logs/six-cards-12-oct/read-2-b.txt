@@ -1,0 +1,201 @@
+202 | B | 1 | "nowhere" tacked on; really a plain no
+203 | A | 1 | natural no, with the reason
+204 | A | 1 | natural; not knowing how
+205 | B | 1 | who only nominal; "me" repeated
+206 | C | 1 | "first time for it" is stilted
+207 | C | 1 | "first time, since last night" makes no sense
+208 | B | 0 | where only nominal; account is not place
+209 | A | 1 | natural yes with reason
+210 | A | 1 | natural yes, adds not knowing how
+211 | A | 1 | answers, framed on herself
+212 | A | 1 | names the thing and gives the time
+213 | C | 1 | word order stilted; nobody says it so
+214 | C | 1 | asked when, answers where; not listening
+215 | C | 0 | "because" to a when question
+216 | C | 0 | ignores when; unrelated manner remark
+217 | A | 1 | natural, who and how long
+218 | C | 1 | asked duration, restates the task
+219 | A | 1 | direct and natural
+220 | C | 0 | ignores how long; account not place
+221 | C | 0 | "because" to how long; not listening
+222 | A | 0 | count and manner, sayable; "same" not manner
+223 | C | 1 | asked when, gives no time
+224 | A | 1 | thing named, deadline given
+225 | A | 0 | direct; "light" alone not a time word
+226 | C | 1 | asked when, answers a place
+227 | C | 0 | "because" to when; no time given
+228 | B | 0 | "however" is filler; really a when answer
+229 | C | 1 | asked when, answers who goes
+230 | C | 0 | ignores when; party is people not thing
+231 | A | 0 | direct; "light" alone not a time word
+232 | C | 1 | asked when, answers where
+233 | C | 0 | "because" with no time given
+234 | C | 1 | ignores when; "however we always do" stilted
+235 | A | 1 | natural confirmation naming who
+236 | A | 1 | natural confirmation naming the thing
+237 | A | 0 | natural; "light" alone not a time word
+238 | A | 1 | natural, place worked in
+239 | A | 0 | natural reason; "hits" not a reason word
+240 | A | 0 | natural; "manage" is a verb not manner
+241 | A | 1 | answers why through who
+242 | A | 1 | sayable, framed on the draught
+243 | A | 0 | good answer; "light" not a time word
+244 | A | 1 | good answer framed on place
+245 | A | 0 | direct reason; "hits" not a reason word
+246 | B | 0 | "however" filler; gives no manner or reason
+247 | C | 1 | "that's who it affects" is stilted
+248 | A | 1 | natural consequence, framed on the thing
+249 | A | 0 | natural; "left" not a time word
+250 | A | 1 | tautological but sayable, about place
+251 | B | 0 | consequence dressed as "because"
+252 | B | 0 | "however it happens" filler; no manner
+253 | A | 1 | natural confirmation
+254 | A | 1 | natural confirmation naming the thing
+255 | A | 0 | natural; "leave" not a time word
+256 | A | 1 | natural, place given
+257 | A | 0 | natural reason; "hits" not a reason word
+258 | B | 0 | "same as always" nominal; really who
+259 | A | 1 | direct answer
+260 | B | 0 | who in disguise; party is people
+261 | C | 0 | "they" unnamed; ignores who
+262 | C | 0 | names nobody; not listening
+263 | C | 0 | "because" to who; names nobody
+264 | C | 0 | names nobody; not listening
+265 | A | 1 | direct answer
+266 | C | 1 | "The account, I added them" is stilted
+267 | C | 0 | asked who, answers when
+268 | C | 1 | asked who, answers nowhere; nonsense
+269 | C | 1 | "because" to who; names nobody
+270 | A | 0 | answers who and how; "myself" not manner
+271 | A | 1 | lists who; implied yes
+272 | C | 1 | does not confirm; off the question
+273 | A | 0 | natural; "started" not a time word
+274 | C | 0 | "that's where" stilted; ignores question
+275 | C | 0 | bare "because" to yes/no question
+276 | A | 0 | natural manner; "myself" not manner
+277 | C | 1 | asked where, never says where
+278 | C | 1 | repeats the thing; no location
+279 | C | 1 | echoes "now"; no location
+280 | A | 1 | direct answer
+281 | C | 1 | "because" with no location given
+282 | A | 1 | exasperated but sayable, manner framed
+283 | C | 1 | "yes — me" tacked on, stilted
+284 | A | 1 | natural confirmation
+285 | A | 1 | natural confirmation
+286 | A | 1 | natural confirmation
+287 | C | 0 | "because" to can-you-see; stilted
+288 | A | 1 | natural, manner of seeing
+289 | A | 1 | natural assurance framed on herself
+290 | A | 1 | natural confirmation
+291 | A | 1 | natural, time given
+292 | A | 1 | direct confirmation
+293 | A | 0 | reason for certainty; "twice" not a reason
+294 | A | 1 | natural emphatic reply
+295 | A | 1 | natural, whose it is
+296 | A | 1 | natural description
+297 | A | 1 | natural, time given
+298 | B | 1 | "everywhere" tacked on; about her searching
+299 | C | 0 | opening "because" to "tell me about"
+300 | A | 0 | natural; "myself" is who, not manner
+301 | C | 1 | circular and stilted, "I've had it, me"
+302 | C | 1 | asked how long, restates the account
+303 | A | 1 | direct answer
+304 | C | 1 | accounts do not cover places; ignores question
+305 | C | 0 | "because" to how long
+306 | C | 0 | "bit by bit" makes no sense here
+307 | A | 1 | natural confirmation by who
+308 | A | 1 | natural confirmation
+309 | A | 1 | natural confirmation with time
+310 | B | 1 | place forced in; odd for an account
+311 | A | 0 | implied yes with reason; "none" not reason
+312 | A | 1 | sayable, manner of sharing
+313 | C | 1 | asked which plan, never names it
+314 | A | 1 | direct answer
+315 | C | 0 | never names the plan
+316 | C | 1 | never names plan; "nowhere separate" odd
+317 | C | 0 | "because" with no plan named
+318 | C | 1 | never names the plan
+319 | C | 1 | asked which tier, answers whose
+320 | A | 1 | direct answer
+321 | C | 0 | never names the tier
+322 | C | 0 | never names tier; account not place
+323 | C | 0 | "because" with no tier named
+324 | C | 0 | never names the tier
+325 | A | 1 | natural confirmation by who
+326 | A | 1 | direct confirmation
+327 | A | 0 | natural; "joined" not a time word
+328 | B | 0 | no yes; where is nominal
+329 | A | 0 | implied yes with reason; "needed" a verb
+330 | A | 0 | sayable grumble; "itself" not manner
+331 | A | 1 | sayable, framed on Biscuit
+332 | A | 1 | direct list
+333 | B | 0 | evasive; when only nominal
+334 | C | 1 | asked what else, answers where
+335 | C | 1 | "because" to what else; lists nothing
+336 | C | 1 | lists nothing; "packed in plain as day" stilted
+337 | A | 0 | natural amount by who; "four" is number
+338 | A | 0 | natural; "plenty" is amount not thing
+339 | B | 0 | when tacked on; really an amount
+340 | C | 1 | asked how much, answers where
+341 | C | 1 | "because" to how much
+342 | A | 1 | natural, manner implies amount
+343 | A | 1 | sayable, framed on who
+344 | A | 0 | natural; "full" is not a thing
+345 | A | 1 | natural, time framed
+346 | C | 1 | "full in there, in the bag" stilted
+347 | A | 1 | sayable reason, implied yes
+348 | C | 1 | "packed plain as day" is not said
+349 | A | 1 | natural, who pays
+350 | B | 0 | curt; what only nominal
+351 | A | 1 | natural, time framed
+352 | A | 0 | natural; account not a place
+353 | C | 0 | opening "because" to "tell me about"
+354 | B | 0 | when in disguise; no manner
+355 | A | 1 | natural no, framed on herself
+356 | A | 1 | direct answer
+357 | A | 1 | natural, time framed
+358 | A | 1 | sayable, slightly odd
+359 | A | 0 | sayable reason; "never" is time word
+360 | B | 0 | "plain and simple" filler; no manner
+361 | A | 1 | natural, by who
+362 | A | 1 | direct answer
+363 | A | 1 | natural; key word not actually spoken
+364 | A | 1 | sayable, place framed
+365 | A | 0 | natural reason; "always" is time word
+366 | A | 0 | natural; "full" alone not manner
+367 | C | 1 | asked when, answers who
+368 | C | 1 | restates the thing; no time
+369 | A | 1 | honest don't-know, about when
+370 | C | 0 | asked when, answers where from
+371 | C | 0 | "because" to when; stilted
+372 | A | 0 | dismissive but sayable; "simple" not manner
+373 | C | 1 | asked when, answers who
+374 | C | 0 | no time; "paid" not a thing
+375 | A | 1 | honest don't-know, about when
+376 | C | 0 | asked when, answers where from
+377 | C | 0 | "because" to when
+378 | C | 0 | "goes out paid" stilted; no time
+379 | B | 1 | sayable don't-know; who only nominal
+380 | B | 0 | sayable dodge; what only nominal
+381 | C | 1 | "tell you about when" is stilted
+382 | C | 0 | ignores monthly; account not place
+383 | C | 0 | "because" to yes/no; no answer
+384 | B | 0 | "however it goes" filler; really when
+385 | A | 1 | direct, names them
+386 | B | 0 | about behaviour, not a thing
+387 | C | 0 | stilted; "that's when" with no time
+388 | A | 0 | natural; "wherever" names no place
+389 | C | 0 | opening "because" to "tell me about"
+390 | A | 1 | natural, manner framed
+391 | A | 1 | names them; implied yes
+392 | A | 1 | natural list of things
+393 | A | 1 | sayable; key word not actually spoken
+394 | B | 1 | echoes question; where only nominal
+395 | C | 0 | bare "because" to yes/no question
+396 | A | 1 | natural, manner framed
+397 | A | 1 | natural confirmation by name
+398 | A | 1 | natural confirmation
+399 | A | 1 | direct, time framed
+400 | B | 1 | echoes question; where only nominal
+401 | A | 0 | natural reason; "never" is time word
+402 | A | 1 | sayable, manner framed

@@ -91,15 +91,13 @@ function playTurns({ agent, rng, scenario, baggage, causeIndex, life }) {
   const tags = sc.TALK && sc.TALK.SAYS ? sc.TALK : null;
   const introduced = new Set();
   /**
-   * Whether a question exists and can be said yet. It has to be written; a
-   * read-back needs her to have said the thing being read back; and a name
-   * cannot be used before she has given it.
+   * Whether a question exists and can be said yet. It has to be written, and
+   * a name cannot be used before she has given it.
    */
   const askable = (q) => {
     if (!sc.TALK) return true;
     const text = sc.QUESTIONS && sc.QUESTIONS[q.target] && sc.QUESTIONS[q.target][`${q.suit}/${q.angle}`];
     if (!text) return false;
-    if (q.angle === 'verify' && !answered.includes(q.target)) return false;
     const needs = (tags && tags.NEEDS[q.target] && tags.NEEDS[q.target][`${q.suit}/${q.angle}`]) || [];
     if (!needs.every((w) => introduced.has(w))) return false;
     return names.every((n) => !text.includes(n) || heardName(n));

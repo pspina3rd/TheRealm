@@ -1,0 +1,25 @@
+lines: 46, 46, 46 · malformed 0 · not single words 0 · words not on her sheet: draught, item, account, night, morning, light, whittling
+
+subject | kind | in all three runs | in two | in one only
+working | what | — | bag, pell | draught, spoons (ordinary only)
+bag | what | biscuit | party (ordinary only) | draught
+draught | what | pell | — | bag (ordinary only)
+pell | who | — | merchant | party, spring (ordinary only), garrick, tobin (ordinary only), biscuit (ordinary only)
+tried | what | — | — | draught, bag (ordinary only), pell, gregor (ordinary only), whittling (ordinary only), spoons
+looking | what | — | — | draught, item (ordinary only)
+party | who | pell, garrick, tobin | biscuit (ordinary only) | —
+party | what | — | bag, biscuit | account (ordinary only), guild (ordinary only), pell (ordinary only), garrick (ordinary only), tobin (ordinary only)
+leader | who | — | sella, maud (worn only) | —
+permission | what | — | — | account, clerk
+before | when | — | — | night (ordinary only)
+since | when | — | — | night, morning (ordinary only)
+morning | when | — | — | light
+morning | why | — | pell | draught
+members | who | pell, garrick, tobin | — | —
+item | what | — | bag | pell (ordinary only), biscuit (ordinary only)
+account | what | — | party, sella (ordinary only) | —
+stores | what | biscuit | — | —
+paid | what | atrem | — | dues, guild (ordinary only)
+paid | when | — | year | atrem
+ryles | who | garrick, tobin | — | —
+tried | how | — | — | gregor (ordinary only), whittling, spoons (ordinary only)
