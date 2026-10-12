@@ -36,6 +36,8 @@ anything a script writes there later stays ignored.
 
 ### What Phil said this session that is NOT yet in `docs/settled.md`
 
+**Folded in 12 October as tentative** — `settled.md` §2, *Her side, mirrored*.
+
 His, verbatim or close; each needs his "fold it in" before it goes in the
 record. Sources are the dated sections below.
 
@@ -113,6 +115,22 @@ record. Sources are the dated sections below.
 4. Whether the deliberately malformed questions (the slip of the tongue)
    survive "some sort of sense".
 5. Whether items 1–9 above go into the record.
+
+### Phil's answers, 12 October (not in the record)
+
+- **The party's history.** The party account was opened before Maud and Les
+  left. They started a new party; Sella kept the existing account.
+- **Tier.** More members and/or a higher overall level lets a party's tier
+  go up. So *"Silver. It went up when the Ryles joined"* now has something
+  behind it, and stays.
+- **The cloak** is removed, from `settled.md` and from `sellaLife.js`.
+- **Pell has his own bag.** The party's bag holds all the items, and the
+  admin (the leader) has to coordinate and maintain it so members get access.
+  Given in answer to the proposed morning line; whether that line is added is
+  still open.
+- **The slip of the tongue.** Shown *"What was what isn't working,
+  exactly?"*, his answer was "Your example makes no sense." Not yet acted on.
+- **Items 1–9** are folded into `settled.md` §2 as tentative additions.
 
 ### The next piece of work
 

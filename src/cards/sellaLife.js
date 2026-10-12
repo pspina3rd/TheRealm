@@ -180,7 +180,6 @@ const LIFE = [
   { id: 'watchtower', from: 'enemy', hangsOff: [], shape: 'fixed', line: "We cleared out an old abandoned watchtower last year. Apparently it wasn't, turns out someone lived there." },
   { id: 'notes', from: 'enemy', hangsOff: [], shape: 'fixed', line: 'I keep getting these notes. They claim their minions are watching us.' },
   { id: 'wrestling', from: 'fun', hangsOff: [], shape: 'name-did', who: { role: 'I' }, did: 'back Gregor Roman at the wrestling every time', detail: ', and he loses every time', then: '' },
-  { id: 'cloak', from: 'adventure', hangsOff: [], shape: 'name-did', who: { role: 'A man in the guild shop' }, did: 'had his cloak come back from POOF heavier', detail: ', and shedding water', then: '' },
   { id: 'boots', from: 'adventure', hangsOff: [], shape: 'name-did', who: { role: 'We' }, did: 'shared a fire with the man they say cleared the lower levels on his own', detail: '', then: 'He spent the evening asking where to get his boots resoled.' },
 ];
 

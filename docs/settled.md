@@ -10,6 +10,7 @@ arise from that.
 Marked:
 
 - **[P]** yours · **[C]** my inference, unconfirmed · **[C·ok]** my inference you confirmed · **[OPEN]** unresolved · **[HELD]** yours, raised and deliberately not settled — see §17a, and using one requires a note saying why
+- *Tentative* — folded in on Phil's say-so as a tentative addition. The tags mean what they always mean; *tentative* says it may still move.
 
 This is the source of truth. `LORE.md` is archived.
 
@@ -971,6 +972,53 @@ the first is her pointing.
 edges* (§12): two inquiries are A and B, and when she goes to C the player
 judges whether C sits inside them.
 
+### Her side, mirrored — *tentative*, 10–12 October
+
+Phil's, folded in 12 October as tentative additions. Sources, with the
+conversation around each: `docs/notes-reply-engine.md`, the sections dated
+10–12 October.
+
+**[P]** Asking the customer to confirm something she herself introduced
+confirms nothing — *"The customer introduced something, so without confirming
+the accuracy, we confirm it with the customer as our path?"* — and in his
+opinion asking it back is idiotic. *(He was using* verify *as the plain word,
+not the angle.)*
+
+**[P]** *"The inquiries to an available 'target' word have to make some sort
+of sense. Whether the customer responds is based on their perspective of what
+the player offered them to talk about. Zero: quasi-related aside · One:
+address the first inquiry · Two: address the second inquiry · Both: address
+both inquiries."*
+
+**[P]** Perhaps the inquiries trigger a handful of remembrance words, in
+addition to the inquiry ones. *(He confirmed the shape 11 October: what she
+says puts those words in front of the player.)* The player targets cards on
+**singular keywords**, never plural keywords or phrases.
+
+**[P]** The hand of five is the **player's**. The customer's side has not
+been given a limit.
+
+**[P]** Her side should be a similar experience to the player's cards —
+suits, questions, Expand, Contract, Verify and Validate — from the
+customer's perspective, not a second machine beside the first.
+
+**[P]** She has the same six cards and chooses which aspect she answers from,
+which need not be the one asked: *"What time did it happen?" — Who is
+selected by the customer and the answer is framed around WHO.*
+
+**[P]** All six work for any target: *"Who for a payment: I paid it. He paid
+it. She paid it. They paid it. We paid it. No one paid it."* Statements to confirm work too —
+*"I can think of several ways it works."*
+
+**[P]** Her checking her own memory may give confident wrong memories,
+questionable right ones, right ones, wrong ones, and anything in between.
+
+**[P]** A working rule rather than a rule of the game — what Trust and Verify
+is, 10 October: *Trust and verify is checking your work. · …fixing the
+problems. · …checking your work again. · …checking up and downstream
+impacts. · …confirming the obvious is addressed. · …counting on the
+unexpected. · …making the leaps of logic.*
+
 ### Critical
 
 **[P]** Leaning toward: a critical is a target that is an improved option.
@@ -1787,9 +1835,7 @@ tell her "you'll want to be careful out there."
 
 **What happened on her adventures. [C·ok, may be revisited]** They took a
 merchant through the hill roads and lost two days because the map was the
-wrong way up; Garrick was holding it · she stood behind a man in the guild
-shop whose cloak had come back from POOF heavier and shedding water, and who
-could not decide whether to be angry · they shared a fire with a man
+wrong way up; Garrick was holding it · they shared a fire with a man
 everybody says cleared the lower levels on his own, who spent the evening
 asking where to get his boots resoled.
 
