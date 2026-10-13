@@ -49,6 +49,17 @@ Phil: 1, 3, 4 and 10 read awkwardly; 9 makes no sense without its context. Rewri
 | When · party | When | We opened the party's account last autumn. | `bagTalk` account what/expand |
 | When · leader | When | From the start. I set the account up. | `bagTalk` leader who/expand; *from the start* is new |
 
+### Set 2, second rewrites — 13 October
+
+**[P]** The party's history, Phil 13 October: formed last autumn; the team
+split at some point before the spring; Pell joined in the spring. The party
+has hardly any history in this scenario.
+
+| Played | She answers | Line |
+|---|---|---|
+| When · party | When | **[C]** We only formed last autumn. |
+| When · leader | When | **[P]** We set it up last autumn, and I've been the party leader the whole time. · **[P]** I've been the leader the whole time. It was set that way when we formed. |
+
 ## Found while checking set 2 — canon disagrees with itself on the timeline
 
 - `bag.js:75`, `bagRecord.js:22`: the account since last autumn; the record
