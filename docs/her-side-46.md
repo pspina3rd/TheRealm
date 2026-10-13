@@ -63,6 +63,25 @@ yet."* "Since last autumn" is mine, from `bag.js:75`, `bagTalk.js:97–98` and
 | When · party | When | *withdrawn — waits on the timeline* |
 | When · leader | When | **[P]** We set it up last autumn, and I've been the party leader the whole time. · **[P]** I've been the leader the whole time. It was set that way when we formed. |
 
+### The party's history — Phil, 13 October **[P]**
+
+- Five years ago Atrem went missing; that is what drove Sella to become an
+  adventurer, to find her brother. She meets Maud at the guild and they
+  become friends.
+- Three years ago the party formed.
+- The Ryles join. Then, a year ago, Maud and Les leave, fearing Sella is
+  obsessed with finding her brother.
+- This spring Pell joins.
+
+**Applied 13 October** (wording mine, facts his): `bag.js` members, account,
+the *party members* belief; `bagTalk.js` members who/contract and
+who/validate, account what/expand and what/contract and their words
+(`autumn` → `years`); `bagRecord.js` headline; `sellaLife.js` Atrem, four →
+five years. `settled.md:1823` still says four years — not changed without
+Phil's say-so. Tests 393 pass, lint clean.
+
+When · party, proposed again: **[C]** *"We formed three years ago."*
+
 ## Found while checking set 2 — canon disagrees with itself on the timeline
 
 - `bag.js:75`, `bagRecord.js:22`: the account since last autumn; the record

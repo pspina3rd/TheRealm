@@ -70,9 +70,9 @@ const BASELINE = {
   before: "No. I've never moved anything to anybody before. There's never been a need.",
   since: 'Since last night.',
   morning: "We're out at first light, and I'd rather it was in his hands before then.",
-  members: "They're all on it. I put them on it myself when we started.",
+  members: "They're all on it. I put each of them on myself.",
   item: "It's in the bag. I'm looking at it now.",
-  account: "The party's account. I've had it since last autumn.",
+  account: "The party's account. We set it up three years ago.",
   // Askable and never the cause.
   tier: "Silver. It went up when the Ryles joined.",
   stores: "Rope, torches, a spare blade, and the dried stores. And the draughts.",
@@ -100,7 +100,7 @@ const GIVES = {
 /** What she believes about her own account. */
 const BELIEFS = {
   'account history': { any: "It's all been quiet. We order, it comes, that's the whole of it." },
-  'party members': { any: "All four of us are on it. I did that at the start." },
+  'party members': { any: "All four of us are on it. I put each of them on myself." },
   billing: { any: "It's paid every month without fail." },
   'order history': { any: "We've ordered plenty. Nothing has ever gone wrong before." },
 };

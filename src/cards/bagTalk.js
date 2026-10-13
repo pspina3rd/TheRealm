@@ -85,8 +85,8 @@ const ANSWERS = {
   },
   members: {
     'who/expand': 'All of them. Pell and both the Ryles.',
-    'who/contract': 'I did, when we started.',
-    'who/validate': '{yes} I put them on myself.',
+    'who/contract': 'I did, as each of them joined.',
+    'who/validate': 'Not all at once. I put each of them on as they joined.',
   },
   item: {
     'what/expand': "In the bag. I'm looking at it now.",
@@ -94,8 +94,8 @@ const ANSWERS = {
     'what/validate': "It's definitely in the bag.",
   },
   account: {
-    'what/expand': "It's the party's account. I've had it since last autumn.",
-    'what/contract': 'Since last autumn.',
+    'what/expand': "It's the party's account. We set it up three years ago.",
+    'what/contract': 'Three years.',
     'what/validate': "The party's.",
   },
   tier: {
@@ -231,8 +231,8 @@ const SAYS = {
     'what/validate': ['bag'],
   },
   account: {
-    'what/expand': ['party', 'autumn'],
-    'what/contract': ['autumn'],
+    'what/expand': ['party', 'years'],
+    'what/contract': ['years'],
     'what/validate': ['party'],
   },
   tier: {
@@ -283,7 +283,7 @@ const SAYS_OTHER = {
   },
   // What a record row puts on the screen.
   record: {
-    'acc-fairweather': ['account', 'party', 'tier', 'silver', 'autumn', 'four-people', 'bag', 'members'],
+    'acc-fairweather': ['account', 'party', 'tier', 'silver', 'years', 'four-people', 'bag', 'members'],
     'con-sella': ['leader', 'permission', 'account', 'before'],
     'con-pell': ['pell', 'party'],
     'bag-7730': ['bag', 'stores', 'draught', 'standard', 'three', 'stores-list'],

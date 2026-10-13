@@ -19,7 +19,7 @@ const NODES = [
     parents: [],
     owner: null,
     keys: ['acc-fairweather', 'Fairweather', '4409'],
-    headline: 'The Fairweather party — Silver, since last autumn',
+    headline: 'The Fairweather party — Silver, opened three years ago',
     line: 'Four Contacts. One Bag of Holding, TLC-held. No repairs, no disputes, no exceptions.',
     edges: [
       { to: 'con-sella', link: 'direct' },

@@ -96,7 +96,7 @@ const LIFE = [
     // Once she has said who he is, she does not say it again.
     habitOpen: 'pay his guild dues every year',
     detail: ', which I know is stupid',
-    before: 'My brother went down into the Dungeon with his party, four years ago. They only found his pack.',
+    before: 'My brother went down into the Dungeon with his party, five years ago. They only found his pack.',
   },
   {
     id: 'clerk',
