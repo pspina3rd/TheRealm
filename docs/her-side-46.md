@@ -24,6 +24,8 @@ Counts checked by script: 19 subjects × 6 suits = 114 pairs; 23 written,
 
 ## Set 2 — put to Phil 12 October
 
+Phil: 1, 3, 4 and 10 read awkwardly; 9 makes no sense without its context. Rewrites below the table; **[C] the rewritten wording is mine**, keeping the source line's facts.
+
 | Played | She answers | Line | Source | Puts in play |
 |---|---|---|---|---|
 | When · Pell | When | Pell only came in with us in the spring, if that makes a difference. | `HERRINGS.pell` | spring |
@@ -36,6 +38,16 @@ Counts checked by script: 19 subjects × 6 suits = 114 pairs; 23 written,
 | How · looking | How | I've read every word on that account and not one of them says transfer. | `CAUSES[0].departures[0]`, first half | transfer, account |
 | When · party | When | Since last autumn. | `bagTalk` account what/contract | autumn |
 | When · leader | Who | I am. I set it up myself. | `bagTalk` leader who/validate | — |
+
+### Set 2 rewrites — put to Phil 13 October
+
+| Played | She answers | Line | Keeps the facts of |
+|---|---|---|---|
+| When · Pell | When | He joined us in the spring. | `HERRINGS.pell` |
+| Where · tried | Where | In the account. I've been all through it. | `bagTalk` tried how/expand |
+| Who · looking | What | Somewhere to transfer it. There isn't one. | `bagTalk` looking what/contract |
+| When · party | When | We opened the party's account last autumn. | `bagTalk` account what/expand |
+| When · leader | When | From the start. I set the account up. | `bagTalk` leader who/expand; *from the start* is new |
 
 ## Found while checking set 2 — canon disagrees with itself on the timeline
 
