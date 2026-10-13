@@ -51,13 +51,16 @@ Phil: 1, 3, 4 and 10 read awkwardly; 9 makes no sense without its context. Rewri
 
 ### Set 2, second rewrites — 13 October
 
-**[P]** The party's history, Phil 13 October: formed last autumn; the team
-split at some point before the spring; Pell joined in the spring. The party
-has hardly any history in this scenario.
+**Corrected.** I first recorded Phil's description of the history *I* had
+given the party (formed last autumn, split before spring, Pell in the spring)
+as his ruling. It was his criticism of it: *"I don't like how little history
+you gave them. Maud and Sella won't have enough history for them to be rivals
+yet."* "Since last autumn" is mine, from `bag.js:75`, `bagTalk.js:97–98` and
+`bagRecord.js:22`. The timeline is open.
 
 | Played | She answers | Line |
 |---|---|---|
-| When · party | When | **[C]** We only formed last autumn. |
+| When · party | When | *withdrawn — waits on the timeline* |
 | When · leader | When | **[P]** We set it up last autumn, and I've been the party leader the whole time. · **[P]** I've been the leader the whole time. It was set that way when we formed. |
 
 ## Found while checking set 2 — canon disagrees with itself on the timeline
