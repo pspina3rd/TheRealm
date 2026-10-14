@@ -79,7 +79,7 @@ who/validate, account what/expand and what/contract and their words
 (`autumn` → `years`); `bagRecord.js` headline; `sellaLife.js` Atrem, four →
 five years. Folded into `settled.md` §8 as tentative, 14 October, with four → five. Tests 393 pass, lint clean.
 
-When · party, proposed again: **[C]** *"We formed three years ago."*
+When · party: **[C]** *"We formed three years ago."* **Set 2 accepted, 14 October.**
 
 ## Found while checking set 2 — canon disagrees with itself on the timeline
 
@@ -95,3 +95,18 @@ Pell cannot have been put on "when we started" if he joined in the spring,
 and the tier cannot have gone up when the Ryles joined if it has been Silver
 since the account opened — unless the Ryles were there from the start, in
 which case it did not go up.
+
+## Set 3 — put to Phil 14 October
+
+| Played | She answers | Line | Source | Puts in play |
+|---|---|---|---|---|
+| Where · leader | Who | I've been the leader the whole time. It was set that way when we formed. | Phil, 13 October | — |
+| Who · permission | Who | Nobody has ever mentioned permissions to me. | `VOLUNTEER.permission` | permission |
+| When · permission | Who | Not that anyone has told me. | `bagTalk` permission what/contract | — |
+| Where · permission | Where | The clerk at the guild hall wants a form for everything, and then a second form to say the first one's filled in. | `sellaLife` clerk | clerk, hall |
+| Who · before | Who | Nobody. I've never moved anything to anybody before. | `bagTalk` before when/contract, *No* → *Nobody* | — |
+| What · before | What | Nothing. There's never been a need. | `bagTalk` before when/expand, *Never* → *Nothing* | — |
+| Where · before | When | First time. There's never been a need. | `bagTalk` before when/validate | — |
+| Who · since | Who | I started on it last night, and I'll own I was tired by then. | `HERRINGS.since` | night |
+| Where · since | When | I've been at this since last night. | baggage line, first half | night |
+| Who · morning | Who | Pell. He's the one who takes the hits, and I'd rather he had it on him. | `bagTalk` pell who/expand + morning why/expand | Pell |

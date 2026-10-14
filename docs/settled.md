@@ -1958,9 +1958,10 @@ rules about it.
 **[P]** An Admin can assign items to a User, moving them from the **Party's
 Bag of Holding** to the **Member's Inventory**.
 
-**[P]** *Tentative, 14 October.* Pell has a bag.
-The party's bag contains all items, and must be coordinated and maintained by
-the admin (the leader) to give members access.
+**[P]** *Tentative, 14 October.* Every member has their own bag. The party's
+bag contains all items, and must be coordinated and maintained by the admin
+(the leader) to give members access. Access to the party's bag is restricted
+by the party leader's personal preferences.
 
 **[P]** *Tentative, 14 October.* Having more members and/or a higher overall
 level allows a party's tier to increase.
