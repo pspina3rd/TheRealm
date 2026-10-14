@@ -77,8 +77,7 @@ yet."* "Since last autumn" is mine, from `bag.js:75`, `bagTalk.js:97–98` and
 the *party members* belief; `bagTalk.js` members who/contract and
 who/validate, account what/expand and what/contract and their words
 (`autumn` → `years`); `bagRecord.js` headline; `sellaLife.js` Atrem, four →
-five years. `settled.md:1823` still says four years — not changed without
-Phil's say-so. Tests 393 pass, lint clean.
+five years. Folded into `settled.md` §8 as tentative, 14 October, with four → five. Tests 393 pass, lint clean.
 
 When · party, proposed again: **[C]** *"We formed three years ago."*
 

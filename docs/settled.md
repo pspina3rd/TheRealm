@@ -1820,8 +1820,24 @@ at the time, notes keep appearing addressed directly to Sella indicating
 someone's minions are watching her and her party.*
 
 **Tragedies. [P·C]** *My brother Atrem went down into the Dungeon with his
-party, four years ago. They only found his pack. I still pay his guild dues
-every year, which I know is stupid.*
+party, five years ago. They only found his pack. I still pay his guild dues
+every year, which I know is stupid.* *(Four corrected to five, 14 October, from
+the history below.)*
+
+**The party's history. [P]** *Tentative, 14 October.*
+- Five years ago Atrem went missing, which is what drove Sella to become an
+  adventurer: to find her brother. She meets Maud at the guild and they become
+  friends.
+- Three years ago the party formed.
+- The Ryles join. Then, a year ago, Maud and Les leave, fearing Sella is
+  obsessed with finding her brother.
+- In the spring, Pell joins.
+- The party account was opened before Maud and Les left; they created a new
+  party, and Sella kept the existing account.
+- Having more members and/or a higher overall level allows a party's tier to
+  increase.
+- Pell has his own bag. The party's bag contains all items, and must be
+  coordinated and maintained by the admin (the leader) to give members access.
 
 **Fun. [C·ok]** *On rest days I'm at the wrestling in the guild hall. I back
 Gregor Roman every time, and he loses every time. I've stopped telling people
