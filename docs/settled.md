@@ -1958,7 +1958,7 @@ rules about it.
 **[P]** An Admin can assign items to a User, moving them from the **Party's
 Bag of Holding** to the **Member's Inventory**.
 
-**[P]** *Tentative, 14 October.* Each member has their own bag — Pell has his.
+**[P]** *Tentative, 14 October.* Pell has a bag.
 The party's bag contains all items, and must be coordinated and maintained by
 the admin (the leader) to give members access.
 
