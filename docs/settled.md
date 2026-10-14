@@ -1958,6 +1958,13 @@ rules about it.
 **[P]** An Admin can assign items to a User, moving them from the **Party's
 Bag of Holding** to the **Member's Inventory**.
 
+**[P]** *Tentative, 14 October.* Each member has their own bag — Pell has his.
+The party's bag contains all items, and must be coordinated and maintained by
+the admin (the leader) to give members access.
+
+**[P]** *Tentative, 14 October.* Having more members and/or a higher overall
+level allows a party's tier to increase.
+
 **[P]** The Party Leader / Member designation is TLC's own invention. Each
 Party can determine their own rules for it, and TLC is blissfully unaware of
 what those rules are.
