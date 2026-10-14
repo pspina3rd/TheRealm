@@ -1834,10 +1834,6 @@ the history below.)*
 - In the spring, Pell joins.
 - The party account was opened before Maud and Les left; they created a new
   party, and Sella kept the existing account.
-- Having more members and/or a higher overall level allows a party's tier to
-  increase.
-- Pell has his own bag. The party's bag contains all items, and must be
-  coordinated and maintained by the admin (the leader) to give members access.
 
 **Fun. [C·ok]** *On rest days I'm at the wrestling in the guild hall. I back
 Gregor Roman every time, and he loses every time. I've stopped telling people
