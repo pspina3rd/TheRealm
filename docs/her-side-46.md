@@ -185,3 +185,10 @@ recovering from injuries, so it's only Pell going."*
 **Open:** whether Sella goes. Lines that say *we're out at first light*:
 `bag.js:72`, `bagTalk.js:79`, `bagTalk.js:132`, set 2 Where · Pell, set 4
 Where · morning (Phil's alternative also says *we*).
+
+**Phil, 15 October:** *we* can encompass Sella and Pell. So the five
+*we're out at first light* lines stand unchanged; Sella and Pell go, the Ryles
+stay behind.
+
+Where · ryles, revised: **[C]** *"They're staying behind. They're both still
+recovering from injuries, so it's just Pell and me going."*
