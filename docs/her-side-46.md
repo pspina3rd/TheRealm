@@ -173,3 +173,15 @@ recorded as his reasoning, not yet in the record.)*
 Where · ryles: three more of mine rejected ("very much NOT"). Proposed
 instead, her existing line unchanged: *"They do as they're told and never ask
 for anything."* (`bagTalk` ryles who/expand), answering with Who.
+
+**Phil, 15 October:** "Why is this not focusing on the Where portion and
+switching to the WHO?" — I switched card because I had no fact for where the
+Ryles are, rather than asking. **[P]** Only Pell is going. The Ryles are
+recovering from injuries.
+
+Where · ryles, proposed: **[C]** *"They're staying behind. They're both still
+recovering from injuries, so it's only Pell going."*
+
+**Open:** whether Sella goes. Lines that say *we're out at first light*:
+`bag.js:72`, `bagTalk.js:79`, `bagTalk.js:132`, set 2 Where · Pell, set 4
+Where · morning (Phil's alternative also says *we*).
