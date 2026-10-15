@@ -163,3 +163,13 @@ guild handles the payment.
 **Conflict found:** Sella pays Atrem's guild dues *every year*
 (`settled.md` Tragedies, `sellaLife.js`), and the party's are paid *each
 month*.
+
+**Dues — Phil, 15 October, resolving the conflict above:** Sella pays
+Atrem's dues each year and her own each month. An active adventurer pays
+monthly, and the guild takes a percentage of the spoils from completed
+contracts; an inactive one is charged a flat rate. *(Given as questions;
+recorded as his reasoning, not yet in the record.)*
+
+Where · ryles: three more of mine rejected ("very much NOT"). Proposed
+instead, her existing line unchanged: *"They do as they're told and never ask
+for anything."* (`bagTalk` ryles who/expand), answering with Who.
