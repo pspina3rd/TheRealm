@@ -114,3 +114,18 @@ which case it did not go up.
 Set 3 accepted 15 October, with Who · since as above.
 
 15 October: Where · since changed to *Since last night.*; `HERRINGS.since` in `bag.js` changed to *I've been at it since last night.* — it no longer mentions her being tired, which was what pointed at the *try later* remedy.
+
+## Set 4 — put to Phil 15 October
+
+| Played | She answers | Line | Source | Puts in play |
+|---|---|---|---|---|
+| Where · morning | Where | The passes. We're out at first light. | `HERRINGS.stores` + `bagTalk` morning when/expand; **[C]** that the passes are where they are going is my inference | passes |
+| When · members | When | As each of them joined. I put them on myself. | `bagTalk` members who/contract | — |
+| Where · members | Who | All of them. Pell and both the Ryles. | `bagTalk` members who/expand | Pell, Ryles |
+| Who · item | Who | Nobody has it yet. It's still in the bag. | `bagTalk` item what/expand | bag |
+| When · item | When | Right now. It's right there in the bag. | `VOLUNTEER.item` | bag |
+| Why · item | Why | Because it won't go. It just sits there. | `bagTalk` working what/expand | — |
+| Who · account | Who | The party's. I set it up myself. | `bagTalk` account what/validate + leader who/validate | party |
+| Where · account | What | It's the party's account. We set it up three years ago. | `bagTalk` account what/expand | party, years |
+| Who · tier | Who | It went up when the Ryles joined. | `bagTalk` tier what/contract | Ryles |
+| Where · tier | What | Silver. | `bagTalk` tier what/expand | silver |
