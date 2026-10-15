@@ -131,3 +131,16 @@ Set 3 accepted 15 October, with Who · since as above.
 | Where · tier | What | Silver. | `bagTalk` tier what/expand | silver |
 
 15 October, Phil on Where · morning: "That's fine" — the passes stand — and *"We've got a new contract and are out at first light."* is also acceptable **[P]**. Both kept as ways she can say it. The rest of set 4 not yet ruled on.
+
+Set 4 accepted 15 October.
+
+## Set 5 — the last six, put to Phil 15 October
+
+| Played | She answers | Line | Source | Puts in play |
+|---|---|---|---|---|
+| Who · stores | Who | I do. Keeping the bag stocked is my job. | Phil, 14 October: the leader coordinates and maintains the party's bag | bag |
+| When · stores | When | We stocked up for the passes. | `HERRINGS.stores` (also set 1, When · bag) | passes |
+| Who · paid | Who | I pay it. Every month, without fail. | `bagTalk` paid when/contract | — |
+| Where · paid | What | It's paid every month without fail. | `bagTalk` paid what/expand | — |
+| When · ryles | When | A while back. We went up to Silver when they joined. | `bagTalk` tier what/contract; Phil's timeline | silver |
+| Where · ryles | Who | The Ryles have never had anything off me either, come to think of it. | `HERRINGS.ryles` | — |
