@@ -153,7 +153,7 @@ const CAUSES = [
 /** Things she also did or noticed, none of which explains it. */
 const HERRINGS = {
   since: {
-    text: "I started on it last night, and I'll own I was tired by then.",
+    text: "I've been at it since last night.",
     suggests: ['try-later'],
   },
   pell: {

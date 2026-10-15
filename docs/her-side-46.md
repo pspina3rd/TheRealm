@@ -108,7 +108,9 @@ which case it did not go up.
 | What · before | What | Nothing. There's never been a need. | `bagTalk` before when/expand, *Never* → *Nothing* | — |
 | Where · before | When | First time. There's never been a need. | `bagTalk` before when/validate | — |
 | Who · since | Who | I've been at it since last night. | Phil, 14 October: option 2 without *Me* | night |
-| Where · since | When | I've been at this since last night. | baggage line, first half | night |
+| Where · since | When | Since last night. | `bagTalk` since when/contract | night |
 | Who · morning | Who | Pell. He's the one who takes the hits, and I'd rather he had it on him. | `bagTalk` pell who/expand + morning why/expand | Pell |
 
 Set 3 accepted 15 October, with Who · since as above.
+
+15 October: Where · since changed to *Since last night.*; `HERRINGS.since` in `bag.js` changed to *I've been at it since last night.* — it no longer mentions her being tired, which was what pointed at the *try later* remedy.
