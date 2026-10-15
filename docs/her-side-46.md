@@ -233,3 +233,9 @@ against what Phil has said and the record. Most hold. Found:
 3. **[P]** Biscuit stays; not everything is stored in the bag. **Applied:**
    `bagTalk.js` bag what/expand and set 1 Why · bag → *"It's the party's bag.
    Most of what we carry is in it."*
+
+**Phil, 15 October, on the above:** the account lifecycle was him informing
+me, not a line for her — Sella wouldn't say TLC set it up. Set 1 Who · working
+and *Tell me about the bag* were not asked to change. **Reverted all of it**
+except her baggage line, now *"I'm the one who asked for this account, and now
+I can't make it work."* (his *can't make it work*).
