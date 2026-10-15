@@ -144,3 +144,22 @@ Set 4 accepted 15 October.
 | Where · paid | What | It's paid every month without fail. | `bagTalk` paid what/expand | — |
 | When · ryles | When | A while back. We went up to Silver when they joined. | `bagTalk` tier what/contract; Phil's timeline | silver |
 | Where · ryles | Who | The Ryles have never had anything off me either, come to think of it. | `HERRINGS.ryles` | — |
+
+### Set 5 — Phil, 15 October
+
+| Played | Line | |
+|---|---|---|
+| Who · stores | We all add items to the bag. | **[P]** — replaces mine ("dumb") |
+| When · stores | We stocked up for the passes. | kept |
+| Who · paid | It's paid each month as part of our dues for the Adventurer's Guild. | **[P]** |
+| Where · paid | The guild handles it, when we pay our dues. | **[P]** |
+| When · ryles | Silver, I think. Pretty sure it went up when the Ryles joined. | **[P]** |
+| Where · ryles | *open — mine read poorly* | |
+
+**[P] facts from these:** every member adds items to the party's bag; the
+party pays TLC each month as part of its Adventurer's Guild dues, and the
+guild handles the payment.
+
+**Conflict found:** Sella pays Atrem's guild dues *every year*
+(`settled.md` Tragedies, `sellaLife.js`), and the party's are paid *each
+month*.
