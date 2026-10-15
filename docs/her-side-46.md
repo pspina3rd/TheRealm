@@ -192,3 +192,26 @@ stay behind.
 
 Where · ryles, revised: **[C]** *"They're staying behind. They're both still
 recovering from injuries, so it's just Pell and me going."*
+
+## Audit of every accepted line against Phil's facts — 15 October
+
+Each line in sets 1–5, and the existing lines they were copied from, checked
+against what Phil has said and the record. Most hold. Found:
+
+**Contradicts Phil — fixed here:**
+- When · leader, his line *"We set it up last autumn, and I've been the party
+  leader the whole time."* — written before his timeline. Now *"We set it up
+  three years ago, and I've been the party leader the whole time."*
+
+**Mine, never his, and nothing behind them — to ask:**
+1. *"There's never been a need"* (`bag.js:70`, `bagTalk.js:70,72`; set 3
+   What · before, Where · before). Three years as leader of a party of
+   four, with members who have their own bags, and she has never once
+   given anyone anything from the party's bag.
+2. *"I set the whole thing up myself"* (`bag.js:68`, `bagTalk.js:60,62,400`;
+   set 1 Who · working, set 4 Who · account). Phil's own lines say *we set it
+   up*. Her baggage `set-it-up-herself` (`bag.js` BAGGAGE) is built on it.
+3. *"Everything we carry is in it"* (`bagTalk.js:25`; set 1 Why · bag) — and
+   in the record, Biscuit the mule *"carries what the bag does not"*
+   (`settled.md:1808`, [C·ok]). Phil: the party's bag contains all items,
+   and every member has their own bag.
