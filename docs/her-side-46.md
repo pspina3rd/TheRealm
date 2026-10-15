@@ -107,6 +107,8 @@ which case it did not go up.
 | Who · before | Who | Nobody. I've never moved anything to anybody before. | `bagTalk` before when/contract, *No* → *Nobody* | — |
 | What · before | What | Nothing. There's never been a need. | `bagTalk` before when/expand, *Never* → *Nothing* | — |
 | Where · before | When | First time. There's never been a need. | `bagTalk` before when/validate | — |
-| Who · since | Who | I started on it last night, and I'll own I was tired by then. | `HERRINGS.since` | night |
+| Who · since | Who | I've been at it since last night. | Phil, 14 October: option 2 without *Me* | night |
 | Where · since | When | I've been at this since last night. | baggage line, first half | night |
 | Who · morning | Who | Pell. He's the one who takes the hits, and I'd rather he had it on him. | `bagTalk` pell who/expand + morning why/expand | Pell |
+
+Set 3 accepted 15 October, with Who · since as above.
