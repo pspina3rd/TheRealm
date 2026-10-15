@@ -22,7 +22,7 @@ const ANSWERS = {
     'what/validate': 'Nothing at all. It just sits there.',
   },
   bag: {
-    'what/expand': "It's the party's bag. Everything we carry is in it.",
+    'what/expand': "It's the party's bag. Most of what we carry is in it.",
     'what/contract': "The party's.",
     'what/validate': "The bag's fine. I can see every item in it, plain as day.",
   },
@@ -57,9 +57,9 @@ const ANSWERS = {
     'what/validate': '{yes} One between the four of us.',
   },
   leader: {
-    'who/expand': 'I did. I set the whole thing up myself.',
+    'who/expand': 'I asked for it, and TLC set it up.',
     'who/contract': 'I am.',
-    'who/validate': 'I am. I set it up myself.',
+    'who/validate': "I am. I've been the leader the whole time.",
   },
   permission: {
     'what/expand': 'Nothing. Nobody has ever mentioned it to me.',
@@ -131,7 +131,7 @@ const ANSWERS = {
 const VOLUNTEER = {
   morning: "We're out at first light, and I'd rather it was in his hands before then.",
   pell: "Pell's the one who takes the hits. He ought to be the one carrying it.",
-  leader: 'I set this whole thing up myself.',
+  leader: "I'm the one who asked for this account.",
   permission: 'Nobody has ever mentioned permissions to me.',
   before: "I've never moved anything to anybody before.",
   tried: "I've tried it four times now.",
@@ -397,7 +397,7 @@ const NAMES = ['Pell', 'Ryle'];
  * only true if the agent read her that row.
  */
 const REFUSALS = {
-  permissions: "I'm the leader. I set the whole thing up myself — why wouldn't I be allowed?",
+  permissions: "I'm the leader. I asked for this account — why wouldn't I be allowed?",
 };
 
 module.exports = { SAYS, SAYS_OTHER, ALSO, NEEDS, theWord, BAGGAGE_OPENS, DEPARTURE_IS_ANSWER, ANSWERS, VOLUNTEER, PIVOTS, YES, NOTHING, OPENING_WORDS, OPENS, LABELS, NAMES, REFUSALS };

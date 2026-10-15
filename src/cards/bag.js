@@ -65,7 +65,7 @@ const BASELINE = {
   // subject is a legal thing to aim at.
   looking: "Everywhere. I've been through every page of that account twice.",
   party: "Four of us. Me, Pell, and the Ryle brothers.",
-  leader: "Yes, I'm the leader. I set the whole thing up myself.",
+  leader: "Yes, I'm the leader. I asked for the account to be set up.",
   permission: "I don't know the first thing about permissions. Nobody has ever mentioned them to me.",
   before: "No. I've never moved anything to anybody before. There's never been a need.",
   since: 'Since last night.',
@@ -188,7 +188,7 @@ const FRAGMENTS = {
   draught: [{ say: () => `It's ${ORDER.item}, for ${ORDER.who}.`, opens: ['pell'] }],
   pell: [{ say: () => `${ORDER.who} is the one who needs it.`, opens: ['morning'] }],
   tried: [{ say: () => `I started on it ${ORDER.when}.`, opens: ['since'] }],
-  party: [{ say: () => `There's ${ORDER.party}, and I'm the one who set it up.`, opens: ['leader'] }],
+  party: [{ say: () => `There's ${ORDER.party}, and I'm the leader.`, opens: ['leader'] }],
   account: [{ say: () => `We're on ${ORDER.tier}.`, opens: ['tier'] }],
 };
 
@@ -432,7 +432,7 @@ function nonsense(suit, subject) {
 const BAGGAGE = {
   'set-it-up-herself': {
     id: 'set-it-up-herself',
-    line: 'I set this whole thing up myself and now I cannot work it.',
+    line: "I'm the one who asked for this account, and now I cannot work it.",
     trigger: { subject: 'leader', near: ['party', 'before', 'account'], suits: ['who', 'how'] },
     inPlaceOf: {
       leader: { 'who/expand': [], 'who/contract': [], 'who/validate': [] },

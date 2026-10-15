@@ -215,3 +215,21 @@ against what Phil has said and the record. Most hold. Found:
    in the record, Biscuit the mule *"carries what the bag does not"*
    (`settled.md:1808`, [C·ok]). Phil: the party's bag contains all items,
    and every member has their own bag.
+
+### Phil's answers to the audit — 15 October
+
+1. **[P]** *Could Sella have accidentally switched the settings on her party's
+   bag, so now no one else can access the items within it? Could Sella have
+   not noticed a TLC change that meant her party could no longer access the
+   party's bag to extract contents?* — Given as questions. **Not acted on**;
+   these would be new causes for the call.
+2. **[P]** Sella may have requested the account be set up; TLC sets it up upon
+   request and approval. **Applied** (wording mine): `bag.js` leader answer,
+   party fragment, baggage `set-it-up-herself` line (id kept); `bagTalk.js`
+   leader who/expand and who/validate, `VOLUNTEER.leader`, the permissions
+   remedy reply. Set 1 Who · working → *"Just me. It's the party's account,
+   and I'm the leader."* Set 4 Who · account → *"The party's. I asked for it
+   to be set up."* Phil's own *we set it up* lines left as his.
+3. **[P]** Biscuit stays; not everything is stored in the bag. **Applied:**
+   `bagTalk.js` bag what/expand and set 1 Why · bag → *"It's the party's bag.
+   Most of what we carry is in it."*
