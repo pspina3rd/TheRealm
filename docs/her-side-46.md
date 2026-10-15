@@ -129,3 +129,5 @@ Set 3 accepted 15 October, with Who · since as above.
 | Where · account | What | It's the party's account. We set it up three years ago. | `bagTalk` account what/expand | party, years |
 | Who · tier | Who | It went up when the Ryles joined. | `bagTalk` tier what/contract | Ryles |
 | Where · tier | What | Silver. | `bagTalk` tier what/expand | silver |
+
+15 October, Phil on Where · morning: "That's fine" — the passes stand — and *"We've got a new contract and are out at first light."* is also acceptable **[P]**. Both kept as ways she can say it. The rest of set 4 not yet ruled on.
