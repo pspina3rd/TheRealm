@@ -134,3 +134,33 @@ both); its date and wording; her lines; the fix line and her reply.
 4. **Cause B:** what did TLC change, and how did they tell parties?
 5. **Does she know?** Under A, does any part of her remember changing a
    setting, wrongly or vaguely, or nothing at all?
+
+## Phil's answers — 16 October **[P]**
+
+1. **Same call?** Same call, same opening, same symptom — and it can also
+   start differently: the cause, the opening or the symptom could each be
+   different.
+2. **Stacking:** causes could stack.
+3. **Cause A, how she switched it:** "Who knows."
+4. **Cause B, what TLC changed:** a system update with an unintended
+   consequence — bag settings were set to **Admin Only** on the party bag.
+   This could also be used as an occasional scenario where the consequences
+   are different; not reused right after a call where the consequences were
+   something else, so probably once every 100 calls the consequences shift.
+5. **Does she know?** *"Does anyone read and remember in full, every
+   notification from a service provider? Not counting those edge cases of
+   perfect recall, eidetic memory, etc."*
+
+### What follows from those **[C]**, mine, for checking
+
+- A and B leave the account in the **same state**: the party's bag set to
+  Admin Only. What differs is who changed it — her, or a system update — and
+  the record is where the player can tell.
+- Under B there was a notification, and she may have seen it and kept only
+  the gist, or nothing. That is memory by type (`settled.md` §8, *It
+  misremembers*) applied to a notice.
+- **The engine does not yet do three of these:** it picks exactly one cause
+  per call (`turn.js:66`), so stacking needs a change; it has one opening
+  (`bag.js` OPENING), so a different opening per cause needs a change; and a
+  system update whose consequences shift every ~100 calls is state that
+  carries between calls, which nothing in `src/cards/` holds today.
