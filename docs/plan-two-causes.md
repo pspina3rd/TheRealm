@@ -176,3 +176,7 @@ claim at 158 that *the record is where the player can tell*. The setting sits
 on Sella's own profile — in `bagRecord.js`, the `con-sella` node, *"your
 record on the account"*. Whether the player can see who changed it, or when,
 is not known and is the first thing to put to Phil.
+
+**[P] Settled 16 October — what her profile shows:** the setting and when it
+last changed, not who changed it: *"Party bag access: Admin Only — changed
+<when>"*. The date is a clue; it does not name A or B.
