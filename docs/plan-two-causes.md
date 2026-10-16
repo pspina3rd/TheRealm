@@ -164,3 +164,15 @@ both); its date and wording; her lines; the fix line and her reply.
   (`bag.js` OPENING), so a different opening per cause needs a change; and a
   system update whose consequences shift every ~100 calls is state that
   carries between calls, which nothing in `src/cards/` holds today.
+
+## Correction — Phil, 16 October **[P]**
+
+*"You are assuming that setting appears on the account record. It's a setting
+within the Party Leader's profile."*
+
+So every place above that puts the access setting, or who changed it, on the
+account or the bag is wrong: lines 56, 96, 99, the table at 121, and the
+claim at 158 that *the record is where the player can tell*. The setting sits
+on Sella's own profile — in `bagRecord.js`, the `con-sella` node, *"your
+record on the account"*. Whether the player can see who changed it, or when,
+is not known and is the first thing to put to Phil.
