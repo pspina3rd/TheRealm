@@ -200,3 +200,25 @@ coworker brought into the turn engine before it can be played.
 **[P] Settled 16 October — the coworker's line, same on every cause:**
 *"There was an update to bags three days ago. A couple of parties have rung
 since."* (wording mine, chosen by Phil)
+
+
+### What this work is for — Phil, 16 October **[P]**
+
+*The purpose of this was to see what sorts of responses Sella's character
+sheet would generate based on different variations of play-throughs on the
+same call, about the same issue.*
+
+What Sella knows, and does not know, on this call:
+
+- She does **not** know she has called repeatedly.
+- She does **not** know the cause.
+- She does **not** know the effect.
+- She knows she can't transfer an item from the party bag to Pell's bag.
+- She knows Pell is leaving to fulfil a contract in the morning.
+- She knows Pell is unable to access the party's bag.
+- She knows she is stressed, because this hasn't been a problem before.
+- She knows she has spent a lot of time trying to figure it out, and she is
+  frustrated.
+
+Every line written for her is to come from her sheet and from this, and from
+nothing she cannot know.
