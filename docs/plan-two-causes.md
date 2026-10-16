@@ -180,3 +180,10 @@ is not known and is the first thing to put to Phil.
 **[P] Settled 16 October — what her profile shows:** the setting and when it
 last changed, not who changed it: *"Party bag access: Admin Only — changed
 <when>"*. The date is a clue; it does not name A or B.
+
+**Dates — Phil, 16 October: "Ok"** to my proposal, recorded as:
+- Cause B (system update): the profile date is the day the update ran,
+  **3 days before the call** (my number, accepted).
+- Cause A (her own change): **last night**, switched by accident while she
+  was hunting through the account for *transfer* — so A can stack with
+  `her-word` (my proposal, accepted).
