@@ -196,3 +196,7 @@ say.
 has no coworker and no hold yet (`turn.js:24`). The coworker exists only in
 the older one-inquiry loop, `src/cards/call.js:56`. So this clue needs the
 coworker brought into the turn engine before it can be played.
+
+**[P] Settled 16 October — the coworker's line, same on every cause:**
+*"There was an update to bags three days ago. A couple of parties have rung
+since."* (wording mine, chosen by Phil)
