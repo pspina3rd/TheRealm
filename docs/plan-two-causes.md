@@ -187,3 +187,12 @@ last changed, not who changed it: *"Party bag access: Admin Only — changed
 - Cause A (her own change): **last night**, switched by accident while she
   was hunting through the account for *transfer* — so A can stack with
   `her-word` (my proposal, accepted).
+
+**[P] Settled 16 October — how the player learns when the update ran:** a
+coworker knows, asked aside or on a hold, and the coworker decides what they
+say.
+
+**Engine gap found:** `src/cards/turn.js` (the call in turns, bag scenario)
+has no coworker and no hold yet (`turn.js:24`). The coworker exists only in
+the older one-inquiry loop, `src/cards/call.js:56`. So this clue needs the
+coworker brought into the turn engine before it can be played.
