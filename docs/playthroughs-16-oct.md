@@ -263,9 +263,9 @@ The record never shows her the agent was wrong — only she knows.
 
 <sub>7 · Where·Expand → *transfer*</sub>
 > **AGENT** Last night, when you were trying to transfer it — where were you looking?
-> **SELLA** Everywhere. Every page of that account. I clicked on everything.
+> **SELLA** Everywhere. Every page of that account. Everything I know to click on.
 >
-> <sub>she takes it · Where · *I clicked on everything* is all she knows of it · in play: page</sub>
+> <sub>she takes it · Where · *everything I know to click on* is all she knows of it · in play: page</sub>
 
 <sub>8 · Fix</sub>
 > **AGENT** Something on the bag got set so only the leader can open it — that's why Pell can't get in. I've set it back.
@@ -358,6 +358,7 @@ deadline, and *nobody tells you anything*.
   doing; run 3 told her it was.
 - **The date on her profile did its job** in run 4 and wasn't looked at in
   run 5 — the profile is where the clue is, and the bag is not.
-- **Questions for Phil:** whether she ever says *I clicked on everything*
-  (run 4) — it is the one line here that edges past what she knows; and
-  whether *"Not you. You've been fine."* (run 2) is empathy 5 or too much.
+- **Phil, 17 October:** run 4's line becomes *"Everything I know to click
+  on"* (changed above). Run 2's *"Not you. You've been fine."* stands: **[P]**
+  *it is possible to have good customer service and not be pleased with the
+  outcome.*
