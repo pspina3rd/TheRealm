@@ -11,13 +11,17 @@ the record.**
 an item from the party bag to Pell's bag; Pell is leaving to fulfil a contract
 in the morning; Pell can't get into the party's bag; she is stressed, because
 this hasn't been a problem before; she has spent a long time trying, and she
-is frustrated. She does not know the cause or the effect, or that anyone else
-has called.
+is frustrated. She does not know the cause, or the effect, or that she has
+called repeatedly.
 
 **Her sheet**, from `src/cards/bag.js` and `docs/settled.md` §8: her Need is
 not to be made a fool of; Certainty and Treatment weigh heaviest; one of three
 baggages is carried. Patience and empathy run 1–5 (`src/cards/sheet.js`).
-Each run's sheet and cause were rolled with the seeded generator, not chosen.
+Each run's baggage, patience, empathy and cause were rolled with the seeded
+generator. The first set of rolls came out *A + her-word* five times out of
+five, because the baggage and the cause were drawn from one stream; I re-rolled
+with a separate stream for the cause. **The player's style in each run is my
+choice, not rolled.**
 
 **The record the agent can read:** the Fairweather party account (Silver,
 opened three years ago, four contacts) · the bag, 7730 (three healing
@@ -60,7 +64,7 @@ Each turn shows the cards in small type, then the conversation.
 > **AGENT** When did this start? And what does Pell need it for?
 > **SELLA** Last night. I've been at it since, and again this morning, and it's never been a problem before. He's out on a contract first thing. He's the one who takes the hits. If he goes out without it and something happens, that's on me.
 >
-> <sub>she takes both · When, then Who · patience 5 lets her say it all · the morning-and-Pell pairing trips her baggage · in play: night, morning, contract</sub>
+> <sub>she takes both · When, then Who · patience 5 lets her say it all · Pell and the morning in one answer, and her baggage comes out obliquely · in play: night, morning, contract</sub>
 
 <sub>5 · Read → Sella's profile</sub>
 > **AGENT** Bear with me one moment.
@@ -74,11 +78,11 @@ Each turn shows the cards in small type, then the conversation.
 >
 > <sub>she heard the agent not knowing · empathy 3: a little cost, no more</sub>
 
-<sub>7 · Validate → *bag*</sub>
-> **AGENT** So until this week, Pell could take things out of the party bag himself?
-> **SELLA** He could. Any of them could.
+<sub>7 · How·Expand → *Pell*</sub>
+> **AGENT** How does Pell usually get things out of the bag?
+> **SELLA** He takes them out himself. Any of them can.
 >
-> <sub>she takes it · answers with Who · in play: nothing new</sub>
+> <sub>she takes it · answers with Who · in play: nothing new · *(corrected 17 October: this was a Validate asking her to confirm what she had already said — a read-back)*</sub>
 
 <sub>8 · Fix</sub>
 > **AGENT** Your party bag was set to Admin Only, we switched it back. Pell can take the draught out himself now.
@@ -139,7 +143,7 @@ empathy 5.
 >
 > <sub>her baggage, said in place of an answer · the call sours one step</sub>
 
-<sub>7 · What·Contract → *transfer*</sub>
+<sub>7 · Where·Contract → *transfer*</sub>
 > **AGENT** When you say transfer — where are you looking for it?
 > **SELLA** Everywhere. I've been through every page of that account twice.
 >
@@ -217,7 +221,7 @@ you anything*, about the co-op.
 
 **Ends:** fixed, but she rings off thinking TLC blamed her for something she
 didn't do. What carries forward: that, about the agent and the co-op both.
-The record never shows her the agent was wrong — only she knows.
+Nothing on the record shows the agent got it wrong — only she knows.
 
 ---
 
@@ -225,7 +229,7 @@ The record never shows her the agent was wrong — only she knows.
 
 **Sheet:** baggage *Pell gets hurt* · patience 3 · empathy 1.
 **Cause:** her own setting, changed last night while she was hunting for
-*transfer*.
+*transfer* — so `her-word` is underneath it, as designed (`docs/plan-two-causes.md`).
 **Player:** steady, and catches the date.
 
 > **AGENT** Thanks for calling TLC. How can I help?
@@ -244,11 +248,11 @@ The record never shows her the agent was wrong — only she knows.
 <sub>3 · Search → 4409</sub>
 > **AGENT** Thank you.
 
-<sub>4 · When·Expand → *working* + Why·Contract → *Pell*</sub>
+<sub>4 · When·Expand → *working* + When·Contract → *Pell*</sub>
 > **AGENT** When did it start, and when does Pell need it?
 > **SELLA** Last night. He's out on a contract in the morning.
 >
-> <sub>she takes both · When, When · empathy 1: facts only, nothing for the agent · in play: night, contract, morning</sub>
+> <sub>she takes both · When, then When · empathy 1: facts only, nothing for the agent · in play: night, contract, morning</sub>
 
 <sub>5 · Read → Sella's profile</sub>
 > **AGENT** Bear with me.
@@ -349,13 +353,16 @@ deadline, and *nobody tells you anything*.
 
 ## What the five runs show
 
-- **Her baggage decides where she goes when the fix lands**, not the cause:
-  both *Pell gets hurt* runs turn to him (*"Tonight? He can get it
-  tonight?"*), the *no one told her* runs turn on the company.
+- **Her baggage decides where she goes when the fix lands**, not the cause —
+  when the call has gone well enough. Two of the three *Pell gets hurt* runs
+  turn to him (*"Tonight? He can get it tonight?"*); in run 3, soured by
+  being blamed, she gives nothing but *"Fine."* Both *no one told her* runs
+  turn on the company.
 - **Patience decides how much she gives**, and two inquiries in a turn only
   both get answered when she has it (run 1 yes, run 2 no).
-- **Her Need was met in no run.** Nothing in any run told her it wasn't her
-  doing; run 3 told her it was.
+- **Her Need** — to be told it was the word and not her — **was met in runs
+  2 and 4**, where the agent told her TLC calls it *assigning*. It went unmet
+  in runs 1 and 5, and run 3 told her she had done it.
 - **The date on her profile did its job** in run 4 and wasn't looked at in
   run 5 — the profile is where the clue is, and the bag is not.
 - **Phil, 17 October:** run 4's *"I clicked on everything"* stands. My
@@ -364,3 +371,20 @@ deadline, and *nobody tells you anything*.
   she says is from her perspective. Run 2's *"Not you. You've been fine."* stands: **[P]**
   *it is possible to have good customer service and not be pleased with the
   outcome.*
+
+## Checked 17 October — what was wrong, and what is still open
+
+Fixed above: the header misquoted Phil (*"that anyone else has called"*; he
+said *that she has called repeatedly*); run 1 turn 7 was a read-back; two card
+labels did not match the question asked (run 2 turn 7, run 4 turn 4); run 4
+said *both causes* under a header naming one; the summary said *both* Pell
+runs when there were three, and that her Need was met in none when it was met
+in two; the rolls were not disclosed honestly.
+
+**Open:** the `her-word` run (run 2) rests on my assumption that her bag has
+always been Admin Only. That contradicts what Phil says she knows — *this
+hasn't been a problem before* — because Pell would never have been able to get
+in.
+
+**Not used:** Phil's *she does not know she has called repeatedly* means some
+calls are repeats. No run here is one.
