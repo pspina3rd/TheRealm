@@ -381,10 +381,25 @@ said *both causes* under a header naming one; the summary said *both* Pell
 runs when there were three, and that her Need was met in none when it was met
 in two; the rolls were not disclosed honestly.
 
-**Open:** the `her-word` run (run 2) rests on my assumption that her bag has
-always been Admin Only. That contradicts what Phil says she knows — *this
-hasn't been a problem before* — because Pell would never have been able to get
-in.
+**Not a contradiction — Phil, 18 October:** *"Can players not make a mistake
+or not be correct?"* What Sella knows is what she believes, and she can be
+wrong. *This hasn't been a problem before* can be her belief and not the
+record's fact. The record already said so (`settled.md` §8, *It
+misremembers*; `docs/handover/memory/therealm-design-frame.md`, memory by
+type). I flagged it without checking either.
+
+**Found on re-reading the record against these runs, 18 October:**
+- **Patience is not a field on her sheet in the record.** `settled.md` §8
+  *Fields* lists tolerance for repetition, empathy, pattern sensitivity,
+  tolerance for non-positive outcomes, and depth or breadth. Patience comes
+  from `src/cards/sheet.js` and is mine. Every run leaned on it, and none used
+  the record's four other fields.
+- **Her Need as written here is mine.** *Not to be made a fool of* and *to be
+  told it was the word and not her* exist only in `src/cards/bag.js:461`,
+  never in the record.
+- **"Certainty and Treatment weigh heaviest"** comes from the record's line
+  about her *flask* call (`settled.md` §8, *The win categories on the sheet*),
+  not this one. I carried it across calls without saying so.
 
 **Not used:** Phil's *she does not know she has called repeatedly* means some
 calls are repeats. No run here is one.
