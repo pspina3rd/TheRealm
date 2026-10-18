@@ -72,4 +72,7 @@ Phil before they are built. Nothing here is folded into the record.
 ## Phil's rulings, 18 October
 
 - 13: **OK.**
-- 12: asked what it means — explained in plain words, not yet ruled.
+- 12: **"Delete it for now."** Patience goes when the engine is built; the
+  code is not touched until then.
+- 14 and 15 come back **after the test has been run properly and fully, and
+  her responses are consistent and customer-specific** (Phil).
