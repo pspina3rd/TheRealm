@@ -14,9 +14,12 @@ this hasn't been a problem before; she has spent a long time trying, and she
 is frustrated. She does not know the cause, or the effect, or that she has
 called repeatedly.
 
-**Her sheet**, from `src/cards/bag.js` and `docs/settled.md` §8: her Need is
-not to be made a fool of; Certainty and Treatment weigh heaviest; one of three
-baggages is carried. Patience and empathy run 1–5 (`src/cards/sheet.js`).
+**Her sheet** as these runs used it — *corrected 18 October, see the end of
+this file:* her Need (*not to be made a fool of*) is mine, from
+`src/cards/bag.js`, not the record; *Certainty and Treatment weigh heaviest*
+belongs to her flask call, not this one; patience is not a field in the
+record. One of three baggages (from `src/cards/bag.js`) is carried. Patience
+and empathy run 1–5 (`src/cards/sheet.js`).
 Each run's baggage, patience, empathy and cause were rolled with the seeded
 generator. The first set of rolls came out *A + her-word* five times out of
 five, because the baggage and the cause were drawn from one stream; I re-rolled
@@ -401,5 +404,7 @@ type). I flagged it without checking either.
   about her *flask* call (`settled.md` §8, *The win categories on the sheet*),
   not this one. I carried it across calls without saying so.
 
-**Not used:** Phil's *she does not know she has called repeatedly* means some
-calls are repeats. No run here is one.
+**Corrected 18 October:** I first read *she does not know she has called
+repeatedly* as meaning some calls are repeats in her world. The plainer
+reading: each play-through is the same call played again, and she carries
+nothing from one run to the next. These runs already treat it that way.
