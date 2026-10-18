@@ -395,3 +395,18 @@ agent. Good service, and not pleased with how it got there.
 - The quoted field meanings are copied from `settled.md` §8 *Fields*.
 - Not checked against anything: the *Assign* steps, and the three baggage
   lines, which are mine.
+
+## Step 1 — her inputs, 18 October
+
+**Baggage — Phil: "All three work I think."** Accepted: *set it up herself*,
+*no one told her*, *Pell gets hurt*, with their lines, triggers and leanings
+as in `src/cards/bag.js` BAGGAGE and VOICE.
+
+**Her Need — put to Phil.** The record (`settled.md` §6, *Request and Need*):
+**[P]** every call has one; the Need is what would actually make her whole,
+and whether it matches the Request depends on the scenario. Her flask call's
+Need is practical — *a healing draught tonight*. The Need in `bag.js`
+(*not to be made a fool of*) is emotional and mine, and does not follow that
+pattern. Proposed, following the flask call: Request *I can't transfer the
+draught to Pell's bag* · Need *Pell has the draught on him before he leaves in
+the morning*.
