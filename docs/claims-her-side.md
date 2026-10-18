@@ -64,13 +64,12 @@ Phil before they are built. Nothing here is folded into the record.
     - Casting *wide*: a third inquiry on one word makes her say less; a new
       word brings her back. *Digging*: a change of word before the last one
       is answered makes her say less.
-14. **[C] The templates come from the ten runs.** Each of her lines in runs
-    1–10 is cut into a template with its slots marked, and tagged with the
-    field band and baggage that produced it. No generator is built; the
-    filled template is the line, until there is one.
-15. **[C] Acceptance.** The engine, given the rolls of runs 6–10 and the
-    same player moves, makes the same choices she made by hand — which
-    inquiry she takes, which card she answers from, when she names a
-    pattern, when her baggage comes out — and the printed call reads as a
-    conversation. Where it differs, the engine is checked first, then the
-    hand run.
+14. *Withdrawn 18 October* — how her lines are made. Phil: *"Did I say to do
+    that yet?"* Not for this step.
+15. *Withdrawn 18 October* — acceptance against the hand runs. Phil: *"Did I
+    say we were here yet?"* That is step 3, not step 2.
+
+## Phil's rulings, 18 October
+
+- 13: **OK.**
+- 12: asked what it means — explained in plain words, not yet ruled.
