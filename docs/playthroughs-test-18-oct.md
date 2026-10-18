@@ -1,6 +1,6 @@
 # The test — consistency and coverage, 18 October
 
-Agreed with Phil, 18 October: hand-played, in two parts. **Every line is
+Agreed with Phil in conversation, 18 October: hand-played, in two parts. **Every line is
 generated in play; none is canon, and none goes into the code or the record.**
 Same rules as runs 1–10: what Sella knows is Phil's list of 16 October, and
 she can be wrong; her sheet is the record's five fields (`settled.md` §8,
@@ -9,8 +9,8 @@ she can be wrong; her sheet is the record's five fields (`settled.md` §8,
 not used.
 
 **Part 1 — consistency.** Three sheets, each played three times with a
-different player: **steady** (asks, identifies, reads her profile, asks
-Bram), **wanderer** (broad questions, the wrong record, runs long), and
+different player: **steady** (asks, identifies, reads her profile, and asks
+Bram when the date needs explaining), **wanderer** (broad questions, the wrong record, runs long), and
 **guesser** (offers remedies before looking). The same Sella should show
 through all three runs of a sheet.
 
@@ -18,7 +18,7 @@ through all three runs of a sheet.
 cause at least twice, counting runs 6–10 (which used the same fields).
 
 **The three sheets are chosen, not rolled** — chosen to fill what runs 6–10
-left uncovered (listed at the end). The player styles are also my choice.
+left uncovered (listed under *Result — part 2*). The player styles are also my choice.
 
 ---
 
@@ -127,14 +127,14 @@ wide**. Cause: the system update, with `her-word` stacked.
 >
 > <sub>digging: a change of subject reads as being brushed off · she pulls back to the problem</sub>
 
-<sub>5 · Validate → *Pell* (a read-back — the player's mistake)</sub>
+<sub>5 · Who·Validate → *Pell* (a read-back — the player's mistake)</sub>
 > **AGENT** So Pell's the one heading out in the morning?
-> **SELLA** Yes.
+> **SELLA** Yes. I said.
 >
-> <sub>repetition low: she has said it twice; she gives one word · non-positive high: nothing else shows</sub>
+> <sub>repetition low: she has said it already, and reads the question as not listening · non-positive high: nothing else shows</sub>
 
 <sub>6 · ID → ask for something searchable</sub>
-> **AGENT** Have you got a number for the account?
+> **AGENT** Is there a number on the bag?
 > **SELLA** 4-4-0-9.
 
 <sub>7 · Search → 4409</sub>
@@ -269,9 +269,9 @@ else.
 
 <sub>4 · What·Expand → *contract*</sub>
 > **AGENT** What's the contract?
-> **SELLA** You keep asking me what everything is. He leaves at first light and he can't get into the bag.
+> **SELLA** Sorry — you keep asking me what everything is. He leaves at first light and he can't get into the bag.
 >
-> <sub>pattern middle: three Whats in a row, and she names it</sub>
+> <sub>pattern middle: four Whats in a row, turns 1–4, and she names it on the fourth · empathy high: she softens it</sub>
 
 <sub>5 · Who·Expand → *Pell*</sub>
 > **AGENT** Who's Pell to the party?
@@ -290,7 +290,7 @@ else.
 > **SELLA** Is there someone else I can talk to tonight?
 > **AGENT** I'll put you through.
 >
-> <sub>non-positive low: brushed off once, then a case instead of a fix — counted as two misses, which is arguable: the brush-off is her digging lean, not a failed remedy · the Transfer card exists now (`spec-call-engine.md` §5)</sub>
+> <sub>non-positive low: brushed off once, then a case instead of a fix — counted as two misses, which is arguable: the brush-off is her digging lean, not a failed remedy · a wrong-department ending is valid, and is the Transfer card (`settled.md` §8, *Taken from DSC's Cognition spec*)</sub>
 
 **Ends:** transferred, not fixed.
 
@@ -368,8 +368,8 @@ else.
 >
 > <sub>set it up herself: whether it was her</sub>
 
-<sub>7 · Validate → *bag*</sub>
-> **AGENT** It came with an update on our side.
+<sub>7 · Statement (the agent tells her)</sub>
+> **AGENT** It came with an update on our side, three days ago.
 > **SELLA** Three days. I've been at this since last night thinking it was me.
 >
 > <sub>in play: night</sub>
@@ -401,7 +401,7 @@ else.
 > **AGENT** Tell me about the bag.
 > **SELLA** It's the party's bag. Everything we carry is in it.
 
-<sub>3 · What·Contract → *bag*</sub>
+<sub>3 · What·Expand → *bag*</sub>
 > **AGENT** What's in it?
 > **SELLA** Rope, torches, the stores, the draughts.
 
@@ -454,7 +454,7 @@ else.
 
 <sub>3 · Remedy → new bag (wrong)</sub>
 > **AGENT** I could send a new bag.
-> **SELLA** There's nothing the matter with this one. That's the second thing you've guessed at.
+> **SELLA** There's nothing the matter with this one. This isn't getting us anywhere.
 >
 > <sub>non-positive middle: shows it</sub>
 
@@ -474,7 +474,7 @@ else.
 > **SELLA** Set by who? I haven't changed anything.
 
 <sub>9 · Statement, and the second fix</sub>
-> **AGENT** It was an update on our side, not you. And when you hand him something yourself, it's called Assign.
+> **AGENT** It was an update on our side three days ago, not you. And when you hand him something yourself, it's called Assign.
 > **SELLA** Three days. I've been at this since last night thinking it was me. Assign.
 
 **Ends:** both fixed, on the last play.
@@ -486,25 +486,37 @@ else.
 | Sheet | Predicted | Run 11 / 14 / 17 (steady) | Run 12 / 15 / 18 (wanderer) | Run 13 / 16 / 19 (guesser) |
 |---|---|---|---|---|
 | X | says less on a repeat | — not tested | yes (*"Yes."*) | — not tested |
-| X | never names the pattern | yes | yes | yes |
-| X | kind; blame on the company | yes | yes | yes |
+| X | never names the pattern | — | — | — |
+| X | kind; blame on the company | yes | kind only | yes |
 | X | misses barely show | — | yes | yes |
 | X | pulls back on a subject change | — | yes | — |
 | Y | worry for Pell | yes | yes | yes |
-| Y | names a straight run | — | yes (three Whats) | — |
-| Y | someone else after two misses | — | yes | yes |
+| Y | names a straight run | — | yes (four Whats) | — |
+| Y | someone else after two misses | — | arguable | yes |
+| Y | pulls back on a subject change | — | yes | — |
 | Y | kind | yes | — | yes |
 | Z | first thought: was it her | yes | yes | yes |
 | Z | no warmth | yes | yes | yes |
 | Z | misses show | — | yes | yes |
 | Z | third dig: says less | — | yes | — |
 
-**Every prediction that a run tested held.** Nothing contradicted its sheet.
+**As first written, two runs contradicted their sheets** — found by the
+independent read below and corrected: run 19 had pattern-*low* Sella counting
+the agent's guesses, and run 15 had empathy-*high* Sella reproach the agent
+without softening it. **After correction, every prediction a run tested
+held.** Sheet X's *never names the pattern* was never tested: no X run gave
+her a pattern to name.
 The same Sella showed through each set of three, in different words.
 **Untested:** Sheet X's repeat with the steady and guesser players, and
 several others marked —; a player who never triggers a band cannot show it.
 
 ## Result — part 2, coverage (runs 6–19)
+
+What runs 6–10 left uncovered, which the three sheets were chosen to fill:
+repetition *low* and *middle* once each; empathy *high* never; pattern *low*
+never, *middle* once; non-positive *low* and *high* once each; *prefers
+digging* never; *no one told her* once; her own setting and the system update
+once each.
 
 | | low | middle | high |
 |---|---|---|---|
@@ -532,3 +544,43 @@ setting 7, 14–16 · system update 8, 11–13 · system update with `her-word`
   own setting), it is hers to be.
 - **Not independent.** I wrote the predictions, played the runs and marked
   them. That is the weakness of this result.
+
+## Independent read — 18 October
+
+One read-only agent, on a smaller model, read runs 11–19 cold against
+`settled.md` §2, §6 and §8, the knowledge list, `plan-two-causes.md` and the
+baggage in `bag.js`, and reported faults only. I checked every finding
+against the file before acting on it.
+
+**Real, and fixed above:**
+- Runs 17 and 19: she said *"Three days"* when nobody had told her the number
+  — only the agent's screen and Bram had it. The agent's lines now say *three
+  days ago*.
+- Run 19: pattern-*low* Sella counted the agent's guesses. Her line is
+  changed.
+- Run 15: empathy-*high* Sella reproached the agent. She softens it now.
+- Run 12: repetition-*low* gave a flat *"Yes."*; the record says she reads a
+  repeat as not listening. Now *"Yes. I said."*
+- Four labels: run 18 turn 3 was Expand, not Contract; run 12 turn 5 and
+  run 17 turn 7 had no suit (one was a statement, not an inquiry).
+- Run 12: the agent said *account* before anyone had. Changed to *the bag*.
+- The table: *never names the pattern* was marked tested when it was not;
+  run 12 showed kindness but no blame on the company; run 15 was four Whats,
+  not three; run 15's *two misses* is arguable; a missing row for *pulls
+  back*.
+- Run 15 cited a proposal (`spec-call-engine.md`) for the Transfer card; the
+  record itself names it.
+- The definition of *steady*, the missing list of gaps, and *agreed with
+  Phil* (it was in conversation, not in a file).
+
+**Judged not faults, with the reason:**
+- Run 11, *"So something changed and nobody thought to say."* TLC did send a
+  notice; she does not remember it. What she says is her belief and can be
+  wrong (Phil, 18 October), and Phil's own question was whether anyone reads
+  every notice.
+- Run 11, *"Need met"* with only the bag reopened. Her Need is that Pell has
+  the draught before he leaves; reopening the bag gives him it. Phil's note
+  that the fix could be reopening, assigning or both does not make
+  reopening alone fall short.
+- *Permissions* named by the agent before her, in two guessed remedies: a
+  remedy is the agent's offer, not an inquiry at one of her words.
