@@ -410,3 +410,9 @@ Need is practical — *a healing draught tonight*. The Need in `bag.js`
 pattern. Proposed, following the flask call: Request *I can't transfer the
 draught to Pell's bag* · Need *Pell has the draught on him before he leaves in
 the morning*.
+
+**Her Need — Phil, 18 October: yes.** Request: *I can't transfer the draught
+to Pell's bag.* Need: *Pell has the draught on him before he leaves in the
+morning.* **[P]** Doing it also partly addresses what she asks for — it is not
+clear whether the fix was reopening the sharing, or Sella or the player
+assigning the item as well as reopening it.
