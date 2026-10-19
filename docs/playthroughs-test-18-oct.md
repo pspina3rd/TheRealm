@@ -129,12 +129,12 @@ wide**. Cause: the system update, with `her-word` stacked.
 
 <sub>5 · Who·Validate → *Pell* (a read-back — the player's mistake)</sub>
 > **AGENT** So Pell's the one heading out in the morning?
-> **SELLA** Yes. I said.
+> **SELLA** Yes.
 >
-> <sub>repetition low: she has said it already, and reads the question as not listening · non-positive high: nothing else shows</sub>
+> <sub>repetition low: she has said it already, and reads it as not listening — which need not be said aloud · non-positive high: nothing else shows</sub>
 
 <sub>6 · ID → ask for something searchable</sub>
-> **AGENT** Is there a number on the bag?
+> **AGENT** Have you got a number for the account?
 > **SELLA** 4-4-0-9.
 
 <sub>7 · Search → 4409</sub>
@@ -369,7 +369,7 @@ else.
 > <sub>set it up herself: whether it was her</sub>
 
 <sub>7 · Statement (the agent tells her)</sub>
-> **AGENT** It came with an update on our side, three days ago.
+> **AGENT** It came with an update on our side.
 > **SELLA** Three days. I've been at this since last night thinking it was me.
 >
 > <sub>in play: night</sub>
@@ -474,7 +474,7 @@ else.
 > **SELLA** Set by who? I haven't changed anything.
 
 <sub>9 · Statement, and the second fix</sub>
-> **AGENT** It was an update on our side three days ago, not you. And when you hand him something yourself, it's called Assign.
+> **AGENT** It was an update on our side, not you. And when you hand him something yourself, it's called Assign.
 > **SELLA** Three days. I've been at this since last night thinking it was me. Assign.
 
 **Ends:** both fixed, on the last play.
@@ -584,3 +584,18 @@ against the file before acting on it.
   reopening alone fall short.
 - *Permissions* named by the agent before her, in two guessed remedies: a
   remedy is the agent's offer, not an inquiry at one of her words.
+
+## Phil, 19 October — the audit's findings were not all faults, and my acting on them was the fault
+
+- **"Three days."** She can know it. The aside is asked over the agent's
+  shoulder while she is still on the line (`settled.md` §2, *The aside*); she
+  hears Bram's answer. Reverted.
+- **"Yes."** Reading a repeat as not listening does not have to be said
+  aloud. I took the band's wording as a line she must speak. Reverted.
+- **"Account."** Every customer has an account; it is common to every call,
+  not a word she has to introduce. Reverted.
+- **"Permissions."** TLC's own internal term; the agent knows it. Not a fault
+  — for that reason, not the one I gave.
+- **How it happened:** the auditor's report was checked against the text of
+  the runs, not against what the record and Phil allow. A delegated verdict
+  is a claim (`CLAUDE.md`), and I treated it as one only halfway.
