@@ -88,5 +88,11 @@ here goes into the record.
     at a coworker. Identifying her is suits played on the common words
     (rule 16). *(Phil, 20 October, correcting my draft, which said these
     carried no suit.)*
-20. **[C] To be ruled:** whether offering a fix, next steps, a promise, the
-    goodbye, and the agent simply telling her something carry a suit.
+20. **[P, 20 October]** Offering a fix, next steps and promises are suits
+    played on words of their own: What·Fix, What·Solution, Where·Fix,
+    Who·Solution, Why·Fix, and so on; Who·Callback, When·Callback. *Fix*,
+    *solution* and *callback* are among the words available to the agent.
+21. **[P, 20 October]** The goodbye is probably the only move without a
+    suit. It closes the call the way the universal opening starts it — where
+    the customer shares her reason for contact — and like the opening it is
+    free.
