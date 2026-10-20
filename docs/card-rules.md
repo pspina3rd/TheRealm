@@ -73,13 +73,20 @@ here goes into the record.
 
 15. **[P]** A single word, already introduced by her or by the record.
     (§2; tentative, *Her side, mirrored*)
-16. **[P, 19 October]** Words common to every call are available from the
-    start — *account* among them.
+16. **[P, 19–20 October]** Words common to every customer are available from
+    the start: *name*, *account*, *number*, *email*. Identifying her is
+    suits played on them — Who·Name, What·Account, What·Number, Who·Email.
 17. **[P, 19 October]** TLC's own internal terms — *permissions*,
     *Assign*, *Admin Only* — are known to the agent from the start.
 18. **[P]** One or two inquiries a turn, each labelled on its own. (§2)
 
-## Not inquiries, and labelled by what they are
+## Every play has a target, and most have a suit
 
-19. **[C]** ID, Search, Read, Aside, Remedy, Fix, Promise, Close, and the
-    agent simply telling her something. These carry no suit or angle.
+19. **[P]** The three target classes: her, the record, a coworker — and the
+    target decides the result. (§2, *Targets*) So searching and reading the
+    record are suits played at the record, and the aside is a suit played
+    at a coworker. Identifying her is suits played on the common words
+    (rule 16). *(Phil, 20 October, correcting my draft, which said these
+    carried no suit.)*
+20. **[C] To be ruled:** whether offering a fix, next steps, a promise, the
+    goodbye, and the agent simply telling her something carry a suit.
