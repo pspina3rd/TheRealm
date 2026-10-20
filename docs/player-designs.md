@@ -13,7 +13,7 @@ be set beside the old ones.
 
 | Field | The player's move that tests it | Low | Middle | High |
 |---|---|---|---|---|
-| Tolerance for repetition | a paraphrase of what she said (Validate), up to three times | *"notices a repeat at once and reads it as not listening"* | *"fine once, thinner twice, plain by the third"* | *"wants it. Varying things leaves them unsure anything was settled"* |
+| Tolerance for repetition | a paraphrase of what she said (Validate), up to three times | *"notices a repeat at once and reads it as not listening"* | *"fine the first time, wears thin the second, and by the third she notices it is a repeat"* | *"wants it. Varying things leaves them unsure anything was settled"* |
 | Empathy | the agent floundering — an aside, or a guess — and once, a stock line delivered without meaning it | *"the agent isn't a person to them. Warmth doesn't land"* | *"extends goodwill on an obviously busy day, but isn't looking"* | *"reads the agent closely, may let a floundering apprentice off the hook — and notices a technique delivered without meaning it"* |
 | Pattern sensitivity | the same card three or more times running; and, separately, two cards alternating | *"hears none of it"* | *"catches a straight run of the same thing"* | *"hears shape: alternation, two-then-one"* |
 | Tolerance for non-positive outcomes | two wrong fixes | *"a couple of misses and they want someone else"* | *"absorbs a fair bit, and shows it"* | *"absorbs a great deal and stops signaling"* |
@@ -105,8 +105,8 @@ her profile · What·Fix.
 
 - **Every band of every sheet is triggered at least once**; the triggers
   shared across a sheet's three players are the consistency check.
-- **Not reached:** repetition *middle*'s third repeat (*"plain by the
-  third"*) — no Y or Z player paraphrases three times; empathy *middle* —
+- **Not reached:** repetition *middle*'s third repeat (*"by the third she notices it is a
+  repeat"*) — no Y or Z player paraphrases three times; empathy *middle* —
   none of X, Y or Z has it (runs 7, 8 and 10 did, under the old labels).
 - **Each player fits nine plays**, counting identification as two and
   every fix, next step and promise as one (`card-rules.md` rules 3, 5, 6).

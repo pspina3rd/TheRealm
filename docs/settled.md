@@ -1527,7 +1527,9 @@ within it, the band decides what it means. Three is the default, not a rule.
 
 **Tolerance for repetition**
 - *Low* — notices a repeat at once and reads it as not listening.
-- *Middle* — wears normally: fine once, thinner twice, plain by the third.
+- *Middle* — fine the first time, wears thin the second, and by the third she
+  notices it is a repeat. *(Reworded 20 October on Phil's instruction; the
+  earlier wording was mine.)*
 - *High* — wants it. Varying things leaves them unsure anything was settled.
 
 **Empathy** *(the customer's own)*
