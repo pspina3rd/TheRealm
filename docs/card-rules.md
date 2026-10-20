@@ -40,14 +40,16 @@ here goes into the record.
     search. Against her, it asks her to check her own memory of something
     she did not just say — and what comes back can be right, wrong, sure or
     unsure (Phil, 12 October).
-13. **Expand and Contract — the record disagrees with itself; Phil to
-    rule:**
-    - `docs/spec-call-engine.md` §5 (a proposal): *Contract goes up a record
-      to its parent; Expand goes outward and down.*
-    - `settled.md` §7 **[P]**: *Expand (switch the line of inquiry).*
-    - What I did in runs 1–19, **[C]**: Expand is an open question that
-      invites more (*Tell me about…*); Contract narrows to one specific
-      thing (*Which…*, *exactly*).
+13. **[P, 20 October] Expand and Contract mean different things at the
+    record and at her.**
+    - **At the record (CRM searches):** Expand goes outward and down from
+      what you have; Contract goes up to the parent — a name, contracted,
+      finds the account it belongs to.
+    - **With her:** Expand widens the line of inquiry — moving from her name
+      and account to the issue at hand is an expansion. Contract focuses and
+      continues the line of inquiry already open.
+    - Runs 1–19 used my own meaning (Expand an open question, Contract a
+      narrowing one); their labels are to be re-checked against this.
 14. **[P]** Random: the player does not choose an angle. (§2)
 
 ## Targets — what a question can be aimed at
