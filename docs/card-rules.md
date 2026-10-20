@@ -43,10 +43,16 @@ here goes into the record.
       It costs a play, and her sheet decides what it is worth: repetition
       *high* is settled by it, *low* reads it as not listening, empathy
       *high* can tell whether it was meant.
-12. **[C]** **Verify** checks against a source. Against the record it is a
-    search. Against her, it asks her to check her own memory of something
-    she did not just say — and what comes back can be right, wrong, sure or
-    unsure (Phil, 12 October).
+12. **[C·ok, tentative, 20 October]** **Verify** checks against a source.
+    - **At the record:** checks something she said against what TLC holds —
+      a lookup, so a play.
+    - **At her:** asks her to go and check something she has — her memory,
+      her account page, the bag. What comes back can be right or wrong, sure
+      or unsure, and neither tells the player the other (Phil, 12 October).
+    - Validate: the agent says it, she answers yes or no. Verify: the agent
+      asks, she goes and looks.
+    - Phil: *"I think so. It's not terribly clear to me, though it seems
+      accurate."*
 13. **[P, 20 October] Expand and Contract mean different things at the
     record and at her.**
     - **At the record (CRM searches):** Expand goes outward and down from
