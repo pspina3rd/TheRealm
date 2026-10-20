@@ -24,14 +24,14 @@ thread.
 - **X-c** — What·Expand *working* · What·Fix (try later) · What·Fix (permissions) · How·Contract *transfer* · Who·Expand *name* · What·Contract *account* (record) · What·Expand *profile* (record) · What·Expand *bag* (Bram) · What·Fix.
   Tests: non-positive high; empathy high; *no one told her* (permissions).
 
-## Sheet Y — Pell gets hurt · repetition middle · empathy high · pattern middle · non-positive low · digging · her own setting, her-word underneath
+## Sheet Y — Pell gets hurt · repetition middle · empathy middle · pattern middle · non-positive low · digging · her own setting, her-word underneath
 
 - **Y-a** — What·Expand *working* · Who·Expand *name* · What·Contract *account* (record) · When·Expand *morning* + Why·Expand *Pell* · What·Expand *profile* (record) · Where·Contract *transfer* · What·Fix.
   Tests: *Pell gets hurt*; the fix.
 - **Y-b** — What·Expand *working* · What·Contract *bag* · What·Contract *draught* · What·Contract *transfer* · Why·Expand *Pell* + When·Expand *morning* · Why·Contract *Pell* · When·Contract *morning* · Who·Expand *name*.
   Tests: pattern middle (names four Whats, not the Why/When alternation); digging. Unfixed.
-- **Y-c** — What·Expand *working* · Who·Validate *Pell* · Who·Validate *Pell* · What·Fix (new bag) · What·Fix (try later) · Who·Expand *name* · What·Contract *account* (record) · What·Expand *profile* (record) · What·Fix.
-  Tests: repetition middle (fine once, thin twice); non-positive low; empathy high.
+- **Y-c** — What·Expand *working* · Who·Validate *Pell* · Who·Validate *Pell* · Who·Validate *Pell* + Who·Expand *name* · What·Fix (new bag) · What·Fix (try later) · What·Contract *account* (record) · What·Expand *profile* (record) · What·Fix.
+  Tests: repetition middle (all three repeats); non-positive low; empathy middle.
 
 ## Sheet Z — set it up herself · repetition middle · empathy low · pattern low · non-positive middle · casting wide · system update, her-word stacked
 
@@ -42,6 +42,4 @@ thread.
 - **Z-c** — What·Expand *working* · What·Fix (permissions) · What·Fix (new bag) · Who·Validate *Pell* · Who·Expand *account* · Who·Expand *name* · What·Contract *account* (record) · What·Expand *profile* (record) · What·Fix.
   Tests: non-positive middle; repetition middle (once); *set it up herself* (account, asked Who).
 
-## Not reached
-
-Repetition middle's third repeat; empathy middle.
+**Sheet Y's empathy is middle, not high as in runs 14–16,** so that low (Z), middle (Y) and high (X) are all tested.
