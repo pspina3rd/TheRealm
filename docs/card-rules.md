@@ -23,8 +23,9 @@ here goes into the record.
 ## Suits — what the question asks for
 
 7. **[P]** Who · What · When · Where · Why · How. (§2, *The six suits*)
-8. **[C]** The suit is the kind of answer the question asks for: a person,
-   a thing or action, a time, a place, a reason, a way of doing it.
+8. **[P, 20 October]** The suit is the kind of answer the question asks
+   for — a person, a thing or action, a time, a place, a reason, a way of
+   doing it — not the question's first word.
 
 ## Angles — how the question asks it
 
