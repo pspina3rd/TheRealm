@@ -18,7 +18,7 @@ here goes into the record.
    October)
 5. **[P, 20 October]** Offering a remedy or a fix is a play. What the agent says to
    explain the fix inside the same turn is part of that play, not another.
-6. **[C]** Closing the call, after the fix, is not a play.
+6. **[P, 20 October]** Next steps cost a play. The goodbye is free.
 
 ## Suits — what the question asks for
 
