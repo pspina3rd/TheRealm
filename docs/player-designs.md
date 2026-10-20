@@ -17,29 +17,29 @@ thread.
 
 ## Sheet X — no one told her · repetition low · empathy high · pattern low · non-positive high · digging · system update
 
-- **X-a** — What·Expand *working* · Who·Contract *name* · What·Contract *account* (record) · What·Validate *Pell* (paraphrase, with a stock *"I completely understand"*) · What·Expand *profile* (record) · What·Expand *bag* (Bram) · What·Fix · When·Callback.
+- **X-a** — What·Expand *working* · Who·Expand *name* · What·Contract *account* (record) · What·Validate *Pell* (paraphrase, with a stock *"I completely understand"*) · What·Expand *profile* (record) · What·Expand *bag* (Bram) · What·Fix · When·Callback.
   Tests: repetition low; empathy high spotting the stock line.
-- **X-b** — What·Expand *working* · What·Contract *bag* · What·Contract *draught* · What·Contract *transfer* · Why·Expand *Pell* + What·Expand *contract* · Why·Contract *contract* · What·Contract *contract* · Who·Contract *name*.
+- **X-b** — What·Expand *working* · What·Contract *bag* · What·Contract *draught* · What·Contract *transfer* · Why·Expand *Pell* + What·Expand *contract* · Why·Contract *contract* · What·Contract *contract* · Who·Expand *name*.
   Tests: pattern low (four Whats; then Why/What alternating); digging (new subject in the same turn). Unfixed.
-- **X-c** — What·Expand *working* · What·Fix (try later) · What·Fix (permissions) · How·Contract *transfer* · Who·Contract *name* · What·Contract *account* (record) · What·Expand *profile* (record) · What·Expand *bag* (Bram) · What·Fix.
+- **X-c** — What·Expand *working* · What·Fix (try later) · What·Fix (permissions) · How·Contract *transfer* · Who·Expand *name* · What·Contract *account* (record) · What·Expand *profile* (record) · What·Expand *bag* (Bram) · What·Fix.
   Tests: non-positive high; empathy high; *no one told her* (permissions).
 
 ## Sheet Y — Pell gets hurt · repetition middle · empathy high · pattern middle · non-positive low · digging · her own setting, her-word underneath
 
-- **Y-a** — What·Expand *working* · Who·Contract *name* · What·Contract *account* (record) · When·Expand *morning* + Why·Expand *Pell* · What·Expand *profile* (record) · Where·Contract *transfer* · What·Fix.
+- **Y-a** — What·Expand *working* · Who·Expand *name* · What·Contract *account* (record) · When·Expand *morning* + Why·Expand *Pell* · What·Expand *profile* (record) · Where·Contract *transfer* · What·Fix.
   Tests: *Pell gets hurt*; the fix.
-- **Y-b** — What·Expand *working* · What·Contract *bag* · What·Contract *draught* · What·Contract *transfer* · Why·Expand *Pell* + When·Expand *morning* · Why·Contract *Pell* · When·Contract *morning* · Who·Contract *name*.
+- **Y-b** — What·Expand *working* · What·Contract *bag* · What·Contract *draught* · What·Contract *transfer* · Why·Expand *Pell* + When·Expand *morning* · Why·Contract *Pell* · When·Contract *morning* · Who·Expand *name*.
   Tests: pattern middle (names four Whats, not the Why/When alternation); digging. Unfixed.
-- **Y-c** — What·Expand *working* · Who·Validate *Pell* · Who·Validate *Pell* · What·Fix (new bag) · What·Fix (try later) · Who·Contract *name* · What·Contract *account* (record) · What·Expand *profile* (record) · What·Fix.
+- **Y-c** — What·Expand *working* · Who·Validate *Pell* · Who·Validate *Pell* · What·Fix (new bag) · What·Fix (try later) · Who·Expand *name* · What·Contract *account* (record) · What·Expand *profile* (record) · What·Fix.
   Tests: repetition middle (fine once, thin twice); non-positive low; empathy high.
 
 ## Sheet Z — set it up herself · repetition middle · empathy low · pattern low · non-positive middle · casting wide · system update, her-word stacked
 
-- **Z-a** — What·Expand *working* · Who·Contract *name* · What·Contract *account* (record) · What·Expand *profile* (record) · What·Expand *bag* (Bram) · What·Fix · Why·Validate *update* · How·Contract *transfer* · What·Solution.
+- **Z-a** — What·Expand *working* · Who·Expand *name* · What·Contract *account* (record) · What·Expand *profile* (record) · What·Expand *bag* (Bram) · What·Fix · Why·Validate *update* · How·Contract *transfer* · What·Solution.
   Tests: *set it up herself*; empathy low; both causes.
-- **Z-b** — What·Expand *working* · What·Expand *bag* · What·Contract *bag* · What·Validate *bag* · Who·Expand *Pell* · Who·Contract *name* · What·Contract *account* (record) · What·Expand *profile* (record) · When·Callback.
+- **Z-b** — What·Expand *working* · What·Expand *bag* · What·Contract *bag* · What·Validate *bag* · Who·Expand *Pell* · Who·Expand *name* · What·Contract *account* (record) · What·Expand *profile* (record) · When·Callback.
   Tests: casting wide (three on *bag*, then a new word); pattern low. Unfixed.
-- **Z-c** — What·Expand *working* · What·Fix (permissions) · What·Fix (new bag) · Who·Validate *Pell* · Who·Expand *account* · Who·Contract *name* · What·Contract *account* (record) · What·Expand *profile* (record) · What·Fix.
+- **Z-c** — What·Expand *working* · What·Fix (permissions) · What·Fix (new bag) · Who·Validate *Pell* · Who·Expand *account* · Who·Expand *name* · What·Contract *account* (record) · What·Expand *profile* (record) · What·Fix.
   Tests: non-positive middle; repetition middle (once); *set it up herself* (account, asked Who).
 
 ## Not reached
