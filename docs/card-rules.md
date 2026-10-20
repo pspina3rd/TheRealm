@@ -53,6 +53,10 @@ here goes into the record.
       asks, she goes and looks.
     - Phil: *"I think so. It's not terribly clear to me, though it seems
       accurate."*
+    - **Framing, Phil, 20 October:** not *"So the bag's been set so only you
+      can open it?"* but *"Is anyone else in your party able to access the
+      bag?"* — ask about what she can know from where she stands, not the
+      agent's own guess at the cause in TLC's words.
 13. **[P, 20 October] Expand and Contract mean different things at the
     record and at her.**
     - **At the record (CRM searches):** Expand goes outward and down from
