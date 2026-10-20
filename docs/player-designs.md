@@ -11,6 +11,8 @@ open (the transfer, the bag, the draught). Expand starts another thread
 to its account; reading her profile expands down from the account; the
 aside asks Bram about the bag.
 
+**Digging is tested by two inquiries in one turn: one on her point, one new.**
+
 **Each move is checked as written:** the word is in play or is one the agent
 has from the start; the suit matches what is asked; the angle matches the
 thread.
@@ -19,7 +21,7 @@ thread.
 
 - **X-a** — What·Expand *working* · Who·Expand *name* · What·Contract *account* (record) · What·Validate *Pell* (paraphrase, with a stock *"I completely understand"*) · What·Expand *profile* (record) · What·Expand *bag* (Bram) · What·Fix · When·Callback.
   Tests: repetition low; empathy high spotting the stock line.
-- **X-b** — What·Expand *working* · What·Contract *bag* · What·Contract *draught* · What·Contract *transfer* · Why·Expand *Pell* + What·Expand *contract* · Why·Contract *contract* · What·Contract *contract* · Who·Expand *name*.
+- **X-b** — What·Expand *working* · What·Contract *bag* · What·Contract *draught* · What·Contract *transfer* · Why·Contract *transfer* + What·Expand *contract* · Why·Expand *Pell* · What·Expand *contract* · Who·Expand *name*.
   Tests: pattern low (four Whats; then Why/What alternating); digging (new subject in the same turn). Unfixed.
 - **X-c** — What·Expand *working* · What·Fix (try later) · What·Fix (permissions) · How·Contract *transfer* · Who·Expand *name* · What·Contract *account* (record) · What·Expand *profile* (record) · What·Expand *bag* (Bram) · What·Fix.
   Tests: non-positive high; empathy high; *no one told her* (permissions).
@@ -28,9 +30,9 @@ thread.
 
 - **Y-a** — What·Expand *working* · Who·Expand *name* · What·Contract *account* (record) · When·Expand *morning* + Why·Expand *Pell* · What·Expand *profile* (record) · Where·Contract *transfer* · What·Fix.
   Tests: *Pell gets hurt*; the fix.
-- **Y-b** — What·Expand *working* · What·Contract *bag* · What·Contract *draught* · What·Contract *transfer* · Why·Expand *Pell* + When·Expand *morning* · Why·Contract *Pell* · When·Contract *morning* · Who·Expand *name*.
+- **Y-b** — What·Expand *working* · What·Contract *bag* · What·Contract *draught* · What·Contract *transfer* · Why·Contract *transfer* + When·Expand *morning* · Why·Expand *Pell* · When·Contract *morning* · Who·Expand *name*.
   Tests: pattern middle (names four Whats, not the Why/When alternation); digging. Unfixed.
-- **Y-c** — What·Expand *working* · Who·Validate *Pell* · Who·Validate *Pell* · Who·Validate *Pell* + Who·Expand *name* · What·Fix (new bag) · What·Fix (try later) · What·Contract *account* (record) · What·Expand *profile* (record) · What·Fix.
+- **Y-c** — What·Expand *working* · What·Validate *Pell* · Who·Validate *Pell* · Who·Validate *Pell* + Who·Expand *name* · What·Fix (new bag) · What·Fix (try later) · What·Contract *account* (record) · What·Expand *profile* (record) · What·Fix.
   Tests: repetition middle (all three repeats); non-positive low; empathy middle.
 
 ## Sheet Z — set it up herself · repetition middle · empathy low · pattern low · non-positive middle · casting wide · system update, her-word stacked
@@ -39,7 +41,7 @@ thread.
   Tests: *set it up herself*; empathy low; both causes.
 - **Z-b** — What·Expand *working* · What·Expand *bag* · What·Contract *bag* · What·Validate *bag* · Who·Expand *Pell* · Who·Expand *name* · What·Contract *account* (record) · What·Expand *profile* (record) · When·Callback.
   Tests: casting wide (three on *bag*, then a new word); pattern low. Unfixed.
-- **Z-c** — What·Expand *working* · What·Fix (permissions) · What·Fix (new bag) · Who·Validate *Pell* · Who·Expand *account* · Who·Expand *name* · What·Contract *account* (record) · What·Expand *profile* (record) · What·Fix.
+- **Z-c** — What·Expand *working* · What·Fix (permissions) · What·Fix (new bag) · What·Validate *Pell* · Who·Expand *account* · Who·Expand *name* · What·Contract *account* (record) · What·Expand *profile* (record) · What·Fix.
   Tests: non-positive middle; repetition middle (once); *set it up herself* (account, asked Who).
 
 **Sheet Y's empathy is middle, not high as in runs 14–16,** so that low (Z), middle (Y) and high (X) are all tested.
