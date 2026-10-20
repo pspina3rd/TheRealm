@@ -1,0 +1,66 @@
+# Card rules for the play-throughs — draft for Phil, 20 October
+
+Step 1 of running the test properly (agreed 19 October): what each card means
+for a question, and what counts as a play, written **before** any run. Each
+rule is tagged and cited. **[C]** rules are mine and wait on Phil. Nothing
+here goes into the record.
+
+## What is a play
+
+1. **[P]** Nine plays a call. Asking her something, asking a coworker, or
+   looking something up each uses one. (`settled.md` §2, *Nine plays*)
+2. **[P]** The opening is free: the greeting and the universal question.
+   (§2)
+3. **[P]** Identification is two plays: ask her for something searchable,
+   then search on it. (§2)
+4. **[P·C]** The aside — asking a coworker over your shoulder while she is
+   on the line — is a play. She hears it. (§2, *The aside*; Phil, 19
+   October)
+5. **[C]** Offering a remedy or a fix is a play. What the agent says to
+   explain the fix inside the same turn is part of that play, not another.
+6. **[C]** Closing the call, after the fix, is not a play.
+
+## Suits — what the question asks for
+
+7. **[P]** Who · What · When · Where · Why · How. (§2, *The six suits*)
+8. **[C]** The suit is the kind of answer the question asks for: a person,
+   a thing or action, a time, a place, a reason, a way of doing it.
+
+## Angles — how the question asks it
+
+9. **[P]** Verify · Validate · Expand · Contract are the four angles;
+   Random is the player not choosing. (§2)
+10. **[P]** A statement is an inquiry: it invites a yes or a no. (§2, *A
+    statement is an inquiry*)
+11. **[C]** **Validate** checks against her: a statement or yes/no question
+    about something she has not already said. Asking her to confirm what she
+    herself said is a read-back and confirms nothing (Phil, tentative, §2
+    *Her side, mirrored*) — a player can still make that mistake.
+12. **[C]** **Verify** checks against a source. Against the record it is a
+    search. Against her, it asks her to check her own memory of something
+    she did not just say — and what comes back can be right, wrong, sure or
+    unsure (Phil, 12 October).
+13. **Expand and Contract — the record disagrees with itself; Phil to
+    rule:**
+    - `docs/spec-call-engine.md` §5 (a proposal): *Contract goes up a record
+      to its parent; Expand goes outward and down.*
+    - `settled.md` §7 **[P]**: *Expand (switch the line of inquiry).*
+    - What I did in runs 1–19, **[C]**: Expand is an open question that
+      invites more (*Tell me about…*); Contract narrows to one specific
+      thing (*Which…*, *exactly*).
+14. **[P]** Random: the player does not choose an angle. (§2)
+
+## Targets — what a question can be aimed at
+
+15. **[P]** A single word, already introduced by her or by the record.
+    (§2; tentative, *Her side, mirrored*)
+16. **[P, 19 October]** Words common to every call are available from the
+    start — *account* among them.
+17. **[P, 19 October]** TLC's own internal terms — *permissions*,
+    *Assign*, *Admin Only* — are known to the agent from the start.
+18. **[P]** One or two inquiries a turn, each labelled on its own. (§2)
+
+## Not inquiries, and labelled by what they are
+
+19. **[C]** ID, Search, Read, Aside, Remedy, Fix, Promise, Close, and the
+    agent simply telling her something. These carry no suit or angle.
