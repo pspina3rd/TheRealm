@@ -16,7 +16,7 @@ here goes into the record.
 4. **[P·C]** The aside — asking a coworker over your shoulder while she is
    on the line — is a play. She hears it. (§2, *The aside*; Phil, 19
    October)
-5. **[C]** Offering a remedy or a fix is a play. What the agent says to
+5. **[P, 20 October]** Offering a remedy or a fix is a play. What the agent says to
    explain the fix inside the same turn is part of that play, not another.
 6. **[C]** Closing the call, after the fix, is not a play.
 
