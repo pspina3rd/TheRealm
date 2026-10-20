@@ -33,10 +33,16 @@ here goes into the record.
    Random is the player not choosing. (§2)
 10. **[P]** A statement is an inquiry: it invites a yes or a no. (§2, *A
     statement is an inquiry*)
-11. **[C]** **Validate** checks against her: a statement or yes/no question
-    about something she has not already said. Asking her to confirm what she
-    herself said is a read-back and confirms nothing (Phil, tentative, §2
-    *Her side, mirrored*) — a player can still make that mistake.
+11. **[C·ok, 20 October]** **Validate** checks with her, two ways:
+    - **A guess at something she has not said** tests a fact: yes confirms
+      it, no corrects it and hands over the right thing.
+    - **A paraphrase of what she has said** confirms nothing about the fact
+      (Phil, tentative, §2 *Her side, mirrored*), but shows she was heard —
+      *paraphrase for comprehension, then act* is one of the soft skills
+      that are the mechanic (`docs/handover/memory/therealm-design-frame.md`).
+      It costs a play, and her sheet decides what it is worth: repetition
+      *high* is settled by it, *low* reads it as not listening, empathy
+      *high* can tell whether it was meant.
 12. **[C]** **Verify** checks against a source. Against the record it is a
     search. Against her, it asks her to check her own memory of something
     she did not just say — and what comes back can be right, wrong, sure or
