@@ -1,0 +1,336 @@
+:root {
+  color-scheme: dark;
+  --bg: #111323;
+  --panel: #1b1f34;
+  --panel-deep: #101324;
+  --border: #464c70;
+  --text: #eef0ff;
+  --muted: #aeb6d7;
+  --gold: #f5d77b;
+  --hp: #e66c83;
+  --mp: #6f9cff;
+  --good: #8fe3a7;
+  --bad: #ffb7c5;
+  --button: #353c63;
+  --button-border: #7079a8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Elements toggled with the `hidden` attribute must stay hidden even when a class sets `display`. */
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font:
+    15px/1.4 system-ui,
+    sans-serif;
+}
+
+main {
+  max-width: 1000px;
+  margin: auto;
+  padding: 12px 16px 24px;
+}
+
+h2 {
+  font-size: 15px;
+  margin: 8px 0 6px;
+  color: #dbe1ff;
+}
+
+button {
+  background: var(--button);
+  border: 1px solid var(--button-border);
+  color: var(--text);
+  border-radius: 7px;
+  padding: 7px 10px;
+  cursor: pointer;
+  font: inherit;
+  touch-action: manipulation;
+}
+
+button:hover:not(:disabled),
+button:focus-visible {
+  filter: brightness(1.2);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+canvas {
+  display: block;
+  image-rendering: pixelated;
+  max-width: 100%;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* ---------------------------------------------------------------- HUD --- */
+
+.hud {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr auto auto auto auto;
+  gap: 10px;
+  align-items: center;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+}
+
+.hud small {
+  display: block;
+  color: var(--muted);
+}
+
+.hud-name b,
+.hud-stat b {
+  color: var(--gold);
+}
+
+.bar {
+  height: 7px;
+  background: #090b15;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 3px 0;
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: var(--hp);
+  transition: width 0.2s;
+}
+
+.bar.mp span {
+  background: var(--mp);
+}
+
+.bar.objective span {
+  background: var(--gold);
+}
+
+/* -------------------------------------------------------------- views --- */
+
+.view {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px;
+}
+
+#world-canvas {
+  width: 100%;
+  border-radius: 8px;
+  background: #000;
+}
+
+.world-message {
+  min-height: 1.4em;
+  margin: 8px 0 0;
+  color: var(--gold);
+}
+
+.battle {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+}
+
+.battle-board {
+  background: #0b0d18;
+  border-radius: 8px;
+  padding: 6px;
+  align-self: start;
+}
+
+#board-canvas {
+  width: 300px;
+  height: 600px;
+}
+
+.battle-side {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.panel {
+  background: var(--panel-deep);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.stats-row {
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.grid-2 small {
+  display: block;
+  color: var(--muted);
+}
+
+.log {
+  height: 120px;
+  overflow: auto;
+  font-size: 13px;
+}
+
+.log p {
+  margin: 0 0 4px;
+}
+
+.log .good {
+  color: var(--good);
+}
+
+.log .bad {
+  color: var(--bad);
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+
+/* ------------------------------------------------------- touch pad --- */
+
+.touch-pad {
+  display: none;
+  grid-template-columns: repeat(3, 56px);
+  grid-template-areas: '. up .' 'left down right';
+  gap: 6px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.touch-pad [data-dir='up'] {
+  grid-area: up;
+}
+.touch-pad [data-dir='left'] {
+  grid-area: left;
+}
+.touch-pad [data-dir='down'] {
+  grid-area: down;
+}
+.touch-pad [data-dir='right'] {
+  grid-area: right;
+}
+
+@media (pointer: coarse) {
+  .touch-pad:not([hidden]) {
+    display: grid;
+  }
+}
+
+/* ------------------------------------------------------------ dialog --- */
+
+dialog {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  width: min(480px, calc(100vw - 32px));
+  padding: 16px;
+}
+
+dialog::backdrop {
+  background: #05060dcc;
+}
+
+dialog h2 {
+  margin-top: 0;
+  color: var(--gold);
+  font-size: 18px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.list-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #363b59;
+  padding: 6px 0;
+}
+
+.list-row:last-child {
+  border: 0;
+}
+
+.list-row small {
+  display: block;
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------ mobile --- */
+
+@media (max-width: 760px) {
+  main {
+    padding: 8px 12px 16px;
+  }
+
+  .hud {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .hud-place {
+    display: none;
+  }
+
+  .battle {
+    grid-template-columns: 1fr;
+  }
+
+  .battle-board {
+    justify-self: center;
+  }
+
+  #board-canvas {
+    width: min(240px, 60vw);
+    height: auto;
+  }
+}

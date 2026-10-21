@@ -1,0 +1,18 @@
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  // Relative base so the build works from any static host or subfolder.
+  base: './',
+  // Keep bundled files apart from the hand-placed art in public/assets.
+  build: { assetsDir: 'static' },
+  test: {
+    environment: 'node',
+    include: ['tests/**/*.test.ts'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.ts'],
+      // Rendering and DOM wiring are verified by running the game, not unit tests.
+      exclude: ['src/main.ts', 'src/ui/**'],
+    },
+  },
+});
