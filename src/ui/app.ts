@@ -3,6 +3,9 @@ import { createRng, type Rng } from '../core/rng';
 import { ITEMS } from '../data/items';
 import { SHOPS } from '../data/shops';
 import { SPELLS } from '../data/spells';
+import { CLASSES } from '../data/classes';
+import { ENEMIES } from '../data/enemies';
+import { NPCS } from '../data/npcs';
 import type { ChallengeSpec } from '../data/types';
 import { describeSpec } from '../battle/describe';
 import { describeInteraction, resolveBattle } from '../game/encounter';
@@ -15,7 +18,10 @@ import { currentMap, newGame, travel, type GameState } from '../world/state';
 import { BattlePanel } from './battlePanel';
 import { Dialog } from './dialog';
 import { button, byId, el, listRow } from './dom';
-import type { SpriteRegistry } from './sprites';
+import type { Atlas } from './art/atlas';
+import { isCreatureId, mapFrame, type CreatureId } from './art/creatures';
+import { SPELL_EFFECTS } from './art/vfx';
+import { Portrait } from './portrait';
 import { WorldView } from './worldView';
 
 /** Milliseconds between steps while a direction is held. */
@@ -45,6 +51,8 @@ interface ActiveBattle {
   readonly battle: Battle;
   readonly entity: EntityDef;
   finished: boolean;
+  /** Opponent HP last frame, to shake the portrait when it drops. */
+  lastEnemyHp: number;
 }
 
 /**
@@ -56,7 +64,11 @@ export class App {
   private state: GameState;
   private readonly rng: Rng = createRng();
   private readonly store: KeyValueStore;
+  private readonly atlas: Atlas;
   private readonly world: WorldView;
+  private readonly portrait: Portrait;
+  /** False until a save is loaded or a class is chosen. */
+  private started: boolean;
   private readonly panel = new BattlePanel();
   private readonly dialog = new Dialog();
   private active: ActiveBattle | null = null;
@@ -65,11 +77,15 @@ export class App {
   private lastFrame = 0;
   private messageTimer = 0;
 
-  constructor(sprites: SpriteRegistry, store: KeyValueStore) {
+  constructor(atlas: Atlas, store: KeyValueStore) {
     this.store = store;
-    this.state = loadGame(store) ?? newGame();
-    this.world = new WorldView(byId<HTMLCanvasElement>('world-canvas'), sprites);
-    this.panel.onCast = (id) => this.tryCombat((c) => c.castSpell(id));
+    this.atlas = atlas;
+    const saved = loadGame(store);
+    this.started = saved !== null;
+    this.state = saved ?? newGame();
+    this.world = new WorldView(byId<HTMLCanvasElement>('world-canvas'), atlas);
+    this.portrait = new Portrait(byId<HTMLCanvasElement>('portrait-canvas'), atlas);
+    this.panel.onCast = (id) => this.castSpell(id);
     this.panel.onItem = (id) => this.tryCombat((c) => c.useItem(id));
     this.bindInput();
   }
@@ -78,6 +94,7 @@ export class App {
     this.showView('world');
     this.renderHud();
     this.say(`Welcome to ${currentMap(this.state).name}.`);
+    if (!this.started) this.chooseClass();
     requestAnimationFrame((t) => this.frame(t));
   }
 
@@ -90,8 +107,12 @@ export class App {
     if (this.active) {
       const { battle } = this.active;
       if (!this.dialog.isOpen) battle.update(dt);
+      const enemyHp = battle.combat?.enemyHp ?? 0;
+      if (enemyHp < this.active.lastEnemyHp) this.portrait.hit();
+      this.active.lastEnemyHp = enemyHp;
       if (!this.active.finished && battle.status !== 'ongoing') this.finishBattle();
       this.panel.render(battle, this.active?.finished ? overlayFor(battle) : undefined);
+      this.portrait.render(dt, timeMs);
       this.renderHud();
     } else {
       this.updateWalking(dt);
@@ -108,7 +129,7 @@ export class App {
   // ----------------------------------------------------------- world ---
 
   private updateWalking(dt: number): void {
-    if (!this.heldDirection || this.dialog.isOpen) return;
+    if (!this.heldDirection || this.dialog.isOpen || !this.started) return;
     this.walkTimer -= dt;
     if (this.walkTimer <= 0) {
       this.walkTimer = WALK_REPEAT_MS;
@@ -169,7 +190,9 @@ export class App {
 
   private startBattle(entity: EntityDef, spec: ChallengeSpec): void {
     this.dialog.close();
-    this.active = { battle: new Battle(spec, this.state.hero, this.rng), entity, finished: false };
+    const battle = new Battle(spec, this.state.hero, this.rng);
+    this.active = { battle, entity, finished: false, lastEnemyHp: battle.combat?.enemyHp ?? 0 };
+    this.portrait.show(portraitFor(entity));
     this.showView('battle');
   }
 
@@ -203,13 +226,22 @@ export class App {
     this.say(`You are in ${currentMap(this.state).name}.`);
   }
 
-  private tryCombat(action: (combat: NonNullable<Battle['combat']>) => void): void {
+  private castSpell(spellId: string): void {
+    const cast = this.tryCombat((c) => c.castSpell(spellId));
+    const effect = SPELL_EFFECTS[spellId];
+    if (cast && effect) this.portrait.play(effect);
+  }
+
+  /** Runs a combat action; reports failures in the battle log. Returns whether it ran. */
+  private tryCombat(action: (combat: NonNullable<Battle['combat']>) => void): boolean {
     const combat = this.active?.battle.combat;
-    if (!combat || this.active?.battle.paused || this.active?.finished) return;
+    if (!combat || this.active?.battle.paused || this.active?.finished) return false;
     try {
       action(combat);
+      return true;
     } catch (error) {
       this.active?.battle.log((error as Error).message, 'bad');
+      return false;
     }
   }
 
@@ -324,19 +356,58 @@ export class App {
       title: 'Start over?',
       body: 'Your current adventure will be lost.',
       actions: [
-        {
-          label: 'Start over',
-          onClick: () => {
-            deleteSave(this.store);
-            this.state = newGame();
-            this.dialog.close();
-            this.renderHud();
-            this.say('A new adventure begins in Mossvale.');
-          },
-        },
+        { label: 'Start over', onClick: () => this.chooseClass() },
         { label: 'Cancel', onClick: () => this.openMenu() },
       ],
     });
+  }
+
+  // ---------------------------------------------------- class select ---
+
+  /** Shows the hero picker; choosing a class starts a new game. */
+  private chooseClass(): void {
+    const cards = Object.values(CLASSES).map((cls) => {
+      const preview = el('canvas');
+      preview.width = 48;
+      preview.height = 48;
+      const ctx = preview.getContext('2d');
+      if (ctx && isCreatureId(cls.sprite)) {
+        ctx.imageSmoothingEnabled = false;
+        this.atlas.draw(ctx, mapFrame(cls.sprite, 'down', false, 0), 0, 0);
+      }
+      const card = button('', () => this.startNewGame(cls.id));
+      card.className = 'class-card';
+      const { hp, mp, atk, def } = cls.base;
+      card.append(
+        preview,
+        el(
+          'span',
+          {},
+          el('b', { text: `${cls.name} · ${cls.heroName}` }),
+          el('small', { text: cls.description }),
+          el('small', { text: `HP ${hp} · MP ${mp} · ATK ${atk} · DEF ${def} · ${cls.gil} gil` }),
+        ),
+      );
+      return card;
+    });
+    this.dialog.show({
+      title: 'Choose your hero',
+      body: [el('div', { className: 'class-grid' }, ...cards)],
+      actions: [],
+      // A hero must be chosen before the first adventure; later, Escape cancels.
+      onCancel: () => (this.started ? this.dialog.close() : this.chooseClass()),
+    });
+    cards[0]?.focus();
+  }
+
+  private startNewGame(classId: string): void {
+    deleteSave(this.store);
+    this.state = newGame(classId);
+    this.started = true;
+    this.save();
+    this.dialog.close();
+    this.renderHud();
+    this.say(`${this.state.hero.name}'s adventure begins in Mossvale.`);
   }
 
   // ------------------------------------------------------------- HUD ---
@@ -433,6 +504,13 @@ export class App {
 /** Lower-cases single letters so WASD works with Caps Lock or Shift. */
 function normalizeKey(key: string): string {
   return key.length === 1 ? key.toLowerCase() : key;
+}
+
+/** The creature shown large in battle: the monster, or the NPC you are dealing with. */
+function portraitFor(entity: EntityDef): CreatureId | null {
+  const key =
+    entity.kind === 'monster' ? ENEMIES[entity.enemyId]?.sprite : NPCS[entity.npcId]?.sprite;
+  return key && isCreatureId(key) ? key : null;
 }
 
 function overlayFor(battle: Battle): string {

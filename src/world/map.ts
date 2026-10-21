@@ -47,15 +47,29 @@ export interface MonsterEntity extends EntityBase {
 
 export type EntityDef = NpcEntity | MonsterEntity;
 
+/** Which art set a map is drawn with (see `src/ui/art/themes.ts`). */
+export type ThemeId = 'outdoor' | 'town' | 'cave';
+
+/** A prop placed by position rather than by tile character (houses, doors, stalls). */
+export interface DecorDef {
+  /** Object key from `src/ui/art/objects.ts`. */
+  readonly object: string;
+  /** Left-most tile of the prop's footprint, on its bottom row. */
+  readonly x: number;
+  readonly y: number;
+}
+
 export interface MapDef {
   readonly id: string;
   readonly name: string;
+  readonly theme: ThemeId;
   /** Audio key for background music, resolved by the audio layer. */
   readonly music?: string;
   /** Rows of tile characters; every row must be the same length. */
   readonly tiles: readonly string[];
   readonly warps: readonly Warp[];
   readonly entities: readonly EntityDef[];
+  readonly decor?: readonly DecorDef[];
 }
 
 export function mapWidth(map: MapDef): number {

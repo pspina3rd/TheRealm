@@ -1,3 +1,4 @@
+import { DEFAULT_CLASS } from '../data/classes';
 import { MAPS } from '../data/maps';
 import type { Hero } from './hero';
 import type { Direction, Location } from '../world/map';
@@ -60,7 +61,8 @@ export function deserialize(json: string): GameState | null {
     return null;
   }
   return {
-    hero: data.hero,
+    // Saves from before hero classes default to the original (ranger) stats.
+    hero: { ...data.hero, classId: data.hero.classId ?? DEFAULT_CLASS },
     mapId: data.mapId,
     x: data.x,
     y: data.y,

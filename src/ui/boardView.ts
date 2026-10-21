@@ -1,6 +1,6 @@
 import type { Board } from '../core/board';
 import { PIECES, type PieceName } from '../core/pieces';
-import { drawCrystal } from './placeholders';
+import { drawCrystal } from './crystals';
 
 const CELL = 30;
 

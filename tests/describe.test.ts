@@ -6,9 +6,9 @@ describe('describeSpec', () => {
   it('summarises every challenge kind', () => {
     expect(describeSpec({ kind: 'combat', enemyId: 'slime' })).toContain('clear lines to strike');
     expect(
-      describeSpec({ kind: 'offering', itemId: 'wolfPelt', targetScore: 600, pieceLimit: 18 }),
+      describeSpec({ kind: 'offering', itemId: 'sporeCap', targetScore: 600, pieceLimit: 18 }),
     ).toBe(
-      'Offering: score 600 points within 18 pieces to present your Wolf Pelt. You keep it if you fail.',
+      'Offering: score 600 points within 18 pieces to present your Spore Cap. You keep it if you fail.',
     );
     expect(describeSpec({ kind: 'barter', wants: { blue: 8, violet: 4 }, pieceLimit: 30 })).toBe(
       'Barter: clear 8 blue and 4 violet crystals within 30 pieces.',

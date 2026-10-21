@@ -1,7 +1,7 @@
 import './style.css';
 import type { KeyValueStore } from './game/save';
 import { App } from './ui/app';
-import { SpriteRegistry } from './ui/sprites';
+import { Atlas } from './ui/art/atlas';
 
 /** Uses localStorage when available, otherwise an in-memory store (e.g. in private mode). */
 function createStore(): KeyValueStore {
@@ -21,9 +21,9 @@ function createStore(): KeyValueStore {
 }
 
 async function main(): Promise<void> {
-  const sprites = new SpriteRegistry();
-  await sprites.load(`${import.meta.env.BASE_URL}assets/`);
-  new App(sprites, createStore()).start();
+  const atlas = new Atlas();
+  await atlas.load(`${import.meta.env.BASE_URL}assets/`);
+  new App(atlas, createStore()).start();
 }
 
 void main();

@@ -12,10 +12,10 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   elder: {
     id: 'elder',
     name: 'Elder Rowan',
-    sprite: 'npc.elder',
+    sprite: 'char.038',
     greeting:
-      'The wolves grow bold. Bring me a Wolf Pelt and prove your focus, and I will teach you to shake the earth.',
-    challenge: { kind: 'offering', itemId: 'wolfPelt', targetScore: 600, pieceLimit: 18 },
+      'Spore Shrooms have overrun the meadows. Bring me a Spore Cap and prove your focus, and I will teach you to shake the earth.',
+    challenge: { kind: 'offering', itemId: 'sporeCap', targetScore: 600, pieceLimit: 18 },
     rewards: [{ kind: 'spell', spellId: 'quake' }],
     successText: 'Well done. The ground itself will answer you now. (Learned Quake)',
     failText: 'Your focus wavered. Keep the pelt and try again.',
@@ -25,7 +25,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   farmer: {
     id: 'farmer',
     name: 'Farmer Bea',
-    sprite: 'npc.farmer',
+    sprite: 'char.025',
     greeting:
       'My fields need green crystals for the harvest. Trade me some and I will share my herbs.',
     challenge: { kind: 'barter', wants: { green: 8 }, pieceLimit: 20 },
@@ -37,7 +37,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   kid: {
     id: 'kid',
     name: 'Pip',
-    sprite: 'npc.kid',
+    sprite: 'char.040',
     greeting: "Bet you can't clear my crystal tower! I'll give you my Ether if you do!",
     challenge: {
       kind: 'puzzle',
@@ -54,7 +54,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   stallKeeper: {
     id: 'stallKeeper',
     name: 'Stall Keeper Odo',
-    sprite: 'npc.merchant',
+    sprite: 'char.002',
     greeting: 'Prices are set by a friendly haggle round here. Ready?',
     challenge: { kind: 'haggle', pieceLimit: 8, rivalIntervalMs: 2500 },
     rewards: [{ kind: 'shop', shopId: 'mossvaleStall' }],
@@ -67,7 +67,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   merchant: {
     id: 'merchant',
     name: 'Merchant Lio',
-    sprite: 'npc.merchant',
+    sprite: 'char.037',
     greeting: 'Welcome! Out-haggle me and the prices drop. Dawdle and they climb.',
     challenge: { kind: 'haggle', pieceLimit: 10, rivalIntervalMs: 2000 },
     rewards: [{ kind: 'shop', shopId: 'brightwaterGeneral' }],
@@ -78,7 +78,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   smith: {
     id: 'smith',
     name: 'Smith Hilda',
-    sprite: 'npc.smith',
+    sprite: 'char.005',
     greeting: 'Steel costs sweat. Match my pace at the anvil and I will price fairly.',
     challenge: { kind: 'haggle', pieceLimit: 10, rivalIntervalMs: 1600 },
     rewards: [{ kind: 'shop', shopId: 'brightwaterSmith' }],
@@ -89,7 +89,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   innkeeper: {
     id: 'innkeeper',
     name: 'Innkeeper Mae',
-    sprite: 'npc.innkeeper',
+    sprite: 'char.039',
     greeting: 'A bed for the night? We settle the price with a little game.',
     challenge: { kind: 'haggle', pieceLimit: 6, rivalIntervalMs: 3000 },
     rewards: [{ kind: 'shop', shopId: 'brightwaterInn' }],
@@ -100,7 +100,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   sage: {
     id: 'sage',
     name: 'Sage Orrin',
-    sprite: 'npc.sage',
+    sprite: 'char.031',
     greeting: 'Lightning favours a clear mind. Solve my lattice and the storm is yours.',
     challenge: {
       kind: 'puzzle',
@@ -117,7 +117,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   guard: {
     id: 'guard',
     name: 'Captain Vale',
-    sprite: 'npc.guard',
+    sprite: 'char.020',
     greeting:
       'The Moon Caves are sealed. Supply the watch with blue and violet crystals and I will grant you a pass.',
     challenge: { kind: 'barter', wants: { blue: 8, violet: 8 }, pieceLimit: 30 },
@@ -133,7 +133,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   collector: {
     id: 'collector',
     name: 'Collector Nim',
-    sprite: 'npc.collector',
+    sprite: 'char.015',
     greeting: 'Goblin Charms! I pay handsomely, if you can show me some real style.',
     challenge: { kind: 'offering', itemId: 'goblinCharm', targetScore: 800, pieceLimit: 20 },
     rewards: [{ kind: 'gil', amount: 45 }],
@@ -146,7 +146,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   sealedChest: {
     id: 'sealedChest',
     name: 'Sealed Chest',
-    sprite: 'object.chest',
+    sprite: 'chest',
     greeting: 'A chest bound by a crystal seal. The seal is a lattice of stone.',
     challenge: {
       kind: 'puzzle',
@@ -163,7 +163,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   hermit: {
     id: 'hermit',
     name: 'Cave Hermit',
-    sprite: 'npc.hermit',
+    sprite: 'char.032',
     greeting: "Moon Shards... yes... bring me one and dazzle me, and I'll patch you up.",
     challenge: { kind: 'offering', itemId: 'moonShard', targetScore: 500, pieceLimit: 14 },
     rewards: [

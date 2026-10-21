@@ -18,27 +18,35 @@ describe('map helpers', () => {
 
   it('reports size and tiles, with void outside the map', () => {
     expect(mapWidth(map)).toBe(20);
-    expect(mapHeight(map)).toBe(14);
+    expect(mapHeight(map)).toBe(15);
     expect(tileAt(map, 0, 0).name).toBe('tree');
     expect(tileAt(map, -1, 0)).toBe(VOID_TILE);
     expect(tileFor('?')).toBe(VOID_TILE);
   });
 
   it('handles an empty map', () => {
-    const empty: MapDef = { id: 'e', name: 'e', tiles: [], warps: [], entities: [] };
+    const empty: MapDef = {
+      id: 'e',
+      name: 'e',
+      theme: 'outdoor',
+      tiles: [],
+      warps: [],
+      entities: [],
+    };
     expect(mapWidth(empty)).toBe(0);
   });
 
   it('finds warps by position', () => {
-    expect(warpAt(map, 9, 13)?.to.map).toBe('overworld');
+    expect(warpAt(map, 9, 14)?.to.map).toBe('overworld');
     expect(warpAt(map, 1, 1)).toBeUndefined();
   });
 });
 
 describe('game state', () => {
   it('starts a new game at the start location', () => {
-    const state = newGame('Ren');
+    const state = newGame('mage', 'Ren');
     expect(state.hero.name).toBe('Ren');
+    expect(state.hero.classId).toBe('mage');
     expect([state.mapId, state.x, state.y]).toEqual([START.map, START.x, START.y]);
     expect(currentMap(state).id).toBe(START.map);
   });
@@ -58,7 +66,7 @@ describe('game state', () => {
     expect(activeEntities(state).some((e) => e.id === 'ow-slime-1')).toBe(false);
     travel(state, { map: 'overworld', x: 6, y: 6 });
     expect(activeEntities(state).some((e) => e.id === 'ow-slime-1')).toBe(false);
-    travel(state, { map: 'mossvale', x: 9, y: 12 });
+    travel(state, { map: 'mossvale', x: 9, y: 13 });
     travel(state, { map: 'overworld', x: 5, y: 6 });
     expect(activeEntities(state).some((e) => e.id === 'ow-slime-1')).toBe(true);
   });
@@ -100,17 +108,17 @@ describe('step', () => {
   it('returns an interaction when bumping an entity, without moving', () => {
     const state = newGame();
     state.x = 6;
-    state.y = 6; // just below Elder Rowan
+    state.y = 7; // just below Elder Rowan
     const result = step(state, 'up');
     expect(result.kind).toBe('interact');
     expect(result.kind === 'interact' && result.entity.id).toBe('mv-elder');
-    expect(state.y).toBe(6);
+    expect(state.y).toBe(7);
   });
 
   it('returns a warp without moving', () => {
     const state = newGame();
     state.x = 9;
-    state.y = 12;
+    state.y = 13;
     expect(step(state, 'down')).toEqual({ kind: 'warp', to: { map: 'overworld', x: 5, y: 6 } });
     expect(state.mapId).toBe('mossvale');
   });

@@ -169,6 +169,13 @@ canvas {
   height: 600px;
 }
 
+#portrait-canvas {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  background: radial-gradient(ellipse at 50% 85%, #2c3358 0%, #10132a 70%);
+}
+
 .battle-side {
   display: flex;
   flex-direction: column;
@@ -332,5 +339,39 @@ dialog h2 {
   #board-canvas {
     width: min(240px, 60vw);
     height: auto;
+  }
+}
+
+/* ------------------------------------------------------ class select --- */
+
+.class-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.class-card {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  text-align: left;
+}
+
+.class-card canvas {
+  flex: none;
+  width: 72px;
+  height: 72px;
+  background: #10132a;
+  border-radius: 6px;
+}
+
+.class-card small {
+  display: block;
+  color: var(--muted);
+}
+
+@media (max-width: 760px) {
+  .class-grid {
+    grid-template-columns: 1fr;
   }
 }

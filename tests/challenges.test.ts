@@ -10,13 +10,13 @@ import { forceQueue, makeBattle, setUpVerticalIClear } from './helpers';
 describe('OfferingChallenge', () => {
   const heroWithPelt = () => {
     const hero = createHero();
-    addItem(hero, 'wolfPelt');
+    addItem(hero, 'sporeCap');
     return hero;
   };
-  const spec = { kind: 'offering', itemId: 'wolfPelt', targetScore: 500, pieceLimit: 3 } as const;
+  const spec = { kind: 'offering', itemId: 'sporeCap', targetScore: 500, pieceLimit: 3 } as const;
 
   it('requires the offered item', () => {
-    expect(() => makeBattle(spec)).toThrow('Wolf Pelt');
+    expect(() => makeBattle(spec)).toThrow('Spore Cap');
   });
 
   it('wins once the target score is reached', () => {

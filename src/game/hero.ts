@@ -1,3 +1,4 @@
+import { CLASSES, DEFAULT_CLASS, type HeroClass } from '../data/classes';
 import { ITEMS } from '../data/items';
 import { STARTING_SPELLS } from '../data/spells';
 import type { ItemDef } from '../data/types';
@@ -5,6 +6,8 @@ import type { ItemDef } from '../data/types';
 /** The player character. Plain data so it can be saved as JSON. */
 export interface Hero {
   name: string;
+  /** Key into `CLASSES`; decides starting stats, growth and sprite. */
+  classId: string;
   level: number;
   xp: number;
   /** XP needed to reach the next level. */
@@ -25,19 +28,26 @@ export interface Hero {
   spells: string[];
 }
 
-export function createHero(name = 'Aster'): Hero {
+/** The hero's class, falling back to the default for unknown ids (e.g. old saves). */
+export function heroClass(hero: Pick<Hero, 'classId'>): HeroClass {
+  return CLASSES[hero.classId] ?? (CLASSES[DEFAULT_CLASS] as HeroClass);
+}
+
+export function createHero(classId = DEFAULT_CLASS, name?: string): Hero {
+  const cls = heroClass({ classId });
   return {
-    name,
+    name: name ?? cls.heroName,
+    classId: cls.id,
     level: 1,
     xp: 0,
     nextXp: 30,
-    hp: 40,
-    maxHp: 40,
-    mp: 12,
-    maxMp: 12,
-    atk: 5,
-    def: 1,
-    gil: 25,
+    hp: cls.base.hp,
+    maxHp: cls.base.hp,
+    mp: cls.base.mp,
+    maxMp: cls.base.mp,
+    atk: cls.base.atk,
+    def: cls.base.def,
+    gil: cls.gil,
     weaponId: null,
     armorId: null,
     items: { herb: 2, ether: 1 },
@@ -56,20 +66,21 @@ export function totalDefense(hero: Hero): number {
 }
 
 /**
- * Adds XP and applies any level-ups (each restores HP/MP and raises stats).
- * Returns the number of levels gained.
+ * Adds XP and applies any level-ups (each restores HP/MP and raises stats by
+ * the class's growth). Returns the number of levels gained.
  */
 export function gainXp(hero: Hero, amount: number): number {
+  const growth = heroClass(hero).growth;
   hero.xp += amount;
   let gained = 0;
   while (hero.xp >= hero.nextXp) {
     hero.xp -= hero.nextXp;
     hero.level++;
     hero.nextXp = Math.floor(hero.nextXp * 1.45);
-    hero.maxHp += 8;
-    hero.maxMp += 3;
-    hero.atk += 2;
-    hero.def += 1;
+    hero.maxHp += growth.hp;
+    hero.maxMp += growth.mp;
+    hero.atk += growth.atk;
+    hero.def += growth.def;
     hero.hp = hero.maxHp;
     hero.mp = hero.maxMp;
     gained++;

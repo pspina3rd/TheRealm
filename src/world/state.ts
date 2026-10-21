@@ -17,9 +17,9 @@ export interface GameState {
   respawn: Location;
 }
 
-export function newGame(heroName?: string): GameState {
+export function newGame(classId?: string, heroName?: string): GameState {
   return {
-    hero: createHero(heroName),
+    hero: createHero(classId, heroName),
     mapId: START.map,
     x: START.x,
     y: START.y,

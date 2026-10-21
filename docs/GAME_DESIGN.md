@@ -6,6 +6,18 @@ Every interaction in the realm is played on the same falling-block board.
 The board is the "battle screen" and each kind of character changes what
 your line clears mean.
 
+## Hero classes
+
+Chosen when starting a new game. Differences are deliberately small so any
+class can finish the game.
+
+| Class  | HP  | MP  | ATK | DEF | Gil | Growth per level (HP/MP/ATK/DEF) |
+| ------ | --- | --- | --- | --- | --- | -------------------------------- |
+| Ranger | 40  | 12  | 5   | 1   | 25  | 8 / 3 / 2 / 1                    |
+| Knight | 48  | 8   | 5   | 3   | 20  | 10 / 2 / 2 / 2                   |
+| Mage   | 34  | 18  | 4   | 1   | 25  | 6 / 5 / 2 / 1                    |
+| Rogue  | 36  | 10  | 6   | 1   | 60  | 7 / 3 / 3 / 1                    |
+
 ## Combat (monsters)
 
 - Clearing lines strikes the enemy: 8 / 20 / 35 / 55 base damage for
@@ -51,7 +63,7 @@ Presenting an item works like casting a spell: a spell costs MP, an
 offering costs **points**. The NPC names an item and a price ("score 600
 within 18 pieces"). You must hold the item to try, and it is only taken
 if you succeed, so failing costs time, not loot. This turns monster drops
-into quest currency (Wolf Pelt → Elder Rowan teaches Quake; Goblin Charm →
+into quest currency (Spore Cap → Elder Rowan teaches Quake; Goblin Charm →
 the collector pays gil; Moon Shard → the hermit gives potions).
 
 ### Barter
@@ -80,6 +92,21 @@ tests replay, so none can be accidentally unsolvable.
 - **Duel**: a rival on a second board sends stone rows when they clear.
 - **Escort / timed**: survive N seconds while an NPC's needs tick up.
 - **Gift instead of score**: pay the point cost with MP instead of playing.
+
+## Enemy roster
+
+Art is mixed by area: cute Fantasy Dreamland creatures in the open world,
+and bigger, scarier Pixel Battlers monsters underground.
+
+| Area       | Enemy        | Magic                       | Drops           |
+| ---------- | ------------ | --------------------------- | --------------- |
+| Overworld  | Green Slime  | attack                      | Slime Gel       |
+| Overworld  | Spore Shroom | attack, haste (Spore Cloud) | Spore Cap       |
+| Overworld  | Goblin Scout | attack, curse (Rock Toss)   | Goblin Charm    |
+| Moon Caves | Moon Imp     | attack, drain               | —               |
+| Moon Caves | Shade Imp    | attack, heal, curse         | Moon Shard      |
+| Moon Caves | Cave Brute   | attack, curse (2 rows)      | Ether           |
+| Depths     | Moon Wyrm    | everything                  | Phoenix Feather |
 
 ## Progression
 

@@ -1,105 +1,167 @@
 import { ENEMIES } from '../data/enemies';
 import { NPCS } from '../data/npcs';
-import { mapHeight, mapWidth, tileAt } from '../world/map';
+import { heroClass } from '../game/hero';
+import type { EntityDef, MapDef } from '../world/map';
+import { mapHeight, mapWidth } from '../world/map';
 import { activeEntities, currentMap, type GameState } from '../world/state';
-import { drawMonster, drawPerson, drawTile } from './placeholders';
-import type { SpriteRegistry } from './sprites';
+import type { Atlas } from './art/atlas';
+import { isCreatureId, isStripSprite, mapFrame } from './art/creatures';
+import type { Region } from './art/images';
+import { TILE, backgroundFor, planGround, planObjects, type PlacedObject } from './art/themes';
 
-export const TILE_SIZE = 32;
-/** Tiles per second the hero sprite glides between grid positions. */
-const GLIDE_SPEED = 12;
+/** Tiles per second the hero glides between grid positions. */
+const GLIDE_SPEED = 8;
+/** On-map size for monsters drawn from large battle strips. */
+const STRIP_SIZE = 48;
+const BOSS_SIZE = 72;
+/** Opacity of props drawn over the hero, so the hero is never hidden. */
+const SEE_THROUGH = 0.55;
 
-/** Draws the current map, entities and hero, with a camera that follows the hero. */
+/** Something drawn in the depth-sorted layer this frame. */
+interface Drawable {
+  readonly sortY: number;
+  draw(): void;
+}
+
+/** Draws the current map, props, characters and hero, with a camera that follows the hero. */
 export class WorldView {
   private readonly ctx: CanvasRenderingContext2D;
-  private readonly sprites: SpriteRegistry;
+  private readonly atlas: Atlas;
   /** Smoothed hero position in tiles, for gliding between steps. */
   private heroX = 0;
   private heroY = 0;
   private lastMap = '';
+  private props: PlacedObject[] = [];
 
-  constructor(canvas: HTMLCanvasElement, sprites: SpriteRegistry) {
+  constructor(canvas: HTMLCanvasElement, atlas: Atlas) {
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('2D canvas is not supported');
+    ctx.imageSmoothingEnabled = false;
     this.ctx = ctx;
-    this.sprites = sprites;
+    this.atlas = atlas;
   }
 
   render(state: GameState, dtMs: number, timeMs: number): void {
-    this.glide(state, dtMs);
-    const { ctx } = this;
     const map = currentMap(state);
+    const moving = this.glide(state, map, dtMs);
+    const { ctx } = this;
     const viewW = ctx.canvas.width;
     const viewH = ctx.canvas.height;
-    const camX = clampCamera(
-      this.heroX * TILE_SIZE + TILE_SIZE / 2 - viewW / 2,
-      mapWidth(map) * TILE_SIZE,
-      viewW,
+    const camX = Math.round(
+      clampCamera(this.heroX * TILE + TILE / 2 - viewW / 2, mapWidth(map) * TILE, viewW),
     );
-    const camY = clampCamera(
-      this.heroY * TILE_SIZE + TILE_SIZE / 2 - viewH / 2,
-      mapHeight(map) * TILE_SIZE,
-      viewH,
+    const camY = Math.round(
+      clampCamera(this.heroY * TILE + TILE / 2 - viewH / 2, mapHeight(map) * TILE, viewH),
     );
 
-    ctx.fillStyle = '#000';
+    ctx.fillStyle = backgroundFor(map);
     ctx.fillRect(0, 0, viewW, viewH);
+    this.drawGround(map, camX, camY, timeMs);
 
-    const firstX = Math.floor(camX / TILE_SIZE);
-    const firstY = Math.floor(camY / TILE_SIZE);
-    for (let ty = firstY; ty <= firstY + Math.ceil(viewH / TILE_SIZE); ty++) {
-      for (let tx = firstX; tx <= firstX + Math.ceil(viewW / TILE_SIZE); tx++) {
-        const tile = tileAt(map, tx, ty);
-        const px = Math.round(tx * TILE_SIZE - camX);
-        const py = Math.round(ty * TILE_SIZE - camY);
-        if (!this.sprites.draw(ctx, tile.sprite, px, py, TILE_SIZE, TILE_SIZE, timeMs)) {
-          drawTile(ctx, tile, px, py, TILE_SIZE, timeMs);
-        }
-      }
-    }
-
+    const heroSortY = (this.heroY + 1) * TILE + 0.25;
+    const heroCenterX = (this.heroX + 0.5) * TILE;
+    const heroCenterY = (this.heroY + 0.5) * TILE;
+    const drawables: Drawable[] = this.props.map((p) => {
+      const coversHero =
+        p.sortY > heroSortY &&
+        heroCenterX >= p.px &&
+        heroCenterX <= p.px + p.region.w &&
+        heroCenterY >= p.py &&
+        heroCenterY <= p.py + p.region.h;
+      return {
+        sortY: p.sortY,
+        draw: () => {
+          ctx.globalAlpha = coversHero ? SEE_THROUGH : 1;
+          this.atlas.draw(ctx, p.region, p.px - camX, p.py - camY);
+          ctx.globalAlpha = 1;
+        },
+      };
+    });
     for (const entity of activeEntities(state)) {
-      const px = Math.round(entity.x * TILE_SIZE - camX);
-      const py = Math.round(entity.y * TILE_SIZE - camY);
-      if (entity.kind === 'monster') {
-        const key = ENEMIES[entity.enemyId]?.sprite ?? '';
-        if (!this.sprites.draw(ctx, key, px, py, TILE_SIZE, TILE_SIZE, timeMs)) {
-          drawMonster(ctx, key, px, py, TILE_SIZE, timeMs);
-        }
-        if (entity.boss) this.drawMarker(px, py, '#ff7c9b');
-      } else {
-        const key = NPCS[entity.npcId]?.sprite ?? '';
-        if (!this.sprites.draw(ctx, key, px, py, TILE_SIZE, TILE_SIZE, timeMs)) {
-          drawPerson(ctx, key, px, py, TILE_SIZE);
+      drawables.push(this.entityDrawable(entity, camX, camY, timeMs));
+    }
+    const heroRegion = mapFrame(
+      spriteOf(heroClass(state.hero).sprite),
+      state.facing,
+      moving,
+      timeMs,
+    );
+    drawables.push({
+      sortY: heroSortY,
+      draw: () => this.drawStanding(heroRegion, this.heroX * TILE - camX, this.heroY * TILE - camY),
+    });
+
+    drawables.sort((a, b) => a.sortY - b.sortY).forEach((d) => d.draw());
+  }
+
+  private drawGround(map: MapDef, camX: number, camY: number, timeMs: number): void {
+    const firstX = Math.max(0, Math.floor(camX / TILE));
+    const firstY = Math.max(0, Math.floor(camY / TILE));
+    const lastX = Math.min(mapWidth(map) - 1, Math.floor((camX + this.ctx.canvas.width) / TILE));
+    const lastY = Math.min(mapHeight(map) - 1, Math.floor((camY + this.ctx.canvas.height) / TILE));
+    for (let y = firstY; y <= lastY; y++) {
+      for (let x = firstX; x <= lastX; x++) {
+        for (const layer of planGround(map, x, y, timeMs)) {
+          this.atlas.draw(this.ctx, layer, x * TILE - camX, y * TILE - camY);
         }
       }
-    }
-
-    const hx = Math.round(this.heroX * TILE_SIZE - camX);
-    const hy = Math.round(this.heroY * TILE_SIZE - camY);
-    const heroKey = `hero.${state.facing}`;
-    if (!this.sprites.draw(ctx, heroKey, hx, hy, TILE_SIZE, TILE_SIZE, timeMs)) {
-      drawPerson(ctx, 'hero', hx, hy, TILE_SIZE);
     }
   }
 
-  /** Moves the drawn hero toward the logical position; snaps on map change. */
-  private glide(state: GameState, dtMs: number): void {
+  private entityDrawable(entity: EntityDef, camX: number, camY: number, timeMs: number): Drawable {
+    const key =
+      entity.kind === 'monster' ? ENEMIES[entity.enemyId]?.sprite : NPCS[entity.npcId]?.sprite;
+    const id = spriteOf(key ?? '');
+    // Monsters shuffle on the spot; townsfolk stand still facing you.
+    const region = mapFrame(id, 'down', entity.kind === 'monster', timeMs + entity.x * 137);
+    const x = entity.x * TILE - camX;
+    const y = entity.y * TILE - camY;
+    const isStrip = isStripSprite(id);
+    const size = entity.kind === 'monster' && entity.boss ? BOSS_SIZE : STRIP_SIZE;
+    return {
+      sortY: (entity.y + 1) * TILE,
+      draw: () =>
+        isStrip ? this.drawStanding(region, x, y, size, size) : this.drawStanding(region, x, y),
+    };
+  }
+
+  /** Draws a sprite with its bottom centre on the bottom centre of the tile at pixel (x, y). */
+  private drawStanding(region: Region, x: number, y: number, w = region.w, h = region.h): void {
+    this.atlas.draw(
+      this.ctx,
+      region,
+      Math.round(x + (TILE - w) / 2),
+      Math.round(y + TILE - h + 2),
+      w,
+      h,
+    );
+  }
+
+  /**
+   * Moves the drawn hero toward the logical position; snaps on map change.
+   * Returns whether the hero is visibly walking.
+   */
+  private glide(state: GameState, map: MapDef, dtMs: number): boolean {
     if (state.mapId !== this.lastMap) {
       this.lastMap = state.mapId;
+      this.props = planObjects(map);
       this.heroX = state.x;
       this.heroY = state.y;
-      return;
+      return false;
     }
     const maxStep = (GLIDE_SPEED * dtMs) / 1000;
-    this.heroX += clamp(state.x - this.heroX, -maxStep, maxStep);
-    this.heroY += clamp(state.y - this.heroY, -maxStep, maxStep);
+    const dx = state.x - this.heroX;
+    const dy = state.y - this.heroY;
+    this.heroX += clamp(dx, -maxStep, maxStep);
+    this.heroY += clamp(dy, -maxStep, maxStep);
+    return Math.abs(dx) > 0.01 || Math.abs(dy) > 0.01;
   }
+}
 
-  private drawMarker(px: number, py: number, color: string): void {
-    this.ctx.fillStyle = color;
-    this.ctx.fillRect(px + 13, py - 6, 6, 6);
-  }
+/** Resolves a data sprite key, failing loudly on typos (the data tests also check these). */
+function spriteOf(key: string) {
+  if (!isCreatureId(key)) throw new Error(`Unknown sprite "${key}"`);
+  return key;
 }
 
 function clamp(value: number, min: number, max: number): number {

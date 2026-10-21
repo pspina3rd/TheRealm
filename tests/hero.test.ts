@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { CLASSES } from '../src/data/classes';
 import { ITEMS } from '../src/data/items';
 import {
   addItem,
@@ -8,6 +9,7 @@ import {
   equip,
   gainXp,
   heal,
+  heroClass,
   itemCount,
   learnSpell,
   removeItem,
@@ -19,11 +21,43 @@ import {
 } from '../src/game/hero';
 
 describe('hero', () => {
-  it('starts at level 1 with Fire and Cure', () => {
-    const hero = createHero('Test');
-    expect(hero.name).toBe('Test');
+  it('starts at level 1 with Fire and Cure, named after the class', () => {
+    const hero = createHero();
+    expect(hero.name).toBe(CLASSES.ranger!.heroName);
+    expect(hero.classId).toBe('ranger');
     expect(hero.level).toBe(1);
     expect(hero.spells).toEqual(['fire', 'cure']);
+    expect(createHero('mage', 'Test').name).toBe('Test');
+  });
+
+  it('takes starting stats and gil from its class', () => {
+    for (const cls of Object.values(CLASSES)) {
+      const hero = createHero(cls.id);
+      expect([hero.maxHp, hero.maxMp, hero.atk, hero.def, hero.gil]).toEqual([
+        cls.base.hp,
+        cls.base.mp,
+        cls.base.atk,
+        cls.base.def,
+        cls.gil,
+      ]);
+    }
+  });
+
+  it('grows by its class on level-up', () => {
+    const knight = createHero('knight');
+    gainXp(knight, knight.nextXp);
+    const { growth, base } = CLASSES.knight!;
+    expect([knight.maxHp, knight.maxMp, knight.atk, knight.def]).toEqual([
+      base.hp + growth.hp,
+      base.mp + growth.mp,
+      base.atk + growth.atk,
+      base.def + growth.def,
+    ]);
+  });
+
+  it('falls back to the default class for unknown ids', () => {
+    expect(heroClass({ classId: 'nope' }).id).toBe('ranger');
+    expect(createHero('nope').classId).toBe('ranger');
   });
 
   it('levels up, raising stats and fully restoring', () => {
@@ -57,11 +91,11 @@ describe('hero', () => {
 
   it('adds and removes items, deleting empty stacks', () => {
     const hero = createHero();
-    addItem(hero, 'wolfPelt', 2);
-    expect(itemCount(hero, 'wolfPelt')).toBe(2);
-    expect(removeItem(hero, 'wolfPelt', 3)).toBe(false);
-    expect(removeItem(hero, 'wolfPelt', 2)).toBe(true);
-    expect('wolfPelt' in hero.items).toBe(false);
+    addItem(hero, 'sporeCap', 2);
+    expect(itemCount(hero, 'sporeCap')).toBe(2);
+    expect(removeItem(hero, 'sporeCap', 3)).toBe(false);
+    expect(removeItem(hero, 'sporeCap', 2)).toBe(true);
+    expect('sporeCap' in hero.items).toBe(false);
   });
 
   it('learns each spell once', () => {
@@ -107,7 +141,7 @@ describe('hero', () => {
     expect(itemCount(hero, 'herb')).toBe(1);
     hero.mp = hero.maxMp;
     expect(() => useItem(hero, 'ether')).toThrow('MP is already full.');
-    expect(() => useItem(hero, 'wolfPelt')).toThrow();
+    expect(() => useItem(hero, 'sporeCap')).toThrow();
     expect(() => useItem(hero, 'nope')).toThrow('Unknown item');
   });
 
@@ -129,6 +163,6 @@ describe('hero', () => {
   });
 
   it('reports items without an effect', () => {
-    expect(applyItemEffect(createHero(), ITEMS.wolfPelt!)).toContain('no effect');
+    expect(applyItemEffect(createHero(), ITEMS.sporeCap!)).toContain('no effect');
   });
 });

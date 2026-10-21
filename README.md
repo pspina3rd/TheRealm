@@ -35,17 +35,25 @@ npm run build      # static site in dist/
 | Battle | ← → move · ↑ or X rotate · ↓ soft drop · Space hard drop · 1–9 cast · P pause     |
 | Touch  | On-screen buttons appear on touch devices                                         |
 
-The game saves automatically after every battle and map change (browser
-local storage). Start over from the menu.
+A new game starts by choosing a hero class. The game saves automatically
+after every battle and map change (browser local storage). Start over from
+the menu.
+
+| Class  | Strengths                                 |
+| ------ | ----------------------------------------- |
+| Ranger | Balanced; the original stats              |
+| Knight | Most HP and defence, least MP             |
+| Mage   | Most MP and MP growth, fragile            |
+| Rogue  | Highest attack growth, starts with 60 gil |
 
 ### The adventure so far
 
 1. **Mossvale Village** (start): Elder Rowan, Farmer Bea, Pip and a stall keeper.
-2. **The Realm** (overworld): slimes, wolves and goblins guard the roads.
+2. **The Realm** (overworld): slimes, Spore Shrooms and goblins guard the roads.
 3. **Brightwater Town**: shop, smithy, inn, a sage, a collector and Captain
    Vale, who holds the pass to the caves.
-4. **Moon Caves** (two floors): bats, wisps, golems, a sealed chest, a hermit
-   and the Moon Wyrm boss.
+4. **Moon Caves** (two floors): imps and a Cave Brute, a sealed chest, a
+   hermit and the Moon Wyrm boss.
 5. **Sunken Ruins**: sealed for now. This is where the next region goes.
 
 ### Challenge types
@@ -70,13 +78,16 @@ src/
   game/      Hero, rewards, encounters, shops, save/load
   world/     Map model, tile legend, game state, movement
   data/      All content: enemies, spells, items, NPCs, shops, maps
-  ui/        Canvas renderers, dialogs, sprite registry, app controller
+  ui/        Canvas renderers, dialogs, battle portrait, app controller
+  ui/art/    Art definitions: images, tile themes, props, creatures, effects
 tests/       Vitest unit tests, one file per area
-public/assets/manifest.json   Maps sprite keys to image files
+tools/       import_art.py: copies the used art in from the asset packs
+public/assets/elvgames/   The art the game draws (ElvGames)
 ```
 
-Logic in `core`, `battle`, `game` and `world` is pure TypeScript with no
-browser APIs, so it is fully unit-tested. `ui` is the thin browser layer.
+Logic in `core`, `battle`, `game`, `world` and `ui/art` is pure TypeScript
+with no browser APIs, so it is fully unit-tested. The rest of `ui` is the
+thin browser layer.
 
 ## Adding content
 
@@ -93,32 +104,43 @@ All content is data. No logic changes are needed for:
 reference exists, every offered item can be found, and every puzzle can
 be solved. Add a solution to `PUZZLE_SOLUTIONS` for each new puzzle.
 
-## Adding art
+## Art
 
-Until real art is loaded, everything is drawn in code as placeholders. To
-use real images, put them under `public/assets/` and list them in
-`public/assets/manifest.json` by sprite key:
+Maps stay plain text; each map has a **theme** (`outdoor`, `town` or
+`cave`) that decides how its characters are drawn
+(`src/ui/art/themes.ts`):
 
-```json
-{
-  "monster.slime": {
-    "src": "monsters/slime.png",
-    "frameWidth": 64,
-    "frameHeight": 64,
-    "frames": 8,
-    "fps": 8
-  },
-  "tile.grass": { "src": "tiles/grass.png" },
-  "hero.down": { "src": "hero/walk.png", "frameWidth": 32, "frameHeight": 32, "frames": 4 }
-}
+- **Ground** (grass, paths, sand, water, cave floor) is blended at the
+  edges automatically using the packs' 47-tile "blob" layout
+  (`src/ui/art/autotile.ts`). Water is animated.
+- **Props** (trees, boulders, crystals) come from tile characters; houses,
+  doors, stalls and signs are listed in a map's `decor`. Props, people and
+  monsters are depth-sorted, and props in front of the hero turn
+  see-through.
+- **Creatures** (`src/ui/art/creatures.ts`): heroes, NPCs and overworld
+  monsters are Fantasy Dreamland 4-direction walkers; Moon Caves monsters
+  are animated Pixel Battlers. Battles show the opponent large beside the
+  board, shaking when hit, with spell effects from the VFX packs.
+
+To use more of the packs, extract them into one folder per pack (named as
+in `tools/import_art.py`), add the files to its lists, and run:
+
+```bash
+python3 tools/import_art.py <extracted-packs-dir>   # needs Pillow
 ```
 
-Sprite keys come from the data files: `sprite` on enemies and NPCs,
-`sprite` on tiles, and `hero.<up|down|left|right>` for the hero. Any key
-without an image keeps its placeholder.
+Then register the image in `src/ui/art/images.ts` and reference it from
+`objects.ts`, `creatures.ts` or `themes.ts`. `tests/art.test.ts` checks
+that every image exists at its declared size, that every sprite rectangle
+fits inside its image, and that every sprite key used by the game data
+exists.
 
 ## Credits
 
 - Gameplay prototype: `mana_crystals.html`.
-- Monster sprites (when added): [ElvGames](https://elvgames.itch.io), used
-  under the ElvGames licence. Do not redistribute the raw asset files.
+- Art: Fantasy Dreamland tilesets, characters and enemies, Pixel Battlers
+  monsters, and pixel spell effects by [ElvGames](https://elvgames.itch.io),
+  used under the ElvGames licence (`public/assets/elvgames/LICENSE.txt`).
+  The licence requires credit and forbids reselling or redistributing the
+  packs, so keep this repository private and copy in only the files the
+  game uses.

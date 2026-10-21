@@ -43,7 +43,7 @@ describe('describeInteraction', () => {
     expect(describeInteraction(state, entity('mossvale', 'mv-elder'))).toMatchObject({
       kind: 'message',
     });
-    addItem(state.hero, 'wolfPelt');
+    addItem(state.hero, 'sporeCap');
     expect(describeInteraction(state, entity('mossvale', 'mv-elder')).kind).toBe('challenge');
   });
 
@@ -116,13 +116,13 @@ describe('resolveBattle', () => {
 
   it('consumes the offering and grants a one-time reward', () => {
     const state = newGame();
-    addItem(state.hero, 'wolfPelt');
+    addItem(state.hero, 'sporeCap');
     const battle = makeBattle(NPCS.elder!.challenge, state.hero);
     setUpVerticalIClear(battle.board, 2);
     battle.input('hardDrop');
     expect(battle.status).toBe('won');
     const result = resolveBattle(state, entity('mossvale', 'mv-elder'), battle, createRng(1));
-    expect(itemCount(state.hero, 'wolfPelt')).toBe(0);
+    expect(itemCount(state.hero, 'sporeCap')).toBe(0);
     expect(state.hero.spells).toContain('quake');
     expect(state.flags.has('npc:elder')).toBe(true);
     expect(result.messages[0]).toBe(NPCS.elder!.successText);
@@ -130,7 +130,7 @@ describe('resolveBattle', () => {
 
   it('keeps the item and gives no reward on failure', () => {
     const state = newGame();
-    addItem(state.hero, 'wolfPelt');
+    addItem(state.hero, 'sporeCap');
     const battle = makeBattle(NPCS.elder!.challenge, state.hero);
     battle.board.toppedOut = true;
     const result = resolveBattle(state, entity('mossvale', 'mv-elder'), battle, createRng(1));
@@ -140,7 +140,7 @@ describe('resolveBattle', () => {
       shopId: null,
       priceMultiplier: 1,
     });
-    expect(itemCount(state.hero, 'wolfPelt')).toBe(1);
+    expect(itemCount(state.hero, 'sporeCap')).toBe(1);
   });
 
   it('opens a shop at the haggled price', () => {
@@ -281,5 +281,13 @@ describe('save', () => {
     expect(saveGame(broken, newGame())).toBe(false);
     expect(loadGame(broken)).toBeNull();
     expect(() => deleteSave(broken)).not.toThrow();
+  });
+});
+
+describe('save compatibility', () => {
+  it('gives saves from before hero classes the default class', () => {
+    const data = JSON.parse(serialize(newGame()));
+    delete data.hero.classId;
+    expect(deserialize(JSON.stringify(data))?.hero.classId).toBe('ranger');
   });
 });

@@ -97,12 +97,12 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     price: 0,
     description: 'Sticky and faintly glowing.',
   },
-  wolfPelt: {
-    id: 'wolfPelt',
-    name: 'Wolf Pelt',
+  sporeCap: {
+    id: 'sporeCap',
+    name: 'Spore Cap',
     kind: 'treasure',
     price: 0,
-    description: 'Thick grey fur. The village elder has been asking for one.',
+    description: 'A springy red mushroom cap. The village elder has been asking for one.',
   },
   goblinCharm: {
     id: 'goblinCharm',

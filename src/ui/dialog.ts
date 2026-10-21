@@ -9,7 +9,11 @@ export interface DialogOptions {
   readonly title: string;
   readonly body: string | Node | readonly (string | Node)[];
   readonly actions: readonly DialogAction[];
-  /** Called when the player presses Escape. Defaults to closing the dialog. */
+  /**
+   * Called when the player dismisses the dialog (Escape, or the browser
+   * closing it). Defaults to closing. To make a choice mandatory, show the
+   * dialog again from here.
+   */
   readonly onCancel?: () => void;
 }
 
@@ -23,11 +27,20 @@ export class Dialog {
   private readonly bodyEl = byId('dialog-body');
   private readonly actionsEl = byId('dialog-actions');
   private onCancel: () => void = () => this.close();
+  /** True while `close()` is closing the dialog, to tell it apart from the browser doing so. */
+  private closingByCode = false;
 
   constructor() {
     this.root.addEventListener('cancel', (event) => {
+      // Browsers may refuse to cancel the close (e.g. Escape before any click);
+      // the 'close' handler below covers that case.
+      if (!event.cancelable) return;
       event.preventDefault();
       this.onCancel();
+    });
+    this.root.addEventListener('close', () => {
+      if (this.closingByCode) this.closingByCode = false;
+      else this.onCancel();
     });
   }
 
@@ -53,6 +66,8 @@ export class Dialog {
   }
 
   close(): void {
-    if (this.root.open) this.root.close();
+    if (!this.root.open) return;
+    this.closingByCode = true;
+    this.root.close();
   }
 }

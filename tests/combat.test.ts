@@ -29,26 +29,26 @@ describe('CombatChallenge', () => {
   });
 
   it('uses the enemy level for gravity', () => {
-    expect(fight('golem').battle.level).toBe(ENEMIES.golem!.level);
+    expect(fight('brute').battle.level).toBe(ENEMIES.brute!.level);
   });
 
   it('strikes the enemy for line damage plus attack', () => {
-    const { battle, combat, hero } = fight('golem');
+    const { battle, combat, hero } = fight('brute');
     setUpVerticalIClear(battle.board, 2);
     battle.input('hardDrop');
-    expect(combat.enemyHp).toBe(ENEMIES.golem!.hp - (LINE_DAMAGE[2]! + totalAttack(hero)));
+    expect(combat.enemyHp).toBe(ENEMIES.brute!.hp - (LINE_DAMAGE[2]! + totalAttack(hero)));
   });
 
   it('adds weakness damage for matching crystals', () => {
-    const { battle, combat, hero } = fight('golem'); // weak to blue
+    const { battle, combat, hero } = fight('brute'); // weak to blue
     setUpVerticalIClear(battle.board, 1, 'blue');
     battle.input('hardDrop');
     const expected = LINE_DAMAGE[1]! + totalAttack(hero) + 9 * WEAKNESS_BONUS;
-    expect(combat.enemyHp).toBe(ENEMIES.golem!.hp - expected);
+    expect(combat.enemyHp).toBe(ENEMIES.brute!.hp - expected);
   });
 
   it('restores 1 MP per line cleared', () => {
-    const { battle, hero } = fight('golem');
+    const { battle, hero } = fight('brute');
     hero.mp = 0;
     setUpVerticalIClear(battle.board, 3);
     battle.input('hardDrop');
@@ -64,11 +64,11 @@ describe('CombatChallenge', () => {
   });
 
   it('enemy attacks after its countdown, reduced by defence', () => {
-    const { battle, combat, hero } = fight('wolf');
+    const { battle, combat, hero } = fight('shroom');
     nextMove(combat, { kind: 'attack', name: 'Bite', power: 2 });
     battle.input('hardDrop');
-    expect(hero.hp).toBe(hero.maxHp - (2 + ENEMIES.wolf!.atk - hero.def));
-    expect(combat.countdown).toBe(ENEMIES.wolf!.actEvery);
+    expect(hero.hp).toBe(hero.maxHp - (2 + ENEMIES.shroom!.atk - hero.def));
+    expect(combat.countdown).toBe(ENEMIES.shroom!.actEvery);
   });
 
   it('enemy attacks always deal at least 1 damage', () => {
@@ -100,7 +100,7 @@ describe('CombatChallenge', () => {
   });
 
   it('heal magic restores enemy HP up to its maximum', () => {
-    const { battle, combat } = fight('wisp');
+    const { battle, combat } = fight('shadeImp');
     combat.enemyHp = combat.enemy.hp - 3;
     nextMove(combat, { kind: 'heal', name: 'Glimmer', amount: 10 });
     battle.input('hardDrop');
@@ -108,7 +108,7 @@ describe('CombatChallenge', () => {
   });
 
   it('drain magic burns hero MP', () => {
-    const { battle, combat, hero } = fight('bat');
+    const { battle, combat, hero } = fight('moonImp');
     hero.mp = 2;
     nextMove(combat, { kind: 'drain', name: 'Leech', mp: 3 });
     battle.input('hardDrop');
@@ -149,9 +149,9 @@ describe('CombatChallenge', () => {
 
   describe('spells', () => {
     it('damage spells scale with level and cost MP', () => {
-      const { combat, hero } = fight('golem');
+      const { combat, hero } = fight('brute');
       combat.castSpell('fire');
-      expect(combat.enemyHp).toBe(ENEMIES.golem!.hp - (12 + hero.level * 2));
+      expect(combat.enemyHp).toBe(ENEMIES.brute!.hp - (12 + hero.level * 2));
       expect(hero.mp).toBe(hero.maxMp - 3);
     });
 
@@ -171,13 +171,13 @@ describe('CombatChallenge', () => {
     });
 
     it('Blizzard damages and delays the enemy', () => {
-      const { combat, hero } = fight('golem');
+      const { combat, hero } = fight('brute');
       hero.spells.push('blizzard');
       const before = combat.countdown;
       combat.castSpell('blizzard');
       // +3 from the freeze, -1 for the action spent casting.
       expect(combat.countdown).toBe(before + 3 - 1);
-      expect(combat.enemyHp).toBeLessThan(ENEMIES.golem!.hp);
+      expect(combat.enemyHp).toBeLessThan(ENEMIES.brute!.hp);
     });
 
     it('casting counts as an action and can trigger the enemy', () => {
@@ -216,7 +216,7 @@ describe('CombatChallenge', () => {
   it('rolls spoils with drop chances', () => {
     const wyrm = ENEMIES.moonWyrm!;
     expect(rollSpoils(wyrm, createRng(1)).drops).toEqual(['phoenixFeather']);
-    const spoils = rollSpoils(ENEMIES.bat!, createRng(1));
-    expect(spoils).toEqual({ xp: ENEMIES.bat!.xp, gil: ENEMIES.bat!.gil, drops: [] });
+    const spoils = rollSpoils(ENEMIES.moonImp!, createRng(1));
+    expect(spoils).toEqual({ xp: ENEMIES.moonImp!.xp, gil: ENEMIES.moonImp!.gil, drops: [] });
   });
 });
