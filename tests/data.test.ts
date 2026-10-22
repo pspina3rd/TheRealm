@@ -242,9 +242,7 @@ describe('puzzles', () => {
 
   for (const npc of puzzles) {
     it(`${npc.id} is solvable with normal input`, () => {
-      const hero = createHero();
-      addItem(hero, npc.challenge.itemId);
-      const battle = makeBattle(npc.challenge, hero);
+      const battle = makeBattle(npc.challenge);
       for (const [turns, x] of PUZZLE_SOLUTIONS[npc.id] ?? []) {
         for (let i = 0; i < turns; i++) battle.input('rotate');
         const piece = battle.board.active!;
@@ -261,10 +259,11 @@ describe('puzzles', () => {
 describe('the board is never optional', () => {
   it('no offering can be won by hard-dropping every piece without aiming', () => {
     for (const npc of Object.values(NPCS)) {
-      if (npc.challenge?.kind !== 'offering') continue;
+      const spec = npc.challenge;
+      if (spec?.kind !== 'offering') continue;
       const hero = createHero();
-      addItem(hero, npc.challenge.itemId);
-      const battle = makeBattle(npc.challenge, hero);
+      addItem(hero, spec.itemId);
+      const battle = makeBattle(spec, hero);
       for (let i = 0; i < 500 && battle.status === 'ongoing'; i++) battle.input('hardDrop');
       expect(battle.status, npc.id).not.toBe('won');
     }
