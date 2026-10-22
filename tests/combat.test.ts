@@ -11,10 +11,21 @@ import type { EnemyMove } from '../src/data/types';
 import { addItem, totalAttack } from '../src/game/hero';
 import { makeBattle, setUpVerticalIClear } from './helpers';
 
+/**
+ * A fight against `enemyId`. The hero knows Fire and Cure (fire 1, nature 1
+ * alignment) so the maths below doesn't depend on the default class.
+ *
+ * Element chart for the enemies used here (the vertical I piece adds one
+ * wind crystal to every cleared line):
+ * - nature (slime, shroom): weak fire, arcane; resists nature, earth, water
+ * - earth (goblin, brute): weak water, nature; resists earth, lightning, wind
+ * - arcane (moon imp): weak fire, wind; resists arcane, nature, lightning
+ */
 function fight(enemyId = 'slime') {
   const battle = makeBattle({ kind: 'combat', enemyId });
   const combat = battle.combat;
   if (!combat) throw new Error('expected combat');
+  battle.hero.spells = ['fire', 'cure'];
   return { battle, combat, hero: battle.hero };
 }
 
@@ -37,27 +48,28 @@ describe('CombatChallenge', () => {
   });
 
   it('strikes the enemy for line damage plus attack', () => {
-    const { battle, combat, hero } = fight('brute');
+    const { battle, combat, hero } = fight('shroom'); // neutral to the wind crystals
+    combat.enemyHp = 999;
     setUpVerticalIClear(battle.board, 2);
     battle.input('hardDrop');
-    expect(combat.enemyHp).toBe(ENEMIES.brute!.hp - (LINE_DAMAGE[2]! + totalAttack(hero)));
+    expect(combat.enemyHp).toBe(999 - (LINE_DAMAGE[2]! + totalAttack(hero)));
   });
 
   it('adds strike damage for crystals the enemy is weak to', () => {
-    const { battle, combat, hero } = fight('brute'); // weak to water (blue)
-    setUpVerticalIClear(battle.board, 1, 'blue');
+    const { battle, combat, hero } = fight('shroom'); // weak to arcane (violet)
+    combat.enemyHp = 999;
+    setUpVerticalIClear(battle.board, 1, 'violet');
     battle.input('hardDrop');
     const expected = LINE_DAMAGE[1]! + totalAttack(hero) + 9 * WEAK_CRYSTAL_BONUS;
-    expect(combat.enemyHp).toBe(ENEMIES.brute!.hp - expected);
+    expect(combat.enemyHp).toBe(999 - expected);
   });
 
   it('reduces strike damage for crystals the enemy resists', () => {
-    const { battle, combat, hero } = fight('brute'); // resists fire (red)
-    setUpVerticalIClear(battle.board, 1, 'red');
+    const { battle, combat, hero } = fight('shroom'); // resists water (blue)
+    combat.enemyHp = 999;
+    setUpVerticalIClear(battle.board, 1, 'blue');
     battle.input('hardDrop');
-    const strike = LINE_DAMAGE[1]! + totalAttack(hero) - 9;
-    const burn = Math.round(9 * 0.5);
-    expect(combat.enemyHp).toBe(ENEMIES.brute!.hp - strike - burn);
+    expect(combat.enemyHp).toBe(999 - (LINE_DAMAGE[1]! + totalAttack(hero) - 9));
   });
 
   it('wins when the enemy reaches 0 HP', () => {
@@ -167,9 +179,10 @@ describe('CombatChallenge', () => {
       weak.combat.enemyHp = 999;
       weak.combat.castSpell('fire');
       expect(999 - weak.combat.enemyHp).toBe(Math.round(16 * 1.5));
-      const resist = fight('brute'); // resists fire
-      resist.combat.castSpell('fire');
-      expect(ENEMIES.brute!.hp - resist.combat.enemyHp).toBe(Math.round(16 * 0.5));
+      const resist = fight('brute'); // resists wind
+      resist.hero.spells.push('gale');
+      resist.combat.castSpell('gale');
+      expect(ENEMIES.brute!.hp - resist.combat.enemyHp).toBe(Math.round(12 * 0.5));
     });
 
     it('Cure spends nature mana and heals', () => {
@@ -199,11 +212,11 @@ describe('CombatChallenge', () => {
     });
 
     it('Gale damages and slows your pieces', () => {
-      const { battle, combat, hero } = fight('shroom'); // weak to wind
+      const { battle, combat, hero } = fight('moonImp'); // weak to wind
       hero.spells.push('gale');
       battle.hastePieces = 3;
       combat.castSpell('gale');
-      expect(ENEMIES.shroom!.hp - combat.enemyHp).toBe(Math.round(12 * 1.5));
+      expect(ENEMIES.moonImp!.hp - combat.enemyHp).toBe(Math.round(12 * 1.5));
       expect(battle.slowPieces).toBe(5);
       expect(battle.hastePieces).toBe(0);
     });
@@ -231,13 +244,6 @@ describe('CombatChallenge', () => {
       ]);
     });
 
-    it('cost 2 less of the attuned element', () => {
-      const { combat, hero } = fight('goblin');
-      hero.attunement = 'fire';
-      combat.castSpell('fire');
-      expect(hero.mana.fire).toBe(hero.manaCap - 4);
-    });
-
     it('casting counts as an action and can trigger the enemy', () => {
       const { combat, hero } = fight('goblin');
       nextMove(combat, { kind: 'attack', name: 'Bonk', power: 1 });
@@ -258,19 +264,21 @@ describe('CombatChallenge', () => {
 
   describe('line effects (each cleared line triggers its strongest element)', () => {
     it('fire burns for extra damage', () => {
-      const { battle, combat, hero } = fight('goblin'); // neutral to fire
+      const { battle, combat, hero } = fight('goblin'); // neutral to fire, resists wind
       setUpVerticalIClear(battle.board, 1, 'red');
       battle.input('hardDrop');
-      expect(ENEMIES.goblin!.hp - combat.enemyHp).toBe(LINE_DAMAGE[1]! + totalAttack(hero) + 9);
+      const strike = LINE_DAMAGE[1]! + totalAttack(hero) - 1; // −1 for the wind crystal
+      const burn = Math.floor(9 * 1.1); // fire alignment 1
+      expect(ENEMIES.goblin!.hp - combat.enemyHp).toBe(strike + burn);
     });
 
     it('lightning chains, multiplied by lines cleared together', () => {
-      const { battle, combat, hero } = fight('moonWyrm'); // weak to lightning
+      const { battle, combat, hero } = fight('shroom'); // neutral to lightning
+      combat.enemyHp = 999;
       setUpVerticalIClear(battle.board, 2, 'gold');
       battle.input('hardDrop');
-      const strike = LINE_DAMAGE[2]! + totalAttack(hero) + 18 * WEAK_CRYSTAL_BONUS;
-      const chains = 2 * Math.round(9 * 2 * 1.5);
-      expect(ENEMIES.moonWyrm!.hp - combat.enemyHp).toBe(strike + chains);
+      const chains = 2 * (9 * 2); // two lines, each 9 crystals × 2 lines together
+      expect(999 - combat.enemyHp).toBe(LINE_DAMAGE[2]! + totalAttack(hero) + chains);
     });
 
     it('water chills the enemy so it acts a piece later', () => {
@@ -336,19 +344,20 @@ describe('CombatChallenge', () => {
     });
 
     it('mixed lines without 3 of an element trigger nothing extra', () => {
-      const { battle, combat, hero } = fight('goblin');
+      const { battle, combat, hero } = fight('shroom');
+      combat.enemyHp = 999;
       setUpVerticalIClear(battle.board, 1);
       battle.input('hardDrop');
-      expect(ENEMIES.goblin!.hp - combat.enemyHp).toBe(LINE_DAMAGE[1]! + totalAttack(hero));
+      expect(999 - combat.enemyHp).toBe(LINE_DAMAGE[1]! + totalAttack(hero));
     });
 
-    it('attunement makes its element 50% stronger', () => {
+    it("surges grow with the hero's alignment in their element", () => {
       const { battle, hero } = fight('goblin');
-      hero.attunement = 'nature';
+      hero.spells = ['cure']; // nature 1: ×1.1
       hero.hp = 1;
       setUpVerticalIClear(battle.board, 1, 'green');
       battle.input('hardDrop');
-      expect(hero.hp).toBe(1 + Math.floor(9 * 1.5));
+      expect(hero.hp).toBe(1 + Math.floor(9 * 1.1));
     });
   });
 
@@ -423,6 +432,7 @@ describe('combat events', () => {
     nextMove(combat, { kind: 'attack', name: 'Bonk', power: 99 });
     battle.input('hardDrop');
     expect(events(battle)).toContainEqual({ kind: 'revive' });
+    battle.hero.spells.push('fire');
     combat.castSpell('fire');
     expect(events(battle)).toContainEqual({ kind: 'spell', spellId: 'fire' });
     expect(events(battle).at(-1)).toEqual({ kind: 'enemyDefeated' });

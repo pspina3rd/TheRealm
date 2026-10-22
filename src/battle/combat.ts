@@ -11,6 +11,7 @@ import {
   heal,
   itemCount,
   removeItem,
+  heroAlignment,
   spellCost,
   spendMana,
   takeDamage,
@@ -74,8 +75,9 @@ export class CombatChallenge implements Challenge {
       const affinity = crystalAffinity(this.enemy, elementsOf(result.clearedCells));
       const damage = Math.max(1, (LINE_DAMAGE[lines] ?? 0) + totalAttack(this.ctx.hero) + affinity);
       this.hitEnemy(damage, null, affinity > 0 ? 'weak' : affinity < 0 ? 'resist' : null);
+      const alignment = heroAlignment(this.ctx.hero);
       result.lines.forEach((line, i) => {
-        const surge = lineSurge(line, this.ctx.hero.attunement);
+        const surge = lineSurge(line, alignment);
         if (surge && this.status() === 'ongoing') {
           this.applySurge(surge, result.linesCleared, result.rows[i] ?? 0);
         }

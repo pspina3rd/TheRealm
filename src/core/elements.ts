@@ -74,3 +74,43 @@ export function dominantElement(
   }
   return best;
 }
+
+// ----------------------------------------------------------------- chart ---
+
+/**
+ * The element chart: each element is strong against exactly two others.
+ * Everything else about how elements relate is derived from this table.
+ */
+export const STRONG_AGAINST: Readonly<Record<Element, readonly [Element, Element]>> = {
+  fire: ['nature', 'arcane'],
+  water: ['fire', 'earth'],
+  earth: ['lightning', 'wind'],
+  nature: ['earth', 'water'],
+  lightning: ['water', 'wind'],
+  wind: ['fire', 'arcane'],
+  arcane: ['nature', 'lightning'],
+};
+
+/** How element `other` stands toward `element`. */
+export type ElementRelation = 'same' | 'strong' | 'weak' | 'related';
+
+/** The elements that are strong against `element` (its opposed elements). */
+export function weakTo(element: Element): Element[] {
+  return ELEMENTS.filter((other) => STRONG_AGAINST[other].includes(element));
+}
+
+/**
+ * How `other` relates to `element`: `strong` if `element` beats it, `weak` if
+ * it beats `element`, otherwise `related` (the neutral pair).
+ */
+export function relationOf(element: Element, other: Element): ElementRelation {
+  if (other === element) return 'same';
+  if (STRONG_AGAINST[element].includes(other)) return 'strong';
+  if (STRONG_AGAINST[other].includes(element)) return 'weak';
+  return 'related';
+}
+
+/** The two neutral elements, neither beating nor beaten by `element`. */
+export function relatedTo(element: Element): Element[] {
+  return ELEMENTS.filter((other) => relationOf(element, other) === 'related');
+}

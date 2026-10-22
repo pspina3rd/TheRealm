@@ -547,7 +547,7 @@ dialog h2 {
   text-align: left;
 }
 
-.class-card canvas {
+.class-card > canvas {
   flex: none;
   width: 72px;
   height: 72px;
@@ -730,8 +730,14 @@ dialog h2 {
 
 .hero-card {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   align-items: center;
+}
+
+.alignment-star {
+  margin-left: auto;
+  image-rendering: pixelated;
 }
 
 .hero-card h2 {

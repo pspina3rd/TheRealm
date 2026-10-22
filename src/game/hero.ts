@@ -1,22 +1,20 @@
 import { ELEMENTS, emptyCounts, type Element, type ElementCounts } from '../core/elements';
-import {
-  ATTUNEMENT_LEVEL,
-  ATTUNEMENT_TITLES,
-  CLASSES,
-  DEFAULT_CLASS,
-  type HeroClass,
-} from '../data/classes';
+import { CLASSES, DEFAULT_CLASS, type HeroClass } from '../data/classes';
 import { ITEMS } from '../data/items';
 import { STARTING_SPELLS } from '../data/spells';
 import type { ElementAmounts, ItemDef, SpellDef } from '../data/types';
+import { ALIGNMENT_TITLES, alignmentOf, titleElementFor } from './alignment';
 
 /** The player character. Plain data so it can be saved as JSON. */
 export interface Hero {
   name: string;
   /** Key into `CLASSES`; decides starting stats, growth and sprite. */
   classId: string;
-  /** Element chosen at `ATTUNEMENT_LEVEL`, or null before then. */
-  attunement: Element | null;
+  /**
+   * The element the hero's title comes from: their strongest alignment,
+   * starting with the class's own (see `titleElementFor`).
+   */
+  titleElement: Element;
   level: number;
   xp: number;
   /** XP needed to reach the next level. */
@@ -41,9 +39,6 @@ export interface Hero {
   spells: string[];
 }
 
-/** Mana discount on the attuned element's share of a spell's cost. */
-export const ATTUNED_DISCOUNT = 2;
-
 /** The hero's class, falling back to the default for unknown ids (e.g. old saves). */
 export function heroClass(hero: Pick<Hero, 'classId'>): HeroClass {
   return CLASSES[hero.classId] ?? (CLASSES[DEFAULT_CLASS] as HeroClass);
@@ -54,7 +49,7 @@ export function createHero(classId = DEFAULT_CLASS, name?: string): Hero {
   return {
     name: name ?? cls.heroName,
     classId: cls.id,
-    attunement: null,
+    titleElement: cls.element,
     level: 1,
     xp: 0,
     nextXp: 30,
@@ -69,14 +64,18 @@ export function createHero(classId = DEFAULT_CLASS, name?: string): Hero {
     armorId: null,
     accessoryId: null,
     items: { herb: 2, ether: 1 },
-    spells: [...STARTING_SPELLS],
+    spells: [cls.spell, ...STARTING_SPELLS.filter((id) => id !== cls.spell)],
   };
 }
 
-/** "Knight", or "Stone Knight" once attuned to earth. */
+/** The class name with the strongest element's prefix, e.g. "Stone Knight". */
 export function heroTitle(hero: Hero): string {
-  const cls = heroClass(hero).name;
-  return hero.attunement ? `${ATTUNEMENT_TITLES[hero.attunement]} ${cls}` : cls;
+  return `${ALIGNMENT_TITLES[hero.titleElement]} ${heroClass(hero).name}`;
+}
+
+/** The hero's alignment in every element (see `src/game/alignment.ts`). */
+export function heroAlignment(hero: Pick<Hero, 'spells'>): ElementCounts {
+  return alignmentOf(hero.spells);
 }
 
 /** Attack including the equipped weapon. */
@@ -154,12 +153,12 @@ export function manaFull(hero: Hero): boolean {
   return ELEMENTS.every((e) => hero.mana[e] >= hero.manaCap);
 }
 
-/** A spell's cost for this hero, with the attunement discount applied. */
-export function spellCost(hero: Hero, spell: SpellDef): ElementAmounts {
-  const cost: Partial<Record<Element, number>> = { ...spell.cost };
-  const attuned = hero.attunement;
-  if (attuned && cost[attuned]) cost[attuned] = Math.max(1, cost[attuned] - ATTUNED_DISCOUNT);
-  return cost;
+/**
+ * What a spell costs this hero. Every hero pays the listed cost for now;
+ * this is the one place later cost changes (spell enhancements) will apply.
+ */
+export function spellCost(_hero: Hero, spell: SpellDef): ElementAmounts {
+  return spell.cost;
 }
 
 export function canAfford(hero: Hero, cost: ElementAmounts): boolean {
@@ -179,18 +178,6 @@ export function drainMana(hero: Hero, amount: number): { element: Element; drain
   const drained = Math.min(amount, hero.mana[element]);
   hero.mana[element] -= drained;
   return { element, drained };
-}
-
-// ------------------------------------------------------------ attunement ---
-
-export function canAttune(hero: Hero): boolean {
-  return hero.attunement === null && hero.level >= ATTUNEMENT_LEVEL;
-}
-
-/** Chooses the hero's element for good. Throws if not yet allowed. */
-export function attune(hero: Hero, element: Element): void {
-  if (!canAttune(hero)) throw new Error(`Attunement opens at level ${ATTUNEMENT_LEVEL}, once.`);
-  hero.attunement = element;
 }
 
 // ----------------------------------------------------------------- items ---
@@ -215,9 +202,14 @@ export function removeItem(hero: Hero, itemId: string, count = 1): boolean {
   return true;
 }
 
+/**
+ * Learns a spell, raising the hero's alignment and possibly their title.
+ * Returns false if the spell was already known.
+ */
 export function learnSpell(hero: Hero, spellId: string): boolean {
   if (hero.spells.includes(spellId)) return false;
   hero.spells.push(spellId);
+  hero.titleElement = titleElementFor(hero.titleElement, heroAlignment(hero));
   return true;
 }
 

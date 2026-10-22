@@ -28,6 +28,6 @@ export const SHOPS: Readonly<Record<string, ShopDef>> = {
   mossvaleStall: {
     id: 'mossvaleStall',
     name: 'Mossvale Stall',
-    stock: ['herb', 'copperSword', 'emberCharm'],
+    stock: ['herb', 'fireTome', 'copperSword', 'emberCharm'],
   },
 };

@@ -3,20 +3,25 @@ import { Board, EVEN_WEIGHTS } from '../src/core/board';
 import {
   ELEMENTS,
   ELEMENT_OF_COLOR,
+  STRONG_AGAINST,
   dominantElement,
   elementsOf,
   emptyCounts,
   pieceOfElement,
+  relatedTo,
+  relationOf,
+  weakTo,
 } from '../src/core/elements';
 import { CRYSTAL_COLORS, PIECES, PIECE_NAMES } from '../src/core/pieces';
 import { createRng } from '../src/core/rng';
 import {
-  ATTUNED_SURGE_BONUS,
   SURGE_DESCRIPTIONS,
   SURGE_THRESHOLD,
   crystalAffinity,
   elementMultiplier,
   lineSurge,
+  resistancesOf,
+  weaknessesOf,
 } from '../src/battle/elemental';
 import { ENEMIES } from '../src/data/enemies';
 import { MAPS } from '../src/data/maps';
@@ -52,24 +57,75 @@ describe('elements', () => {
   });
 });
 
-describe('line surges', () => {
-  it('triggers the strongest element with at least the threshold', () => {
-    expect(lineSurge({ green: 6, red: 4 }, null)).toEqual({ element: 'nature', power: 6 });
-    expect(lineSurge({ green: SURGE_THRESHOLD - 1, stone: 8 }, null)).toBeNull();
-    expect(lineSurge({ stone: 10 }, null)).toBeNull();
+describe('element chart', () => {
+  it('makes every element strong against two, weak to two and related to two', () => {
+    for (const element of ELEMENTS) {
+      expect(STRONG_AGAINST[element]).toHaveLength(2);
+      expect(weakTo(element)).toHaveLength(2);
+      expect(relatedTo(element)).toHaveLength(2);
+      const relations = ELEMENTS.map((other) => relationOf(element, other));
+      expect(relations.filter((r) => r === 'same')).toEqual(['same']);
+    }
   });
 
-  it('is stronger for the attuned element only', () => {
-    expect(lineSurge({ gold: 6, stone: 4 }, 'lightning')?.power).toBe(6 * ATTUNED_SURGE_BONUS);
-    expect(lineSurge({ gold: 6, stone: 4 }, 'fire')?.power).toBe(6);
+  it('never has two elements beating each other', () => {
+    for (const element of ELEMENTS) {
+      for (const beaten of STRONG_AGAINST[element]) {
+        expect(STRONG_AGAINST[beaten]).not.toContain(element);
+        expect(relationOf(element, beaten)).toBe('strong');
+        expect(relationOf(beaten, element)).toBe('weak');
+      }
+    }
   });
 
-  it('scales by weakness and resistance', () => {
+  it('matches the design chart', () => {
+    expect(weakTo('fire')).toEqual(['water', 'wind']);
+    expect(relatedTo('fire')).toEqual(['lightning', 'earth']);
+    expect(weakTo('arcane')).toEqual(['fire', 'wind']);
+  });
+});
+
+describe('enemy weaknesses and resistances', () => {
+  it('come from the chart: weak to what beats it, resisting itself and what it beats', () => {
+    const brute = ENEMIES.brute!; // earth
+    expect(weaknessesOf(brute)).toEqual(['water', 'nature']);
+    expect(resistancesOf(brute)).toEqual(['lightning', 'earth', 'wind']);
+  });
+
+  it('let a boss add a resistance', () => {
+    const wyrm = ENEMIES.moonWyrm!; // arcane, plus water
+    expect(resistancesOf(wyrm)).toEqual(['water', 'lightning', 'nature', 'arcane']);
+  });
+
+  it('never make an enemy both weak to and resistant to an element', () => {
+    for (const enemy of Object.values(ENEMIES)) {
+      const resists = resistancesOf(enemy);
+      expect(weaknessesOf(enemy).filter((e) => resists.includes(e))).toEqual([]);
+    }
+  });
+
+  it('scale damage', () => {
     const brute = ENEMIES.brute!;
     expect(elementMultiplier(brute, 'water')).toBe(1.5);
-    expect(elementMultiplier(brute, 'fire')).toBe(0.5);
-    expect(elementMultiplier(brute, 'wind')).toBe(1);
-    expect(crystalAffinity(brute, { ...emptyCounts(), water: 3, fire: 2, wind: 5 })).toBe(6 - 2);
+    expect(elementMultiplier(brute, 'earth')).toBe(0.5);
+    expect(elementMultiplier(brute, 'fire')).toBe(1);
+    expect(crystalAffinity(brute, { ...emptyCounts(), water: 3, wind: 2, fire: 5 })).toBe(6 - 2);
+  });
+});
+
+describe('line surges', () => {
+  const none = emptyCounts();
+
+  it('triggers the strongest element with at least the threshold', () => {
+    expect(lineSurge({ green: 6, red: 4 }, none)).toEqual({ element: 'nature', power: 6 });
+    expect(lineSurge({ green: SURGE_THRESHOLD - 1, stone: 8 }, none)).toBeNull();
+    expect(lineSurge({ stone: 10 }, none)).toBeNull();
+  });
+
+  it('grows with alignment in that element only', () => {
+    const aligned = { ...none, lightning: 5 };
+    expect(lineSurge({ gold: 6, stone: 4 }, aligned)?.power).toBe(9); // ×1.5
+    expect(lineSurge({ red: 6, stone: 4 }, aligned)?.power).toBe(6);
   });
 });
 
@@ -107,13 +163,12 @@ describe('piece odds', () => {
     );
   });
 
-  it('adds area, charm and attunement tilts, never below the minimum', () => {
+  it('adds area and charm tilts, never below the minimum', () => {
     const hero = createHero();
     hero.accessoryId = 'stormCharm';
-    hero.attunement = 'arcane';
     const weights = pieceWeights(MAPS.caves2!, hero); // earth +1, arcane +2, lightning -1
     expect(weights[pieceOfElement('earth')]).toBe(BASE_PIECE_WEIGHT + 1);
-    expect(weights[pieceOfElement('arcane')]).toBe(BASE_PIECE_WEIGHT + 3);
+    expect(weights[pieceOfElement('arcane')]).toBe(BASE_PIECE_WEIGHT + 2);
     expect(weights[pieceOfElement('lightning')]).toBe(BASE_PIECE_WEIGHT); // -1 area, +1 charm
     const harsh = { ...plain, pieceBias: { fire: -5 } };
     expect(pieceWeights(harsh, createHero())[pieceOfElement('fire')]).toBe(MIN_PIECE_WEIGHT);

@@ -28,40 +28,67 @@ cast and what happens with every line.
 - **Line effects** (combat only): each cleared line triggers the effect of
   its strongest element. Purer lines are stronger. A four-line clear can
   fire four different effects.
-- **Weakness and resistance**: each enemy has elements it is weak to and
-  elements it resists. Every cleared crystal of a weak element adds +2
+- **Weakness and resistance**: each enemy is weak to the elements that beat
+  its own, and resists its own element and the two it beats (see the chart
+  below; a boss may add one extra resistance). Every cleared crystal of a weak element adds +2
   strike damage (−1 if resisted). Damaging line effects and spells deal
   ×1.5 against weaknesses and ×0.5 against resistances.
 - **Piece odds**: every bag holds 2 copies of each shape. Areas tilt this
   (meadows +1 nature; Moon Caves +1 earth, +1 arcane, −1 lightning; the
-  Depths +2 arcane). A charm adds +1 to its element and attunement adds
-  +1, so you can tilt the odds back. No shape drops below 1 copy.
+  Depths +2 arcane). A charm adds +1 to its element and alignment adds up
+  to +2, so you can tilt the odds back. No shape drops below 1 copy.
 
-## Hero classes and attunement
+### Element chart
+
+Each element is strong against two, weak to two and neutral to two. A
+creature also resists its own element.
+
+| Element   | Strong vs         | Weak to           | Neutral (related) |
+| --------- | ----------------- | ----------------- | ----------------- |
+| Fire      | Nature, Arcane    | Water, Wind       | Earth, Lightning  |
+| Water     | Fire, Earth       | Nature, Lightning | Wind, Arcane      |
+| Earth     | Lightning, Wind   | Water, Nature     | Fire, Arcane      |
+| Nature    | Earth, Water      | Fire, Arcane      | Lightning, Wind   |
+| Lightning | Water, Wind       | Earth, Arcane     | Fire, Nature      |
+| Wind      | Fire, Arcane      | Earth, Lightning  | Water, Nature     |
+| Arcane    | Nature, Lightning | Fire, Wind        | Water, Earth      |
+
+- **Related** elements are the neutral pair. **Opposed** elements are the
+  two that beat it.
+- Enemy weaknesses and resistances come from this chart instead of being set
+  by hand. A boss may add one extra resistance.
+
+## Hero classes and alignment
 
 Chosen when starting a new game. Differences are deliberately small so any
 class can finish the game. Mana is the capacity of each of the seven pools.
+Every hero also starts with Cure.
 
-| Class  | HP  | Mana | ATK | DEF | Gil | Growth per level (HP/Mana/ATK/DEF) |
-| ------ | --- | ---- | --- | --- | --- | ---------------------------------- |
-| Ranger | 40  | 12   | 5   | 1   | 25  | 8 / 2 / 2 / 1                      |
-| Knight | 48  | 10   | 5   | 3   | 20  | 10 / 1 / 2 / 2                     |
-| Mage   | 34  | 16   | 4   | 1   | 25  | 6 / 3 / 2 / 1                      |
-| Rogue  | 36  | 12   | 6   | 1   | 60  | 7 / 2 / 3 / 1                      |
+| Class  | Element   | First spell  | HP  | Mana | ATK | DEF | Gil | Growth per level (HP/Mana/ATK/DEF) |
+| ------ | --------- | ------------ | --- | ---- | --- | --- | --- | ---------------------------------- |
+| Ranger | Wind      | Gale         | 40  | 12   | 5   | 1   | 25  | 8 / 2 / 2 / 1                      |
+| Knight | Earth     | Quake        | 48  | 10   | 5   | 3   | 20  | 10 / 1 / 2 / 2                     |
+| Mage   | Arcane    | Shadow Drain | 34  | 16   | 4   | 1   | 25  | 6 / 3 / 2 / 1                      |
+| Rogue  | Lightning | Thunder      | 36  | 12   | 6   | 1   | 60  | 7 / 2 / 3 / 1                      |
 
-At **level 3** a hero attunes to one element, for good (it can be put off
-and chosen later from the menu). The hero takes its title, e.g. a Knight
-attuned to earth becomes a **Stone Knight**. Attunement:
+### Alignment
 
-- makes that element's line effects 50% stronger,
-- makes its share of spell costs 2 less (never below 1),
-- adds 1 copy of its piece to every bag.
+Each element has an alignment score: **the sum of the levels of every spell
+the hero knows in that element**. A combo spell counts its level toward both
+of its elements. Alignment only goes up; you grow by learning.
 
-Titles: Ember (fire), Tide (water), Storm (lightning), Grove (nature),
-Stone (earth), Arcane (arcane), Gale (wind).
-
-> Attunement is being replaced by alignment, skill points and mentors.
-> See [Planned: progression redesign](#planned-progression-redesign).
+- **Classes keep their identity** by starting aligned: their first spell is
+  a spell of their element (table above).
+- **Effects**:
+  - Line effects of an element grow by 10% per alignment point (up to ×2).
+  - Every 4 alignment points in an element add 1 copy of its piece to each
+    bag (still at most +2 from alignment).
+  - The hero's title comes from their highest alignment, e.g. a Knight
+    highest in earth is a **Stone Knight**. Ties keep the older title.
+- **Shown as** a seven-point star in the menu, one spike per element. A
+  new title is announced with its element's icon.
+- Spells have no levels yet, so each known spell counts 1. Combo spells
+  will count toward both elements once they exist (stage 4).
 
 ## Combat (monsters)
 
@@ -89,16 +116,16 @@ Stone (earth), Arcane (arcane), Gale (wind).
 Damage spells deal power + 2×level, scaled by the enemy's weakness or
 resistance to the spell's element.
 
-| Spell        | Cost                      | Effect                           | How to learn           |
-| ------------ | ------------------------- | -------------------------------- | ---------------------- |
-| Fire         | 6 fire                    | 14 damage                        | Start                  |
-| Cure         | 6 nature                  | Heal 20 HP                       | Start                  |
-| Quake        | 6 earth                   | Remove the bottom two rows       | Elder Rowan (offering) |
-| Gale         | 6 wind                    | 10 damage, tailwind for 5 pieces | Tome, Brightwater shop |
-| Thunder      | 8 lightning               | 24 damage                        | Sage Orrin (puzzle)    |
-| Blizzard     | 8 water                   | 18 damage, delays the enemy 3    | Sealed chest (puzzle)  |
-| Shadow Drain | 8 arcane                  | 18 damage, heal half of it       | Tome, Brightwater shop |
-| Meteor       | 6 fire, 6 earth, 6 arcane | 58 damage                        | Not placed yet         |
+| Spell        | Cost                      | Effect                           | How to learn                         |
+| ------------ | ------------------------- | -------------------------------- | ------------------------------------ |
+| Fire         | 6 fire                    | 14 damage                        | Tome, Mossvale stall                 |
+| Cure         | 6 nature                  | Heal 20 HP                       | Start (every class)                  |
+| Quake        | 6 earth                   | Remove the bottom two rows       | Knight start; Elder Rowan (offering) |
+| Gale         | 6 wind                    | 10 damage, tailwind for 5 pieces | Ranger start; tome, Brightwater shop |
+| Thunder      | 8 lightning               | 24 damage                        | Rogue start; Sage Orrin (puzzle)     |
+| Blizzard     | 8 water                   | 18 damage, delays the enemy 3    | Sealed chest (puzzle)                |
+| Shadow Drain | 8 arcane                  | 18 damage, heal half of it       | Mage start; tome, Brightwater shop   |
+| Meteor       | 6 fire, 6 earth, 6 arcane | 58 damage                        | Not placed yet                       |
 
 ### Charms
 
@@ -154,28 +181,29 @@ tests replay, so none can be accidentally unsolvable.
 Art is mixed by area: cute Fantasy Dreamland creatures in the open world,
 and bigger, scarier Pixel Battlers monsters underground.
 
-| Area       | Enemy        | Element | Weak to       | Resists       | Magic                       | Drops           |
-| ---------- | ------------ | ------- | ------------- | ------------- | --------------------------- | --------------- |
-| Overworld  | Green Slime  | Nature  | Fire          | Water         | attack                      | Slime Gel       |
-| Overworld  | Spore Shroom | Nature  | Fire, wind    | Nature        | attack, haste (Spore Cloud) | Spore Cap       |
-| Overworld  | Goblin Scout | Earth   | Water         | Earth         | attack, curse (Rock Toss)   | Goblin Charm    |
-| Moon Caves | Moon Imp     | Arcane  | Wind          | Arcane        | attack, drain               | —               |
-| Moon Caves | Shade Imp    | Arcane  | Lightning     | Arcane, water | attack, heal, curse         | Moon Shard      |
-| Moon Caves | Cave Brute   | Earth   | Water, nature | Earth, fire   | attack, curse (2 rows)      | Ether           |
-| Depths     | Moon Wyrm    | Arcane  | Lightning     | Arcane, fire  | everything                  | Phoenix Feather |
+| Area       | Enemy        | Element | Weak to       | Resists                                 | Magic                       | Drops           |
+| ---------- | ------------ | ------- | ------------- | --------------------------------------- | --------------------------- | --------------- |
+| Overworld  | Green Slime  | Nature  | Fire, arcane  | Water, nature, earth                    | attack                      | Slime Gel       |
+| Overworld  | Spore Shroom | Nature  | Fire, arcane  | Water, nature, earth                    | attack, haste (Spore Cloud) | Spore Cap       |
+| Overworld  | Goblin Scout | Earth   | Water, nature | Lightning, earth, wind                  | attack, curse (Rock Toss)   | Goblin Charm    |
+| Moon Caves | Moon Imp     | Arcane  | Fire, wind    | Lightning, nature, arcane               | attack, drain               | —               |
+| Moon Caves | Shade Imp    | Arcane  | Fire, wind    | Lightning, nature, arcane               | attack, heal, curse         | Moon Shard      |
+| Moon Caves | Cave Brute   | Earth   | Water, nature | Lightning, earth, wind                  | attack, curse (2 rows)      | Ether           |
+| Depths     | Moon Wyrm    | Arcane  | Fire, wind    | Water (boss), lightning, nature, arcane | everything                  | Phoenix Feather |
 
 ## Progression
 
 Mossvale (learn the challenge types) → overworld monsters (drops, levels)
 → Brightwater (shops, Thunder, earn the Cave Pass by barter) → Moon Caves
-(Blizzard tome, hermit) → Moon Wyrm boss. Attunement opens at level 3,
-usually around the first trip to Brightwater. The Sunken Ruins are sealed as
-the hook for the next region.
+(Blizzard tome, hermit) → Moon Wyrm boss. Fire is a tome at the Mossvale
+stall. The Sunken Ruins are sealed as the hook for the next region.
 
 ## Planned: progression redesign
 
-**Status: for review. Nothing in this section is built yet.** All numbers
-are starting values to tune in play.
+**Status: stage 1 (the element chart and alignment) is built and now
+documented in [Elements](#elements) and
+[Hero classes and alignment](#hero-classes-and-alignment). The rest is
+planned.** All numbers are starting values to tune in play.
 
 ### Goals
 
@@ -184,50 +212,6 @@ are starting values to tune in play.
   next level, and a mentor teaches it.
 - What the hero knows changes how the world treats them (alignment).
 - Most of it is shown, not told: icons, colours, silhouettes.
-
-### Element chart
-
-Each element is strong against two, weak to two and neutral to two. A
-creature also resists its own element.
-
-| Element   | Strong vs         | Weak to           | Neutral (related) |
-| --------- | ----------------- | ----------------- | ----------------- |
-| Fire      | Nature, Arcane    | Water, Wind       | Earth, Lightning  |
-| Water     | Fire, Earth       | Nature, Lightning | Wind, Arcane      |
-| Earth     | Lightning, Wind   | Water, Nature     | Fire, Arcane      |
-| Nature    | Earth, Water      | Fire, Arcane      | Lightning, Wind   |
-| Lightning | Water, Wind       | Earth, Arcane     | Fire, Nature      |
-| Wind      | Fire, Arcane      | Earth, Lightning  | Water, Nature     |
-| Arcane    | Nature, Lightning | Fire, Wind        | Water, Earth      |
-
-- **Related** elements are the neutral pair. **Opposed** elements are the
-  two that beat it.
-- Enemy weaknesses and resistances come from this chart instead of being set
-  by hand. A boss may add one extra resistance.
-
-### Alignment
-
-Each element has an alignment score: **the sum of the levels of every spell
-the hero knows in that element**. A combo spell counts its level toward both
-of its elements. Alignment only goes up; you grow by learning.
-
-- **Classes keep their identity** by starting aligned: their first spell is
-  a level 1 spell of their element.
-
-  | Class  | Element   | Starting spell |
-  | ------ | --------- | -------------- |
-  | Knight | Earth     | Quake 1        |
-  | Mage   | Arcane    | Shadow 1       |
-  | Ranger | Wind      | Gale 1         |
-  | Rogue  | Lightning | Thunder 1      |
-
-- **Effects** (these replace attunement):
-  - Line effects of an element grow by 10% per alignment point (up to ×2).
-  - Every 4 alignment points in an element add 1 copy of its piece to each
-    bag (still at most +2 from alignment).
-  - The hero's title comes from their highest alignment, e.g. a Knight
-    highest in earth is a **Stone Knight**. Ties keep the older title.
-- **Shown as** a seven-point star in the menu, one spike per element.
 
 ### Stats
 
@@ -367,15 +351,15 @@ break the ground for that well.
 - **Content**: one spell to level 3 takes 12–15 levels, so the realm needs
   well over the ~7 levels it has now. New regions come after the Moon
   Caves, starting with the Sunken Ruins.
-- **Saves (v3)**: attunement is dropped; known spells become level 1;
-  unspent points are granted as 2 × (level − 1); stats are recomputed from
-  the class.
-- **Removed**: attunement, the level 3 choice, spell tomes from shops (they
-  become quest or mentor rewards).
+- **Saves**: v3 (built) drops attunement, keeps an attuned hero's title
+  and teaches the class spell. Stage 2 will grant unspent points as
+  2 × (level − 1) and recompute stats from the class.
+- **Removed**: attunement and the level 3 choice (done); spell tomes from
+  shops (later: they become quest or mentor rewards).
 
 ### Build order
 
-1. Element chart and alignment (replaces attunement).
+1. Element chart and alignment, replacing attunement. **Done.**
 2. Stats, skill points and the level-up screen.
 3. Spell levels, enhancements and the category menu.
 4. Mentors, team-up battles and combo spells.

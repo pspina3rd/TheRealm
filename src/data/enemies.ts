@@ -11,8 +11,6 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     xp: 8,
     gil: 6,
     element: 'nature',
-    weak: ['fire'],
-    resist: ['water'],
     actEvery: 4,
     moves: [{ kind: 'attack', name: 'Bounce', power: 1 }],
     drops: [{ itemId: 'slimeGel', chance: 0.5 }],
@@ -28,8 +26,6 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     xp: 12,
     gil: 9,
     element: 'nature',
-    weak: ['fire', 'wind'],
-    resist: ['nature'],
     actEvery: 3,
     moves: [
       { kind: 'attack', name: 'Headbutt', power: 2 },
@@ -49,8 +45,6 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     xp: 16,
     gil: 14,
     element: 'earth',
-    weak: ['water'],
-    resist: ['earth'],
     actEvery: 4,
     moves: [
       { kind: 'attack', name: 'Stab', power: 3 },
@@ -72,8 +66,6 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     xp: 15,
     gil: 10,
     element: 'arcane',
-    weak: ['wind'],
-    resist: ['arcane'],
     actEvery: 3,
     moves: [
       { kind: 'attack', name: 'Swoop', power: 2 },
@@ -91,8 +83,6 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     xp: 20,
     gil: 16,
     element: 'arcane',
-    weak: ['lightning'],
-    resist: ['arcane', 'water'],
     actEvery: 4,
     moves: [
       { kind: 'attack', name: 'Moonbeam', power: 5 },
@@ -112,8 +102,6 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     xp: 28,
     gil: 22,
     element: 'earth',
-    weak: ['water', 'nature'],
-    resist: ['earth', 'fire'],
     actEvery: 5,
     moves: [
       { kind: 'attack', name: 'Slam', power: 6 },
@@ -132,8 +120,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     xp: 120,
     gil: 150,
     element: 'arcane',
-    weak: ['lightning'],
-    resist: ['arcane', 'fire'],
+    extraResist: ['water'],
     actEvery: 3,
     moves: [
       { kind: 'attack', name: 'Lunar Breath', power: 8 },

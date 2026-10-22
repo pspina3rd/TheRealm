@@ -73,7 +73,7 @@ export interface MapDef {
   readonly decor?: readonly DecorDef[];
   /**
    * Tilts which pieces fall in battles here: extra (or fewer) copies of each
-   * element's piece per bag. Charms and attunement can tilt it back.
+   * element's piece per bag. Charms and alignment can tilt it back.
    */
   readonly pieceBias?: Readonly<Partial<Record<Element, number>>>;
 }

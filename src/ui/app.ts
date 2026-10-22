@@ -6,10 +6,9 @@ import { ENEMIES } from '../data/enemies';
 import { NPCS } from '../data/npcs';
 import type { ChallengeSpec } from '../data/types';
 import { describeInteraction, resolveBattle } from '../game/encounter';
-import { ELEMENTS, ELEMENT_NAMES, type Element } from '../core/elements';
-import { SURGE_DESCRIPTIONS } from '../battle/elemental';
-import { ATTUNEMENT_TITLES } from '../data/classes';
-import { attune, canAttune, equip, heroClass, heroTitle, useItem } from '../game/hero';
+import { ELEMENT_NAMES } from '../core/elements';
+import { SPELLS } from '../data/spells';
+import { equip, heroClass, heroTitle, useItem } from '../game/hero';
 import { pieceWeights } from '../game/pieceOdds';
 import { deleteSave, loadGame, saveGame, type KeyValueStore } from '../game/save';
 import { buy } from '../game/shop';
@@ -218,7 +217,9 @@ export class App {
   private finishBattle(): void {
     const active = this.active;
     if (!active) return;
+    const titleBefore = this.state.hero.titleElement;
     const resolution = resolveBattle(this.state, active.entity, active.battle, this.rng);
+    const newTitle = this.state.hero.titleElement !== titleBefore;
     this.save();
     this.renderHud();
     const speaker = portraitFor(active.entity);
@@ -230,8 +231,11 @@ export class App {
           label: 'Continue',
           onClick: () => {
             this.endBattle();
-            if (canAttune(this.state.hero)) this.chooseAttunement();
-            else if (resolution.shopId) {
+            if (newTitle) {
+              const hero = this.state.hero;
+              this.say(heroTitle(hero), ELEMENT_ICONS[hero.titleElement]);
+            }
+            if (resolution.shopId) {
               this.openShop(resolution.shopId, resolution.priceMultiplier, speaker);
             }
           },
@@ -299,9 +303,6 @@ export class App {
         },
       }),
       actions: [
-        ...(canAttune(hero)
-          ? [{ label: 'Choose element', onClick: () => this.chooseAttunement() }]
-          : []),
         { label: 'New Game', onClick: () => this.confirmNewGame() },
         {
           label: 'Save',
@@ -350,6 +351,11 @@ export class App {
             chip('sword', atk, 'Attack'),
             chip('ward', def, 'Defence'),
             chip('coin', cls.gil, 'Gil'),
+            chip(
+              ELEMENT_ICONS[cls.element],
+              SPELLS[cls.spell]?.name ?? cls.spell,
+              `${ELEMENT_NAMES[cls.element]} spell`,
+            ),
           ),
         ),
       );
@@ -373,43 +379,6 @@ export class App {
     this.dialog.close();
     this.renderHud();
     this.say(currentMap(this.state).name);
-  }
-
-  // ------------------------------------------------------ attunement ---
-
-  /** Offers the one-time elemental attunement (a level-up milestone). */
-  private chooseAttunement(): void {
-    const hero = this.state.hero;
-    const options = ELEMENTS.map((element: Element) => {
-      const option = button('', () => {
-        attune(hero, element);
-        this.save();
-        this.dialog.close();
-        this.say(heroTitle(hero), ELEMENT_ICONS[element]);
-      });
-      option.append(
-        iconElement(ELEMENT_ICONS[element], 2),
-        el('b', {
-          text:
-            ATTUNEMENT_TITLES[element] === ELEMENT_NAMES[element]
-              ? ELEMENT_NAMES[element]
-              : `${ATTUNEMENT_TITLES[element]} (${ELEMENT_NAMES[element]})`,
-        }),
-        el('small', { text: SURGE_DESCRIPTIONS[element] }),
-      );
-      return option;
-    });
-    this.dialog.show({
-      title: 'Choose your element',
-      body: [
-        el('p', {
-          className: 'muted',
-          text: 'Stronger lines, cheaper spells and more pieces of one element. This choice is permanent.',
-        }),
-        el('div', { className: 'attune-grid' }, ...options),
-      ],
-      actions: [{ label: 'Decide later', onClick: () => this.dialog.close() }],
-    });
   }
 
   // ------------------------------------------------------------- HUD ---

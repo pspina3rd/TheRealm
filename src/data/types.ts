@@ -27,7 +27,7 @@ export type SpellEffect =
 export interface SpellDef {
   readonly id: string;
   readonly name: string;
-  /** The element that decides weakness and resistance (and attunement discounts). */
+  /** The spell's element: decides weakness, resistance and which alignment it builds. */
   readonly element: Element;
   /** Mana spent from each elemental pool. */
   readonly cost: ElementAmounts;
@@ -66,10 +66,11 @@ export interface EnemyDef {
   readonly gil: number;
   /** The enemy's own element (used by its magic and shown in battle). */
   readonly element: Element;
-  /** Crystals and spells of these elements hit harder. */
-  readonly weak: readonly Element[];
-  /** Crystals and spells of these elements hit softer. */
-  readonly resist: readonly Element[];
+  /**
+   * Resistances beyond the element chart's (bosses only). Weaknesses and the
+   * usual resistances come from the chart; see `src/battle/elemental.ts`.
+   */
+  readonly extraResist?: readonly Element[];
   /** The enemy acts after this many hero pieces. */
   readonly actEvery: number;
   /** Moves are picked uniformly at random; repeat a move to weight it. */

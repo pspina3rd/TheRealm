@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { emptyCounts } from '../src/core/elements';
-import { ATTUNEMENT_LEVEL, CLASSES } from '../src/data/classes';
+import { CLASSES } from '../src/data/classes';
 import { SPELLS } from '../src/data/spells';
 import { ITEMS } from '../src/data/items';
 import {
@@ -8,10 +8,9 @@ import {
   addMana,
   addManaToAll,
   applyItemEffect,
-  attune,
   canAfford,
-  canAttune,
   drainMana,
+  heroAlignment,
   heroTitle,
   manaFull,
   spellCost,
@@ -32,12 +31,12 @@ import {
 } from '../src/game/hero';
 
 describe('hero', () => {
-  it('starts at level 1 with Fire and Cure, named after the class', () => {
+  it('starts at level 1 with its class spell and Cure, named after the class', () => {
     const hero = createHero();
     expect(hero.name).toBe(CLASSES.ranger!.heroName);
     expect(hero.classId).toBe('ranger');
     expect(hero.level).toBe(1);
-    expect(hero.spells).toEqual(['fire', 'cure']);
+    expect(hero.spells).toEqual(['gale', 'cure']);
     expect(createHero('mage', 'Test').name).toBe('Test');
   });
 
@@ -218,33 +217,35 @@ describe('hero', () => {
     });
   });
 
-  describe('attunement', () => {
-    it('opens at its level, once', () => {
-      const hero = createHero('knight');
-      expect(canAttune(hero)).toBe(false);
-      expect(() => attune(hero, 'earth')).toThrow();
-      hero.level = ATTUNEMENT_LEVEL;
-      expect(canAttune(hero)).toBe(true);
-      attune(hero, 'earth');
-      expect(hero.attunement).toBe('earth');
-      expect(canAttune(hero)).toBe(false);
-      expect(() => attune(hero, 'fire')).toThrow();
+  describe('alignment', () => {
+    it('starts each class aligned to its element, with its own spell', () => {
+      for (const cls of Object.values(CLASSES)) {
+        const hero = createHero(cls.id);
+        expect(hero.spells[0]).toBe(cls.spell);
+        expect(SPELLS[cls.spell]?.element).toBe(cls.element);
+        expect(hero.titleElement).toBe(cls.element);
+      }
+      expect(heroTitle(createHero('knight'))).toBe('Stone Knight');
     });
 
-    it('names the hero after their element', () => {
-      const hero = createHero('knight');
-      expect(heroTitle(hero)).toBe('Knight');
-      hero.attunement = 'earth';
-      expect(heroTitle(hero)).toBe('Stone Knight');
+    it('counts known spells per element', () => {
+      const hero = createHero('knight'); // quake, cure
+      expect(heroAlignment(hero)).toMatchObject({ earth: 1, nature: 1, fire: 0 });
+      learnSpell(hero, 'fire');
+      expect(heroAlignment(hero).fire).toBe(1);
     });
 
-    it('discounts only the attuned element, never below 1', () => {
-      const hero = createHero();
-      hero.attunement = 'earth';
-      expect(spellCost(hero, SPELLS.meteor!)).toEqual({ fire: 6, earth: 4, arcane: 6 });
-      expect(spellCost(hero, SPELLS.fire!)).toEqual({ fire: 6 });
-      hero.attunement = 'fire';
-      expect(spellCost(hero, { ...SPELLS.fire!, cost: { fire: 2 } })).toEqual({ fire: 1 });
+    it('changes the title only when another element pulls ahead', () => {
+      const hero = createHero('knight');
+      hero.spells = ['quake'];
+      learnSpell(hero, 'fire'); // fire 1 ties earth 1
+      expect(hero.titleElement).toBe('earth');
+      learnSpell(hero, 'meteor'); // fire 2
+      expect(heroTitle(hero)).toBe('Ember Knight');
+    });
+
+    it('leaves spell costs as listed', () => {
+      expect(spellCost(createHero(), SPELLS.meteor!)).toEqual(SPELLS.meteor!.cost);
     });
   });
 

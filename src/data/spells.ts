@@ -71,5 +71,5 @@ export const SPELLS: Readonly<Record<string, SpellDef>> = {
   },
 };
 
-/** Spells a new hero knows. */
-export const STARTING_SPELLS: readonly string[] = ['fire', 'cure'];
+/** Spells every new hero knows, on top of their class's own spell. */
+export const STARTING_SPELLS: readonly string[] = ['cure'];

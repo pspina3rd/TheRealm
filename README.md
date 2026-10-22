@@ -57,9 +57,11 @@ gold lightning, green nature, orange earth, violet arcane and cyan wind.
 - Each cleared line triggers its strongest element: fire burns, water
   chills, lightning chains, nature heals, earth wards, arcane refills mana
   and wind slows your pieces.
-- Enemies are weak to some elements and resist others.
-- Areas tilt which pieces fall; charms and your level-3 elemental
-  attunement tilt them back.
+- Elements follow a chart: each beats two and loses to two. Enemies are
+  weak to what beats their element and resist their own and what it beats.
+- Alignment grows with every spell you learn in an element: stronger line
+  effects, more of its pieces and a title such as "Stone Knight".
+- Areas tilt which pieces fall; charms and alignment tilt them back.
 
 The battle screen shows all of this instead of describing it: every
 crystal carries its element's icon, cleared lines flash and burst their

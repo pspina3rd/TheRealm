@@ -1,8 +1,8 @@
-import { ELEMENT_NAMES } from '../../core/elements';
 import { ITEMS } from '../../data/items';
 import { SPELLS } from '../../data/spells';
 import {
   cannotUseReason,
+  heroAlignment,
   heroClass,
   heroTitle,
   slotFor,
@@ -12,6 +12,7 @@ import {
   type Hero,
 } from '../../game/hero';
 import type { Atlas } from '../art/atlas';
+import { alignmentStar } from '../alignmentStarView';
 import { ELEMENT_ICONS, itemIcon, type IconId } from '../art/icons';
 import { button, el } from '../dom';
 import { iconElement } from '../iconDraw';
@@ -23,7 +24,7 @@ export interface MenuHandlers {
   readonly onEquip: (itemId: string) => void;
 }
 
-/** Name, title, level, stats and XP, with the hero's sprite. */
+/** Name, title, level, stats and XP, with the hero's sprite and alignment star. */
 function heroCard(atlas: Atlas, hero: Hero): HTMLElement {
   const xp = el(
     'div',
@@ -46,12 +47,10 @@ function heroCard(atlas: Atlas, hero: Hero): HTMLElement {
         chip('heart', `${hero.hp}/${hero.maxHp}`, 'HP'),
         chip('sword', totalAttack(hero), 'Attack'),
         chip('ward', totalDefense(hero), 'Defence'),
-        hero.attunement
-          ? chip(ELEMENT_ICONS[hero.attunement], ELEMENT_NAMES[hero.attunement], 'Attunement')
-          : el('span'),
       ),
       el('div', { className: 'xp-row' }, iconElement('star', 2, 'Experience'), xp),
     ),
+    alignmentStar(heroAlignment(hero)),
   );
 }
 

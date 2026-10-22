@@ -26,6 +26,14 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     price: 30,
     description: 'Revives you with half HP if you fall in battle. Used automatically.',
   },
+  fireTome: {
+    id: 'fireTome',
+    name: 'Tome of Fire',
+    kind: 'consumable',
+    price: 40,
+    description: 'Read to learn Fire.',
+    use: { learnSpell: 'fire' },
+  },
   galeTome: {
     id: 'galeTome',
     name: 'Tome of Gale',

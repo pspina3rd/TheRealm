@@ -182,7 +182,7 @@ describe('grantRewards', () => {
       { kind: 'gil', amount: 5 },
       { kind: 'item', itemId: 'ether', count: 2 },
       { kind: 'spell', spellId: 'meteor' },
-      { kind: 'spell', spellId: 'fire' },
+      { kind: 'spell', spellId: 'cure' },
       { kind: 'flag', flag: 'test' },
       { kind: 'shop', shopId: 'brightwaterInn' },
     ]);
@@ -321,7 +321,7 @@ describe('save migration from version 1 (MP)', () => {
     const data = JSON.parse(serialize(newGame()));
     const hero = Object.fromEntries(
       Object.entries(data.hero).filter(
-        ([key]) => !['mana', 'manaCap', 'attunement', 'accessoryId'].includes(key),
+        ([key]) => !['mana', 'manaCap', 'titleElement', 'accessoryId'].includes(key),
       ),
     );
     return { ...data, version: 1, hero: { ...hero, mp: 5, maxMp: 15 } };
@@ -332,7 +332,7 @@ describe('save migration from version 1 (MP)', () => {
     expect(hero.manaCap).toBe(15);
     expect(hero.mana.fire).toBe(5);
     expect(hero.mana.wind).toBe(5);
-    expect(hero.attunement).toBeNull();
+    expect(hero.titleElement).toBe('wind');
     expect(hero.accessoryId).toBeNull();
     expect('mp' in hero).toBe(false);
   });
@@ -346,12 +346,34 @@ describe('save migration from version 1 (MP)', () => {
     expect(hero.mana.earth).toBe(12);
   });
 
-  it('keeps version 2 saves as they are', () => {
+  it('keeps current saves as they are', () => {
     const state = newGame('mage');
-    state.hero.attunement = 'arcane';
     state.hero.mana.fire = 3;
     const hero = deserialize(serialize(state))!.hero;
     expect(hero).toEqual(state.hero);
+  });
+});
+
+describe('save migration from version 2 (attunement)', () => {
+  const v2 = (attunement: string | null) => {
+    const data = JSON.parse(serialize(newGame('knight')));
+    delete data.hero.titleElement;
+    return { ...data, version: 2, hero: { ...data.hero, attunement, spells: ['fire', 'cure'] } };
+  };
+
+  it('drops attunement, keeps its title and teaches the class spell', () => {
+    const hero = deserialize(JSON.stringify(v2('fire')))!.hero;
+    expect('attunement' in hero).toBe(false);
+    expect(hero.titleElement).toBe('fire');
+    expect(hero.spells).toEqual(['quake', 'fire', 'cure']);
+  });
+
+  it('titles an unattuned hero by their class', () => {
+    expect(deserialize(JSON.stringify(v2(null)))!.hero.titleElement).toBe('earth');
+  });
+
+  it('rejects unknown versions', () => {
+    expect(deserialize(JSON.stringify({ ...v2(null), version: 99 }))).toBeNull();
   });
 });
 
@@ -369,7 +391,8 @@ describe('shopping for charms and tomes', () => {
   it('refuses tomes for spells already known or already carried', () => {
     const state = newGame();
     state.hero.gil = 500;
-    buy(state, 'galeTome', 1);
+    buy(state, 'fireTome', 1);
+    expect(cannotBuyReason(state, ITEMS.fireTome!, 1)).toBe('You already have this spell.');
     expect(cannotBuyReason(state, ITEMS.galeTome!, 1)).toBe('You already have this spell.');
     state.hero.spells.push('shadow');
     expect(cannotBuyReason(state, ITEMS.shadowTome!, 1)).toBe('You already have this spell.');

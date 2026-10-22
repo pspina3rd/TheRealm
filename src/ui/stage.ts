@@ -1,5 +1,6 @@
 import type { Battle } from '../battle/battle';
 import type { CombatChallenge } from '../battle/combat';
+import { resistancesOf, weaknessesOf } from '../battle/elemental';
 import type { Objective } from '../battle/types';
 import type { Atlas } from './art/atlas';
 import { CREATURES, battleFrame, mapFrame, type CreatureId } from './art/creatures';
@@ -183,8 +184,8 @@ export class Stage {
     let ix = x;
     const iconY = y + h + 8;
     for (const [list, mark] of [
-      [combat.enemy.weak, 'weak'],
-      [combat.enemy.resist, 'resist'],
+      [weaknessesOf(combat.enemy), 'weak'],
+      [resistancesOf(combat.enemy), 'resist'],
     ] as const) {
       if (list.length === 0) continue;
       ctx.fillStyle = '#10132acc';

@@ -635,6 +635,7 @@ export const ITEM_ICONS: Readonly<Record<string, IconSpec>> = {
   herb: { icon: 'herb' },
   ether: { icon: 'potion' },
   phoenixFeather: { icon: 'feather' },
+  fireTome: { icon: 'book', badge: 'fire' },
   galeTome: { icon: 'book', badge: 'wind' },
   shadowTome: { icon: 'book', badge: 'arcane' },
   blizzardTome: { icon: 'book', badge: 'water' },

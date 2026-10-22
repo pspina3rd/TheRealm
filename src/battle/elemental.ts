@@ -5,17 +5,18 @@
 import type { CellTally } from '../core/board';
 import {
   ELEMENTS,
+  STRONG_AGAINST,
   dominantElement,
   elementsOf,
+  weakTo,
   type Element,
   type ElementCounts,
 } from '../core/elements';
 import type { EnemyDef } from '../data/types';
+import { surgeMultiplier } from '../game/alignment';
 
 /** A line needs at least this many crystals of one element to trigger its effect. */
 export const SURGE_THRESHOLD = 3;
-/** Effects of the hero's attuned element are this much stronger. */
-export const ATTUNED_SURGE_BONUS = 1.5;
 /** Damage multipliers against weak and resistant enemies. */
 export const WEAK_MULTIPLIER = 1.5;
 export const RESIST_MULTIPLIER = 0.5;
@@ -37,7 +38,7 @@ export const SURGE_DESCRIPTIONS: Readonly<Record<Element, string>> = {
 /** The effect a single cleared line triggers. */
 export interface LineSurge {
   readonly element: Element;
-  /** Crystals of that element in the line, boosted by attunement. */
+  /** Crystals of that element in the line, boosted by the hero's alignment in it. */
   readonly power: number;
 }
 
@@ -45,17 +46,34 @@ export interface LineSurge {
  * The surge for one cleared line: its strongest element, if it has at least
  * `SURGE_THRESHOLD` crystals. Purer lines give more power.
  */
-export function lineSurge(line: CellTally, attunement: Element | null): LineSurge | null {
+export function lineSurge(line: CellTally, alignment: Readonly<ElementCounts>): LineSurge | null {
   const top = dominantElement(elementsOf(line));
   if (!top || top.count < SURGE_THRESHOLD) return null;
-  const bonus = top.element === attunement ? ATTUNED_SURGE_BONUS : 1;
-  return { element: top.element, power: Math.floor(top.count * bonus) };
+  return {
+    element: top.element,
+    power: Math.floor(top.count * surgeMultiplier(alignment[top.element])),
+  };
+}
+
+/** Elements that hit this enemy harder: the ones strong against its element. */
+export function weaknessesOf(enemy: EnemyDef): Element[] {
+  return weakTo(enemy.element);
+}
+
+/**
+ * Elements that hit this enemy softer: its own, the two its element beats,
+ * and any extra resistance a boss has.
+ */
+export function resistancesOf(enemy: EnemyDef): Element[] {
+  const resists = new Set([enemy.element, ...STRONG_AGAINST[enemy.element]]);
+  for (const element of enemy.extraResist ?? []) resists.add(element);
+  return ELEMENTS.filter((element) => resists.has(element));
 }
 
 /** How hard an element hits this enemy. */
 export function elementMultiplier(enemy: EnemyDef, element: Element): number {
-  if (enemy.weak.includes(element)) return WEAK_MULTIPLIER;
-  if (enemy.resist.includes(element)) return RESIST_MULTIPLIER;
+  if (weaknessesOf(enemy).includes(element)) return WEAK_MULTIPLIER;
+  if (resistancesOf(enemy).includes(element)) return RESIST_MULTIPLIER;
   return 1;
 }
 
@@ -65,8 +83,9 @@ export function elementMultiplier(enemy: EnemyDef, element: Element): number {
  */
 export function crystalAffinity(enemy: EnemyDef, counts: Readonly<ElementCounts>): number {
   return ELEMENTS.reduce((sum, element) => {
-    if (enemy.weak.includes(element)) return sum + counts[element] * WEAK_CRYSTAL_BONUS;
-    if (enemy.resist.includes(element)) return sum - counts[element] * RESIST_CRYSTAL_PENALTY;
+    const multiplier = elementMultiplier(enemy, element);
+    if (multiplier > 1) return sum + counts[element] * WEAK_CRYSTAL_BONUS;
+    if (multiplier < 1) return sum - counts[element] * RESIST_CRYSTAL_PENALTY;
     return sum;
   }, 0);
 }

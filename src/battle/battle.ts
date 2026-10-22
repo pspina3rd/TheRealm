@@ -33,7 +33,7 @@ const MAX_EVENTS = 100;
 export const TAILWIND_SLOWDOWN = 1.6;
 
 export interface BattleOptions {
-  /** Copies of each piece per bag, from area, charm and attunement (see `pieceWeights`). */
+  /** Copies of each piece per bag, from area, charm and alignment (see `pieceWeights`). */
   readonly weights?: Readonly<Record<PieceName, number>>;
 }
 
