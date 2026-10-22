@@ -9,7 +9,22 @@ import { NPCS } from '../data/npcs';
 import type { ChallengeSpec } from '../data/types';
 import { describeSpec } from '../battle/describe';
 import { describeInteraction, resolveBattle } from '../game/encounter';
-import { cannotUseReason, equip, totalAttack, totalDefense, useItem } from '../game/hero';
+import { ELEMENTS, ELEMENT_NAMES, type Element } from '../core/elements';
+import { SURGE_DESCRIPTIONS } from '../battle/elemental';
+import { ATTUNEMENT_TITLES } from '../data/classes';
+import {
+  attune,
+  canAttune,
+  cannotUseReason,
+  equip,
+  heroTitle,
+  slotFor,
+  spellCost,
+  totalAttack,
+  totalDefense,
+  useItem,
+} from '../game/hero';
+import { pieceWeights } from '../game/pieceOdds';
 import { deleteSave, loadGame, saveGame, type KeyValueStore } from '../game/save';
 import { buy, cannotBuyReason, priceFor } from '../game/shop';
 import type { Direction, EntityDef } from '../world/map';
@@ -18,6 +33,7 @@ import { currentMap, newGame, travel, type GameState } from '../world/state';
 import { BattlePanel } from './battlePanel';
 import { Dialog } from './dialog';
 import { button, byId, el, listRow } from './dom';
+import { ELEMENT_HEX, ManaBars, costChips } from './elementsView';
 import type { Atlas } from './art/atlas';
 import { isCreatureId, mapFrame, type CreatureId } from './art/creatures';
 import { SPELL_EFFECTS } from './art/vfx';
@@ -67,6 +83,7 @@ export class App {
   private readonly atlas: Atlas;
   private readonly world: WorldView;
   private readonly portrait: Portrait;
+  private readonly hudMana = new ManaBars(byId('hud-mana'));
   /** False until a save is loaded or a class is chosen. */
   private started: boolean;
   private readonly panel = new BattlePanel();
@@ -190,7 +207,8 @@ export class App {
 
   private startBattle(entity: EntityDef, spec: ChallengeSpec): void {
     this.dialog.close();
-    const battle = new Battle(spec, this.state.hero, this.rng);
+    const weights = pieceWeights(currentMap(this.state), this.state.hero);
+    const battle = new Battle(spec, this.state.hero, this.rng, { weights });
     this.active = { battle, entity, finished: false, lastEnemyHp: battle.combat?.enemyHp ?? 0 };
     this.portrait.show(portraitFor(entity));
     this.showView('battle');
@@ -211,7 +229,9 @@ export class App {
           label: 'Continue',
           onClick: () => {
             this.endBattle();
-            if (resolution.shopId) this.openShop(resolution.shopId, resolution.priceMultiplier);
+            if (canAttune(this.state.hero)) this.chooseAttunement();
+            else if (resolution.shopId)
+              this.openShop(resolution.shopId, resolution.priceMultiplier);
           },
         },
       ],
@@ -301,7 +321,7 @@ export class App {
       const item = ITEMS[id];
       if (!item) return el('div');
       const controls: HTMLButtonElement[] = [];
-      if (item.kind === 'weapon' || item.kind === 'armor') {
+      if (slotFor(item)) {
         controls.push(
           button('Equip', () => {
             equip(hero, id);
@@ -320,26 +340,32 @@ export class App {
       return listRow(`${item.name} ×${count}`, item.description, ...controls);
     });
 
+    const gear = (id: string | null): string => (id ? (ITEMS[id]?.name ?? id) : 'none');
     this.dialog.show({
-      title: `${hero.name} · Level ${hero.level}`,
+      title: `${hero.name} · ${heroTitle(hero)} · Level ${hero.level}`,
       body: [
         el('p', {
-          text: `Attack ${totalAttack(hero)} · Defence ${totalDefense(hero)} · Weapon: ${
-            hero.weaponId ? ITEMS[hero.weaponId]?.name : 'none'
-          } · Armour: ${hero.armorId ? ITEMS[hero.armorId]?.name : 'none'}`,
+          text: `Attack ${totalAttack(hero)} · Defence ${totalDefense(hero)} · Mana ${hero.manaCap} per element`,
+        }),
+        el('p', {
+          className: 'muted',
+          text: `Weapon: ${gear(hero.weaponId)} · Armour: ${gear(hero.armorId)} · Charm: ${gear(hero.accessoryId)} · Attunement: ${
+            hero.attunement ? ELEMENT_NAMES[hero.attunement] : 'none yet'
+          }`,
         }),
         el('h2', { text: 'Items' }),
         ...(items.length ? items : [el('p', { className: 'muted', text: 'Your bag is empty.' })]),
         el('h2', { text: 'Spells' }),
         ...hero.spells.map((id) => {
           const spell = SPELLS[id];
-          return listRow(
-            spell?.name ?? id,
-            `${spell?.mpCost ?? 0} MP · ${spell?.description ?? ''}`,
-          );
+          if (!spell) return el('div');
+          return listRow(spell.name, spell.description, costChips(spellCost(hero, spell)));
         }),
       ],
       actions: [
+        ...(canAttune(hero)
+          ? [{ label: 'Choose element', onClick: () => this.chooseAttunement() }]
+          : []),
         { label: 'New Game', onClick: () => this.confirmNewGame() },
         {
           label: 'Save',
@@ -377,7 +403,7 @@ export class App {
       }
       const card = button('', () => this.startNewGame(cls.id));
       card.className = 'class-card';
-      const { hp, mp, atk, def } = cls.base;
+      const { hp, mana, atk, def } = cls.base;
       card.append(
         preview,
         el(
@@ -385,7 +411,9 @@ export class App {
           {},
           el('b', { text: `${cls.name} · ${cls.heroName}` }),
           el('small', { text: cls.description }),
-          el('small', { text: `HP ${hp} · MP ${mp} · ATK ${atk} · DEF ${def} · ${cls.gil} gil` }),
+          el('small', {
+            text: `HP ${hp} · Mana ${mana} each · ATK ${atk} · DEF ${def} · ${cls.gil} gil`,
+          }),
         ),
       );
       return card;
@@ -410,16 +438,54 @@ export class App {
     this.say(`${this.state.hero.name}'s adventure begins in Mossvale.`);
   }
 
+  // ------------------------------------------------------ attunement ---
+
+  /** Offers the one-time elemental attunement (a level-up milestone). */
+  private chooseAttunement(): void {
+    const hero = this.state.hero;
+    const options = ELEMENTS.map((element: Element) => {
+      const swatch = el('span', { className: 'swatch' });
+      swatch.style.background = ELEMENT_HEX[element];
+      const option = button('', () => {
+        attune(hero, element);
+        this.save();
+        this.dialog.close();
+        this.say(`${hero.name} is now a ${heroTitle(hero)}!`);
+      });
+      option.append(
+        swatch,
+        el('b', {
+          text:
+            ATTUNEMENT_TITLES[element] === ELEMENT_NAMES[element]
+              ? ELEMENT_NAMES[element]
+              : `${ATTUNEMENT_TITLES[element]} (${ELEMENT_NAMES[element]})`,
+        }),
+        el('small', { text: SURGE_DESCRIPTIONS[element] }),
+      );
+      return option;
+    });
+    this.dialog.show({
+      title: 'Choose your element',
+      body: [
+        el('p', {
+          text: `${hero.name} has grown strong enough to attune to an element. Its line effects become 50% stronger, its spells cost 2 less of it, and its pieces fall more often. This choice is permanent.`,
+        }),
+        el('div', { className: 'attune-grid' }, ...options),
+      ],
+      actions: [{ label: 'Decide later', onClick: () => this.dialog.close() }],
+    });
+  }
+
   // ------------------------------------------------------------- HUD ---
 
   private renderHud(): void {
     const hero = this.state.hero;
     byId('hud-name').textContent = hero.name;
+    byId('hud-name').title = heroTitle(hero);
     byId('hud-level').textContent = `Lv ${hero.level}`;
     byId('hud-hp').textContent = `${hero.hp} / ${hero.maxHp}`;
     byId('hud-hp-bar').style.width = `${(100 * hero.hp) / hero.maxHp}%`;
-    byId('hud-mp').textContent = `${hero.mp} / ${hero.maxMp}`;
-    byId('hud-mp-bar').style.width = `${(100 * hero.mp) / hero.maxMp}%`;
+    this.hudMana.update(hero);
     byId('hud-gil').textContent = String(hero.gil);
     byId('hud-xp').textContent = `${hero.xp} / ${hero.nextXp}`;
     byId('hud-place').textContent = currentMap(this.state).name;

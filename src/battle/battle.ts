@@ -1,4 +1,6 @@
-import { Board, type LockResult } from '../core/board';
+import { BOARD_HEIGHT, BOARD_WIDTH, Board, type LockResult } from '../core/board';
+import { elementsOf } from '../core/elements';
+import type { PieceName } from '../core/pieces';
 import type { Rng } from '../core/rng';
 import {
   HARD_DROP_POINTS_PER_ROW,
@@ -8,7 +10,7 @@ import {
 } from '../core/scoring';
 import { ENEMIES } from '../data/enemies';
 import type { ChallengeSpec } from '../data/types';
-import type { Hero } from '../game/hero';
+import { addMana, type Hero } from '../game/hero';
 import { BarterChallenge } from './barter';
 import { CombatChallenge } from './combat';
 import { describeSpec } from './describe';
@@ -21,6 +23,13 @@ export type BattleAction = 'left' | 'right' | 'rotate' | 'softDrop' | 'hardDrop'
 
 /** Most recent events kept for the battle log. */
 const MAX_EVENTS = 50;
+/** Gravity interval multiplier under a tailwind (higher = slower). */
+export const TAILWIND_SLOWDOWN = 1.6;
+
+export interface BattleOptions {
+  /** Copies of each piece per bag, from area, charm and attunement (see `pieceWeights`). */
+  readonly weights?: Readonly<Record<PieceName, number>>;
+}
 
 /**
  * Runs one falling-block battle: owns the board, gravity, input and score,
@@ -37,16 +46,17 @@ export class Battle implements BattleContext {
   score = 0;
   lines = 0;
   hastePieces = 0;
+  slowPieces = 0;
   paused = false;
   /** Newest first. */
   readonly events: BattleEvent[] = [];
   private gravityTimer = 0;
 
-  constructor(spec: ChallengeSpec, hero: Hero, rng: Rng) {
+  constructor(spec: ChallengeSpec, hero: Hero, rng: Rng, options: BattleOptions = {}) {
     this.spec = spec;
     this.hero = hero;
     this.rng = rng;
-    this.board = new Board(rng);
+    this.board = new Board(rng, BOARD_WIDTH, BOARD_HEIGHT, options.weights);
     this.level = spec.kind === 'combat' ? (ENEMIES[spec.enemyId]?.level ?? 1) : 1;
     this.log(describeSpec(spec));
     this.challenge = createChallenge(this, spec);
@@ -69,7 +79,8 @@ export class Battle implements BattleContext {
   /** Milliseconds between gravity steps right now. */
   get gravityMs(): number {
     const base = gravityInterval(this.level);
-    return this.hastePieces > 0 ? base / 2 : base;
+    if (this.hastePieces > 0) return base / 2;
+    return this.slowPieces > 0 ? base * TAILWIND_SLOWDOWN : base;
   }
 
   log(text: string, tone: Tone = 'info'): void {
@@ -123,10 +134,16 @@ export class Battle implements BattleContext {
     return !this.paused && this.status === 'ongoing' && this.board.active !== null;
   }
 
+  /**
+   * Scores the lock, fills elemental mana from every cleared crystal (in any
+   * kind of battle), then lets the challenge apply its rules.
+   */
   private afterLock(result: LockResult): void {
     this.lines += result.linesCleared;
     this.score += lineClearPoints(result.linesCleared);
     if (this.hastePieces > 0) this.hastePieces--;
+    if (this.slowPieces > 0) this.slowPieces--;
+    addMana(this.hero, elementsOf(result.clearedCells));
     this.challenge.onLock(result);
   }
 }

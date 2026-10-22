@@ -1,7 +1,7 @@
 import { ITEMS } from '../data/items';
 import type { ItemDef } from '../data/types';
 import type { GameState } from '../world/state';
-import { addItem, applyItemEffect, equip } from './hero';
+import { addItem, applyItemEffect, equip, slotFor } from './hero';
 
 /** Price after a haggle multiplier, rounded and never below 1 gil. */
 export function priceFor(item: ItemDef, multiplier: number): number {
@@ -16,19 +16,23 @@ export function cannotBuyReason(
 ): string | null {
   const hero = state.hero;
   if (hero.gil < priceFor(item, multiplier)) return 'Not enough gil.';
-  if (item.kind === 'weapon' || item.kind === 'armor') {
-    const slot = item.kind === 'weapon' ? hero.weaponId : hero.armorId;
-    const owned = (slot === item.id ? 1 : 0) + (hero.items[item.id] ?? 0);
+  const slot = slotFor(item);
+  if (slot) {
+    const owned = (hero[slot] === item.id ? 1 : 0) + (hero.items[item.id] ?? 0);
     if (owned > 0) return 'You already own one.';
+  }
+  const spell = item.use?.learnSpell;
+  if (spell && (hero.spells.includes(spell) || (hero.items[item.id] ?? 0) > 0)) {
+    return 'You already have this spell.';
   }
   return null;
 }
 
 /**
  * Buys an item. Services (like an inn's rest) take effect immediately and a
- * rest also sets the respawn point; equipment is equipped straight away if
- * it is better than what the hero wears. Returns a message; throws if the
- * purchase isn't allowed.
+ * rest also sets the respawn point; weapons and armour are equipped straight
+ * away if better than what the hero wears, and a charm is put on if no
+ * charm is worn. Returns a message; throws if the purchase isn't allowed.
  */
 export function buy(state: GameState, itemId: string, multiplier: number): string {
   const item = ITEMS[itemId];
@@ -46,10 +50,15 @@ export function buy(state: GameState, itemId: string, multiplier: number): strin
   }
 
   addItem(hero, itemId);
-  if (item.kind === 'weapon' || item.kind === 'armor') {
-    const currentId = item.kind === 'weapon' ? hero.weaponId : hero.armorId;
+  const slot = slotFor(item);
+  if (slot) {
+    const currentId = hero[slot];
     const stat = (def: ItemDef | undefined): number => (def?.atk ?? 0) + (def?.def ?? 0);
-    if (stat(item) > stat(currentId ? ITEMS[currentId] : undefined)) {
+    const better =
+      slot === 'accessoryId'
+        ? !currentId
+        : stat(item) > stat(currentId ? ITEMS[currentId] : undefined);
+    if (better) {
       equip(hero, itemId);
       return `Bought and equipped ${item.name}. (−${price} gil)`;
     }

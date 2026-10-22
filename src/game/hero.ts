@@ -1,21 +1,32 @@
-import { CLASSES, DEFAULT_CLASS, type HeroClass } from '../data/classes';
+import { ELEMENTS, emptyCounts, type Element, type ElementCounts } from '../core/elements';
+import {
+  ATTUNEMENT_LEVEL,
+  ATTUNEMENT_TITLES,
+  CLASSES,
+  DEFAULT_CLASS,
+  type HeroClass,
+} from '../data/classes';
 import { ITEMS } from '../data/items';
 import { STARTING_SPELLS } from '../data/spells';
-import type { ItemDef } from '../data/types';
+import type { ElementAmounts, ItemDef, SpellDef } from '../data/types';
 
 /** The player character. Plain data so it can be saved as JSON. */
 export interface Hero {
   name: string;
   /** Key into `CLASSES`; decides starting stats, growth and sprite. */
   classId: string;
+  /** Element chosen at `ATTUNEMENT_LEVEL`, or null before then. */
+  attunement: Element | null;
   level: number;
   xp: number;
   /** XP needed to reach the next level. */
   nextXp: number;
   hp: number;
   maxHp: number;
-  mp: number;
-  maxMp: number;
+  /** Seven elemental mana pools, filled by clearing crystals of each element. */
+  mana: ElementCounts;
+  /** Capacity of each mana pool. */
+  manaCap: number;
   /** Base attack added to every line-clear strike (before weapon bonus). */
   atk: number;
   /** Base defence subtracted from every enemy hit (before armour bonus). */
@@ -23,10 +34,15 @@ export interface Hero {
   gil: number;
   weaponId: string | null;
   armorId: string | null;
+  /** A charm that tilts which pieces fall. */
+  accessoryId: string | null;
   /** Item id → count. Zero-count entries are removed. */
   items: Record<string, number>;
   spells: string[];
 }
+
+/** Mana discount on the attuned element's share of a spell's cost. */
+export const ATTUNED_DISCOUNT = 2;
 
 /** The hero's class, falling back to the default for unknown ids (e.g. old saves). */
 export function heroClass(hero: Pick<Hero, 'classId'>): HeroClass {
@@ -38,21 +54,29 @@ export function createHero(classId = DEFAULT_CLASS, name?: string): Hero {
   return {
     name: name ?? cls.heroName,
     classId: cls.id,
+    attunement: null,
     level: 1,
     xp: 0,
     nextXp: 30,
     hp: cls.base.hp,
     maxHp: cls.base.hp,
-    mp: cls.base.mp,
-    maxMp: cls.base.mp,
+    mana: emptyCounts(cls.base.mana),
+    manaCap: cls.base.mana,
     atk: cls.base.atk,
     def: cls.base.def,
     gil: cls.gil,
     weaponId: null,
     armorId: null,
+    accessoryId: null,
     items: { herb: 2, ether: 1 },
     spells: [...STARTING_SPELLS],
   };
+}
+
+/** "Knight", or "Stone Knight" once attuned to earth. */
+export function heroTitle(hero: Hero): string {
+  const cls = heroClass(hero).name;
+  return hero.attunement ? `${ATTUNEMENT_TITLES[hero.attunement]} ${cls}` : cls;
 }
 
 /** Attack including the equipped weapon. */
@@ -66,8 +90,8 @@ export function totalDefense(hero: Hero): number {
 }
 
 /**
- * Adds XP and applies any level-ups (each restores HP/MP and raises stats by
- * the class's growth). Returns the number of levels gained.
+ * Adds XP and applies any level-ups (each restores HP and mana and raises
+ * stats by the class's growth). Returns the number of levels gained.
  */
 export function gainXp(hero: Hero, amount: number): number {
   const growth = heroClass(hero).growth;
@@ -78,11 +102,11 @@ export function gainXp(hero: Hero, amount: number): number {
     hero.level++;
     hero.nextXp = Math.floor(hero.nextXp * 1.45);
     hero.maxHp += growth.hp;
-    hero.maxMp += growth.mp;
+    hero.manaCap += growth.mana;
     hero.atk += growth.atk;
     hero.def += growth.def;
     hero.hp = hero.maxHp;
-    hero.mp = hero.maxMp;
+    fillMana(hero);
     gained++;
   }
   return gained;
@@ -95,19 +119,81 @@ export function heal(hero: Hero, amount: number): number {
   return restored;
 }
 
-/** Restores up to `amount` MP. Returns the MP actually restored. */
-export function restoreMp(hero: Hero, amount: number): number {
-  const restored = Math.min(amount, hero.maxMp - hero.mp);
-  hero.mp += restored;
-  return restored;
-}
-
 /** Applies damage (never below 0 HP). Returns the damage actually taken. */
 export function takeDamage(hero: Hero, amount: number): number {
   const taken = Math.min(Math.max(0, amount), hero.hp);
   hero.hp -= taken;
   return taken;
 }
+
+// ------------------------------------------------------------------ mana ---
+
+/** Adds mana per element, capped. Returns the total actually added. */
+export function addMana(hero: Hero, amounts: ElementAmounts): number {
+  let added = 0;
+  for (const element of ELEMENTS) {
+    const gain = Math.min(amounts[element] ?? 0, hero.manaCap - hero.mana[element]);
+    if (gain > 0) {
+      hero.mana[element] += gain;
+      added += gain;
+    }
+  }
+  return added;
+}
+
+/** Adds `amount` to every pool. Returns the total actually added. */
+export function addManaToAll(hero: Hero, amount: number): number {
+  return addMana(hero, emptyCounts(amount));
+}
+
+export function fillMana(hero: Hero): void {
+  hero.mana = emptyCounts(hero.manaCap);
+}
+
+export function manaFull(hero: Hero): boolean {
+  return ELEMENTS.every((e) => hero.mana[e] >= hero.manaCap);
+}
+
+/** A spell's cost for this hero, with the attunement discount applied. */
+export function spellCost(hero: Hero, spell: SpellDef): ElementAmounts {
+  const cost: Partial<Record<Element, number>> = { ...spell.cost };
+  const attuned = hero.attunement;
+  if (attuned && cost[attuned]) cost[attuned] = Math.max(1, cost[attuned] - ATTUNED_DISCOUNT);
+  return cost;
+}
+
+export function canAfford(hero: Hero, cost: ElementAmounts): boolean {
+  return ELEMENTS.every((e) => hero.mana[e] >= (cost[e] ?? 0));
+}
+
+/** Spends mana. Returns false (and spends nothing) if any pool is short. */
+export function spendMana(hero: Hero, cost: ElementAmounts): boolean {
+  if (!canAfford(hero, cost)) return false;
+  for (const e of ELEMENTS) hero.mana[e] -= cost[e] ?? 0;
+  return true;
+}
+
+/** Removes up to `amount` from the fullest pool. Returns which pool and how much. */
+export function drainMana(hero: Hero, amount: number): { element: Element; drained: number } {
+  const element = ELEMENTS.reduce((best, e) => (hero.mana[e] > hero.mana[best] ? e : best));
+  const drained = Math.min(amount, hero.mana[element]);
+  hero.mana[element] -= drained;
+  return { element, drained };
+}
+
+// ------------------------------------------------------------ attunement ---
+
+export function canAttune(hero: Hero): boolean {
+  return hero.attunement === null && hero.level >= ATTUNEMENT_LEVEL;
+}
+
+/** Chooses the hero's element for good. Throws if not yet allowed. */
+export function attune(hero: Hero, element: Element): void {
+  if (!canAttune(hero)) throw new Error(`Attunement opens at level ${ATTUNEMENT_LEVEL}, once.`);
+  hero.attunement = element;
+}
+
+// ----------------------------------------------------------------- items ---
 
 export function itemCount(hero: Hero, itemId: string): number {
   return hero.items[itemId] ?? 0;
@@ -141,10 +227,8 @@ export function cannotUseReason(hero: Hero, item: ItemDef): string | null {
   if (!use) return `${item.name} can't be used directly.`;
   if (itemCount(hero, item.id) < 1) return `You have no ${item.name}.`;
   if (use.learnSpell && hero.spells.includes(use.learnSpell)) return 'You already know that spell.';
-  const healsOnly = use.heal && !use.mp;
-  const mpOnly = use.mp && !use.heal;
-  if (healsOnly && hero.hp >= hero.maxHp) return 'HP is already full.';
-  if (mpOnly && hero.mp >= hero.maxMp) return 'MP is already full.';
+  if (use.heal && !use.mana && hero.hp >= hero.maxHp) return 'HP is already full.';
+  if (use.mana && !use.heal && manaFull(hero)) return 'Mana is already full.';
   return null;
 }
 
@@ -157,11 +241,11 @@ export function applyItemEffect(hero: Hero, item: ItemDef): string {
   const parts: string[] = [];
   if (use.rest) {
     hero.hp = hero.maxHp;
-    hero.mp = hero.maxMp;
-    parts.push('HP and MP fully restored');
+    fillMana(hero);
+    parts.push('HP and mana fully restored');
   }
   if (use.heal) parts.push(`restored ${heal(hero, use.heal)} HP`);
-  if (use.mp) parts.push(`restored ${restoreMp(hero, use.mp)} MP`);
+  if (use.mana) parts.push(`restored ${addManaToAll(hero, use.mana)} mana`);
   if (use.learnSpell && learnSpell(hero, use.learnSpell)) parts.push(`learned a new spell`);
   return parts.length ? `${item.name}: ${parts.join(', ')}.` : `${item.name} had no effect.`;
 }
@@ -176,14 +260,26 @@ export function useItem(hero: Hero, itemId: string): string {
   return applyItemEffect(hero, item);
 }
 
-/** Equips a weapon or armour from the inventory, returning the old one to it. */
+/** The equipment slot an item goes in, or null if it isn't equipment. */
+export function slotFor(item: ItemDef): 'weaponId' | 'armorId' | 'accessoryId' | null {
+  switch (item.kind) {
+    case 'weapon':
+      return 'weaponId';
+    case 'armor':
+      return 'armorId';
+    case 'accessory':
+      return 'accessoryId';
+    default:
+      return null;
+  }
+}
+
+/** Equips a weapon, armour or charm from the inventory, returning the old one to it. */
 export function equip(hero: Hero, itemId: string): void {
   const item = ITEMS[itemId];
-  if (!item || (item.kind !== 'weapon' && item.kind !== 'armor')) {
-    throw new Error(`${itemId} is not equipment`);
-  }
+  const slot = item && slotFor(item);
+  if (!item || !slot) throw new Error(`${itemId} is not equipment`);
   if (!removeItem(hero, itemId)) throw new Error(`You have no ${item.name}`);
-  const slot = item.kind === 'weapon' ? 'weaponId' : 'armorId';
   const previous = hero[slot];
   if (previous) addItem(hero, previous);
   hero[slot] = itemId;

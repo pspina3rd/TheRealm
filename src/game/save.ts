@@ -1,3 +1,4 @@
+import { emptyCounts } from '../core/elements';
 import { DEFAULT_CLASS } from '../data/classes';
 import { MAPS } from '../data/maps';
 import type { Hero } from './hero';
@@ -5,7 +6,8 @@ import type { Direction, Location } from '../world/map';
 import type { GameState } from '../world/state';
 
 export const SAVE_KEY = 'the-realm/save';
-export const SAVE_VERSION = 1;
+/** Version 2 replaced MP with elemental mana and added attunement and charms. */
+export const SAVE_VERSION = 2;
 
 /** JSON-friendly form of `GameState` (sets become arrays). */
 interface SaveData {
@@ -49,7 +51,7 @@ export function deserialize(json: string): GameState | null {
     return null;
   }
   if (
-    data.version !== SAVE_VERSION ||
+    (data.version !== SAVE_VERSION && data.version !== 1) ||
     !data.hero ||
     typeof data.mapId !== 'string' ||
     !MAPS[data.mapId] ||
@@ -61,8 +63,7 @@ export function deserialize(json: string): GameState | null {
     return null;
   }
   return {
-    // Saves from before hero classes default to the original (ranger) stats.
-    hero: { ...data.hero, classId: data.hero.classId ?? DEFAULT_CLASS },
+    hero: migrateHero(data.hero),
     mapId: data.mapId,
     x: data.x,
     y: data.y,
@@ -98,4 +99,24 @@ export function deleteSave(store: KeyValueStore): void {
   } catch {
     // Nothing to delete if storage is unavailable.
   }
+}
+
+/** A hero as stored by any save version. */
+type StoredHero = Partial<Hero> & { mp?: number; maxMp?: number };
+
+/**
+ * Brings a stored hero up to date: saves from before hero classes get the
+ * default class, and version 1 MP becomes a full set of elemental pools.
+ */
+function migrateHero(stored: StoredHero): Hero {
+  const { mp, maxMp, ...rest } = stored;
+  const manaCap = rest.manaCap ?? maxMp ?? 12;
+  return {
+    ...(rest as Hero),
+    classId: rest.classId ?? DEFAULT_CLASS,
+    attunement: rest.attunement ?? null,
+    accessoryId: rest.accessoryId ?? null,
+    manaCap,
+    mana: rest.mana ?? emptyCounts(Math.min(mp ?? manaCap, manaCap)),
+  };
 }

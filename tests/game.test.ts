@@ -291,3 +291,63 @@ describe('save compatibility', () => {
     expect(deserialize(JSON.stringify(data))?.hero.classId).toBe('ranger');
   });
 });
+
+describe('save migration from version 1 (MP)', () => {
+  const v1 = () => {
+    const data = JSON.parse(serialize(newGame()));
+    const hero = Object.fromEntries(
+      Object.entries(data.hero).filter(
+        ([key]) => !['mana', 'manaCap', 'attunement', 'accessoryId'].includes(key),
+      ),
+    );
+    return { ...data, version: 1, hero: { ...hero, mp: 5, maxMp: 15 } };
+  };
+
+  it('turns MP into elemental pools and adds the new fields', () => {
+    const hero = deserialize(JSON.stringify(v1()))!.hero;
+    expect(hero.manaCap).toBe(15);
+    expect(hero.mana.fire).toBe(5);
+    expect(hero.mana.wind).toBe(5);
+    expect(hero.attunement).toBeNull();
+    expect(hero.accessoryId).toBeNull();
+    expect('mp' in hero).toBe(false);
+  });
+
+  it('uses defaults when MP is missing', () => {
+    const data = v1();
+    delete data.hero.mp;
+    delete data.hero.maxMp;
+    const hero = deserialize(JSON.stringify(data))!.hero;
+    expect(hero.manaCap).toBe(12);
+    expect(hero.mana.earth).toBe(12);
+  });
+
+  it('keeps version 2 saves as they are', () => {
+    const state = newGame('mage');
+    state.hero.attunement = 'arcane';
+    state.hero.mana.fire = 3;
+    const hero = deserialize(serialize(state))!.hero;
+    expect(hero).toEqual(state.hero);
+  });
+});
+
+describe('shopping for charms and tomes', () => {
+  it('puts on a charm if none is worn, but does not swap one out', () => {
+    const state = newGame();
+    state.hero.gil = 500;
+    expect(buy(state, 'emberCharm', 1)).toContain('equipped');
+    expect(state.hero.accessoryId).toBe('emberCharm');
+    expect(buy(state, 'tideCharm', 1)).not.toContain('equipped');
+    expect(state.hero.accessoryId).toBe('emberCharm');
+    expect(cannotBuyReason(state, ITEMS.emberCharm!, 1)).toBe('You already own one.');
+  });
+
+  it('refuses tomes for spells already known or already carried', () => {
+    const state = newGame();
+    state.hero.gil = 500;
+    buy(state, 'galeTome', 1);
+    expect(cannotBuyReason(state, ITEMS.galeTome!, 1)).toBe('You already have this spell.');
+    state.hero.spells.push('shadow');
+    expect(cannotBuyReason(state, ITEMS.shadowTome!, 1)).toBe('You already have this spell.');
+  });
+});

@@ -14,10 +14,7 @@
           <small>HP <span id="hud-hp">40 / 40</span></small>
           <div class="bar"><span id="hud-hp-bar"></span></div>
         </div>
-        <div class="hud-bar">
-          <small>MP <span id="hud-mp">12 / 12</span></small>
-          <div class="bar mp"><span id="hud-mp-bar"></span></div>
-        </div>
+        <div id="hud-mana" aria-label="Elemental mana"></div>
         <div class="hud-stat"><small>Gil</small><b id="hud-gil">25</b></div>
         <div class="hud-stat"><small>XP</small><b id="hud-xp">0 / 30</b></div>
         <div class="hud-stat hud-place"><small>Location</small><b id="hud-place">Mossvale</b></div>
@@ -48,11 +45,21 @@
             <canvas id="next-canvas" width="120" height="60" aria-hidden="true"></canvas>
           </div>
           <div class="panel" id="combat-panel">
+            <h2>Mana</h2>
+            <div id="battle-mana"></div>
             <h2>Magic</h2>
             <div id="spell-list" class="grid-2"></div>
             <h2>Items</h2>
             <div id="battle-items" class="grid-2"></div>
           </div>
+          <details class="panel">
+            <summary>Elements: what each colour does</summary>
+            <p class="muted">
+              Cleared crystals fill their element's mana. Each cleared line triggers its strongest
+              element (3+ crystals):
+            </p>
+            <div id="element-legend"></div>
+          </details>
           <div class="panel">
             <h2>Chronicle</h2>
             <div id="battle-log" class="log" aria-live="polite"></div>

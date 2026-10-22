@@ -1,3 +1,4 @@
+import type { Element } from '../core/elements';
 import { tileFor, type TileDef } from './tiles';
 
 export type Direction = 'up' | 'down' | 'left' | 'right';
@@ -70,6 +71,11 @@ export interface MapDef {
   readonly warps: readonly Warp[];
   readonly entities: readonly EntityDef[];
   readonly decor?: readonly DecorDef[];
+  /**
+   * Tilts which pieces fall in battles here: extra (or fewer) copies of each
+   * element's piece per bag. Charms and attunement can tilt it back.
+   */
+  readonly pieceBias?: Readonly<Partial<Record<Element, number>>>;
 }
 
 export function mapWidth(map: MapDef): number {

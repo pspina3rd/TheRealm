@@ -10,6 +10,10 @@ import {
 import type { Rng } from './rng';
 
 export const BOARD_WIDTH = 10;
+/** A standard 7-bag: one of each shape. */
+export const EVEN_WEIGHTS: Readonly<Record<PieceName, number>> = Object.fromEntries(
+  PIECE_NAMES.map((name) => [name, 1]),
+) as Record<PieceName, number>;
 export const BOARD_HEIGHT = 20;
 
 /**
@@ -32,7 +36,10 @@ export type CellTally = Partial<Record<Exclude<Cell, null>, number>>;
 /** What happened when the active piece locked into the grid. */
 export interface LockResult {
   readonly linesCleared: number;
+  /** Everything cleared, across all lines. */
   readonly clearedCells: CellTally;
+  /** What each cleared line contained, top to bottom. */
+  readonly lines: readonly CellTally[];
   /** True when the piece locked above the top or no new piece fits. */
   readonly toppedOut: boolean;
 }
@@ -51,12 +58,23 @@ export class Board {
   toppedOut = false;
 
   private readonly rng: Rng;
+  private readonly weights: Readonly<Record<PieceName, number>>;
   private bag: PieceName[] = [];
   /** A fixed piece sequence (used by puzzles); when set, it replaces the random bag. */
   private fixedQueue: PieceName[] | null = null;
 
-  constructor(rng: Rng, width = BOARD_WIDTH, height = BOARD_HEIGHT) {
+  /**
+   * @param weights copies of each shape per shuffled bag (default 1 each, a
+   *   standard 7-bag). Higher weights make a shape, and its element, more common.
+   */
+  constructor(
+    rng: Rng,
+    width = BOARD_WIDTH,
+    height = BOARD_HEIGHT,
+    weights: Readonly<Record<PieceName, number>> = EVEN_WEIGHTS,
+  ) {
     this.rng = rng;
+    this.weights = weights;
     this.width = width;
     this.height = height;
     this.grid = Board.emptyGrid(width, height);
@@ -99,8 +117,16 @@ export class Board {
   /** The next pieces to spawn, without consuming them. */
   preview(count: number): PieceName[] {
     if (this.fixedQueue) return this.fixedQueue.slice(0, count);
-    while (this.bag.length < count) this.bag.push(...this.rng.shuffle(PIECE_NAMES));
+    while (this.bag.length < count) this.bag.push(...this.rng.shuffle(this.fillBag()));
     return this.bag.slice(0, count);
+  }
+
+  /** One bag's worth of pieces before shuffling. */
+  private fillBag(): PieceName[] {
+    const bag = PIECE_NAMES.flatMap((name) =>
+      Array<PieceName>(Math.max(0, this.weights[name])).fill(name),
+    );
+    return bag.length > 0 ? bag : [...PIECE_NAMES];
   }
 
   /** Remaining fixed pieces, or `Infinity` when pieces are random. */
@@ -201,7 +227,7 @@ export class Board {
   /** Writes the active piece into the grid, clears full lines and spawns the next piece. */
   lock(): LockResult {
     const piece = this.active;
-    if (!piece) return { linesCleared: 0, clearedCells: {}, toppedOut: this.toppedOut };
+    if (!piece) return { linesCleared: 0, clearedCells: {}, lines: [], toppedOut: this.toppedOut };
 
     for (const [cx, cy] of piece.cells) {
       const y = piece.y + cy;
@@ -213,7 +239,7 @@ export class Board {
 
     const { lines, tally } = this.clearFullLines();
     if (!this.toppedOut) this.spawn();
-    return { linesCleared: lines, clearedCells: tally, toppedOut: this.toppedOut };
+    return { linesCleared: lines.length, clearedCells: tally, lines, toppedOut: this.toppedOut };
   }
 
   /**
@@ -256,21 +282,26 @@ export class Board {
     return this.grid.reduce((sum, row) => sum + row.filter((c) => c !== null).length, 0);
   }
 
-  private clearFullLines(): { lines: number; tally: CellTally } {
+  private clearFullLines(): { lines: CellTally[]; tally: CellTally } {
     const tally: CellTally = {};
+    const lines: CellTally[] = [];
     const kept = this.grid.filter((row) => {
       const full = row.every((cell) => cell !== null);
-      if (full) tallyRow(row, tally);
+      if (full) {
+        tallyRow(row, tally);
+        lines.push(tallyRow(row, {}));
+      }
       return !full;
     });
-    const lines = this.height - kept.length;
-    this.grid = [...Board.emptyGrid(this.width, lines), ...kept];
+    this.grid = [...Board.emptyGrid(this.width, lines.length), ...kept];
     return { lines, tally };
   }
 }
 
-function tallyRow(row: readonly Cell[], tally: CellTally): void {
+/** Adds a row's cells to `tally` and returns it. */
+function tallyRow(row: readonly Cell[], tally: CellTally): CellTally {
   for (const cell of row) {
     if (cell !== null) tally[cell] = (tally[cell] ?? 0) + 1;
   }
+  return tally;
 }

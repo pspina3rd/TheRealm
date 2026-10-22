@@ -42,9 +42,27 @@ the menu.
 | Class  | Strengths                                 |
 | ------ | ----------------------------------------- |
 | Ranger | Balanced; the original stats              |
-| Knight | Most HP and defence, least MP             |
-| Mage   | Most MP and MP growth, fragile            |
+| Knight | Most HP and defence, smallest mana pools  |
+| Mage   | Largest mana pools and growth, fragile    |
 | Rogue  | Highest attack growth, starts with 60 gil |
+
+### Elements and magic
+
+Every piece has an element, shown by its colour: red fire, blue water,
+gold lightning, green nature, orange earth, violet arcane and cyan wind.
+
+- Each cleared crystal adds 1 mana to its element's pool. Spells cost
+  specific elements (Fire costs fire mana; Meteor costs fire, earth and
+  arcane).
+- Each cleared line triggers its strongest element: fire burns, water
+  chills, lightning chains, nature heals, earth wards, arcane refills mana
+  and wind slows your pieces.
+- Enemies are weak to some elements and resist others.
+- Areas tilt which pieces fall; charms and your level-3 elemental
+  attunement tilt them back.
+
+The battle screen has a colour legend. Full rules and numbers are in
+[docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 
 ### The adventure so far
 

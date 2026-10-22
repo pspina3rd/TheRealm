@@ -2,7 +2,11 @@
  * Shared data definitions. Everything under `src/data` is plain, serialisable
  * content so new enemies, NPCs and maps can be added without touching logic.
  */
+import type { Element } from '../core/elements';
 import type { CrystalColor, PieceName } from '../core/pieces';
+
+/** An amount per element, e.g. a spell's mana cost. */
+export type ElementAmounts = Readonly<Partial<Record<Element, number>>>;
 
 // ---------------------------------------------------------------- spells ---
 
@@ -14,12 +18,19 @@ export type SpellEffect =
   /** Remove rows from the bottom of the board. */
   | { readonly kind: 'clearRows'; readonly rows: number }
   /** Damage the enemy and delay its next action by `pieces`. */
-  | { readonly kind: 'freeze'; readonly power: number; readonly pieces: number };
+  | { readonly kind: 'freeze'; readonly power: number; readonly pieces: number }
+  /** Damage the enemy and slow your falling pieces for `pieces` pieces. */
+  | { readonly kind: 'tailwind'; readonly power: number; readonly pieces: number }
+  /** Damage the enemy and heal half the damage dealt. */
+  | { readonly kind: 'drain'; readonly power: number };
 
 export interface SpellDef {
   readonly id: string;
   readonly name: string;
-  readonly mpCost: number;
+  /** The element that decides weakness and resistance (and attunement discounts). */
+  readonly element: Element;
+  /** Mana spent from each elemental pool. */
+  readonly cost: ElementAmounts;
   readonly description: string;
   readonly effect: SpellEffect;
 }
@@ -36,8 +47,8 @@ export type EnemyMove =
   | { readonly kind: 'haste'; readonly name: string; readonly pieces: number }
   /** Restores the enemy's HP. */
   | { readonly kind: 'heal'; readonly name: string; readonly amount: number }
-  /** Burns the hero's MP. */
-  | { readonly kind: 'drain'; readonly name: string; readonly mp: number };
+  /** Burns mana from the hero's fullest pool. */
+  | { readonly kind: 'drain'; readonly name: string; readonly mana: number };
 
 export interface Drop {
   readonly itemId: string;
@@ -53,8 +64,12 @@ export interface EnemyDef {
   readonly atk: number;
   readonly xp: number;
   readonly gil: number;
-  /** Clearing crystals of this colour deals bonus damage. */
-  readonly weakness?: CrystalColor;
+  /** The enemy's own element (used by its magic and shown in battle). */
+  readonly element: Element;
+  /** Crystals and spells of these elements hit harder. */
+  readonly weak: readonly Element[];
+  /** Crystals and spells of these elements hit softer. */
+  readonly resist: readonly Element[];
   /** The enemy acts after this many hero pieces. */
   readonly actEvery: number;
   /** Moves are picked uniformly at random; repeat a move to weight it. */
@@ -67,11 +82,12 @@ export interface EnemyDef {
 
 // ----------------------------------------------------------------- items ---
 
-export type ItemKind = 'consumable' | 'weapon' | 'armor' | 'treasure' | 'service';
+export type ItemKind = 'consumable' | 'weapon' | 'armor' | 'accessory' | 'treasure' | 'service';
 
 export interface ItemUse {
   readonly heal?: number;
-  readonly mp?: number;
+  /** Mana restored to every elemental pool. */
+  readonly mana?: number;
   /** Restores HP and MP to full and sets the respawn point (inns). */
   readonly rest?: boolean;
   /** Teaches a spell when used. */
@@ -87,6 +103,8 @@ export interface ItemDef {
   readonly description: string;
   readonly atk?: number;
   readonly def?: number;
+  /** For accessories: extra copies of each element's piece in every bag. */
+  readonly pieceBias?: ElementAmounts;
   readonly use?: ItemUse;
 }
 

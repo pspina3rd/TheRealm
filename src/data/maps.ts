@@ -9,6 +9,8 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
     id: 'overworld',
     name: 'The Realm',
     theme: 'outdoor',
+    // Meadows: nature is plentiful.
+    pieceBias: { nature: 1 },
     music: 'music.overworld',
     tiles: [
       '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^',
@@ -164,6 +166,8 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
     id: 'caves1',
     name: 'Moon Caves',
     theme: 'cave',
+    // Underground: stone and moonlight abound, storms are rare.
+    pieceBias: { earth: 1, arcane: 1, lightning: -1 },
     music: 'music.dungeon',
     tiles: [
       'XXXXXXXXXXXXXXXXXXXXXXXX',
@@ -201,6 +205,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
     id: 'caves2',
     name: 'Moon Caves · Depths',
     theme: 'cave',
+    pieceBias: { earth: 1, arcane: 2, lightning: -1 },
     music: 'music.boss',
     tiles: [
       'XXXXXXXXXXXXXXXX',

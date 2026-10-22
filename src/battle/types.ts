@@ -27,6 +27,8 @@ export interface BattleContext {
   readonly score: number;
   /** Pieces remaining with doubled gravity (set by enemy haste). */
   hastePieces: number;
+  /** Pieces remaining with slowed gravity (set by wind). */
+  slowPieces: number;
   log(text: string, tone?: Tone): void;
 }
 

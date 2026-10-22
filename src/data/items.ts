@@ -16,8 +16,8 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     name: 'Ether',
     kind: 'consumable',
     price: 14,
-    description: 'Restore 8 MP.',
-    use: { mp: 8 },
+    description: 'Restore 4 mana to every element.',
+    use: { mana: 4 },
   },
   phoenixFeather: {
     id: 'phoenixFeather',
@@ -25,6 +25,22 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     kind: 'consumable',
     price: 30,
     description: 'Revives you with half HP if you fall in battle. Used automatically.',
+  },
+  galeTome: {
+    id: 'galeTome',
+    name: 'Tome of Gale',
+    kind: 'consumable',
+    price: 60,
+    description: 'Read to learn Gale (wind).',
+    use: { learnSpell: 'gale' },
+  },
+  shadowTome: {
+    id: 'shadowTome',
+    name: 'Tome of Shadows',
+    kind: 'consumable',
+    price: 90,
+    description: 'Read to learn Shadow Drain (arcane).',
+    use: { learnSpell: 'shadow' },
   },
   blizzardTome: {
     id: 'blizzardTome',
@@ -41,7 +57,7 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     name: "Night's Rest",
     kind: 'service',
     price: 10,
-    description: 'Fully restore HP and MP. You will wake here if you fall.',
+    description: 'Fully restore HP and mana. You will wake here if you fall.',
     use: { rest: true },
   },
 
@@ -87,6 +103,40 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     price: 65,
     def: 6,
     description: 'Reduce damage taken by 6.',
+  },
+
+  // Accessories: charms tilt which pieces fall, making their element more common.
+  emberCharm: {
+    id: 'emberCharm',
+    name: 'Ember Charm',
+    kind: 'accessory',
+    price: 40,
+    pieceBias: { fire: 1 },
+    description: 'More fire (red) pieces fall.',
+  },
+  tideCharm: {
+    id: 'tideCharm',
+    name: 'Tide Charm',
+    kind: 'accessory',
+    price: 40,
+    pieceBias: { water: 1 },
+    description: 'More water (blue) pieces fall.',
+  },
+  stormCharm: {
+    id: 'stormCharm',
+    name: 'Storm Charm',
+    kind: 'accessory',
+    price: 50,
+    pieceBias: { lightning: 1 },
+    description: 'More lightning (gold) pieces fall.',
+  },
+  windCharm: {
+    id: 'windCharm',
+    name: 'Wind Charm',
+    kind: 'accessory',
+    price: 40,
+    pieceBias: { wind: 1 },
+    description: 'More wind (cyan) pieces fall.',
   },
 
   // Treasures: dropped by monsters and offered to NPCs.

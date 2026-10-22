@@ -5,7 +5,7 @@ import type { ChallengeSpec } from '../data/types';
 export function describeSpec(spec: ChallengeSpec): string {
   switch (spec.kind) {
     case 'combat':
-      return 'Battle: clear lines to strike. Cast magic with 1–9. The enemy acts every few pieces.';
+      return 'Battle: clear lines to strike. Each line also triggers its strongest element, and every crystal fills its element’s mana for spells (1–9). The enemy acts every few pieces.';
     case 'offering': {
       const item = ITEMS[spec.itemId]?.name ?? spec.itemId;
       return `Offering: score ${spec.targetScore} points within ${spec.pieceLimit} pieces to present your ${item}. You keep it if you fail.`;

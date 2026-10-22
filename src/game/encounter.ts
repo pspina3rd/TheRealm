@@ -8,7 +8,7 @@ import { NPCS } from '../data/npcs';
 import type { ChallengeSpec, NpcDef } from '../data/types';
 import type { EntityDef } from '../world/map';
 import { markDefeated, travel, type GameState } from '../world/state';
-import { addItem, gainXp, itemCount, removeItem } from './hero';
+import { addItem, fillMana, gainXp, itemCount, removeItem } from './hero';
 import { grantRewards } from './rewards';
 
 /** What happens when the hero bumps into an entity. */
@@ -112,7 +112,7 @@ function resolveCombat(
     const lost = Math.floor(hero.gil / 2);
     hero.gil -= lost;
     hero.hp = hero.maxHp;
-    hero.mp = hero.maxMp;
+    fillMana(hero);
     travel(state, state.respawn);
     messages.push(`You have fallen... You wake at a safe haven, ${lost} gil lighter.`);
   }

@@ -1,9 +1,10 @@
 import type { Battle } from '../battle/battle';
 import { ITEMS } from '../data/items';
 import { SPELLS } from '../data/spells';
-import { cannotUseReason } from '../game/hero';
+import { cannotUseReason, spellCost } from '../game/hero';
 import { drawBoard, drawNext } from './boardView';
 import { button, byId, el } from './dom';
+import { ManaBars, costChips, elementLegend } from './elementsView';
 
 /** Keeps the battle screen (board, objective, magic, items, log) in sync with a `Battle`. */
 export class BattlePanel {
@@ -14,6 +15,7 @@ export class BattlePanel {
   private readonly itemList = byId('battle-items');
   private readonly log = byId('battle-log');
   private readonly pauseButton = byId<HTMLButtonElement>('pause-button');
+  private readonly mana = new ManaBars(byId('battle-mana'));
   /** Signature of the last rebuilt button lists, to avoid rebuilding every frame. */
   private controlsKey = '';
   private logKey: unknown = null;
@@ -25,6 +27,7 @@ export class BattlePanel {
   constructor() {
     this.boardCtx = context(byId<HTMLCanvasElement>('board-canvas'));
     this.nextCtx = context(byId<HTMLCanvasElement>('next-canvas'));
+    byId('element-legend').replaceChildren(elementLegend());
   }
 
   render(battle: Battle, overlay?: string): void {
@@ -50,7 +53,8 @@ export class BattlePanel {
 
     const hero = battle.hero;
     const ongoing = battle.status === 'ongoing' && !battle.paused;
-    const key = JSON.stringify([hero.mp, hero.hp, hero.items, hero.spells, ongoing]);
+    this.mana.update(hero);
+    const key = JSON.stringify([hero.mana, hero.hp, hero.items, hero.spells, ongoing]);
     if (key === this.controlsKey) return;
     this.controlsKey = key;
 
@@ -65,7 +69,7 @@ export class BattlePanel {
         });
         node.append(
           el('b', { text: `${index + 1}. ${spell.name}` }),
-          el('small', { text: `${spell.mpCost} MP` }),
+          costChips(spellCost(hero, spell)),
         );
         return node;
       }),
