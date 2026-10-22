@@ -10,6 +10,7 @@ import { SHOPS } from '../src/data/shops';
 import { SPELLS, STARTING_SPELLS } from '../src/data/spells';
 import { DIRECTION_DELTAS, mapHeight, mapWidth, tileAt, warpAt } from '../src/world/map';
 import { TILES } from '../src/world/tiles';
+import { addItem, createHero } from '../src/game/hero';
 import { makeBattle } from './helpers';
 
 const allEntities = Object.values(MAPS).flatMap((m) => m.entities.map((e) => ({ map: m, e })));
@@ -241,7 +242,9 @@ describe('puzzles', () => {
 
   for (const npc of puzzles) {
     it(`${npc.id} is solvable with normal input`, () => {
-      const battle = makeBattle(npc.challenge);
+      const hero = createHero();
+      addItem(hero, npc.challenge.itemId);
+      const battle = makeBattle(npc.challenge, hero);
       for (const [turns, x] of PUZZLE_SOLUTIONS[npc.id] ?? []) {
         for (let i = 0; i < turns; i++) battle.input('rotate');
         const piece = battle.board.active!;
@@ -253,4 +256,17 @@ describe('puzzles', () => {
       expect(battle.status).toBe('won');
     });
   }
+});
+
+describe('the board is never optional', () => {
+  it('no offering can be won by hard-dropping every piece without aiming', () => {
+    for (const npc of Object.values(NPCS)) {
+      if (npc.challenge?.kind !== 'offering') continue;
+      const hero = createHero();
+      addItem(hero, npc.challenge.itemId);
+      const battle = makeBattle(npc.challenge, hero);
+      for (let i = 0; i < 500 && battle.status === 'ongoing'; i++) battle.input('hardDrop');
+      expect(battle.status, npc.id).not.toBe('won');
+    }
+  });
 });
