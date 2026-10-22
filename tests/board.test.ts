@@ -221,3 +221,62 @@ describe('Board', () => {
     expect(board.grid[BOARD_HEIGHT - 1]?.[9]).toBe('gold');
   });
 });
+
+describe('Board piece replacement', () => {
+  it('replaces the falling piece with a recoloured, turned shape that locks in that colour', () => {
+    const board = new Board(createRng(1));
+    board.spawn();
+    expect(board.active?.recolored).toBe(false);
+    expect(
+      board.replaceActive('I', {
+        color: 'red',
+        cells: [
+          [0, 0],
+          [0, 1],
+          [0, 2],
+          [0, 3],
+        ],
+        x: 0,
+      }),
+    ).toBe(true);
+    expect(board.active).toMatchObject({ name: 'I', color: 'red', recolored: true, x: 0, y: 0 });
+    board.hardDrop();
+    expect(board.grid.slice(16).map((row) => row[0])).toEqual(['red', 'red', 'red', 'red']);
+  });
+
+  it('keeps the falling piece when the replacement does not fit', () => {
+    const board = new Board(createRng(1));
+    board.spawn();
+    const before = board.active;
+    expect(board.replaceActive('I', { x: 8 })).toBe(false);
+    expect(board.active).toBe(before);
+  });
+
+  it('swaps the falling piece with the next one in the queue', () => {
+    const board = new Board(createRng(1));
+    board.setFixedQueue(['T', 'O', 'I']);
+    board.spawn();
+    expect(board.swapWithNext()).toBe(true);
+    expect(board.active?.name).toBe('O');
+    expect(board.preview(2)).toEqual(['T', 'I']);
+  });
+
+  it('cannot swap without a next piece or an active one', () => {
+    const board = new Board(createRng(1));
+    expect(board.swapWithNext()).toBe(false);
+    board.setFixedQueue(['T']);
+    board.spawn();
+    expect(board.swapWithNext()).toBe(false);
+  });
+
+  it('cannot swap when the next piece would not fit', () => {
+    const board = new Board(createRng(1));
+    board.setFixedQueue(['I', 'O']);
+    board.spawn();
+    board.grid[0] = rowWithGaps(10, [3, 4, 5, 6]);
+    board.grid[1] = rowWithGaps(10, [3, 4, 5, 6]);
+    board.grid[0]![4] = 'stone';
+    expect(board.swapWithNext()).toBe(false);
+    expect(board.active?.name).toBe('I');
+  });
+});

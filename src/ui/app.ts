@@ -3,10 +3,13 @@ import { createRng, type Rng } from '../core/rng';
 import { SHOPS } from '../data/shops';
 import { CLASSES } from '../data/classes';
 import { ENEMIES } from '../data/enemies';
-import { NPCS } from '../data/npcs';
 import type { ChallengeSpec } from '../data/types';
-import { describeInteraction, resolveBattle } from '../game/encounter';
-import { ELEMENT_NAMES } from '../core/elements';
+import { describeInteraction, entitySprite, resolveBattle } from '../game/encounter';
+import { lessonSpec } from '../game/lessons';
+import { MENTORS } from '../data/mentors';
+import { mentorOf, mentorStop } from '../world/mentors';
+import { MAPS } from '../data/maps';
+import { ELEMENT_NAMES, type Element } from '../core/elements';
 import { SPELLS } from '../data/spells';
 import { createHero, equip, heroClass, heroTitle, spendSkillPoints, useItem } from '../game/hero';
 import {
@@ -193,7 +196,21 @@ export class App {
       this.startBattle(entity, interaction.spec);
       return;
     }
-    const body = conversationBody(this.atlas, interaction);
+    const body = conversationBody(this.atlas, interaction, (lesson) => {
+      if (interaction.kind === 'lessons') {
+        this.startBattle(entity, lessonSpec(this.state, interaction.mentorId, lesson));
+      }
+    });
+    if (interaction.kind === 'lessons') {
+      this.dialog.show({
+        title: interaction.title,
+        body,
+        actions: [{ label: 'Leave', onClick: () => this.dialog.close() }],
+        autofocus: false,
+      });
+      byId('dialog-body').querySelector<HTMLButtonElement>('.lesson')?.focus();
+      return;
+    }
     if (interaction.kind !== 'challenge') {
       this.dialog.show({
         title: interaction.title,
@@ -219,8 +236,18 @@ export class App {
     const weights = pieceWeights(currentMap(this.state), this.state.hero);
     const battle = new Battle(spec, this.state.hero, this.rng, { weights });
     this.active = { battle, entity, finished: false, resultDelay: RESULT_DELAY_MS };
-    const hero = heroClass(this.state.hero).sprite;
-    this.battleView.start(portraitFor(entity), isCreatureId(hero) ? hero : 'char.026');
+    const hero = creature(heroClass(this.state.hero).sprite) ?? 'char.026';
+    if (spec.kind === 'lesson') {
+      // The lesson's foe faces the hero and the mentor at their side.
+      const foe = ENEMIES[spec.enemyId];
+      const mentor = MENTORS[spec.mentorId];
+      this.battleView.start(creature(foe?.sprite), hero, {
+        ...(foe?.tint ? { tint: foe.tint } : {}),
+        ...(mentor ? { ally: creature(mentor.sprite), allyElement: mentor.element } : {}),
+      });
+    } else {
+      this.battleView.start(portraitFor(entity), hero);
+    }
     this.showView('battle');
   }
 
@@ -248,10 +275,15 @@ export class App {
       if (levelled) this.openSkills(next);
       else next();
     };
+    // A lost lesson can be fought again straight away.
+    const retry =
+      !resolution.won && active.entity.kind === 'mentor'
+        ? [{ label: 'Retry', onClick: () => this.startBattle(active.entity, active.battle.spec) }]
+        : [];
     this.dialog.show({
       title: resolution.won ? 'Victory!' : 'Defeat',
       body: resultsBody(this.atlas, resolution, speaker),
-      actions: [{ label: 'Continue', onClick: proceed }],
+      actions: [...retry, { label: 'Continue', onClick: proceed }],
       onCancel: proceed,
     });
   }
@@ -292,8 +324,11 @@ export class App {
         : adjustEnhancement(plan, target.spellId, target.attribute, delta);
     this.dialog.show({
       title: 'Skills',
-      body: skillsBody(hero, plan, (target, delta) =>
-        this.openSkills(then, adjust(target, delta), { target, delta }),
+      body: skillsBody(
+        hero,
+        plan,
+        (target, delta) => this.openSkills(then, adjust(target, delta), { target, delta }),
+        this.lockHint,
       ),
       // Focus stays on the steps: an extra key press must not confirm a spend.
       autofocus: false,
@@ -316,6 +351,20 @@ export class App {
       byId('dialog-actions').querySelector<HTMLButtonElement>('button')?.focus(); // Later
     }
   }
+
+  /** Where the mentor of a locked category is now: their face and the place's name. */
+  private readonly lockHint = (category: Element): HTMLElement => {
+    const mentor = mentorOf(category);
+    if (!mentor) return el('span');
+    const stop = mentorStop(mentor, this.state.flags, this.state.victories);
+    const place = MAPS[stop.map]?.name ?? stop.map;
+    return el(
+      'span',
+      { className: 'lock-hint', title: `${mentor.name} · ${place}` },
+      spritePortrait(this.atlas, mentor.sprite, 24),
+      el('span', { text: place }),
+    );
+  };
 
   // ----------------------------------------------------------- shops ---
 
@@ -348,6 +397,7 @@ export class App {
     this.dialog.show({
       title: 'Menu',
       body: menuBody(this.atlas, hero, {
+        lockHint: this.lockHint,
         onUse: (itemId) => {
           useItem(hero, itemId);
           refresh();
@@ -560,9 +610,12 @@ function normalizeKey(key: string): string {
   return key.length === 1 ? key.toLowerCase() : key;
 }
 
+/** A creature id for a sprite key, or null if there is no such creature. */
+function creature(key: string | undefined): CreatureId | null {
+  return key && isCreatureId(key) ? key : null;
+}
+
 /** The creature shown large in battle: the monster, or the NPC you are dealing with. */
 function portraitFor(entity: EntityDef): CreatureId | null {
-  const key =
-    entity.kind === 'monster' ? ENEMIES[entity.enemyId]?.sprite : NPCS[entity.npcId]?.sprite;
-  return key && isCreatureId(key) ? key : null;
+  return creature(entitySprite(entity));
 }

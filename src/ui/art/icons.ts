@@ -821,6 +821,13 @@ export const SPELL_KIND_ICONS: Readonly<Record<SpellEffect['kind'], IconSpec>> =
   freeze: { icon: 'hourglass' },
   tailwind: { icon: 'boot' },
   clearRows: { icon: 'piece', palette: PALETTES.iron },
+  burn: { icon: 'hourglass', palette: elementPalette('fire') },
+  regen: { icon: 'hourglass', palette: elementPalette('nature') },
+  mist: { icon: 'water', palette: PALETTES.iron },
+  charge: { icon: 'burst', palette: PALETTES.gold },
+  ward: { icon: 'ward' },
+  manaTap: { icon: 'potion', palette: PALETTES.violet },
+  swap: { icon: 'piece', palette: PALETTES.crystal },
 };
 
 /** The icon for each kind of enemy move, shown when Insight reveals it. */

@@ -257,7 +257,7 @@ canvas {
 
 .hp-row {
   display: grid;
-  grid-template-columns: auto 1fr auto auto;
+  grid-template-columns: auto 1fr auto auto auto;
   gap: 8px;
   align-items: center;
 }
@@ -274,6 +274,39 @@ canvas {
 #next-canvas {
   background: #0b0d18;
   border-radius: 6px;
+}
+
+/* The mentor beside the next piece in a lesson; it flashes when they toss one. */
+.helper:not([hidden]) {
+  display: block;
+  border-radius: 6px;
+  background: #0b0d18;
+  box-shadow: 0 0 0 2px var(--helper, var(--gold));
+}
+
+.helper .portrait {
+  display: block;
+  width: 48px;
+  height: 48px;
+}
+
+.helper.tossed {
+  animation: helper-toss 0.6s ease-out;
+}
+
+@keyframes helper-toss {
+  0% {
+    transform: translateY(0) scale(1);
+    box-shadow:
+      0 0 0 2px var(--helper),
+      0 0 18px 6px var(--helper);
+  }
+  40% {
+    transform: translateY(-6px) scale(1.12);
+  }
+  100% {
+    transform: none;
+  }
 }
 
 .icon {
@@ -912,6 +945,7 @@ dialog h2 {
 
 .spell-tile {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: center;
   padding: 6px;
@@ -921,6 +955,48 @@ dialog h2 {
 
 .spell-tile b {
   display: block;
+}
+
+/* A mentor's lessons: one button per spell or level they can teach. */
+.lessons {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.lesson {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  text-align: left;
+}
+
+.lesson b {
+  display: block;
+}
+
+.difficulty {
+  display: flex;
+  gap: 2px;
+}
+
+/* Where to find the mentor of a locked category: their face and the place. */
+.lock-hint {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.spell-tile .lock-hint {
+  flex-basis: 100%;
+}
+
+.lock-hint .portrait {
+  width: 24px;
+  height: 24px;
 }
 
 /* A spell ready for its next level glows until a mentor teaches it. */

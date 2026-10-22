@@ -114,3 +114,8 @@ export function relationOf(element: Element, other: Element): ElementRelation {
 export function relatedTo(element: Element): Element[] {
   return ELEMENTS.filter((other) => relationOf(element, other) === 'related');
 }
+
+/** The crystal colour that carries `element` (e.g. fire → red). */
+export function colorOfElement(element: Element): CrystalColor {
+  return PIECES[pieceOfElement(element)].color;
+}

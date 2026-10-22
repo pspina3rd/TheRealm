@@ -15,10 +15,11 @@ export const SAVE_KEY = 'the-realm/save';
  * - 3 replaced attunement with alignment and gave each class its own spell.
  * - 4 added stats and skill points; levels no longer raise mana, attack or defence.
  * - 5 gave spells levels and enhancements, and added locked categories.
+ * - 6 added the count of monster battles won, which moves the mentors.
  */
-export const SAVE_VERSION = 5;
+export const SAVE_VERSION = 6;
 /** Older versions `deserialize` can still upgrade. */
-const MIGRATABLE_VERSIONS: readonly number[] = [1, 2, 3, 4, SAVE_VERSION];
+const MIGRATABLE_VERSIONS: readonly number[] = [1, 2, 3, 4, 5, SAVE_VERSION];
 
 /** JSON-friendly form of `GameState` (sets become arrays). */
 interface SaveData {
@@ -30,6 +31,8 @@ interface SaveData {
   facing: Direction;
   flags: string[];
   respawn: Location;
+  /** Since version 6. */
+  victories?: number;
 }
 
 /** Minimal storage interface so tests can supply an in-memory store. */
@@ -49,6 +52,7 @@ export function serialize(state: GameState): string {
     facing: state.facing,
     flags: [...state.flags],
     respawn: state.respawn,
+    victories: state.victories,
   };
   return JSON.stringify(data);
 }
@@ -82,6 +86,8 @@ export function deserialize(json: string): GameState | null {
     flags: new Set(data.flags),
     cleared: new Set(),
     respawn: data.respawn,
+    // Before version 6 wins were not counted: every mentor starts at home.
+    victories: typeof data.victories === 'number' ? data.victories : 0,
   };
 }
 

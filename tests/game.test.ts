@@ -489,6 +489,28 @@ describe('save migration from version 4 (spell levels)', () => {
   });
 });
 
+describe('save migration to version 6 (mentors)', () => {
+  it('saves the victories that move the mentors', () => {
+    const state = newGame();
+    state.victories = 7;
+    const data = JSON.parse(serialize(state));
+    expect(data.version).toBe(6);
+    expect(deserialize(serialize(state))!.victories).toBe(7);
+  });
+
+  it('starts older saves with no victories, every mentor at home, keeping locks', () => {
+    const state = newGame('mage');
+    state.hero.lockedCategories = ['arcane'];
+    const v5 = { ...JSON.parse(serialize(state)), version: 5 };
+    delete v5.victories;
+    const loaded = deserialize(JSON.stringify(v5))!;
+    expect(loaded.victories).toBe(0);
+    expect(loaded.hero.lockedCategories).toEqual(['arcane']);
+    const v1 = { ...v5, version: 1 };
+    expect(deserialize(JSON.stringify(v1))!.victories).toBe(0);
+  });
+});
+
 describe('shopping for charms and tomes', () => {
   it('puts on a charm if none is worn, but does not swap one out', () => {
     const state = newGame();

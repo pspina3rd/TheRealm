@@ -1,6 +1,7 @@
 import { MAPS, START } from '../data/maps';
 import { createHero, type Hero } from '../game/hero';
 import type { Direction, EntityDef, Location, MapDef } from './map';
+import { mentorEntities } from './mentors';
 
 /** Everything needed to resume a game. */
 export interface GameState {
@@ -15,6 +16,8 @@ export interface GameState {
   cleared: Set<string>;
   /** Where the hero wakes after falling in battle (the last inn rested at). */
   respawn: Location;
+  /** Monster battles won; mentors move on as it grows (see `src/world/mentors.ts`). */
+  victories: number;
 }
 
 export function newGame(classId?: string, heroName?: string): GameState {
@@ -27,6 +30,7 @@ export function newGame(classId?: string, heroName?: string): GameState {
     flags: new Set(),
     cleared: new Set(),
     respawn: { ...START },
+    victories: 0,
   };
 }
 
@@ -40,19 +44,21 @@ export function defeatedFlag(entityId: string): string {
   return `defeated:${entityId}`;
 }
 
-/** Entities on the current map that are still present. */
+/** Entities on the current map that are still present, mentors included. */
 export function activeEntities(state: GameState): EntityDef[] {
-  return currentMap(state).entities.filter((e) => {
+  const placed = currentMap(state).entities.filter((e) => {
     if (e.kind !== 'monster') return true;
     return !state.cleared.has(e.id) && !state.flags.has(defeatedFlag(e.id));
   });
+  return [...placed, ...mentorEntities(state)];
 }
 
-/** Records a monster defeat (permanently for bosses). */
+/** Records a monster defeat (permanently for bosses) and counts the victory. */
 export function markDefeated(state: GameState, entity: EntityDef): void {
   if (entity.kind !== 'monster') return;
   if (entity.boss) state.flags.add(defeatedFlag(entity.id));
   else state.cleared.add(entity.id);
+  state.victories++;
 }
 
 /** Moves to a location, resetting temporary monster clears when the map changes. */

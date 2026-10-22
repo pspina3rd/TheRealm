@@ -1,3 +1,4 @@
+import type { Element } from '../core/elements';
 import type { Reward } from '../data/types';
 import { addItem, learnSpell, type Hero } from './hero';
 
@@ -10,7 +11,13 @@ export type Gain =
   | { readonly kind: 'gil'; readonly amount: number }
   /** Items gained (negative count when handed over). */
   | { readonly kind: 'item'; readonly itemId: string; readonly count: number }
-  | { readonly kind: 'spell'; readonly spellId: string };
+  | { readonly kind: 'spell'; readonly spellId: string }
+  /** A mentor raised a spell to `level`. */
+  | { readonly kind: 'spellLevel'; readonly spellId: string; readonly level: number }
+  /** A lost lesson locked this category's enhancements… */
+  | { readonly kind: 'lock'; readonly element: Element }
+  /** …until a won lesson unlocked it. */
+  | { readonly kind: 'unlock'; readonly element: Element };
 
 export interface RewardOutcome {
   readonly gains: Gain[];

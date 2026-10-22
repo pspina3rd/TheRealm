@@ -88,7 +88,8 @@ of its elements. Alignment only goes up; you grow by learning.
     highest in earth is a **Stone Knight**. Ties keep the older title.
 - **Shown as** a seven-point star in the menu, one spike per element. A
   new title is announced with its element's icon.
-- Meteor, the only combo so far, counts toward fire, earth and arcane.
+- A combo counts toward each of its elements (Magma toward earth and fire;
+  Meteor toward fire, earth and arcane).
 
 ## Stats and skill points
 
@@ -155,8 +156,9 @@ Spells sit in **categories**, one per element. Each element has a
 **primary** spell with four levels, each with its own name; power and
 healing grow about ×1.6 a level, rows and pieces by about 1 every level or
 two, and the cost +2 a level.
-A category can also hold **supports** (none yet) and **combos**, spells of
-several elements that cost each one's mana.
+A category can also hold a **support** and **combos**, spells of several
+elements that cost each one's mana. Every spell in a category can be
+taught by that element's [mentor](#mentors).
 
 | Category  | Level 1               | Level 2               | Level 3               | Level 4                 | Effect                             | How to learn                         |
 | --------- | --------------------- | --------------------- | --------------------- | ----------------------- | ---------------------------------- | ------------------------------------ |
@@ -171,9 +173,36 @@ several elements that cost each one's mana.
 Each cell is name · mana of the category's element · power (or healing),
 then rows or pieces after the slash.
 
-| Combo  | Category | Elements            | Cost                      | Effect    | How to learn   |
-| ------ | -------- | ------------------- | ------------------------- | --------- | -------------- |
-| Meteor | Fire     | Fire, earth, arcane | 6 fire, 6 earth, 6 arcane | 58 damage | Not placed yet |
+**Supports** have a single level. Each needs its category's primary.
+
+| Support   | Category  | Cost        | Effect                                                               |
+| --------- | --------- | ----------- | -------------------------------------------------------------------- |
+| Kindle    | Fire      | 5 fire      | Burns the enemy for 4 (fire, so ×1.5 if weak) after each of 5 pieces |
+| Mist      | Water     | 6 water     | The enemy's next move fizzles ("Miss")                               |
+| Static    | Lightning | 5 lightning | Each of the next 3 line clears also strikes for 6 lightning          |
+| Regen     | Nature    | 6 nature    | Heals 4 HP after each of 5 pieces                                    |
+| Stoneskin | Earth     | 5 earth     | +15 ward (up to the usual 25)                                        |
+| Mana Tap  | Arcane    | 4 arcane    | +2 mana to every other pool                                          |
+| Gust      | Wind      | 3 wind      | Swaps the falling piece for the next one                             |
+
+Running supports show on the stage with a count: Kindle and Mist under
+the enemy's turn pips, Regen and Static beside the hero.
+
+**Combos** have a single level and build both (or all) of their elements'
+alignment. Each needs another element's primary.
+
+| Combo       | Category  | Needs                  | Cost                      | Effect                   |
+| ----------- | --------- | ---------------------- | ------------------------- | ------------------------ |
+| Wildfire    | Fire      | Gale                   | 4 fire, 4 wind            | 28 damage, tailwind 4    |
+| Spring Rain | Water     | Cure                   | 4 water, 4 nature         | Heals 36                 |
+| Storm Surge | Lightning | Blizzard               | 4 lightning, 4 water      | 28 damage, enemy waits 2 |
+| Bramble     | Nature    | Quake                  | 4 nature, 4 earth         | Clears 2 rows, 12 damage |
+| Magma       | Earth     | Fire                   | 4 earth, 4 fire           | 34 damage                |
+| Void Bolt   | Arcane    | Thunder                | 4 arcane, 4 lightning     | 28 damage, heals half    |
+| Moonwind    | Wind      | Shadow Drain           | 4 wind, 4 arcane          | 32 damage                |
+| Meteor      | Fire      | Quake and Shadow Drain | 6 fire, 6 earth, 6 arcane | 58 damage                |
+
+A combo strikes as its category's element (Magma is earth).
 
 - **Battle menu**: seven fixed slots, one per element in chart order
   (fire, water, lightning, nature, earth, arcane, wind), so keys 1–7
@@ -222,18 +251,77 @@ Enhancing a spell makes it **ready** for its next level:
 - Every attribute needs its one before extras go anywhere, and nothing can
   be added past a complete step. A level 4 spell (or a single-level one,
   like Meteor) can't be enhanced.
-- A **ready** spell waits for a mentor lesson to raise it (stage 4; the
-  rule is `raiseSpellLevel` in `src/game/hero.ts`). Bonuses stay after the
+- A **ready** spell waits for a [mentor](#mentors) lesson to raise it
+  (`raiseSpellLevel` in `src/game/hero.ts`). Bonuses stay after the
   level-up and the next step starts empty.
 - **Locks**: a category listed in the hero's `lockedCategories` can't be
-  enhanced and shows a lock. Nothing sets it yet; a lost mentor lesson
-  will (stage 4).
+  enhanced. A lost mentor lesson sets it (see [Mentors](#mentors)); the
+  category shows a lock, the mentor's face and the place they are now.
 - **Skill screen**: each spell shows its level pips, the points one
   enhancement costs, step pips (bought, staged in green), and per
   attribute its icon, current value (Efficiency shows the mana taken off,
   e.g. −1, then the cost left), pips (the required one ringed) and −/+. When an attribute can take no more, focus moves on to the next
   attribute's +, so Enter can walk a step from the keyboard. A ready
   spell glows and shows a scroll.
+
+## Mentors
+
+Mentors are named characters, one per element, who teach that element's
+spells through **lessons**: team-up battles where they fight beside the
+hero. Each has a reason to teach. They use the townsfolk sprites, with a
+glow of their element's colour at their feet; a **scroll** floats over a
+mentor who has a lesson for you. Talking to them lists their lessons as
+buttons (spell, level pips, kind, cost, difficulty as swords).
+
+| Mentor  | Element   | Why they teach                                 | Home (trial foe)                | Route after home                                 | Moves every |
+| ------- | --------- | ---------------------------------------------- | ------------------------------- | ------------------------------------------------ | ----------- |
+| Torva   | Fire      | Her hands shake too much for the forge now     | Mossvale (Ember Wisp)           | Realm by the village · Brightwater · Moon Caves¹ | 4 wins      |
+| Maren   | Water     | The lake is clouding; she can't watch it alone | Realm, east lakeshore (Tide)    | Brightwater fountain · Mossvale                  | 5 wins      |
+| Rook    | Lightning | Storms roll off the peaks faster every year    | Realm, north-east (Spark)       | Brightwater · Moon Caves¹ · Depths²              | 3 wins      |
+| Hazel   | Nature    | Spores are choking her meadows                 | Realm, west meadow (Moss)       | Mossvale · Realm, south                          | 6 wins      |
+| Dorn    | Earth     | The caves took his crew                        | Realm, at the cave seal (Stone) | Moon Caves¹ · Depths¹ · Brightwater              | 4 wins      |
+| Selene  | Arcane    | Something below drinks the moonlight           | Brightwater (Moon Wisp)         | Realm, north · Depths¹                           | 5 wins      |
+| Kestrel | Wind      | Her letters must reach every village           | Realm, south road (Gale)        | Mossvale · Brightwater · Realm, east road        | 3 wins      |
+
+¹ once the hero holds the Cave Pass. ² once the Moon Wyrm is beaten.
+
+- **Travel**: a mentor's place is a pure function of the story flags and
+  the number of monster battles won (saved): the route's open stops, home
+  first, and one stop on every _N_ wins, wrapping round. So a mentor is in
+  exactly one place, and story progress opens new stops.
+- **What they teach** (only their element): the next level of a _ready_
+  spell; the primary, if the hero lacks it; the support, once the primary
+  is known; each combo, once its other spell is known.
+- **Difficulty**: the level being taught (a new spell is 1); a combo's is
+  its number of elements (2; Meteor 3).
+- **The foe**: at home, the mentor's trial **wisp** of their element;
+  away, the toughest non-boss monster of the area (of the mentor's element
+  if there is one), or the wisp in a town. Per difficulty above 1 the foe
+  gains 50% HP, +2 attack and a level (faster pieces). Lessons give no XP,
+  gil or drops.
+- **The mentor's help**: on every new piece, with chance
+
+  > p = clamp(40% − 5% × (alignment in the mentor's element − difficulty), 10%, 50%) × relation
+
+  where relation compares the mentor's element to the hero's title
+  element: same ×1, related ×0.8, the mentor's beats the hero's ×0.6, the
+  hero's beats the mentor's ×0.8. The mentor then tosses the best-fitting
+  piece instead: every shape, rotation and column is scored (lines
+  completed +0.76, covered holes −0.36, total height −0.51, bumpiness
+  −0.18; ties go to the first tried) and the winner appears already turned
+  over its best column, its crystals in the mentor's colour, so clearing
+  them gives the mentor's mana. The tossed piece glows, the mentor (beside
+  the hero on the stage, and in a portrait by the next piece) hops and
+  flashes their element.
+
+- **Win**: the spell is learned or raised, shown on the results with its
+  icon and level pips, and the category's lock (if any) opens.
+- **Lose**: the lesson stays open. The mentor patches the hero up to at
+  least half HP (no trip to the inn). The hero can **Retry** at once from
+  the results, or walk away, but the category is **locked**: none of its
+  spells can be enhanced until a lesson of that mentor is won. The lock
+  shows the mentor's face and where they are now; since mentors travel,
+  the hero may have to go and find them.
 
 ### Charms
 
@@ -290,15 +378,20 @@ tests replay, so none can be accidentally unsolvable.
 Art is mixed by area: cute Fantasy Dreamland creatures in the open world,
 and bigger, scarier Pixel Battlers monsters underground.
 
-| Area       | Enemy        | Element | Weak to       | Resists                                 | Magic                       | Drops           |
-| ---------- | ------------ | ------- | ------------- | --------------------------------------- | --------------------------- | --------------- |
-| Overworld  | Green Slime  | Nature  | Fire, arcane  | Water, nature, earth                    | attack                      | Slime Gel       |
-| Overworld  | Spore Shroom | Nature  | Fire, arcane  | Water, nature, earth                    | attack, haste (Spore Cloud) | Spore Cap       |
-| Overworld  | Goblin Scout | Earth   | Water, nature | Lightning, earth, wind                  | attack, curse (Rock Toss)   | Goblin Charm    |
-| Moon Caves | Moon Imp     | Arcane  | Fire, wind    | Lightning, nature, arcane               | attack, drain               | —               |
-| Moon Caves | Shade Imp    | Arcane  | Fire, wind    | Lightning, nature, arcane               | attack, heal, curse         | Moon Shard      |
-| Moon Caves | Cave Brute   | Earth   | Water, nature | Lightning, earth, wind                  | attack, curse (2 rows)      | Ether           |
-| Depths     | Moon Wyrm    | Arcane  | Fire, wind    | Water (boss), lightning, nature, arcane | everything                  | Phoenix Feather |
+| Area       | Enemy        | Element | Weak to       | Resists                                 | Magic                           | Drops           |
+| ---------- | ------------ | ------- | ------------- | --------------------------------------- | ------------------------------- | --------------- |
+| Overworld  | Green Slime  | Nature  | Fire, arcane  | Water, nature, earth                    | attack                          | Slime Gel       |
+| Overworld  | Spore Shroom | Nature  | Fire, arcane  | Water, nature, earth                    | attack, haste (Spore Cloud)     | Spore Cap       |
+| Overworld  | Goblin Scout | Earth   | Water, nature | Lightning, earth, wind                  | attack, curse (Rock Toss)       | Goblin Charm    |
+| Moon Caves | Moon Imp     | Arcane  | Fire, wind    | Lightning, nature, arcane               | attack, drain                   | —               |
+| Moon Caves | Shade Imp    | Arcane  | Fire, wind    | Lightning, nature, arcane               | attack, heal, curse             | Moon Shard      |
+| Moon Caves | Cave Brute   | Earth   | Water, nature | Lightning, earth, wind                  | attack, curse (2 rows)          | Ether           |
+| Depths     | Moon Wyrm    | Arcane  | Fire, wind    | Water (boss), lightning, nature, arcane | everything                      | Phoenix Feather |
+| Lessons    | Wisps (×7)   | Each    | From chart    | From chart                              | attack + one of their element's | —               |
+
+The seven wisps (Ember, Tide, Spark, Moss, Stone, Moon, Gale) are mentors'
+trial foes: 30 HP, attack 5, acting every 4 pieces, drawn as a slime
+recoloured to their element.
 
 ## Progression
 
@@ -309,11 +402,11 @@ stall. The Sunken Ruins are sealed as the hook for the next region.
 
 ## Planned: progression redesign
 
-**Status: stages 1–3 are built and now documented in
+**Status: stages 1–4 are built and now documented in
 [Elements](#elements), [Hero classes and alignment](#hero-classes-and-alignment),
 [Stats and skill points](#stats-and-skill-points),
-[Hero magic](#hero-magic) and [Enhancements](#enhancements). The rest is
-planned.** All numbers are starting values to tune in play.
+[Hero magic](#hero-magic), [Enhancements](#enhancements) and
+[Mentors](#mentors). The rest is planned.** All numbers are starting values to tune in play.
 
 ### Goals
 
@@ -331,44 +424,10 @@ which cost more as the spell rises.
 
 ### Spells
 
-Categories, primary spell levels and the battle category menu are built
-(see [Hero magic](#hero-magic)). Still planned:
-
-- **Support spells**: their own spells within the category (Chill, Ward,
-  Regen, Haste…). Not every support is levelled; some have a single level.
-- **Combo spells** (variations): once you know X, a mentor of another
-  element can teach Y, which costs X's mana plus the mentor's element.
-  Example: know Fire, learn **Magma** from an earth mentor
-  (cost 3 fire + 3 earth).
-
-Spending any points on stats delays a spell's next level, so in practice
-one spell reaches level 3 around hero level 12–15.
-
-### Mentors
-
-Mentors are named characters, each of one element. They teach new spells,
-spell levels and combos through **team-up battles**.
-
-- **Where**: at their home (a summoned trial foe of their element) and out in
-  the world (they join a real fight you walk into).
-- **Requirement**: the spell must be _ready_ (all its enhancements bought) or,
-  for a new or hidden spell, its unlock must be met. Otherwise the mentor
-  talks but doesn't teach.
-- **Their help**: during the fight the mentor tosses the best-fitting piece
-  for your board, in their element's colour, instead of your next piece.
-- **How much help**: less as you grow, and lessons get harder.
-  - Lesson difficulty = the spell level being taught (combos count as one
-    more).
-  - Chance per piece = 40% − 5% × (your alignment in the mentor's element −
-    lesson difficulty), clamped to 10–50%.
-  - Relation to your highest alignment: same element ×1, related ×0.8,
-    opposed ×0.6.
-- **Win**: learn the spell or level.
-- **Lose**: the lesson stays open. The hero can fight it again straight away
-  or walk away for now, but **no spell in that category can be enhanced**
-  until the lesson is won. The category shows a lock icon. To retry, the
-  hero must find the mentor wherever they are in the world; mentors travel,
-  so they are not always at home.
+Categories, levels, supports, combos and mentors are built (see
+[Hero magic](#hero-magic) and [Mentors](#mentors)). Spending any points on
+stats delays a spell's next level, so in practice one spell reaches level
+3 around hero level 12–15.
 
 ### Hidden spells
 
@@ -378,7 +437,7 @@ in the category menu until unlocked; then a mentor can teach them.
 | Unlock    | Example                                                                     |
 | --------- | --------------------------------------------------------------------------- |
 | Stat      | Insight 5 → **Foresight** (see the enemy's next move early)                 |
-| Alignment | Fire 4 and Earth 4 → **Magma**                                              |
+| Alignment | Fire 4 and Earth 4 → **Volcano**                                            |
 | Pattern   | Clear 4 pure-fire lines at once → a fire mentor "noticed" and seeks you out |
 | Quest     | Restore the Brightwater shrine → **Purify**                                 |
 | Item      | Bring the Moon Shard to the arcane mentor → **Eclipse**                     |
@@ -423,7 +482,9 @@ break the ground for that well.
   starting stats and 2 × (level − 1) unspent points, and recomputes their
   numbers from the class (HP growth only), keeping HP and mana within the
   new caps. v5 (built) turns each known spell into a level 1 spell with
-  no enhancements and adds an empty list of locked categories.
+  no enhancements and adds an empty list of locked categories. v6 (built)
+  counts monster battles won (older saves start at 0, so every mentor is
+  at home).
 - **Removed**: attunement and the level 3 choice (done); spell tomes from
   shops (later: they become quest or mentor rewards).
 
@@ -432,7 +493,7 @@ break the ground for that well.
 1. Element chart and alignment, replacing attunement. **Done.**
 2. Stats, skill points and the level-up screen. **Done.**
 3. Spell levels, enhancements and the category menu. **Done.**
-4. Mentors, team-up battles and combo spells.
+4. Mentors, team-up battles, supports and combo spells. **Done.**
 5. Hidden spells and their unlocks.
 6. NPC attitudes and the dialogue rewrite.
 

@@ -3,11 +3,13 @@ import { HaggleChallenge } from '../battle/haggle';
 import type { Battle } from '../battle/battle';
 import type { Rng } from '../core/rng';
 import { ENEMIES } from '../data/enemies';
+import { MENTORS, type MentorDef } from '../data/mentors';
 import { NPCS } from '../data/npcs';
 import type { ChallengeSpec, NpcDef, Reward } from '../data/types';
 import type { EntityDef } from '../world/map';
 import { markDefeated, travel, type GameState } from '../world/state';
 import { addItem, fillMana, gainXp, itemCount, removeItem } from './hero';
+import { completeLesson, lessonsFor, type Lesson } from './lessons';
 import { grantRewards, type Gain } from './rewards';
 import { SKILL_POINTS_PER_LEVEL, dropBonus } from './stats';
 
@@ -26,6 +28,12 @@ export type Interaction =
   | (Speaker & { readonly kind: 'message' })
   /** An offering the hero can't make yet: shows the item they need. */
   | (Speaker & { readonly kind: 'needsItem'; readonly itemId: string })
+  /** A mentor with lessons to teach: the player picks one, or leaves. */
+  | (Speaker & {
+      readonly kind: 'lessons';
+      readonly mentorId: string;
+      readonly lessons: readonly Lesson[];
+    })
   /** Offer a battle the player can accept or decline. */
   | (Speaker & {
       readonly kind: 'challenge';
@@ -60,8 +68,35 @@ function npcFor(entity: EntityDef): NpcDef {
   return npc;
 }
 
+/** The creature sprite key an entity is drawn with, or undefined for an unknown reference. */
+export function entitySprite(entity: EntityDef): string | undefined {
+  switch (entity.kind) {
+    case 'monster':
+      return ENEMIES[entity.enemyId]?.sprite;
+    case 'npc':
+      return NPCS[entity.npcId]?.sprite;
+    case 'mentor':
+      return MENTORS[entity.mentorId]?.sprite;
+  }
+}
+
+function mentorFor(entity: EntityDef): MentorDef {
+  if (entity.kind !== 'mentor') throw new Error(`${entity.id} is not a mentor`);
+  const mentor = MENTORS[entity.mentorId];
+  if (!mentor) throw new Error(`Unknown mentor: ${entity.mentorId}`);
+  return mentor;
+}
+
 /** Decides what bumping into `entity` does, given the current state. */
 export function describeInteraction(state: GameState, entity: EntityDef): Interaction {
+  if (entity.kind === 'mentor') {
+    const mentor = mentorFor(entity);
+    const lessons = lessonsFor(state.hero, mentor);
+    const speaker = { title: mentor.name, sprite: mentor.sprite, text: mentor.motive };
+    return lessons.length > 0
+      ? { kind: 'lessons', ...speaker, mentorId: mentor.id, lessons }
+      : { kind: 'message', ...speaker };
+  }
   if (entity.kind === 'monster') {
     const enemy = ENEMIES[entity.enemyId];
     if (!enemy) throw new Error(`Unknown enemy: ${entity.enemyId}`);
@@ -98,9 +133,28 @@ export function resolveBattle(
   rng: Rng,
 ): Resolution {
   const won = battle.status === 'won';
+  if (entity.kind === 'mentor') return resolveLesson(state, mentorFor(entity), battle, won);
   return entity.kind === 'monster'
     ? resolveCombat(state, entity, battle, won, rng)
     : resolveNpc(state, npcFor(entity), battle, won);
+}
+
+function resolveLesson(
+  state: GameState,
+  mentor: MentorDef,
+  battle: Battle,
+  won: boolean,
+): Resolution {
+  const spec = battle.spec;
+  if (spec.kind !== 'lesson') throw new Error('Expected a lesson');
+  return {
+    won,
+    gains: completeLesson(state.hero, spec, won),
+    speech: won ? mentor.winText : mentor.loseText,
+    fell: false,
+    shopId: null,
+    priceMultiplier: 1,
+  };
 }
 
 function resolveCombat(

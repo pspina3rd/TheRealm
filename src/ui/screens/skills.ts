@@ -1,4 +1,4 @@
-import { ELEMENT_NAMES } from '../../core/elements';
+import { ELEMENT_NAMES, type Element } from '../../core/elements';
 import {
   EFFECT_ENHANCEMENTS,
   ENHANCEMENTS,
@@ -176,12 +176,14 @@ function attributeValue(
  * still level, the skill points one enhancement costs, the step's progress
  * pips and each attribute's pips, value and −/+ buttons. A spell whose
  * step is complete glows and shows a scroll (ready for a mentor); a locked
- * category shows a lock and its buttons stay off.
+ * category shows a lock, where its mentor is (`lockHint`), and its buttons
+ * stay off.
  */
 function spellRows(
   hero: Hero,
   plan: SkillPlan,
   onAdjust: (target: StepTarget, delta: 1 | -1) => void,
+  lockHint?: (category: Element) => HTMLElement,
 ): HTMLElement[] {
   return spellCategories(hero).flatMap(({ spells }) =>
     spells.flatMap((spellId) => {
@@ -226,7 +228,10 @@ function spellRows(
       }
       if (ready)
         header.append(iconElement('scroll', 2, 'Ready: a mentor can teach the next level'));
-      if (locked) header.append(iconElement('lock', 2, 'Locked until the lesson is won'));
+      if (locked) {
+        header.append(iconElement('lock', 2, 'Locked until the lesson is won'));
+        if (lockHint) header.append(lockHint(spell.category));
+      }
       const attributes = step
         ? el(
             'div',
@@ -237,7 +242,8 @@ function spellRows(
               const target: StepTarget = { kind: 'spell', spellId, attribute };
               const title = `${cast.name} ${def.name}`;
               const tip =
-                attribute === 'effect' ? EFFECT_ENHANCEMENTS[cast.effect.kind] : def.description;
+                (attribute === 'effect' && EFFECT_ENHANCEMENTS[cast.effect.kind]) ||
+                def.description;
               return el(
                 'div',
                 {
@@ -286,6 +292,7 @@ export function skillsBody(
   hero: Hero,
   plan: SkillPlan,
   onAdjust: (target: StepTarget, delta: 1 | -1) => void,
+  lockHint?: (category: Element) => HTMLElement,
 ): HTMLElement[] {
   const left = hero.skillPoints - skillPlanCost(hero, plan);
   const points = el(
@@ -324,7 +331,7 @@ export function skillsBody(
     sectionTitle('point', 'Stats'),
     el('div', { className: 'stat-rows' }, ...rows),
     sectionTitle('book', 'Spells'),
-    el('div', { className: 'spell-rows' }, ...spellRows(hero, plan, onAdjust)),
+    el('div', { className: 'spell-rows' }, ...spellRows(hero, plan, onAdjust, lockHint)),
   ];
 }
 

@@ -111,11 +111,156 @@ export const SPELLS: Readonly<Record<string, SpellDef>> = {
       { name: 'Hurricane', cost: { wind: 12 }, effect: { kind: 'tailwind', power: 41, pieces: 8 } },
     ],
   },
+  // ------------------------------------------------------------ supports ---
+  // One per element, single-level, taught by its mentor once the hero knows
+  // the element's primary.
+  kindle: {
+    id: 'kindle',
+    category: 'fire',
+    role: 'support',
+    requires: ['fire'],
+    levels: [{ name: 'Kindle', cost: { fire: 5 }, effect: { kind: 'burn', power: 4, pieces: 5 } }],
+  },
+  mist: {
+    id: 'mist',
+    category: 'water',
+    role: 'support',
+    requires: ['blizzard'],
+    levels: [{ name: 'Mist', cost: { water: 6 }, effect: { kind: 'mist', moves: 1 } }],
+  },
+  static: {
+    id: 'static',
+    category: 'lightning',
+    role: 'support',
+    requires: ['thunder'],
+    levels: [
+      { name: 'Static', cost: { lightning: 5 }, effect: { kind: 'charge', power: 6, clears: 3 } },
+    ],
+  },
+  regen: {
+    id: 'regen',
+    category: 'nature',
+    role: 'support',
+    requires: ['cure'],
+    levels: [
+      { name: 'Regen', cost: { nature: 6 }, effect: { kind: 'regen', amount: 4, pieces: 5 } },
+    ],
+  },
+  stoneskin: {
+    id: 'stoneskin',
+    category: 'earth',
+    role: 'support',
+    requires: ['quake'],
+    levels: [{ name: 'Stoneskin', cost: { earth: 5 }, effect: { kind: 'ward', amount: 15 } }],
+  },
+  manaTap: {
+    id: 'manaTap',
+    category: 'arcane',
+    role: 'support',
+    requires: ['shadow'],
+    levels: [{ name: 'Mana Tap', cost: { arcane: 4 }, effect: { kind: 'manaTap', amount: 2 } }],
+  },
+  gust: {
+    id: 'gust',
+    category: 'wind',
+    role: 'support',
+    requires: ['gale'],
+    levels: [{ name: 'Gust', cost: { wind: 3 }, effect: { kind: 'swap' } }],
+  },
+
+  // -------------------------------------------------------------- combos ---
+  // Know another element's primary, then a mentor teaches a spell of their
+  // element that costs both elements' mana and builds both alignments.
+  wildfire: {
+    id: 'wildfire',
+    category: 'fire',
+    role: 'combo',
+    elements: ['fire', 'wind'],
+    requires: ['gale'],
+    levels: [
+      {
+        name: 'Wildfire',
+        cost: { fire: 4, wind: 4 },
+        effect: { kind: 'tailwind', power: 28, pieces: 4 },
+      },
+    ],
+  },
+  springRain: {
+    id: 'springRain',
+    category: 'water',
+    role: 'combo',
+    elements: ['water', 'nature'],
+    requires: ['cure'],
+    levels: [
+      { name: 'Spring Rain', cost: { water: 4, nature: 4 }, effect: { kind: 'heal', amount: 36 } },
+    ],
+  },
+  stormSurge: {
+    id: 'stormSurge',
+    category: 'lightning',
+    role: 'combo',
+    elements: ['lightning', 'water'],
+    requires: ['blizzard'],
+    levels: [
+      {
+        name: 'Storm Surge',
+        cost: { lightning: 4, water: 4 },
+        effect: { kind: 'freeze', power: 28, pieces: 2 },
+      },
+    ],
+  },
+  bramble: {
+    id: 'bramble',
+    category: 'nature',
+    role: 'combo',
+    elements: ['nature', 'earth'],
+    requires: ['quake'],
+    levels: [
+      {
+        name: 'Bramble',
+        cost: { nature: 4, earth: 4 },
+        effect: { kind: 'clearRows', rows: 2, power: 12 },
+      },
+    ],
+  },
+  magma: {
+    id: 'magma',
+    category: 'earth',
+    role: 'combo',
+    elements: ['earth', 'fire'],
+    requires: ['fire'],
+    levels: [{ name: 'Magma', cost: { earth: 4, fire: 4 }, effect: { kind: 'damage', power: 34 } }],
+  },
+  voidBolt: {
+    id: 'voidBolt',
+    category: 'arcane',
+    role: 'combo',
+    elements: ['arcane', 'lightning'],
+    requires: ['thunder'],
+    levels: [
+      {
+        name: 'Void Bolt',
+        cost: { arcane: 4, lightning: 4 },
+        effect: { kind: 'drain', power: 28, share: 0.5 },
+      },
+    ],
+  },
+  moonwind: {
+    id: 'moonwind',
+    category: 'wind',
+    role: 'combo',
+    elements: ['wind', 'arcane'],
+    requires: ['shadow'],
+    levels: [
+      { name: 'Moonwind', cost: { wind: 4, arcane: 4 }, effect: { kind: 'damage', power: 32 } },
+    ],
+  },
   meteor: {
     id: 'meteor',
     category: 'fire',
     role: 'combo',
     elements: ['fire', 'earth', 'arcane'],
+    requires: ['quake', 'shadow'],
     levels: [
       {
         name: 'Meteor',
@@ -154,8 +299,11 @@ export const ENHANCEMENTS: Readonly<Record<EnhancementId, EnhancementDef>> = {
   effect: { id: 'effect', name: 'Effect', description: 'A stronger side effect' },
 };
 
-/** What the Effect attribute adds per enhancement, by kind of spell. */
-export const EFFECT_ENHANCEMENTS: Readonly<Record<SpellEffect['kind'], string>> = {
+/**
+ * What the Effect attribute adds per enhancement, for the kinds of spell
+ * that have levels (supports and combos have one level, so none to enhance).
+ */
+export const EFFECT_ENHANCEMENTS: Readonly<Partial<Record<SpellEffect['kind'], string>>> = {
   damage: '+3 to its element’s line effect (burn, chain…)',
   heal: '+3 regrowth healing',
   clearRows: '+1 row at 1, 3 and 5 Effect',

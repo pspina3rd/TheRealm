@@ -28,6 +28,17 @@ export const SPELL_EFFECTS: Readonly<Record<string, EffectId>> = {
   blizzard: 'ice',
   meteor: 'meteor',
   cure: 'heal',
+  kindle: 'fire',
+  mist: 'ice',
+  static: 'thunder',
+  regen: 'heal',
+  stoneskin: 'hit',
+  wildfire: 'fire',
+  springRain: 'heal',
+  stormSurge: 'thunder',
+  magma: 'meteor',
+  voidBolt: 'thunder',
+  moonwind: 'hit',
 };
 
 /** Duration of an effect in milliseconds. */

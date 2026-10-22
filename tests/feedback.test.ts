@@ -157,6 +157,8 @@ describe('feedbackFor', () => {
       { kind: 'overflow' },
       { kind: 'revive' },
       { kind: 'price', multiplier: 0.85 },
+      { kind: 'fizzle', move: { kind: 'attack', name: 'Stab', power: 3 } },
+      { kind: 'toss', element: 'earth', piece: 'L' },
     ];
     for (const event of events) expect(feedbackFor(event).length, event.kind).toBeGreaterThan(0);
   });
@@ -169,6 +171,22 @@ describe('feedbackFor', () => {
       { kind: 'vfx', target: 'enemy', effect: 'thunder' },
     ]);
     expect(feedbackFor({ kind: 'spell', spellId: 'quake' })).toEqual([]);
+    expect(feedbackFor({ kind: 'spell', spellId: 'regen' })).toEqual([
+      { kind: 'vfx', target: 'hero', effect: 'heal' },
+    ]);
+  });
+
+  it('shows a mentor’s toss on the board and a fizzled move as a miss', () => {
+    expect(feedbackFor({ kind: 'toss', element: 'earth', piece: 'L' })).toEqual([
+      { kind: 'toss', element: 'earth' },
+      { kind: 'icon', target: 'board', icon: 'earth', row: 2 },
+    ]);
+    expect(
+      feedbackFor({ kind: 'fizzle', move: { kind: 'attack', name: 'Stab', power: 3 } }),
+    ).toEqual([
+      { kind: 'icon', target: 'enemy', icon: 'water' },
+      { kind: 'float', target: 'enemy', text: 'Miss', color: ELEMENT_COLOR_OF.water },
+    ]);
   });
 
   it('shows drained mana as a loss on the right pool', () => {

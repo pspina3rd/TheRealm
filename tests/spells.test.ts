@@ -103,9 +103,10 @@ describe('spell data', () => {
     expect(spellElements(spell('fire'))).toEqual(['fire']);
   });
 
-  it('describes every attribute and every Effect', () => {
+  it('describes every attribute and the Effect of every levelled spell', () => {
     expect(Object.keys(ENHANCEMENTS)).toEqual([...ENHANCEMENT_IDS]);
-    const kinds = new Set(Object.values(SPELLS).map((s) => s.levels[0].effect.kind));
+    const levelled = Object.values(SPELLS).filter((s) => maxLevel(s) > 1);
+    const kinds = new Set(levelled.map((s) => s.levels[0].effect.kind));
     for (const kind of kinds) expect(EFFECT_ENHANCEMENTS[kind]).toBeTruthy();
   });
 

@@ -1,10 +1,11 @@
 import type { LockResult } from '../core/board';
-import { elementsOf, type Element } from '../core/elements';
+import { ELEMENTS, elementsOf, type Element } from '../core/elements';
 import type { Rng } from '../core/rng';
 import { ENEMIES } from '../data/enemies';
 import { SPELLS } from '../data/spells';
 import type { EnemyDef, EnemyMove } from '../data/types';
 import {
+  addMana,
   addManaToAll,
   canAfford,
   drainMana,
@@ -68,17 +69,26 @@ export class CombatChallenge implements Challenge {
   ward = 0;
   /** The move the enemy will use when the countdown runs out. */
   nextMove: EnemyMove;
+  /** Kindle: fire damage after each of the next `pieces` pieces. */
+  burn = { power: 0, pieces: 0 };
+  /** Regen: healing after each of the next `pieces` pieces. */
+  regen = { amount: 0, pieces: 0 };
+  /** Static: extra lightning damage on each of the next `clears` line clears. */
+  charge = { power: 0, clears: 0 };
+  /** Mist: enemy moves left that fizzle. */
+  mist = 0;
 
-  private readonly ctx: BattleContext;
+  protected readonly ctx: BattleContext;
 
-  constructor(ctx: BattleContext, enemyId: string) {
-    const enemy = ENEMIES[enemyId];
-    if (!enemy) throw new Error(`Unknown enemy: ${enemyId}`);
+  /** `enemy` is an id in `ENEMIES`, or a definition (e.g. a lesson's scaled foe). */
+  constructor(ctx: BattleContext, enemy: string | EnemyDef) {
+    const def = typeof enemy === 'string' ? ENEMIES[enemy] : enemy;
+    if (!def) throw new Error(`Unknown enemy: ${String(enemy)}`);
     this.ctx = ctx;
-    this.enemy = enemy;
-    this.enemyHp = enemy.hp;
-    this.countdown = enemy.actEvery;
-    this.nextMove = ctx.rng.pick(enemy.moves);
+    this.enemy = def;
+    this.enemyHp = def.hp;
+    this.countdown = def.actEvery;
+    this.nextMove = ctx.rng.pick(def.moves);
   }
 
   onLock(result: LockResult): void {
@@ -102,9 +112,32 @@ export class CombatChallenge implements Challenge {
           this.applySurge(surge, result.linesCleared, result.rows[i] ?? 0);
         }
       });
+      if (this.charge.clears > 0 && this.status() === 'ongoing') {
+        this.charge.clears--;
+        this.elementalHit(this.charge.power, 'lightning');
+      }
     }
+    this.tick();
     if (result.toppedOut) this.overflow();
     this.spendAction();
+  }
+
+  /** Kindle and Regen act once per piece placed. */
+  private tick(): void {
+    if (this.burn.pieces > 0 && this.status() === 'ongoing') {
+      this.burn.pieces--;
+      this.elementalHit(this.burn.power, 'fire');
+    }
+    if (this.regen.pieces > 0 && this.status() === 'ongoing') {
+      this.regen.pieces--;
+      this.healHero(this.regen.amount);
+    }
+  }
+
+  /** Strikes the enemy with `element`, scaled by its weakness or resistance (at least 1). */
+  private elementalHit(base: number, element: Element): void {
+    const multiplier = elementMultiplier(this.enemy, element);
+    this.hitEnemy(Math.max(1, Math.round(base * multiplier)), element, affinityOf(multiplier));
   }
 
   update(): void {
@@ -180,6 +213,31 @@ export class CombatChallenge implements Challenge {
         this.ctx.board.removeBottomRows(effect.rows);
         strike(effect.power, 0);
         break;
+      case 'burn':
+        this.burn = { power: effect.power, pieces: effect.pieces };
+        break;
+      case 'mist':
+        this.mist += effect.moves;
+        break;
+      case 'charge':
+        this.charge = { power: effect.power, clears: effect.clears };
+        break;
+      case 'regen':
+        this.regen = { amount: effect.amount, pieces: effect.pieces };
+        break;
+      case 'ward':
+        this.addWard(effect.amount);
+        break;
+      case 'manaTap': {
+        const gained = Object.fromEntries(
+          ELEMENTS.filter((e) => e !== element).map((e) => [e, effect.amount]),
+        );
+        if (addMana(hero, gained) > 0) this.ctx.emit({ kind: 'mana', gained });
+        break;
+      }
+      case 'swap':
+        this.ctx.board.swapWithNext();
+        break;
     }
     // Effect enhancements: the spell also fires its element's line effect.
     if (cast.surge > 0 && this.status() === 'ongoing') {
@@ -202,9 +260,7 @@ export class CombatChallenge implements Challenge {
   private applySurge({ element, power }: LineSurge, linesTogether: number, row: number): void {
     const hero = this.ctx.hero;
     this.ctx.emit({ kind: 'surge', element, power, row });
-    const multiplier = elementMultiplier(this.enemy, element);
-    const strike = (base: number): void =>
-      this.hitEnemy(Math.max(1, Math.round(base * multiplier)), element, affinityOf(multiplier));
+    const strike = (base: number): void => this.elementalHit(base, element);
     switch (element) {
       case 'fire':
         strike(power);
@@ -222,8 +278,7 @@ export class CombatChallenge implements Challenge {
         this.healHero(power);
         break;
       case 'earth':
-        this.ward = Math.min(MAX_WARD, this.ward + power);
-        this.ctx.emit({ kind: 'ward', total: this.ward });
+        this.addWard(power);
         break;
       case 'arcane': {
         const each = Math.ceil(power / 3);
@@ -239,6 +294,11 @@ export class CombatChallenge implements Challenge {
         this.tailwind(Math.ceil(power / 2));
         break;
     }
+  }
+
+  private addWard(amount: number): void {
+    this.ward = Math.min(MAX_WARD, this.ward + amount);
+    this.ctx.emit({ kind: 'ward', total: this.ward });
   }
 
   private tailwind(pieces: number): void {
@@ -276,7 +336,10 @@ export class CombatChallenge implements Challenge {
       this.countdown = this.enemy.actEvery;
       const move = this.nextMove;
       this.nextMove = this.ctx.rng.pick(this.enemy.moves);
-      this.enemyAct(move);
+      if (this.mist > 0) {
+        this.mist--;
+        this.ctx.emit({ kind: 'fizzle', move });
+      } else this.enemyAct(move);
     }
   }
 

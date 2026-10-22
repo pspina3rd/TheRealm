@@ -1,0 +1,180 @@
+/**
+ * Mentor lessons: what a mentor can teach the hero, how hard each lesson
+ * is, which foe it is fought against, how often the mentor helps, and what
+ * winning or losing does.
+ *
+ * - A mentor teaches only spells of their element: the next level of a
+ *   ready spell, the element's primary, its support (once the primary is
+ *   known) and its combos (once their other element's spell is known).
+ * - Difficulty is the level taught (a new spell is level 1); a combo's is
+ *   the number of its elements (2, or 3 for Meteor).
+ * - Winning teaches the spell or level and lifts the category's lock;
+ *   losing locks the category until a lesson of that mentor is won.
+ */
+import { relationOf, type Element, type ElementRelation } from '../core/elements';
+import { ENEMIES } from '../data/enemies';
+import { MAPS } from '../data/maps';
+import { MENTORS, type MentorDef, type MentorStop } from '../data/mentors';
+import { SPELLS } from '../data/spells';
+import type { ChallengeSpec, EnemyDef, SpellDef } from '../data/types';
+import { isAtHome, mentorStop } from '../world/mentors';
+import type { GameState } from '../world/state';
+import { heroAlignment, learnSpell, raiseSpellLevel, type Hero } from './hero';
+import type { Gain } from './rewards';
+import { ROLE_ORDER, isReady, knownSpell, spellElements } from './spells';
+
+/** A lesson a mentor offers: the spell, the level it teaches (1 = new) and its difficulty. */
+export interface Lesson {
+  readonly spellId: string;
+  readonly level: number;
+  readonly difficulty: number;
+}
+
+/** A lesson's challenge spec, as passed to `Battle`. */
+export type LessonSpec = Extract<ChallengeSpec, { kind: 'lesson' }>;
+
+/** Help chance per piece before the clamp: base − per point × (alignment − difficulty)… */
+export const HELP_BASE = 0.4;
+export const HELP_PER_POINT = 0.05;
+/** …clamped to this range… */
+export const HELP_MIN = 0.1;
+export const HELP_MAX = 0.5;
+/**
+ * …then scaled by how the mentor's element stands to the hero's title
+ * element: the same, related (neutral), `weak` (the mentor's element beats
+ * the hero's) or `strong` (the hero's beats the mentor's).
+ */
+export const HELP_RELATION: Readonly<Record<ElementRelation, number>> = {
+  same: 1,
+  related: 0.8,
+  weak: 0.6,
+  strong: 0.8,
+};
+
+/** A lesson foe gains this share of its HP per difficulty above 1… */
+export const FOE_HP_PER_DIFFICULTY = 0.5;
+/** …and this much attack. */
+export const FOE_ATK_PER_DIFFICULTY = 2;
+
+/** The difficulty of teaching `spell` at `level`. */
+export function lessonDifficulty(spell: SpellDef, level: number): number {
+  return spell.role === 'combo' ? spellElements(spell).length : level;
+}
+
+/** Every lesson `mentor` can give the hero now, primary first, then supports, then combos. */
+export function lessonsFor(hero: Pick<Hero, 'spells'>, mentor: MentorDef): Lesson[] {
+  return Object.values(SPELLS)
+    .filter((spell) => spell.category === mentor.element)
+    .sort((a, b) => ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role))
+    .flatMap((spell): Lesson[] => {
+      const known = knownSpell(hero, spell.id);
+      const level = known ? known.level + 1 : 1;
+      const open = known
+        ? isReady(spell, known)
+        : (spell.requires ?? []).every((id) => knownSpell(hero, id));
+      return open ? [{ spellId: spell.id, level, difficulty: lessonDifficulty(spell, level) }] : [];
+    });
+}
+
+/**
+ * The chance per piece that the mentor tosses the best-fitting piece:
+ * `HELP_BASE − HELP_PER_POINT × (alignment − difficulty)`, clamped to
+ * `HELP_MIN`–`HELP_MAX`, times the `HELP_RELATION` factor.
+ */
+export function helpChance(
+  alignment: number,
+  difficulty: number,
+  mentorElement: Element,
+  titleElement: Element,
+): number {
+  const base = HELP_BASE - HELP_PER_POINT * (alignment - difficulty);
+  const clamped = Math.min(HELP_MAX, Math.max(HELP_MIN, base));
+  return clamped * HELP_RELATION[relationOf(titleElement, mentorElement)];
+}
+
+/** The help chance for a hero in a lesson of `mentor` at `difficulty`. */
+export function heroHelpChance(
+  hero: Pick<Hero, 'spells' | 'titleElement'>,
+  mentor: MentorDef,
+  difficulty: number,
+): number {
+  const alignment = heroAlignment(hero)[mentor.element];
+  return helpChance(alignment, difficulty, mentor.element, hero.titleElement);
+}
+
+/**
+ * Who a lesson is fought against: at home, the mentor's trial foe; away,
+ * the toughest non-boss monster of the area (of the mentor's element if
+ * there is one; the first listed on a tie), or the trial foe where there
+ * are no monsters.
+ */
+export function lessonFoeId(mentor: MentorDef, stop: MentorStop): string {
+  if (isAtHome(mentor, stop)) return mentor.trialFoe;
+  const monsters = (MAPS[stop.map]?.entities ?? []).flatMap((e) =>
+    e.kind === 'monster' && !e.boss && ENEMIES[e.enemyId] ? [ENEMIES[e.enemyId] as EnemyDef] : [],
+  );
+  const own = monsters.filter((enemy) => enemy.element === mentor.element);
+  const pool = own.length > 0 ? own : monsters;
+  const [first, ...rest] = pool;
+  if (!first) return mentor.trialFoe;
+  return rest.reduce((best, enemy) => (enemy.level > best.level ? enemy : best), first).id;
+}
+
+/** A foe made harder for a lesson: more HP, attack and speed per difficulty above 1, no spoils. */
+export function scaledFoe(enemy: EnemyDef, difficulty: number): EnemyDef {
+  const extra = Math.max(0, difficulty - 1);
+  return {
+    ...enemy,
+    level: enemy.level + extra,
+    hp: Math.round(enemy.hp * (1 + FOE_HP_PER_DIFFICULTY * extra)),
+    atk: enemy.atk + FOE_ATK_PER_DIFFICULTY * extra,
+    xp: 0,
+    gil: 0,
+    drops: [],
+  };
+}
+
+/** The battle for `lesson` with `mentorId`, wherever the mentor is now. */
+export function lessonSpec(state: GameState, mentorId: string, lesson: Lesson): LessonSpec {
+  const mentor = MENTORS[mentorId];
+  if (!mentor) throw new Error(`Unknown mentor: ${mentorId}`);
+  const stop = mentorStop(mentor, state.flags, state.victories);
+  return {
+    kind: 'lesson',
+    mentorId,
+    spellId: lesson.spellId,
+    enemyId: lessonFoeId(mentor, stop),
+    difficulty: lesson.difficulty,
+  };
+}
+
+/**
+ * Applies a finished lesson to the hero. A win teaches the spell (or
+ * raises it a level) and lifts the category's lock; a loss locks the
+ * category and the mentor patches the hero up to at least half HP.
+ * Returns what changed, for the results screen.
+ */
+export function completeLesson(hero: Hero, spec: LessonSpec, won: boolean): Gain[] {
+  const mentor = MENTORS[spec.mentorId];
+  if (!mentor) throw new Error(`Unknown mentor: ${spec.mentorId}`);
+  const element = mentor.element;
+  const locked = hero.lockedCategories.includes(element);
+  if (!won) {
+    if (!locked) hero.lockedCategories.push(element);
+    hero.hp = Math.max(hero.hp, Math.ceil(hero.maxHp / 2));
+    return [{ kind: 'lock', element }];
+  }
+  const gains: Gain[] = [];
+  const known = knownSpell(hero, spec.spellId);
+  if (known) {
+    raiseSpellLevel(hero, spec.spellId);
+    gains.push({ kind: 'spellLevel', spellId: spec.spellId, level: known.level + 1 });
+  } else if (learnSpell(hero, spec.spellId)) {
+    gains.push({ kind: 'spell', spellId: spec.spellId });
+  }
+  if (locked) {
+    hero.lockedCategories = hero.lockedCategories.filter((e) => e !== element);
+    gains.push({ kind: 'unlock', element });
+  }
+  return gains;
+}

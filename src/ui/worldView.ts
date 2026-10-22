@@ -1,10 +1,14 @@
-import { ENEMIES } from '../data/enemies';
-import { NPCS } from '../data/npcs';
+import { MENTORS } from '../data/mentors';
+import { entitySprite } from '../game/encounter';
 import { heroClass } from '../game/hero';
-import type { EntityDef, MapDef } from '../world/map';
+import { lessonsFor } from '../game/lessons';
+import type { EntityDef, MapDef, MentorEntity } from '../world/map';
 import { mapHeight, mapWidth } from '../world/map';
 import { activeEntities, currentMap, type GameState } from '../world/state';
 import type { Atlas } from './art/atlas';
+import { ELEMENT_COLOR_OF } from './art/feedback';
+import { ICON_SIZE } from './art/icons';
+import { drawIcon } from './iconDraw';
 import { isCreatureId, isStripSprite, mapFrame } from './art/creatures';
 import type { Region } from './art/images';
 import { TILE, backgroundFor, planGround, planObjects, type PlacedObject } from './art/themes';
@@ -32,6 +36,8 @@ export class WorldView {
   private heroY = 0;
   private lastMap = '';
   private props: PlacedObject[] = [];
+  /** Marks drawn over everything this frame (mentors' scrolls). */
+  private overlays: (() => void)[] = [];
 
   constructor(canvas: HTMLCanvasElement, atlas: Atlas) {
     const ctx = canvas.getContext('2d');
@@ -79,6 +85,7 @@ export class WorldView {
     });
     for (const entity of activeEntities(state)) {
       drawables.push(this.entityDrawable(entity, camX, camY, timeMs));
+      if (entity.kind === 'mentor') this.drawMentorMark(state, entity, camX, camY, timeMs);
     }
     const heroRegion = mapFrame(
       spriteOf(heroClass(state.hero).sprite),
@@ -92,6 +99,8 @@ export class WorldView {
     });
 
     drawables.sort((a, b) => a.sortY - b.sortY).forEach((d) => d.draw());
+    this.overlays.forEach((draw) => draw());
+    this.overlays = [];
   }
 
   private drawGround(map: MapDef, camX: number, camY: number, timeMs: number): void {
@@ -109,9 +118,7 @@ export class WorldView {
   }
 
   private entityDrawable(entity: EntityDef, camX: number, camY: number, timeMs: number): Drawable {
-    const key =
-      entity.kind === 'monster' ? ENEMIES[entity.enemyId]?.sprite : NPCS[entity.npcId]?.sprite;
-    const id = spriteOf(key ?? '');
+    const id = spriteOf(entitySprite(entity) ?? '');
     // Monsters shuffle on the spot; townsfolk stand still facing you.
     const region = mapFrame(id, 'down', entity.kind === 'monster', timeMs + entity.x * 137);
     const x = entity.x * TILE - camX;
@@ -123,6 +130,38 @@ export class WorldView {
       draw: () =>
         isStrip ? this.drawStanding(region, x, y, size, size) : this.drawStanding(region, x, y),
     };
+  }
+
+  /**
+   * A mentor's marks: a glow of their element's colour at their feet, and
+   * a bobbing scroll overhead while they have a lesson for the hero. The
+   * glow is drawn at once (under every sprite); the scroll goes on top.
+   */
+  private drawMentorMark(
+    state: GameState,
+    entity: MentorEntity,
+    camX: number,
+    camY: number,
+    timeMs: number,
+  ): void {
+    const mentor = MENTORS[entity.mentorId];
+    if (!mentor) return;
+    const { ctx } = this;
+    const cx = entity.x * TILE - camX + TILE / 2;
+    const cy = entity.y * TILE - camY + TILE - 3;
+    ctx.save();
+    ctx.globalAlpha = 0.45 + 0.15 * Math.sin(timeMs / 300);
+    ctx.fillStyle = ELEMENT_COLOR_OF[mentor.element];
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, TILE * 0.45, TILE * 0.18, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    if (lessonsFor(state.hero, mentor).length > 0) {
+      this.overlays.push(() => {
+        const bob = Math.round(Math.sin(timeMs / 250) * 2);
+        drawIcon(ctx, 'scroll', cx - ICON_SIZE, entity.y * TILE - camY - 30 + bob, { scale: 2 });
+      });
+    }
   }
 
   /** Draws a sprite with its bottom centre on the bottom centre of the tile at pixel (x, y). */

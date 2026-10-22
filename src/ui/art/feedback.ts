@@ -10,6 +10,7 @@ import { CRYSTAL_HEX } from '../crystals';
 import { ELEMENT_ICONS, type IconId } from './icons';
 import { SPELL_EFFECTS, type EffectId } from './vfx';
 import { SPELLS } from '../../data/spells';
+import type { SpellEffect } from '../../data/types';
 
 /** Where on the battle screen feedback appears. */
 export type Target = 'enemy' | 'hero' | 'board';
@@ -42,7 +43,9 @@ export type Feedback =
       readonly elements: readonly Element[];
       readonly direction: 'up' | 'down';
     }
-  | { readonly kind: 'defeat' };
+  | { readonly kind: 'defeat' }
+  /** A mentor tossed a piece: their portrait pulses and the tossed piece glows. */
+  | { readonly kind: 'toss'; readonly element: Element };
 
 export const COLORS = {
   damage: '#ffffff',
@@ -69,6 +72,9 @@ const SURGE_EFFECTS: Partial<Record<Element, EffectId>> = {
   lightning: 'thunder',
   water: 'ice',
 };
+
+/** Kinds of spell whose effect plays on the hero rather than the enemy. */
+const HERO_SPELL_KINDS: readonly SpellEffect['kind'][] = ['heal', 'regen', 'ward', 'manaTap'];
 
 /** The colour a cleared line flashes: its strongest element, or white for mixed lines. */
 export function lineColor(line: CellTally): string {
@@ -121,6 +127,16 @@ export function feedbackFor(event: BattleEvent): Feedback[] {
       return [{ kind: 'defeat' }];
     case 'enemyMove':
       return [{ kind: 'banner', text: event.move.name }];
+    case 'fizzle':
+      return [
+        { kind: 'icon', target: 'enemy', icon: 'water' },
+        { kind: 'float', target: 'enemy', text: 'Miss', color: ELEMENT_COLOR_OF.water },
+      ];
+    case 'toss':
+      return [
+        { kind: 'toss', element: event.element },
+        { kind: 'icon', target: 'board', icon: ELEMENT_ICONS[event.element], row: 2 },
+      ];
     case 'enemyHeal':
       return [{ kind: 'float', target: 'enemy', text: `+${event.amount}`, color: COLORS.heal }];
     case 'heroHit':
@@ -163,8 +179,9 @@ export function feedbackFor(event: BattleEvent): Feedback[] {
     case 'spell': {
       const effect = SPELL_EFFECTS[event.spellId];
       if (!effect) return [];
-      const healing = SPELLS[event.spellId]?.levels[0].effect.kind === 'heal';
-      return [{ kind: 'vfx', target: healing ? 'hero' : 'enemy', effect }];
+      const kind = SPELLS[event.spellId]?.levels[0].effect.kind;
+      const onHero = kind !== undefined && HERO_SPELL_KINDS.includes(kind);
+      return [{ kind: 'vfx', target: onHero ? 'hero' : 'enemy', effect }];
     }
     case 'item':
       return [{ kind: 'vfx', target: 'hero', effect: 'heal' }];

@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { ENEMIES } from '../src/data/enemies';
 import { ITEMS } from '../src/data/items';
+import { ELEMENTS } from '../src/core/elements';
 import { MAPS, START } from '../src/data/maps';
+import { MENTORS } from '../src/data/mentors';
 import { NPCS } from '../src/data/npcs';
 import { SHOPS } from '../src/data/shops';
 import { SPELLS, STARTING_SPELLS } from '../src/data/spells';
@@ -10,6 +12,38 @@ import { TILES } from '../src/world/tiles';
 import { makeBattle } from './helpers';
 
 const allEntities = Object.values(MAPS).flatMap((m) => m.entities.map((e) => ({ map: m, e })));
+
+/**
+ * Flood-fills from the start through walkable tiles and warps (treating
+ * locked warps as open, and monsters as passable since they can be beaten)
+ * to find every tile the hero can stand on.
+ */
+function reachableTiles(): Set<string> {
+  const seen = new Set<string>();
+  const queue: [string, number, number][] = [[START.map, START.x, START.y]];
+  const blockers = new Set(
+    allEntities.filter(({ e }) => e.kind === 'npc').map(({ map, e }) => `${map.id}:${e.x},${e.y}`),
+  );
+  while (queue.length) {
+    const [mapId, x, y] = queue.pop()!;
+    const key = `${mapId}:${x},${y}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const map = MAPS[mapId]!;
+    const warp = warpAt(map, x, y);
+    if (warp) queue.push([warp.to.map, warp.to.x, warp.to.y]);
+    for (const [dx, dy] of Object.values(DIRECTION_DELTAS)) {
+      const nx = x + dx;
+      const ny = y + dy;
+      if (nx < 0 || ny < 0 || nx >= mapWidth(map) || ny >= mapHeight(map)) continue;
+      if (!tileAt(map, nx, ny).walkable || blockers.has(`${mapId}:${nx},${ny}`)) continue;
+      queue.push([mapId, nx, ny]);
+    }
+  }
+  return seen;
+}
+
+const reachable = reachableTiles();
 
 describe('maps', () => {
   for (const map of Object.values(MAPS)) {
@@ -54,35 +88,8 @@ describe('maps', () => {
     expect(tileAt(MAPS[START.map]!, START.x, START.y).walkable).toBe(true);
   });
 
-  /**
-   * Flood-fills from the start through walkable tiles and warps (treating
-   * locked warps as open, and monsters as passable since they can be beaten)
-   * to prove every map and every NPC can be reached.
-   */
   it('makes every map and entity reachable from the start', () => {
-    const seen = new Set<string>();
-    const queue: [string, number, number][] = [[START.map, START.x, START.y]];
-    const blockers = new Set(
-      allEntities
-        .filter(({ e }) => e.kind === 'npc')
-        .map(({ map, e }) => `${map.id}:${e.x},${e.y}`),
-    );
-    while (queue.length) {
-      const [mapId, x, y] = queue.pop()!;
-      const key = `${mapId}:${x},${y}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      const map = MAPS[mapId]!;
-      const warp = warpAt(map, x, y);
-      if (warp) queue.push([warp.to.map, warp.to.x, warp.to.y]);
-      for (const [dx, dy] of Object.values(DIRECTION_DELTAS)) {
-        const nx = x + dx;
-        const ny = y + dy;
-        if (nx < 0 || ny < 0 || nx >= mapWidth(map) || ny >= mapHeight(map)) continue;
-        if (!tileAt(map, nx, ny).walkable || blockers.has(`${mapId}:${nx},${ny}`)) continue;
-        queue.push([mapId, nx, ny]);
-      }
-    }
+    const seen = reachable;
     const visitedMaps = new Set([...seen].map((k) => k.split(':')[0]));
     expect([...visitedMaps].sort()).toEqual(Object.keys(MAPS).sort());
     for (const { map, e } of allEntities) {
@@ -94,9 +101,56 @@ describe('maps', () => {
   });
 });
 
+describe('mentors', () => {
+  const stops = Object.values(MENTORS).flatMap((m) => m.route.map((stop) => ({ m, stop })));
+
+  it('has one mentor per element, each with a trial wisp of that element', () => {
+    expect(new Set(Object.values(MENTORS).map((m) => m.element))).toEqual(new Set(ELEMENTS));
+    for (const m of Object.values(MENTORS)) {
+      expect(ENEMIES[m.trialFoe]?.element, m.id).toBe(m.element);
+      expect(m.route[0].requiresFlag, m.id).toBeUndefined();
+      expect(m.moveEvery).toBeGreaterThan(0);
+    }
+  });
+
+  it('stops on walkable tiles, clear of warps, people, monsters and each other', () => {
+    const seen = new Set<string>();
+    for (const { m, stop } of stops) {
+      const map = MAPS[stop.map];
+      expect(map, stop.map).toBeDefined();
+      if (!map) continue;
+      const label = `${m.id} ${stop.map} ${stop.x},${stop.y}`;
+      expect(tileAt(map, stop.x, stop.y).walkable, label).toBe(true);
+      for (const [dx, dy] of [[0, 0], ...Object.values(DIRECTION_DELTAS)]) {
+        expect(warpAt(map, stop.x + dx!, stop.y + dy!), label).toBeUndefined();
+      }
+      expect(
+        map.entities.some((e) => e.x === stop.x && e.y === stop.y),
+        label,
+      ).toBe(false);
+      const key = `${stop.map}:${stop.x},${stop.y}`;
+      expect(seen.has(key), label).toBe(false);
+      seen.add(key);
+      if (stop.requiresFlag && !stop.requiresFlag.startsWith('defeated:')) {
+        expect(['cavePass'], label).toContain(stop.requiresFlag);
+      }
+    }
+  });
+
+  it('can be reached at every stop', () => {
+    for (const { m, stop } of stops) {
+      const map = MAPS[stop.map]!;
+      const adjacent = Object.values(DIRECTION_DELTAS).some(([dx, dy]) =>
+        reachable.has(`${map.id}:${stop.x + dx},${stop.y + dy}`),
+      );
+      expect(adjacent, `${m.id} ${stop.map}`).toBe(true);
+    }
+  });
+});
+
 describe('content references', () => {
   it('uses ids that match their keys', () => {
-    for (const table of [ENEMIES, ITEMS, NPCS, SHOPS, SPELLS, MAPS]) {
+    for (const table of [ENEMIES, ITEMS, NPCS, SHOPS, SPELLS, MAPS, MENTORS]) {
       for (const [key, value] of Object.entries(table)) expect(value.id).toBe(key);
     }
   });
@@ -112,6 +166,9 @@ describe('content references', () => {
     }
     for (const item of Object.values(ITEMS)) {
       if (item.use?.learnSpell) expect(SPELLS[item.use.learnSpell]).toBeDefined();
+    }
+    for (const spell of Object.values(SPELLS)) {
+      for (const id of spell.requires ?? []) expect(SPELLS[id], id).toBeDefined();
     }
     for (const npc of Object.values(NPCS)) {
       for (const reward of npc.rewards) {

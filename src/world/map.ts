@@ -46,7 +46,17 @@ export interface MonsterEntity extends EntityBase {
   readonly boss?: boolean;
 }
 
-export type EntityDef = NpcEntity | MonsterEntity;
+/** A travelling mentor, placed by their route (see `src/world/mentors.ts`), not by a map. */
+export interface MentorEntity extends EntityBase {
+  readonly kind: 'mentor';
+  readonly mentorId: string;
+}
+
+/** Someone a map places: a person or a monster. */
+export type MapEntity = NpcEntity | MonsterEntity;
+
+/** Anyone the hero can walk into. */
+export type EntityDef = MapEntity | MentorEntity;
 
 /** Which art set a map is drawn with (see `src/ui/art/themes.ts`). */
 export type ThemeId = 'outdoor' | 'town' | 'cave';
@@ -69,7 +79,7 @@ export interface MapDef {
   /** Rows of tile characters; every row must be the same length. */
   readonly tiles: readonly string[];
   readonly warps: readonly Warp[];
-  readonly entities: readonly EntityDef[];
+  readonly entities: readonly MapEntity[];
   readonly decor?: readonly DecorDef[];
   /**
    * Tilts which pieces fall in battles here: extra (or fewer) copies of each

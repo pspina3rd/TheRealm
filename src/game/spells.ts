@@ -179,14 +179,30 @@ export function castSpellFor(
   };
 }
 
-/** The number Power raises: the spell's damage, or its healing. */
+/**
+ * The number Power raises: the spell's damage, healing or ward, or the
+ * mana it gives; 0 for spells with no such number (Mist, Gust).
+ */
 export function castPower(effect: SpellEffect): number {
-  return effect.kind === 'heal' ? effect.amount : effect.power;
+  switch (effect.kind) {
+    case 'heal':
+    case 'regen':
+    case 'ward':
+    case 'manaTap':
+      return effect.amount;
+    case 'mist':
+    case 'swap':
+      return 0;
+    default:
+      return effect.power;
+  }
 }
 
 /**
  * The number Effect raises: line-effect strength (damage and heal), rows
- * (clearRows), pieces (freeze, tailwind) or healed share in percent (drain).
+ * (clearRows), pieces (freeze, tailwind, burn, regen) or healed share in
+ * percent (drain). For single-level supports it is their duration (pieces,
+ * clears or moves), or 0.
  */
 export function castEffect(cast: CastSpell): number {
   const effect = cast.effect;
@@ -198,9 +214,19 @@ export function castEffect(cast: CastSpell): number {
       return effect.rows;
     case 'freeze':
     case 'tailwind':
+    case 'burn':
+    case 'regen':
       return effect.pieces;
     case 'drain':
       return Math.round(effect.share * 100);
+    case 'charge':
+      return effect.clears;
+    case 'mist':
+      return effect.moves;
+    case 'ward':
+    case 'manaTap':
+    case 'swap':
+      return 0;
   }
 }
 
@@ -226,6 +252,27 @@ export function castSummary(cast: CastSpell): string {
       break;
     case 'drain':
       parts.push(`${effect.power} damage`, `heal ${Math.round(effect.share * 100)}% of it`);
+      break;
+    case 'burn':
+      parts.push(`${effect.power} damage × ${effect.pieces} pieces`);
+      break;
+    case 'mist':
+      parts.push(`next ${effect.moves} enemy move fizzles`);
+      break;
+    case 'charge':
+      parts.push(`+${effect.power} damage × ${effect.clears} clears`);
+      break;
+    case 'regen':
+      parts.push(`heal ${effect.amount} × ${effect.pieces} pieces`);
+      break;
+    case 'ward':
+      parts.push(`ward ${effect.amount}`);
+      break;
+    case 'manaTap':
+      parts.push(`+${effect.amount} mana to the other pools`);
+      break;
+    case 'swap':
+      parts.push('swap for the next piece');
       break;
   }
   if (cast.surge > 0) parts.push(`+${cast.surge} line effect`);
@@ -257,6 +304,15 @@ function enhancedEffect(
         power: power(effect.power),
         share: Math.min(1, effect.share + DRAIN_SHARE_PER_EFFECT * extra),
       };
+    // Single-level supports: nothing to enhance.
+    case 'burn':
+    case 'mist':
+    case 'charge':
+    case 'regen':
+    case 'ward':
+    case 'manaTap':
+    case 'swap':
+      return effect;
   }
 }
 
@@ -293,7 +349,8 @@ export interface SpellCategory {
   readonly spells: readonly string[];
 }
 
-const ROLE_ORDER = ['primary', 'support', 'combo'] as const;
+/** Menu and lesson order of spells within a category. */
+export const ROLE_ORDER = ['primary', 'support', 'combo'] as const;
 
 /**
  * The categories the hero knows spells in, in element order (so each

@@ -1,5 +1,6 @@
 import type { Board, CellTally, LockResult } from '../core/board';
 import type { Element } from '../core/elements';
+import type { PieceName } from '../core/pieces';
 import type { EnemyMove, ElementAmounts } from '../data/types';
 import type { Rng } from '../core/rng';
 import type { Hero } from '../game/hero';
@@ -38,6 +39,10 @@ export type BattleEvent =
   | { readonly kind: 'crit' }
   /** The enemy used a move (its name is shown as a banner, as in classic RPGs). */
   | { readonly kind: 'enemyMove'; readonly move: EnemyMove }
+  /** The enemy's move fizzled in the hero's Mist. */
+  | { readonly kind: 'fizzle'; readonly move: EnemyMove }
+  /** A mentor tossed the hero a piece in their element's colour (a lesson). */
+  | { readonly kind: 'toss'; readonly element: Element; readonly piece: PieceName }
   | { readonly kind: 'enemyHeal'; readonly amount: number }
   | { readonly kind: 'heroHit'; readonly amount: number }
   | { readonly kind: 'heroHeal'; readonly amount: number }

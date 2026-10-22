@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { CLASSES } from '../src/data/classes';
 import { ENEMIES } from '../src/data/enemies';
 import { MAPS } from '../src/data/maps';
+import { MENTORS } from '../src/data/mentors';
 import { NPCS } from '../src/data/npcs';
 import { FULL_TILE } from '../src/ui/art/autotile';
 import {
@@ -89,6 +90,7 @@ describe('sprite keys in game data', () => {
       ...Object.values(ENEMIES).map((e) => e.sprite),
       ...Object.values(NPCS).map((n) => n.sprite),
       ...Object.values(CLASSES).map((c) => c.sprite),
+      ...Object.values(MENTORS).map((m) => m.sprite),
     ];
     for (const key of keys) expect(isCreatureId(key), key).toBe(true);
   });

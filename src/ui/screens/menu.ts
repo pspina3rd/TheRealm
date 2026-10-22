@@ -1,3 +1,4 @@
+import type { Element } from '../../core/elements';
 import { ITEMS } from '../../data/items';
 import { SPELLS } from '../../data/spells';
 import {
@@ -30,6 +31,8 @@ import { chip, levelPips, sectionTitle, spellMeta, spritePortrait } from './widg
 export interface MenuHandlers {
   readonly onUse: (itemId: string) => void;
   readonly onEquip: (itemId: string) => void;
+  /** Where to find the mentor who can unlock a locked category. */
+  readonly lockHint?: (category: Element) => HTMLElement;
 }
 
 /** Name, title, level, totals, stat ranks and XP, with the hero's sprite and alignment star. */
@@ -159,7 +162,12 @@ export function menuBody(atlas: Atlas, hero: Hero, handlers: MenuHandlers): HTML
             spellMeta(cast),
           ),
           ...(ready ? [iconElement('scroll', 2, 'Ready: a mentor can teach the next level')] : []),
-          ...(locked ? [iconElement('lock', 2, 'Locked until the lesson is won')] : []),
+          ...(locked
+            ? [
+                iconElement('lock', 2, 'Locked until the lesson is won'),
+                ...(handlers.lockHint ? [handlers.lockHint(spell.category)] : []),
+              ]
+            : []),
         ),
       ];
     }),

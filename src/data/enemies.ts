@@ -1,4 +1,5 @@
-import type { EnemyDef } from './types';
+import type { Element } from '../core/elements';
+import type { EnemyDef, EnemyMove } from './types';
 
 /** Every enemy in the game, keyed by id. */
 export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
@@ -133,4 +134,43 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     sprite: 'battler.wyrm',
     description: 'Guardian of the Moon Caves.',
   },
+
+  ...wisps(),
 };
+
+/**
+ * A wisp: the trial foe a mentor summons at home for a lesson, one of each
+ * element, sharing the slime's sprite washed in the element's colour. These
+ * are their difficulty 1 numbers; `lessonFoe` scales them up. They give no
+ * spoils: the lesson is the reward.
+ */
+function wisp(id: string, name: string, element: Element, special: EnemyMove): EnemyDef {
+  return {
+    id,
+    name,
+    level: 2,
+    hp: 30,
+    atk: 5,
+    xp: 0,
+    gil: 0,
+    element,
+    actEvery: 4,
+    moves: [{ kind: 'attack', name: 'Lash', power: 2 }, special],
+    sprite: 'enemy.slime',
+    tint: element,
+    description: 'A wisp of raw mana, summoned for a lesson.',
+  };
+}
+
+function wisps(): Record<string, EnemyDef> {
+  const list = [
+    wisp('emberWisp', 'Ember Wisp', 'fire', { kind: 'attack', name: 'Flare', power: 5 }),
+    wisp('tideWisp', 'Tide Wisp', 'water', { kind: 'haste', name: 'Undertow', pieces: 3 }),
+    wisp('sparkWisp', 'Spark Wisp', 'lightning', { kind: 'attack', name: 'Zap', power: 4 }),
+    wisp('mossWisp', 'Moss Wisp', 'nature', { kind: 'heal', name: 'Bloom', amount: 8 }),
+    wisp('stoneWisp', 'Stone Wisp', 'earth', { kind: 'curse', name: 'Pebbles', rows: 1 }),
+    wisp('moonWisp', 'Moon Wisp', 'arcane', { kind: 'drain', name: 'Siphon', mana: 3 }),
+    wisp('galeWisp', 'Gale Wisp', 'wind', { kind: 'haste', name: 'Gust', pieces: 3 }),
+  ];
+  return Object.fromEntries(list.map((enemy) => [enemy.id, enemy]));
+}

@@ -24,7 +24,10 @@ const KICKS = [0, -1, 1, -2, 2, -3, 3] as const;
 
 export interface ActivePiece {
   readonly name: PieceName;
+  /** The colour its crystals lock as: the shape's own unless overridden. */
   readonly color: CrystalColor;
+  /** True when the colour was set by `replaceActive` rather than taken from the shape. */
+  readonly recolored: boolean;
   cells: Offset[];
   x: number;
   y: number;
@@ -32,6 +35,19 @@ export interface ActivePiece {
 
 /** Counts of cleared cells by kind, e.g. `{ red: 4, stone: 2 }`. */
 export type CellTally = Partial<Record<Exclude<Cell, null>, number>>;
+
+/** How `replaceActive` sets up a piece: a colour override, and a starting rotation and column. */
+export interface PieceOptions {
+  /** Crystal colour for every cell, instead of the shape's own. */
+  readonly color?: CrystalColor;
+  /** Cell offsets (a rotation of the shape); defaults to the spawn orientation. */
+  readonly cells?: readonly Offset[];
+  /** Starting column of the piece origin; defaults to the spawn column. */
+  readonly x?: number;
+}
+
+/** Column where new pieces appear. */
+const SPAWN_X = 3;
 
 /** What happened when the active piece locked into the grid. */
 export interface LockResult {
@@ -152,18 +168,43 @@ export class Board {
       this.preview(1);
       name = this.bag.shift() as PieceName;
     }
-    const def = PIECES[name];
-    this.active = {
-      name,
-      color: def.color,
-      cells: def.cells.map((c) => [...c] as Offset),
-      x: 3,
-      y: 0,
-    };
+    this.active = makePiece(name);
     if (this.collides(0, 0, this.active.cells)) {
       this.toppedOut = true;
       return false;
     }
+    return true;
+  }
+
+  /**
+   * Swaps the falling piece for `name` at the top of the board, optionally
+   * recoloured, turned and moved (a mentor's toss). The queue is untouched.
+   * Returns false, changing nothing, if there is no active piece or the new
+   * one would not fit.
+   */
+  replaceActive(name: PieceName, options: PieceOptions = {}): boolean {
+    if (!this.active) return false;
+    const piece = makePiece(name, options);
+    const previous = this.active;
+    this.active = piece;
+    if (!this.collides(0, 0)) return true;
+    this.active = previous;
+    return false;
+  }
+
+  /**
+   * Swaps the falling piece for the next one in the queue, which restarts
+   * at the top; the falling piece's shape takes its place in the queue.
+   * Returns false, changing nothing, if there is no next piece or it would
+   * not fit.
+   */
+  swapWithNext(): boolean {
+    const previous = this.active;
+    const [next] = this.preview(1);
+    if (!previous || !next) return false;
+    if (!this.replaceActive(next)) return false;
+    const queue = this.fixedQueue ?? this.bag;
+    queue[0] = previous.name;
     return true;
   }
 
@@ -308,6 +349,19 @@ export class Board {
     this.grid = [...Board.emptyGrid(this.width, lines.length), ...kept];
     return { lines, rows, tally };
   }
+}
+
+/** A piece at the top of the board: the shape's spawn orientation and colour unless overridden. */
+function makePiece(name: PieceName, options: PieceOptions = {}): ActivePiece {
+  const def = PIECES[name];
+  return {
+    name,
+    color: options.color ?? def.color,
+    recolored: options.color !== undefined,
+    cells: (options.cells ?? def.cells).map((c) => [...c] as Offset),
+    x: options.x ?? SPAWN_X,
+    y: 0,
+  };
 }
 
 /** Adds a row's cells to `tally` and returns it. */

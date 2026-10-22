@@ -1,11 +1,24 @@
+import { ELEMENT_NAMES } from '../../core/elements';
 import { ITEMS } from '../../data/items';
+import { SPELLS } from '../../data/spells';
+import type { Lesson } from '../../game/lessons';
+import { castSpellFor, castSummary, newKnownSpell } from '../../game/spells';
 import type { Interaction } from '../../game/encounter';
 import type { Resolution } from '../../game/encounter';
 import type { Atlas } from '../art/atlas';
-import { itemIcon } from '../art/icons';
-import { el } from '../dom';
+import { ELEMENT_ICONS, itemIcon } from '../art/icons';
+import { button, el } from '../dom';
 import { iconElement } from '../iconDraw';
-import { challengeCard, chip, gainRows, rewardIcons, spritePortrait } from './widgets';
+import {
+  challengeCard,
+  chip,
+  difficultyPips,
+  gainRows,
+  levelPips,
+  rewardIcons,
+  spellMeta,
+  spritePortrait,
+} from './widgets';
 
 /** The speaker's portrait beside a speech bubble. */
 function speech(atlas: Atlas, sprite: string, text: string): HTMLElement {
@@ -18,11 +31,46 @@ function speech(atlas: Atlas, sprite: string, text: string): HTMLElement {
 }
 
 /**
+ * One lesson a mentor offers, as a button: the spell's element, its name
+ * and level pips at the level taught, what it does and costs, and the
+ * lesson's difficulty. A raised level shows the ready scroll.
+ */
+function lessonButton(lesson: Lesson, onPick: (lesson: Lesson) => void): HTMLButtonElement {
+  const spell = SPELLS[lesson.spellId];
+  const node = button('', () => onPick(lesson));
+  node.className = 'lesson';
+  if (!spell) return node;
+  const cast = castSpellFor(spell, { ...newKnownSpell(), level: lesson.level });
+  node.title = castSummary(cast);
+  node.append(
+    iconElement(ELEMENT_ICONS[spell.category], 3, ELEMENT_NAMES[spell.category]),
+    el('span', {}, el('b', { text: cast.name }), levelPips(spell, lesson.level), spellMeta(cast)),
+    ...(lesson.level > 1 ? [iconElement('scroll', 2, 'Next level')] : []),
+    difficultyPips(lesson.difficulty),
+  );
+  return node;
+}
+
+/**
  * A conversation: who is speaking, what they say, and for a challenge, a
  * picture of what they want (the challenge card) and what they give back.
+ * A mentor's lessons are buttons; picking one calls `onLesson`.
  */
-export function conversationBody(atlas: Atlas, interaction: Interaction): HTMLElement[] {
+export function conversationBody(
+  atlas: Atlas,
+  interaction: Interaction,
+  onLesson: (lesson: Lesson) => void = () => {},
+): HTMLElement[] {
   const body = [speech(atlas, interaction.sprite, interaction.text)];
+  if (interaction.kind === 'lessons') {
+    body.push(
+      el(
+        'div',
+        { className: 'lessons' },
+        ...interaction.lessons.map((lesson) => lessonButton(lesson, onLesson)),
+      ),
+    );
+  }
   if (interaction.kind === 'needsItem') {
     body.push(
       el(

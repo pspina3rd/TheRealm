@@ -5,7 +5,16 @@ import type { Objective } from '../battle/types';
 import type { Atlas } from './art/atlas';
 import { CREATURES, battleFrame, mapFrame, type CreatureId } from './art/creatures';
 import { ELEMENT_COLOR_OF, type Feedback, type Target } from './art/feedback';
-import { ELEMENT_ICONS, ICON_SIZE, MOVE_ICONS, type IconId } from './art/icons';
+import type { Element } from '../core/elements';
+import type { Region } from './art/images';
+import {
+  ELEMENT_ICONS,
+  ICON_SIZE,
+  MOVE_ICONS,
+  SPELL_KIND_ICONS,
+  type IconId,
+  type IconSpec,
+} from './art/icons';
 import { effectDuration, effectFrame, type EffectId } from './art/vfx';
 import { drawCount } from './boardView';
 import { drawIcon, drawIconSpec } from './iconDraw';
@@ -17,11 +26,20 @@ const BANNER_MS = 1300;
 const SHAKE_MS = 320;
 const DEFEAT_MS = 700;
 const EFFECT_SIZE = 128;
+const HOP_MS = 400;
+
+/** Extras for a lesson: the foe's colour wash, and the mentor fighting beside the hero. */
+export interface StageOptions {
+  readonly tint?: Element;
+  readonly ally?: CreatureId | null;
+  readonly allyElement?: Element;
+}
 
 /** Where things are drawn on the 480×240 stage. */
 const LAYOUT = {
   enemy: { x: 300, baseline: 226 },
   hero: { x: 78, baseline: 236 },
+  ally: { x: 160, baseline: 232 },
   bar: { x: 220, y: 14, w: 200, h: 10 },
 } as const;
 
@@ -57,6 +75,10 @@ export class Stage {
   private banner: Timed<string> | null = null;
   private shakes: Partial<Record<Target, number>> = {};
   private defeat: number | null = null;
+  private options: StageOptions = {};
+  /** Time since the ally last tossed a piece (they hop), or null. */
+  private hop: number | null = null;
+  private tintCanvas: HTMLCanvasElement | null = null;
 
   constructor(canvas: HTMLCanvasElement, atlas: Atlas) {
     const ctx = canvas.getContext('2d');
@@ -66,9 +88,11 @@ export class Stage {
     this.atlas = atlas;
   }
 
-  show(opponent: CreatureId | null, hero: CreatureId): void {
+  show(opponent: CreatureId | null, hero: CreatureId, options: StageOptions = {}): void {
     this.opponent = opponent;
     this.hero = hero;
+    this.options = options;
+    this.hop = null;
     this.floats = [];
     this.effects = [];
     this.pops = [];
@@ -102,6 +126,9 @@ export class Stage {
       case 'defeat':
         this.defeat = 0;
         break;
+      case 'toss':
+        this.hop = 0;
+        break;
       default:
         break;
     }
@@ -115,6 +142,7 @@ export class Stage {
       this.shakes[key] = Math.max(0, (this.shakes[key] ?? 0) - dtMs);
     }
 
+    this.drawAlly(dtMs, timeMs);
     this.drawHero(timeMs);
     this.drawOpponent(dtMs, timeMs);
     const combat = battle.combat;
@@ -152,6 +180,45 @@ export class Stage {
     );
   }
 
+  /** The mentor beside the hero, seen from behind; they hop and flash their element on a toss. */
+  private drawAlly(dtMs: number, timeMs: number): void {
+    const ally = this.options.ally;
+    if (!ally) return;
+    const region = mapFrame(ally, 'up', false, timeMs);
+    const scale = 2;
+    let lift = 0;
+    if (this.hop !== null) {
+      this.hop += dtMs;
+      const t = this.hop / HOP_MS;
+      if (t >= 1) this.hop = null;
+      else lift = Math.sin(t * Math.PI) * 14;
+    }
+    const x = LAYOUT.ally.x - (region.w * scale) / 2;
+    const top = LAYOUT.ally.baseline - region.h * scale - lift;
+    const element = this.options.allyElement;
+    if (element) {
+      const { ctx } = this;
+      ctx.save();
+      ctx.globalAlpha = 0.5;
+      ctx.fillStyle = ELEMENT_COLOR_OF[element];
+      ctx.beginPath();
+      ctx.ellipse(LAYOUT.ally.x, LAYOUT.ally.baseline - 4, 26, 8, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      if (this.hop !== null) {
+        drawIcon(ctx, ELEMENT_ICONS[element], LAYOUT.ally.x - 12, top - 28, { scale: 2 });
+      }
+    }
+    this.atlas.draw(
+      this.ctx,
+      region,
+      Math.round(x),
+      Math.round(top),
+      region.w * scale,
+      region.h * scale,
+    );
+  }
+
   private drawOpponent(dtMs: number, timeMs: number): void {
     if (!this.opponent) return;
     const region = battleFrame(this.opponent, timeMs);
@@ -167,8 +234,32 @@ export class Stage {
       ctx.filter = `brightness(${1 + t * 2})`;
     }
     const x = LAYOUT.enemy.x - w / 2 + this.shakeOffset('enemy', timeMs);
-    this.atlas.draw(ctx, region, Math.round(x), Math.round(LAYOUT.enemy.baseline - h), w, h);
+    const y = Math.round(LAYOUT.enemy.baseline - h);
+    const tint = this.options.tint;
+    if (tint) this.drawTinted(region, Math.round(x), y, w, h, ELEMENT_COLOR_OF[tint]);
+    else this.atlas.draw(ctx, region, Math.round(x), y, w, h);
     ctx.restore();
+  }
+
+  /**
+   * Draws a sprite recoloured to `color`'s hue, keeping its shading, through
+   * an offscreen canvas: the colour blends over it, then the sprite's own
+   * outline masks the result.
+   */
+  private drawTinted(region: Region, x: number, y: number, w: number, h: number, color: string) {
+    const canvas = (this.tintCanvas ??= document.createElement('canvas'));
+    canvas.width = w;
+    canvas.height = h;
+    const off = canvas.getContext('2d');
+    if (!off) return;
+    off.imageSmoothingEnabled = false;
+    this.atlas.draw(off, region, 0, 0, w, h);
+    off.globalCompositeOperation = 'color';
+    off.fillStyle = color;
+    off.fillRect(0, 0, w, h);
+    off.globalCompositeOperation = 'destination-in';
+    this.atlas.draw(off, region, 0, 0, w, h);
+    this.ctx.drawImage(canvas, x, y);
   }
 
   /**
@@ -225,6 +316,24 @@ export class Stage {
     if (combat.ward > 0) {
       drawIcon(ctx, 'ward', LAYOUT.hero.x + 30, LAYOUT.hero.baseline - 100, { scale: 2 });
       drawCount(ctx, combat.ward, LAYOUT.hero.x + 58, LAYOUT.hero.baseline - 80);
+    }
+    // Support spells still running: on the enemy (Kindle, Mist) and the hero (Regen, Static).
+    const statuses: [IconSpec, number, 'enemy' | 'hero'][] = [
+      [SPELL_KIND_ICONS.burn, combat.burn.pieces, 'enemy'],
+      [SPELL_KIND_ICONS.mist, combat.mist, 'enemy'],
+      [SPELL_KIND_ICONS.regen, combat.regen.pieces, 'hero'],
+      [SPELL_KIND_ICONS.charge, combat.charge.clears, 'hero'],
+    ];
+    const placed = { enemy: 0, hero: 0 };
+    for (const [icon, count, side] of statuses) {
+      if (count <= 0) continue;
+      const sx = side === 'enemy' ? x : LAYOUT.hero.x - 60;
+      const sy = (side === 'enemy' ? pipY + 18 : LAYOUT.hero.baseline - 130) + placed[side] * 30;
+      placed[side]++;
+      ctx.fillStyle = '#10132acc';
+      ctx.fillRect(sx - 3, sy - 3, 50, 30);
+      drawIconSpec(ctx, icon, sx, sy, 2);
+      drawCount(ctx, count, sx + 28, sy + 20);
     }
   }
 

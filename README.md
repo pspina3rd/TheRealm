@@ -63,9 +63,23 @@ Each element has a main spell with four levels and its own name at each
 (Fire → Blaze → Inferno → Cataclysm). Skill points buy enhancements:
 Power (stronger), Efficiency (cheaper) and Effect (a stronger side
 effect). One of each, plus extras at higher levels, makes a spell
-**ready** (a glowing scroll); a mentor will then teach its next level. In
-battle, spells sit in one button per element; one with several spells
-opens its own small menu.
+**ready** (a glowing scroll); a mentor will then teach its next level. Each
+element also has a single-level **support** (Kindle, Mist, Static, Regen,
+Stoneskin, Mana Tap, Gust) and **combos** that cost two elements' mana
+(Magma: earth and fire). In battle, spells sit in one button per element;
+one with several spells opens its own small menu.
+
+### Mentors
+
+Seven mentors, one per element, teach their element's spells: Torva
+(fire), Maren (water), Rook (lightning), Hazel (nature), Dorn (earth),
+Selene (arcane) and Kestrel (wind). A glow at their feet shows their
+element and a scroll over their head means they have a lesson for you.
+A lesson is a fight side by side: now and then the mentor tosses you the
+piece that fits best, in their colour. Win and you learn the spell or its
+next level. Lose and that element's spells are locked until you win a
+lesson again; the lock shows the mentor's face and where they are, because
+mentors travel as you win battles and open new places.
 
 ### Elements and magic
 
@@ -112,6 +126,7 @@ attack the moment you walk into them. Full rules and numbers are in
 | Barter   | Traders       | Clear N crystals of the requested colours within P pieces.          |
 | Haggle   | Shopkeepers   | Survive P pieces; your clears lower the price, time raises it.      |
 | Puzzle   | Sages, chests | Clear N lines from a preset board using a fixed set of pieces.      |
+| Lesson   | Mentors       | Defeat the foe with the mentor's help; win to learn the spell.      |
 
 See [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md) for the full rules and the
 reasoning behind them.

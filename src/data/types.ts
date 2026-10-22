@@ -22,7 +22,21 @@ export type SpellEffect =
   /** Damage the enemy and slow your falling pieces for `pieces` pieces. */
   | { readonly kind: 'tailwind'; readonly power: number; readonly pieces: number }
   /** Damage the enemy and heal `share` (0–1) of the damage dealt. */
-  | { readonly kind: 'drain'; readonly power: number; readonly share: number };
+  | { readonly kind: 'drain'; readonly power: number; readonly share: number }
+  /** Burn the enemy for `power` after each of the hero's next `pieces` pieces. */
+  | { readonly kind: 'burn'; readonly power: number; readonly pieces: number }
+  /** The enemy's next `moves` moves fizzle. */
+  | { readonly kind: 'mist'; readonly moves: number }
+  /** Each of the next `clears` line clears also strikes for `power`. */
+  | { readonly kind: 'charge'; readonly power: number; readonly clears: number }
+  /** Heal `amount` HP after each of the hero's next `pieces` pieces. */
+  | { readonly kind: 'regen'; readonly amount: number; readonly pieces: number }
+  /** Add `amount` to the hero's ward. */
+  | { readonly kind: 'ward'; readonly amount: number }
+  /** Add `amount` mana to every pool except the spell's own element. */
+  | { readonly kind: 'manaTap'; readonly amount: number }
+  /** Swap the falling piece for the next one. */
+  | { readonly kind: 'swap' };
 
 /**
  * A spell's place in its category's menu: the element's main spell (levels
@@ -51,6 +65,11 @@ export interface SpellDef {
    * includes the category). Other spells build their category's alone.
    */
   readonly elements?: readonly Element[];
+  /**
+   * Spells the hero must know before a mentor will teach this one (a
+   * support needs its category's primary; a combo another element's).
+   */
+  readonly requires?: readonly string[];
   /** Level 1 first. The effect's kind is the same at every level. */
   readonly levels: readonly [SpellLevel, ...SpellLevel[]];
 }
@@ -98,6 +117,8 @@ export interface EnemyDef {
   readonly drops?: readonly Drop[];
   /** Sprite key resolved by the sprite registry. */
   readonly sprite: string;
+  /** Washes the sprite in this element's colour (summoned wisps share one sprite). */
+  readonly tint?: Element;
   readonly description: string;
 }
 
@@ -156,6 +177,18 @@ export type ChallengeSpec =
    * up over time. The final price applies to the shop that opens afterwards.
    */
   | { readonly kind: 'haggle'; readonly pieceLimit: number; readonly rivalIntervalMs: number }
+  /**
+   * A mentor's lesson: a fight against `enemyId`, made harder by
+   * `difficulty`, with the mentor tossing helpful pieces. Winning teaches
+   * `spellId` (or its next level).
+   */
+  | {
+      readonly kind: 'lesson';
+      readonly mentorId: string;
+      readonly spellId: string;
+      readonly enemyId: string;
+      readonly difficulty: number;
+    }
   /** Solve a preset board with a fixed piece sequence. */
   | {
       readonly kind: 'puzzle';

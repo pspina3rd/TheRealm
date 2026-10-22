@@ -121,6 +121,13 @@ export function challengeCard(spec: ChallengeSpec): HTMLElement {
         el('span', { className: 'price-gauge', title: 'Clear lines to lower the price' }),
         pieces(spec.pieceLimit),
       );
+    case 'lesson':
+      return el(
+        'div',
+        { className: 'challenge-card' },
+        iconElement('scroll', 3, 'Lesson'),
+        difficultyPips(spec.difficulty),
+      );
     case 'puzzle':
       return el(
         'div',
@@ -186,20 +193,46 @@ export function gainRows(gains: readonly Gain[]): HTMLElement[] {
           el('span', { text: name }),
         );
       }
-      case 'spell': {
+      case 'spell':
+      case 'spellLevel': {
         const spell = SPELLS[gain.spellId];
+        const level = gain.kind === 'spellLevel' ? gain.level : 1;
         return el(
           'div',
           { className: 'gain level-up' },
           chip(
             spell ? ELEMENT_ICONS[spell.category] : 'book',
-            spell ? spellName(spell) : gain.spellId,
-            'New spell',
+            spell ? spellName(spell, level) : gain.spellId,
+            gain.kind === 'spell' ? 'New spell' : `Level ${level}`,
           ),
+          ...(spell ? [levelPips(spell, level)] : []),
+        );
+      }
+      case 'lock':
+      case 'unlock': {
+        const open = gain.kind === 'unlock';
+        return el(
+          'div',
+          { className: `gain${open ? ' level-up' : ' loss'}` },
+          iconElement(
+            open ? { icon: 'lock', palette: PALETTES.open } : 'lock',
+            2,
+            open ? 'Enhancements unlocked' : 'Enhancements locked until the lesson is won',
+          ),
+          iconElement(ELEMENT_ICONS[gain.element], 2, ELEMENT_NAMES[gain.element]),
         );
       }
     }
   });
+}
+
+/** A lesson's difficulty as swords, one per point. */
+export function difficultyPips(difficulty: number): HTMLElement {
+  return el(
+    'span',
+    { className: 'difficulty', title: `Difficulty ${difficulty}` },
+    ...Array.from({ length: difficulty }, () => iconElement('sword', 2)),
+  );
 }
 
 /** A spell's level as pips, e.g. ●●○○ for level 2 of 4; nothing for single-level spells. */

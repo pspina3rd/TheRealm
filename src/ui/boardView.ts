@@ -108,6 +108,18 @@ export class BoardView {
         if (ghostY + cy >= 0)
           drawCrystal(ctx, piece.color, (piece.x + cx) * CELL, (ghostY + cy) * CELL, CELL, 0.18);
       }
+      // A tossed piece glows in its colour while it falls.
+      if (piece.recolored) {
+        ctx.save();
+        ctx.shadowColor = CRYSTAL_HEX[piece.color];
+        ctx.shadowBlur = 10 + 6 * Math.sin(timeMs / 120);
+        ctx.fillStyle = '#ffffff';
+        for (const [cx, cy] of piece.cells) {
+          if (piece.y + cy >= 0)
+            ctx.fillRect((piece.x + cx) * CELL - 1, (piece.y + cy) * CELL - 1, CELL + 2, CELL + 2);
+        }
+        ctx.restore();
+      }
       for (const [cx, cy] of piece.cells) {
         if (piece.y + cy >= 0)
           drawCrystal(ctx, piece.color, (piece.x + cx) * CELL, (piece.y + cy) * CELL, CELL);

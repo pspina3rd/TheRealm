@@ -8,13 +8,13 @@ import {
   gravityInterval,
   lineClearPoints,
 } from '../core/scoring';
-import { ENEMIES } from '../data/enemies';
 import type { ChallengeSpec } from '../data/types';
 import { addMana, type Hero } from '../game/hero';
 import { fallMultiplier, previewCount } from '../game/stats';
 import { BarterChallenge } from './barter';
 import { CombatChallenge } from './combat';
 import { HaggleChallenge } from './haggle';
+import { LessonChallenge } from './lesson';
 import { OfferingChallenge } from './offering';
 import { PuzzleChallenge } from './puzzle';
 import type {
@@ -65,8 +65,8 @@ export class Battle implements BattleContext {
     this.hero = hero;
     this.rng = rng;
     this.board = new Board(rng, BOARD_WIDTH, BOARD_HEIGHT, options.weights);
-    this.level = spec.kind === 'combat' ? (ENEMIES[spec.enemyId]?.level ?? 1) : 1;
     this.challenge = createChallenge(this, spec);
+    this.level = this.challenge instanceof CombatChallenge ? this.challenge.enemy.level : 1;
     this.board.spawn();
   }
 
@@ -181,5 +181,7 @@ function createChallenge(ctx: BattleContext, spec: ChallengeSpec): Challenge {
       return new HaggleChallenge(ctx, spec.pieceLimit, spec.rivalIntervalMs);
     case 'puzzle':
       return new PuzzleChallenge(ctx, spec.rows, spec.queue, spec.linesToClear);
+    case 'lesson':
+      return new LessonChallenge(ctx, spec);
   }
 }
