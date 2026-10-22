@@ -43,19 +43,22 @@ function heroKnowing(...spells: string[]): Hero {
   return hero;
 }
 
+/** The hero with no story flags, as `lessonsFor` reads them. */
+const seek = (hero: Hero) => ({ hero, flags: new Set<string>() });
+
 describe('lessonsFor', () => {
   it('offers a missing primary and the combos whose spell is known', () => {
-    expect(lessonsFor(heroKnowing('gale', 'cure'), mentor('torva'))).toEqual([
+    expect(lessonsFor(seek(heroKnowing('gale', 'cure')), mentor('torva'))).toEqual([
       { spellId: 'fire', level: 1, difficulty: 1 },
       { spellId: 'wildfire', level: 1, difficulty: 2 },
     ]);
   });
 
   it('offers the support once the primary is known, and never a known spell again', () => {
-    expect(lessonsFor(heroKnowing('gale'), mentor('kestrel'))).toEqual([
+    expect(lessonsFor(seek(heroKnowing('gale')), mentor('kestrel'))).toEqual([
       { spellId: 'gust', level: 1, difficulty: 1 },
     ]);
-    expect(lessonsFor(heroKnowing('gale', 'gust'), mentor('kestrel'))).toEqual([]);
+    expect(lessonsFor(seek(heroKnowing('gale', 'gust')), mentor('kestrel'))).toEqual([]);
   });
 
   it('raises a ready spell, with difficulty the level taught', () => {
@@ -65,17 +68,19 @@ describe('lessonsFor', () => {
       step: enhancements({ ...ready, power: 2 }),
       kept: enhancements(),
     };
-    expect(lessonsFor(hero, mentor('kestrel'))).toEqual([
+    expect(lessonsFor(seek(hero), mentor('kestrel'))).toEqual([
       { spellId: 'gale', level: 3, difficulty: 3 },
     ]);
     hero.spells.gale.step = enhancements(ready);
-    expect(lessonsFor(hero, mentor('kestrel'))).toEqual([]);
+    expect(lessonsFor(seek(hero), mentor('kestrel'))).toEqual([]);
   });
 
   it('offers Meteor (difficulty 3) once Quake and Shadow Drain are known', () => {
-    const ids = (hero: Hero) => lessonsFor(hero, mentor('torva')).map((l) => l.spellId);
+    const ids = (hero: Hero) => lessonsFor(seek(hero), mentor('torva')).map((l) => l.spellId);
     expect(ids(heroKnowing('fire', 'quake'))).not.toContain('meteor');
-    expect(lessonsFor(heroKnowing('fire', 'quake', 'shadow'), mentor('torva'))).toContainEqual({
+    expect(
+      lessonsFor(seek(heroKnowing('fire', 'quake', 'shadow')), mentor('torva')),
+    ).toContainEqual({
       spellId: 'meteor',
       level: 1,
       difficulty: 3,
@@ -85,7 +90,7 @@ describe('lessonsFor', () => {
   it('only teaches the mentor’s own element', () => {
     const scholar = heroKnowing('fire', 'blizzard', 'thunder', 'cure', 'quake', 'shadow', 'gale');
     for (const m of Object.values(MENTORS)) {
-      const lessons = lessonsFor(scholar, m);
+      const lessons = lessonsFor(seek(scholar), m);
       expect(lessons.length, m.id).toBeGreaterThan(0);
       for (const { spellId } of lessons) expect(SPELLS[spellId]?.category).toBe(m.element);
     }
@@ -216,7 +221,10 @@ describe('completeLesson', () => {
   it('does not unlock for an easier lesson, only for the lost one', () => {
     const hero = heroKnowing('gale', 'shadow');
     completeLesson(hero, spec('moonwind'), false);
-    expect(lessonsFor(hero, mentor('kestrel')).map((l) => l.spellId)).toEqual(['gust', 'moonwind']);
+    expect(lessonsFor(seek(hero), mentor('kestrel')).map((l) => l.spellId)).toEqual([
+      'gust',
+      'moonwind',
+    ]);
     expect(completeLesson(hero, spec('gust'), true)).toEqual([{ kind: 'spell', spellId: 'gust' }]);
     expect(isCategoryLocked(hero, 'wind')).toBe(true);
     expect(completeLesson(hero, spec('moonwind'), true)).toEqual([
@@ -232,7 +240,7 @@ describe('completeLesson', () => {
     hero.failedLessons = { fire: { spellId: 'fire', level: 1 } };
     learnSpell(hero, 'fire'); // from a tome, say
     expect(isCategoryLocked(hero, 'fire')).toBe(false);
-    expect(lessonsFor(hero, mentor('torva')).map((l) => l.spellId)).not.toContain('fire');
+    expect(lessonsFor(seek(hero), mentor('torva')).map((l) => l.spellId)).not.toContain('fire');
     // The stale record is tidied away by the next lesson won, with no unlock to show.
     expect(completeLesson(hero, spec('kindle', 'torva'), true)).toEqual([
       { kind: 'spell', spellId: 'kindle' },
@@ -323,12 +331,20 @@ describe('mentor encounters', () => {
       mentorId: 'torva',
       lessons: [{ spellId: 'fire' }, { spellId: 'wildfire' }],
       failed: null,
+      silhouettes: [SPELLS.volcano],
     });
     state.hero.failedLessons = { fire: { spellId: 'wildfire', level: 1 } };
     expect(describeInteraction(state, torva)).toMatchObject({
       failed: { spellId: 'wildfire', level: 1 },
     });
+    // Nothing to teach but the hidden spell's silhouette…
     state.hero.spells = knownSpells('fire', 'kindle', 'wildfire');
+    expect(describeInteraction(state, torva)).toMatchObject({
+      lessons: [],
+      silhouettes: [SPELLS.volcano],
+    });
+    // …and once that is known too, the mentor just talks.
+    state.hero.spells = knownSpells('fire', 'kindle', 'wildfire', 'volcano');
     expect(describeInteraction(state, torva)).toEqual({
       kind: 'message',
       title: 'Torva',

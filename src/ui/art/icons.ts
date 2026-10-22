@@ -828,6 +828,9 @@ export const SPELL_KIND_ICONS: Readonly<Record<SpellEffect['kind'], IconSpec>> =
   ward: { icon: 'ward' },
   manaTap: { icon: 'potion', palette: PALETTES.violet },
   swap: { icon: 'piece', palette: PALETTES.crystal },
+  purify: { icon: 'piece', palette: elementPalette('water') },
+  resonate: { icon: 'shard', palette: PALETTES.gold },
+  expose: { icon: 'weak' },
 };
 
 /** The icon for each kind of enemy move, shown when Insight reveals it. */

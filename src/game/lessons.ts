@@ -6,8 +6,10 @@
  * - A mentor teaches only spells of their element: the next level of a
  *   ready spell, the element's primary, its support (once the primary is
  *   known) and its combos (once their other element's spell is known).
+ *   A hidden spell joins the list once revealed (see `hidden.ts`).
  * - Difficulty is the level taught (a new spell is level 1); a combo's is
- *   the number of its elements (2, or 3 for Meteor).
+ *   the number of its elements (2, or 3 for Meteor). A hidden spell is
+ *   one harder (2, or 3 for Volcano).
  * - Losing records the lesson and locks the category's enhancements until
  *   that lesson is won (or the hero comes to know that spell at that
  *   level some other way). Winning another of the mentor's lessons
@@ -22,6 +24,7 @@ import type { ChallengeSpec, EnemyDef, SpellDef } from '../data/types';
 import { isAtHome, mentorPlace } from '../world/mentors';
 import type { GameState } from '../world/state';
 import { heroAlignment, learnSpell, raiseSpellLevel, type Hero } from './hero';
+import { isRevealed, type Seeker } from './hidden';
 import type { Gain } from './rewards';
 import { ROLE_ORDER, isCategoryLocked, isReady, knownSpell, spellElements } from './spells';
 
@@ -58,13 +61,21 @@ export const FOE_HP_PER_DIFFICULTY = 0.5;
 /** …and this much attack. */
 export const FOE_ATK_PER_DIFFICULTY = 2;
 
+/** Extra difficulty of teaching a hidden spell. */
+export const HIDDEN_DIFFICULTY = 1;
+
 /** The difficulty of teaching `spell` at `level`. */
 export function lessonDifficulty(spell: SpellDef, level: number): number {
-  return spell.role === 'combo' ? spellElements(spell).length : level;
+  const base = spell.role === 'combo' ? spellElements(spell).length : level;
+  return spell.hidden ? base + HIDDEN_DIFFICULTY : base;
 }
 
-/** Every lesson `mentor` can give the hero now, primary first, then supports, then combos. */
-export function lessonsFor(hero: Pick<Hero, 'spells'>, mentor: MentorDef): Lesson[] {
+/**
+ * Every lesson `mentor` can give the hero now, primary first, then
+ * supports, then combos; hidden spells only once revealed.
+ */
+export function lessonsFor(seeker: Seeker, mentor: MentorDef): Lesson[] {
+  const { hero } = seeker;
   return Object.values(SPELLS)
     .filter((spell) => spell.category === mentor.element)
     .sort((a, b) => ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role))
@@ -73,7 +84,7 @@ export function lessonsFor(hero: Pick<Hero, 'spells'>, mentor: MentorDef): Lesso
       const level = known ? known.level + 1 : 1;
       const open = known
         ? isReady(spell, known)
-        : (spell.requires ?? []).every((id) => knownSpell(hero, id));
+        : isRevealed(spell, seeker) && (spell.requires ?? []).every((id) => knownSpell(hero, id));
       return open ? [{ spellId: spell.id, level, difficulty: lessonDifficulty(spell, level) }] : [];
     });
 }

@@ -4,6 +4,7 @@ import { ITEMS } from '../data/items';
 import { ENHANCEMENT_IDS, SPELLS, STARTING_SPELLS } from '../data/spells';
 import { STAT_IDS, type StatRanks } from '../data/stats';
 import type { ElementAmounts, ItemDef } from '../data/types';
+import type { Feats } from './feats';
 import { ALIGNMENT_TITLES, alignmentOf, titleElementFor } from './alignment';
 import { isValidSkillPlan, skillPlanCost, type SkillPlan } from './skills';
 import {
@@ -60,6 +61,8 @@ export interface Hero {
    * until that lesson is won (see `isCategoryLocked`).
    */
   failedLessons: Partial<Record<Element, FailedLesson>>;
+  /** Board feats done over the hero's life (see `src/game/feats.ts`). */
+  feats: Feats;
 }
 
 /** The hero's class, falling back to the default for unknown ids (e.g. old saves). */
@@ -95,6 +98,7 @@ export function createHero(classId = DEFAULT_CLASS, name?: string): Hero {
       ]),
     ),
     failedLessons: {},
+    feats: {},
   };
 }
 

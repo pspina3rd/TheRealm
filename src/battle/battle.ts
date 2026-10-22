@@ -9,6 +9,7 @@ import {
   lineClearPoints,
 } from '../core/scoring';
 import type { ChallengeSpec } from '../data/types';
+import { featsOfLock, recordFeats } from '../game/feats';
 import { addMana, type Hero } from '../game/hero';
 import { fallMultiplier, previewCount } from '../game/stats';
 import { BarterChallenge } from './barter';
@@ -152,10 +153,11 @@ export class Battle implements BattleContext {
   }
 
   /**
-   * Scores the lock, fills elemental mana from every cleared crystal (in any
+   * Counts any board feats (see `src/game/feats.ts`), scores the lock, fills elemental mana from every cleared crystal (in any
    * kind of battle), then lets the challenge apply its rules.
    */
   private afterLock(result: LockResult): void {
+    recordFeats(this.hero, featsOfLock(result, this.hastePieces > 0));
     this.lines += result.linesCleared;
     this.score += lineClearPoints(result.linesCleared);
     if (this.hastePieces > 0) this.hastePieces--;

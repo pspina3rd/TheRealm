@@ -192,6 +192,8 @@ export function castPower(effect: SpellEffect): number {
       return effect.amount;
     case 'mist':
     case 'swap':
+    case 'purify':
+    case 'expose':
       return 0;
     default:
       return effect.power;
@@ -216,6 +218,7 @@ export function castEffect(cast: CastSpell): number {
     case 'tailwind':
     case 'burn':
     case 'regen':
+    case 'expose':
       return effect.pieces;
     case 'drain':
       return Math.round(effect.share * 100);
@@ -226,6 +229,8 @@ export function castEffect(cast: CastSpell): number {
     case 'ward':
     case 'manaTap':
     case 'swap':
+    case 'purify':
+    case 'resonate':
       return 0;
   }
 }
@@ -274,6 +279,15 @@ export function castSummary(cast: CastSpell): string {
     case 'swap':
       parts.push('swap for the next piece');
       break;
+    case 'purify':
+      parts.push('stone becomes crystal');
+      break;
+    case 'resonate':
+      parts.push(`${effect.power} damage per crystal of its element`);
+      break;
+    case 'expose':
+      parts.push(`every hit is a weakness × ${effect.pieces} pieces`);
+      break;
   }
   if (cast.surge > 0) parts.push(`+${cast.surge} line effect`);
   return parts.join(' · ');
@@ -304,7 +318,7 @@ function enhancedEffect(
         power: power(effect.power),
         share: Math.min(1, effect.share + DRAIN_SHARE_PER_EFFECT * extra),
       };
-    // Single-level supports: nothing to enhance.
+    // Single-level supports and hidden spells: nothing to enhance.
     case 'burn':
     case 'mist':
     case 'charge':
@@ -312,6 +326,9 @@ function enhancedEffect(
     case 'ward':
     case 'manaTap':
     case 'swap':
+    case 'purify':
+    case 'resonate':
+    case 'expose':
       return effect;
   }
 }

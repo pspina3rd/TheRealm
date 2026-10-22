@@ -333,6 +333,18 @@ export class Board {
     return tally;
   }
 
+  /** How many locked cells hold `cell` (a crystal colour or stone). */
+  count(cell: Exclude<Cell, null>): number {
+    return this.grid.reduce((sum, row) => sum + row.filter((c) => c === cell).length, 0);
+  }
+
+  /** Turns every locked `from` cell into `to`. Returns how many changed. */
+  transmute(from: Exclude<Cell, null>, to: Exclude<Cell, null>): number {
+    const changed = this.count(from);
+    this.grid = this.grid.map((row) => row.map((c) => (c === from ? to : c)));
+    return changed;
+  }
+
   /** Empties the grid, clears the top-out state and spawns a fresh piece. */
   reset(): void {
     this.grid = Board.emptyGrid(this.width, this.height);

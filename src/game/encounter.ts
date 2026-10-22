@@ -5,9 +5,10 @@ import type { Rng } from '../core/rng';
 import { ENEMIES } from '../data/enemies';
 import { MENTORS, type MentorDef } from '../data/mentors';
 import { NPCS } from '../data/npcs';
-import type { ChallengeSpec, NpcDef, Reward } from '../data/types';
+import type { ChallengeSpec, NpcDef, Reward, SpellDef } from '../data/types';
 import type { EntityDef } from '../world/map';
 import { markDefeated, travel, type GameState } from '../world/state';
+import { hiddenSlots } from './hidden';
 import { addItem, fillMana, gainXp, itemCount, removeItem } from './hero';
 import { completeLesson, lessonsFor, type Lesson } from './lessons';
 import { grantRewards, type Gain } from './rewards';
@@ -36,6 +37,8 @@ export type Interaction =
       readonly lessons: readonly Lesson[];
       /** The lesson the hero lost here and must win to lift the lock, if any. */
       readonly failed: FailedLesson | null;
+      /** The mentor's hidden spells still unrevealed, shown as silhouettes. */
+      readonly silhouettes: readonly SpellDef[];
     })
   /** Offer a battle the player can accept or decline. */
   | (Speaker & {
@@ -94,9 +97,12 @@ function mentorFor(entity: EntityDef): MentorDef {
 export function describeInteraction(state: GameState, entity: EntityDef): Interaction {
   if (entity.kind === 'mentor') {
     const mentor = mentorFor(entity);
-    const lessons = lessonsFor(state.hero, mentor);
+    const lessons = lessonsFor(state, mentor);
+    const silhouettes = hiddenSlots(state, mentor.element)
+      .filter((slot) => slot.state === 'hidden')
+      .map((slot) => slot.spell);
     const speaker = { title: mentor.name, sprite: mentor.sprite, text: mentor.motive };
-    return lessons.length > 0
+    return lessons.length + silhouettes.length > 0
       ? {
           kind: 'lessons',
           ...speaker,
@@ -105,6 +111,7 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
           failed: isCategoryLocked(state.hero, mentor.element)
             ? (state.hero.failedLessons[mentor.element] ?? null)
             : null,
+          silhouettes,
         }
       : { kind: 'message', ...speaker };
   }

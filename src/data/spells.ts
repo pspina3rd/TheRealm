@@ -269,6 +269,79 @@ export const SPELLS: Readonly<Record<string, SpellDef>> = {
       },
     ],
   },
+
+  // -------------------------------------------------------------- hidden ---
+  // One per element, single-level. No list shows them until something the
+  // hero does reveals them (`hidden`); then their element's mentor teaches
+  // them. See `src/game/hidden.ts`.
+  volcano: {
+    id: 'volcano',
+    category: 'fire',
+    role: 'combo',
+    elements: ['fire', 'earth'],
+    hidden: { kind: 'alignment', needs: { fire: 4, earth: 4 } },
+    levels: [
+      {
+        name: 'Volcano',
+        cost: { fire: 6, earth: 6 },
+        effect: { kind: 'clearRows', rows: 3, power: 40 },
+      },
+    ],
+  },
+  purify: {
+    id: 'purify',
+    category: 'water',
+    role: 'support',
+    hidden: { kind: 'quest', flag: 'shrineRestored' },
+    levels: [{ name: 'Purify', cost: { water: 5 }, effect: { kind: 'purify' } }],
+  },
+  ballLightning: {
+    id: 'ballLightning',
+    category: 'lightning',
+    role: 'support',
+    hidden: { kind: 'pattern', feat: 'pure.lightning', count: 6 },
+    levels: [
+      { name: 'Ball Lightning', cost: { lightning: 6 }, effect: { kind: 'resonate', power: 2 } },
+    ],
+  },
+  bloom: {
+    id: 'bloom',
+    category: 'nature',
+    role: 'support',
+    hidden: { kind: 'item', itemId: 'sporeCap' },
+    levels: [
+      { name: 'Bloom', cost: { nature: 7 }, effect: { kind: 'regen', amount: 6, pieces: 8 } },
+    ],
+  },
+  faultLine: {
+    id: 'faultLine',
+    category: 'earth',
+    role: 'support',
+    hidden: { kind: 'stat', stat: 'insight', rank: 5 },
+    levels: [{ name: 'Fault Line', cost: { earth: 5 }, effect: { kind: 'expose', pieces: 4 } }],
+  },
+  eclipse: {
+    id: 'eclipse',
+    category: 'arcane',
+    role: 'support',
+    hidden: { kind: 'item', itemId: 'moonShard' },
+    levels: [
+      { name: 'Eclipse', cost: { arcane: 9 }, effect: { kind: 'drain', power: 36, share: 1 } },
+    ],
+  },
+  tempest: {
+    id: 'tempest',
+    category: 'wind',
+    role: 'support',
+    hidden: { kind: 'pattern', feat: 'hastedQuad', count: 1 },
+    levels: [
+      {
+        name: 'Tempest',
+        cost: { wind: 7 },
+        effect: { kind: 'tailwind', power: 34, pieces: 8 },
+      },
+    ],
+  },
 };
 
 /** Spells every new hero knows, on top of their class's own spell. */

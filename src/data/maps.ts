@@ -145,6 +145,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
       { id: 'bw-sage', kind: 'npc', npcId: 'sage', x: 12, y: 8 },
       { id: 'bw-guard', kind: 'npc', npcId: 'guard', x: 16, y: 16 },
       { id: 'bw-collector', kind: 'npc', npcId: 'collector', x: 22, y: 16 },
+      { id: 'bw-shrine', kind: 'npc', npcId: 'shrineKeeper', x: 9, y: 11 },
     ],
     decor: [
       { object: 'house.gray', x: 2, y: 5 },

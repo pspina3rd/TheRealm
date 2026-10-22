@@ -142,6 +142,23 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     repeatable: true,
   },
 
+  shrineKeeper: {
+    id: 'shrineKeeper',
+    name: 'Shrine Keeper Ilse',
+    sprite: 'char.032',
+    greeting:
+      'The spring under our fountain shrine clouded over with the lake. Pour clean blue and green crystals into it and it may run clear again.',
+    challenge: { kind: 'barter', wants: { blue: 10, green: 6 }, pieceLimit: 30 },
+    rewards: [
+      { kind: 'flag', flag: 'shrineRestored' },
+      { kind: 'item', itemId: 'ether', count: 1 },
+    ],
+    successText: 'It runs clear! Maren will want to see this. Take an Ether, drawn from the spring.',
+    failText: 'Still cloudy. The spring needs both colours.',
+    repeatable: false,
+    doneText: 'The spring runs clear. Maren has been by to see it twice.',
+  },
+
   // ---------------------------------------------------------- Moon Caves ---
   sealedChest: {
     id: 'sealedChest',

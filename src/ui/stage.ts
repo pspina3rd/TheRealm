@@ -1,6 +1,5 @@
 import type { Battle } from '../battle/battle';
 import type { CombatChallenge } from '../battle/combat';
-import { resistancesOf, weaknessesOf } from '../battle/elemental';
 import type { Objective } from '../battle/types';
 import type { Atlas } from './art/atlas';
 import { CREATURES, battleFrame, mapFrame, type CreatureId } from './art/creatures';
@@ -279,8 +278,8 @@ export class Stage {
     let ix = x;
     const iconY = y + h + 8;
     for (const [list, mark] of [
-      [weaknessesOf(combat.enemy), 'weak'],
-      [resistancesOf(combat.enemy), 'resist'],
+      [combat.weaknesses(), 'weak'],
+      [combat.resistances(), 'resist'],
     ] as const) {
       if (list.length === 0) continue;
       ctx.fillStyle = '#10132acc';
@@ -317,9 +316,10 @@ export class Stage {
       drawIcon(ctx, 'ward', LAYOUT.hero.x + 30, LAYOUT.hero.baseline - 100, { scale: 2 });
       drawCount(ctx, combat.ward, LAYOUT.hero.x + 58, LAYOUT.hero.baseline - 80);
     }
-    // Support spells still running: on the enemy (Kindle, Mist) and the hero (Regen, Static).
+    // Support spells still running: on the enemy (Kindle, Mist, Fault Line) and the hero (Regen, Static).
     const statuses: [IconSpec, number, 'enemy' | 'hero'][] = [
       [SPELL_KIND_ICONS.burn, combat.burn.pieces, 'enemy'],
+      [SPELL_KIND_ICONS.expose, combat.exposed, 'enemy'],
       [SPELL_KIND_ICONS.mist, combat.mist, 'enemy'],
       [SPELL_KIND_ICONS.regen, combat.regen.pieces, 'hero'],
       [SPELL_KIND_ICONS.charge, combat.charge.clears, 'hero'],

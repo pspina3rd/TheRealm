@@ -153,8 +153,9 @@ describe('support spells', () => {
 });
 
 describe('support and combo data', () => {
-  const supports = Object.values(SPELLS).filter((s) => s.role === 'support');
-  const combos = Object.values(SPELLS).filter((s) => s.role === 'combo');
+  // Hidden spells are tested in hidden.test.ts.
+  const supports = Object.values(SPELLS).filter((s) => s.role === 'support' && !s.hidden);
+  const combos = Object.values(SPELLS).filter((s) => s.role === 'combo' && !s.hidden);
 
   it('has one single-level support per element, needing its primary', () => {
     expect(new Set(supports.map((s) => s.category)).size).toBe(7);

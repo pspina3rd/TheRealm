@@ -4,6 +4,7 @@
  */
 import type { Element } from '../core/elements';
 import type { CrystalColor, PieceName } from '../core/pieces';
+import type { StatId } from './stats';
 
 /** An amount per element, e.g. a spell's mana cost. */
 export type ElementAmounts = Readonly<Partial<Record<Element, number>>>;
@@ -36,13 +37,41 @@ export type SpellEffect =
   /** Add `amount` mana to every pool except the spell's own element. */
   | { readonly kind: 'manaTap'; readonly amount: number }
   /** Swap the falling piece for the next one. */
-  | { readonly kind: 'swap' };
+  | { readonly kind: 'swap' }
+  /** Turn every stone on the board into crystals of the spell's element. */
+  | { readonly kind: 'purify' }
+  /** Damage the enemy by `power` for every crystal of the spell's element on the board. */
+  | { readonly kind: 'resonate'; readonly power: number }
+  /** For the hero's next `pieces` pieces every element strikes the enemy as a weakness. */
+  | { readonly kind: 'expose'; readonly pieces: number };
 
 /**
  * A spell's place in its category's menu: the element's main spell (levels
  * 1–4), a support spell of its own, or a combo of several elements.
  */
 export type SpellRole = 'primary' | 'support' | 'combo';
+
+/**
+ * What reveals a hidden spell, so its element's mentor will teach it:
+ * - `stat`: a stat at `rank` or higher;
+ * - `alignment`: at least this alignment in every listed element;
+ * - `pattern`: a board feat done `count` times over the hero's life (see
+ *   `src/game/feats.ts`); the mentor noticed and seeks the hero out;
+ * - `quest`: a story flag;
+ * - `item`: the item, brought to the element's mentor.
+ */
+export type HiddenUnlock =
+  | { readonly kind: 'stat'; readonly stat: StatId; readonly rank: number }
+  | { readonly kind: 'alignment'; readonly needs: ElementAmounts }
+  | { readonly kind: 'pattern'; readonly feat: FeatId; readonly count: number }
+  | { readonly kind: 'quest'; readonly flag: string }
+  | { readonly kind: 'item'; readonly itemId: string };
+
+/**
+ * A board feat the hero's life counts: a cleared line all of one element
+ * (`pure.<element>`), or four lines cleared at once under the enemy's haste.
+ */
+export type FeatId = `pure.${Element}` | 'hastedQuad';
 
 /** One level of a spell: its name, cost and effect at that level. */
 export interface SpellLevel {
@@ -72,6 +101,8 @@ export interface SpellDef {
   readonly requires?: readonly string[];
   /** Level 1 first. The effect's kind is the same at every level. */
   readonly levels: readonly [SpellLevel, ...SpellLevel[]];
+  /** Set for hidden spells: what reveals them (see `src/game/hidden.ts`). */
+  readonly hidden?: HiddenUnlock;
 }
 
 // --------------------------------------------------------------- enemies ---

@@ -12,6 +12,7 @@ import { grantRewards } from '../src/game/rewards';
 import { VITALITY_HP } from '../src/game/stats';
 import {
   SAVE_KEY,
+  SAVE_VERSION,
   deleteSave,
   deserialize,
   loadGame,
@@ -493,7 +494,7 @@ describe('save migration to version 6 (mentors)', () => {
     const state = newGame();
     state.victories = 7;
     const data = JSON.parse(serialize(state));
-    expect(data.version).toBe(6);
+    expect(data.version).toBe(SAVE_VERSION);
     expect(deserialize(serialize(state))!.victories).toBe(7);
   });
 
@@ -513,6 +514,24 @@ describe('save migration to version 6 (mentors)', () => {
     expect(loaded.victories).toBe(0);
     expect(loaded.hero.failedLessons).toEqual({});
     expect(loaded.hero).not.toHaveProperty('lockedCategories');
+  });
+});
+
+describe('save migration to version 7 (feats)', () => {
+  it('saves the hero’s board feats', () => {
+    const state = newGame();
+    state.hero.feats = { 'pure.lightning': 3, hastedQuad: 1 };
+    expect(SAVE_VERSION).toBe(7);
+    expect(deserialize(serialize(state))!.hero.feats).toEqual(state.hero.feats);
+  });
+
+  it('starts version 6 saves with no feats, keeping everything else', () => {
+    const data = JSON.parse(serialize(newGame('mage')));
+    delete data.hero.feats;
+    const loaded = deserialize(JSON.stringify({ ...data, version: 6, victories: 4 }))!;
+    expect(loaded.hero.feats).toEqual({});
+    expect(loaded.victories).toBe(4);
+    expect(loaded.hero.spells).toEqual(data.hero.spells);
   });
 });
 

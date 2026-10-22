@@ -156,7 +156,7 @@ export class WorldView {
     ctx.ellipse(cx, cy, TILE * 0.45, TILE * 0.18, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
-    if (lessonsFor(state.hero, mentor).length > 0) {
+    if (lessonsFor(state, mentor).length > 0) {
       this.overlays.push(() => {
         const bob = Math.round(Math.sin(timeMs / 250) * 2);
         drawIcon(ctx, 'scroll', cx - ICON_SIZE, entity.y * TILE - camY - 30 + bob, { scale: 2 });

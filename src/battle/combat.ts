@@ -1,5 +1,5 @@
 import type { LockResult } from '../core/board';
-import { ELEMENTS, elementsOf, type Element } from '../core/elements';
+import { ELEMENTS, colorOfElement, elementsOf, type Element } from '../core/elements';
 import type { Rng } from '../core/rng';
 import { ENEMIES } from '../data/enemies';
 import { SPELLS } from '../data/spells';
@@ -21,7 +21,16 @@ import {
 } from '../game/hero';
 import { heroSpell } from '../game/spells';
 import { CRIT_MULTIPLIER, critChance } from '../game/stats';
-import { crystalAffinity, elementMultiplier, lineSurge, type LineSurge } from './elemental';
+import {
+  WEAK_CRYSTAL_BONUS,
+  WEAK_MULTIPLIER,
+  crystalAffinity,
+  elementMultiplier,
+  lineSurge,
+  resistancesOf,
+  weaknessesOf,
+  type LineSurge,
+} from './elemental';
 import type { BattleContext, BattleStatus, Challenge, Objective } from './types';
 
 /** Base damage for clearing 0–4 lines at once. */
@@ -77,6 +86,8 @@ export class CombatChallenge implements Challenge {
   charge = { power: 0, clears: 0 };
   /** Mist: enemy moves left that fizzle. */
   mist = 0;
+  /** Fault Line: pieces left during which every element strikes as a weakness. */
+  exposed = 0;
 
   protected readonly ctx: BattleContext;
 
@@ -94,7 +105,11 @@ export class CombatChallenge implements Challenge {
   onLock(result: LockResult): void {
     if (result.linesCleared > 0) {
       const lines = Math.min(result.linesCleared, LINE_DAMAGE.length - 1);
-      const affinity = crystalAffinity(this.enemy, elementsOf(result.clearedCells));
+      const cleared = elementsOf(result.clearedCells);
+      const affinity =
+        this.exposed > 0
+          ? ELEMENTS.reduce((sum, e) => sum + cleared[e], 0) * WEAK_CRYSTAL_BONUS
+          : crystalAffinity(this.enemy, cleared);
       const hero = this.ctx.hero;
       const chance = critChance(hero.stats.luck, result.linesCleared);
       const crit = chance > 0 && this.ctx.rng.next() < chance;
@@ -122,8 +137,9 @@ export class CombatChallenge implements Challenge {
     this.spendAction();
   }
 
-  /** Kindle and Regen act once per piece placed. */
+  /** Kindle and Regen act once per piece placed; Fault Line wears off. */
   private tick(): void {
+    if (this.exposed > 0) this.exposed--;
     if (this.burn.pieces > 0 && this.status() === 'ongoing') {
       this.burn.pieces--;
       this.elementalHit(this.burn.power, 'fire');
@@ -136,8 +152,23 @@ export class CombatChallenge implements Challenge {
 
   /** Strikes the enemy with `element`, scaled by its weakness or resistance (at least 1). */
   private elementalHit(base: number, element: Element): void {
-    const multiplier = elementMultiplier(this.enemy, element);
+    const multiplier = this.multiplier(element);
     this.hitEnemy(Math.max(1, Math.round(base * multiplier)), element, affinityOf(multiplier));
+  }
+
+  /** How hard `element` hits the enemy now: always a weakness while Fault Line lasts. */
+  multiplier(element: Element): number {
+    return this.exposed > 0 ? WEAK_MULTIPLIER : elementMultiplier(this.enemy, element);
+  }
+
+  /** The elements the enemy is weak to now (all of them while Fault Line lasts). */
+  weaknesses(): Element[] {
+    return this.exposed > 0 ? [...ELEMENTS] : weaknessesOf(this.enemy);
+  }
+
+  /** The elements the enemy resists now (none while Fault Line lasts). */
+  resistances(): Element[] {
+    return this.exposed > 0 ? [] : resistancesOf(this.enemy);
   }
 
   update(): void {
@@ -174,6 +205,7 @@ export class CombatChallenge implements Challenge {
       return 'Mana is already full.';
     }
     if (effect.kind === 'swap' && !this.ctx.board.canSwapWithNext()) return 'No room to swap.';
+    if (effect.kind === 'purify' && this.ctx.board.count('stone') === 0) return 'No stone to purify.';
     return null;
   }
 
@@ -193,7 +225,7 @@ export class CombatChallenge implements Challenge {
     const effect = cast.effect;
     // Spells that clear rows keep their damage small: no level bonus.
     const strike = (base: number, levelBonus = SPELL_LEVEL_BONUS * hero.level): number => {
-      const multiplier = elementMultiplier(this.enemy, element);
+      const multiplier = this.multiplier(element);
       const dealt = Math.round((base + levelBonus) * multiplier);
       this.hitEnemy(dealt, element, affinityOf(multiplier));
       return dealt;
@@ -246,6 +278,16 @@ export class CombatChallenge implements Challenge {
       }
       case 'swap':
         this.ctx.board.swapWithNext();
+        break;
+      case 'purify':
+        this.ctx.board.transmute('stone', colorOfElement(element));
+        break;
+      // Board-scaled damage: no level bonus, like spells that clear rows.
+      case 'resonate':
+        strike(effect.power * this.ctx.board.count(colorOfElement(element)), 0);
+        break;
+      case 'expose':
+        this.exposed = Math.max(this.exposed, effect.pieces);
         break;
     }
     // Effect enhancements: the spell also fires its element's line effect.

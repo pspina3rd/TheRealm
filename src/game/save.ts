@@ -17,10 +17,11 @@ export const SAVE_KEY = 'the-realm/save';
  * - 5 gave spells levels and enhancements, and added locked categories.
  * - 6 added the count of monster battles won, which moves the mentors, and
  *   replaced locked categories with the lost lesson behind each lock.
+ * - 7 added the hero's lifetime board feats, which reveal hidden spells.
  */
-export const SAVE_VERSION = 6;
+export const SAVE_VERSION = 7;
 /** Older versions `deserialize` can still upgrade. */
-const MIGRATABLE_VERSIONS: readonly number[] = [1, 2, 3, 4, 5, SAVE_VERSION];
+const MIGRATABLE_VERSIONS: readonly number[] = [1, 2, 3, 4, 5, 6, SAVE_VERSION];
 
 /** JSON-friendly form of `GameState` (sets become arrays). */
 interface SaveData {
@@ -142,7 +143,8 @@ type StoredHero = Omit<Partial<Hero>, 'spells'> & {
  *   mana kept within the new caps;
  * - before version 5 spells were a list of ids: each becomes a level 1
  *   spell with no enhancements;
- * - before version 6 no lesson had been lost, so none locks a category.
+ * - before version 6 no lesson had been lost, so none locks a category;
+ * - before version 7 no feats were counted, so the tally starts empty.
  */
 function migrateHero(stored: StoredHero): Hero {
   const { mp, maxMp, attunement, ...rest } = stored;
@@ -165,6 +167,7 @@ function migrateHero(stored: StoredHero): Hero {
       rest.titleElement ?? titleElementFor(attunement ?? cls.element, heroAlignment({ spells })),
     spells,
     failedLessons: rest.failedLessons ?? {},
+    feats: rest.feats ?? {},
     accessoryId: rest.accessoryId ?? null,
     manaCap,
     mana: rest.mana ?? emptyCounts(Math.min(mp ?? manaCap, manaCap)),
