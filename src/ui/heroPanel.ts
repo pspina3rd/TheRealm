@@ -128,9 +128,10 @@ export class HeroPanel {
           this.spellButton(hero, id, index + 1, usable(id), () => cast(id)),
         ),
       );
-      // Keep the categories' height so the controls below don't jump.
+      // Keep the categories' height so the controls below don't jump; a row
+      // only grows if its content (e.g. a three-element cost) needs more room.
       this.spellList.style.minHeight = `${this.categoriesHeight}px`;
-      this.spellList.style.gridAutoRows = `${this.slotHeight}px`;
+      this.spellList.style.gridAutoRows = `minmax(${this.slotHeight}px, auto)`;
     } else {
       this.open = null;
       // One slot per element, always in the same place; unknown ones are dark.
