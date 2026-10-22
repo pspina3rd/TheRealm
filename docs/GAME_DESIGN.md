@@ -315,8 +315,9 @@ spell levels and combos through **team-up battles**.
 - **Win**: learn the spell or level.
 - **Lose**: the lesson stays open. The hero can fight it again straight away
   or walk away for now, but **no spell in that category can be enhanced**
-  until the lesson is won. The category shows a lock icon, and the mentor
-  waits at home to be challenged again.
+  until the lesson is won. The category shows a lock icon. To retry, the
+  hero must find the mentor wherever they are in the world; mentors travel,
+  so they are not always at home.
 
 ### Hidden spells
 
