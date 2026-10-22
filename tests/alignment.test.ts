@@ -13,16 +13,26 @@ import {
 import { INNER_RING, starSpikes } from '../src/ui/art/alignmentStar';
 
 describe('alignmentOf', () => {
-  it('counts each known spell toward its element', () => {
-    expect(alignmentOf(['fire', 'meteor', 'cure'])).toEqual({
+  it('sums the levels of known spells per element', () => {
+    expect(alignmentOf({ fire: { level: 3 }, cure: { level: 1 }, quake: { level: 2 } })).toEqual({
       ...emptyCounts(),
-      fire: 2,
+      fire: 3,
       nature: 1,
+      earth: 2,
+    });
+  });
+
+  it('counts a combo toward each of its elements', () => {
+    expect(alignmentOf({ fire: { level: 2 }, meteor: { level: 1 } })).toEqual({
+      ...emptyCounts(),
+      fire: 3,
+      earth: 1,
+      arcane: 1,
     });
   });
 
   it('ignores unknown spell ids', () => {
-    expect(alignmentOf(['nope'])).toEqual(emptyCounts());
+    expect(alignmentOf({ nope: { level: 4 } })).toEqual(emptyCounts());
   });
 });
 

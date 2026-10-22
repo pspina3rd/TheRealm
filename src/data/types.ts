@@ -15,24 +15,44 @@ export type SpellEffect =
   | { readonly kind: 'damage'; readonly power: number }
   /** Restore hero HP. */
   | { readonly kind: 'heal'; readonly amount: number }
-  /** Remove rows from the bottom of the board. */
-  | { readonly kind: 'clearRows'; readonly rows: number }
+  /** Remove rows from the bottom of the board and damage the enemy. */
+  | { readonly kind: 'clearRows'; readonly rows: number; readonly power: number }
   /** Damage the enemy and delay its next action by `pieces`. */
   | { readonly kind: 'freeze'; readonly power: number; readonly pieces: number }
   /** Damage the enemy and slow your falling pieces for `pieces` pieces. */
   | { readonly kind: 'tailwind'; readonly power: number; readonly pieces: number }
-  /** Damage the enemy and heal half the damage dealt. */
-  | { readonly kind: 'drain'; readonly power: number };
+  /** Damage the enemy and heal `share` (0–1) of the damage dealt. */
+  | { readonly kind: 'drain'; readonly power: number; readonly share: number };
+
+/**
+ * A spell's place in its category's menu: the element's main spell (levels
+ * 1–4), a support spell of its own, or a combo of several elements.
+ */
+export type SpellRole = 'primary' | 'support' | 'combo';
+
+/** One level of a spell: its name, cost and effect at that level. */
+export interface SpellLevel {
+  readonly name: string;
+  /** Mana spent from each elemental pool. */
+  readonly cost: ElementAmounts;
+  readonly effect: SpellEffect;
+}
 
 export interface SpellDef {
   readonly id: string;
-  readonly name: string;
-  /** The spell's element: decides weakness, resistance and which alignment it builds. */
-  readonly element: Element;
-  /** Mana spent from each elemental pool. */
-  readonly cost: ElementAmounts;
-  readonly description: string;
-  readonly effect: SpellEffect;
+  /**
+   * The category the spell sits in (one per element). It is also the
+   * element it strikes with, which decides weakness and resistance.
+   */
+  readonly category: Element;
+  readonly role: SpellRole;
+  /**
+   * Every element whose alignment the spell builds (combos only; it
+   * includes the category). Other spells build their category's alone.
+   */
+  readonly elements?: readonly Element[];
+  /** Level 1 first. The effect's kind is the same at every level. */
+  readonly levels: readonly [SpellLevel, ...SpellLevel[]];
 }
 
 // --------------------------------------------------------------- enemies ---

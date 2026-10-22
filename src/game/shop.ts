@@ -2,6 +2,7 @@ import { ITEMS } from '../data/items';
 import type { ItemDef } from '../data/types';
 import type { GameState } from '../world/state';
 import { addItem, applyItemEffect, equip, slotFor, type Hero } from './hero';
+import { knownSpell } from './spells';
 import { charmPriceMultiplier } from './stats';
 
 /**
@@ -26,7 +27,7 @@ export function cannotBuyReason(
     if (owned > 0) return 'You already own one.';
   }
   const spell = item.use?.learnSpell;
-  if (spell && (hero.spells.includes(spell) || (hero.items[item.id] ?? 0) > 0)) {
+  if (spell && (knownSpell(hero, spell) || (hero.items[item.id] ?? 0) > 0)) {
     return 'You already have this spell.';
   }
   return null;

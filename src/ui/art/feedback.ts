@@ -163,7 +163,7 @@ export function feedbackFor(event: BattleEvent): Feedback[] {
     case 'spell': {
       const effect = SPELL_EFFECTS[event.spellId];
       if (!effect) return [];
-      const healing = SPELLS[event.spellId]?.effect.kind === 'heal';
+      const healing = SPELLS[event.spellId]?.levels[0].effect.kind === 'heal';
       return [{ kind: 'vfx', target: healing ? 'hero' : 'enemy', effect }];
     }
     case 'item':

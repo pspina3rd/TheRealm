@@ -12,13 +12,13 @@ import {
   itemCount,
   removeItem,
   heroAlignment,
-  spellCost,
   spendMana,
   takeDamage,
   totalAttack,
   totalDefense,
   useItem,
 } from '../game/hero';
+import { heroSpell } from '../game/spells';
 import { CRIT_MULTIPLIER, critChance } from '../game/stats';
 import { crystalAffinity, elementMultiplier, lineSurge, type LineSurge } from './elemental';
 import type { BattleContext, BattleStatus, Challenge, Objective } from './types';
@@ -125,27 +125,32 @@ export class CombatChallenge implements Challenge {
 
   /** Why a spell can't be cast right now, or null if it can. */
   cannotCastReason(spellId: string): string | null {
-    const spell = SPELLS[spellId];
     const hero = this.ctx.hero;
-    if (!spell || !hero.spells.includes(spellId)) return "You don't know that spell.";
-    if (!canAfford(hero, spellCost(hero, spell))) return 'Not enough mana!';
-    if (spell.effect.kind === 'heal' && hero.hp >= hero.maxHp) return 'HP is already full.';
+    const cast = heroSpell(hero, spellId);
+    if (!cast) return "You don't know that spell.";
+    if (!canAfford(hero, cast.cost)) return 'Not enough mana!';
+    if (cast.effect.kind === 'heal' && hero.hp >= hero.maxHp) return 'HP is already full.';
     return null;
   }
 
-  /** Casts a known spell. Counts as an action. Throws if it can't be cast. */
+  /**
+   * Casts a known spell at the hero's level of it, with its enhancements.
+   * Counts as an action. Throws if it can't be cast.
+   */
   castSpell(spellId: string): void {
     const reason = this.cannotCastReason(spellId);
     const spell = SPELLS[spellId];
-    if (reason || !spell) throw new Error(reason ?? "You don't know that spell.");
     const hero = this.ctx.hero;
-    spendMana(hero, spellCost(hero, spell));
+    const cast = heroSpell(hero, spellId);
+    if (reason || !spell || !cast) throw new Error(reason ?? "You don't know that spell.");
+    spendMana(hero, cast.cost);
     this.ctx.emit({ kind: 'spell', spellId });
-    const effect = spell.effect;
+    const element = spell.category;
+    const effect = cast.effect;
     const strike = (base: number): number => {
-      const multiplier = elementMultiplier(this.enemy, spell.element);
+      const multiplier = elementMultiplier(this.enemy, element);
       const dealt = Math.round((base + hero.level * 2) * multiplier);
-      this.hitEnemy(dealt, spell.element, affinityOf(multiplier));
+      this.hitEnemy(dealt, element, affinityOf(multiplier));
       return dealt;
     };
     switch (effect.kind) {
@@ -162,14 +167,20 @@ export class CombatChallenge implements Challenge {
         this.tailwind(effect.pieces);
         break;
       case 'drain':
-        this.healHero(Math.floor(strike(effect.power) / 2));
+        // In whole percent, so a share like 0.7 can't round a heal down.
+        this.healHero(Math.floor((strike(effect.power) * Math.round(effect.share * 100)) / 100));
         break;
       case 'heal':
         this.healHero(effect.amount);
         break;
       case 'clearRows':
         this.ctx.board.removeBottomRows(effect.rows);
+        strike(effect.power);
         break;
+    }
+    // Effect enhancements: the spell also fires its element's line effect.
+    if (cast.surge > 0 && this.status() === 'ongoing') {
+      this.applySurge({ element, power: cast.surge }, 1, this.ctx.board.height - 1);
     }
     this.spendAction();
   }

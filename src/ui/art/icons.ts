@@ -5,6 +5,7 @@
  * Colours come from the icon's palette, so one shape can be recoloured.
  */
 import type { Element } from '../../core/elements';
+import type { EnhancementId } from '../../data/spells';
 import type { StatId } from '../../data/stats';
 import type { EnemyMove } from '../../data/types';
 
@@ -662,6 +663,78 @@ export const ICONS = {
       '.....oo.....',
     ],
   },
+  /** Spell Power. */
+  burst: {
+    palette: palette('#c2301f', '#ff7b3a', '#ffd34d'),
+    rows: [
+      '.....oo.....',
+      '.o...obo..o.',
+      '.oo..obo.oo.',
+      '.obooobboobo',
+      '..obhhhbbbo.',
+      'oo.ohwwhbo..',
+      'obbhwwwhbboo',
+      '.oobhwhhbo..',
+      '..obbhbbbo..',
+      '.obooobboobo',
+      '.oo..obo..oo',
+      '.o....oo...o',
+    ],
+  },
+  /** Spell Efficiency: less mana. */
+  drop: {
+    palette: palette('#5b2fa6', '#b07cff', '#e3ccff'),
+    rows: [
+      '...oo.......',
+      '...oo.......',
+      '..obbo......',
+      '..obbo......',
+      '.ohbbdo.....',
+      '.ohbbdo.....',
+      'ohwbbbdooooo',
+      'ohwbbbdoowwo',
+      'ohhbbbdooooo',
+      'ohbbbbdo....',
+      '.oddddo.....',
+      '..oooo......',
+    ],
+  },
+  /** Spell Effect. */
+  wand: {
+    palette: palette('#7a3d1c', '#b07cff', '#e3ccff'),
+    rows: [
+      '........o...',
+      '.......oho..',
+      '....ooohwhoo',
+      '.....ohwwwho',
+      '......ohwho.',
+      '......oo.oo.',
+      '.....odo....',
+      '....odo.....',
+      '...odo......',
+      '..odo.......',
+      '.odo........',
+      '.oo.........',
+    ],
+  },
+  /** A spell ready for its next level. */
+  scroll: {
+    palette: palette('#a8743a', '#e8c88a', '#fff4d0'),
+    rows: [
+      '.oooooooooo.',
+      'ohhhhhhhhhdo',
+      'odhhhhhhhddo',
+      '.oooooooooo.',
+      '..ohwwwwbo..',
+      '..ohddddbo..',
+      '..ohhhhhbo..',
+      '..ohdddbbo..',
+      '..ohhhhhbo..',
+      '.oooooooooo.',
+      'ohhhhhhhhhdo',
+      '.oooooooooo.',
+    ],
+  },
 } as const satisfies Record<string, IconDef>;
 
 export type IconId = keyof typeof ICONS;
@@ -710,6 +783,13 @@ export const STAT_ICONS: Readonly<Record<StatId, IconId>> = {
   insight: 'eye',
   charm: 'gift',
   luck: 'clover',
+};
+
+/** The icon for each spell attribute. */
+export const ENHANCEMENT_ICONS: Readonly<Record<EnhancementId, IconId>> = {
+  power: 'burst',
+  efficiency: 'drop',
+  effect: 'wand',
 };
 
 /** The icon for each kind of enemy move, shown when Insight reveals it. */

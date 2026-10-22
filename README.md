@@ -32,7 +32,8 @@ npm run build      # static site in dist/
 | Where  | Keys                                                                              |
 | ------ | --------------------------------------------------------------------------------- |
 | World  | Arrows / WASD walk · walk into anyone to challenge them · M or Esc opens the menu |
-| Battle | ← → move · ↑ or X rotate · ↓ soft drop · Space hard drop · 1–9 cast · P pause     |
+| Battle | ← → move · ↑ or X rotate · ↓ soft drop · Space hard drop · P pause                |
+| Magic  | 1–7 pick a spell category (a lone spell casts at once) · then 1–n cast · Esc back |
 | Touch  | On-screen buttons appear on touch devices                                         |
 
 A new game starts by choosing a hero class. The game saves automatically
@@ -53,8 +54,18 @@ screen, which opens after a level-up and from the menu's Skills button (a
 badge counts waiting points), on eight stats: Vitality (HP), Strength
 (strike damage), Guard (less damage taken), Focus (mana pools), Agility
 (slower pieces), Insight (more next pieces, then the enemy's next move),
-Charm (cheaper shops) and Luck (drops and critical strikes). Points can be
-saved; spending is permanent.
+Charm (cheaper shops) and Luck (drops and critical strikes). The same
+points enhance spells (below). Points can be saved; spending is permanent.
+
+### Spells
+
+Each element has a main spell with four levels and its own name at each
+(Fire → Blaze → Inferno → Cataclysm). Skill points buy enhancements:
+Power (stronger), Efficiency (cheaper) and Effect (a stronger side
+effect). One of each, plus extras at higher levels, makes a spell
+**ready** (a glowing scroll); a mentor will then teach its next level. In
+battle, spells sit in one button per element; one with several spells
+opens its own small menu.
 
 ### Elements and magic
 
@@ -69,8 +80,9 @@ gold lightning, green nature, orange earth, violet arcane and cyan wind.
   and wind slows your pieces.
 - Elements follow a chart: each beats two and loses to two. Enemies are
   weak to what beats their element and resist their own and what it beats.
-- Alignment grows with every spell you learn in an element: stronger line
-  effects, more of its pieces and a title such as "Stone Knight".
+- Alignment is the total level of your spells in an element (a combo such
+  as Meteor counts toward each of its elements): stronger line effects,
+  more of its pieces and a title such as "Stone Knight".
 - Areas tilt which pieces fall; charms and alignment tilt them back.
 
 The battle screen shows all of this instead of describing it: every

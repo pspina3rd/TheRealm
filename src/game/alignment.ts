@@ -3,12 +3,13 @@
  * learning spells, never chosen, and it only goes up.
  *
  * - An element's alignment is the total level of the hero's spells in it.
- *   Spells have no levels yet, so each known spell counts as level 1.
+ *   A combo spell counts its level toward each of its elements.
  * - It strengthens that element's line effects, adds its pieces to the bag
  *   and gives the hero a title from their strongest element.
  */
 import { ELEMENTS, emptyCounts, type Element, type ElementCounts } from '../core/elements';
 import { SPELLS } from '../data/spells';
+import { spellElements } from './spells';
 
 /** Line effects grow by this fraction per alignment point… */
 export const SURGE_BONUS_PER_POINT = 0.1;
@@ -30,12 +31,17 @@ export const ALIGNMENT_TITLES: Readonly<Record<Element, string>> = {
   wind: 'Gale',
 };
 
-/** Alignment per element from the spells the hero knows. Unknown spell ids count for nothing. */
-export function alignmentOf(spellIds: readonly string[]): ElementCounts {
+/**
+ * Alignment per element: the sum of the levels of the spells the hero
+ * knows (spell id → level). Unknown spell ids count for nothing.
+ */
+export function alignmentOf(
+  spells: Readonly<Record<string, { readonly level: number }>>,
+): ElementCounts {
   const alignment = emptyCounts();
-  for (const id of spellIds) {
+  for (const [id, { level }] of Object.entries(spells)) {
     const spell = SPELLS[id];
-    if (spell) alignment[spell.element] += 1;
+    if (spell) for (const element of spellElements(spell)) alignment[element] += level;
   }
   return alignment;
 }

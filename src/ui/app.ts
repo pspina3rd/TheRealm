@@ -9,8 +9,15 @@ import { describeInteraction, resolveBattle } from '../game/encounter';
 import { ELEMENT_NAMES } from '../core/elements';
 import { SPELLS } from '../data/spells';
 import { createHero, equip, heroClass, heroTitle, spendSkillPoints, useItem } from '../game/hero';
-import { adjustPlan, planCost, type StatPlan } from '../game/stats';
-import { STATS, STAT_IDS, type StatId } from '../data/stats';
+import {
+  EMPTY_PLAN,
+  adjustEnhancement,
+  adjustStat,
+  skillPlanCost,
+  type SkillPlan,
+} from '../game/skills';
+import { spellName } from '../game/spells';
+import { STATS, STAT_IDS } from '../data/stats';
 import { pieceWeights } from '../game/pieceOdds';
 import { deleteSave, loadGame, saveGame, type KeyValueStore } from '../game/save';
 import { buy } from '../game/shop';
@@ -26,7 +33,7 @@ import { ManaBars } from './manaBars';
 import { conversationBody, resultsBody } from './screens/conversation';
 import { menuBody } from './screens/menu';
 import { shopBody } from './screens/shop';
-import { focusStep, skillsBody } from './screens/skills';
+import { focusStep, skillsBody, type StepTarget } from './screens/skills';
 import { chip, spritePortrait } from './screens/widgets';
 import type { IconId, IconSpec } from './art/icons';
 import type { Atlas } from './art/atlas';
@@ -269,19 +276,24 @@ export class App {
   // ---------------------------------------------------------- skills ---
 
   /**
-   * The skill screen. −/+ stage ranks in `plan`; Confirm spends them for
-   * good, Later keeps the points. Either way `then` runs afterwards.
+   * The skill screen. −/+ stage stat ranks and spell enhancements in
+   * `plan`; Confirm spends them for good, Later keeps the points. Either
+   * way `then` runs afterwards.
    */
   private openSkills(
     then: () => void,
-    plan: StatPlan = {},
-    last?: { stat: StatId; delta: 1 | -1 },
+    plan: SkillPlan = EMPTY_PLAN,
+    last?: { target: StepTarget; delta: 1 | -1 },
   ): void {
     const hero = this.state.hero;
+    const adjust = (target: StepTarget, delta: 1 | -1): SkillPlan =>
+      target.kind === 'stat'
+        ? adjustStat(plan, target.stat, delta)
+        : adjustEnhancement(plan, target.spellId, target.attribute, delta);
     this.dialog.show({
       title: 'Skills',
-      body: skillsBody(hero, plan, (stat, delta) =>
-        this.openSkills(then, adjustPlan(plan, stat, delta), { stat, delta }),
+      body: skillsBody(hero, plan, (target, delta) =>
+        this.openSkills(then, adjust(target, delta), { target, delta }),
       ),
       // Focus stays on the steps: an extra key press must not confirm a spend.
       autofocus: false,
@@ -289,7 +301,7 @@ export class App {
         { label: 'Later', onClick: then },
         {
           label: 'Confirm',
-          disabled: planCost(plan) === 0,
+          disabled: skillPlanCost(hero, plan) === 0,
           onClick: () => {
             spendSkillPoints(hero, plan);
             this.save();
@@ -384,6 +396,7 @@ export class App {
       const card = button('', () => this.startNewGame(cls.id));
       card.className = 'class-card';
       const { maxHp, manaCap, atk, def, stats } = createHero(cls.id);
+      const spell = SPELLS[cls.spell];
       card.append(
         preview,
         el(
@@ -401,7 +414,7 @@ export class App {
             chip('coin', cls.gil, 'Gil'),
             chip(
               ELEMENT_ICONS[cls.element],
-              SPELLS[cls.spell]?.name ?? cls.spell,
+              spell ? spellName(spell) : cls.spell,
               `${ELEMENT_NAMES[cls.element]} spell`,
             ),
           ),
@@ -516,8 +529,10 @@ export class App {
       } else if (key === 'p') {
         this.togglePause();
       } else if (/^[1-9]$/.test(key)) {
-        const spellId = this.state.hero.spells[Number(key) - 1];
-        if (spellId) this.tryCombat(spellId, (c) => c.castSpell(spellId));
+        // A category, then a spell in its menu.
+        this.battleView.hero.pick(Number(key));
+      } else if (key === 'Escape') {
+        if (this.battleView.hero.back()) event.preventDefault();
       }
       return;
     }

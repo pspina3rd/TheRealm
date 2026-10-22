@@ -17,7 +17,9 @@ import {
   previewCount,
   seesEnemyMove,
   statRanks,
+  type StatPlan,
 } from '../src/game/stats';
+import type { SkillPlan } from '../src/game/skills';
 
 describe('stat definitions', () => {
   it('define every stat with a positive max rank', () => {
@@ -112,6 +114,7 @@ describe('skill plans', () => {
 });
 
 describe('spending skill points', () => {
+  const plan = (stats: StatPlan): SkillPlan => ({ stats, spells: {} });
   const levelled = () => {
     const hero = createHero('knight');
     gainXp(hero, hero.nextXp); // level 2: 2 points
@@ -121,7 +124,7 @@ describe('spending skill points', () => {
   it('buys ranks and their effects for 1 point each', () => {
     const hero = levelled();
     const before = { ...hero, stats: { ...hero.stats } };
-    expect(spendSkillPoints(hero, { strength: 1, focus: 1 })).toBe(true);
+    expect(spendSkillPoints(hero, plan({ strength: 1, focus: 1 }))).toBe(true);
     expect(hero.skillPoints).toBe(0);
     expect(hero.stats.strength).toBe(before.stats.strength + 1);
     expect(hero.atk).toBe(before.atk + 1);
@@ -131,7 +134,7 @@ describe('spending skill points', () => {
   it('adds new max HP to current HP', () => {
     const hero = levelled();
     hero.hp = 10;
-    spendSkillPoints(hero, { vitality: 2 });
+    spendSkillPoints(hero, plan({ vitality: 2 }));
     expect(hero.hp).toBe(10 + 2 * VITALITY_HP);
     expect(hero.maxHp).toBe(CLASSES.knight!.base.hp + CLASSES.knight!.hpGrowth + 4 * VITALITY_HP);
   });
@@ -139,35 +142,35 @@ describe('spending skill points', () => {
   it('adds new mana capacity to every pool', () => {
     const hero = levelled();
     hero.mana = { ...hero.mana, fire: 0 };
-    spendSkillPoints(hero, { focus: 2 });
+    spendSkillPoints(hero, plan({ focus: 2 }));
     expect(hero.mana.fire).toBe(2);
     expect(hero.mana.water).toBe(hero.manaCap);
   });
 
   it('lowers enemy damage with Guard', () => {
     const hero = levelled();
-    spendSkillPoints(hero, { guard: 2 });
+    spendSkillPoints(hero, plan({ guard: 2 }));
     expect(hero.def).toBe(CLASSES.knight!.base.def + 4);
   });
 
   it('refuses to overspend and changes nothing', () => {
     const hero = levelled();
     const before = structuredClone(hero);
-    expect(spendSkillPoints(hero, { luck: 3 })).toBe(false);
+    expect(spendSkillPoints(hero, plan({ luck: 3 }))).toBe(false);
     expect(hero).toEqual(before);
   });
 
   it('is permanent: ranks cannot be sold back for points', () => {
     const hero = levelled();
-    spendSkillPoints(hero, { luck: 2 });
-    expect(spendSkillPoints(hero, { luck: -2 })).toBe(false);
+    spendSkillPoints(hero, plan({ luck: 2 }));
+    expect(spendSkillPoints(hero, plan({ luck: -2 }))).toBe(false);
     expect(hero.stats.luck).toBe(2);
     expect(hero.skillPoints).toBe(0);
   });
 
   it('keeps unspent points for later', () => {
     const hero = levelled();
-    spendSkillPoints(hero, { charm: 1 });
+    spendSkillPoints(hero, plan({ charm: 1 }));
     gainXp(hero, hero.nextXp);
     expect(hero.skillPoints).toBe(3);
   });

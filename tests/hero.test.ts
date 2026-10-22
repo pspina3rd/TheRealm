@@ -23,13 +23,16 @@ import {
   heroClass,
   itemCount,
   learnSpell,
+  raiseSpellLevel,
   removeItem,
   takeDamage,
   totalAttack,
   totalDefense,
   useItem,
 } from '../src/game/hero';
+import { enhancements, newKnownSpell } from '../src/game/spells';
 import { SKILL_POINTS_PER_LEVEL } from '../src/game/stats';
+import { knownSpells } from './helpers';
 
 describe('hero', () => {
   it('starts at level 1 with its class spell and Cure, named after the class', () => {
@@ -37,7 +40,8 @@ describe('hero', () => {
     expect(hero.name).toBe(CLASSES.ranger!.heroName);
     expect(hero.classId).toBe('ranger');
     expect(hero.level).toBe(1);
-    expect(hero.spells).toEqual(['gale', 'cure']);
+    expect(hero.spells).toEqual(knownSpells('gale', 'cure'));
+    expect(hero.lockedCategories).toEqual([]);
     expect(createHero('mage', 'Test').name).toBe('Test');
   });
 
@@ -133,7 +137,7 @@ describe('hero', () => {
     const hero = createHero();
     expect(learnSpell(hero, 'thunder')).toBe(true);
     expect(learnSpell(hero, 'thunder')).toBe(false);
-    expect(hero.spells.filter((s) => s === 'thunder')).toHaveLength(1);
+    expect(hero.spells.thunder).toEqual(newKnownSpell());
   });
 
   it('adds equipment bonuses to attack and defence', () => {
@@ -181,7 +185,7 @@ describe('hero', () => {
     const hero = createHero();
     addItem(hero, 'blizzardTome', 2);
     useItem(hero, 'blizzardTome');
-    expect(hero.spells).toContain('blizzard');
+    expect(hero.spells.blizzard).toEqual(newKnownSpell());
     expect(cannotUseReason(hero, ITEMS.blizzardTome!)).toBe('You already know that spell.');
   });
 
@@ -245,8 +249,8 @@ describe('hero', () => {
     it('starts each class aligned to its element, with its own spell', () => {
       for (const cls of Object.values(CLASSES)) {
         const hero = createHero(cls.id);
-        expect(hero.spells[0]).toBe(cls.spell);
-        expect(SPELLS[cls.spell]?.element).toBe(cls.element);
+        expect(Object.keys(hero.spells)[0]).toBe(cls.spell);
+        expect(SPELLS[cls.spell]?.category).toBe(cls.element);
         expect(hero.titleElement).toBe(cls.element);
       }
       expect(heroTitle(createHero('knight'))).toBe('Stone Knight');
@@ -261,15 +265,18 @@ describe('hero', () => {
 
     it('changes the title only when another element pulls ahead', () => {
       const hero = createHero('knight');
-      hero.spells = ['quake'];
+      hero.spells = knownSpells('quake');
       learnSpell(hero, 'fire'); // fire 1 ties earth 1
       expect(hero.titleElement).toBe('earth');
-      learnSpell(hero, 'meteor'); // fire 2
+      learnSpell(hero, 'meteor'); // fire 2 ties earth 2
+      expect(hero.titleElement).toBe('earth');
+      hero.spells.fire!.step = enhancements({ power: 1, efficiency: 1, effect: 1 });
+      raiseSpellLevel(hero, 'fire'); // fire 3
       expect(heroTitle(hero)).toBe('Ember Knight');
     });
 
-    it('leaves spell costs as listed', () => {
-      expect(spellCost(createHero(), SPELLS.meteor!)).toEqual(SPELLS.meteor!.cost);
+    it('prices unknown spells at level 1', () => {
+      expect(spellCost(createHero(), SPELLS.meteor!)).toEqual(SPELLS.meteor!.levels[0].cost);
     });
   });
 

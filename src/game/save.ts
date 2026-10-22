@@ -3,6 +3,7 @@ import { DEFAULT_CLASS } from '../data/classes';
 import { MAPS } from '../data/maps';
 import { titleElementFor } from './alignment';
 import { heroAlignment, heroClass, refreshStats, type Hero } from './hero';
+import { newKnownSpell, type KnownSpell } from './spells';
 import { SKILL_POINTS_PER_LEVEL, statRanks } from './stats';
 import type { Direction, Location } from '../world/map';
 import type { GameState } from '../world/state';
@@ -13,10 +14,11 @@ export const SAVE_KEY = 'the-realm/save';
  * - 2 replaced MP with elemental mana and added attunement and charms.
  * - 3 replaced attunement with alignment and gave each class its own spell.
  * - 4 added stats and skill points; levels no longer raise mana, attack or defence.
+ * - 5 gave spells levels and enhancements, and added locked categories.
  */
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5;
 /** Older versions `deserialize` can still upgrade. */
-const MIGRATABLE_VERSIONS: readonly number[] = [1, 2, 3, SAVE_VERSION];
+const MIGRATABLE_VERSIONS: readonly number[] = [1, 2, 3, 4, SAVE_VERSION];
 
 /** JSON-friendly form of `GameState` (sets become arrays). */
 interface SaveData {
@@ -111,7 +113,13 @@ export function deleteSave(store: KeyValueStore): void {
 }
 
 /** A hero as stored by any save version. */
-type StoredHero = Partial<Hero> & { mp?: number; maxMp?: number; attunement?: Element | null };
+type StoredHero = Omit<Partial<Hero>, 'spells'> & {
+  mp?: number;
+  maxMp?: number;
+  attunement?: Element | null;
+  /** A list of spell ids before version 5. */
+  spells?: string[] | Record<string, KnownSpell>;
+};
 
 /**
  * Brings a stored hero up to date:
@@ -122,21 +130,30 @@ type StoredHero = Partial<Hero> & { mp?: number; maxMp?: number; attunement?: El
  * - before version 4 there were no stats: the hero gets the class's starting
  *   ranks and 2 unspent points per level gained, and max HP, mana, attack
  *   and defence are recomputed (levels now only add HP), with current HP and
- *   mana kept within the new caps.
+ *   mana kept within the new caps;
+ * - before version 5 spells were a list of ids: each becomes a level 1
+ *   spell with no enhancements, and no category is locked.
  */
 function migrateHero(stored: StoredHero): Hero {
   const { mp, maxMp, attunement, ...rest } = stored;
   const classId = rest.classId ?? DEFAULT_CLASS;
   const cls = heroClass({ classId });
   const manaCap = rest.manaCap ?? maxMp ?? 12;
-  const known = rest.spells ?? [];
-  const spells = known.includes(cls.spell) ? known : [cls.spell, ...known];
+  const storedSpells = rest.spells ?? [];
+  const spells = Array.isArray(storedSpells)
+    ? Object.fromEntries(
+        (storedSpells.includes(cls.spell) ? storedSpells : [cls.spell, ...storedSpells]).map(
+          (id) => [id, newKnownSpell()],
+        ),
+      )
+    : storedSpells;
   const hero: Hero = {
     ...(rest as Hero),
     classId,
     titleElement:
       rest.titleElement ?? titleElementFor(attunement ?? cls.element, heroAlignment({ spells })),
     spells,
+    lockedCategories: rest.lockedCategories ?? [],
     accessoryId: rest.accessoryId ?? null,
     manaCap,
     mana: rest.mana ?? emptyCounts(Math.min(mp ?? manaCap, manaCap)),

@@ -7,7 +7,7 @@ import { ITEMS } from '../src/data/items';
 import { MAPS } from '../src/data/maps';
 import { NPCS } from '../src/data/npcs';
 import { describeInteraction, npcCompletionFlag, resolveBattle } from '../src/game/encounter';
-import { addItem, createHero, itemCount } from '../src/game/hero';
+import { addItem, createHero, itemCount, learnSpell } from '../src/game/hero';
 import { grantRewards } from '../src/game/rewards';
 import { VITALITY_HP } from '../src/game/stats';
 import {
@@ -22,7 +22,8 @@ import {
 import { buy, cannotBuyReason, priceFor } from '../src/game/shop';
 import type { EntityDef } from '../src/world/map';
 import { activeEntities, newGame, travel } from '../src/world/state';
-import { makeBattle, setUpVerticalIClear } from './helpers';
+import { enhancements } from '../src/game/spells';
+import { knownSpells, makeBattle, setUpVerticalIClear } from './helpers';
 
 const entity = (mapId: string, id: string): EntityDef => {
   const found = MAPS[mapId]?.entities.find((e) => e.id === id);
@@ -139,7 +140,7 @@ describe('resolveBattle', () => {
     expect(battle.status).toBe('won');
     const result = resolveBattle(state, entity('mossvale', 'mv-elder'), battle, createRng(1));
     expect(itemCount(state.hero, 'sporeCap')).toBe(0);
-    expect(state.hero.spells).toContain('quake');
+    expect(Object.keys(state.hero.spells)).toContain('quake');
     expect(state.flags.has('npc:elder')).toBe(true);
     expect(result.speech).toBe(NPCS.elder!.successText);
     expect(result.gains).toEqual([
@@ -190,7 +191,7 @@ describe('grantRewards', () => {
     ]);
     expect(state.hero.gil).toBe(30);
     expect(itemCount(state.hero, 'ether')).toBe(3);
-    expect(state.hero.spells).toContain('meteor');
+    expect(Object.keys(state.hero.spells)).toContain('meteor');
     expect(state.flags.has('test')).toBe(true);
     expect(out.shopId).toBe('brightwaterInn');
     // Already-known spells and hidden flags produce no gain.
@@ -336,9 +337,16 @@ describe('save compatibility', () => {
 /** Fields a hero gained in save version 4. */
 const V4_FIELDS = ['stats', 'skillPoints'];
 
-/** A saved hero without `fields`, as an older version stored it. */
-const without = (hero: Record<string, unknown>, fields: readonly string[]) =>
-  Object.fromEntries(Object.entries(hero).filter(([key]) => !fields.includes(key)));
+/**
+ * A saved hero without `fields`, as an older version stored it: before
+ * version 5, spells were a list of ids and nothing was locked.
+ */
+const without = (hero: Record<string, unknown>, fields: readonly string[]) => ({
+  ...Object.fromEntries(
+    Object.entries(hero).filter(([key]) => ![...fields, 'lockedCategories'].includes(key)),
+  ),
+  spells: Object.keys(hero.spells as object),
+});
 
 describe('save migration from version 1 (MP)', () => {
   const v1 = () => {
@@ -391,7 +399,7 @@ describe('save migration from version 2 (attunement)', () => {
     const hero = deserialize(JSON.stringify(v2('fire')))!.hero;
     expect('attunement' in hero).toBe(false);
     expect(hero.titleElement).toBe('fire');
-    expect(hero.spells).toEqual(['quake', 'fire', 'cure']);
+    expect(hero.spells).toEqual(knownSpells('quake', 'fire', 'cure'));
   });
 
   it('titles an unattuned hero by their class', () => {
@@ -450,6 +458,33 @@ describe('save migration from version 3 (stats)', () => {
     const state = newGame('rogue');
     state.hero.skillPoints = 3;
     state.hero.stats.luck = 4;
+    const data = JSON.parse(serialize(state));
+    const v4 = { ...data, version: 4, hero: without(data.hero, []) };
+    expect(deserialize(JSON.stringify(v4))!.hero).toEqual(state.hero);
+  });
+});
+
+describe('save migration from version 4 (spell levels)', () => {
+  const v4 = (spells: string[]) => {
+    const data = JSON.parse(serialize(newGame('mage')));
+    return { ...data, version: 4, hero: { ...without(data.hero, []), spells } };
+  };
+
+  it('turns the spell list into level 1 spells with no enhancements, in order', () => {
+    const hero = deserialize(JSON.stringify(v4(['shadow', 'cure', 'fire'])))!.hero;
+    expect(hero.spells).toEqual(knownSpells('shadow', 'cure', 'fire'));
+    expect(Object.keys(hero.spells)).toEqual(['shadow', 'cure', 'fire']);
+    expect(hero.lockedCategories).toEqual([]);
+  });
+
+  it('keeps version 5 levels, enhancements and locks as saved', () => {
+    const state = newGame('mage');
+    state.hero.spells.shadow = {
+      level: 2,
+      step: enhancements({ power: 1 }),
+      kept: enhancements({ power: 1, efficiency: 1, effect: 1 }),
+    };
+    state.hero.lockedCategories = ['arcane'];
     expect(deserialize(serialize(state))!.hero).toEqual(state.hero);
   });
 });
@@ -471,7 +506,7 @@ describe('shopping for charms and tomes', () => {
     buy(state, 'fireTome', 1);
     expect(cannotBuyReason(state, ITEMS.fireTome!, 1)).toBe('You already have this spell.');
     expect(cannotBuyReason(state, ITEMS.galeTome!, 1)).toBe('You already have this spell.');
-    state.hero.spells.push('shadow');
+    learnSpell(state.hero, 'shadow');
     expect(cannotBuyReason(state, ITEMS.shadowTome!, 1)).toBe('You already have this spell.');
   });
 });

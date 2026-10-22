@@ -4,6 +4,8 @@ import { ITEMS } from '../../data/items';
 import { SPELLS } from '../../data/spells';
 import type { ChallengeSpec, Reward } from '../../data/types';
 import type { Gain } from '../../game/rewards';
+import { maxLevel, spellName } from '../../game/spells';
+import type { SpellDef } from '../../data/types';
 import { ELEMENT_OF_COLOR } from '../../core/elements';
 import type { CrystalColor } from '../../core/pieces';
 import type { Atlas } from '../art/atlas';
@@ -137,7 +139,8 @@ export function rewardIcons(rewards: readonly Reward[]): HTMLElement[] {
         return [chip(itemIcon(reward.itemId), `×${reward.count}`, ITEMS[reward.itemId]?.name)];
       case 'spell': {
         const spell = SPELLS[reward.spellId];
-        return spell ? [chip(ELEMENT_ICONS[spell.element], spell.name, `Learn ${spell.name}`)] : [];
+        const name = spell && spellName(spell);
+        return spell ? [chip(ELEMENT_ICONS[spell.category], name ?? '', `Learn ${name}`)] : [];
       }
       case 'shop':
         return [chip('bag', '', 'Opens the shop')];
@@ -181,12 +184,24 @@ export function gainRows(gains: readonly Gain[]): HTMLElement[] {
           'div',
           { className: 'gain level-up' },
           chip(
-            spell ? ELEMENT_ICONS[spell.element] : 'book',
-            spell?.name ?? gain.spellId,
+            spell ? ELEMENT_ICONS[spell.category] : 'book',
+            spell ? spellName(spell) : gain.spellId,
             'New spell',
           ),
         );
       }
     }
   });
+}
+
+/** A spell's level as pips, e.g. ●●○○ for level 2 of 4; nothing for single-level spells. */
+export function levelPips(spell: SpellDef, level: number): HTMLElement {
+  const max = maxLevel(spell);
+  return el(
+    'span',
+    { className: 'level-pips', title: max > 1 ? `Level ${level}/${max}` : '' },
+    ...(max > 1
+      ? Array.from({ length: max }, (_, i) => el('span', { className: i < level ? 'on' : '' }))
+      : []),
+  );
 }

@@ -6,11 +6,17 @@ import {
   heroClass,
   heroTitle,
   slotFor,
-  spellCost,
   totalAttack,
   totalDefense,
   type Hero,
 } from '../../game/hero';
+import {
+  castSpellFor,
+  isCategoryLocked,
+  isReady,
+  knownSpell,
+  spellCategories,
+} from '../../game/spells';
 import type { Atlas } from '../art/atlas';
 import { alignmentStar } from '../alignmentStarView';
 import { ELEMENT_ICONS, STAT_ICONS, itemIcon, type IconId } from '../art/icons';
@@ -18,7 +24,7 @@ import { STATS, STAT_IDS } from '../../data/stats';
 import { button, el } from '../dom';
 import { iconElement } from '../iconDraw';
 import { ManaBars, costIcons } from '../manaBars';
-import { chip, sectionTitle, spritePortrait } from './widgets';
+import { chip, levelPips, sectionTitle, spritePortrait } from './widgets';
 
 export interface MenuHandlers {
   readonly onUse: (itemId: string) => void;
@@ -128,18 +134,35 @@ export function menuBody(atlas: Atlas, hero: Hero, handlers: MenuHandlers): HTML
     return tile;
   });
 
-  const spells = hero.spells.flatMap((id) => {
-    const spell = SPELLS[id];
-    if (!spell) return [];
-    return [
-      el(
-        'div',
-        { className: 'spell-tile', title: spell.description },
-        iconElement(ELEMENT_ICONS[spell.element], 3),
-        el('span', {}, el('b', { text: spell.name }), costIcons(spellCost(hero, spell))),
-      ),
-    ];
-  });
+  const spells = spellCategories(hero).flatMap(({ spells: ids }) =>
+    ids.flatMap((id) => {
+      const spell = SPELLS[id];
+      const known = knownSpell(hero, id);
+      if (!spell || !known) return [];
+      const cast = castSpellFor(spell, known);
+      const ready = isReady(spell, known);
+      const locked = isCategoryLocked(hero, spell.category);
+      return [
+        el(
+          'div',
+          {
+            className: `spell-tile${ready ? ' ready' : ''}`,
+            title: `${cast.name} · Lv ${cast.level}`,
+          },
+          iconElement(ELEMENT_ICONS[spell.category], 3),
+          el(
+            'span',
+            {},
+            el('b', { text: cast.name }),
+            levelPips(spell, cast.level),
+            costIcons(cast.cost),
+          ),
+          ...(ready ? [iconElement('scroll', 2, 'Ready: a mentor can teach the next level')] : []),
+          ...(locked ? [iconElement('lock', 2, 'Locked until the lesson is won')] : []),
+        ),
+      ];
+    }),
+  );
 
   const mana = el('div');
   new ManaBars(mana).update(hero);

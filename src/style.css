@@ -382,6 +382,38 @@ canvas {
   color: var(--muted);
 }
 
+/* A category with several spells: how many more its menu holds. */
+.spell .more {
+  position: absolute;
+  bottom: 3px;
+  right: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.spell.back {
+  justify-content: flex-start;
+}
+
+/* A spell's level: one pip per level, filled up to the current one. */
+.level-pips {
+  display: flex;
+  gap: 2px;
+  margin: 1px 0 2px;
+}
+
+.level-pips span {
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: #2a2f4d;
+}
+
+.level-pips span.on {
+  background: var(--gold);
+}
+
 .cost {
   display: flex;
   gap: 6px;
@@ -825,6 +857,14 @@ dialog h2 {
   display: block;
 }
 
+/* A spell ready for its next level glows until a mentor teaches it. */
+.spell-tile.ready,
+.spell-row.ready {
+  box-shadow:
+    0 0 0 1px var(--gold),
+    0 0 10px #f5d77b66;
+}
+
 .shop-header {
   display: flex;
   justify-content: space-between;
@@ -1034,5 +1074,114 @@ dialog {
 
   .stat-row .step:last-of-type {
     grid-column: 4;
+  }
+}
+
+/* ------------------------------------------------------ skill spells --- */
+
+.spell-rows {
+  display: grid;
+  gap: 6px;
+}
+
+.spell-row {
+  display: grid;
+  gap: 6px;
+  padding: 6px 8px;
+  background: var(--panel-deep);
+  border: 1px solid transparent;
+  border-radius: 8px;
+}
+
+.spell-row.staged {
+  border-color: var(--good);
+}
+
+.spell-row.locked .spell-attributes,
+.spell-row.max .stat-name {
+  opacity: 0.6;
+}
+
+.spell-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.spell-head .stat-name {
+  flex: 1;
+}
+
+.spell-head .stat-name b {
+  display: block;
+  font-size: 13px;
+}
+
+.step-pips .pip {
+  border-radius: 2px;
+}
+
+.spell-attributes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+/* Icon and value, then pips, then − and +. */
+.spell-attribute {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  align-items: center;
+  padding: 4px;
+  border: 1px solid #2a2f4d;
+  border-radius: 6px;
+}
+
+.spell-attribute.staged {
+  border-color: var(--good);
+}
+
+.attribute-head,
+.spell-attribute .rank-pips {
+  grid-column: 1 / -1;
+}
+
+.attribute-head {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.attribute-head .cost.up {
+  color: var(--good);
+}
+
+.spell-attribute .rank-pips {
+  min-height: 9px;
+}
+
+.spell-attribute .step {
+  width: 100%;
+  height: 36px;
+  padding: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+@media (max-width: 760px) {
+  .spell-row {
+    padding: 4px 6px;
+  }
+
+  .spell-attributes {
+    gap: 4px;
+  }
+
+  .spell-attribute .rank-pips .pip {
+    width: 7px;
+    height: 7px;
   }
 }

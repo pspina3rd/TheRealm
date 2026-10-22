@@ -1,18 +1,21 @@
 import { ELEMENTS, emptyCounts, type Element, type ElementCounts } from '../core/elements';
 import { CLASSES, DEFAULT_CLASS, type HeroClass } from '../data/classes';
 import { ITEMS } from '../data/items';
-import { STARTING_SPELLS } from '../data/spells';
+import { ENHANCEMENT_IDS, SPELLS, STARTING_SPELLS } from '../data/spells';
 import { STAT_IDS, type StatRanks } from '../data/stats';
 import type { ElementAmounts, ItemDef, SpellDef } from '../data/types';
 import { ALIGNMENT_TITLES, alignmentOf, titleElementFor } from './alignment';
+import { isValidSkillPlan, skillPlanCost, type SkillPlan } from './skills';
 import {
-  SKILL_POINTS_PER_LEVEL,
-  derivedStats,
-  isValidPlan,
-  planCost,
-  statRanks,
-  type StatPlan,
-} from './stats';
+  castSpellFor,
+  enhancements,
+  isReady,
+  knownSpell,
+  newKnownSpell,
+  totalEnhancements,
+  type KnownSpell,
+} from './spells';
+import { SKILL_POINTS_PER_LEVEL, derivedStats, statRanks } from './stats';
 
 /** The player character. Plain data so it can be saved as JSON. */
 export interface Hero {
@@ -50,7 +53,13 @@ export interface Hero {
   accessoryId: string | null;
   /** Item id → count. Zero-count entries are removed. */
   items: Record<string, number>;
-  spells: string[];
+  /** Spell id → its level and enhancements, in the order learned. */
+  spells: Record<string, KnownSpell>;
+  /**
+   * Categories whose spells can't be enhanced until a lost mentor lesson
+   * is won (stage 4 sets these; see `isCategoryLocked`).
+   */
+  lockedCategories: Element[];
 }
 
 /** The hero's class, falling back to the default for unknown ids (e.g. old saves). */
@@ -79,7 +88,13 @@ export function createHero(classId = DEFAULT_CLASS, name?: string): Hero {
     armorId: null,
     accessoryId: null,
     items: { herb: 2, ether: 1 },
-    spells: [cls.spell, ...STARTING_SPELLS.filter((id) => id !== cls.spell)],
+    spells: Object.fromEntries(
+      [cls.spell, ...STARTING_SPELLS.filter((id) => id !== cls.spell)].map((id) => [
+        id,
+        newKnownSpell(),
+      ]),
+    ),
+    lockedCategories: [],
   };
 }
 
@@ -134,15 +149,19 @@ export function refreshStats(hero: Hero): void {
 }
 
 /**
- * Buys the planned stat ranks with skill points. This is permanent. New
- * max HP and mana capacity are added to current HP and every pool too.
- * Returns false (and spends nothing) if the plan is invalid or costs more
- * points than the hero has.
+ * Buys the planned stat ranks and spell enhancements with skill points.
+ * This is permanent. New max HP and mana capacity are added to current HP
+ * and every pool too. Returns false (and spends nothing) if the plan is
+ * invalid or costs more points than the hero has.
  */
-export function spendSkillPoints(hero: Hero, plan: StatPlan): boolean {
-  if (!isValidPlan(hero.stats, hero.skillPoints, plan)) return false;
-  for (const id of STAT_IDS) hero.stats[id] += plan[id] ?? 0;
-  hero.skillPoints -= planCost(plan);
+export function spendSkillPoints(hero: Hero, plan: SkillPlan): boolean {
+  if (!isValidSkillPlan(hero, plan)) return false;
+  hero.skillPoints -= skillPlanCost(hero, plan);
+  for (const id of STAT_IDS) hero.stats[id] += plan.stats[id] ?? 0;
+  for (const [spellId, staged] of Object.entries(plan.spells)) {
+    const known = knownSpell(hero, spellId);
+    if (known) for (const id of ENHANCEMENT_IDS) known.step[id] += staged[id] ?? 0;
+  }
   const before = { maxHp: hero.maxHp, manaCap: hero.manaCap };
   refreshStats(hero);
   hero.hp = Math.min(hero.maxHp, hero.hp + hero.maxHp - before.maxHp);
@@ -193,11 +212,11 @@ export function manaFull(hero: Hero): boolean {
 }
 
 /**
- * What a spell costs this hero. Every hero pays the listed cost for now;
- * this is the one place later cost changes (spell enhancements) will apply.
+ * What a spell costs this hero: its cost at their level of it, less
+ * Efficiency enhancements. An unknown spell costs its level 1 price.
  */
-export function spellCost(_hero: Hero, spell: SpellDef): ElementAmounts {
-  return spell.cost;
+export function spellCost(hero: Pick<Hero, 'spells'>, spell: SpellDef): ElementAmounts {
+  return castSpellFor(spell, knownSpell(hero, spell.id) ?? newKnownSpell()).cost;
 }
 
 export function canAfford(hero: Hero, cost: ElementAmounts): boolean {
@@ -246,10 +265,28 @@ export function removeItem(hero: Hero, itemId: string, count = 1): boolean {
  * Returns false if the spell was already known.
  */
 export function learnSpell(hero: Hero, spellId: string): boolean {
-  if (hero.spells.includes(spellId)) return false;
-  hero.spells.push(spellId);
+  if (knownSpell(hero, spellId)) return false;
+  hero.spells[spellId] = newKnownSpell();
   hero.titleElement = titleElementFor(hero.titleElement, heroAlignment(hero));
   return true;
+}
+
+/**
+ * Raises a ready spell one level (a mentor's lesson, stage 4). Its
+ * enhancements are kept and the next step starts empty. Alignment rises
+ * with the level, which may change the hero's title. Throws unless the
+ * hero knows the spell and it is ready.
+ */
+export function raiseSpellLevel(hero: Hero, spellId: string): void {
+  const spell = SPELLS[spellId];
+  const known = knownSpell(hero, spellId);
+  if (!spell || !known || !isReady(spell, known)) throw new Error(`${spellId} is not ready`);
+  hero.spells[spellId] = {
+    level: known.level + 1,
+    step: enhancements(),
+    kept: totalEnhancements(known),
+  };
+  hero.titleElement = titleElementFor(hero.titleElement, heroAlignment(hero));
 }
 
 /** Why an item can't be used right now, or null if it can. */
@@ -257,7 +294,7 @@ export function cannotUseReason(hero: Hero, item: ItemDef): string | null {
   const use = item.use;
   if (!use) return `${item.name} can't be used directly.`;
   if (itemCount(hero, item.id) < 1) return `You have no ${item.name}.`;
-  if (use.learnSpell && hero.spells.includes(use.learnSpell)) return 'You already know that spell.';
+  if (use.learnSpell && knownSpell(hero, use.learnSpell)) return 'You already know that spell.';
   if (use.heal && !use.mana && hero.hp >= hero.maxHp) return 'HP is already full.';
   if (use.mana && !use.heal && manaFull(hero)) return 'Mana is already full.';
   return null;

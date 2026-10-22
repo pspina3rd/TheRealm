@@ -29,6 +29,7 @@ export class BattleView {
   start(opponent: CreatureId | null, heroSprite: CreatureId): void {
     this.nextSeq = 0;
     this.board.reset();
+    this.hero.reset();
     this.stage.show(opponent, heroSprite);
   }
 

@@ -8,9 +8,10 @@ import { gravityInterval } from '../src/core/scoring';
 import { createRng } from '../src/core/rng';
 import { ENEMIES } from '../src/data/enemies';
 import type { EnemyMove } from '../src/data/types';
-import { addItem, createHero, spendSkillPoints, totalAttack } from '../src/game/hero';
+import { addItem, createHero, learnSpell, spendSkillPoints, totalAttack } from '../src/game/hero';
 import { CRIT_MULTIPLIER, dropBonus, statRanks } from '../src/game/stats';
-import { makeBattle, setUpVerticalIClear } from './helpers';
+import { enhancements, type Enhancements } from '../src/game/spells';
+import { knownSpells, makeBattle, setUpVerticalIClear } from './helpers';
 
 /**
  * A fight against `enemyId`. The hero knows Fire and Cure (fire 1, nature 1
@@ -27,7 +28,7 @@ function fight(enemyId = 'slime') {
   const battle = makeBattle({ kind: 'combat', enemyId });
   const combat = battle.combat;
   if (!combat) throw new Error('expected combat');
-  battle.hero.spells = ['fire', 'cure'];
+  battle.hero.spells = knownSpells('fire', 'cure');
   battle.hero.stats = statRanks();
   return { battle, combat, hero: battle.hero };
 }
@@ -94,7 +95,10 @@ describe('CombatChallenge', () => {
 
   it('Strength adds to every strike and Guard takes from every hit', () => {
     const { battle, combat, hero } = fight('shroom');
-    spendSkillPoints(Object.assign(hero, { skillPoints: 4 }), { strength: 2, guard: 2 });
+    spendSkillPoints(Object.assign(hero, { skillPoints: 4 }), {
+      stats: { strength: 2, guard: 2 },
+      spells: {},
+    });
     combat.enemyHp = 999;
     nextMove(combat, { kind: 'attack', name: 'Bite', power: 6 });
     setUpVerticalIClear(battle.board, 1);
@@ -240,7 +244,7 @@ describe('CombatChallenge', () => {
       weak.combat.castSpell('fire');
       expect(999 - weak.combat.enemyHp).toBe(Math.round(16 * 1.5));
       const resist = fight('brute'); // resists wind
-      resist.hero.spells.push('gale');
+      learnSpell(resist.hero, 'gale');
       resist.combat.castSpell('gale');
       expect(ENEMIES.brute!.hp - resist.combat.enemyHp).toBe(Math.round(12 * 0.5));
     });
@@ -255,7 +259,7 @@ describe('CombatChallenge', () => {
 
     it('Quake removes bottom rows', () => {
       const { battle, combat, hero } = fight();
-      hero.spells.push('quake');
+      learnSpell(hero, 'quake');
       battle.board.addGarbage(3);
       combat.castSpell('quake');
       expect(battle.board.grid.flat().filter((c) => c === 'stone')).toHaveLength(9);
@@ -263,7 +267,7 @@ describe('CombatChallenge', () => {
 
     it('Blizzard damages and delays the enemy', () => {
       const { combat, hero } = fight('brute');
-      hero.spells.push('blizzard');
+      learnSpell(hero, 'blizzard');
       const before = combat.countdown;
       combat.castSpell('blizzard');
       // +3 from the freeze, -1 for the action spent casting.
@@ -273,7 +277,7 @@ describe('CombatChallenge', () => {
 
     it('Gale damages and slows your pieces', () => {
       const { battle, combat, hero } = fight('moonImp'); // weak to wind
-      hero.spells.push('gale');
+      learnSpell(hero, 'gale');
       battle.hastePieces = 3;
       combat.castSpell('gale');
       expect(ENEMIES.moonImp!.hp - combat.enemyHp).toBe(Math.round(12 * 1.5));
@@ -283,7 +287,7 @@ describe('CombatChallenge', () => {
 
     it('Shadow Drain heals half the damage dealt', () => {
       const { combat, hero } = fight('goblin');
-      hero.spells.push('shadow');
+      learnSpell(hero, 'shadow');
       hero.hp = 1;
       combat.castSpell('shadow');
       const dealt = ENEMIES.goblin!.hp - combat.enemyHp;
@@ -292,7 +296,7 @@ describe('CombatChallenge', () => {
 
     it('Meteor needs three elements', () => {
       const { combat, hero } = fight('goblin');
-      hero.spells.push('meteor');
+      learnSpell(hero, 'meteor');
       hero.mana.earth = 5;
       expect(combat.cannotCastReason('meteor')).toBe('Not enough mana!');
       hero.mana.earth = 6;
@@ -302,6 +306,74 @@ describe('CombatChallenge', () => {
         0,
         hero.manaCap - 6,
       ]);
+    });
+
+    describe('at higher levels and with enhancements', () => {
+      const at = (level: number, kept: Partial<Enhancements>) => ({
+        level,
+        step: enhancements(),
+        kept: enhancements(kept),
+      });
+
+      it('cast the level’s spell with Power and Efficiency applied', () => {
+        const { combat, hero } = fight('goblin'); // neutral to fire
+        hero.spells.fire = at(3, { power: 2, efficiency: 1 });
+        combat.castSpell('fire');
+        expect(ENEMIES.goblin!.hp - combat.enemyHp).toBe(Math.round(36 * 1.4) + hero.level * 2);
+        expect(hero.mana.fire).toBe(hero.manaCap - 9);
+      });
+
+      it('fire their element’s line effect with Effect', () => {
+        const { battle, combat, hero } = fight('goblin');
+        hero.spells.fire = at(1, { effect: 1 });
+        combat.enemyHp = 999;
+        combat.castSpell('fire');
+        expect(999 - combat.enemyHp).toBe(14 + hero.level * 2 + 3);
+        expect(battle.events.map((e) => e.event)).toContainEqual({
+          kind: 'surge',
+          element: 'fire',
+          power: 3,
+          row: battle.board.height - 1,
+        });
+      });
+
+      it('skip the line effect once the enemy is down', () => {
+        const { battle, combat, hero } = fight('goblin');
+        hero.spells.fire = at(1, { effect: 1 });
+        combat.enemyHp = 1;
+        combat.castSpell('fire');
+        expect(battle.events.filter((e) => e.event.kind === 'surge')).toHaveLength(0);
+      });
+
+      it('regrow with Cure’s Effect', () => {
+        const { combat, hero } = fight();
+        hero.spells.cure = at(2, { effect: 2 });
+        hero.hp = 1;
+        combat.castSpell('cure');
+        expect(hero.hp).toBe(1 + 32 + 6);
+      });
+
+      it('heal a larger share of drained damage', () => {
+        const { combat, hero } = fight('goblin');
+        hero.spells.shadow = at(1, { effect: 2 });
+        hero.hp = 1;
+        combat.castSpell('shadow');
+        const dealt = ENEMIES.goblin!.hp - combat.enemyHp;
+        expect(hero.hp).toBe(1 + Math.floor(dealt * 0.7));
+      });
+
+      it('clear more rows and freeze longer', () => {
+        const { battle, combat, hero } = fight('brute');
+        combat.enemyHp = 999;
+        hero.spells.quake = at(1, { effect: 1 });
+        battle.board.addGarbage(4);
+        combat.castSpell('quake');
+        expect(battle.board.grid.flat().filter((c) => c === 'stone')).toHaveLength(9);
+        hero.spells.blizzard = at(2, { effect: 1 });
+        const before = combat.countdown;
+        combat.castSpell('blizzard');
+        expect(combat.countdown).toBe(before + 3 + 1 - 1);
+      });
     });
 
     it('casting counts as an action and can trigger the enemy', () => {
@@ -413,7 +485,7 @@ describe('CombatChallenge', () => {
 
     it("surges grow with the hero's alignment in their element", () => {
       const { battle, hero } = fight('goblin');
-      hero.spells = ['cure']; // nature 1: ×1.1
+      hero.spells = knownSpells('cure'); // nature 1: ×1.1
       hero.hp = 1;
       setUpVerticalIClear(battle.board, 1, 'green');
       battle.input('hardDrop');
@@ -499,7 +571,7 @@ describe('combat events', () => {
     nextMove(combat, { kind: 'attack', name: 'Bonk', power: 99 });
     battle.input('hardDrop');
     expect(events(battle)).toContainEqual({ kind: 'revive' });
-    battle.hero.spells.push('fire');
+    learnSpell(battle.hero, 'fire');
     combat.castSpell('fire');
     expect(events(battle)).toContainEqual({ kind: 'spell', spellId: 'fire' });
     expect(events(battle).at(-1)).toEqual({ kind: 'enemyDefeated' });

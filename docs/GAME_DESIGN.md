@@ -88,8 +88,7 @@ of its elements. Alignment only goes up; you grow by learning.
     highest in earth is a **Stone Knight**. Ties keep the older title.
 - **Shown as** a seven-point star in the menu, one spike per element. A
   new title is announced with its element's icon.
-- Spells have no levels yet, so each known spell counts 1. Combo spells
-  will count toward both elements once they exist (stage 4).
+- Meteor, the only combo so far, counts toward fire, earth and arcane.
 
 ## Stats and skill points
 
@@ -107,8 +106,9 @@ skill points.
 | Charm    | Gift        | 3% off shop prices (after haggling); NPC attitude (planned) | 10  |
 | Luck     | Clover      | +2% to every item drop; 3% crit chance on 3+ line clears    | 10  |
 
-- **Skill points**: 2 per hero level. A stat rank costs 1 point. Points can
-  be saved; spending is permanent (no respec, for now).
+- **Skill points**: 2 per hero level. A stat rank costs 1 point. The same
+  points buy [spell enhancements](#enhancements). Points can be saved;
+  spending is permanent (no respec, for now).
 - **Level-ups** give the points plus the class's HP growth, and restore HP
   and mana. Mana, attack and defence only grow through stats and gear.
 - **Crit**: a critical strike doubles the clear's strike damage (not its
@@ -116,7 +116,10 @@ skill points.
 - **Skill screen**: opens after a battle that levelled the hero up (before
   any shop) and from the menu's Skills button. Each stat shows its icon,
   rank pips (Insight's unlock ranks are ringed) and what its ranks add up
-  to; − and + stage choices, Confirm spends them. A badge on the menu
+  to; − and + stage choices, Confirm spends them. Below the stats, the
+  Spells section does the same for enhancements (see
+  [Enhancements](#enhancements)); stats and spells share one pool and are
+  checked together. Focus never lands on Confirm. A badge on the menu
   button counts unspent points.
 
 ## Combat (monsters)
@@ -145,18 +148,85 @@ skill points.
 ### Hero magic
 
 Damage spells deal power + 2×level, scaled by the enemy's weakness or
-resistance to the spell's element.
+resistance to the spell's element (its category).
 
-| Spell        | Cost                      | Effect                           | How to learn                         |
-| ------------ | ------------------------- | -------------------------------- | ------------------------------------ |
-| Fire         | 6 fire                    | 14 damage                        | Tome, Mossvale stall                 |
-| Cure         | 6 nature                  | Heal 20 HP                       | Start (every class)                  |
-| Quake        | 6 earth                   | Remove the bottom two rows       | Knight start; Elder Rowan (offering) |
-| Gale         | 6 wind                    | 10 damage, tailwind for 5 pieces | Ranger start; tome, Brightwater shop |
-| Thunder      | 8 lightning               | 24 damage                        | Rogue start; Sage Orrin (puzzle)     |
-| Blizzard     | 8 water                   | 18 damage, delays the enemy 3    | Sealed chest (puzzle)                |
-| Shadow Drain | 8 arcane                  | 18 damage, heal half of it       | Mage start; tome, Brightwater shop   |
-| Meteor       | 6 fire, 6 earth, 6 arcane | 58 damage                        | Not placed yet                       |
+Spells sit in **categories**, one per element. Each element has a
+**primary** spell with four levels, each with its own name; power,
+healing, rows and pieces grow about ×1.6 a level and the cost +2 a level.
+A category can also hold **supports** (none yet) and **combos**, spells of
+several elements that cost each one's mana.
+
+| Category  | Level 1               | Level 2               | Level 3               | Level 4                 | Effect                             | How to learn                         |
+| --------- | --------------------- | --------------------- | --------------------- | ----------------------- | ---------------------------------- | ------------------------------------ |
+| Fire      | Fire · 6 · 14         | Blaze · 8 · 22        | Inferno · 10 · 36     | Cataclysm · 12 · 57     | Damage                             | Tome, Mossvale stall                 |
+| Water     | Blizzard · 8 · 18/3   | Hailstorm · 10 · 29/3 | Glacier · 12 · 46/4   | Deep Winter · 14 · 74/4 | Damage / delays the enemy N pieces | Sealed chest (puzzle)                |
+| Lightning | Thunder · 8 · 24      | Thunderclap · 10 · 38 | Stormcall · 12 · 61   | Skyfall · 14 · 98       | Damage                             | Rogue start; Sage Orrin (puzzle)     |
+| Nature    | Cure · 6 · 20         | Mend · 8 · 32         | Restore · 10 · 51     | Rebirth · 12 · 82       | Heal HP                            | Start (every class)                  |
+| Earth     | Quake · 6 · 6/2       | Rockslide · 8 · 10/3  | Upheaval · 10 · 16/3  | Worldsplit · 12 · 26/4  | Damage / removes the bottom N rows | Knight start; Elder Rowan (offering) |
+| Arcane    | Shadow Drain · 8 · 18 | Soul Siphon · 10 · 29 | Night Feast · 12 · 46 | Void Hunger · 14 · 74   | Damage, heals half of it           | Mage start; tome, Brightwater shop   |
+| Wind      | Gale · 6 · 10/5       | Squall · 8 · 16/6     | Cyclone · 10 · 26/7   | Hurricane · 12 · 41/8   | Damage / tailwind for N pieces     | Ranger start; tome, Brightwater shop |
+
+Each cell is name · mana of the category's element · power (or healing),
+then rows or pieces after the slash.
+
+| Combo  | Category | Elements            | Cost                      | Effect    | How to learn   |
+| ------ | -------- | ------------------- | ------------------------- | --------- | -------------- |
+| Meteor | Fire     | Fire, earth, arcane | 6 fire, 6 earth, 6 arcane | 58 damage | Not placed yet |
+
+- **Battle menu**: one button per category the hero knows, showing its
+  element, its best spell's name, level pips and cost, dimmed when nothing
+  in it can be cast. A category with several spells (a +N badge) opens its
+  menu: the primary at its level, then supports and combos, each with
+  level pips and cost. A category with one spell casts it straight away.
+  Keys 1–7 pick a category, then 1–n a spell; Escape (or the ◀ button)
+  goes back. Casting closes the menu and counts as an action.
+- **Spellbook** (menu): every known spell at its level, with level pips,
+  cost, a scroll and a glowing frame when ready, and a lock when its
+  category is locked.
+
+### Enhancements
+
+Every spell with a level still to gain has three attributes, bought with
+skill points on the skill screen:
+
+| Attribute  | Icon  | Per enhancement                                            |
+| ---------- | ----- | ---------------------------------------------------------- |
+| Power      | Burst | +20% of the level's base damage or healing (rounded)       |
+| Efficiency | Drop  | −1 mana from each element of the cost (never below 1 each) |
+| Effect     | Wand  | A stronger side effect, by kind of spell (below)           |
+
+| Spell kind             | Effect per enhancement                                             |
+| ---------------------- | ------------------------------------------------------------------ |
+| Damage (Fire, Thunder) | Also fires the element's line effect at 3 per Effect (burn, chain) |
+| Heal (Cure)            | Also fires regrowth at 3 per Effect                                |
+| Freeze (Blizzard)      | The enemy waits 1 more piece                                       |
+| Tailwind (Gale)        | 1 more slow piece                                                  |
+| Drain (Shadow Drain)   | Heals 10% more of the damage (50% → at most 100%)                  |
+| Clear rows (Quake)     | +1 row at 1, 3 and 5 Effect                                        |
+
+Enhancing a spell makes it **ready** for its next level:
+
+| Step        | Enhancements needed        | Points each | Points total | Hero levels (2 pts/level) |
+| ----------- | -------------------------- | ----------- | ------------ | ------------------------- |
+| Level 1 → 2 | 3 (one per attribute)      | 2           | 6            | 3                         |
+| Level 2 → 3 | 4 (each attribute + 1 any) | 3           | 12           | 6                         |
+| Level 3 → 4 | 5 (each attribute + 2 any) | 4           | 20           | 10                        |
+
+- Every attribute needs its one before extras go anywhere, and nothing can
+  be added past a complete step. A level 4 spell (or a single-level one,
+  like Meteor) can't be enhanced.
+- A **ready** spell waits for a mentor lesson to raise it (stage 4; the
+  rule is `raiseSpellLevel` in `src/game/hero.ts`). Bonuses stay after the
+  level-up and the next step starts empty.
+- **Locks**: a category listed in the hero's `lockedCategories` can't be
+  enhanced and shows a lock. Nothing sets it yet; a lost mentor lesson
+  will (stage 4).
+- **Skill screen**: each spell shows its level pips, the points one
+  enhancement costs, step pips (bought, staged in green), and per
+  attribute its icon, current value, pips (the required one ringed) and
+  −/+. When an attribute can take no more, focus moves on to the next
+  attribute's +, so Enter can walk a step from the keyboard. A ready
+  spell glows and shows a scroll.
 
 ### Charms
 
@@ -232,9 +302,10 @@ stall. The Sunken Ruins are sealed as the hook for the next region.
 
 ## Planned: progression redesign
 
-**Status: stages 1 and 2 are built and now documented in
-[Elements](#elements), [Hero classes and alignment](#hero-classes-and-alignment)
-and [Stats and skill points](#stats-and-skill-points). The rest is
+**Status: stages 1–3 are built and now documented in
+[Elements](#elements), [Hero classes and alignment](#hero-classes-and-alignment),
+[Stats and skill points](#stats-and-skill-points),
+[Hero magic](#hero-magic) and [Enhancements](#enhancements). The rest is
 planned.** All numbers are starting values to tune in play.
 
 ### Goals
@@ -248,16 +319,14 @@ planned.** All numbers are starting values to tune in play.
 ### Skill points and spells
 
 Skill points (see [Stats and skill points](#stats-and-skill-points)) also
-buy **spell enhancements**, which cost more as the spell rises (below).
-The skill screen will gain a Spells section beside Stats.
+buy **spell enhancements** (built; see [Enhancements](#enhancements)),
+which cost more as the spell rises.
 
 ### Spells
 
-Spells are grouped into **categories**, one per element. Selecting a
-category in battle opens its menu: the primary spell, its supports and any
-combos.
+Categories, primary spell levels and the battle category menu are built
+(see [Hero magic](#hero-magic)). Still planned:
 
-- **Primary spell**: levels 1 → 2 → 3 → 4, like Fire → Fira → Firaga.
 - **Support spells**: their own spells within the category (Chill, Ward,
   Regen, Haste…). Not every support is levelled; some have a single level.
 - **Combo spells** (variations): once you know X, a mentor of another
@@ -265,28 +334,8 @@ combos.
   Example: know Fire, learn **Magma** from an earth mentor
   (cost 3 fire + 3 earth).
 
-#### Enhancements
-
-Every levelled spell has three attributes:
-
-| Attribute  | Per enhancement                                                    |
-| ---------- | ------------------------------------------------------------------ |
-| Power      | +20% of the spell's base damage, heal or shield                    |
-| Efficiency | −1 mana from the spell's cost (never below 1 per element)          |
-| Effect     | Stronger side effect: longer chill, bigger ward, more rows cleared |
-
-Enhancing a spell's attributes makes it **ready** for its next level. A
-mentor lesson then raises it. Bonuses from enhancements stay after the
-level-up.
-
-| Step        | Enhancements needed        | Points each | Points total | Hero levels (2 pts/level) |
-| ----------- | -------------------------- | ----------- | ------------ | ------------------------- |
-| Level 1 → 2 | 3 (one per attribute)      | 2           | 6            | 3                         |
-| Level 2 → 3 | 4 (each attribute + 1 any) | 3           | 12           | 6                         |
-| Level 3 → 4 | 5 (each attribute + 2 any) | 4           | 20           | 10                        |
-
-Spending any points on stats delays this, so in practice one spell reaches
-level 3 around hero level 12–15.
+Spending any points on stats delays a spell's next level, so in practice
+one spell reaches level 3 around hero level 12–15.
 
 ### Mentors
 
@@ -366,7 +415,8 @@ break the ground for that well.
   and teaches the class spell. v4 (built) gives older heroes their class's
   starting stats and 2 × (level − 1) unspent points, and recomputes their
   numbers from the class (HP growth only), keeping HP and mana within the
-  new caps.
+  new caps. v5 (built) turns each known spell into a level 1 spell with
+  no enhancements and adds an empty list of locked categories.
 - **Removed**: attunement and the level 3 choice (done); spell tomes from
   shops (later: they become quest or mentor rewards).
 
@@ -374,7 +424,7 @@ break the ground for that well.
 
 1. Element chart and alignment, replacing attunement. **Done.**
 2. Stats, skill points and the level-up screen. **Done.**
-3. Spell levels, enhancements and the category menu.
+3. Spell levels, enhancements and the category menu. **Done.**
 4. Mentors, team-up battles and combo spells.
 5. Hidden spells and their unlocks.
 6. NPC attitudes and the dialogue rewrite.

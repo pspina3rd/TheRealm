@@ -4,6 +4,12 @@ import type { Cell, PieceName } from '../src/core/pieces';
 import { createRng } from '../src/core/rng';
 import type { ChallengeSpec } from '../src/data/types';
 import { createHero, type Hero } from '../src/game/hero';
+import { newKnownSpell, type KnownSpell } from '../src/game/spells';
+
+/** Known-spell records for `ids`, each at level 1 with no enhancements. */
+export function knownSpells(...ids: readonly string[]): Record<string, KnownSpell> {
+  return Object.fromEntries(ids.map((id) => [id, newKnownSpell()]));
+}
 
 export const SEED = 1234;
 
