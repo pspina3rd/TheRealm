@@ -152,6 +152,7 @@ describe('resolveBattle', () => {
       entity('brightwater', 'bw-collector'),
       battle,
       createRng(1),
+      'neutral',
     );
     expect(itemCount(state.hero, 'goblinCharm')).toBe(0);
     expect(state.hero.gil).toBe(gil + 45);
@@ -172,6 +173,7 @@ describe('resolveBattle', () => {
       entity('brightwater', 'bw-collector'),
       battle,
       createRng(1),
+      'neutral',
     );
     expect(result).toEqual({
       won: false,
@@ -185,12 +187,26 @@ describe('resolveBattle', () => {
     expect(itemCount(state.hero, 'goblinCharm')).toBe(1);
   });
 
+  it('needs the terms an NPC battle was offered on', () => {
+    const state = newGame();
+    const battle = makeBattle(NPCS.merchant!.challenge, state.hero);
+    expect(() =>
+      resolveBattle(state, entity('brightwater', 'bw-merchant'), battle, createRng(1)),
+    ).toThrow();
+  });
+
   it('opens a shop at the haggled price', () => {
     const state = newGame();
     const battle = makeBattle(NPCS.merchant!.challenge, state.hero);
     (battle.challenge as HaggleChallenge).multiplier = 0.8;
     while (battle.status === 'ongoing') battle.input('hardDrop');
-    const result = resolveBattle(state, entity('brightwater', 'bw-merchant'), battle, createRng(1));
+    const result = resolveBattle(
+      state,
+      entity('brightwater', 'bw-merchant'),
+      battle,
+      createRng(1),
+      'neutral',
+    );
     expect(result).toMatchObject({ won: true, shopId: 'brightwaterGeneral' });
     expect(result.priceMultiplier).toBeLessThanOrEqual(0.8);
     expect(state.flags.size).toBe(0); // repeatable: no completion flag
@@ -224,7 +240,7 @@ describe('grantRewards', () => {
 
 describe('shop', () => {
   it('applies the price multiplier with a 1 gil minimum', () => {
-    expect(priceFor(ITEMS.ironSword!, 0.5)).toBe(28);
+    expect(priceFor(ITEMS.ironSword!, 0.5)).toBe(40);
     expect(priceFor(ITEMS.herb!, 0.01)).toBe(1);
   });
 
@@ -232,7 +248,7 @@ describe('shop', () => {
     const state = newGame();
     state.hero.gil = 100;
     buy(state, 'ironSword', 0.9);
-    expect(state.hero.gil).toBe(100 - 50);
+    expect(state.hero.gil).toBe(100 - 72);
   });
 
   it('refuses purchases the hero cannot afford', () => {
@@ -530,9 +546,18 @@ describe('save migration to version 6 (mentors)', () => {
 describe('save migration to version 7 (feats)', () => {
   it('saves the hero’s board feats', () => {
     const state = newGame();
-    state.hero.feats = { 'pure.lightning': 3, hastedQuad: 1 };
+    state.hero.feats = { 'pure.lightning': 3, hastedClear: 1 };
     expect(SAVE_VERSION).toBe(7);
     expect(deserialize(serialize(state))!.hero.feats).toEqual(state.hero.feats);
+  });
+
+  it('carries an older save’s hasted quads over as hasted clears', () => {
+    const data = JSON.parse(serialize(newGame()));
+    data.hero.feats = { 'pure.fire': 2, hastedQuad: 2, hastedClear: 1 };
+    expect(deserialize(JSON.stringify(data))!.hero.feats).toEqual({
+      'pure.fire': 2,
+      hastedClear: 3,
+    });
   });
 
   it('starts version 6 saves with no feats, keeping everything else', () => {

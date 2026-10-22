@@ -4,6 +4,7 @@ import { MAPS } from '../data/maps';
 import { titleElementFor } from './alignment';
 import { heroAlignment, heroClass, refreshStats, type Hero } from './hero';
 import { newKnownSpell, type KnownSpell } from './spells';
+import type { Feats } from './feats';
 import { SKILL_POINTS_PER_LEVEL, statRanks } from './stats';
 import type { Direction, Location } from '../world/map';
 import type { GameState } from '../world/state';
@@ -167,7 +168,7 @@ function migrateHero(stored: StoredHero): Hero {
       rest.titleElement ?? titleElementFor(attunement ?? cls.element, heroAlignment({ spells })),
     spells,
     failedLessons: rest.failedLessons ?? {},
-    feats: rest.feats ?? {},
+    feats: renamedFeats(rest.feats ?? {}),
     accessoryId: rest.accessoryId ?? null,
     manaCap,
     mana: rest.mana ?? emptyCounts(Math.min(mp ?? manaCap, manaCap)),
@@ -178,4 +179,13 @@ function migrateHero(stored: StoredHero): Hero {
     refreshStats(hero);
   }
   return hero;
+}
+
+/**
+ * Version 7 saves called the hasted clear `hastedQuad` (it needed four
+ * lines; it now needs three): its count carries over.
+ */
+function renamedFeats(feats: Feats & { hastedQuad?: number }): Feats {
+  const { hastedQuad, ...rest } = feats;
+  return hastedQuad ? { ...rest, hastedClear: (rest.hastedClear ?? 0) + hastedQuad } : rest;
 }

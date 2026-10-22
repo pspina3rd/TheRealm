@@ -83,7 +83,7 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     id: 'ironSword',
     name: 'Iron Sword',
     kind: 'weapon',
-    price: 55,
+    price: 80,
     atk: 7,
     description: 'Line clears hit 7 harder.',
   },
@@ -99,7 +99,7 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     id: 'knightBlade',
     name: 'Knight Blade',
     kind: 'weapon',
-    price: 105,
+    price: 150,
     atk: 12,
     description: 'Line clears hit 12 harder.',
   },
@@ -117,7 +117,7 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     id: 'crystalMail',
     name: 'Crystal Mail',
     kind: 'armor',
-    price: 65,
+    price: 90,
     def: 6,
     description: 'Reduce damage taken by 6.',
   },
@@ -180,33 +180,34 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     description: 'A carved Moon Shard. More arcane (violet) pieces fall.',
   },
 
-  // Treasures: dropped by monsters and offered to NPCs.
+  // Treasures: dropped by monsters and offered to NPCs. Never stocked; their price is
+  // what selling one is based on.
   slimeGel: {
     id: 'slimeGel',
     name: 'Slime Gel',
     kind: 'treasure',
-    price: 0,
+    price: 6,
     description: 'Sticky and faintly glowing.',
   },
   sporeCap: {
     id: 'sporeCap',
     name: 'Spore Cap',
     kind: 'treasure',
-    price: 0,
+    price: 10,
     description: 'A springy red mushroom cap. Hazel, the grove mentor, would know its use.',
   },
   goblinCharm: {
     id: 'goblinCharm',
     name: 'Goblin Charm',
     kind: 'treasure',
-    price: 0,
+    price: 20,
     description: 'A crude trinket of bone and wire.',
   },
   moonShard: {
     id: 'moonShard',
     name: 'Moon Shard',
     kind: 'treasure',
-    price: 0,
+    price: 20,
     description: 'A sliver of pale crystal from the Moon Caves.',
   },
 };

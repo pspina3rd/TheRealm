@@ -1,8 +1,9 @@
 /**
  * Board feats the hero's life counts, for hidden spells revealed by a
- * pattern (see `src/game/hidden.ts`): every cleared line made of one
- * element alone (`pure.<element>`; stone spoils it), and every four-line
- * clear made while the enemy's haste speeds the pieces (`hastedQuad`).
+ * pattern (see `src/game/hidden.ts`): every cleared line with at least
+ * `PURE_CELLS` crystals of one element (`pure.<element>`; stone just
+ * doesn't count toward it), and every clear of `HASTED_LINES` or more lines
+ * at once made while the enemy's haste speeds the pieces (`hastedClear`).
  * Counting is pure: `featsOfLock` reads one lock result, `recordFeats`
  * adds to the hero's tally.
  */
@@ -12,8 +13,10 @@ import type { CrystalColor } from '../core/pieces';
 import type { FeatId } from '../data/types';
 import type { Hero } from './hero';
 
-/** Lines cleared at once that make a quad. */
-export const QUAD_LINES = 4;
+/** Crystals of one element (of a line's 10 cells) that make the line pure. */
+export const PURE_CELLS = 8;
+/** Lines cleared at once under haste that count as a hasted clear. */
+export const HASTED_LINES = 3;
 
 /** Feat id → times done. Plain data so it can be saved as JSON. */
 export type Feats = Partial<Record<FeatId, number>>;
@@ -21,13 +24,12 @@ export type Feats = Partial<Record<FeatId, number>>;
 /** The feats one locked piece achieved (a feat can appear more than once). */
 export function featsOfLock(result: LockResult, hasted: boolean): FeatId[] {
   const feats = result.lines.flatMap((line): FeatId[] => {
-    const cells = Object.keys(line).filter((cell) => (line[cell as CrystalColor] ?? 0) > 0);
-    const [only] = cells;
-    return cells.length === 1 && only !== 'stone'
-      ? [`pure.${ELEMENT_OF_COLOR[only as CrystalColor]}`]
-      : [];
+    const color = (Object.keys(ELEMENT_OF_COLOR) as CrystalColor[]).find(
+      (c) => (line[c] ?? 0) >= PURE_CELLS,
+    );
+    return color ? [`pure.${ELEMENT_OF_COLOR[color]}`] : [];
   });
-  if (hasted && result.linesCleared >= QUAD_LINES) feats.push('hastedQuad');
+  if (hasted && result.linesCleared >= HASTED_LINES) feats.push('hastedClear');
   return feats;
 }
 

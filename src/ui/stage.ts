@@ -145,7 +145,7 @@ export class Stage {
 
     this.drawAlly(dtMs, timeMs);
     this.drawHero(timeMs);
-    this.drawOpponent(dtMs, timeMs);
+    this.drawOpponent(dtMs, timeMs, battle.combat?.enraged ?? false);
     const combat = battle.combat;
     if (combat) this.drawEnemyStatus(combat, seesEnemyMove(battle.hero.stats.insight), timeMs);
     else this.drawObjective(battle.objective);
@@ -220,7 +220,8 @@ export class Stage {
     );
   }
 
-  private drawOpponent(dtMs: number, timeMs: number): void {
+  /** Draws the opponent; an enraged boss glows a pulsing red. */
+  private drawOpponent(dtMs: number, timeMs: number, enraged: boolean): void {
     if (!this.opponent) return;
     const region = battleFrame(this.opponent, timeMs);
     const scale = CREATURES[this.opponent].battleScale;
@@ -233,6 +234,10 @@ export class Stage {
       const t = Math.min(1, this.defeat / DEFEAT_MS);
       ctx.globalAlpha = 1 - t;
       ctx.filter = `brightness(${1 + t * 2})`;
+    }
+    if (enraged && this.defeat === null) {
+      const glow = Math.round(6 + 4 * Math.sin(timeMs / 120));
+      ctx.filter = `drop-shadow(0 0 ${glow}px #ff3b3b) saturate(1.4)`;
     }
     const x = LAYOUT.enemy.x - w / 2 + this.shakeOffset('enemy', timeMs);
     const y = Math.round(LAYOUT.enemy.baseline - h);

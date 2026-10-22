@@ -998,6 +998,16 @@ export const ITEM_ICONS: Readonly<Record<string, IconSpec>> = {
   moonShard: { icon: 'shard' },
 };
 
+/** Story flags an NPC can grant, as reward icons: what opens, not a padlock. */
+export const FLAG_ICONS: Readonly<Record<string, IconSpec & { readonly label: string }>> = {
+  cavePass: { icon: 'scroll', palette: PALETTES.gold, badge: 'arcane', label: 'Cave Pass' },
+  shrineRestored: {
+    icon: 'drop',
+    palette: elementPalette('water'),
+    label: 'The spring runs clear',
+  },
+};
+
 /** An item's icon, with a plain bag icon for anything unlisted. */
 export function itemIcon(itemId: string): IconSpec {
   return ITEM_ICONS[itemId] ?? { icon: 'bag' };

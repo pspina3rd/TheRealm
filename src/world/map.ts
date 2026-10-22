@@ -25,6 +25,16 @@ export interface Warp {
   readonly requiresFlag?: string;
   /** Shown when a locked warp is bumped. */
   readonly lockedText?: string;
+  /**
+   * A locked warp that stirs once `flag` is set: its seal glows on the map
+   * and bumping it shows `text` instead of `lockedText`.
+   */
+  readonly stirs?: { readonly flag: string; readonly text: string };
+}
+
+/** True when a locked warp's seal is stirring (see `Warp.stirs`). */
+export function warpStirs(warp: Warp, flags: ReadonlySet<string>): boolean {
+  return !!warp.stirs && flags.has(warp.stirs.flag);
 }
 
 interface EntityBase {

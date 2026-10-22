@@ -20,7 +20,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       intro: {
         cold: "Spores in my well. Clear them if you must; I won't beg.",
         plain: 'Spores have choked the village well. Clear them out and we drink again.',
-        warm: "Oh, it's you. The spores have choked our well. Help me clear it?",
+        warm: 'A kind face, thank goodness. The spores have choked our well. Help me clear it?',
       },
       confide: "I dug this well with Quake when I was young. Clear it and I'll share what I kept.",
       refuse: "Not from you. I'll scrape the well myself.",
@@ -30,6 +30,11 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
         cold: 'It runs. Take this and go.',
         plain: 'It runs clear. Take what I dug it with.',
         warm: 'Clear water! Take what I dug it with, and my thanks.',
+      },
+      winKnown: {
+        cold: 'It runs. You know Quake already; take a stone from the first dig.',
+        plain: 'It runs clear. You already shake the ground, so take a stone from the first dig.',
+        warm: 'Clear water! You know Quake already. Keep a stone from the first dig, for luck.',
       },
       lose: "Still choked. The spores won't wait forever.",
       done: {
@@ -79,7 +84,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       },
       lose: "Too thin. They'll never take.",
     },
-    challenge: { kind: 'barter', wants: { green: 8 }, pieceLimit: 20 },
+    challenge: { kind: 'barter', wants: { green: 8 }, pieceLimit: 21 },
     rewards: [{ kind: 'item', itemId: 'herb', count: 2 }],
     bonus: { kind: 'item', itemId: 'herb', count: 1 },
     secret: { kind: 'item', itemId: 'groveCharm', count: 1 },
@@ -94,7 +99,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       intro: {
         cold: "Mum says don't talk to strangers. ...But my tower's stuck.",
         plain: "My crystal tower's jammed and Mum says clear it before supper. Help?",
-        warm: "You're back! My tower's jammed again and supper's soon. Help?",
+        warm: "Hi! My crystal tower's jammed and supper's soon. Will you help? Please?",
       },
       confide: 'Psst. Clear it and you can have my lucky charm. It makes kites fly higher.',
       refuse: "Mum says you're trouble. Go away.",
@@ -132,7 +137,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       intro: {
         cold: 'Prices are what they are. Haggle if you like.',
         plain: "Herbs, a sword, a charm. A man's got to eat; haggle me for them.",
-        warm: 'My favourite customer! Haggle me, for the fun of it.',
+        warm: 'A friendly face! Haggle me, just for the fun of it.',
       },
       confide: "For you I'll open the box under the counter. Haggle first, for form.",
       refuse: 'Stall is shut. For you, anyway.',
@@ -190,7 +195,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       intro: {
         cold: 'Coal costs. Steel costs more. Keep up or keep walking.',
         plain: "The forge eats coal faster than I sell steel. Keep pace and I'll price it fair.",
-        warm: "Back for steel? The forge is hot. Keep pace and I'll go easy.",
+        warm: "Steel for you? The forge is hot. Keep pace and I'll go easy.",
       },
       confide: "I forged a hammer for myself and never swung it. Haggle, and it's on the rack.",
       refuse: 'Not my steel. Not in your hands.',
@@ -216,7 +221,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       intro: {
         cold: 'One bed left. Haggle for it if you want it.',
         plain: 'Half my rooms sit empty since the caves closed. A bed? We settle it with a game.',
-        warm: 'Your room is aired, dear. Shall we play for the price?',
+        warm: 'Come in and get warm, dear. A bed? We play a little game for the price.',
       },
       confide: 'I keep a Phoenix Feather for regulars who go below. Play me for it.',
       refuse: 'No rooms. Not for you.',
@@ -242,7 +247,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       intro: {
         cold: "The storm broke my lattice. Fix it or don't.",
         plain: "Last night's storm broke the lattice on my roof. Rebuild it before the next one.",
-        warm: 'My lattice broke in the storm, and yours are the steadiest hands I know. Help?',
+        warm: 'My lattice broke in the storm. You have steady hands, I can tell. Help?',
       },
       confide: 'Between us: the storm loves a line of pure gold. Rook knows why.',
       refuse: 'My roof. My storm. Go.',
@@ -251,7 +256,12 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       win: {
         cold: 'It holds. Take the storm and go.',
         plain: 'It holds! The next bolt is yours to call.',
-        warm: 'It holds! The next bolt is yours, old friend.',
+        warm: 'It holds! The next bolt is yours, friend.',
+      },
+      winKnown: {
+        cold: 'It holds. You call storms already; take a spare rod and go.',
+        plain: 'It holds! You already call the storm, so take a charm from a spare rod.',
+        warm: 'It holds! You call the storm already. Wear this spare rod; it hums for you.',
       },
       lose: 'It sparks and sags. Again, before the clouds come.',
       done: {
@@ -422,7 +432,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       intro: {
         cold: 'Shard. Grind it. Salves. Then go.',
         plain: "Moon Shard... yes... grind one fine and I'll mix salves for us both.",
-        warm: 'Friend! A shard to grind? Salves for us both, yes, yes.',
+        warm: 'Oh! A kind one. A shard to grind? Salves for us both, yes, yes.',
       },
       confide: "Ssh. I carve the best shards into charms. Grind me one and you'll see.",
       refuse: 'No. No no. Go away.',

@@ -123,7 +123,9 @@ attack the moment you walk into them. Full rules and numbers are in
    keeper and Captain Vale, who holds the pass to the caves.
 4. **Moon Caves** (two floors): imps and a Cave Brute, a sealed chest, a
    hermit and the Moon Wyrm boss.
-5. **Sunken Ruins**: sealed for now. This is where the next region goes.
+5. **Sunken Ruins**: sealed for now. Beat the Moon Wyrm (it enrages at
+   half HP) to see the chapter's end; the ruins' seal then glows, waiting
+   for the next chapter.
 
 ### Challenge types
 

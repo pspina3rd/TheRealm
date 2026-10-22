@@ -6,6 +6,7 @@ import type { Lesson } from '../../game/lessons';
 import { castSpellFor, castSummary, newKnownSpell } from '../../game/spells';
 import type { Interaction } from '../../game/encounter';
 import type { Resolution } from '../../game/encounter';
+import type { Epilogue } from '../../game/ending';
 import type { Gain } from '../../game/rewards';
 import type { Atlas } from '../art/atlas';
 import { ATTITUDE_ICONS, ELEMENT_ICONS, itemIcon } from '../art/icons';
@@ -149,4 +150,41 @@ export function resultsBody(
     body.push(el('div', { className: 'gain loss' }, iconElement('bed', 2, 'You wake at the inn')));
   body.push(el('div', { className: 'gains' }, ...gainRows(resolution.gains)));
   return body;
+}
+
+/**
+ * The chapter's end: the hero with their title's element, level and spell
+ * count; the mentors whose magic they learned; and a last word from
+ * someone who sent them below.
+ */
+export function epilogueBody(atlas: Atlas, epilogue: Epilogue): HTMLElement[] {
+  return [
+    el(
+      'div',
+      { className: 'epilogue-hero' },
+      spritePortrait(atlas, epilogue.classSprite, 96),
+      el(
+        'div',
+        { className: 'epilogue-stats' },
+        el('b', { text: epilogue.title }),
+        el(
+          'span',
+          { className: 'chips' },
+          chip(ELEMENT_ICONS[epilogue.titleElement], '', ELEMENT_NAMES[epilogue.titleElement]),
+          chip('star', `Lv ${epilogue.level}`, 'Level'),
+          chip('book', `×${epilogue.spells}`, 'Spells known'),
+        ),
+      ),
+    ),
+    el(
+      'div',
+      { className: 'epilogue-mentors' },
+      ...epilogue.mentors.map((mentor) => {
+        const portrait = spritePortrait(atlas, mentor.sprite, 48);
+        portrait.title = mentor.name;
+        return portrait;
+      }),
+    ),
+    speech(atlas, epilogue.speaker.sprite, epilogue.speaker.text, 'devoted'),
+  ];
 }

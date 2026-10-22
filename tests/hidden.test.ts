@@ -92,12 +92,12 @@ describe('revealing hidden spells', () => {
     expect(isRevealed(spell('volcano'), s)).toBe(true);
   });
 
-  it('pattern: Ball Lightning after 6 pure lightning lines, Tempest after a hasted quad', () => {
+  it('pattern: Ball Lightning after 4 pure lightning lines, Tempest after a hasted clear', () => {
     const s = seeker();
-    s.hero.feats = { 'pure.lightning': 5, 'pure.fire': 9 };
+    s.hero.feats = { 'pure.lightning': 3, 'pure.fire': 9 };
     expect(isRevealed(spell('ballLightning'), s)).toBe(false);
     expect(isRevealed(spell('tempest'), s)).toBe(false);
-    recordFeats(s.hero, ['pure.lightning', 'hastedQuad']);
+    recordFeats(s.hero, ['pure.lightning', 'hastedClear']);
     expect(isRevealed(spell('ballLightning'), s)).toBe(true);
     expect(isRevealed(spell('tempest'), s)).toBe(true);
   });
@@ -163,31 +163,33 @@ describe('silhouettes', () => {
 });
 
 describe('board feats', () => {
-  it('counts each cleared line of one element alone as pure', () => {
+  it('counts a cleared line with 8 or more crystals of one element as pure', () => {
     expect(
-      featsOfLock(lock([{ gold: 10 }, { gold: 9, red: 1 }, { cyan: 10, red: 0 }]), false),
-    ).toEqual(['pure.lightning', 'pure.wind']);
+      featsOfLock(
+        lock([{ gold: 10 }, { gold: 8, red: 2 }, { cyan: 8, stone: 2 }, { gold: 7, red: 3 }]),
+        false,
+      ),
+    ).toEqual(['pure.lightning', 'pure.lightning', 'pure.wind']);
     expect(featsOfLock(lock([{ stone: 10 }, { gold: 7, stone: 3 }]), false)).toEqual([]);
   });
 
-  it('counts a four-line clear only under haste', () => {
-    const quad = lock([
-      { red: 9, cyan: 1 },
-      { red: 9, cyan: 1 },
-      { red: 9, cyan: 1 },
-      { red: 9, cyan: 1 },
+  it('counts a clear of three or more lines only under haste', () => {
+    const triple = lock([
+      { red: 5, cyan: 5 },
+      { red: 5, cyan: 5 },
+      { red: 5, cyan: 5 },
     ]);
-    expect(featsOfLock(quad, true)).toEqual(['hastedQuad']);
-    expect(featsOfLock(quad, false)).toEqual([]);
-    expect(featsOfLock(lock(quad.lines.slice(1)), true)).toEqual([]);
+    expect(featsOfLock(triple, true)).toEqual(['hastedClear']);
+    expect(featsOfLock(triple, false)).toEqual([]);
+    expect(featsOfLock(lock(triple.lines.slice(1)), true)).toEqual([]);
   });
 
   it('adds up over the hero’s life', () => {
     const hero = createHero();
     expect(featCount(hero, 'pure.fire')).toBe(0);
-    recordFeats(hero, ['pure.fire', 'pure.fire', 'hastedQuad']);
+    recordFeats(hero, ['pure.fire', 'pure.fire', 'hastedClear']);
     recordFeats(hero, ['pure.fire']);
-    expect(hero.feats).toEqual({ 'pure.fire': 3, hastedQuad: 1 });
+    expect(hero.feats).toEqual({ 'pure.fire': 3, hastedClear: 1 });
   });
 
   it('are recorded only in fights, never on a puzzle or trade board', () => {
@@ -196,7 +198,7 @@ describe('board feats', () => {
     setUpVerticalIClear(battle.board, 4, 'cyan'); // the I is cyan too: four pure wind lines
     battle.hastePieces = 2;
     battle.input('hardDrop');
-    expect(battle.hero.feats).toEqual({ 'pure.wind': 4, hastedQuad: 1 });
+    expect(battle.hero.feats).toEqual({ 'pure.wind': 4, hastedClear: 1 });
 
     const barter = makeBattle({ kind: 'barter', wants: { red: 4 }, pieceLimit: 9 });
     setUpVerticalIClear(barter.board, 1, 'red');
@@ -214,7 +216,7 @@ describe('mentors teaching hidden spells', () => {
   it('offers a hidden spell only once revealed, one harder than usual', () => {
     const s = seeker('thunder', 'static');
     expect(lessonsFor(s, mentor('rook'))).toEqual([]);
-    s.hero.feats['pure.lightning'] = 6;
+    s.hero.feats['pure.lightning'] = 4;
     expect(lessonsFor(s, mentor('rook'))).toEqual([
       { spellId: 'ballLightning', level: 1, difficulty: 2 },
     ]);
@@ -263,7 +265,7 @@ describe('a mentor who noticed seeks the hero out', () => {
   function noticed(map: string, x = 1, y = 1): GameState {
     const state = newGame('ranger');
     Object.assign(state, { mapId: map, x, y });
-    state.hero.feats['pure.lightning'] = 6;
+    state.hero.feats['pure.lightning'] = 4;
     return state;
   }
 

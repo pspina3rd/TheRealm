@@ -44,13 +44,13 @@ describe('hero', () => {
     expect(createHero('mage', 'Test').name).toBe('Test');
   });
 
-  it('starts with the same totals as before stats existed', () => {
+  it('starts with its class totals (the Knight 6 HP above the old totals)', () => {
     const totals = (id: string) => {
       const hero = createHero(id);
       return [hero.maxHp, hero.manaCap, hero.atk, hero.def, hero.gil];
     };
     expect(totals('ranger')).toEqual([40, 12, 5, 1, 25]);
-    expect(totals('knight')).toEqual([48, 10, 5, 3, 20]);
+    expect(totals('knight')).toEqual([54, 10, 5, 3, 20]);
     expect(totals('mage')).toEqual([34, 16, 4, 1, 25]);
     expect(totals('rogue')).toEqual([36, 12, 6, 1, 60]);
   });

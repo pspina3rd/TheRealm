@@ -412,7 +412,7 @@ describe('LessonChallenge', () => {
 
   it('fights a scaled foe at the scaled speed, as a lesson', () => {
     const { battle, challenge } = lesson(2);
-    expect(challenge.enemy.hp).toBe(60);
+    expect(challenge.enemy.hp).toBe(36);
     expect(battle.level).toBe(3);
     expect(challenge.objective().label).toBe('Lesson: Fire');
     expect(challenge.helpChance).toBeCloseTo(0.5 * 0.8);

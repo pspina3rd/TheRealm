@@ -59,7 +59,7 @@ export const CLASSES: Readonly<Record<string, HeroClass>> = {
     sprite: 'char.019',
     element: 'earth',
     spell: 'quake',
-    base: { hp: 36, mana: 10, atk: 5, def: 1 },
+    base: { hp: 42, mana: 10, atk: 5, def: 1 },
     hpGrowth: 10,
     stats: { vitality: 2, guard: 2 },
     gil: 20,

@@ -5,12 +5,13 @@ import { CLASSES } from '../data/classes';
 import { ENEMIES } from '../data/enemies';
 import type { ChallengeSpec } from '../data/types';
 import type { Attitude } from '../game/attitude';
+import type { Epilogue } from '../game/ending';
 import { describeInteraction, entitySprite, resolveBattle } from '../game/encounter';
 import { bringItems, hiddenSlots, itemsFor } from '../game/hidden';
 import type { Gain } from '../game/rewards';
 import { ITEMS } from '../data/items';
 import { itemIcon } from './art/icons';
-import { lessonSpec } from '../game/lessons';
+import { lessonSpec, prepareLesson } from '../game/lessons';
 import { MENTORS, type MentorDef } from '../data/mentors';
 import { mentorOf, mentorPlace } from '../world/mentors';
 import { MAPS } from '../data/maps';
@@ -28,7 +29,7 @@ import { spellLevel, spellName } from '../game/spells';
 import { STATS, STAT_IDS } from '../data/stats';
 import { pieceWeights } from '../game/pieceOdds';
 import { deleteSave, loadGame, saveGame, type KeyValueStore } from '../game/save';
-import { buy } from '../game/shop';
+import { buy, sell } from '../game/shop';
 import type { Direction, EntityDef } from '../world/map';
 import { step } from '../world/movement';
 import { currentMap, newGame, travel, type GameState } from '../world/state';
@@ -38,7 +39,7 @@ import { ELEMENT_ICONS, SPELL_KIND_ICONS, STAT_ICONS } from './art/icons';
 import { BattleView } from './battleView';
 import { iconElement } from './iconDraw';
 import { ManaBars } from './manaBars';
-import { conversationBody, resultsBody } from './screens/conversation';
+import { conversationBody, epilogueBody, resultsBody } from './screens/conversation';
 import { menuBody } from './screens/menu';
 import { shopBody } from './screens/shop';
 import { focusStep, skillsBody, type StepTarget } from './screens/skills';
@@ -76,6 +77,8 @@ const KEY_BATTLE: Readonly<Record<string, BattleAction>> = {
 interface ActiveBattle {
   readonly battle: Battle;
   readonly entity: EntityDef;
+  /** The terms an NPC offered this battle on. */
+  readonly terms?: Attitude;
   finished: boolean;
   /** Time left before the result is shown, so the final blow plays out. */
   resultDelay: number;
@@ -286,7 +289,13 @@ export class App {
         },
         {
           label: 'Accept',
-          onClick: () => this.startBattle(entity, interaction.spec, interaction.replies?.accept),
+          onClick: () =>
+            this.startBattle(
+              entity,
+              interaction.spec,
+              interaction.replies?.accept,
+              interaction.terms,
+            ),
         },
       ],
     });
@@ -294,12 +303,27 @@ export class App {
 
   // --------------------------------------------------------- battles ---
 
-  /** Starts a battle; `line` is what the opponent says as it begins. */
-  private startBattle(entity: EntityDef, spec: ChallengeSpec, line?: string): void {
+  /**
+   * Starts a battle; `line` is what the opponent says as it begins, and
+   * `terms` the attitude an NPC offered it on.
+   */
+  private startBattle(
+    entity: EntityDef,
+    spec: ChallengeSpec,
+    line?: string,
+    terms?: Attitude,
+  ): void {
     this.dialog.close();
+    if (spec.kind === 'lesson') prepareLesson(this.state.hero);
     const weights = pieceWeights(currentMap(this.state), this.state.hero);
     const battle = new Battle(spec, this.state.hero, this.rng, { weights });
-    this.active = { battle, entity, finished: false, resultDelay: RESULT_DELAY_MS };
+    this.active = {
+      battle,
+      entity,
+      ...(terms ? { terms } : {}),
+      finished: false,
+      resultDelay: RESULT_DELAY_MS,
+    };
     const hero = creature(heroClass(this.state.hero).sprite) ?? 'char.026';
     if (spec.kind === 'lesson') {
       // The lesson's foe faces the hero and the mentor at their side.
@@ -319,7 +343,13 @@ export class App {
     const active = this.active;
     if (!active) return;
     const titleBefore = this.state.hero.titleElement;
-    const resolution = resolveBattle(this.state, active.entity, active.battle, this.rng);
+    const resolution = resolveBattle(
+      this.state,
+      active.entity,
+      active.battle,
+      this.rng,
+      active.terms,
+    );
     const newTitle = this.state.hero.titleElement !== titleBefore;
     const levelled = resolution.gains.some((gain) => gain.kind === 'level');
     this.save();
@@ -327,7 +357,9 @@ export class App {
     const speaker = portraitFor(active.entity);
     // After the results: the skill screen if the hero levelled up, then any shop.
     const next = (): void => {
-      if (resolution.shopId) {
+      if (resolution.epilogue) {
+        this.showEpilogue(resolution.epilogue);
+      } else if (resolution.shopId) {
         this.openShop(resolution.shopId, resolution.priceMultiplier, speaker, resolution.attitude);
       } else this.dialog.close();
     };
@@ -442,6 +474,21 @@ export class App {
     );
   };
 
+  /** The chapter's end, then back to the world, where the ruins' seal now stirs. */
+  private showEpilogue(epilogue: Epilogue): void {
+    const close = (): void => {
+      this.dialog.close();
+      this.say('The Sunken Ruins stir', 'star');
+    };
+    this.dialog.show({
+      title: 'The Moon Wyrm falls',
+      body: epilogueBody(this.atlas, epilogue),
+      actions: [{ label: 'Continue', onClick: close }],
+      onCancel: close,
+      guardMs: 600,
+    });
+  }
+
   // ----------------------------------------------------------- shops ---
 
   private openShop(
@@ -464,6 +511,12 @@ export class App {
           attitude ?? 'neutral',
           (itemId) => {
             buy(this.state, itemId, multiplier);
+            this.save();
+            this.renderHud();
+            render();
+          },
+          (itemId) => {
+            sell(this.state, itemId);
             this.save();
             this.renderHud();
             render();

@@ -3,7 +3,7 @@ import { ITEMS } from '../../data/items';
 import { ATTITUDE_PRICES, stockFor, type Attitude } from '../../game/attitude';
 import type { ItemDef, ShopDef } from '../../data/types';
 import type { Hero } from '../../game/hero';
-import { cannotBuyReason, priceFor } from '../../game/shop';
+import { cannotBuyReason, priceFor, sellPrice, sellableItems } from '../../game/shop';
 import type { GameState } from '../../world/state';
 import type { Atlas } from '../art/atlas';
 import { ATTITUDE_ICONS, ELEMENT_ICONS, itemIcon } from '../art/icons';
@@ -57,6 +57,39 @@ function attitudeChip(attitude: Attitude): HTMLElement {
   );
 }
 
+/** The bag's sellable items, each a card with its count and what the shop pays. */
+function sellSection(hero: Hero, onSell: (itemId: string) => void): HTMLElement[] {
+  const items = sellableItems(hero);
+  if (items.length === 0) return [];
+  const cards = items.map((item) => {
+    const card = button('', () => onSell(item.id), { title: item.description });
+    card.className = 'shop-card sell';
+    card.append(
+      iconElement(itemIcon(item.id), 3),
+      el(
+        'span',
+        { className: 'shop-info' },
+        el('b', { text: item.name }),
+        el(
+          'span',
+          { className: 'chips' },
+          chip('bag', `×${hero.items[item.id] ?? 0}`, 'In your bag'),
+        ),
+      ),
+      el(
+        'span',
+        { className: 'shop-price' },
+        chip('coin', `+${sellPrice(item)}`, 'Sells for', 'up'),
+      ),
+    );
+    return card;
+  });
+  return [
+    el('h3', { className: 'shop-sell', text: 'Sell' }),
+    el('div', { className: 'shop-cards' }, ...cards),
+  ];
+}
+
 /**
  * A shop: the shopkeeper's face and price change for their attitude, your
  * gil, and a card per item with its price (the list price struck through
@@ -71,6 +104,7 @@ export function shopBody(
   keeperSprite: string,
   attitude: Attitude,
   onBuy: (itemId: string) => void,
+  onSell: (itemId: string) => void,
 ): HTMLElement[] {
   const cards = stockFor(shop, attitude).flatMap((itemId) => {
     const item = ITEMS[itemId];
@@ -116,5 +150,6 @@ export function shopBody(
       attitudeChip(attitude),
     ),
     el('div', { className: 'shop-cards' }, ...cards),
+    ...sellSection(state.hero, onSell),
   ];
 }

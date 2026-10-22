@@ -1,7 +1,7 @@
 import { ITEMS } from '../data/items';
 import type { ItemDef } from '../data/types';
 import type { GameState } from '../world/state';
-import { addItem, applyItemEffect, equip, slotFor } from './hero';
+import { addItem, applyItemEffect, equip, removeItem, slotFor, type Hero } from './hero';
 import { knownSpell } from './spells';
 
 /**
@@ -11,6 +11,36 @@ import { knownSpell } from './spells';
  */
 export function priceFor(item: ItemDef, multiplier: number): number {
   return Math.max(1, Math.round(item.price * multiplier));
+}
+
+/** Shops buy items back at this fraction of the list price. */
+export const SELL_RATE = 0.5;
+
+/** What a shop pays for one `item`: half its list price, rounded down. */
+export function sellPrice(item: ItemDef): number {
+  return Math.floor(item.price * SELL_RATE);
+}
+
+/**
+ * The items the hero can sell, in bag order: anything carried (worn gear
+ * isn't in the bag) that a shop would pay for. Services and keepsakes
+ * (price 0) can't be sold; story progress lives in flags, never items.
+ */
+export function sellableItems(hero: Pick<Hero, 'items'>): ItemDef[] {
+  return Object.entries(hero.items).flatMap(([id, count]) => {
+    const item = ITEMS[id];
+    return item && count > 0 && item.kind !== 'service' && sellPrice(item) > 0 ? [item] : [];
+  });
+}
+
+/** Sells one `itemId` from the bag. Returns a message; throws if it can't be sold. */
+export function sell(state: GameState, itemId: string): string {
+  const item = sellableItems(state.hero).find((i) => i.id === itemId);
+  if (!item) throw new Error(`Can't sell ${itemId}`);
+  removeItem(state.hero, itemId);
+  const price = sellPrice(item);
+  state.hero.gil += price;
+  return `Sold ${item.name}. (+${price} gil)`;
 }
 
 /** Why the hero can't buy `item`, or null if they can. */

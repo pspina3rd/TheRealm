@@ -68,7 +68,7 @@ starting stats (below); levels only add HP.
 | Class  | Element   | First spell  | HP  | Mana | ATK | DEF | Gil | Starting stats      | HP per level |
 | ------ | --------- | ------------ | --- | ---- | --- | --- | --- | ------------------- | ------------ |
 | Ranger | Wind      | Gale         | 40  | 12   | 5   | 1   | 25  | Agility 2, Luck 2   | 8            |
-| Knight | Earth     | Quake        | 48  | 10   | 5   | 3   | 20  | Vitality 2, Guard 2 | 10           |
+| Knight | Earth     | Quake        | 54  | 10   | 5   | 3   | 20  | Vitality 2, Guard 2 | 10           |
 | Mage   | Arcane    | Shadow Drain | 34  | 16   | 4   | 1   | 25  | Focus 2, Insight 2  | 6            |
 | Rogue  | Lightning | Thunder      | 36  | 12   | 6   | 1   | 60  | Strength 2, Charm 2 | 7            |
 
@@ -325,8 +325,9 @@ buttons (spell, level pips, kind, cost, difficulty as swords).
 - **Win**: the spell is learned or raised, shown on the results with its
   icon and level pips. If it was the lesson that locked the category, the
   lock opens.
-- **Lose**: the lesson is recorded and stays open. The mentor patches the
-  hero up to at least half HP (no trip to the inn). The hero can **Retry**
+- **Before each try** (and each Retry) the mentor heals the hero to full
+  HP; mana is the hero's own to manage.
+- **Lose**: the lesson is recorded and stays open (no trip to the inn). The hero can **Retry**
   at once from the results (it has focus; keys are ignored for 350 ms so
   mashing can't skip the result), or walk away, but the category is
   **locked**: none of its spells can be enhanced until **that** lesson is
@@ -361,11 +362,11 @@ revealed, its element's mentor teaches it (difficulty one above the usual:
 | -------------- | --------- | ------------------ | --------------- | ------------------------------------------------------------ | --------- | ------------------------------------------------------------- |
 | Volcano        | Fire      | Combo (fire+earth) | 6 fire, 6 earth | Clears the bottom 3 rows, 40 fire damage (no level bonus)    | Alignment | Fire 4 and earth 4                                            |
 | Purify         | Water     | Support            | 5 water         | Every stone on the board becomes a water crystal             | Quest     | Shrine Keeper Ilse's barter in Brightwater (`shrineRestored`) |
-| Ball Lightning | Lightning | Support            | 6 lightning     | 2 damage per lightning crystal on the board (no level bonus) | Pattern   | 6 pure lightning lines over the hero's life                   |
+| Ball Lightning | Lightning | Support            | 6 lightning     | 2 damage per lightning crystal on the board (no level bonus) | Pattern   | 4 pure lightning lines over the hero's life                   |
 | Bloom          | Nature    | Support            | 7 nature        | Heals 6 after each of the next 8 pieces                      | Item      | Bring a Spore Cap to Hazel                                    |
 | Fault Line     | Earth     | Support            | 5 earth         | For 4 pieces every element strikes as a weakness             | Stat      | Insight 5                                                     |
 | Eclipse        | Arcane    | Support            | 9 arcane        | 36 damage, heals all of it                                   | Item      | Bring a Moon Shard to Selene                                  |
-| Tempest        | Wind      | Support            | 7 wind          | 34 damage, tailwind 8 (cancels haste)                        | Pattern   | A four-line clear under the enemy's haste                     |
+| Tempest        | Wind      | Support            | 7 wind          | 34 damage, tailwind 8 (cancels haste)                        | Pattern   | A clear of 3+ lines at once under the enemy's haste           |
 
 - **Silhouettes**: until revealed, a hidden spell's slot is a dark
   silhouette of its element with a faint hint of what kind of thing
@@ -378,9 +379,12 @@ revealed, its element's mentor teaches it (difficulty one above the usual:
   unlocked / known.
 - **Feats** (`hero.feats`, saved): fights and lessons (not puzzles,
   trades or haggles, whose preset or forgiving boards could be replayed)
-  count each cleared line made of one element alone (`pure.<element>`;
-  any stone spoils it) and each four-line clear made while the enemy's
-  haste is on (`hastedQuad`). Crystals Purify makes from stone count as
+  count each cleared line with at least 8 of its 10 cells one element
+  (`pure.<element>`; stone and other colours just don't count toward it)
+  and each clear of 3+ lines at once made while the enemy's haste is on
+  (`hastedClear`; older saves' `hastedQuad` carries over). Both were
+  tuned so normal play reaches them: a strict all-one-element line or a
+  hasted four-line clear never happened in two full playthroughs. Crystals Purify makes from stone count as
   water; no hidden spell needs pure water lines.
 - **Items**: walking into the mentor with the item first asks: the item,
   an arrow and the mentor's face, with **Give** or **Keep** (so the hero
@@ -434,6 +438,17 @@ struck at the current price (50%–150%). Overflowing ends the haggle with no
 deal. Fast, clean play is literally cheaper. The keeper's
 [attitude](#npcs-and-attitude) then moves every price.
 
+Every shop also **buys**: its Sell list shows what's in the bag, each at
+half its list price (rounded down). Worn gear isn't in the bag, services
+can't be sold, and keepsakes (price 0, e.g. an old save's Blizzard tome)
+are worth nothing; story progress is held in flags, never items, so
+selling can't lock anything. Treasures now have a price for this (Slime
+Gel 6, Spore Cap 10, Goblin Charm 20, Moon Shard 20), so every drop is
+worth something; the collector and hermit still pay far better.
+
+Prices were raised after playtests left heroes 300–400 gil unspent: Iron
+Sword 80 (was 55), Crystal Mail 90 (65), Knight Blade 150 (105).
+
 ### Puzzle
 
 A preset board and a fixed sequence of pieces. Used by sages, children's
@@ -461,7 +476,7 @@ opposed; nature and arcane (which fire beats) don't count. The tier
 
 | Attitude | Score     | Face  | Prices | Rewards               | Will deal?               | Dialogue        |
 | -------- | --------- | ----- | ------ | --------------------- | ------------------------ | --------------- |
-| Hostile  | below −2½ | Scowl | —      | —                     | Refuses (see below)      | Curt            |
+| Hostile  | below −2½ | Scowl | —      | —                     | Refuses; shops close     | Curt            |
 | Wary     | −2½ to −1 | Frown | +20%   | Base                  | Harder challenge         | Suspicious      |
 | Neutral  | −½ to 2½  | Flat  | ±0     | Base                  | Yes                      | Plain           |
 | Friendly | 3 to 5½   | Smile | −10%   | Base + one bonus item | Yes                      | Warm            |
@@ -545,12 +560,24 @@ and bigger, scarier Pixel Battlers monsters underground.
 | Moon Caves | Moon Imp     | Arcane  | Fire, wind    | Lightning, nature, arcane               | attack, drain                   | —               |
 | Moon Caves | Shade Imp    | Arcane  | Fire, wind    | Lightning, nature, arcane               | attack, heal, curse             | Moon Shard      |
 | Moon Caves | Cave Brute   | Earth   | Water, nature | Lightning, earth, wind                  | attack, curse (2 rows)          | Ether           |
-| Depths     | Moon Wyrm    | Arcane  | Fire, wind    | Water (boss), lightning, nature, arcane | everything                      | Phoenix Feather |
+| Depths     | Moon Wyrm    | Arcane  | Fire, wind    | Water (boss), lightning, nature, arcane | everything; enrages at ½ HP     | Phoenix Feather |
 | Lessons    | Wisps (×7)   | Each    | From chart    | From chart                              | attack + one of their element's | —               |
 
 The seven wisps (Ember, Tide, Spark, Moss, Stone, Moon, Gale) are mentors'
-trial foes: 40 HP, attack 6, acting every 3 pieces, drawn as a slime
-recoloured to their element.
+trial foes: 24 HP, attack 4, acting every 5 pieces (their haste lasts 2
+pieces), drawn as a slime recoloured to their element. Each difficulty
+above 1 adds 50% HP and 2 attack. They were softened after playtests
+lost 18 of 25 lessons while winning 77 of 79 fights.
+
+**Balance after two full playthroughs** (Ranger, Knight): the Moon Wyrm
+fell first try at level 7, so it now has 260 HP (was 160) and attack 15
+(13), and **enrages** below half HP: it acts every 2 pieces instead of 3
+and its curse pushes 3 stone rows instead of 2 (generic
+`EnemyDef.enrage`; the battle shows "Enraged!" and the wyrm glows a
+pulsing red). Its gil fell to 60 (150). Cave XP rose so heroes reach the
+lair around level 8–9: Moon Imp 22 (15), Shade Imp 30 (20), Cave Brute
+40 (28). Spore Caps drop 25% of the time (60%). The Knight starts with 6
+more base HP (42; 54 with Vitality 2) to soften a harsh opening.
 
 ## Progression
 
@@ -559,6 +586,15 @@ Mossvale (learn the challenge types) → overworld monsters (drops, levels)
 (sealed chest, hermit) → Moon Wyrm boss. Spells beyond the class spell
 come from mentors, the Elder (Quake) and the sage (Thunder); shops sell no
 tomes. The Sunken Ruins are sealed as the hook for the next region.
+
+**The ending**: beating the Moon Wyrm sets `wyrmBeaten` and, after the
+results (and the skill screen on a level-up), shows the chapter's end:
+the hero's portrait, title element, level and spell count, portraits of
+the mentors whose magic they learned (any element beyond their starting
+spells), and Captain Vale's last word. Back on the map the Sunken Ruins'
+seal glows violet and, bumped, says it will open in the next chapter
+(`Warp.stirs`); it stays shut. Routes gated on the wyrm
+(`defeated:c2-wyrm`) still open as before.
 
 ## Planned: progression redesign
 

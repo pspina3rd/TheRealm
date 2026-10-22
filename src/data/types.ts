@@ -72,9 +72,9 @@ export type HiddenUnlock =
 
 /**
  * A board feat the hero's life counts: a cleared line all of one element
- * (`pure.<element>`), or four lines cleared at once under the enemy's haste.
+ * (`pure.<element>`: 8 of its 10 cells), or 3+ lines cleared at once under the enemy's haste.
  */
-export type FeatId = `pure.${Element}` | 'hastedQuad';
+export type FeatId = `pure.${Element}` | 'hastedClear';
 
 /** One level of a spell: its name, cost and effect at that level. */
 export interface SpellLevel {
@@ -123,6 +123,16 @@ export type EnemyMove =
   /** Burns mana from the hero's fullest pool. */
   | { readonly kind: 'drain'; readonly name: string; readonly mana: number };
 
+/** How an enemy changes once enraged. */
+export interface EnrageDef {
+  /** Enrages at or below this fraction of max HP, e.g. 0.5. */
+  readonly below: number;
+  /** Acts after this many pieces instead. */
+  readonly actEvery: number;
+  /** Its curses push this many stone rows instead. */
+  readonly curseRows: number;
+}
+
 export interface Drop {
   readonly itemId: string;
   /** Probability in [0, 1]. */
@@ -146,6 +156,10 @@ export interface EnemyDef {
   readonly extraResist?: readonly Element[];
   /** The enemy acts after this many hero pieces. */
   readonly actEvery: number;
+  /** Bosses: below `below` (a fraction of max HP) the enemy enrages for the rest of the fight. */
+  readonly enrage?: EnrageDef;
+  /** Beating it ends the chapter (see `src/game/ending.ts`). */
+  readonly finale?: boolean;
   /** Moves are picked uniformly at random; repeat a move to weight it. */
   readonly moves: readonly EnemyMove[];
   readonly drops?: readonly Drop[];
@@ -174,7 +188,10 @@ export interface ItemDef {
   readonly id: string;
   readonly name: string;
   readonly kind: ItemKind;
-  /** List price in gil. Treasures are not sold in shops. */
+  /**
+   * List price in gil; shops buy at half (see `src/game/shop.ts`). 0 means
+   * it can't be sold (a keepsake). Treasures are never stocked.
+   */
   readonly price: number;
   readonly description: string;
   readonly atk?: number;
@@ -270,6 +287,8 @@ export interface NpcLines {
   readonly accept: Line;
   readonly decline: Line;
   readonly win: Line;
+  /** Said on a win instead of `win` when the hero already knew the spell reward. */
+  readonly winKnown?: Line;
   readonly lose: Line;
   /** Said once a non-repeatable NPC's task is done. */
   readonly done?: Line;

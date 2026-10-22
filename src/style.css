@@ -1393,3 +1393,30 @@ dialog {
   align-items: center;
   justify-content: center;
 }
+
+.shop-sell {
+  margin: 14px 0 6px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.epilogue-hero {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.epilogue-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 18px;
+  color: var(--gold);
+}
+
+.epilogue-mentors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0;
+}

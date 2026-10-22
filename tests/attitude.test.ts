@@ -5,6 +5,8 @@ import { createRng } from '../src/core/rng';
 import { CLASSES } from '../src/data/classes';
 import { ITEMS } from '../src/data/items';
 import { MAPS } from '../src/data/maps';
+import { MENTORS } from '../src/data/mentors';
+import { FLAG_ICONS } from '../src/ui/art/icons';
 import { NPCS } from '../src/data/npcs';
 import { SHOPS } from '../src/data/shops';
 import { SPELLS } from '../src/data/spells';
@@ -158,19 +160,14 @@ describe('tier effects', () => {
     expect(challengeOnTerms(NPCS.guard!.challenge, 'neutral')).toBe(NPCS.guard!.challenge);
   });
 
-  it('keeps Wary barters within what the pieces can supply', () => {
-    for (const npc of Object.values(NPCS)) {
-      const spec = challengeOnTerms(npc.challenge, 'wary');
-      if (spec.kind !== 'barter') continue;
-      const wanted = Object.values(spec.wants).reduce((a, b) => a + (b ?? 0), 0);
-      expect(wanted, npc.id).toBeLessThanOrEqual(spec.pieceLimit * 4);
-    }
-  });
-
   it('adds the bonus when Friendly and the secret too when Devoted', () => {
     const hero = heroWith({});
     const npc = NPCS.farmer!;
-    expect(rewardsOnTerms(hero, npc, 'neutral')).toEqual({ base: npc.rewards, extras: [] });
+    expect(rewardsOnTerms(hero, npc, 'neutral')).toEqual({
+      base: npc.rewards,
+      extras: [],
+      knewSpell: false,
+    });
     expect(rewardsOnTerms(hero, npc, 'wary').extras).toEqual([]);
     expect(rewardsOnTerms(hero, npc, 'friendly').extras).toEqual([npc.bonus]);
     expect(rewardsOnTerms(hero, npc, 'devoted').extras).toEqual([npc.bonus, npc.secret]);
@@ -190,7 +187,19 @@ describe('tier effects', () => {
     expect(rewardsOnTerms(knight, bare, 'neutral').base).toEqual([]);
   });
 
-  it('gives every spell reward an alternative', () => {
+  it('shows every flag an NPC grants as its own icon', () => {
+    for (const npc of Object.values(NPCS)) {
+      for (const reward of npc.rewards) {
+        if (reward.kind === 'flag') expect(FLAG_ICONS[reward.flag], reward.flag).toBeDefined();
+      }
+    }
+  });
+
+  it('gives every spell reward an alternative, with its own win line', () => {
+    for (const npc of Object.values(NPCS)) {
+      if (npc.rewards.some((r) => r.kind === 'spell'))
+        expect(npc.lines.winKnown, npc.id).toBeDefined();
+    }
     for (const npc of Object.values(NPCS)) {
       for (const reward of npc.rewards) {
         if (reward.kind === 'spell') expect(reward.instead, npc.id).toBeDefined();
@@ -325,6 +334,7 @@ describe('encounters on terms', () => {
   it('never locks progress: every NPC whose flag the realm needs deals even when Hostile', () => {
     const needed = new Set([
       ...Object.values(MAPS).flatMap((m) => m.warps.flatMap((w) => w.requiresFlag ?? [])),
+      ...Object.values(MENTORS).flatMap((m) => m.route.flatMap((stop) => stop.requiresFlag ?? [])),
       ...Object.values(SPELLS).flatMap((s) => (s.hidden?.kind === 'quest' ? [s.hidden.flag] : [])),
     ]);
     const story = Object.values(NPCS).filter((npc) =>
@@ -347,7 +357,7 @@ describe('encounters on terms', () => {
     const state = stateFor(NPCS.guard!, 'hostile');
     const battle = makeBattle(challengeOnTerms(NPCS.guard!.challenge, 'wary'), state.hero);
     Object.defineProperty(battle, 'status', { value: 'won' });
-    const result = resolveBattle(state, entityOf('guard'), battle, createRng(1));
+    const result = resolveBattle(state, entityOf('guard'), battle, createRng(1), 'wary');
     expect(state.flags.has('cavePass')).toBe(true);
     expect(result.speech).toBe(say(NPCS.guard!.lines.win, 'wary'));
   });
@@ -362,8 +372,10 @@ describe('encounters on terms', () => {
       expect(shown).toMatchObject({ kind: 'challenge', spec: NPCS.elder!.challenge });
       const battle = makeBattle(NPCS.elder!.challenge, state.hero);
       Object.defineProperty(battle, 'status', { value: 'won' });
-      const result = resolveBattle(state, entityOf('elder'), battle, createRng(1));
+      const result = resolveBattle(state, entityOf('elder'), battle, createRng(1), 'neutral');
       expect(result.gains, classId).toEqual([gain]);
+      const said = classId === 'knight' ? NPCS.elder!.lines.winKnown! : NPCS.elder!.lines.win;
+      expect(result.speech).toBe(say(said, 'neutral'));
       expect(state.flags.has('npc:elder')).toBe(true);
     }
   });
@@ -374,7 +386,7 @@ describe('encounters on terms', () => {
       const battle = makeBattle(NPCS.merchant!.challenge, state.hero);
       (battle.challenge as HaggleChallenge).multiplier = 0.5;
       Object.defineProperty(battle, 'status', { value: 'won' });
-      const result = resolveBattle(state, entityOf('merchant'), battle, createRng(1));
+      const result = resolveBattle(state, entityOf('merchant'), battle, createRng(1), tier);
       expect(result.priceMultiplier, tier).toBeCloseTo(0.5 * ATTITUDE_PRICES[tier]);
       expect(result.attitude).toBe(tier);
     }

@@ -147,6 +147,14 @@ export function scaledFoe(enemy: EnemyDef, difficulty: number): EnemyDef {
   };
 }
 
+/**
+ * Before each lesson (and each retry) the mentor heals the hero to full
+ * HP; mana is the hero's own to manage.
+ */
+export function prepareLesson(hero: Hero): void {
+  hero.hp = hero.maxHp;
+}
+
 /** The battle for `lesson` with `mentorId`, wherever the mentor is now. */
 export function lessonSpec(state: GameState, mentorId: string, lesson: Lesson): LessonSpec {
   const mentor = MENTORS[mentorId];

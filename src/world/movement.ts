@@ -2,6 +2,7 @@ import {
   DIRECTION_DELTAS,
   tileAt,
   warpAt,
+  warpStirs,
   type Direction,
   type EntityDef,
   type Location,
@@ -37,7 +38,8 @@ export function step(state: GameState, direction: Direction): StepResult {
   const warp = warpAt(map, x, y);
   if (warp) {
     if (warp.requiresFlag && !state.flags.has(warp.requiresFlag)) {
-      return { kind: 'locked', text: warp.lockedText ?? 'The way is sealed.' };
+      const text = warpStirs(warp, state.flags) ? warp.stirs?.text : warp.lockedText;
+      return { kind: 'locked', text: text ?? 'The way is sealed.' };
     }
     return { kind: 'warp', to: warp.to };
   }

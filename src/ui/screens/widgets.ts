@@ -13,6 +13,7 @@ import type { HiddenSlot } from '../../game/hidden';
 import { mentorOf } from '../../world/mentors';
 import {
   ELEMENT_ICONS,
+  FLAG_ICONS,
   PALETTES,
   SPELL_KIND_ICONS,
   UNLOCK_HINT_ICONS,
@@ -163,8 +164,14 @@ export function rewardIcons(rewards: readonly Reward[]): HTMLElement[] {
       }
       case 'shop':
         return [chip('bag', '', 'Opens the shop')];
-      case 'flag':
-        return [chip({ icon: 'lock', palette: PALETTES.open }, '', 'Unlocks the way forward')];
+      case 'flag': {
+        const flag = FLAG_ICONS[reward.flag];
+        return [
+          flag
+            ? chip(flag, '', flag.label)
+            : chip({ icon: 'lock', palette: PALETTES.open }, '', 'Unlocks the way forward'),
+        ];
+      }
     }
   });
 }

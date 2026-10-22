@@ -18,6 +18,7 @@ import {
   say,
   type Attitude,
 } from './attitude';
+import { FINALE_FLAG, epilogueFor, type Epilogue } from './ending';
 import { hiddenSlots } from './hidden';
 import { addItem, fillMana, gainXp, itemCount, removeItem } from './hero';
 import { completeLesson, lessonsFor, type Lesson } from './lessons';
@@ -61,6 +62,8 @@ export type Interaction =
       readonly rewards: readonly Reward[];
       /** What the NPC's warmth adds to the rewards. */
       readonly extras: readonly Reward[];
+      /** The attitude an NPC deals on (Hostile essential NPCs deal as Wary). */
+      readonly terms?: Attitude;
       /** What an NPC says when the hero accepts or declines. */
       readonly replies?: { readonly accept: string; readonly decline: string };
     });
@@ -80,6 +83,8 @@ export interface Resolution {
   readonly priceMultiplier: number;
   /** The terms an NPC dealt on (for a shop's face and secret stock); null for others. */
   readonly attitude: Attitude | null;
+  /** Set when the battle ended the chapter. */
+  readonly epilogue?: Epilogue;
 }
 
 export function npcCompletionFlag(npc: NpcDef): string {
@@ -176,6 +181,7 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
     spec,
     rewards: base,
     extras,
+    terms,
     replies: { accept: say(npc.lines.accept, terms), decline: say(npc.lines.decline, terms) },
   };
 }
@@ -189,12 +195,13 @@ export function resolveBattle(
   entity: EntityDef,
   battle: Battle,
   rng: Rng,
+  terms?: Attitude,
 ): Resolution {
   const won = battle.status === 'won';
   if (entity.kind === 'mentor') return resolveLesson(state, mentorFor(entity), battle, won);
-  return entity.kind === 'monster'
-    ? resolveCombat(state, entity, battle, won, rng)
-    : resolveNpc(state, npcFor(entity), battle, won);
+  if (entity.kind === 'monster') return resolveCombat(state, entity, battle, won, rng);
+  if (!terms) throw new Error('An NPC battle needs the terms it was offered on');
+  return resolveNpc(state, npcFor(entity), battle, won, terms);
 }
 
 function resolveLesson(
@@ -241,6 +248,7 @@ function resolveCombat(
       gains.push({ kind: 'level', level: hero.level, points: levels * SKILL_POINTS_PER_LEVEL });
     }
     markDefeated(state, entity);
+    if (combat.enemy.finale) state.flags.add(FINALE_FLAG);
   } else {
     const lost = Math.floor(hero.gil / 2);
     hero.gil -= lost;
@@ -257,12 +265,18 @@ function resolveCombat(
     shopId: null,
     priceMultiplier: 1,
     attitude: null,
+    ...(won && combat.enemy.finale ? { epilogue: epilogueFor(hero) } : {}),
   };
 }
 
-function resolveNpc(state: GameState, npc: NpcDef, battle: Battle, won: boolean): Resolution {
-  // Battles only start on terms, so a refusal never reaches here.
-  const terms = dealTerms(npc, attitudeOf(state.hero, npc)) ?? 'wary';
+/** Settles an NPC's challenge on the terms it was offered on (see `describeInteraction`). */
+function resolveNpc(
+  state: GameState,
+  npc: NpcDef,
+  battle: Battle,
+  won: boolean,
+  terms: Attitude,
+): Resolution {
   const ended = { won, fell: false, attitude: terms };
   if (!won) {
     return {
@@ -279,14 +293,14 @@ function resolveNpc(state: GameState, npc: NpcDef, battle: Battle, won: boolean)
   if (spec.kind === 'offering' && removeItem(state.hero, spec.itemId)) {
     given.push({ kind: 'item', itemId: spec.itemId, count: -1 });
   }
-  const { base, extras } = rewardsOnTerms(state.hero, npc, terms);
+  const { base, extras, knewSpell } = rewardsOnTerms(state.hero, npc, terms);
   const outcome = grantRewards(state.hero, state.flags, [...base, ...extras]);
   if (!npc.repeatable) state.flags.add(npcCompletionFlag(npc));
   const haggle = battle.challenge instanceof HaggleChallenge ? battle.challenge : null;
   return {
     ...ended,
     gains: [...given, ...outcome.gains],
-    speech: say(npc.lines.win, terms),
+    speech: say((knewSpell && npc.lines.winKnown) || npc.lines.win, terms),
     shopId: outcome.shopId,
     priceMultiplier: (haggle?.multiplier ?? 1) * ATTITUDE_PRICES[terms],
   };

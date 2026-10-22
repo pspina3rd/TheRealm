@@ -4,7 +4,7 @@ import { heroClass } from '../game/hero';
 import { seeksHero } from '../game/hidden';
 import { lessonsFor } from '../game/lessons';
 import type { EntityDef, MapDef, MentorEntity } from '../world/map';
-import { mapHeight, mapWidth } from '../world/map';
+import { mapHeight, mapWidth, warpStirs } from '../world/map';
 import { activeEntities, currentMap, type GameState } from '../world/state';
 import type { Atlas } from './art/atlas';
 import { ELEMENT_COLOR_OF } from './art/feedback';
@@ -84,6 +84,7 @@ export class WorldView {
         },
       };
     });
+    this.drawStirringSeals(map, state.flags, camX, camY, timeMs);
     for (const entity of activeEntities(state)) {
       drawables.push(this.entityDrawable(entity, camX, camY, timeMs));
       if (entity.kind === 'mentor') this.drawMentorMark(state, entity, camX, camY, timeMs);
@@ -180,6 +181,35 @@ export class WorldView {
       this.overlays.push(() => {
         const bob = Math.round(Math.sin(timeMs / 250) * 2);
         drawIcon(ctx, 'scroll', cx - ICON_SIZE, entity.y * TILE - camY - 30 + bob, { scale: 2 });
+      });
+    }
+  }
+
+  /** A sealed way that stirs (see `Warp.stirs`) glows violet and pulses, over its arch. */
+  private drawStirringSeals(
+    map: MapDef,
+    flags: ReadonlySet<string>,
+    camX: number,
+    camY: number,
+    timeMs: number,
+  ): void {
+    const { ctx } = this;
+    for (const warp of map.warps) {
+      if (!warpStirs(warp, flags)) continue;
+      this.overlays.push(() => {
+        ctx.save();
+        ctx.globalAlpha = 0.35 + 0.25 * Math.sin(timeMs / 260);
+        ctx.fillStyle = ELEMENT_COLOR_OF.arcane;
+        ctx.beginPath();
+        ctx.arc(
+          (warp.x + 0.5) * TILE - camX,
+          (warp.y + 0.5) * TILE - camY,
+          TILE * 0.7,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fill();
+        ctx.restore();
       });
     }
   }

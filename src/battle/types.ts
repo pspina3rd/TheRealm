@@ -35,6 +35,8 @@ export type BattleEvent =
       readonly affinity: 'weak' | 'resist' | null;
     }
   | { readonly kind: 'enemyDefeated' }
+  /** The enemy fell below its enrage threshold: it acts faster and curses harder. */
+  | { readonly kind: 'enrage' }
   /** The next strike is critical (Luck); the hit that follows is already doubled. */
   | { readonly kind: 'crit' }
   /** The enemy used a move (its name is shown as a banner, as in classic RPGs). */

@@ -102,6 +102,19 @@ export class CombatChallenge implements Challenge {
     this.nextMove = ctx.rng.pick(def.moves);
   }
 
+  /** True once a boss has fallen to its enrage threshold (see `EnemyDef.enrage`). */
+  get enraged(): boolean {
+    const enrage = this.enemy.enrage;
+    return !!enrage && this.enemyHp > 0 && this.enemyHp <= this.enemy.hp * enrage.below;
+  }
+
+  /** Pieces between the enemy's moves: fewer once enraged. */
+  private get actEvery(): number {
+    return this.enraged
+      ? (this.enemy.enrage?.actEvery ?? this.enemy.actEvery)
+      : this.enemy.actEvery;
+  }
+
   onLock(result: LockResult): void {
     if (result.linesCleared > 0) {
       const lines = Math.min(result.linesCleared, LINE_DAMAGE.length - 1);
@@ -332,7 +345,7 @@ export class CombatChallenge implements Challenge {
         strike(power * linesTogether);
         break;
       case 'water':
-        if (this.countdown < this.enemy.actEvery + MAX_CHILL) {
+        if (this.countdown < this.actEvery + MAX_CHILL) {
           this.countdown++;
           this.ctx.emit({ kind: 'chill' });
         }
@@ -375,9 +388,14 @@ export class CombatChallenge implements Challenge {
     element: Element | null,
     affinity: 'weak' | 'resist' | null,
   ): void {
+    const wasEnraged = this.enraged;
     this.enemyHp -= amount;
     this.ctx.emit({ kind: 'enemyHit', amount, element, affinity });
     if (this.enemyHp <= 0) this.ctx.emit({ kind: 'enemyDefeated' });
+    else if (this.enraged && !wasEnraged) {
+      this.countdown = Math.min(this.countdown, this.actEvery);
+      this.ctx.emit({ kind: 'enrage' });
+    }
   }
 
   private healHero(amount: number): void {
@@ -396,7 +414,7 @@ export class CombatChallenge implements Challenge {
     if (this.status() !== 'ongoing') return;
     this.countdown--;
     if (this.countdown <= 0) {
-      this.countdown = this.enemy.actEvery;
+      this.countdown = this.actEvery;
       const move = this.nextMove;
       this.nextMove = this.ctx.rng.pick(this.enemy.moves);
       if (this.mist > 0) {
@@ -419,11 +437,13 @@ export class CombatChallenge implements Challenge {
         if (damage > absorbed) this.hurtHero(damage - absorbed);
         break;
       }
-      case 'curse':
-        this.ctx.board.addGarbage(move.rows);
-        this.ctx.emit({ kind: 'curse', rows: move.rows });
+      case 'curse': {
+        const rows = this.enraged ? (this.enemy.enrage?.curseRows ?? move.rows) : move.rows;
+        this.ctx.board.addGarbage(rows);
+        this.ctx.emit({ kind: 'curse', rows });
         if (this.ctx.board.toppedOut) this.overflow();
         break;
+      }
       case 'haste':
         this.ctx.hastePieces = move.pieces;
         this.ctx.slowPieces = 0;

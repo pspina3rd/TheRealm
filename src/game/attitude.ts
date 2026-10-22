@@ -117,6 +117,8 @@ export interface TermRewards {
   readonly base: readonly Reward[];
   /** `bonus` when Friendly or Devoted, plus `secret` when Devoted. */
   readonly extras: readonly Reward[];
+  /** True when a spell reward was swapped for its `instead` (the hero knew it). */
+  readonly knewSpell: boolean;
 }
 
 /**
@@ -133,14 +135,12 @@ export function rewardsOnTerms(
     ...(warm && npc.bonus ? [npc.bonus] : []),
     ...(terms === 'devoted' && npc.secret ? [npc.secret] : []),
   ];
+  const known = (reward: Reward): boolean =>
+    reward.kind === 'spell' && !!knownSpell(hero, reward.spellId);
   const base = npc.rewards.flatMap((reward) =>
-    reward.kind === 'spell' && knownSpell(hero, reward.spellId)
-      ? reward.instead
-        ? [reward.instead]
-        : []
-      : [reward],
+    reward.kind === 'spell' && known(reward) ? (reward.instead ? [reward.instead] : []) : [reward],
   );
-  return { base, extras };
+  return { base, extras, knewSpell: npc.rewards.some(known) };
 }
 
 /** A shop's stock for this attitude: Devoted keepers bring out their secret stock. */

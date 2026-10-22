@@ -125,6 +125,11 @@ export function feedbackFor(event: BattleEvent): Feedback[] {
       ];
     case 'enemyDefeated':
       return [{ kind: 'defeat' }];
+    case 'enrage':
+      return [
+        { kind: 'banner', text: 'Enraged!' },
+        { kind: 'shake', target: 'enemy' },
+      ];
     case 'enemyMove':
       return [{ kind: 'banner', text: event.move.name }];
     case 'fizzle':

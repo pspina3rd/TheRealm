@@ -299,7 +299,7 @@ export const SPELLS: Readonly<Record<string, SpellDef>> = {
     id: 'ballLightning',
     category: 'lightning',
     role: 'support',
-    hidden: { kind: 'pattern', feat: 'pure.lightning', count: 6 },
+    hidden: { kind: 'pattern', feat: 'pure.lightning', count: 4 },
     levels: [
       {
         name: 'Ball Lightning',
@@ -337,7 +337,7 @@ export const SPELLS: Readonly<Record<string, SpellDef>> = {
     id: 'tempest',
     category: 'wind',
     role: 'support',
-    hidden: { kind: 'pattern', feat: 'hastedQuad', count: 1 },
+    hidden: { kind: 'pattern', feat: 'hastedClear', count: 1 },
     levels: [
       {
         name: 'Tempest',
