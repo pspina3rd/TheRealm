@@ -14,7 +14,7 @@ import {
   seesEnemyMove,
   type StatPlan,
 } from '../../game/stats';
-import { MOVE_ICONS, STAT_ICONS, type IconId, type IconSpec } from '../art/icons';
+import { STAT_ICONS, type IconId, type IconSpec } from '../art/icons';
 import { button, el } from '../dom';
 import { iconElement } from '../iconDraw';
 import { chip, percent, sectionTitle } from './widgets';
@@ -33,13 +33,11 @@ function effectChips(stat: StatId, rank: number, tone: 'up' | undefined): HTMLEl
     case 'focus':
       return [c('potion', `+${rank}`, 'Capacity of every mana pool')];
     case 'agility':
-      return [c('piece', `−${percent(AGILITY_SLOWDOWN * rank)}`, 'Fall speed')];
+      return [c('boot', `−${percent(AGILITY_SLOWDOWN * rank)}`, 'Fall speed')];
     case 'insight':
       return [
         c('piece', `×${previewCount(rank)}`, 'Next pieces shown'),
-        ...(seesEnemyMove(rank)
-          ? [c(MOVE_ICONS.attack, '', 'The enemy’s next move is shown')]
-          : []),
+        ...(seesEnemyMove(rank) ? [c('eye', '', 'The enemy’s next move is shown')] : []),
       ];
     case 'charm':
       return [c('coin', `−${percent(CHARM_DISCOUNT * rank)}`, 'Shop prices')];
@@ -50,6 +48,9 @@ function effectChips(stat: StatId, rank: number, tone: 'up' | undefined): HTMLEl
       ];
   }
 }
+
+/** Most point icons shown; the number beside them always gives the count. */
+const MAX_POINT_ICONS = 5;
 
 /** Ranks that unlock something new, marked on the pips. */
 const MILESTONES: Partial<Record<StatId, readonly number[]>> = {
@@ -75,8 +76,8 @@ function rankPips(stat: StatId, rank: number, added: number): HTMLElement {
  * The skill screen: the points waiting to be spent, then a row per stat
  * with its icon, rank pips, what its ranks add up to and −/+ buttons that
  * stage a choice. Nothing is spent until the caller confirms the plan.
- * Buttons carry `data-key` (stat and sign) so focus can be restored after
- * a redraw.
+ * Step buttons carry `data-stat` and `data-delta` so `focusStep` can keep
+ * focus in place after a redraw.
  */
 export function skillsBody(
   hero: Hero,
@@ -87,7 +88,7 @@ export function skillsBody(
   const points = el(
     'div',
     { className: 'skill-points', title: `${left} skill points left` },
-    ...Array.from({ length: hero.skillPoints }, (_, i) => {
+    ...Array.from({ length: Math.min(hero.skillPoints, MAX_POINT_ICONS) }, (_, i) => {
       const icon = iconElement('point', 2);
       if (i >= left) icon.classList.add('spent');
       return icon;
@@ -104,7 +105,8 @@ export function skillsBody(
         title: `${delta > 0 ? 'Raise' : 'Lower'} ${STATS[stat].name}`,
       });
       node.className = 'step';
-      node.dataset.key = `${stat}${delta}`;
+      node.dataset.stat = stat;
+      node.dataset.delta = String(delta);
       return node;
     };
     return el(
@@ -128,4 +130,23 @@ export function skillsBody(
   });
 
   return [points, sectionTitle('point', 'Stats'), el('div', { className: 'stat-rows' }, ...rows)];
+}
+
+/**
+ * Focuses a step button after a redraw so keyboard play stays on the stat
+ * just changed: the same button, else the other one in its row, else the
+ * first + that can still be pressed, else any enabled step. Never an
+ * action, so an extra key press can't confirm a permanent spend. Returns
+ * false if no step can take focus.
+ */
+export function focusStep(root: ParentNode, last?: { stat: StatId; delta: 1 | -1 }): boolean {
+  const steps = [...root.querySelectorAll<HTMLButtonElement>('.step:not(:disabled)')];
+  const row = steps.filter((b) => b.dataset.stat === last?.stat);
+  const target =
+    row.find((b) => b.dataset.delta === String(last?.delta)) ??
+    row[0] ??
+    steps.find((b) => b.dataset.delta === '1') ??
+    steps[0];
+  target?.focus();
+  return target !== undefined;
 }

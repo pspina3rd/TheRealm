@@ -18,6 +18,11 @@ export interface DialogOptions {
    * dialog again from here.
    */
   readonly onCancel?: () => void;
+  /**
+   * Whether to focus the last enabled action (the default choice). Screens
+   * that manage focus themselves pass false.
+   */
+  readonly autofocus?: boolean;
 }
 
 /**
@@ -70,8 +75,12 @@ export class Dialog {
     );
     this.onCancel = options.onCancel ?? (() => this.close());
     if (!this.root.open) this.root.showModal();
-    // The last action is the default; callers keep destructive choices away from it.
-    (this.actionsEl.lastElementChild as HTMLButtonElement | null)?.focus();
+    // The last enabled action is the default; callers keep destructive choices away from it.
+    if (options.autofocus ?? true) {
+      [...this.actionsEl.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')]
+        .pop()
+        ?.focus();
+    }
   }
 
   close(): void {

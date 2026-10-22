@@ -93,7 +93,7 @@ describe('hero', () => {
     expect(createHero('nope').classId).toBe('ranger');
   });
 
-  it('levels up, raising stats and fully restoring', () => {
+  it('levels up, raising max HP and fully restoring', () => {
     const hero = createHero();
     hero.hp = 1;
     expect(gainXp(hero, 30)).toBe(1);

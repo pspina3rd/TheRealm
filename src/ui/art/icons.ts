@@ -628,6 +628,23 @@ export const ICONS = {
       '......oo....',
     ],
   },
+  boot: {
+    palette: palette('#7a3d1c', '#c8743a', '#f2b07a'),
+    rows: [
+      '...oooo.....',
+      '..ohhbo.oo..',
+      '..ohbbooowo.',
+      '..ohbbowwwo.',
+      '..ohbbdowo..',
+      '..ohbbdoo...',
+      '..ohbbbdo...',
+      '.ohhbbbbdoo.',
+      '.ohbbbbbbddo',
+      '.obbbbbbbbdo',
+      '.oddddddddo.',
+      '.oooooooooo.',
+    ],
+  },
   point: {
     palette: palette('#c58a10', '#ffd23f', '#fff4a8'),
     rows: [
@@ -689,7 +706,7 @@ export const STAT_ICONS: Readonly<Record<StatId, IconId>> = {
   strength: 'sword',
   guard: 'ward',
   focus: 'potion',
-  agility: 'wind',
+  agility: 'boot',
   insight: 'eye',
   charm: 'gift',
   luck: 'clover',

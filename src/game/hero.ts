@@ -135,16 +135,18 @@ export function refreshStats(hero: Hero): void {
 
 /**
  * Buys the planned stat ranks with skill points. This is permanent. New
- * max HP is added to current HP too. Returns false (and spends nothing)
- * if the plan is invalid or costs more points than the hero has.
+ * max HP and mana capacity are added to current HP and every pool too.
+ * Returns false (and spends nothing) if the plan is invalid or costs more
+ * points than the hero has.
  */
 export function spendSkillPoints(hero: Hero, plan: StatPlan): boolean {
   if (!isValidPlan(hero.stats, hero.skillPoints, plan)) return false;
   for (const id of STAT_IDS) hero.stats[id] += plan[id] ?? 0;
   hero.skillPoints -= planCost(plan);
-  const maxBefore = hero.maxHp;
+  const before = { maxHp: hero.maxHp, manaCap: hero.manaCap };
   refreshStats(hero);
-  hero.hp += hero.maxHp - maxBefore;
+  hero.hp = Math.min(hero.maxHp, hero.hp + hero.maxHp - before.maxHp);
+  addManaToAll(hero, hero.manaCap - before.manaCap);
   return true;
 }
 

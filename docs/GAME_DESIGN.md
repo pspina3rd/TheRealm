@@ -96,16 +96,16 @@ of its elements. Alignment only goes up; you grow by learning.
 The hero has eight stats. Each is a rank from 0 to its max, bought with
 skill points.
 
-| Stat     | Icon       | Per rank                                                    | Max |
-| -------- | ---------- | ----------------------------------------------------------- | --- |
-| Vitality | Heart      | +6 max HP                                                   | 10  |
-| Strength | Sword      | +1 damage on every line-clear strike                        | 10  |
-| Guard    | Shield     | −1 damage from every enemy hit                              | 10  |
-| Focus    | Potion     | +1 capacity in every mana pool                              | 10  |
-| Agility  | Wind swirl | Pieces fall 4% slower (40% at max)                          | 10  |
-| Insight  | Eye        | Rank 3: see 2 next pieces. 6: see 3. 9: enemy's next move   | 9   |
-| Charm    | Gift       | 3% off shop prices (after haggling); NPC attitude (planned) | 10  |
-| Luck     | Clover     | +2% to every item drop; 3% crit chance on 3+ line clears    | 10  |
+| Stat     | Icon        | Per rank                                                    | Max |
+| -------- | ----------- | ----------------------------------------------------------- | --- |
+| Vitality | Heart       | +6 max HP                                                   | 10  |
+| Strength | Sword       | +1 damage on every line-clear strike                        | 10  |
+| Guard    | Shield      | −1 damage from every enemy hit                              | 10  |
+| Focus    | Potion      | +1 capacity in every mana pool                              | 10  |
+| Agility  | Winged boot | Pieces fall 4% slower (40% at max)                          | 10  |
+| Insight  | Eye         | Rank 3: see 2 next pieces. 6: see 3. 9: enemy's next move   | 9   |
+| Charm    | Gift        | 3% off shop prices (after haggling); NPC attitude (planned) | 10  |
+| Luck     | Clover      | +2% to every item drop; 3% crit chance on 3+ line clears    | 10  |
 
 - **Skill points**: 2 per hero level. A stat rank costs 1 point. Points can
   be saved; spending is permanent (no respec, for now).

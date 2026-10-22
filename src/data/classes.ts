@@ -81,7 +81,7 @@ export const CLASSES: Readonly<Record<string, HeroClass>> = {
     id: 'rogue',
     name: 'Rogue',
     heroName: 'Vex',
-    description: 'Hits harder, haggles better and starts with a fat purse.',
+    description: 'Hits harder, pays less in shops and starts with a fat purse.',
     sprite: 'char.004',
     element: 'lightning',
     spell: 'thunder',

@@ -976,17 +976,46 @@ dialog {
 }
 
 .stat-row .step {
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   font-size: 18px;
   font-weight: 800;
 }
 
 @media (max-width: 760px) {
+  /* Compact rows so all eight stats and the actions fit a phone screen. */
+  .stat-rows {
+    gap: 4px;
+  }
+
   .stat-row {
     grid-template-columns: auto 1fr auto auto;
-    gap: 4px 8px;
+    gap: 2px 6px;
+    padding: 3px 6px;
+  }
+
+  .stat-row .stat-name {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .stat-row .stat-name b {
+    font-size: 12px;
+  }
+
+  .stat-row .rank-pips {
+    gap: 2px;
+  }
+
+  .stat-row .rank-pips .pip {
+    width: 7px;
+    height: 7px;
+  }
+
+  .stat-row .chips {
+    gap: 8px;
   }
 
   .stat-row > .icon,

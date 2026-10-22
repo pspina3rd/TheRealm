@@ -10,7 +10,7 @@ import { ELEMENT_NAMES } from '../core/elements';
 import { SPELLS } from '../data/spells';
 import { createHero, equip, heroClass, heroTitle, spendSkillPoints, useItem } from '../game/hero';
 import { adjustPlan, planCost, type StatPlan } from '../game/stats';
-import { STATS } from '../data/stats';
+import { STATS, STAT_IDS, type StatId } from '../data/stats';
 import { pieceWeights } from '../game/pieceOdds';
 import { deleteSave, loadGame, saveGame, type KeyValueStore } from '../game/save';
 import { buy } from '../game/shop';
@@ -26,7 +26,7 @@ import { ManaBars } from './manaBars';
 import { conversationBody, resultsBody } from './screens/conversation';
 import { menuBody } from './screens/menu';
 import { shopBody } from './screens/shop';
-import { skillsBody } from './screens/skills';
+import { focusStep, skillsBody } from './screens/skills';
 import { chip, spritePortrait } from './screens/widgets';
 import type { IconId, IconSpec } from './art/icons';
 import type { Atlas } from './art/atlas';
@@ -272,13 +272,19 @@ export class App {
    * The skill screen. −/+ stage ranks in `plan`; Confirm spends them for
    * good, Later keeps the points. Either way `then` runs afterwards.
    */
-  private openSkills(then: () => void, plan: StatPlan = {}, focusKey?: string): void {
+  private openSkills(
+    then: () => void,
+    plan: StatPlan = {},
+    last?: { stat: StatId; delta: 1 | -1 },
+  ): void {
     const hero = this.state.hero;
     this.dialog.show({
       title: 'Skills',
       body: skillsBody(hero, plan, (stat, delta) =>
-        this.openSkills(then, adjustPlan(plan, stat, delta), `${stat}${delta}`),
+        this.openSkills(then, adjustPlan(plan, stat, delta), { stat, delta }),
       ),
+      // Focus stays on the steps: an extra key press must not confirm a spend.
+      autofocus: false,
       actions: [
         { label: 'Later', onClick: then },
         {
@@ -294,9 +300,8 @@ export class App {
       ],
       onCancel: then,
     });
-    if (focusKey) {
-      const target = document.querySelector<HTMLButtonElement>(`[data-key="${focusKey}"]`);
-      if (target && !target.disabled) target.focus();
+    if (!focusStep(byId('dialog-body'), last)) {
+      byId('dialog-actions').querySelector<HTMLButtonElement>('button')?.focus(); // Later
     }
   }
 
@@ -403,12 +408,9 @@ export class App {
           el(
             'span',
             { className: 'chips' },
-            ...Object.entries(stats)
-              .filter(([, rank]) => rank > 0)
-              .map(([id, rank]) => {
-                const stat = STATS[id as keyof typeof STATS];
-                return chip(STAT_ICONS[stat.id], rank, `${stat.name}: ${stat.description}`);
-              }),
+            ...STAT_IDS.filter((id) => stats[id] > 0).map((id) =>
+              chip(STAT_ICONS[id], stats[id], `${STATS[id].name}: ${STATS[id].description}`),
+            ),
           ),
         ),
       );

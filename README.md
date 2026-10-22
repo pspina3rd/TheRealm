@@ -39,12 +39,12 @@ A new game starts by choosing a hero class. The game saves automatically
 after every battle and map change (browser local storage). Start over from
 the menu.
 
-| Class  | Strengths                                              |
-| ------ | ------------------------------------------------------ |
-| Ranger | Agility and Luck: slower pieces, more drops and crits  |
-| Knight | Vitality and Guard: most HP and defence, small pools   |
-| Mage   | Focus and Insight: deepest pools, sees ahead; fragile  |
-| Rogue  | Strength and Charm: hits harder, cheaper shops, 60 gil |
+| Class  | Strengths                                                            |
+| ------ | -------------------------------------------------------------------- |
+| Ranger | Agility and Luck: slower pieces, more drops and crits                |
+| Knight | Vitality and Guard: most HP and defence, small pools                 |
+| Mage   | Focus and Insight: deepest pools, close to a longer preview; fragile |
+| Rogue  | Strength and Charm: hits harder, cheaper shops, 60 gil               |
 
 ### Stats and skill points
 

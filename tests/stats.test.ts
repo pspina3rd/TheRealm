@@ -136,6 +136,14 @@ describe('spending skill points', () => {
     expect(hero.maxHp).toBe(CLASSES.knight!.base.hp + CLASSES.knight!.hpGrowth + 4 * VITALITY_HP);
   });
 
+  it('adds new mana capacity to every pool', () => {
+    const hero = levelled();
+    hero.mana = { ...hero.mana, fire: 0 };
+    spendSkillPoints(hero, { focus: 2 });
+    expect(hero.mana.fire).toBe(2);
+    expect(hero.mana.water).toBe(hero.manaCap);
+  });
+
   it('lowers enemy damage with Guard', () => {
     const hero = levelled();
     spendSkillPoints(hero, { guard: 2 });
