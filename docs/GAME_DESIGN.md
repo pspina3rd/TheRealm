@@ -22,9 +22,14 @@ cast and what happens with every line.
 | T     | Violet | Arcane    | Surge: ⌈crystals ÷ 3⌉ mana to every element                           |
 | I     | Cyan   | Wind      | Tailwind: pieces fall slower for ⌈crystals ÷ 2⌉ pieces; cancels haste |
 
-- **Mana**: seven separate pools. Every cleared crystal adds 1 mana to its
+- **Mana**: seven separate pools that belong to a battle. **Every battle
+  starts with all pools empty**; every cleared crystal adds 1 mana to its
   element (stone adds nothing), in any kind of battle. Each pool holds up to
-  the hero's mana capacity.
+  the hero's mana capacity (Focus). Nothing outside the board fills mana:
+  not level-ups, the inn, rewards or items, so a spell is always paid for
+  with lines cleared in that fight. An **Ether** (battle only) doubles the
+  mana from crystals cleared during the next 3 pieces; it adds none itself.
+  Mana pools are shown only on the battle screen.
 - **Line effects** (combat only): each cleared line triggers the effect of
   its strongest element. Purer lines are stronger. A four-line clear can
   fire four different effects.
@@ -111,7 +116,8 @@ skill points.
   points buy [spell enhancements](#enhancements). Points can be saved;
   spending is permanent (no respec, for now).
 - **Level-ups** give the points plus the class's HP growth, and restore HP
-  and mana. Mana, attack and defence only grow through stats and gear.
+  (mana is battle-only). Pool size, attack and defence only grow through
+  stats and gear.
 - **Crit**: a critical strike doubles the clear's strike damage (not its
   line effects) and shows a clover and ×2 over the enemy.
 - **Skill screen**: opens after a battle that levelled the hero up (before

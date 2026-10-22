@@ -85,7 +85,7 @@ canvas {
 
 .hud {
   display: grid;
-  grid-template-columns: auto minmax(120px, 1fr) auto minmax(80px, 0.6fr) auto auto auto;
+  grid-template-columns: auto minmax(120px, 1fr) minmax(80px, 0.6fr) auto auto auto;
   gap: 12px;
   align-items: center;
   background: var(--panel);
@@ -637,11 +637,6 @@ dialog h2 {
   .hud {
     grid-template-columns: 1fr minmax(60px, 0.5fr) auto auto;
     gap: 8px;
-  }
-
-  #hud-mana {
-    grid-column: 1 / -1;
-    order: 9;
   }
 
   .hud-place,

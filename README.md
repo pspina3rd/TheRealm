@@ -90,7 +90,9 @@ something you do reveals it, and then its mentor will teach it.
 Every piece has an element, shown by its colour: red fire, blue water,
 gold lightning, green nature, orange earth, violet arcane and cyan wind.
 
-- Each cleared crystal adds 1 mana to its element's pool. Spells cost
+- Every battle starts with empty mana pools; each cleared crystal adds 1
+  mana to its element's pool, so spells are always earned on the board
+  (an Ether doubles what you clear for 3 pieces). Spells cost
   specific elements (Fire costs fire mana; Meteor costs fire, earth and
   arcane).
 - Each cleared line triggers its strongest element: fire burns, water

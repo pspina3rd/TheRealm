@@ -1,3 +1,4 @@
+import { emptyCounts } from '../src/core/elements';
 import { Battle } from '../src/battle/battle';
 import { Board } from '../src/core/board';
 import type { Cell, PieceName } from '../src/core/pieces';
@@ -57,4 +58,12 @@ export function forceQueue(battle: Battle, names: readonly PieceName[]): void {
   battle.board.setFixedQueue(names);
   battle.board.active = null;
   battle.board.spawn();
+}
+
+/**
+ * Fills every pool, as if the hero had already cleared enough crystals this
+ * battle. Battles always start empty; tests of spell effects use this.
+ */
+export function charge(hero: Hero): void {
+  hero.mana = emptyCounts(hero.manaCap);
 }

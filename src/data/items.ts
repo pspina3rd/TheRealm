@@ -16,8 +16,8 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     name: 'Ether',
     kind: 'consumable',
     price: 14,
-    description: 'Restore 4 mana to every element.',
-    use: { mana: 4 },
+    description: 'In battle: for 3 pieces, cleared crystals give double mana.',
+    use: { manaBoost: 3 },
   },
   phoenixFeather: {
     id: 'phoenixFeather',
@@ -66,7 +66,7 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     name: "Night's Rest",
     kind: 'service',
     price: 10,
-    description: 'Fully restore HP and mana. You will wake here if you fall.',
+    description: 'Fully restore HP. You will wake here if you fall.',
     use: { rest: true },
   },
 

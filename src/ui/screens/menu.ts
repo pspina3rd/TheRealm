@@ -26,7 +26,6 @@ import { ELEMENT_ICONS, STAT_ICONS, itemIcon, type IconId } from '../art/icons';
 import { STATS, STAT_IDS } from '../../data/stats';
 import { button, el } from '../dom';
 import { iconElement } from '../iconDraw';
-import { ManaBars } from '../manaBars';
 import {
   chip,
   hiddenSpellSlot,
@@ -66,6 +65,7 @@ function heroCard(atlas: Atlas, hero: Hero): HTMLElement {
         chip('heart', `${hero.hp}/${hero.maxHp}`, 'HP'),
         chip('sword', totalAttack(hero), 'Attack'),
         chip('ward', totalDefense(hero), 'Defence'),
+        chip('potion', hero.manaCap, 'Mana pool size (pools fill from crystals in battle)'),
       ),
       el(
         'div',
@@ -196,13 +196,9 @@ export function menuBody(
       ),
   );
 
-  const mana = el('div');
-  new ManaBars(mana).update(hero);
-
   return [
     heroCard(atlas, hero),
     equipmentSlots(hero),
-    mana,
     sectionTitle('bag', 'Items'),
     el('div', { className: 'tiles' }, ...items),
     detail,

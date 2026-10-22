@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { HARD_DROP_POINTS_PER_ROW, gravityInterval } from '../src/core/scoring';
 import { emptyCounts } from '../src/core/elements';
+import { MANA_BOOST_MULTIPLIER } from '../src/battle/battle';
+import { addItem, createHero } from '../src/game/hero';
 import { forceQueue, makeBattle, setUpVerticalIClear } from './helpers';
 
 const haggle = { kind: 'haggle', pieceLimit: 50, rivalIntervalMs: 100000 } as const;
@@ -116,5 +118,35 @@ describe('Battle', () => {
       ],
     });
     expect(kinds.find((e) => e.kind === 'mana')).toBeDefined();
+  });
+});
+
+describe('mana belongs to the battle', () => {
+  const fight = { kind: 'combat', enemyId: 'brute' } as const;
+
+  it('starts every battle with empty pools, whatever the hero carried in', () => {
+    const hero = createHero();
+    hero.mana = emptyCounts(hero.manaCap);
+    makeBattle(fight, hero);
+    expect(hero.mana).toEqual(emptyCounts());
+  });
+
+  it('fills only from crystals cleared on the board', () => {
+    const battle = makeBattle(fight);
+    setUpVerticalIClear(battle.board, 1, 'red');
+    battle.input('hardDrop');
+    expect(battle.hero.mana.fire).toBe(9);
+  });
+
+  it('doubles cleared crystals for the pieces an Ether lasts, and adds nothing itself', () => {
+    const battle = makeBattle(fight);
+    addItem(battle.hero, 'ether');
+    battle.combat!.useItem('ether');
+    expect(battle.hero.mana).toEqual(emptyCounts());
+    expect(battle.manaBoostPieces).toBe(3);
+    setUpVerticalIClear(battle.board, 1, 'red');
+    battle.input('hardDrop');
+    expect(battle.hero.mana.fire).toBe(Math.min(battle.hero.manaCap, 9 * MANA_BOOST_MULTIPLIER));
+    expect(battle.manaBoostPieces).toBe(2);
   });
 });

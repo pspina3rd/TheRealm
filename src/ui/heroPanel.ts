@@ -16,7 +16,7 @@ import { hiddenSlots } from '../game/hidden';
 /** Icon for a usable item, from what it does. */
 function itemIcon(itemId: string): IconId {
   const use = ITEMS[itemId]?.use;
-  return use?.mana ? 'potion' : 'heart';
+  return use?.manaBoost ? 'potion' : 'heart';
 }
 
 /**
@@ -181,7 +181,7 @@ export class HeroPanel {
 
     const items = Object.entries(hero.items).filter(([id]) => {
       const use = ITEMS[id]?.use;
-      return Boolean(use?.heal || use?.mana);
+      return Boolean(use?.heal || use?.manaBoost);
     });
     this.itemList.replaceChildren(
       ...(combat
@@ -192,7 +192,7 @@ export class HeroPanel {
             node.classList.add('item');
             node.classList.toggle(
               'unusable',
-              !ongoing || !item || cannotUseReason(hero, item) !== null,
+              !ongoing || !item || cannotUseReason(hero, item, true) !== null,
             );
             node.append(
               iconElement(itemIcon(id), 2),

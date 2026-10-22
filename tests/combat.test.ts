@@ -11,7 +11,7 @@ import type { EnemyMove } from '../src/data/types';
 import { addItem, createHero, learnSpell, spendSkillPoints, totalAttack } from '../src/game/hero';
 import { CRIT_MULTIPLIER, dropBonus, statRanks } from '../src/game/stats';
 import { enhancements, type Enhancements } from '../src/game/spells';
-import { knownSpells, makeBattle, setUpVerticalIClear } from './helpers';
+import { charge, knownSpells, makeBattle, setUpVerticalIClear } from './helpers';
 
 /**
  * A fight against `enemyId`. The hero knows Fire and Cure (fire 1, nature 1
@@ -30,6 +30,7 @@ function fight(enemyId = 'slime') {
   if (!combat) throw new Error('expected combat');
   battle.hero.spells = knownSpells('fire', 'cure');
   battle.hero.stats = statRanks();
+  charge(battle.hero);
   return { battle, combat, hero: battle.hero };
 }
 
@@ -576,6 +577,7 @@ describe('combat events', () => {
   it('reports spells, items, revival and defeat', () => {
     const battle = makeBattle({ kind: 'combat', enemyId: 'slime' });
     const combat = battle.combat!;
+    charge(battle.hero);
     battle.hero.hp = 1;
     combat.useItem('herb');
     expect(events(battle)).toContainEqual({ kind: 'item', itemId: 'herb' });

@@ -148,6 +148,7 @@ describe('feedbackFor', () => {
       { kind: 'ward', total: 9 },
       { kind: 'chill' },
       { kind: 'tailwind', pieces: 5 },
+      { kind: 'manaBoost', pieces: 3 },
       { kind: 'haste', pieces: 3 },
       { kind: 'curse', rows: 2 },
       { kind: 'drain', element: 'arcane', amount: 3 },

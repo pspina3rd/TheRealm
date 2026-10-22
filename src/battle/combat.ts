@@ -2,6 +2,7 @@ import type { LockResult } from '../core/board';
 import { ELEMENTS, colorOfElement, elementsOf, type Element } from '../core/elements';
 import type { Rng } from '../core/rng';
 import { ENEMIES } from '../data/enemies';
+import { ITEMS } from '../data/items';
 import { SPELLS } from '../data/spells';
 import type { EnemyDef, EnemyMove } from '../data/types';
 import {
@@ -325,10 +326,15 @@ export class CombatChallenge implements Challenge {
   /** Uses a consumable mid-fight. Counts as an action. Throws if it can't be used. */
   useItem(itemId: string): void {
     const hpBefore = this.ctx.hero.hp;
-    useItem(this.ctx.hero, itemId);
+    useItem(this.ctx.hero, itemId, true);
     this.ctx.emit({ kind: 'item', itemId });
     if (this.ctx.hero.hp > hpBefore)
       this.ctx.emit({ kind: 'heroHeal', amount: this.ctx.hero.hp - hpBefore });
+    const boost = ITEMS[itemId]?.use?.manaBoost;
+    if (boost) {
+      this.ctx.manaBoostPieces = Math.max(this.ctx.manaBoostPieces, boost);
+      this.ctx.emit({ kind: 'manaBoost', pieces: this.ctx.manaBoostPieces });
+    }
     this.spendAction();
   }
 

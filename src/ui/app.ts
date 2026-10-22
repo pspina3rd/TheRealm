@@ -38,7 +38,6 @@ import { button, byId, el } from './dom';
 import { ELEMENT_ICONS, SPELL_KIND_ICONS, STAT_ICONS } from './art/icons';
 import { BattleView } from './battleView';
 import { iconElement } from './iconDraw';
-import { ManaBars } from './manaBars';
 import { conversationBody, epilogueBody, resultsBody } from './screens/conversation';
 import { menuBody } from './screens/menu';
 import { shopBody } from './screens/shop';
@@ -101,7 +100,6 @@ export class App {
   private readonly atlas: Atlas;
   private readonly world: WorldView;
   private readonly battleView: BattleView;
-  private readonly hudMana = new ManaBars(byId('hud-mana'), 1);
   /** False until a save is loaded or a class is chosen. */
   private started: boolean;
   private readonly dialog = new Dialog();
@@ -657,7 +655,6 @@ export class App {
     byId('hud-hp-bar').style.width = `${(100 * hero.hp) / hero.maxHp}%`;
     byId('hud-xp-bar').style.width = `${(100 * hero.xp) / hero.nextXp}%`;
     byId('hud-xp').title = `${hero.xp} / ${hero.nextXp} XP`;
-    this.hudMana.update(hero);
     byId('hud-gil').textContent = String(hero.gil);
     byId('hud-place').textContent = currentMap(this.state).name;
     const menu = byId('menu-button');

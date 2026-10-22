@@ -16,7 +16,14 @@ import {
   spellElements,
 } from '../src/game/spells';
 import { statRanks } from '../src/game/stats';
-import { forceQueue, knownSpells, makeBattle, rowWithGaps, setUpVerticalIClear } from './helpers';
+import {
+  charge,
+  forceQueue,
+  knownSpells,
+  makeBattle,
+  rowWithGaps,
+  setUpVerticalIClear,
+} from './helpers';
 
 /** A fight against a slime (nature: weak to fire, resists earth), knowing `spells`. */
 function fight(...spells: string[]) {
@@ -24,6 +31,7 @@ function fight(...spells: string[]) {
   const combat = battle.combat!;
   battle.hero.spells = knownSpells(...spells);
   battle.hero.stats = statRanks();
+  charge(battle.hero);
   combat.enemyHp = 999;
   return { battle, combat, hero: battle.hero };
 }

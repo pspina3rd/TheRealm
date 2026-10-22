@@ -15,6 +15,7 @@ import {
   manaFull,
   spendMana,
   cannotUseReason,
+  clearMana,
   createHero,
   equip,
   gainXp,
@@ -173,9 +174,8 @@ describe('hero', () => {
     expect(useItem(hero, 'herb')).toContain('restored 20 HP');
     expect(hero.hp).toBe(30);
     expect(itemCount(hero, 'herb')).toBe(1);
-    expect(() => useItem(hero, 'ether')).toThrow('Mana is already full.');
-    hero.mana.fire = 0;
-    expect(useItem(hero, 'ether')).toContain('restored 4 mana');
+    expect(() => useItem(hero, 'ether')).toThrow('Use it in battle.');
+    expect(cannotUseReason(hero, ITEMS.ether!, true)).toBeNull();
     expect(() => useItem(hero, 'sporeCap')).toThrow();
     expect(() => useItem(hero, 'nope')).toThrow('Unknown item');
   });
@@ -188,13 +188,12 @@ describe('hero', () => {
     expect(cannotUseReason(hero, ITEMS.blizzardTome!)).toBe('You already know that spell.');
   });
 
-  it('applies a rest service to fully restore', () => {
+  it('applies a rest service to restore HP, never mana', () => {
     const hero = createHero();
     hero.hp = 1;
-    hero.mana = emptyCounts(0);
     expect(applyItemEffect(hero, ITEMS.innRest!)).toContain('fully restored');
     expect(hero.hp).toBe(hero.maxHp);
-    expect(manaFull(hero)).toBe(true);
+    expect(hero.mana).toEqual(emptyCounts());
   });
 
   it('reports items without an effect', () => {
@@ -202,11 +201,10 @@ describe('hero', () => {
   });
 
   describe('elemental mana', () => {
-    it('starts with every pool full at the class capacity', () => {
+    it('starts with empty pools at the class capacity', () => {
       const mage = createHero('mage');
-      const cap = CLASSES.mage!.base.mana + mage.stats.focus;
-      expect(mage.mana).toEqual(emptyCounts(cap));
-      expect(mage.manaCap).toBe(cap);
+      expect(mage.mana).toEqual(emptyCounts());
+      expect(mage.manaCap).toBe(CLASSES.mage!.base.mana + mage.stats.focus);
     });
 
     it('adds mana per element, capped', () => {
@@ -236,11 +234,18 @@ describe('hero', () => {
       expect(drainMana(hero, 4).drained).toBe(0);
     });
 
-    it('refills on level-up', () => {
+    it('never fills on level-up', () => {
       const hero = createHero();
-      hero.mana = emptyCounts(0);
       gainXp(hero, hero.nextXp);
+      expect(hero.mana).toEqual(emptyCounts());
+    });
+
+    it('fills to capacity only through addMana', () => {
+      const hero = createHero();
+      addManaToAll(hero, 999);
       expect(manaFull(hero)).toBe(true);
+      clearMana(hero);
+      expect(hero.mana).toEqual(emptyCounts());
     });
   });
 

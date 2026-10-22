@@ -82,7 +82,8 @@ export function createHero(classId = DEFAULT_CLASS, name?: string): Hero {
     xp: 0,
     nextXp: 30,
     hp: derived.maxHp,
-    mana: emptyCounts(derived.manaCap),
+    // Mana belongs to a battle: pools start empty and fill from cleared crystals.
+    mana: emptyCounts(),
     ...derived,
     stats,
     skillPoints: 0,
@@ -124,7 +125,7 @@ export function totalDefense(hero: Hero): number {
 
 /**
  * Adds XP and applies any level-ups. Each gives skill points and the
- * class's HP growth, and restores HP and mana. Returns the levels gained.
+ * class's HP growth, and restores HP (never mana). Returns the levels gained.
  */
 export function gainXp(hero: Hero, amount: number): number {
   hero.xp += amount;
@@ -136,7 +137,6 @@ export function gainXp(hero: Hero, amount: number): number {
     hero.skillPoints += SKILL_POINTS_PER_LEVEL;
     refreshStats(hero);
     hero.hp = hero.maxHp;
-    fillMana(hero);
     gained++;
   }
   return gained;
@@ -154,8 +154,8 @@ export function refreshStats(hero: Hero): void {
 
 /**
  * Buys the planned stat ranks and spell enhancements with skill points.
- * This is permanent. New max HP and mana capacity are added to current HP
- * and every pool too. Returns false (and spends nothing) if the plan is
+ * This is permanent. New max HP is added to current HP too (mana pools are
+ * battle-only, so only their capacity grows). Returns false (and spends nothing) if the plan is
  * invalid or costs more points than the hero has.
  */
 export function spendSkillPoints(hero: Hero, plan: SkillPlan): boolean {
@@ -166,10 +166,9 @@ export function spendSkillPoints(hero: Hero, plan: SkillPlan): boolean {
     const known = knownSpell(hero, spellId);
     if (known) for (const id of ENHANCEMENT_IDS) known.step[id] += staged[id] ?? 0;
   }
-  const before = { maxHp: hero.maxHp, manaCap: hero.manaCap };
+  const before = hero.maxHp;
   refreshStats(hero);
-  hero.hp = Math.min(hero.maxHp, hero.hp + hero.maxHp - before.maxHp);
-  addManaToAll(hero, hero.manaCap - before.manaCap);
+  hero.hp = Math.min(hero.maxHp, hero.hp + hero.maxHp - before);
   return true;
 }
 
@@ -207,8 +206,9 @@ export function addManaToAll(hero: Hero, amount: number): number {
   return addMana(hero, emptyCounts(amount));
 }
 
-export function fillMana(hero: Hero): void {
-  hero.mana = emptyCounts(hero.manaCap);
+/** Empties every pool. Each battle starts this way, so spells must be earned on the board. */
+export function clearMana(hero: Hero): void {
+  hero.mana = emptyCounts();
 }
 
 export function manaFull(hero: Hero): boolean {
@@ -285,14 +285,14 @@ export function raiseSpellLevel(hero: Hero, spellId: string): void {
   hero.titleElement = titleElementFor(hero.titleElement, heroAlignment(hero));
 }
 
-/** Why an item can't be used right now, or null if it can. */
-export function cannotUseReason(hero: Hero, item: ItemDef): string | null {
+/** Why an item can't be used right now (in or out of battle), or null if it can. */
+export function cannotUseReason(hero: Hero, item: ItemDef, inBattle = false): string | null {
   const use = item.use;
   if (!use) return `${item.name} can't be used directly.`;
   if (itemCount(hero, item.id) < 1) return `You have no ${item.name}.`;
   if (use.learnSpell && knownSpell(hero, use.learnSpell)) return 'You already know that spell.';
-  if (use.heal && !use.mana && hero.hp >= hero.maxHp) return 'HP is already full.';
-  if (use.mana && !use.heal && manaFull(hero)) return 'Mana is already full.';
+  if (use.manaBoost && !inBattle) return 'Use it in battle.';
+  if (use.heal && hero.hp >= hero.maxHp) return 'HP is already full.';
   return null;
 }
 
@@ -305,20 +305,18 @@ export function applyItemEffect(hero: Hero, item: ItemDef): string {
   const parts: string[] = [];
   if (use.rest) {
     hero.hp = hero.maxHp;
-    fillMana(hero);
-    parts.push('HP and mana fully restored');
+    parts.push('HP fully restored');
   }
   if (use.heal) parts.push(`restored ${heal(hero, use.heal)} HP`);
-  if (use.mana) parts.push(`restored ${addManaToAll(hero, use.mana)} mana`);
   if (use.learnSpell && learnSpell(hero, use.learnSpell)) parts.push(`learned a new spell`);
   return parts.length ? `${item.name}: ${parts.join(', ')}.` : `${item.name} had no effect.`;
 }
 
 /** Uses one of an inventory item. Returns a message, or throws if it can't be used. */
-export function useItem(hero: Hero, itemId: string): string {
+export function useItem(hero: Hero, itemId: string, inBattle = false): string {
   const item = ITEMS[itemId];
   if (!item) throw new Error(`Unknown item: ${itemId}`);
-  const reason = cannotUseReason(hero, item);
+  const reason = cannotUseReason(hero, item, inBattle);
   if (reason) throw new Error(reason);
   removeItem(hero, itemId);
   return applyItemEffect(hero, item);

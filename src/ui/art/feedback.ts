@@ -166,6 +166,8 @@ export function feedbackFor(event: BattleEvent): Feedback[] {
       return [{ kind: 'icon', target: 'enemy', icon: 'water' }];
     case 'tailwind':
       return [{ kind: 'icon', target: 'board', icon: 'wind' }];
+    case 'manaBoost':
+      return [{ kind: 'icon', target: 'board', icon: 'potion' }];
     case 'haste':
       return [{ kind: 'icon', target: 'board', icon: 'haste' }];
     case 'curse':

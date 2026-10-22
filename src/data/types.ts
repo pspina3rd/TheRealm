@@ -176,9 +176,12 @@ export type ItemKind = 'consumable' | 'weapon' | 'armor' | 'accessory' | 'treasu
 
 export interface ItemUse {
   readonly heal?: number;
-  /** Mana restored to every elemental pool. */
-  readonly mana?: number;
-  /** Restores HP and MP to full and sets the respawn point (inns). */
+  /**
+   * Battle only: for this many pieces, cleared crystals give double mana.
+   * Mana only ever comes from the board, so no item adds it directly.
+   */
+  readonly manaBoost?: number;
+  /** Restores HP to full (inns). Mana is not restored: every battle starts empty. */
   readonly rest?: boolean;
   /** Teaches a spell when used. */
   readonly learnSpell?: string;

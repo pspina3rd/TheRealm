@@ -20,7 +20,7 @@ import {
 } from './attitude';
 import { FINALE_FLAG, epilogueFor, type Epilogue } from './ending';
 import { hiddenSlots, type HiddenSlot } from './hidden';
-import { addItem, fillMana, gainXp, itemCount, removeItem } from './hero';
+import { addItem, gainXp, itemCount, removeItem } from './hero';
 import { completeLesson, lessonsFor, type Lesson } from './lessons';
 import { grantRewards, type Gain } from './rewards';
 import { isCategoryLocked, type FailedLesson } from './spells';
@@ -253,7 +253,6 @@ function resolveCombat(
     const lost = Math.floor(hero.gil / 2);
     hero.gil -= lost;
     hero.hp = hero.maxHp;
-    fillMana(hero);
     travel(state, state.respawn);
     if (lost > 0) gains.push({ kind: 'gil', amount: -lost });
   }

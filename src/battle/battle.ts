@@ -1,5 +1,5 @@
 import { BOARD_HEIGHT, BOARD_WIDTH, Board, type LockResult } from '../core/board';
-import { elementsOf } from '../core/elements';
+import { ELEMENTS, elementsOf } from '../core/elements';
 import type { PieceName } from '../core/pieces';
 import type { Rng } from '../core/rng';
 import {
@@ -10,7 +10,7 @@ import {
 } from '../core/scoring';
 import type { ChallengeSpec } from '../data/types';
 import { featsOfLock, recordFeats } from '../game/feats';
-import { addMana, type Hero } from '../game/hero';
+import { addMana, clearMana, type Hero } from '../game/hero';
 import { fallMultiplier, previewCount } from '../game/stats';
 import { BarterChallenge } from './barter';
 import { CombatChallenge } from './combat';
@@ -32,6 +32,8 @@ export type BattleAction = 'left' | 'right' | 'rotate' | 'softDrop' | 'hardDrop'
 /** Most recent events kept; the screen reads them every frame. */
 const MAX_EVENTS = 100;
 /** Gravity interval multiplier under a tailwind (higher = slower). */
+/** Mana from cleared crystals is multiplied by this while an Ether lasts. */
+export const MANA_BOOST_MULTIPLIER = 2;
 export const TAILWIND_SLOWDOWN = 1.6;
 
 export interface BattleOptions {
@@ -55,6 +57,7 @@ export class Battle implements BattleContext {
   lines = 0;
   hastePieces = 0;
   slowPieces = 0;
+  manaBoostPieces = 0;
   paused = false;
   /** Oldest first, numbered so the screen can play each event once. */
   readonly events: NumberedEvent[] = [];
@@ -64,6 +67,8 @@ export class Battle implements BattleContext {
   constructor(spec: ChallengeSpec, hero: Hero, rng: Rng, options: BattleOptions = {}) {
     this.spec = spec;
     this.hero = hero;
+    // Spells are paid for on the board: every battle starts with empty pools.
+    clearMana(hero);
     this.rng = rng;
     this.board = new Board(rng, BOARD_WIDTH, BOARD_HEIGHT, options.weights);
     this.challenge = createChallenge(this, spec);
@@ -155,7 +160,7 @@ export class Battle implements BattleContext {
   /**
    * Counts board feats in fights (see `src/game/feats.ts`), scores the
    * lock, fills elemental mana from every cleared crystal (in any kind of
-   * battle), then lets the challenge apply its rules.
+   * battle; doubled while an Ether lasts), then lets the challenge apply its rules.
    */
   private afterLock(result: LockResult): void {
     // Only fights (and lessons) count: puzzles' preset boards can't be replayed for feats.
@@ -164,9 +169,12 @@ export class Battle implements BattleContext {
     this.score += lineClearPoints(result.linesCleared);
     if (this.hastePieces > 0) this.hastePieces--;
     if (this.slowPieces > 0) this.slowPieces--;
+    const boost = this.manaBoostPieces > 0 ? MANA_BOOST_MULTIPLIER : 1;
+    if (this.manaBoostPieces > 0) this.manaBoostPieces--;
     if (result.linesCleared > 0) {
       this.emit({ kind: 'lines', rows: result.rows, lines: result.lines });
-      const gained = elementsOf(result.clearedCells);
+      const crystals = elementsOf(result.clearedCells);
+      const gained = Object.fromEntries(ELEMENTS.map((e) => [e, crystals[e] * boost]));
       if (addMana(this.hero, gained) > 0) this.emit({ kind: 'mana', gained });
     }
     this.challenge.onLock(result);

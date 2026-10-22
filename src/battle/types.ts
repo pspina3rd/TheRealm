@@ -20,6 +20,8 @@ export type BattleEvent =
     }
   /** Mana gained from cleared crystals or effects. */
   | { readonly kind: 'mana'; readonly gained: ElementAmounts }
+  /** An Ether: cleared crystals give double mana for this many pieces. */
+  | { readonly kind: 'manaBoost'; readonly pieces: number }
   /** A cleared line's strongest element fired. `row` is where the line was. */
   | {
       readonly kind: 'surge';
@@ -102,6 +104,8 @@ export interface BattleContext {
   hastePieces: number;
   /** Pieces remaining with slowed gravity (set by wind). */
   slowPieces: number;
+  /** Pieces remaining in which cleared crystals give double mana (an Ether). */
+  manaBoostPieces: number;
   emit(event: BattleEvent): void;
 }
 
