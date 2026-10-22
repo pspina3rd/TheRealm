@@ -138,6 +138,24 @@ describe('Board', () => {
     expect(board.piecesRemaining).toBe(0);
   });
 
+  it('locking with no active piece changes nothing', () => {
+    const board = newBoard();
+    expect(board.lock()).toEqual({
+      linesCleared: 0,
+      clearedCells: {},
+      lines: [],
+      rows: [],
+      toppedOut: false,
+    });
+    expect(board.piecesPlaced).toBe(0);
+  });
+
+  it('reports which rows were cleared', () => {
+    const board = newBoard();
+    setUpVerticalIClear(board, 2);
+    expect(board.hardDrop().result.rows).toEqual([BOARD_HEIGHT - 2, BOARD_HEIGHT - 1]);
+  });
+
   it('reports infinite pieces when the queue is random', () => {
     expect(newBoard().piecesRemaining).toBe(Infinity);
   });

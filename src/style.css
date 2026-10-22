@@ -121,77 +121,6 @@ canvas {
   transition: width 0.2s;
 }
 
-/* ------------------------------------------------------------- mana --- */
-
-.mana-bars {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-  min-width: 140px;
-}
-
-.mana-bar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.mana-track {
-  width: 100%;
-  height: 26px;
-  background: #090b15;
-  border-radius: 4px;
-  display: flex;
-  align-items: flex-end;
-  overflow: hidden;
-}
-
-.mana-track span {
-  display: block;
-  width: 100%;
-  transition: height 0.2s;
-}
-
-.mana-bar small {
-  font-size: 10px;
-  line-height: 1;
-}
-
-.cost-chips {
-  display: inline-flex;
-  gap: 3px;
-  justify-content: center;
-}
-
-.chip {
-  color: #111;
-  font-weight: 700;
-  font-size: 11px;
-  border-radius: 4px;
-  padding: 0 4px;
-}
-
-.legend-row {
-  display: grid;
-  grid-template-columns: 14px 72px 1fr;
-  gap: 6px;
-  align-items: center;
-  padding: 2px 0;
-}
-
-.swatch {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
-}
-
-summary {
-  cursor: pointer;
-  font-weight: 600;
-  color: #dbe1ff;
-}
-
 .attune-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -200,14 +129,10 @@ summary {
 
 .attune-grid button {
   display: grid;
-  grid-template-columns: 14px 140px 1fr;
+  grid-template-columns: 24px 140px 1fr;
   gap: 8px;
   align-items: center;
   text-align: left;
-}
-
-.bar.objective span {
-  background: var(--gold);
 }
 
 /* -------------------------------------------------------------- views --- */
@@ -249,13 +174,6 @@ summary {
   height: 600px;
 }
 
-#portrait-canvas {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-  background: radial-gradient(ellipse at 50% 85%, #2c3358 0%, #10132a 70%);
-}
-
 .battle-side {
   display: flex;
   flex-direction: column;
@@ -269,46 +187,178 @@ summary {
   padding: 8px 10px;
 }
 
-.row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* ---------------------------------------------------------- battle ---- */
+
+#stage-canvas {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  background:
+    radial-gradient(ellipse at 62% 92%, #3a4270 0%, transparent 55%),
+    linear-gradient(#1c2142, #10132a);
+}
+
+.hero-panel {
+  display: grid;
   gap: 8px;
 }
 
-.stats-row {
-  margin-top: 6px;
-  font-size: 13px;
+.hp-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 8px;
+  align-items: center;
 }
 
-.grid-2 {
+.hp-row .bar {
+  height: 12px;
+  margin: 0;
+}
+
+#battle-hp-fill {
+  background: var(--hp);
+}
+
+#next-canvas {
+  background: #0b0d18;
+  border-radius: 6px;
+}
+
+.icon {
+  display: block;
+  image-rendering: pixelated;
+}
+
+.mana-bars {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(7, 1fr);
   gap: 6px;
 }
 
-.grid-2 b,
-.grid-2 small {
+.mana-pool {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  border-radius: 6px;
+  padding: 3px 0;
+}
+
+.mana-track {
+  width: 14px;
+  height: 34px;
+  background: #090b15;
+  border-radius: 4px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.mana-track span {
   display: block;
+  width: 100%;
+  transition: height 0.25s;
+}
+
+.mana-pool small {
+  font-size: 11px;
+  line-height: 1;
   color: var(--muted);
 }
 
-.log {
-  height: 120px;
-  overflow: auto;
-  font-size: 13px;
+.mana-pool.full small {
+  color: var(--gold);
 }
 
-.log p {
-  margin: 0 0 4px;
+.mana-pool.glow {
+  animation: glow 0.6s ease-out;
 }
 
-.log .good {
-  color: var(--good);
+.mana-pool.drained {
+  animation: drained 0.6s ease-out;
 }
 
-.log .bad {
-  color: var(--bad);
+@keyframes glow {
+  0% {
+    background: #ffffff40;
+    transform: scale(1.15);
+  }
+  100% {
+    background: transparent;
+    transform: scale(1);
+  }
+}
+
+@keyframes drained {
+  0%,
+  50% {
+    background: #ff5c7a66;
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+.spells,
+.items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+}
+
+.items {
+  margin-top: 6px;
+}
+
+.spell,
+.item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  position: relative;
+}
+
+.spell b {
+  display: block;
+}
+
+.spell kbd {
+  position: absolute;
+  top: 3px;
+  right: 6px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.cost {
+  display: flex;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.cost-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.unusable {
+  opacity: 0.4;
+}
+
+.denied {
+  animation: denied 0.35s;
+}
+
+@keyframes denied {
+  20%,
+  60% {
+    transform: translateX(-5px);
+  }
+  40%,
+  80% {
+    transform: translateX(5px);
+  }
 }
 
 .controls {
@@ -455,4 +505,13 @@ dialog h2 {
   .class-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.hud .mana-track {
+  height: 18px;
+  width: 10px;
+}
+
+.hud .mana-bars {
+  gap: 3px;
 }

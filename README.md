@@ -61,7 +61,12 @@ gold lightning, green nature, orange earth, violet arcane and cyan wind.
 - Areas tilt which pieces fall; charms and your level-3 elemental
   attunement tilt them back.
 
-The battle screen has a colour legend. Full rules and numbers are in
+The battle screen shows all of this instead of describing it: every
+crystal carries its element's icon, cleared lines flash and burst their
+element's icon, damage floats off the monster in the element's colour, the
+monster's weaknesses (▲) and resistances (▼) sit under its HP bar, pips
+count down to its next move, and mana pools glow as they fill. Monsters
+attack the moment you walk into them. Full rules and numbers are in
 [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 
 ### The adventure so far
@@ -97,7 +102,8 @@ src/
   world/     Map model, tile legend, game state, movement
   data/      All content: enemies, spells, items, NPCs, shops, maps
   ui/        Canvas renderers, dialogs, battle portrait, app controller
-  ui/art/    Art definitions: images, tile themes, props, creatures, effects
+  ui/art/    Art definitions: images, tile themes, props, creatures, effects,
+             pixel icons, and battle feedback (event → what the player sees)
 tests/       Vitest unit tests, one file per area
 tools/       import_art.py: copies the used art in from the asset packs
 public/assets/elvgames/   The art the game draws (ElvGames)

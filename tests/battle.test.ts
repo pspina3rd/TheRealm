@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { HARD_DROP_POINTS_PER_ROW, gravityInterval } from '../src/core/scoring';
+import { emptyCounts } from '../src/core/elements';
 import { forceQueue, makeBattle, setUpVerticalIClear } from './helpers';
 
 const haggle = { kind: 'haggle', pieceLimit: 50, rivalIntervalMs: 100000 } as const;
@@ -68,11 +69,29 @@ describe('Battle', () => {
     expect(battle.board.piecesPlaced).toBe(1);
   });
 
-  it('keeps a bounded, newest-first event log', () => {
+  it('keeps a bounded, numbered event stream', () => {
     const battle = makeBattle(haggle);
-    for (let i = 0; i < 60; i++) battle.log(`event ${i}`);
-    expect(battle.events).toHaveLength(50);
-    expect(battle.events[0]?.text).toBe('event 59');
-    expect(battle.events[0]?.tone).toBe('info');
+    for (let i = 0; i < 120; i++) battle.emit({ kind: 'chill' });
+    expect(battle.events).toHaveLength(100);
+    expect(battle.events.at(-1)?.seq).toBe(119);
+    expect(battle.eventsSince(118).map((e) => e.seq)).toEqual([118, 119]);
+    expect(battle.eventsSince(500)).toEqual([]);
+  });
+
+  it('reports cleared lines, their rows and the mana gained', () => {
+    const battle = makeBattle(haggle);
+    battle.hero.mana = emptyCounts(0);
+    setUpVerticalIClear(battle.board, 2, 'green');
+    battle.input('hardDrop');
+    const kinds = battle.events.map((e) => e.event);
+    expect(kinds).toContainEqual({
+      kind: 'lines',
+      rows: [18, 19],
+      lines: [
+        { green: 9, cyan: 1 },
+        { green: 9, cyan: 1 },
+      ],
+    });
+    expect(kinds.find((e) => e.kind === 'mana')).toBeDefined();
   });
 });

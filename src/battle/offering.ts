@@ -43,8 +43,9 @@ export class OfferingChallenge implements Challenge {
     const name = ITEMS[this.itemId]?.name ?? this.itemId;
     return {
       label: `Offer: ${name}`,
-      detail: `Score ${this.ctx.score} / ${this.targetScore} · ${piecesLeft(this.ctx, this.pieceLimit)} pieces left`,
       progress: Math.min(1, this.ctx.score / this.targetScore),
+      piecesLeft: piecesLeft(this.ctx, this.pieceLimit),
+      score: { have: this.ctx.score, want: this.targetScore },
     };
   }
 }

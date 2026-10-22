@@ -13,16 +13,22 @@ import type { ChallengeSpec } from '../data/types';
 import { addMana, type Hero } from '../game/hero';
 import { BarterChallenge } from './barter';
 import { CombatChallenge } from './combat';
-import { describeSpec } from './describe';
 import { HaggleChallenge } from './haggle';
 import { OfferingChallenge } from './offering';
 import { PuzzleChallenge } from './puzzle';
-import type { BattleContext, BattleEvent, BattleStatus, Challenge, Objective, Tone } from './types';
+import type {
+  BattleContext,
+  BattleEvent,
+  BattleStatus,
+  Challenge,
+  NumberedEvent,
+  Objective,
+} from './types';
 
 export type BattleAction = 'left' | 'right' | 'rotate' | 'softDrop' | 'hardDrop';
 
-/** Most recent events kept for the battle log. */
-const MAX_EVENTS = 50;
+/** Most recent events kept; the screen reads them every frame. */
+const MAX_EVENTS = 100;
 /** Gravity interval multiplier under a tailwind (higher = slower). */
 export const TAILWIND_SLOWDOWN = 1.6;
 
@@ -48,8 +54,9 @@ export class Battle implements BattleContext {
   hastePieces = 0;
   slowPieces = 0;
   paused = false;
-  /** Newest first. */
-  readonly events: BattleEvent[] = [];
+  /** Oldest first, numbered so the screen can play each event once. */
+  readonly events: NumberedEvent[] = [];
+  private nextSeq = 0;
   private gravityTimer = 0;
 
   constructor(spec: ChallengeSpec, hero: Hero, rng: Rng, options: BattleOptions = {}) {
@@ -58,7 +65,6 @@ export class Battle implements BattleContext {
     this.rng = rng;
     this.board = new Board(rng, BOARD_WIDTH, BOARD_HEIGHT, options.weights);
     this.level = spec.kind === 'combat' ? (ENEMIES[spec.enemyId]?.level ?? 1) : 1;
-    this.log(describeSpec(spec));
     this.challenge = createChallenge(this, spec);
     this.board.spawn();
   }
@@ -83,9 +89,14 @@ export class Battle implements BattleContext {
     return this.slowPieces > 0 ? base * TAILWIND_SLOWDOWN : base;
   }
 
-  log(text: string, tone: Tone = 'info'): void {
-    this.events.unshift({ text, tone });
-    if (this.events.length > MAX_EVENTS) this.events.pop();
+  emit(event: BattleEvent): void {
+    this.events.push({ seq: this.nextSeq++, event });
+    if (this.events.length > MAX_EVENTS) this.events.shift();
+  }
+
+  /** Events numbered `afterSeq` or later. */
+  eventsSince(afterSeq: number): NumberedEvent[] {
+    return this.events.filter((e) => e.seq >= afterSeq);
   }
 
   /** Applies a player input. Ignored when paused or finished. */
@@ -143,7 +154,11 @@ export class Battle implements BattleContext {
     this.score += lineClearPoints(result.linesCleared);
     if (this.hastePieces > 0) this.hastePieces--;
     if (this.slowPieces > 0) this.slowPieces--;
-    addMana(this.hero, elementsOf(result.clearedCells));
+    if (result.linesCleared > 0) {
+      this.emit({ kind: 'lines', rows: result.rows, lines: result.lines });
+      const gained = elementsOf(result.clearedCells);
+      if (addMana(this.hero, gained) > 0) this.emit({ kind: 'mana', gained });
+    }
     this.challenge.onLock(result);
   }
 }

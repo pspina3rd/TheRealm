@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { CombatChallenge } from '../src/battle/combat';
-import { LINE_DAMAGE, MAX_WARD, describeAffinities, rollSpoils } from '../src/battle/combat';
+import { LINE_DAMAGE, MAX_WARD, rollSpoils } from '../src/battle/combat';
 import { TAILWIND_SLOWDOWN } from '../src/battle/battle';
 import { WEAK_CRYSTAL_BONUS } from '../src/battle/elemental';
 import { emptyCounts } from '../src/core/elements';
@@ -368,17 +368,63 @@ describe('CombatChallenge', () => {
     expect(combat.objective().label).toContain('Green Slime');
   });
 
-  it('describes weaknesses and resistances', () => {
-    expect(describeAffinities(ENEMIES.brute!)).toBe(
-      'Weak to water and nature. Resists earth and fire.',
-    );
-    expect(describeAffinities({ ...ENEMIES.slime!, weak: [], resist: [] })).toBe('');
-  });
-
   it('rolls spoils with drop chances', () => {
     const wyrm = ENEMIES.moonWyrm!;
     expect(rollSpoils(wyrm, createRng(1)).drops).toEqual(['phoenixFeather']);
     const spoils = rollSpoils(ENEMIES.moonImp!, createRng(1));
     expect(spoils).toEqual({ xp: ENEMIES.moonImp!.xp, gil: ENEMIES.moonImp!.gil, drops: [] });
+  });
+});
+
+describe('combat events', () => {
+  const events = (battle: ReturnType<typeof makeBattle>) => battle.events.map((e) => e.event);
+
+  it('reports strikes with their element affinity and surges with their row', () => {
+    const battle = makeBattle({ kind: 'combat', enemyId: 'brute' });
+    setUpVerticalIClear(battle.board, 1, 'blue');
+    battle.input('hardDrop');
+    expect(events(battle)).toContainEqual(
+      expect.objectContaining({ kind: 'enemyHit', element: null, affinity: 'weak' }),
+    );
+    expect(events(battle)).toContainEqual({ kind: 'surge', element: 'water', power: 9, row: 19 });
+    expect(events(battle)).toContainEqual({ kind: 'chill' });
+  });
+
+  it('announces enemy moves before their effects', () => {
+    const battle = makeBattle({ kind: 'combat', enemyId: 'goblin' });
+    const combat = battle.combat!;
+    nextMove(combat, { kind: 'curse', name: 'Rock Toss', rows: 1 });
+    battle.input('hardDrop');
+    const list = events(battle);
+    const move = list.findIndex((e) => e.kind === 'enemyMove');
+    expect(move).toBeGreaterThanOrEqual(0);
+    expect(list[move + 1]).toEqual({ kind: 'curse', rows: 1 });
+  });
+
+  it('reports the ward absorbing a hit', () => {
+    const battle = makeBattle({ kind: 'combat', enemyId: 'goblin' });
+    const combat = battle.combat!;
+    combat.ward = 50;
+    nextMove(combat, { kind: 'attack', name: 'Stab', power: 3 });
+    battle.input('hardDrop');
+    expect(events(battle).some((e) => e.kind === 'heroHit')).toBe(false);
+    expect(events(battle)).toContainEqual({ kind: 'ward', total: combat.ward });
+  });
+
+  it('reports spells, items, revival and defeat', () => {
+    const battle = makeBattle({ kind: 'combat', enemyId: 'slime' });
+    const combat = battle.combat!;
+    battle.hero.hp = 1;
+    combat.useItem('herb');
+    expect(events(battle)).toContainEqual({ kind: 'item', itemId: 'herb' });
+    expect(events(battle)).toContainEqual({ kind: 'heroHeal', amount: 20 });
+    addItem(battle.hero, 'phoenixFeather');
+    battle.hero.hp = 1;
+    nextMove(combat, { kind: 'attack', name: 'Bonk', power: 99 });
+    battle.input('hardDrop');
+    expect(events(battle)).toContainEqual({ kind: 'revive' });
+    combat.castSpell('fire');
+    expect(events(battle)).toContainEqual({ kind: 'spell', spellId: 'fire' });
+    expect(events(battle).at(-1)).toEqual({ kind: 'enemyDefeated' });
   });
 });

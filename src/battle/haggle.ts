@@ -42,7 +42,7 @@ export class HaggleChallenge implements Challenge {
     const lines = Math.min(result.linesCleared, HAGGLE.dropPerClear.length - 1);
     if (lines > 0) {
       this.adjust(-(HAGGLE.dropPerClear[lines] ?? 0));
-      this.ctx.log(`You talk the price down to ${this.percent()}.`, 'good');
+      this.ctx.emit({ kind: 'price', multiplier: this.multiplier });
     }
   }
 
@@ -62,9 +62,10 @@ export class HaggleChallenge implements Challenge {
   objective(): Objective {
     return {
       label: `Haggle · price ${this.percent()}`,
-      detail: `Clear lines to lower the price · ${piecesLeft(this.ctx, this.pieceLimit)} pieces left`,
       // Full bar at the best possible price.
       progress: (HAGGLE.max - this.multiplier) / (HAGGLE.max - HAGGLE.min),
+      piecesLeft: piecesLeft(this.ctx, this.pieceLimit),
+      price: { value: this.multiplier, min: HAGGLE.min, max: HAGGLE.max },
     };
   }
 

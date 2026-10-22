@@ -1,8 +1,7 @@
 import type { LockResult } from '../core/board';
-import { ELEMENT_NAMES, elementsOf, type Element } from '../core/elements';
+import { elementsOf, type Element } from '../core/elements';
 import type { Rng } from '../core/rng';
 import { ENEMIES } from '../data/enemies';
-import { ITEMS } from '../data/items';
 import { SPELLS } from '../data/spells';
 import type { EnemyDef, EnemyMove } from '../data/types';
 import {
@@ -47,7 +46,8 @@ export function rollSpoils(enemy: EnemyDef, rng: Rng): Spoils {
  * A fight. Each cleared line strikes the enemy, and the line's strongest
  * element triggers its own effect (burn, chill, chain, regrowth, ward,
  * surge or tailwind). Spells spend elemental mana. Every `actEvery` actions
- * the enemy uses one of its moves, physical or magical.
+ * the enemy uses one of its moves, physical or magical. Everything that
+ * happens is emitted as a `BattleEvent` for the screen to show.
  */
 export class CombatChallenge implements Challenge {
   readonly enemy: EnemyDef;
@@ -66,7 +66,6 @@ export class CombatChallenge implements Challenge {
     this.enemy = enemy;
     this.enemyHp = enemy.hp;
     this.countdown = enemy.actEvery;
-    ctx.log(`${enemy.name} appears! ${enemy.description} ${describeAffinities(enemy)}`);
   }
 
   onLock(result: LockResult): void {
@@ -74,13 +73,13 @@ export class CombatChallenge implements Challenge {
       const lines = Math.min(result.linesCleared, LINE_DAMAGE.length - 1);
       const affinity = crystalAffinity(this.enemy, elementsOf(result.clearedCells));
       const damage = Math.max(1, (LINE_DAMAGE[lines] ?? 0) + totalAttack(this.ctx.hero) + affinity);
-      this.hitEnemy(damage, `Your ${lines}-line strike`);
-      if (affinity > 0) this.ctx.log('Its weakness is exposed!', 'good');
-      if (affinity < 0) this.ctx.log('It resists those crystals.', 'bad');
-      for (const line of result.lines) {
+      this.hitEnemy(damage, null, affinity > 0 ? 'weak' : affinity < 0 ? 'resist' : null);
+      result.lines.forEach((line, i) => {
         const surge = lineSurge(line, this.ctx.hero.attunement);
-        if (surge && this.status() === 'ongoing') this.applySurge(surge, result.linesCleared);
-      }
+        if (surge && this.status() === 'ongoing') {
+          this.applySurge(surge, result.linesCleared, result.rows[i] ?? 0);
+        }
+      });
     }
     if (result.toppedOut) this.overflow();
     this.spendAction();
@@ -97,19 +96,10 @@ export class CombatChallenge implements Challenge {
   }
 
   objective(): Objective {
-    const effects = [
-      this.ward > 0 ? `ward ${this.ward}` : '',
-      this.ctx.slowPieces > 0 ? `tailwind ${this.ctx.slowPieces}` : '',
-      this.ctx.hastePieces > 0 ? `hasted ${this.ctx.hastePieces}` : '',
-    ].filter(Boolean);
     return {
-      label: `${this.enemy.name} · Lv ${this.enemy.level}`,
-      detail: [
-        `HP ${Math.max(0, this.enemyHp)} / ${this.enemy.hp}`,
-        `acts in ${this.countdown}`,
-        ...effects,
-      ].join(' · '),
+      label: this.enemy.name,
       progress: 1 - Math.max(0, this.enemyHp) / this.enemy.hp,
+      piecesLeft: null,
     };
   }
 
@@ -130,34 +120,35 @@ export class CombatChallenge implements Challenge {
     if (reason || !spell) throw new Error(reason ?? "You don't know that spell.");
     const hero = this.ctx.hero;
     spendMana(hero, spellCost(hero, spell));
+    this.ctx.emit({ kind: 'spell', spellId });
     const effect = spell.effect;
-    const power = (base: number): number =>
-      Math.round((base + hero.level * 2) * elementMultiplier(this.enemy, spell.element));
+    const strike = (base: number): number => {
+      const multiplier = elementMultiplier(this.enemy, spell.element);
+      const dealt = Math.round((base + hero.level * 2) * multiplier);
+      this.hitEnemy(dealt, spell.element, affinityOf(multiplier));
+      return dealt;
+    };
     switch (effect.kind) {
       case 'damage':
-        this.hitEnemy(power(effect.power), spell.name);
+        strike(effect.power);
         break;
       case 'freeze':
-        this.hitEnemy(power(effect.power), spell.name);
+        strike(effect.power);
         this.countdown += effect.pieces;
-        this.ctx.log(`${this.enemy.name} is frozen!`, 'good');
+        this.ctx.emit({ kind: 'chill' });
         break;
       case 'tailwind':
-        this.hitEnemy(power(effect.power), spell.name);
+        strike(effect.power);
         this.tailwind(effect.pieces);
         break;
-      case 'drain': {
-        const dealt = power(effect.power);
-        this.hitEnemy(dealt, spell.name);
-        this.ctx.log(`You drain ${heal(hero, Math.floor(dealt / 2))} HP.`, 'good');
+      case 'drain':
+        this.healHero(Math.floor(strike(effect.power) / 2));
         break;
-      }
       case 'heal':
-        this.ctx.log(`${spell.name} restores ${heal(hero, effect.amount)} HP.`, 'good');
+        this.healHero(effect.amount);
         break;
       case 'clearRows':
         this.ctx.board.removeBottomRows(effect.rows);
-        this.ctx.log(`${spell.name} shakes loose ${effect.rows} rows.`, 'good');
         break;
     }
     this.spendAction();
@@ -165,41 +156,51 @@ export class CombatChallenge implements Challenge {
 
   /** Uses a consumable mid-fight. Counts as an action. Throws if it can't be used. */
   useItem(itemId: string): void {
-    this.ctx.log(useItem(this.ctx.hero, itemId), 'good');
+    const hpBefore = this.ctx.hero.hp;
+    useItem(this.ctx.hero, itemId);
+    this.ctx.emit({ kind: 'item', itemId });
+    if (this.ctx.hero.hp > hpBefore)
+      this.ctx.emit({ kind: 'heroHeal', amount: this.ctx.hero.hp - hpBefore });
     this.spendAction();
   }
 
   /** Applies one cleared line's elemental effect. */
-  private applySurge({ element, power }: LineSurge, linesTogether: number): void {
+  private applySurge({ element, power }: LineSurge, linesTogether: number, row: number): void {
     const hero = this.ctx.hero;
-    const scaled = (base: number): number =>
-      Math.max(1, Math.round(base * elementMultiplier(this.enemy, element)));
+    this.ctx.emit({ kind: 'surge', element, power, row });
+    const multiplier = elementMultiplier(this.enemy, element);
+    const strike = (base: number): void =>
+      this.hitEnemy(Math.max(1, Math.round(base * multiplier)), element, affinityOf(multiplier));
     switch (element) {
       case 'fire':
-        this.hitEnemy(scaled(power), 'Fire line burns and');
+        strike(power);
         break;
       case 'lightning':
-        this.hitEnemy(scaled(power * linesTogether), `Lightning chains ×${linesTogether} and`);
+        strike(power * linesTogether);
         break;
       case 'water':
         if (this.countdown < this.enemy.actEvery + MAX_CHILL) {
           this.countdown++;
-          this.ctx.log(`Water line chills ${this.enemy.name}: it acts a piece later.`, 'good');
+          this.ctx.emit({ kind: 'chill' });
         }
         break;
       case 'nature':
-        this.ctx.log(`Nature line regrows ${heal(hero, power)} HP.`, 'good');
+        this.healHero(power);
         break;
       case 'earth':
         this.ward = Math.min(MAX_WARD, this.ward + power);
-        this.ctx.log(`Earth line raises a ward (${this.ward}).`, 'good');
+        this.ctx.emit({ kind: 'ward', total: this.ward });
         break;
-      case 'arcane':
-        this.ctx.log(
-          `Arcane line surges: +${addManaToAll(hero, Math.ceil(power / 3))} mana.`,
-          'good',
-        );
+      case 'arcane': {
+        const each = Math.ceil(power / 3);
+        if (addManaToAll(hero, each) > 0) {
+          this.ctx.emit({
+            kind: 'mana',
+            gained: Object.fromEntries(Object.keys(hero.mana).map((e) => [e, each])),
+          });
+        }
         break;
+      }
       case 'wind':
         this.tailwind(Math.ceil(power / 2));
         break;
@@ -209,19 +210,28 @@ export class CombatChallenge implements Challenge {
   private tailwind(pieces: number): void {
     this.ctx.slowPieces = Math.max(this.ctx.slowPieces, pieces);
     this.ctx.hastePieces = 0;
-    this.ctx.log(`A tailwind slows your pieces (${this.ctx.slowPieces}).`, 'good');
+    this.ctx.emit({ kind: 'tailwind', pieces: this.ctx.slowPieces });
   }
 
-  private hitEnemy(damage: number, source: string): void {
-    this.enemyHp -= damage;
-    this.ctx.log(`${source} deals ${damage} damage.`, 'good');
-    if (this.enemyHp <= 0) this.ctx.log(`${this.enemy.name} is defeated!`, 'good');
+  private hitEnemy(
+    amount: number,
+    element: Element | null,
+    affinity: 'weak' | 'resist' | null,
+  ): void {
+    this.enemyHp -= amount;
+    this.ctx.emit({ kind: 'enemyHit', amount, element, affinity });
+    if (this.enemyHp <= 0) this.ctx.emit({ kind: 'enemyDefeated' });
+  }
+
+  private healHero(amount: number): void {
+    const healed = heal(this.ctx.hero, amount);
+    if (healed > 0) this.ctx.emit({ kind: 'heroHeal', amount: healed });
   }
 
   /** The board overflowed: the hero is hurt and the board shatters. */
   private overflow(): void {
-    const damage = Math.ceil(this.ctx.hero.maxHp * OVERFLOW_PENALTY);
-    this.hurtHero(damage, 'The crystals overwhelm you');
+    this.ctx.emit({ kind: 'overflow' });
+    this.hurtHero(Math.ceil(this.ctx.hero.maxHp * OVERFLOW_PENALTY));
     this.ctx.board.reset();
   }
 
@@ -235,62 +245,55 @@ export class CombatChallenge implements Challenge {
   }
 
   private enemyAct(move: EnemyMove): void {
-    const name = this.enemy.name;
+    this.ctx.emit({ kind: 'enemyMove', move });
     switch (move.kind) {
       case 'attack': {
         const damage = Math.max(1, move.power + this.enemy.atk - totalDefense(this.ctx.hero));
         const absorbed = Math.min(this.ward, damage);
-        this.ward -= absorbed;
-        if (absorbed > 0) this.ctx.log(`Your ward absorbs ${absorbed}.`, 'good');
-        if (damage > absorbed) this.hurtHero(damage - absorbed, `${name} uses ${move.name}`);
+        if (absorbed > 0) {
+          this.ward -= absorbed;
+          this.ctx.emit({ kind: 'ward', total: this.ward });
+        }
+        if (damage > absorbed) this.hurtHero(damage - absorbed);
         break;
       }
       case 'curse':
         this.ctx.board.addGarbage(move.rows);
-        this.ctx.log(`${name} casts ${move.name}! Stone rises from below.`, 'bad');
+        this.ctx.emit({ kind: 'curse', rows: move.rows });
         if (this.ctx.board.toppedOut) this.overflow();
         break;
       case 'haste':
         this.ctx.hastePieces = move.pieces;
         this.ctx.slowPieces = 0;
-        this.ctx.log(`${name} casts ${move.name}! Your crystals fall faster.`, 'bad');
+        this.ctx.emit({ kind: 'haste', pieces: move.pieces });
         break;
       case 'heal': {
         const restored = Math.min(move.amount, this.enemy.hp - this.enemyHp);
         this.enemyHp += restored;
-        this.ctx.log(`${name} casts ${move.name} and recovers ${restored} HP.`, 'bad');
+        this.ctx.emit({ kind: 'enemyHeal', amount: restored });
         break;
       }
       case 'drain': {
         const { element, drained } = drainMana(this.ctx.hero, move.mana);
-        this.ctx.log(
-          `${name} casts ${move.name} and drains ${drained} ${ELEMENT_NAMES[element].toLowerCase()} mana.`,
-          'bad',
-        );
+        this.ctx.emit({ kind: 'drain', element, amount: drained });
         break;
       }
     }
   }
 
-  private hurtHero(damage: number, source: string): void {
+  private hurtHero(damage: number): void {
     const hero = this.ctx.hero;
-    this.ctx.log(`${source}: ${takeDamage(hero, damage)} damage.`, 'bad');
+    this.ctx.emit({ kind: 'heroHit', amount: takeDamage(hero, damage) });
     if (hero.hp === 0 && itemCount(hero, 'phoenixFeather') > 0) {
       removeItem(hero, 'phoenixFeather');
       hero.hp = Math.ceil(hero.maxHp / 2);
-      this.ctx.log(`${ITEMS.phoenixFeather?.name} bursts into flame. You rise again!`, 'good');
+      this.ctx.emit({ kind: 'revive' });
     }
   }
 }
 
-/** "Weak to fire. Resists water." for the battle log. */
-export function describeAffinities(enemy: EnemyDef): string {
-  const list = (elements: readonly Element[]): string =>
-    elements.map((e) => ELEMENT_NAMES[e].toLowerCase()).join(' and ');
-  return [
-    enemy.weak.length ? `Weak to ${list(enemy.weak)}.` : '',
-    enemy.resist.length ? `Resists ${list(enemy.resist)}.` : '',
-  ]
-    .filter(Boolean)
-    .join(' ');
+function affinityOf(multiplier: number): 'weak' | 'resist' | null {
+  if (multiplier > 1) return 'weak';
+  if (multiplier < 1) return 'resist';
+  return null;
 }

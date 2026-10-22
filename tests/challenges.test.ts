@@ -42,7 +42,8 @@ describe('OfferingChallenge', () => {
   it('shows score progress and pieces left', () => {
     const battle = makeBattle(spec, heroWithPelt());
     expect(battle.challenge).toBeInstanceOf(OfferingChallenge);
-    expect(battle.objective.detail).toContain('3 pieces left');
+    expect(battle.objective.piecesLeft).toBe(3);
+    expect(battle.objective.score).toEqual({ have: 0, want: 500 });
   });
 });
 
@@ -70,7 +71,10 @@ describe('BarterChallenge', () => {
   });
 
   it('lists each wanted colour in the objective', () => {
-    expect(makeBattle(spec).objective.detail).toContain('red 0/9 · cyan 0/1');
+    expect(makeBattle(spec).objective.crystals).toEqual([
+      { element: 'fire', have: 0, want: 9 },
+      { element: 'wind', have: 0, want: 1 },
+    ]);
   });
 
   it('loses on top-out', () => {
@@ -137,7 +141,8 @@ describe('PuzzleChallenge', () => {
     const battle = makeBattle(spec);
     expect(battle.board.active?.name).toBe('O');
     expect(battle.board.filledCount()).toBe(18);
-    expect(battle.objective.detail).toContain('2 pieces left');
+    expect(battle.objective.piecesLeft).toBe(2);
+    expect(battle.objective.lines).toEqual({ have: 0, want: 2 });
   });
 
   it('wins when enough lines are cleared', () => {
@@ -155,7 +160,7 @@ describe('PuzzleChallenge', () => {
     battle.input('hardDrop');
     battle.input('hardDrop');
     expect(battle.status).toBe('lost');
-    expect(battle.objective.detail).toContain('0 pieces left');
+    expect(battle.objective.piecesLeft).toBe(0);
   });
 
   it('loses on top-out', () => {

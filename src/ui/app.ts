@@ -17,6 +17,7 @@ import {
   canAttune,
   cannotUseReason,
   equip,
+  heroClass,
   heroTitle,
   slotFor,
   spellCost,
@@ -30,14 +31,14 @@ import { buy, cannotBuyReason, priceFor } from '../game/shop';
 import type { Direction, EntityDef } from '../world/map';
 import { step } from '../world/movement';
 import { currentMap, newGame, travel, type GameState } from '../world/state';
-import { BattlePanel } from './battlePanel';
 import { Dialog } from './dialog';
 import { button, byId, el, listRow } from './dom';
-import { ELEMENT_HEX, ManaBars, costChips } from './elementsView';
+import { ELEMENT_ICONS } from './art/icons';
+import { BattleView } from './battleView';
+import { iconElement } from './iconDraw';
+import { ManaBars, costIcons } from './manaBars';
 import type { Atlas } from './art/atlas';
 import { isCreatureId, mapFrame, type CreatureId } from './art/creatures';
-import { SPELL_EFFECTS } from './art/vfx';
-import { Portrait } from './portrait';
 import { WorldView } from './worldView';
 
 /** Milliseconds between steps while a direction is held. */
@@ -67,9 +68,12 @@ interface ActiveBattle {
   readonly battle: Battle;
   readonly entity: EntityDef;
   finished: boolean;
-  /** Opponent HP last frame, to shake the portrait when it drops. */
-  lastEnemyHp: number;
+  /** Time left before the result is shown, so the final blow plays out. */
+  resultDelay: number;
 }
+
+/** How long the last moments of a battle play before the result appears. */
+const RESULT_DELAY_MS = 1000;
 
 /**
  * Top-level controller. Owns the game state and switches between walking
@@ -82,11 +86,10 @@ export class App {
   private readonly store: KeyValueStore;
   private readonly atlas: Atlas;
   private readonly world: WorldView;
-  private readonly portrait: Portrait;
-  private readonly hudMana = new ManaBars(byId('hud-mana'));
+  private readonly battleView: BattleView;
+  private readonly hudMana = new ManaBars(byId('hud-mana'), 1);
   /** False until a save is loaded or a class is chosen. */
   private started: boolean;
-  private readonly panel = new BattlePanel();
   private readonly dialog = new Dialog();
   private active: ActiveBattle | null = null;
   private heldDirection: Direction | null = null;
@@ -101,9 +104,9 @@ export class App {
     this.started = saved !== null;
     this.state = saved ?? newGame();
     this.world = new WorldView(byId<HTMLCanvasElement>('world-canvas'), atlas);
-    this.portrait = new Portrait(byId<HTMLCanvasElement>('portrait-canvas'), atlas);
-    this.panel.onCast = (id) => this.castSpell(id);
-    this.panel.onItem = (id) => this.tryCombat((c) => c.useItem(id));
+    this.battleView = new BattleView(atlas);
+    this.battleView.hero.onCast = (id) => this.tryCombat(id, (c) => c.castSpell(id));
+    this.battleView.hero.onItem = (id) => this.tryCombat(id, (c) => c.useItem(id));
     this.bindInput();
   }
 
@@ -122,14 +125,15 @@ export class App {
     this.lastFrame = timeMs;
 
     if (this.active) {
-      const { battle } = this.active;
+      const active = this.active;
+      const { battle } = active;
       if (!this.dialog.isOpen) battle.update(dt);
-      const enemyHp = battle.combat?.enemyHp ?? 0;
-      if (enemyHp < this.active.lastEnemyHp) this.portrait.hit();
-      this.active.lastEnemyHp = enemyHp;
-      if (!this.active.finished && battle.status !== 'ongoing') this.finishBattle();
-      this.panel.render(battle, this.active?.finished ? overlayFor(battle) : undefined);
-      this.portrait.render(dt, timeMs);
+      if (!active.finished && battle.status !== 'ongoing') active.finished = true;
+      if (active.finished && active.resultDelay > 0) {
+        active.resultDelay -= dt;
+        if (active.resultDelay <= 0) this.finishBattle();
+      }
+      this.battleView.render(battle, dt, timeMs, active.finished);
       this.renderHud();
     } else {
       this.updateWalking(dt);
@@ -179,6 +183,11 @@ export class App {
 
   private interact(entity: EntityDef): void {
     const interaction = describeInteraction(this.state, entity);
+    // Monsters attack on contact; people talk first.
+    if (entity.kind === 'monster' && interaction.kind === 'challenge') {
+      this.startBattle(entity, interaction.spec);
+      return;
+    }
     if (interaction.kind === 'message') {
       this.dialog.show({
         title: interaction.title,
@@ -195,10 +204,7 @@ export class App {
       ],
       actions: [
         { label: 'Leave', onClick: () => this.dialog.close() },
-        {
-          label: entity.kind === 'monster' ? 'Fight!' : 'Accept',
-          onClick: () => this.startBattle(entity, interaction.spec),
-        },
+        { label: 'Accept', onClick: () => this.startBattle(entity, interaction.spec) },
       ],
     });
   }
@@ -209,15 +215,15 @@ export class App {
     this.dialog.close();
     const weights = pieceWeights(currentMap(this.state), this.state.hero);
     const battle = new Battle(spec, this.state.hero, this.rng, { weights });
-    this.active = { battle, entity, finished: false, lastEnemyHp: battle.combat?.enemyHp ?? 0 };
-    this.portrait.show(portraitFor(entity));
+    this.active = { battle, entity, finished: false, resultDelay: RESULT_DELAY_MS };
+    const hero = heroClass(this.state.hero).sprite;
+    this.battleView.start(portraitFor(entity), isCreatureId(hero) ? hero : 'char.026');
     this.showView('battle');
   }
 
   private finishBattle(): void {
     const active = this.active;
     if (!active) return;
-    active.finished = true;
     const resolution = resolveBattle(this.state, active.entity, active.battle, this.rng);
     this.save();
     this.renderHud();
@@ -246,22 +252,14 @@ export class App {
     this.say(`You are in ${currentMap(this.state).name}.`);
   }
 
-  private castSpell(spellId: string): void {
-    const cast = this.tryCombat((c) => c.castSpell(spellId));
-    const effect = SPELL_EFFECTS[spellId];
-    if (cast && effect) this.portrait.play(effect);
-  }
-
-  /** Runs a combat action; reports failures in the battle log. Returns whether it ran. */
-  private tryCombat(action: (combat: NonNullable<Battle['combat']>) => void): boolean {
+  /** Runs a spell or item; if it can't be used, its button shakes. */
+  private tryCombat(id: string, action: (combat: NonNullable<Battle['combat']>) => void): void {
     const combat = this.active?.battle.combat;
-    if (!combat || this.active?.battle.paused || this.active?.finished) return false;
+    if (!combat || this.active?.battle.paused || this.active?.finished) return;
     try {
       action(combat);
-      return true;
-    } catch (error) {
-      this.active?.battle.log((error as Error).message, 'bad');
-      return false;
+    } catch {
+      this.battleView.hero.deny(id);
     }
   }
 
@@ -359,7 +357,7 @@ export class App {
         ...hero.spells.map((id) => {
           const spell = SPELLS[id];
           if (!spell) return el('div');
-          return listRow(spell.name, spell.description, costChips(spellCost(hero, spell)));
+          return listRow(spell.name, spell.description, costIcons(spellCost(hero, spell)));
         }),
       ],
       actions: [
@@ -444,8 +442,6 @@ export class App {
   private chooseAttunement(): void {
     const hero = this.state.hero;
     const options = ELEMENTS.map((element: Element) => {
-      const swatch = el('span', { className: 'swatch' });
-      swatch.style.background = ELEMENT_HEX[element];
       const option = button('', () => {
         attune(hero, element);
         this.save();
@@ -453,7 +449,7 @@ export class App {
         this.say(`${hero.name} is now a ${heroTitle(hero)}!`);
       });
       option.append(
-        swatch,
+        iconElement(ELEMENT_ICONS[element], 2),
         el('b', {
           text:
             ATTUNEMENT_TITLES[element] === ELEMENT_NAMES[element]
@@ -544,7 +540,7 @@ export class App {
         this.togglePause();
       } else if (/^[1-9]$/.test(key)) {
         const spellId = this.state.hero.spells[Number(key) - 1];
-        if (spellId) this.tryCombat((c) => c.castSpell(spellId));
+        if (spellId) this.tryCombat(spellId, (c) => c.castSpell(spellId));
       }
       return;
     }
@@ -577,8 +573,4 @@ function portraitFor(entity: EntityDef): CreatureId | null {
   const key =
     entity.kind === 'monster' ? ENEMIES[entity.enemyId]?.sprite : NPCS[entity.npcId]?.sprite;
   return key && isCreatureId(key) ? key : null;
-}
-
-function overlayFor(battle: Battle): string {
-  return battle.status === 'won' ? 'VICTORY' : 'DEFEAT';
 }

@@ -1,4 +1,5 @@
 import type { CellTally, LockResult } from '../core/board';
+import { ELEMENT_OF_COLOR } from '../core/elements';
 import type { CrystalColor } from '../core/pieces';
 import {
   piecesLeft,
@@ -45,8 +46,13 @@ export class BarterChallenge implements Challenge {
     const totalHave = entries.reduce((sum, [, have, want]) => sum + Math.min(have, want), 0);
     return {
       label: 'Barter crystals',
-      detail: `${entries.map(([c, have, want]) => `${c} ${Math.min(have, want)}/${want}`).join(' · ')} · ${piecesLeft(this.ctx, this.pieceLimit)} pieces left`,
       progress: totalWant ? totalHave / totalWant : 1,
+      piecesLeft: piecesLeft(this.ctx, this.pieceLimit),
+      crystals: entries.map(([color, have, want]) => ({
+        element: ELEMENT_OF_COLOR[color],
+        have: Math.min(have, want),
+        want,
+      })),
     };
   }
 

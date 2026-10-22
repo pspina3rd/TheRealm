@@ -40,6 +40,8 @@ export interface LockResult {
   readonly clearedCells: CellTally;
   /** What each cleared line contained, top to bottom. */
   readonly lines: readonly CellTally[];
+  /** The board row of each cleared line, before rows above fell. */
+  readonly rows: readonly number[];
   /** True when the piece locked above the top or no new piece fits. */
   readonly toppedOut: boolean;
 }
@@ -227,7 +229,9 @@ export class Board {
   /** Writes the active piece into the grid, clears full lines and spawns the next piece. */
   lock(): LockResult {
     const piece = this.active;
-    if (!piece) return { linesCleared: 0, clearedCells: {}, lines: [], toppedOut: this.toppedOut };
+    if (!piece) {
+      return { linesCleared: 0, clearedCells: {}, lines: [], rows: [], toppedOut: this.toppedOut };
+    }
 
     for (const [cx, cy] of piece.cells) {
       const y = piece.y + cy;
@@ -237,9 +241,15 @@ export class Board {
     this.piecesPlaced++;
     this.active = null;
 
-    const { lines, tally } = this.clearFullLines();
+    const { lines, rows, tally } = this.clearFullLines();
     if (!this.toppedOut) this.spawn();
-    return { linesCleared: lines.length, clearedCells: tally, lines, toppedOut: this.toppedOut };
+    return {
+      linesCleared: lines.length,
+      clearedCells: tally,
+      lines,
+      rows,
+      toppedOut: this.toppedOut,
+    };
   }
 
   /**
@@ -282,19 +292,21 @@ export class Board {
     return this.grid.reduce((sum, row) => sum + row.filter((c) => c !== null).length, 0);
   }
 
-  private clearFullLines(): { lines: CellTally[]; tally: CellTally } {
+  private clearFullLines(): { lines: CellTally[]; rows: number[]; tally: CellTally } {
     const tally: CellTally = {};
     const lines: CellTally[] = [];
-    const kept = this.grid.filter((row) => {
+    const rows: number[] = [];
+    const kept = this.grid.filter((row, y) => {
       const full = row.every((cell) => cell !== null);
       if (full) {
         tallyRow(row, tally);
         lines.push(tallyRow(row, {}));
+        rows.push(y);
       }
       return !full;
     });
     this.grid = [...Board.emptyGrid(this.width, lines.length), ...kept];
-    return { lines, tally };
+    return { lines, rows, tally };
   }
 }
 

@@ -36,11 +36,11 @@ export class PuzzleChallenge implements Challenge {
   }
 
   objective(): Objective {
-    const left = this.ctx.board.piecesRemaining;
     return {
       label: 'Crystal puzzle',
-      detail: `Lines ${this.linesCleared} / ${this.linesToClear} · ${left} piece${left === 1 ? '' : 's'} left`,
       progress: Math.min(1, this.linesCleared / this.linesToClear),
+      piecesLeft: this.ctx.board.piecesRemaining,
+      lines: { have: this.linesCleared, want: this.linesToClear },
     };
   }
 }

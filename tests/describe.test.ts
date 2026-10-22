@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { describeSpec } from '../src/battle/describe';
-import { makeBattle } from './helpers';
 
 describe('describeSpec', () => {
   it('summarises every challenge kind', () => {
@@ -25,10 +24,5 @@ describe('describeSpec', () => {
     expect(
       describeSpec({ kind: 'offering', itemId: 'mystery', targetScore: 1, pieceLimit: 1 }),
     ).toContain('your mystery');
-  });
-
-  it('opens every battle log with the rules', () => {
-    const battle = makeBattle({ kind: 'haggle', pieceLimit: 3, rivalIntervalMs: 1000 });
-    expect(battle.events.at(-1)?.text).toContain('Haggle:');
   });
 });
