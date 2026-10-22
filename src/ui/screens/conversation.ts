@@ -1,13 +1,14 @@
 import { ELEMENT_NAMES } from '../../core/elements';
 import { ITEMS } from '../../data/items';
 import { SPELLS } from '../../data/spells';
+import { ATTITUDE_NAMES, type Attitude } from '../../game/attitude';
 import type { Lesson } from '../../game/lessons';
 import { castSpellFor, castSummary, newKnownSpell } from '../../game/spells';
 import type { Interaction } from '../../game/encounter';
 import type { Resolution } from '../../game/encounter';
 import type { Gain } from '../../game/rewards';
 import type { Atlas } from '../art/atlas';
-import { ELEMENT_ICONS, itemIcon } from '../art/icons';
+import { ATTITUDE_ICONS, ELEMENT_ICONS, itemIcon } from '../art/icons';
 import { button, el } from '../dom';
 import { iconElement } from '../iconDraw';
 import {
@@ -22,12 +23,17 @@ import {
   spritePortrait,
 } from './widgets';
 
-/** The speaker's portrait beside a speech bubble. */
-function speech(atlas: Atlas, sprite: string, text: string): HTMLElement {
+/** The speaker's portrait, with their face for the hero on it, beside a speech bubble. */
+function speech(atlas: Atlas, sprite: string, text: string, attitude?: Attitude): HTMLElement {
   return el(
     'div',
     { className: 'speech' },
-    spritePortrait(atlas, sprite, 96),
+    el(
+      'div',
+      { className: 'speaker' },
+      spritePortrait(atlas, sprite, 96),
+      ...(attitude ? [iconElement(ATTITUDE_ICONS[attitude], 3, ATTITUDE_NAMES[attitude])] : []),
+    ),
     el('p', { className: 'bubble', text }),
   );
 }
@@ -74,7 +80,7 @@ export function conversationBody(
   onLesson: (lesson: Lesson) => void = () => {},
   given: readonly Gain[] = [],
 ): HTMLElement[] {
-  const body = [speech(atlas, interaction.sprite, interaction.text)];
+  const body = [speech(atlas, interaction.sprite, interaction.text, interaction.attitude)];
   if (given.length > 0) body.push(el('div', { className: 'gains' }, ...gainRows(given)));
   if (interaction.kind === 'lessons') {
     body.push(
@@ -109,7 +115,11 @@ export function conversationBody(
     );
   }
   if (interaction.kind === 'challenge') {
-    const rewards = rewardIcons(interaction.rewards);
+    const extras = rewardIcons(interaction.extras);
+    const rewards = [
+      ...rewardIcons(interaction.rewards),
+      ...(extras.length ? [el('span', { className: 'extras' }, ...extras)] : []),
+    ];
     body.push(
       el(
         'div',

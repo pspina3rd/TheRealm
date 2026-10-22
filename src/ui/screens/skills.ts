@@ -24,7 +24,6 @@ import {
 } from '../../game/spells';
 import {
   AGILITY_SLOWDOWN,
-  CHARM_DISCOUNT,
   INSIGHT_ENEMY_MOVE_RANK,
   INSIGHT_PREVIEW_RANKS,
   LUCK_CRIT_CHANCE,
@@ -66,7 +65,7 @@ function effectChips(stat: StatId, rank: number, tone: 'up' | undefined): HTMLEl
         ...(seesEnemyMove(rank) ? [c('eye', '', 'The enemy’s next move is shown')] : []),
       ];
     case 'charm':
-      return [c('coin', `−${percent(CHARM_DISCOUNT * rank)}`, 'Shop prices')];
+      return [c('faceFriendly', `+${rank}`, 'Attitude of everyone you meet')];
     case 'luck':
       return [
         c('bag', `+${percent(LUCK_DROP_BONUS * rank)}`, 'Item drop chance'),

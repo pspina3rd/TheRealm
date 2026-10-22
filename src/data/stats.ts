@@ -42,7 +42,12 @@ export const STATS: Readonly<Record<StatId, StatDef>> = {
     description: 'Rank 3: see 2 next pieces · 6: see 3 · 9: see the enemy’s next move',
     maxRank: 9,
   },
-  charm: { id: 'charm', name: 'Charm', description: '3% better prices', maxRank: 10 },
+  charm: {
+    id: 'charm',
+    name: 'Charm',
+    description: '+1 attitude with everyone you meet',
+    maxRank: 10,
+  },
   luck: {
     id: 'luck',
     name: 'Luck',

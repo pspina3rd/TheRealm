@@ -236,25 +236,67 @@ export type ChallengeSpec =
 export type Reward =
   | { readonly kind: 'gil'; readonly amount: number }
   | { readonly kind: 'item'; readonly itemId: string; readonly count: number }
-  | { readonly kind: 'spell'; readonly spellId: string }
+  /**
+   * Teach a spell; a hero who already knows it gets `instead` (so a deed
+   * is never repaid with nothing).
+   */
+  | { readonly kind: 'spell'; readonly spellId: string; readonly instead?: Reward }
   | { readonly kind: 'flag'; readonly flag: string }
   | { readonly kind: 'shop'; readonly shopId: string };
 
 // ------------------------------------------------------------------ NPCs ---
 
+/**
+ * A line that changes with the NPC's attitude: `cold` (Hostile, Wary),
+ * `plain` (Neutral) or `warm` (Friendly, Devoted).
+ */
+export interface MoodLine {
+  readonly cold: string;
+  readonly plain: string;
+  readonly warm: string;
+}
+
+/** A line said the same way to everyone, or one that changes with attitude. */
+export type Line = string | MoodLine;
+
+/** Everything an NPC says (see "NPC dialogue rules" in docs/GAME_DESIGN.md). */
+export interface NpcLines {
+  /** Their need, said before the challenge is offered. */
+  readonly intro: MoodLine;
+  /** Said instead of the warm intro when Devoted: a confidence or a hint. */
+  readonly confide?: string;
+  /** Said when Hostile and they won't deal (NPCs who always deal have none). */
+  readonly refuse?: string;
+  readonly accept: Line;
+  readonly decline: Line;
+  readonly win: Line;
+  readonly lose: Line;
+  /** Said once a non-repeatable NPC's task is done. */
+  readonly done?: Line;
+}
+
 export interface NpcDef {
   readonly id: string;
   readonly name: string;
   readonly sprite: string;
-  /** Shown before the challenge is offered. */
-  readonly greeting: string;
+  /** Their element: the hero's alignment around it sets their attitude. */
+  readonly element: Element;
+  readonly lines: NpcLines;
   readonly challenge: ChallengeSpec;
   readonly rewards: readonly Reward[];
-  readonly successText: string;
-  readonly failText: string;
-  /** If false, the NPC only challenges once; afterwards `doneText` is shown. */
+  /** Added to the rewards when Friendly or Devoted. */
+  readonly bonus?: Reward;
+  /** Added on top of `bonus` when Devoted. Shops keep theirs in `ShopDef.secretStock`. */
+  readonly secret?: Reward;
+  /**
+   * Progress depends on them, so a Hostile NPC still deals, at Wary terms,
+   * instead of refusing.
+   */
+  readonly essential?: boolean;
+  /** A thing, not a person (a chest): no attitude, always Neutral terms. */
+  readonly inanimate?: boolean;
+  /** If false, the NPC only challenges once; afterwards `lines.done` is shown. */
   readonly repeatable: boolean;
-  readonly doneText?: string;
   /** Hidden flag set when a non-repeatable NPC is completed. Defaults to `npc:<id>`. */
   readonly completionFlag?: string;
 }
@@ -263,4 +305,6 @@ export interface ShopDef {
   readonly id: string;
   readonly name: string;
   readonly stock: readonly string[];
+  /** Extra stock shown only to a hero the keeper is Devoted to. */
+  readonly secretStock?: readonly string[];
 }

@@ -4,6 +4,7 @@ import { SHOPS } from '../data/shops';
 import { CLASSES } from '../data/classes';
 import { ENEMIES } from '../data/enemies';
 import type { ChallengeSpec } from '../data/types';
+import type { Attitude } from '../game/attitude';
 import { describeInteraction, entitySprite, resolveBattle } from '../game/encounter';
 import { bringItems, hiddenSlots, itemsFor } from '../game/hidden';
 import type { Gain } from '../game/rewards';
@@ -276,15 +277,25 @@ export class App {
       title: interaction.title,
       body,
       actions: [
-        { label: 'Leave', onClick: () => this.dialog.close() },
-        { label: 'Accept', onClick: () => this.startBattle(entity, interaction.spec) },
+        {
+          label: 'Leave',
+          onClick: () => {
+            this.dialog.close();
+            if (interaction.replies) this.say(interaction.replies.decline);
+          },
+        },
+        {
+          label: 'Accept',
+          onClick: () => this.startBattle(entity, interaction.spec, interaction.replies?.accept),
+        },
       ],
     });
   }
 
   // --------------------------------------------------------- battles ---
 
-  private startBattle(entity: EntityDef, spec: ChallengeSpec): void {
+  /** Starts a battle; `line` is what the opponent says as it begins. */
+  private startBattle(entity: EntityDef, spec: ChallengeSpec, line?: string): void {
     this.dialog.close();
     const weights = pieceWeights(currentMap(this.state), this.state.hero);
     const battle = new Battle(spec, this.state.hero, this.rng, { weights });
@@ -299,7 +310,7 @@ export class App {
         ...(mentor ? { ally: creature(mentor.sprite), allyElement: mentor.element } : {}),
       });
     } else {
-      this.battleView.start(portraitFor(entity), hero);
+      this.battleView.start(portraitFor(entity), hero, line ? { line } : {});
     }
     this.showView('battle');
   }
@@ -316,8 +327,9 @@ export class App {
     const speaker = portraitFor(active.entity);
     // After the results: the skill screen if the hero levelled up, then any shop.
     const next = (): void => {
-      if (resolution.shopId) this.openShop(resolution.shopId, resolution.priceMultiplier, speaker);
-      else this.dialog.close();
+      if (resolution.shopId) {
+        this.openShop(resolution.shopId, resolution.priceMultiplier, speaker, resolution.attitude);
+      } else this.dialog.close();
     };
     const proceed = (): void => {
       this.endBattle();
@@ -432,18 +444,31 @@ export class App {
 
   // ----------------------------------------------------------- shops ---
 
-  private openShop(shopId: string, multiplier: number, keeper: string | null): void {
+  private openShop(
+    shopId: string,
+    multiplier: number,
+    keeper: string | null,
+    attitude: Attitude | null,
+  ): void {
     const shop = SHOPS[shopId];
     if (!shop) return;
     const render = (): void =>
       this.dialog.show({
         title: shop.name,
-        body: shopBody(this.atlas, this.state, shop, multiplier, keeper ?? '', (itemId) => {
-          buy(this.state, itemId, multiplier);
-          this.save();
-          this.renderHud();
-          render();
-        }),
+        body: shopBody(
+          this.atlas,
+          this.state,
+          shop,
+          multiplier,
+          keeper ?? '',
+          attitude ?? 'neutral',
+          (itemId) => {
+            buy(this.state, itemId, multiplier);
+            this.save();
+            this.renderHud();
+            render();
+          },
+        ),
         actions: [{ label: 'Leave', onClick: () => this.dialog.close() }],
       });
     render();

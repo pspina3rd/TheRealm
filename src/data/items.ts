@@ -26,6 +26,7 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     price: 30,
     description: 'Revives you with half HP if you fall in battle. Used automatically.',
   },
+  // Spell tomes are no longer sold (mentors teach spells); old saves may still hold them.
   fireTome: {
     id: 'fireTome',
     name: 'Tome of Fire',
@@ -85,6 +86,14 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     price: 55,
     atk: 7,
     description: 'Line clears hit 7 harder.',
+  },
+  smithHammer: {
+    id: 'smithHammer',
+    name: "Hilda's Hammer",
+    kind: 'weapon',
+    price: 75,
+    atk: 9,
+    description: 'Forged for her own hand. Line clears hit 9 harder.',
   },
   knightBlade: {
     id: 'knightBlade',
@@ -146,6 +155,30 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     pieceBias: { wind: 1 },
     description: 'More wind (cyan) pieces fall.',
   },
+  groveCharm: {
+    id: 'groveCharm',
+    name: 'Grove Charm',
+    kind: 'accessory',
+    price: 40,
+    pieceBias: { nature: 1 },
+    description: 'Braided from the first sprouts. More nature (green) pieces fall.',
+  },
+  wellStone: {
+    id: 'wellStone',
+    name: 'Well Stone',
+    kind: 'accessory',
+    price: 40,
+    pieceBias: { earth: 1 },
+    description: 'From the first dig of the Mossvale well. More earth (orange) pieces fall.',
+  },
+  moonCharm: {
+    id: 'moonCharm',
+    name: 'Moon Charm',
+    kind: 'accessory',
+    price: 50,
+    pieceBias: { arcane: 1 },
+    description: 'A carved Moon Shard. More arcane (violet) pieces fall.',
+  },
 
   // Treasures: dropped by monsters and offered to NPCs.
   slimeGel: {
@@ -160,7 +193,7 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     name: 'Spore Cap',
     kind: 'treasure',
     price: 0,
-    description: 'A springy red mushroom cap. The village elder has been asking for one.',
+    description: 'A springy red mushroom cap. Hazel, the grove mentor, would know its use.',
   },
   goblinCharm: {
     id: 'goblinCharm',

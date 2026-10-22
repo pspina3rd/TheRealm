@@ -8,6 +8,16 @@ import { NPCS } from '../data/npcs';
 import type { ChallengeSpec, NpcDef, Reward, SpellDef } from '../data/types';
 import type { EntityDef } from '../world/map';
 import { markDefeated, travel, type GameState } from '../world/state';
+import {
+  ATTITUDE_PRICES,
+  attitudeOf,
+  challengeOnTerms,
+  dealTerms,
+  introFor,
+  rewardsOnTerms,
+  say,
+  type Attitude,
+} from './attitude';
 import { hiddenSlots } from './hidden';
 import { addItem, fillMana, gainXp, itemCount, removeItem } from './hero';
 import { completeLesson, lessonsFor, type Lesson } from './lessons';
@@ -22,6 +32,8 @@ interface Speaker {
   readonly sprite: string;
   /** What they say. */
   readonly text: string;
+  /** How an NPC feels about the hero (shown as a face); absent for monsters and mentors. */
+  readonly attitude?: Attitude;
 }
 
 /** What happens when the hero bumps into an entity. */
@@ -43,9 +55,14 @@ export type Interaction =
   /** Offer a battle the player can accept or decline. */
   | (Speaker & {
       readonly kind: 'challenge';
+      /** The challenge on the NPC's terms (harder when Wary). */
       readonly spec: ChallengeSpec;
       /** What winning earns (empty for monsters, whose spoils vary). */
       readonly rewards: readonly Reward[];
+      /** What the NPC's warmth adds to the rewards. */
+      readonly extras: readonly Reward[];
+      /** What an NPC says when the hero accepts or declines. */
+      readonly replies?: { readonly accept: string; readonly decline: string };
     });
 
 /** The result of a finished battle, after it has been applied to the game state. */
@@ -59,8 +76,10 @@ export interface Resolution {
   readonly fell: boolean;
   /** Shop to open next, if the battle earned one. */
   readonly shopId: string | null;
-  /** Price multiplier for that shop (from a haggle). */
+  /** Price multiplier for that shop: the haggle's result times the keeper's attitude price. */
   readonly priceMultiplier: number;
+  /** The terms an NPC dealt on (for a shop's face and secret stock); null for others. */
+  readonly attitude: Attitude | null;
 }
 
 export function npcCompletionFlag(npc: NpcDef): string {
@@ -84,6 +103,13 @@ export function entitySprite(entity: EntityDef): string | undefined {
     case 'mentor':
       return MENTORS[entity.mentorId]?.sprite;
   }
+}
+
+/** How a person on the map feels about the hero; null for monsters, mentors and things. */
+export function entityAttitude(state: GameState, entity: EntityDef): Attitude | null {
+  if (entity.kind !== 'npc') return null;
+  const npc = NPCS[entity.npcId];
+  return npc && !npc.inanimate ? attitudeOf(state.hero, npc) : null;
 }
 
 function mentorFor(entity: EntityDef): MentorDef {
@@ -125,19 +151,33 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
       text: enemy.description,
       spec: { kind: 'combat', enemyId: enemy.id },
       rewards: [],
+      extras: [],
     };
   }
 
   const npc = npcFor(entity);
-  const speaker = { title: npc.name, sprite: npc.sprite };
+  const attitude = attitudeOf(state.hero, npc);
+  const speaker = { title: npc.name, sprite: npc.sprite, ...(npc.inanimate ? {} : { attitude }) };
   if (!npc.repeatable && state.flags.has(npcCompletionFlag(npc))) {
-    return { kind: 'message', ...speaker, text: npc.doneText ?? '...' };
+    return { kind: 'message', ...speaker, text: say(npc.lines.done ?? '...', attitude) };
   }
-  const spec = npc.challenge;
+  const terms = dealTerms(npc, attitude);
+  if (!terms) return { kind: 'message', ...speaker, text: npc.lines.refuse ?? '...' };
+  const text = introFor(npc, attitude);
+  const spec = challengeOnTerms(npc.challenge, terms);
   if (spec.kind === 'offering' && itemCount(state.hero, spec.itemId) < 1) {
-    return { kind: 'needsItem', ...speaker, text: npc.greeting, itemId: spec.itemId };
+    return { kind: 'needsItem', ...speaker, text, itemId: spec.itemId };
   }
-  return { kind: 'challenge', ...speaker, text: npc.greeting, spec, rewards: npc.rewards };
+  const { base, extras } = rewardsOnTerms(state.hero, npc, terms);
+  return {
+    kind: 'challenge',
+    ...speaker,
+    text,
+    spec,
+    rewards: base,
+    extras,
+    replies: { accept: say(npc.lines.accept, terms), decline: say(npc.lines.decline, terms) },
+  };
 }
 
 /**
@@ -172,6 +212,7 @@ function resolveLesson(
     fell: false,
     shopId: null,
     priceMultiplier: 1,
+    attitude: null,
   };
 }
 
@@ -208,12 +249,29 @@ function resolveCombat(
     travel(state, state.respawn);
     if (lost > 0) gains.push({ kind: 'gil', amount: -lost });
   }
-  return { won, gains, speech: null, fell: !won, shopId: null, priceMultiplier: 1 };
+  return {
+    won,
+    gains,
+    speech: null,
+    fell: !won,
+    shopId: null,
+    priceMultiplier: 1,
+    attitude: null,
+  };
 }
 
 function resolveNpc(state: GameState, npc: NpcDef, battle: Battle, won: boolean): Resolution {
+  // Battles only start on terms, so a refusal never reaches here.
+  const terms = dealTerms(npc, attitudeOf(state.hero, npc)) ?? 'wary';
+  const ended = { won, fell: false, attitude: terms };
   if (!won) {
-    return { won, gains: [], speech: npc.failText, fell: false, shopId: null, priceMultiplier: 1 };
+    return {
+      ...ended,
+      gains: [],
+      speech: say(npc.lines.lose, terms),
+      shopId: null,
+      priceMultiplier: 1,
+    };
   }
 
   const spec = npc.challenge;
@@ -221,15 +279,15 @@ function resolveNpc(state: GameState, npc: NpcDef, battle: Battle, won: boolean)
   if (spec.kind === 'offering' && removeItem(state.hero, spec.itemId)) {
     given.push({ kind: 'item', itemId: spec.itemId, count: -1 });
   }
-  const outcome = grantRewards(state.hero, state.flags, npc.rewards);
+  const { base, extras } = rewardsOnTerms(state.hero, npc, terms);
+  const outcome = grantRewards(state.hero, state.flags, [...base, ...extras]);
   if (!npc.repeatable) state.flags.add(npcCompletionFlag(npc));
   const haggle = battle.challenge instanceof HaggleChallenge ? battle.challenge : null;
   return {
-    won,
+    ...ended,
     gains: [...given, ...outcome.gains],
-    speech: npc.successText,
-    fell: false,
+    speech: say(npc.lines.win, terms),
     shopId: outcome.shopId,
-    priceMultiplier: haggle?.multiplier ?? 1,
+    priceMultiplier: (haggle?.multiplier ?? 1) * ATTITUDE_PRICES[terms],
   };
 }

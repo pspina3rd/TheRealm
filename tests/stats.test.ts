@@ -7,7 +7,6 @@ import {
   VITALITY_HP,
   adjustPlan,
   canRaise,
-  charmPriceMultiplier,
   critChance,
   derivedStats,
   dropBonus,
@@ -67,11 +66,6 @@ describe('stat effects', () => {
     expect([0, 2, 3, 5, 6, 9].map(previewCount)).toEqual([1, 1, 2, 2, 3, 3]);
     expect(seesEnemyMove(8)).toBe(false);
     expect(seesEnemyMove(9)).toBe(true);
-  });
-
-  it('takes 3% off prices per Charm rank, at most 30%', () => {
-    expect(charmPriceMultiplier(0)).toBe(1);
-    expect(charmPriceMultiplier(STATS.charm.maxRank)).toBeCloseTo(0.7);
   });
 
   it('adds 2% to drops per Luck rank and lets only big clears crit', () => {

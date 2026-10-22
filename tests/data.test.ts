@@ -181,7 +181,7 @@ describe('content references', () => {
         if (reward.kind === 'spell') expect(SPELLS[reward.spellId], reward.spellId).toBeDefined();
         if (reward.kind === 'shop') expect(SHOPS[reward.shopId], reward.shopId).toBeDefined();
       }
-      if (!npc.repeatable) expect(npc.doneText, npc.id).toBeTruthy();
+      if (!npc.repeatable) expect(npc.lines.done, npc.id).toBeTruthy();
     }
   });
 
@@ -206,6 +206,10 @@ describe('content references', () => {
 
 /** Known solutions for every NPC puzzle: `[rotations, leftmost column]` per piece. */
 const PUZZLE_SOLUTIONS: Record<string, [number, number][]> = {
+  elder: [
+    [0, 3],
+    [1, 1],
+  ],
   kid: [
     [0, 6],
     [2, 3],

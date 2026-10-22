@@ -741,6 +741,29 @@ dialog h2 {
   align-items: flex-end;
 }
 
+.speaker {
+  position: relative;
+  flex: none;
+}
+
+.speaker > .icon {
+  position: absolute;
+  top: 0;
+  right: -6px;
+}
+
+.extras {
+  display: flex;
+  gap: 12px;
+  padding: 2px 8px;
+  border: 2px solid var(--gold);
+  border-radius: 6px;
+}
+
+.shop-card.secret {
+  border-color: var(--gold);
+}
+
 .bubble {
   position: relative;
   margin: 0 0 24px;

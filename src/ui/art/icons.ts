@@ -6,6 +6,7 @@
  */
 import type { Element } from '../../core/elements';
 import type { EnhancementId } from '../../data/spells';
+import type { Attitude } from '../../game/attitude';
 import type { StatId } from '../../data/stats';
 import type { EnemyMove, HiddenUnlock, SpellEffect } from '../../data/types';
 
@@ -772,6 +773,91 @@ export const ICONS = {
       'oooooooooooo',
     ],
   },
+  faceHostile: {
+    palette: palette('#8a1f1f', '#e0483b', '#ff9a8a'),
+    rows: [
+      '...oooooo...',
+      '..obbbbbbo..',
+      '.obobbbbobo.',
+      'obhbobbobbdo',
+      'obbbobbobbdo',
+      'obbbbbbbbbdo',
+      'obbboooobbdo',
+      'obbobbbbobdo',
+      'obobbbbbbodo',
+      '.obbbbbbbdo.',
+      '..oddddddo..',
+      '...oooooo...',
+    ],
+  },
+  faceWary: {
+    palette: palette('#a35a12', '#f0a040', '#ffd59a'),
+    rows: [
+      '...oooooo...',
+      '..obbbbbbo..',
+      '.obhhbbbbbo.',
+      'obbbobbobbdo',
+      'obbbobbobbdo',
+      'obbbbbbbbbdo',
+      'obbbbbbbbbdo',
+      'obbboooobbdo',
+      'obbobbbbobdo',
+      '.obbbbbbbdo.',
+      '..oddddddo..',
+      '...oooooo...',
+    ],
+  },
+  faceNeutral: {
+    palette: palette('#7a7466', '#d8d0bc', '#f4efe0'),
+    rows: [
+      '...oooooo...',
+      '..obbbbbbo..',
+      '.obhhbbbbbo.',
+      'obbbobbobbdo',
+      'obbbobbobbdo',
+      'obbbbbbbbbdo',
+      'obbbbbbbbbdo',
+      'obbbbbbbbbdo',
+      'obbboooobbdo',
+      '.obbbbbbbdo.',
+      '..oddddddo..',
+      '...oooooo...',
+    ],
+  },
+  faceFriendly: {
+    palette: palette('#2e8a3c', '#6fd36f', '#c4f5b0'),
+    rows: [
+      '...oooooo...',
+      '..obbbbbbo..',
+      '.obhhbbbbbo.',
+      'obbbobbobbdo',
+      'obbbobbobbdo',
+      'obbbbbbbbbdo',
+      'obbbbbbbbbdo',
+      'obbobbbbobdo',
+      'obbboooobbdo',
+      '.obbbbbbbdo.',
+      '..oddddddo..',
+      '...oooooo...',
+    ],
+  },
+  faceDevoted: {
+    palette: palette('#c58a10', '#ffd23f', '#fff4a8'),
+    rows: [
+      '...oooooo...',
+      '..obbbbbbo..',
+      '.obhhbbbbbo.',
+      'obboobboobdo',
+      'obbbbbbbbbdo',
+      'obbbbbbbbbdo',
+      'obbooooooodo',
+      'obbowwwwobdo',
+      'obbboooobbdo',
+      '.obbbbbbbdo.',
+      '..oddddddo..',
+      '...oooooo...',
+    ],
+  },
 } as const satisfies Record<string, IconDef>;
 
 export type IconId = keyof typeof ICONS;
@@ -813,6 +899,15 @@ export const PALETTES = {
 /** The palette of an element's own icon, for washing other icons in its colour. */
 export const elementPalette = (element: Element): IconPalette =>
   ICONS[ELEMENT_ICONS[element]].palette;
+
+/** The face over an NPC for each attitude, from scowl to grin. */
+export const ATTITUDE_ICONS: Readonly<Record<Attitude, IconId>> = {
+  hostile: 'faceHostile',
+  wary: 'faceWary',
+  neutral: 'faceNeutral',
+  friendly: 'faceFriendly',
+  devoted: 'faceDevoted',
+};
 
 /** The icon for each stat. */
 export const STAT_ICONS: Readonly<Record<StatId, IconId>> = {
@@ -893,6 +988,10 @@ export const ITEM_ICONS: Readonly<Record<string, IconSpec>> = {
   tideCharm: { icon: 'amulet', palette: elementPalette('water'), badge: 'water' },
   stormCharm: { icon: 'amulet', palette: elementPalette('lightning'), badge: 'lightning' },
   windCharm: { icon: 'amulet', palette: elementPalette('wind'), badge: 'wind' },
+  groveCharm: { icon: 'amulet', palette: elementPalette('nature'), badge: 'nature' },
+  wellStone: { icon: 'amulet', palette: elementPalette('earth'), badge: 'earth' },
+  moonCharm: { icon: 'amulet', palette: elementPalette('arcane'), badge: 'arcane' },
+  smithHammer: { icon: 'sword', palette: elementPalette('fire') },
   slimeGel: { icon: 'blob' },
   sporeCap: { icon: 'mushroom' },
   goblinCharm: { icon: 'fang' },

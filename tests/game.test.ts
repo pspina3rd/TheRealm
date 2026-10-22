@@ -6,6 +6,7 @@ import { ENEMIES } from '../src/data/enemies';
 import { ITEMS } from '../src/data/items';
 import { MAPS } from '../src/data/maps';
 import { NPCS } from '../src/data/npcs';
+import { say } from '../src/game/attitude';
 import { describeInteraction, npcCompletionFlag, resolveBattle } from '../src/game/encounter';
 import { addItem, createHero, itemCount, learnSpell } from '../src/game/hero';
 import { grantRewards } from '../src/game/rewards';
@@ -44,15 +45,17 @@ describe('describeInteraction', () => {
 
   it('asks for the item before an offering can start', () => {
     const state = newGame();
-    expect(describeInteraction(state, entity('mossvale', 'mv-elder'))).toMatchObject({
+    expect(describeInteraction(state, entity('brightwater', 'bw-collector'))).toMatchObject({
       kind: 'needsItem',
-      itemId: 'sporeCap',
-      sprite: NPCS.elder!.sprite,
+      itemId: 'goblinCharm',
+      sprite: NPCS.collector!.sprite,
     });
-    addItem(state.hero, 'sporeCap');
-    expect(describeInteraction(state, entity('mossvale', 'mv-elder'))).toMatchObject({
+    addItem(state.hero, 'goblinCharm');
+    expect(describeInteraction(state, entity('brightwater', 'bw-collector'))).toMatchObject({
       kind: 'challenge',
-      rewards: NPCS.elder!.rewards,
+      rewards: NPCS.collector!.rewards,
+      extras: [],
+      replies: { accept: NPCS.collector!.lines.accept, decline: NPCS.collector!.lines.decline },
     });
   });
 
@@ -63,7 +66,8 @@ describe('describeInteraction', () => {
       kind: 'message',
       title: 'Pip',
       sprite: NPCS.kid!.sprite,
-      text: NPCS.kid!.doneText,
+      attitude: 'neutral',
+      text: say(NPCS.kid!.lines.done!, 'neutral'),
     });
   });
 
@@ -132,39 +136,53 @@ describe('resolveBattle', () => {
     ).toThrow();
   });
 
-  it('consumes the offering and grants a one-time reward', () => {
+  it('consumes the offering and grants the reward', () => {
     const state = newGame();
-    addItem(state.hero, 'sporeCap');
-    const battle = makeBattle(NPCS.elder!.challenge, state.hero);
+    addItem(state.hero, 'goblinCharm');
+    const battle = makeBattle(
+      { kind: 'offering', itemId: 'goblinCharm', targetScore: 1, pieceLimit: 20 },
+      state.hero,
+    );
     setUpVerticalIClear(battle.board, 2);
     battle.input('hardDrop');
     expect(battle.status).toBe('won');
-    const result = resolveBattle(state, entity('mossvale', 'mv-elder'), battle, createRng(1));
-    expect(itemCount(state.hero, 'sporeCap')).toBe(0);
-    expect(Object.keys(state.hero.spells)).toContain('quake');
-    expect(state.flags.has('npc:elder')).toBe(true);
-    expect(result.speech).toBe(NPCS.elder!.successText);
+    const gil = state.hero.gil;
+    const result = resolveBattle(
+      state,
+      entity('brightwater', 'bw-collector'),
+      battle,
+      createRng(1),
+    );
+    expect(itemCount(state.hero, 'goblinCharm')).toBe(0);
+    expect(state.hero.gil).toBe(gil + 45);
+    expect(result.speech).toBe(say(NPCS.collector!.lines.win, 'neutral'));
     expect(result.gains).toEqual([
-      { kind: 'item', itemId: 'sporeCap', count: -1 },
-      { kind: 'spell', spellId: 'quake' },
+      { kind: 'item', itemId: 'goblinCharm', count: -1 },
+      { kind: 'gil', amount: 45 },
     ]);
   });
 
   it('keeps the item and gives no reward on failure', () => {
     const state = newGame();
-    addItem(state.hero, 'sporeCap');
-    const battle = makeBattle(NPCS.elder!.challenge, state.hero);
+    addItem(state.hero, 'goblinCharm');
+    const battle = makeBattle(NPCS.collector!.challenge, state.hero);
     battle.board.toppedOut = true;
-    const result = resolveBattle(state, entity('mossvale', 'mv-elder'), battle, createRng(1));
+    const result = resolveBattle(
+      state,
+      entity('brightwater', 'bw-collector'),
+      battle,
+      createRng(1),
+    );
     expect(result).toEqual({
       won: false,
       gains: [],
-      speech: NPCS.elder!.failText,
+      speech: say(NPCS.collector!.lines.lose, 'neutral'),
       fell: false,
       shopId: null,
       priceMultiplier: 1,
+      attitude: 'neutral',
     });
-    expect(itemCount(state.hero, 'sporeCap')).toBe(1);
+    expect(itemCount(state.hero, 'goblinCharm')).toBe(1);
   });
 
   it('opens a shop at the haggled price', () => {
@@ -205,24 +223,16 @@ describe('grantRewards', () => {
 });
 
 describe('shop', () => {
-  it('applies the haggle multiplier with a 1 gil minimum', () => {
-    const hero = createHero('knight'); // no Charm
-    expect(priceFor(hero, ITEMS.ironSword!, 0.5)).toBe(28);
-    expect(priceFor(hero, ITEMS.herb!, 0.01)).toBe(1);
+  it('applies the price multiplier with a 1 gil minimum', () => {
+    expect(priceFor(ITEMS.ironSword!, 0.5)).toBe(28);
+    expect(priceFor(ITEMS.herb!, 0.01)).toBe(1);
   });
 
-  it('takes 3% off every price per Charm rank', () => {
-    const hero = createHero('knight');
-    hero.stats.charm = 5; // 15% off the 55 gil sword
-    expect(priceFor(hero, ITEMS.ironSword!, 1)).toBe(47);
-    expect(priceFor(hero, ITEMS.ironSword!, 0.5)).toBe(23);
-  });
-
-  it('charges a charming hero less', () => {
-    const state = newGame('rogue'); // Charm 2: 6% off
+  it('charges the multiplied price', () => {
+    const state = newGame();
     state.hero.gil = 100;
-    buy(state, 'ironSword', 1);
-    expect(state.hero.gil).toBe(100 - 52);
+    buy(state, 'ironSword', 0.9);
+    expect(state.hero.gil).toBe(100 - 50);
   });
 
   it('refuses purchases the hero cannot afford', () => {

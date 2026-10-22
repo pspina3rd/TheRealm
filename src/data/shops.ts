@@ -1,10 +1,12 @@
 import type { ShopDef } from './types';
 
+/** Every shop. Spell tomes are not sold: mentors teach spells. */
 export const SHOPS: Readonly<Record<string, ShopDef>> = {
   brightwaterGeneral: {
     id: 'brightwaterGeneral',
     name: 'Brightwater Goods',
-    stock: ['herb', 'ether', 'phoenixFeather', 'apprenticeRobe', 'galeTome', 'shadowTome'],
+    stock: ['herb', 'ether', 'phoenixFeather', 'apprenticeRobe'],
+    secretStock: ['crystalMail'],
   },
   brightwaterSmith: {
     id: 'brightwaterSmith',
@@ -19,15 +21,18 @@ export const SHOPS: Readonly<Record<string, ShopDef>> = {
       'stormCharm',
       'windCharm',
     ],
+    secretStock: ['smithHammer'],
   },
   brightwaterInn: {
     id: 'brightwaterInn',
     name: 'The Sleeping Lantern',
     stock: ['innRest'],
+    secretStock: ['phoenixFeather'],
   },
   mossvaleStall: {
     id: 'mossvaleStall',
     name: 'Mossvale Stall',
-    stock: ['herb', 'fireTome', 'copperSword', 'emberCharm'],
+    stock: ['herb', 'copperSword', 'emberCharm'],
+    secretStock: ['ironSword'],
   },
 };

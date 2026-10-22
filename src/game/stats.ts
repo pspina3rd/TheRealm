@@ -4,7 +4,7 @@
  *
  * Ranks add to the class's base numbers (see `derivedStats`); the rest of
  * the effects are read where they apply: gravity (Agility), the next-piece
- * preview and enemy intent (Insight), prices (Charm), drops and critical
+ * preview and enemy intent (Insight), NPC attitude (Charm, see `src/game/attitude.ts`), drops and critical
  * strikes (Luck).
  */
 import type { HeroClass } from '../data/classes';
@@ -19,8 +19,6 @@ export const STAT_RANK_COST = 1;
 export const VITALITY_HP = 6;
 /** Fall slowdown per Agility rank (0.04 = pieces fall 4% slower). */
 export const AGILITY_SLOWDOWN = 0.04;
-/** Price discount per Charm rank. */
-export const CHARM_DISCOUNT = 0.03;
 /** Added to every item drop chance per Luck rank. */
 export const LUCK_DROP_BONUS = 0.02;
 /** Chance per Luck rank that a big clear's strike is critical. */
@@ -69,11 +67,6 @@ export function previewCount(insight: number): number {
 /** True when the hero can see the enemy's next move. */
 export function seesEnemyMove(insight: number): boolean {
   return insight >= INSIGHT_ENEMY_MOVE_RANK;
-}
-
-/** Multiplier on shop prices. */
-export function charmPriceMultiplier(charm: number): number {
-  return 1 - CHARM_DISCOUNT * charm;
 }
 
 /** Chance added to every item drop. */

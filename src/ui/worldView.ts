@@ -1,5 +1,5 @@
 import { MENTORS } from '../data/mentors';
-import { entitySprite } from '../game/encounter';
+import { entityAttitude, entitySprite } from '../game/encounter';
 import { heroClass } from '../game/hero';
 import { seeksHero } from '../game/hidden';
 import { lessonsFor } from '../game/lessons';
@@ -8,7 +8,7 @@ import { mapHeight, mapWidth } from '../world/map';
 import { activeEntities, currentMap, type GameState } from '../world/state';
 import type { Atlas } from './art/atlas';
 import { ELEMENT_COLOR_OF } from './art/feedback';
-import { ICON_SIZE, elementPalette } from './art/icons';
+import { ATTITUDE_ICONS, ICON_SIZE, elementPalette } from './art/icons';
 import { drawIcon } from './iconDraw';
 import { isCreatureId, isStripSprite, mapFrame } from './art/creatures';
 import type { Region } from './art/images';
@@ -87,6 +87,15 @@ export class WorldView {
     for (const entity of activeEntities(state)) {
       drawables.push(this.entityDrawable(entity, camX, camY, timeMs));
       if (entity.kind === 'mentor') this.drawMentorMark(state, entity, camX, camY, timeMs);
+      const attitude = entityAttitude(state, entity);
+      if (attitude) {
+        // The NPC's face for the hero, small, beside their head.
+        const fx = entity.x * TILE - camX + TILE / 2 + 4;
+        const fy = entity.y * TILE - camY - 22;
+        this.overlays.push(() =>
+          drawIcon(this.ctx, ATTITUDE_ICONS[attitude], fx, fy, { scale: 1 }),
+        );
+      }
     }
     const heroRegion = mapFrame(
       spriteOf(heroClass(state.hero).sprite),

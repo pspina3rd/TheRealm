@@ -32,6 +32,8 @@ export interface StageOptions {
   readonly tint?: Element;
   readonly ally?: CreatureId | null;
   readonly allyElement?: Element;
+  /** What the opponent says as the battle starts, shown as a banner. */
+  readonly line?: string;
 }
 
 /** Where things are drawn on the 480×240 stage. */
@@ -95,7 +97,7 @@ export class Stage {
     this.floats = [];
     this.effects = [];
     this.pops = [];
-    this.banner = null;
+    this.banner = options.line ? { value: options.line, elapsed: 0 } : null;
     this.shakes = {};
     this.defeat = null;
   }
@@ -476,11 +478,12 @@ export class Stage {
     const { width } = ctx.canvas;
     ctx.globalAlpha = t < 0.1 ? t / 0.1 : t > 0.8 ? (1 - t) / 0.2 : 1;
     const top = 84;
-    ctx.fillStyle = '#10132ae6';
-    ctx.fillRect(width / 2 - 110, top, 220, 30);
-    ctx.strokeStyle = '#f5d77b';
-    ctx.strokeRect(width / 2 - 110 + 0.5, top + 0.5, 219, 29);
     ctx.font = 'bold 16px system-ui';
+    const box = Math.min(width - 8, Math.max(220, ctx.measureText(this.banner.value).width + 24));
+    ctx.fillStyle = '#10132ae6';
+    ctx.fillRect(width / 2 - box / 2, top, box, 30);
+    ctx.strokeStyle = '#f5d77b';
+    ctx.strokeRect(width / 2 - box / 2 + 0.5, top + 0.5, box - 1, 29);
     ctx.textAlign = 'center';
     ctx.fillStyle = '#ffffff';
     ctx.fillText(this.banner.value, width / 2, top + 21);
