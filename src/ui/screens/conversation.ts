@@ -5,6 +5,7 @@ import type { Lesson } from '../../game/lessons';
 import { castSpellFor, castSummary, newKnownSpell } from '../../game/spells';
 import type { Interaction } from '../../game/encounter';
 import type { Resolution } from '../../game/encounter';
+import type { Gain } from '../../game/rewards';
 import type { Atlas } from '../art/atlas';
 import { ELEMENT_ICONS, itemIcon } from '../art/icons';
 import { button, el } from '../dom';
@@ -14,6 +15,7 @@ import {
   chip,
   difficultyPips,
   gainRows,
+  hiddenSpellSlot,
   levelPips,
   rewardIcons,
   spellMeta,
@@ -62,14 +64,18 @@ function lessonButton(
 /**
  * A conversation: who is speaking, what they say, and for a challenge, a
  * picture of what they want (the challenge card) and what they give back.
- * A mentor's lessons are buttons; picking one calls `onLesson`.
+ * A mentor's lessons are buttons; picking one calls `onLesson`. Their
+ * unrevealed hidden spells follow as silhouettes, and anything the hero
+ * just handed over (`given`) shows under the speech.
  */
 export function conversationBody(
   atlas: Atlas,
   interaction: Interaction,
   onLesson: (lesson: Lesson) => void = () => {},
+  given: readonly Gain[] = [],
 ): HTMLElement[] {
   const body = [speech(atlas, interaction.sprite, interaction.text)];
+  if (given.length > 0) body.push(el('div', { className: 'gains' }, ...gainRows(given)));
   if (interaction.kind === 'lessons') {
     body.push(
       el(
@@ -82,6 +88,9 @@ export function conversationBody(
               interaction.failed.level === lesson.level,
             onLesson,
           ),
+        ),
+        ...interaction.silhouettes.map((spell) =>
+          hiddenSpellSlot(atlas, { spell, state: 'hidden' }),
         ),
       ),
     );

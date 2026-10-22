@@ -5,6 +5,7 @@ import { CLASSES } from '../data/classes';
 import { ENEMIES } from '../data/enemies';
 import type { ChallengeSpec } from '../data/types';
 import { describeInteraction, entitySprite, resolveBattle } from '../game/encounter';
+import { bringItems, hiddenSlots } from '../game/hidden';
 import { lessonSpec } from '../game/lessons';
 import { MENTORS } from '../data/mentors';
 import { mentorOf, mentorPlace } from '../world/mentors';
@@ -192,17 +193,29 @@ export class App {
   }
 
   private interact(entity: EntityDef): void {
+    // A mentor takes any item the hero brought for a hidden spell of theirs.
+    const mentor = entity.kind === 'mentor' ? MENTORS[entity.mentorId] : undefined;
+    const given = mentor ? bringItems(this.state, mentor) : [];
+    if (given.length > 0) {
+      this.save();
+      this.renderHud();
+    }
     const interaction = describeInteraction(this.state, entity);
     // Monsters attack on contact; people talk first.
     if (entity.kind === 'monster' && interaction.kind === 'challenge') {
       this.startBattle(entity, interaction.spec);
       return;
     }
-    const body = conversationBody(this.atlas, interaction, (lesson) => {
-      if (interaction.kind === 'lessons') {
-        this.startBattle(entity, lessonSpec(this.state, interaction.mentorId, lesson));
-      }
-    });
+    const body = conversationBody(
+      this.atlas,
+      interaction,
+      (lesson) => {
+        if (interaction.kind === 'lessons') {
+          this.startBattle(entity, lessonSpec(this.state, interaction.mentorId, lesson));
+        }
+      },
+      given,
+    );
     if (interaction.kind === 'lessons') {
       this.dialog.show({
         title: interaction.title,
@@ -237,6 +250,7 @@ export class App {
     this.dialog.close();
     const weights = pieceWeights(currentMap(this.state), this.state.hero);
     const battle = new Battle(spec, this.state.hero, this.rng, { weights });
+    this.battleView.hero.flags = this.state.flags;
     this.active = { battle, entity, finished: false, resultDelay: RESULT_DELAY_MS };
     const hero = creature(heroClass(this.state.hero).sprite) ?? 'char.026';
     if (spec.kind === 'lesson') {
@@ -409,17 +423,22 @@ export class App {
     };
     this.dialog.show({
       title: 'Menu',
-      body: menuBody(this.atlas, hero, {
-        lockHint: this.lockHint,
-        onUse: (itemId) => {
-          useItem(hero, itemId);
-          refresh();
+      body: menuBody(
+        this.atlas,
+        hero,
+        {
+          lockHint: this.lockHint,
+          onUse: (itemId) => {
+            useItem(hero, itemId);
+            refresh();
+          },
+          onEquip: (itemId) => {
+            equip(hero, itemId);
+            refresh();
+          },
         },
-        onEquip: (itemId) => {
-          equip(hero, itemId);
-          refresh();
-        },
-      }),
+        hiddenSlots(this.state),
+      ),
       actions: [
         { label: 'New Game', onClick: () => this.confirmNewGame() },
         {

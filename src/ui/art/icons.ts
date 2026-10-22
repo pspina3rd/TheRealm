@@ -7,7 +7,7 @@
 import type { Element } from '../../core/elements';
 import type { EnhancementId } from '../../data/spells';
 import type { StatId } from '../../data/stats';
-import type { EnemyMove, SpellEffect } from '../../data/types';
+import type { EnemyMove, HiddenUnlock, SpellEffect } from '../../data/types';
 
 export const ICON_SIZE = 12;
 
@@ -792,7 +792,9 @@ export const PALETTES = {
   shadow: palette('#2a2f4d', '#2a2f4d', '#2a2f4d', '#20243c', '#2a2f4d'),
 } as const satisfies Record<string, IconPalette>;
 
-const elementPalette = (element: Element): IconPalette => ICONS[ELEMENT_ICONS[element]].palette;
+/** The palette of an element's own icon, for washing other icons in its colour. */
+export const elementPalette = (element: Element): IconPalette =>
+  ICONS[ELEMENT_ICONS[element]].palette;
 
 /** The icon for each stat. */
 export const STAT_ICONS: Readonly<Record<StatId, IconId>> = {
@@ -811,6 +813,18 @@ export const ENHANCEMENT_ICONS: Readonly<Record<EnhancementId, IconId>> = {
   power: 'burst',
   efficiency: 'drop',
   effect: 'wand',
+};
+
+/**
+ * The faint hint on a hidden spell's silhouette: what kind of thing reveals
+ * it (a stat, alignment, a board feat, a quest or an item), never what exactly.
+ */
+export const UNLOCK_HINT_ICONS: Readonly<Record<HiddenUnlock['kind'], IconId>> = {
+  stat: 'eye',
+  alignment: 'star',
+  pattern: 'piece',
+  quest: 'scroll',
+  item: 'bag',
 };
 
 /** The icon for what each kind of spell does. */

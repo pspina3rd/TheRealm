@@ -1,4 +1,5 @@
-import type { Element } from '../../core/elements';
+import { ELEMENTS, type Element } from '../../core/elements';
+import type { HiddenSlot } from '../../game/hidden';
 import { ITEMS } from '../../data/items';
 import { SPELLS } from '../../data/spells';
 import {
@@ -26,7 +27,14 @@ import { STATS, STAT_IDS } from '../../data/stats';
 import { button, el } from '../dom';
 import { iconElement } from '../iconDraw';
 import { ManaBars } from '../manaBars';
-import { chip, levelPips, sectionTitle, spellMeta, spritePortrait } from './widgets';
+import {
+  chip,
+  hiddenSpellSlot,
+  levelPips,
+  sectionTitle,
+  spellMeta,
+  spritePortrait,
+} from './widgets';
 
 export interface MenuHandlers {
   readonly onUse: (itemId: string) => void;
@@ -98,9 +106,15 @@ function equipmentSlots(hero: Hero): HTMLElement {
 
 /**
  * The menu: the hero card, equipment, mana, an item grid (select an item to
- * see it and use or equip it) and the spellbook.
+ * see it and use or equip it) and the spellbook, where each element's
+ * `hidden` spells follow its known ones as silhouettes.
  */
-export function menuBody(atlas: Atlas, hero: Hero, handlers: MenuHandlers): HTMLElement[] {
+export function menuBody(
+  atlas: Atlas,
+  hero: Hero,
+  handlers: MenuHandlers,
+  hidden: readonly HiddenSlot[] = [],
+): HTMLElement[] {
   const detail = el('div', { className: 'item-detail' });
   const select = (itemId: string): void => {
     const item = ITEMS[itemId];
@@ -138,39 +152,48 @@ export function menuBody(atlas: Atlas, hero: Hero, handlers: MenuHandlers): HTML
     return tile;
   });
 
-  const spells = spellCategories(hero).flatMap(({ spells: ids }) =>
-    ids.flatMap((id) => {
-      const spell = SPELLS[id];
-      const known = knownSpell(hero, id);
-      if (!spell || !known) return [];
-      const cast = castSpellFor(spell, known);
-      const ready = isReady(spell, known);
-      const locked = isCategoryLocked(hero, spell.category);
-      return [
-        el(
-          'div',
-          {
-            className: `spell-tile${ready ? ' ready' : ''}`,
-            title: castSummary(cast),
-          },
-          iconElement(ELEMENT_ICONS[spell.category], 3),
+  const categories = spellCategories(hero);
+  const spells = ELEMENTS.flatMap((element) =>
+    (categories.find((c) => c.category === element)?.spells ?? [])
+      .flatMap((id): HTMLElement[] => {
+        const spell = SPELLS[id];
+        const known = knownSpell(hero, id);
+        if (!spell || !known) return [];
+        const cast = castSpellFor(spell, known);
+        const ready = isReady(spell, known);
+        const locked = isCategoryLocked(hero, spell.category);
+        return [
           el(
-            'span',
-            {},
-            el('b', { text: cast.name }),
-            levelPips(spell, cast.level),
-            spellMeta(cast),
+            'div',
+            {
+              className: `spell-tile${ready ? ' ready' : ''}`,
+              title: castSummary(cast),
+            },
+            iconElement(ELEMENT_ICONS[spell.category], 3),
+            el(
+              'span',
+              {},
+              el('b', { text: cast.name }),
+              levelPips(spell, cast.level),
+              spellMeta(cast),
+            ),
+            ...(ready
+              ? [iconElement('scroll', 2, 'Ready: a mentor can teach the next level')]
+              : []),
+            ...(locked
+              ? [
+                  iconElement('lock', 2, 'Locked until the lesson is won'),
+                  ...(handlers.lockHint ? [handlers.lockHint(spell.category)] : []),
+                ]
+              : []),
           ),
-          ...(ready ? [iconElement('scroll', 2, 'Ready: a mentor can teach the next level')] : []),
-          ...(locked
-            ? [
-                iconElement('lock', 2, 'Locked until the lesson is won'),
-                ...(handlers.lockHint ? [handlers.lockHint(spell.category)] : []),
-              ]
-            : []),
-        ),
-      ];
-    }),
+        ];
+      })
+      .concat(
+        hidden
+          .filter((slot) => slot.spell.category === element)
+          .map((slot) => hiddenSpellSlot(atlas, slot)),
+      ),
   );
 
   const mana = el('div');

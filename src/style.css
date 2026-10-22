@@ -1333,3 +1333,32 @@ dialog {
     height: 7px;
   }
 }
+
+/* A hidden spell the hero doesn't know: a dark silhouette with a faint hint
+   of what reveals it; once revealed, lit in its element's colour with the
+   mentor who teaches it. */
+.hidden-spell {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 4px 6px;
+  background: var(--panel-deep);
+  border: 1px dashed #2a2f4d;
+  border-radius: 8px;
+}
+
+.hidden-spell .hint {
+  opacity: 0.35;
+}
+
+.hidden-spell.unlocked {
+  border: 1px solid var(--glow);
+  box-shadow: 0 0 10px var(--glow);
+}
+
+.hidden-spell .portrait {
+  width: 32px;
+  height: 32px;
+}

@@ -1,13 +1,14 @@
 import { MENTORS } from '../data/mentors';
 import { entitySprite } from '../game/encounter';
 import { heroClass } from '../game/hero';
+import { seeksHero } from '../game/hidden';
 import { lessonsFor } from '../game/lessons';
 import type { EntityDef, MapDef, MentorEntity } from '../world/map';
 import { mapHeight, mapWidth } from '../world/map';
 import { activeEntities, currentMap, type GameState } from '../world/state';
 import type { Atlas } from './art/atlas';
 import { ELEMENT_COLOR_OF } from './art/feedback';
-import { ICON_SIZE } from './art/icons';
+import { ICON_SIZE, elementPalette } from './art/icons';
 import { drawIcon } from './iconDraw';
 import { isCreatureId, isStripSprite, mapFrame } from './art/creatures';
 import type { Region } from './art/images';
@@ -134,8 +135,10 @@ export class WorldView {
 
   /**
    * A mentor's marks: a glow of their element's colour at their feet, and
-   * a bobbing scroll overhead while they have a lesson for the hero. The
-   * glow is drawn at once (under every sprite); the scroll goes on top.
+   * a bobbing scroll overhead while they have a lesson for the hero, or a
+   * leaping star in their colour while they seek the hero out (they noticed
+   * a feat on the board). The glow is drawn at once (under every sprite);
+   * the marks go on top.
    */
   private drawMentorMark(
     state: GameState,
@@ -156,7 +159,15 @@ export class WorldView {
     ctx.ellipse(cx, cy, TILE * 0.45, TILE * 0.18, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
-    if (lessonsFor(state, mentor).length > 0) {
+    if (seeksHero(mentor, state)) {
+      this.overlays.push(() => {
+        const leap = Math.round(Math.abs(Math.sin(timeMs / 180)) * 6);
+        drawIcon(ctx, 'star', cx - ICON_SIZE, entity.y * TILE - camY - 34 - leap, {
+          scale: 2,
+          palette: elementPalette(mentor.element),
+        });
+      });
+    } else if (lessonsFor(state, mentor).length > 0) {
       this.overlays.push(() => {
         const bob = Math.round(Math.sin(timeMs / 250) * 2);
         drawIcon(ctx, 'scroll', cx - ICON_SIZE, entity.y * TILE - camY - 30 + bob, { scale: 2 });

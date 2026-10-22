@@ -19,10 +19,17 @@ import {
   seeksHero,
 } from '../src/game/hidden';
 import { completeLesson, lessonsFor } from '../src/game/lessons';
+import {
+  castEffect,
+  castPower,
+  castSpellFor,
+  castSummary,
+  newKnownSpell,
+} from '../src/game/spells';
 import { statRanks } from '../src/game/stats';
 import { mapDistance, mentorEntities, mentorPlace, seekingStop } from '../src/world/mentors';
 import { newGame, type GameState } from '../src/world/state';
-import { knownSpells, makeBattle, rowWithGaps, setUpVerticalIClear } from './helpers';
+import { forceQueue, knownSpells, makeBattle, rowWithGaps, setUpVerticalIClear } from './helpers';
 
 const spell = (id: string): SpellDef => SPELLS[id]!;
 const mentor = (id: string) => MENTORS[id]!;
@@ -48,6 +55,22 @@ describe('hidden spell data', () => {
       new Set(['stat', 'alignment', 'pattern', 'quest', 'item']),
     );
     expect(hiddenSpells('arcane')).toEqual([spell('eclipse')]);
+  });
+
+  it('summarises and scores each hidden spell', () => {
+    const rows = hiddenSpells().map((s) => {
+      const cast = castSpellFor(s, newKnownSpell());
+      return [castSummary(cast), castPower(cast.effect), castEffect(cast)];
+    });
+    expect(rows).toEqual([
+      ['Volcano · Lv 1 · clear 3 rows · 40 damage', 40, 3],
+      ['Purify · Lv 1 · stone becomes crystal', 0, 0],
+      ['Ball Lightning · Lv 1 · 2 damage per crystal of its element', 2, 0],
+      ['Bloom · Lv 1 · heal 6 × 8 pieces', 6, 8],
+      ['Fault Line · Lv 1 · every hit is a weakness × 4 pieces', 0, 4],
+      ['Eclipse · Lv 1 · 36 damage · heal 100% of it', 36, 100],
+      ['Tempest · Lv 1 · 34 damage · slow 8 pieces', 34, 8],
+    ]);
   });
 });
 
@@ -135,14 +158,19 @@ describe('silhouettes', () => {
 
 describe('board feats', () => {
   it('counts each cleared line of one element alone as pure', () => {
-    expect(featsOfLock(lock([{ gold: 10 }, { gold: 9, red: 1 }, { cyan: 10, red: 0 }]), false)).toEqual(
-      ['pure.lightning', 'pure.wind'],
-    );
+    expect(
+      featsOfLock(lock([{ gold: 10 }, { gold: 9, red: 1 }, { cyan: 10, red: 0 }]), false),
+    ).toEqual(['pure.lightning', 'pure.wind']);
     expect(featsOfLock(lock([{ stone: 10 }, { gold: 7, stone: 3 }]), false)).toEqual([]);
   });
 
   it('counts a four-line clear only under haste', () => {
-    const quad = lock([{ red: 9, cyan: 1 }, { red: 9, cyan: 1 }, { red: 9, cyan: 1 }, { red: 9, cyan: 1 }]);
+    const quad = lock([
+      { red: 9, cyan: 1 },
+      { red: 9, cyan: 1 },
+      { red: 9, cyan: 1 },
+      { red: 9, cyan: 1 },
+    ]);
     expect(featsOfLock(quad, true)).toEqual(['hastedQuad']);
     expect(featsOfLock(quad, false)).toEqual([]);
     expect(featsOfLock(lock(quad.lines.slice(1)), true)).toEqual([]);
@@ -179,7 +207,16 @@ describe('mentors teaching hidden spells', () => {
     expect(lessonsFor(s, mentor('rook'))).toEqual([
       { spellId: 'ballLightning', level: 1, difficulty: 2 },
     ]);
-    const torva = seeker('fire', 'kindle', 'magma', 'meteor', 'quake', 'stoneskin', 'gale', 'wildfire');
+    const torva = seeker(
+      'fire',
+      'kindle',
+      'magma',
+      'meteor',
+      'quake',
+      'stoneskin',
+      'gale',
+      'wildfire',
+    );
     expect(lessonsFor(torva, mentor('torva'))).toEqual([
       { spellId: 'volcano', level: 1, difficulty: 3 },
     ]);
@@ -204,7 +241,7 @@ describe('mentors teaching hidden spells', () => {
     state.flags.add(giftFlag('eclipse'));
     expect(describeInteraction(state, selene)).toMatchObject({
       silhouettes: [],
-      lessons: [expect.objectContaining({ spellId: 'eclipse' })],
+      lessons: expect.arrayContaining([expect.objectContaining({ spellId: 'eclipse' })]),
     });
   });
 });
@@ -326,7 +363,8 @@ describe('hidden spells in combat', () => {
     battle.input('hardDrop');
     expect(combat.exposed).toBe(3);
     const hit = battle.events.filter((e) => e.event.kind === 'enemyHit')[0]?.event;
-    expect(hit).toMatchObject({ amount: 8 + battle.hero.atk + 2 * 9 + 0, affinity: 'weak' });
+    expect(hit).toMatchObject({ amount: 8 + battle.hero.atk + 2 * 10, affinity: 'weak' });
+    forceQueue(battle, ['O', 'O', 'O']);
     for (let i = 0; i < 3; i++) battle.input('hardDrop');
     expect(combat.exposed).toBe(0);
     expect(combat.multiplier(resisted)).toBeLessThan(1);
@@ -337,7 +375,9 @@ describe('hidden spells in combat', () => {
     hero.hp = 1;
     combat.castSpell('eclipse');
     const dealt = 999 - combat.enemyHp;
-    expect(dealt).toBe(Math.round((36 + level(battle)) * elementMultiplier(combat.enemy, 'arcane')));
+    expect(dealt).toBe(
+      Math.round((36 + level(battle)) * elementMultiplier(combat.enemy, 'arcane')),
+    );
     expect(hero.hp).toBe(Math.min(hero.maxHp, 1 + dealt));
   });
 

@@ -9,14 +9,18 @@ import { ELEMENT_OF_COLOR } from '../../core/elements';
 import type { CrystalColor } from '../../core/pieces';
 import type { Atlas } from '../art/atlas';
 import { isCreatureId, mapFrame, battleFrame, type CreatureId } from '../art/creatures';
+import type { HiddenSlot } from '../../game/hidden';
+import { mentorOf } from '../../world/mentors';
 import {
   ELEMENT_ICONS,
   PALETTES,
   SPELL_KIND_ICONS,
+  UNLOCK_HINT_ICONS,
   itemIcon,
   type IconId,
   type IconSpec,
 } from '../art/icons';
+import { ELEMENT_COLOR_OF } from '../art/feedback';
 import { costIcons } from '../manaBars';
 import { el } from '../dom';
 import { iconElement } from '../iconDraw';
@@ -254,5 +258,35 @@ export function spellMeta(cast: CastSpell): HTMLElement {
     { className: 'spell-meta' },
     iconElement(SPELL_KIND_ICONS[cast.effect.kind], 1),
     costIcons(cast.cost),
+  );
+}
+
+/**
+ * A hidden spell the hero doesn't know: a dark silhouette with a faint hint
+ * of what kind of thing reveals it, or, once revealed, lit in its element's
+ * colour with the face of the mentor who will teach it. Never its name.
+ */
+export function hiddenSpellSlot(atlas: Atlas, { spell, state }: HiddenSlot): HTMLElement {
+  const element = spell.category;
+  const mentor = mentorOf(element);
+  if (state === 'unlocked') {
+    const node = el(
+      'div',
+      { className: 'hidden-spell unlocked', title: mentor?.name ?? '' },
+      iconElement(ELEMENT_ICONS[element], 3),
+      ...(mentor ? [spritePortrait(atlas, mentor.sprite, 32)] : []),
+    );
+    node.style.setProperty('--glow', ELEMENT_COLOR_OF[element]);
+    return node;
+  }
+  return el(
+    'div',
+    { className: 'hidden-spell', title: '?' },
+    iconElement({ icon: ELEMENT_ICONS[element], palette: PALETTES.shadow }, 3),
+    el(
+      'span',
+      { className: 'hint' },
+      iconElement(UNLOCK_HINT_ICONS[spell.hidden?.kind ?? 'stat'], 2),
+    ),
   );
 }

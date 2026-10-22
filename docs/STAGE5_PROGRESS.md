@@ -4,7 +4,7 @@ Plan: hidden spells (data/spells `hidden` unlock), game/hidden.ts (unlock state,
 game/feats.ts (pattern counters on hero.feats), mentor seek rule (world/mentors.ts), combat kinds
 purify/resonate/expose, save v7, UI silhouettes (battle submenu, spellbook, lessons), shrine NPC, docs.
 
-- [ ] logic + tests
-- [ ] UI
+- [x] logic + tests
+- [x] UI (needs browser check)
 - [ ] docs
 - [ ] browser verification

@@ -153,7 +153,8 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       { kind: 'flag', flag: 'shrineRestored' },
       { kind: 'item', itemId: 'ether', count: 1 },
     ],
-    successText: 'It runs clear! Maren will want to see this. Take an Ether, drawn from the spring.',
+    successText:
+      'It runs clear! Maren will want to see this. Take an Ether, drawn from the spring.',
     failText: 'Still cloudy. The spring needs both colours.',
     repeatable: false,
     doneText: 'The spring runs clear. Maren has been by to see it twice.',

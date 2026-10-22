@@ -205,7 +205,8 @@ export class CombatChallenge implements Challenge {
       return 'Mana is already full.';
     }
     if (effect.kind === 'swap' && !this.ctx.board.canSwapWithNext()) return 'No room to swap.';
-    if (effect.kind === 'purify' && this.ctx.board.count('stone') === 0) return 'No stone to purify.';
+    if (effect.kind === 'purify' && this.ctx.board.count('stone') === 0)
+      return 'No stone to purify.';
     return null;
   }
 

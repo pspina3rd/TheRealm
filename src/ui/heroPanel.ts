@@ -9,7 +9,9 @@ import { ELEMENT_ICONS, PALETTES, type IconId } from './art/icons';
 import { button, byId, el } from './dom';
 import { iconElement } from './iconDraw';
 import { ManaBars } from './manaBars';
-import { levelPips, spellMeta } from './screens/widgets';
+import { hiddenSpellSlot, levelPips, spellMeta } from './screens/widgets';
+import type { Atlas } from './art/atlas';
+import { hiddenSlots } from '../game/hidden';
 
 /** Icon for a usable item, from what it does. */
 function itemIcon(itemId: string): IconId {
@@ -25,7 +27,8 @@ function itemIcon(itemId: string): IconId {
  * own menu; one with a single spell casts it straight away. Buttons show
  * the element, the best spell's name, level pips, what kind of spell it is
  * and its icon cost; ones you can't use are dimmed, and pressing one
- * shakes it. Number keys pick a category, then a spell; Escape goes back.
+ * shakes it. An open category's menu ends with its hidden spells'
+ * silhouettes. Number keys pick a category, then a spell; Escape goes back.
  */
 export class HeroPanel {
   private readonly hpFill = byId('battle-hp-fill');
@@ -43,10 +46,16 @@ export class HeroPanel {
   private categoriesHeight = 0;
   private slotHeight = 0;
 
+  /** The story flags, which reveal some hidden spells (set when a battle starts). */
+  flags: ReadonlySet<string> = new Set();
+
   onCast: (spellId: string) => void = () => {};
   onItem: (itemId: string) => void = () => {};
 
-  constructor() {
+  private readonly atlas: Atlas;
+
+  constructor(atlas: Atlas) {
+    this.atlas = atlas;
     byId('battle-hp-icon').replaceChildren(iconElement('heart', 2, 'HP'));
     this.mana = new ManaBars(byId('battle-mana'));
   }
@@ -98,6 +107,7 @@ export class HeroPanel {
       hero.hp,
       hero.items,
       hero.spells,
+      hero.feats,
       ongoing,
       Boolean(combat),
       this.open,
@@ -126,6 +136,9 @@ export class HeroPanel {
         back,
         ...menu.spells.map((id, index) =>
           this.spellButton(hero, id, index + 1, usable(id), () => cast(id)),
+        ),
+        ...hiddenSlots({ hero, flags: this.flags }, menu.category).map((slot) =>
+          hiddenSpellSlot(this.atlas, slot),
         ),
       );
       // Keep the categories' height so the controls below don't jump; a row

@@ -14,7 +14,7 @@ import { Stage, type StageOptions } from './stage';
  * hero panel, then draws them.
  */
 export class BattleView {
-  readonly hero = new HeroPanel();
+  readonly hero: HeroPanel;
   private readonly board = new BoardView(
     byId<HTMLCanvasElement>('board-canvas'),
     byId<HTMLCanvasElement>('next-canvas'),
@@ -29,6 +29,7 @@ export class BattleView {
 
   constructor(atlas: Atlas) {
     this.atlas = atlas;
+    this.hero = new HeroPanel(atlas);
     this.stage = new Stage(byId<HTMLCanvasElement>('stage-canvas'), atlas);
   }
 
