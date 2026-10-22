@@ -45,7 +45,7 @@ the menu.
 | Ranger | Agility and Luck: slower pieces, more drops and crits                |
 | Knight | Vitality and Guard: most HP and defence, small pools                 |
 | Mage   | Focus and Insight: deepest pools, close to a longer preview; fragile |
-| Rogue  | Strength and Charm: hits harder, cheaper shops, 60 gil               |
+| Rogue  | Strength and Charm: hits harder, people warm to them, 60 gil         |
 
 ### Stats and skill points
 
@@ -54,7 +54,7 @@ screen, which opens after a level-up and from the menu's Skills button (a
 badge counts waiting points), on eight stats: Vitality (HP), Strength
 (strike damage), Guard (less damage taken), Focus (mana pools), Agility
 (slower pieces), Insight (more next pieces, then the enemy's next move),
-Charm (cheaper shops) and Luck (drops and critical strikes). The same
+Charm (people like you more) and Luck (drops and critical strikes). The same
 points enhance spells (below). Points can be saved; spending is permanent.
 
 ### Spells
@@ -102,6 +102,10 @@ gold lightning, green nature, orange earth, violet arcane and cyan wind.
   as Meteor counts toward each of its elements): stronger line effects,
   more of its pieces and a title such as "Stone Knight".
 - Areas tilt which pieces fall; charms and alignment tilt them back.
+- Every townsperson has an element too. Your alignment around it, plus
+  Charm, sets their attitude, shown as a face over their head: from a
+  scowl (won't deal) through a frown (dearer, harder) to a grin (cheaper,
+  extra rewards and a secret offer). Anyone the story needs always deals.
 
 The battle screen shows all of this instead of describing it: every
 crystal carries its element's icon, cleared lines flash and burst their
@@ -163,8 +167,10 @@ All content is data. No logic changes are needed for:
 
 - **An enemy**: add an entry to `src/data/enemies.ts`. Its `moves` decide its
   magic (`attack`, `curse`, `haste`, `heal`, `drain`).
-- **An NPC**: add an entry to `src/data/npcs.ts` with a `challenge` and
-  `rewards`, then place it on a map in `src/data/maps.ts`.
+- **An NPC**: add an entry to `src/data/npcs.ts` with an `element`,
+  `lines` (a real need; the challenge is the task; the reward follows),
+  a `challenge`, `rewards`, a Friendly `bonus` and a Devoted `secret`,
+  then place it on a map in `src/data/maps.ts`.
 - **A map**: draw rows with the legend in `src/world/tiles.ts`, add `warps`
   and `entities`, and link it from another map.
 

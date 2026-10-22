@@ -96,16 +96,16 @@ of its elements. Alignment only goes up; you grow by learning.
 The hero has eight stats. Each is a rank from 0 to its max, bought with
 skill points.
 
-| Stat     | Icon        | Per rank                                                    | Max |
-| -------- | ----------- | ----------------------------------------------------------- | --- |
-| Vitality | Heart       | +6 max HP                                                   | 10  |
-| Strength | Sword       | +1 damage on every line-clear strike                        | 10  |
-| Guard    | Shield      | −1 damage from every enemy hit                              | 10  |
-| Focus    | Potion      | +1 capacity in every mana pool                              | 10  |
-| Agility  | Winged boot | Pieces fall 4% slower (40% at max)                          | 10  |
-| Insight  | Eye         | Rank 3: see 2 next pieces. 6: see 3. 9: enemy's next move   | 9   |
-| Charm    | Gift        | 3% off shop prices (after haggling); NPC attitude (planned) | 10  |
-| Luck     | Clover      | +2% to every item drop; 3% crit chance on 3+ line clears    | 10  |
+| Stat     | Icon        | Per rank                                                                   | Max |
+| -------- | ----------- | -------------------------------------------------------------------------- | --- |
+| Vitality | Heart       | +6 max HP                                                                  | 10  |
+| Strength | Sword       | +1 damage on every line-clear strike                                       | 10  |
+| Guard    | Shield      | −1 damage from every enemy hit                                             | 10  |
+| Focus    | Potion      | +1 capacity in every mana pool                                             | 10  |
+| Agility  | Winged boot | Pieces fall 4% slower (40% at max)                                         | 10  |
+| Insight  | Eye         | Rank 3: see 2 next pieces. 6: see 3. 9: enemy's next move                  | 9   |
+| Charm    | Gift        | +1 NPC [attitude](#npcs-and-attitude) per rank (better prices and rewards) | 10  |
+| Luck     | Clover      | +2% to every item drop; 3% crit chance on 3+ line clears                   | 10  |
 
 - **Skill points**: 2 per hero level. A stat rank costs 1 point. The same
   points buy [spell enhancements](#enhancements). Points can be saved;
@@ -160,15 +160,15 @@ A category can also hold a **support** and **combos**, spells of several
 elements that cost each one's mana. Every spell in a category can be
 taught by that element's [mentor](#mentors).
 
-| Category  | Level 1               | Level 2               | Level 3               | Level 4                 | Effect                             | How to learn                         |
-| --------- | --------------------- | --------------------- | --------------------- | ----------------------- | ---------------------------------- | ------------------------------------ |
-| Fire      | Fire · 6 · 14         | Blaze · 8 · 22        | Inferno · 10 · 36     | Cataclysm · 12 · 57     | Damage                             | Tome, Mossvale stall                 |
-| Water     | Blizzard · 8 · 18/3   | Hailstorm · 10 · 29/3 | Glacier · 12 · 46/4   | Deep Winter · 14 · 74/4 | Damage / delays the enemy N pieces | Sealed chest (puzzle)                |
-| Lightning | Thunder · 8 · 24      | Thunderclap · 10 · 38 | Stormcall · 12 · 61   | Skyfall · 14 · 98       | Damage                             | Rogue start; Sage Orrin (puzzle)     |
-| Nature    | Cure · 6 · 20         | Mend · 8 · 32         | Restore · 10 · 51     | Rebirth · 12 · 82       | Heal HP                            | Start (every class)                  |
-| Earth     | Quake · 6 · 6/2       | Rockslide · 8 · 10/3  | Upheaval · 10 · 16/3  | Worldsplit · 12 · 26/4  | Damage / removes the bottom N rows | Knight start; Elder Rowan (offering) |
-| Arcane    | Shadow Drain · 8 · 18 | Soul Siphon · 10 · 29 | Night Feast · 12 · 46 | Void Hunger · 14 · 74   | Damage, heals half of it           | Mage start; tome, Brightwater shop   |
-| Wind      | Gale · 6 · 10/5       | Squall · 8 · 16/6     | Cyclone · 10 · 26/7   | Hurricane · 12 · 41/8   | Damage / tailwind for N pieces     | Ranger start; tome, Brightwater shop |
+| Category  | Level 1               | Level 2               | Level 3               | Level 4                 | Effect                             | How to learn                       |
+| --------- | --------------------- | --------------------- | --------------------- | ----------------------- | ---------------------------------- | ---------------------------------- |
+| Fire      | Fire · 6 · 14         | Blaze · 8 · 22        | Inferno · 10 · 36     | Cataclysm · 12 · 57     | Damage                             | Torva (mentor)                     |
+| Water     | Blizzard · 8 · 18/3   | Hailstorm · 10 · 29/3 | Glacier · 12 · 46/4   | Deep Winter · 14 · 74/4 | Damage / delays the enemy N pieces | Maren (mentor)                     |
+| Lightning | Thunder · 8 · 24      | Thunderclap · 10 · 38 | Stormcall · 12 · 61   | Skyfall · 14 · 98       | Damage                             | Rogue start; Sage Orrin (puzzle)   |
+| Nature    | Cure · 6 · 20         | Mend · 8 · 32         | Restore · 10 · 51     | Rebirth · 12 · 82       | Heal HP                            | Start (every class)                |
+| Earth     | Quake · 6 · 6/2       | Rockslide · 8 · 10/3  | Upheaval · 10 · 16/3  | Worldsplit · 12 · 26/4  | Damage / removes the bottom N rows | Knight start; Elder Rowan (puzzle) |
+| Arcane    | Shadow Drain · 8 · 18 | Soul Siphon · 10 · 29 | Night Feast · 12 · 46 | Void Hunger · 14 · 74   | Damage, heals half of it           | Mage start; Selene (mentor)        |
+| Wind      | Gale · 6 · 10/5       | Squall · 8 · 16/6     | Cyclone · 10 · 26/7   | Hurricane · 12 · 41/8   | Damage / tailwind for N pieces     | Ranger start; Kestrel (mentor)     |
 
 Each cell is name · mana of the category's element · power (or healing),
 then rows or pieces after the slash.
@@ -332,7 +332,7 @@ buttons (spell, level pips, kind, cost, difficulty as swords).
   **locked**: none of its spells can be enhanced until **that** lesson is
   won. The mentor's other lessons stay on offer but don't lift the lock;
   the lost one is marked with a lock in their list. If the hero comes to
-  know that spell at that level another way (e.g. a tome), the lock lifts
+  know that spell at that level another way (e.g. an old save's tome), the lock lifts
   by itself, so it can never become permanent. A later loss while locked
   keeps the first lesson as the one to win. The lock shows the mentor's
   face and where they are now; since mentors travel, the hero may have to
@@ -344,7 +344,10 @@ Worn in the accessory slot; each adds 1 copy of its element's piece to
 every bag. Ember (fire) sells in Mossvale; Ember, Tide (water), Storm
 (lightning) and Wind sell at the Brightwater smithy. The Storm Charm undoes
 the Moon Caves' lightning penalty, which matters against the
-lightning-weak Shade Imp and Moon Wyrm.
+lightning-weak Shade Imp and Moon Wyrm. The rest come from people: the
+Well Stone (earth) from Elder Rowan, for a hero who already knows Quake;
+the Grove Charm (nature), the Moon Charm (arcane) and Pip's Wind Charm as
+Devoted secrets (see [NPCs and attitude](#npcs-and-attitude)).
 
 ## Hidden spells
 
@@ -380,8 +383,8 @@ revealed, its element's mentor teaches it (difficulty one above the usual:
   haste is on (`hastedQuad`). Crystals Purify makes from stone count as
   water; no hidden spell needs pure water lines.
 - **Items**: walking into the mentor with the item first asks: the item,
-  an arrow and the mentor's face, with **Give** or **Keep** (so a Spore Cap
-  can still go to Elder Rowan). Giving hands it over (shown under their
+  an arrow and the mentor's face, with **Give** or **Keep** (so the hero
+  can hold on to it). Giving hands it over (shown under their
   speech) and reveals the spell for good (`gift:<spell>` flag); keeping
   goes on to the usual conversation and asks again next time.
 - **Running effects**: a heal-over-time keeps whichever of Regen and
@@ -413,8 +416,8 @@ Presenting an item works like casting a spell: a spell costs mana, an
 offering costs **points**. The NPC names an item and a price ("score 600
 within 18 pieces"). You must hold the item to try, and it is only taken
 if you succeed, so failing costs time, not loot. This turns monster drops
-into quest currency (Spore Cap → Elder Rowan teaches Quake; Goblin Charm →
-the collector pays gil; Moon Shard → the hermit gives potions).
+into quest currency (a Goblin Charm, cleaned → the collector pays gil; a
+Moon Shard, ground → the hermit mixes salves).
 
 ### Barter
 
@@ -428,8 +431,8 @@ Used by every shop and the inn. The price starts at 100%. Each line you
 clear pushes it down (−5% / −12% / −20% / −30% for 1–4 lines); the merchant
 pushes it up 3% on a timer. After a fixed number of pieces the deal is
 struck at the current price (50%–150%). Overflowing ends the haggle with no
-deal. Fast, clean play is literally cheaper. The hero's Charm then takes 3%
-a rank off every price.
+deal. Fast, clean play is literally cheaper. The keeper's
+[attitude](#npcs-and-attitude) then moves every price.
 
 ### Puzzle
 
@@ -443,6 +446,91 @@ tests replay, so none can be accidentally unsolvable.
 - **Duel**: a rival on a second board sends stone rows when they clear.
 - **Escort / timed**: survive N seconds while an NPC's needs tick up.
 - **Gift instead of score**: pay the point cost with elemental mana instead of playing.
+
+## NPCs and attitude
+
+Every NPC who is not a mentor has an element, and an **attitude** toward
+the hero, worked out fresh each time (never saved):
+
+> score = alignment in their element + ½ × alignment in the two related
+> elements − ½ × alignment in the two elements that beat theirs + Charm rank
+
+For a fire NPC, earth and lightning are related and water and wind are
+opposed; nature and arcane (which fire beats) don't count. The tier
+(`src/game/attitude.ts`):
+
+| Attitude | Score     | Face  | Prices | Rewards               | Will deal?               | Dialogue        |
+| -------- | --------- | ----- | ------ | --------------------- | ------------------------ | --------------- |
+| Hostile  | below −2½ | Scowl | —      | —                     | Refuses (see below)      | Curt            |
+| Wary     | −2½ to −1 | Frown | +20%   | Base                  | Harder challenge         | Suspicious      |
+| Neutral  | −½ to 2½  | Flat  | ±0     | Base                  | Yes                      | Plain           |
+| Friendly | 3 to 5½   | Smile | −10%   | Base + one bonus item | Yes                      | Warm            |
+| Devoted  | 6 and up  | Grin  | −20%   | Base + bonus + secret | Yes, plus a secret offer | Confides, hints |
+
+A new hero (1 alignment, Charm 0–2) is Neutral to almost everyone; the
+Rogue's Charm 2 makes the lightning sage Friendly from the start. A few
+spell levels in one element, or Charm, make its people Friendly; Devoted
+takes real growth. A hero deep in the two elements that beat an NPC's
+(e.g. water 3 and nature 3 against earth) turns them Hostile.
+
+- **Shown, not told**: the face floats beside the NPC's head on the map,
+  sits on their portrait in the conversation, and leads the shop header
+  with the price change. Bonus and secret rewards show in a gold frame
+  after the usual rewards; secret shop stock is starred.
+- **Prices**: what you pay = list price × haggle result × attitude price,
+  rounded, at least 1 gil. Charm counts once, inside attitude; there is no
+  separate Charm discount.
+- **Wary is harder**: offerings need 25% more points, barters 25% more
+  crystals (rounded up), and merchants push prices up 25% faster. Puzzles
+  are unchanged, since each has exactly one recorded solution.
+- **Devoted secrets**: quest NPCs add a `secret` item; shopkeepers bring
+  out `secretStock`. The Elder's secret is a Spore Cap, which reveals Bloom
+  when brought to Hazel; the sage's confidence hints at Ball Lightning.
+- **No soft-locks**: NPCs whose rewards the realm needs (Captain Vale's
+  Cave Pass; Shrine Keeper Ilse's spring, which reveals Purify) are
+  `essential`: when Hostile they still deal, at Wary terms, with their curt
+  lines. The tests check every flag a warp or hidden spell needs comes from
+  such an NPC. Everyone else may refuse; nothing they give is required.
+- **Known spells**: a spell reward names an `instead`, given to a hero who
+  already knows the spell (the Knight gets the Elder's Well Stone, the
+  Rogue the sage's Storm Charm). A deed is never repaid with nothing.
+- **Things** (the sealed chest) have no face and always deal at Neutral.
+
+### Dialogue rules
+
+Every NPC follows three rules, with short lines (one or two sentences):
+
+1. **A real need.** The NPC wants something for a reason in their life.
+2. **The challenge is the task.** The battle is doing that thing, not a
+   test of the hero.
+3. **The reward follows.** What they give comes from what you did.
+
+Each NPC has an intro, accept, decline, win and lose line (plus a done
+line once a one-time task is finished). Lines that matter come in three
+moods: cold (Hostile, Wary), plain (Neutral) and warm (Friendly, Devoted).
+Devoted NPCs confide instead of the warm intro, and NPCs who can refuse
+have a refusal. The accept line opens the battle as a banner; the decline
+line shows over the map.
+
+| NPC                | Element   | Need                                      | Challenge                      | Reward (bonus / secret)                           |
+| ------------------ | --------- | ----------------------------------------- | ------------------------------ | ------------------------------------------------- |
+| Elder Rowan        | Earth     | Spores choke the village well             | Puzzle: clear the spore field  | Quake, or the Well Stone (Ether / Spore Cap)      |
+| Farmer Bea         | Nature    | Blight left her herb beds bare            | Barter: plant 8 green          | 2 Herbs (Herb / Grove Charm)                      |
+| Pip                | Wind      | His crystal tower is jammed before supper | Puzzle: unjam the tower        | Ether (Herb / Wind Charm)                         |
+| Stall Keeper Odo   | Nature    | Makes his living at the stall             | Haggle                         | Mossvale Stall (secret: Iron Sword)               |
+| Merchant Lio       | Water     | Must clear stock before the barges come   | Haggle                         | Brightwater Goods (secret: Crystal Mail)          |
+| Smith Hilda        | Fire      | The forge eats coal faster than she sells | Haggle                         | Ember Forge (secret: Hilda's Hammer)              |
+| Innkeeper Mae      | Fire      | Empty rooms since the caves closed        | Haggle                         | The Sleeping Lantern (secret: Phoenix Feather)    |
+| Sage Orrin         | Lightning | The storm broke his roof lattice          | Puzzle: rebuild the lattice    | Thunder, or a Storm Charm (Ether / 2 Ethers)      |
+| Captain Vale       | Earth     | The cave ward lamps are dying             | Barter: 8 blue, 8 violet       | Cave Pass, 20 gil (Herb / Phoenix Feather)        |
+| Collector Nim      | Wind      | Goblin Charms for his cabinet, but clean  | Offering: clean a Goblin Charm | 45 gil (Ether / Moon Shard)                       |
+| Shrine Keeper Ilse | Water     | The shrine spring clouded with the lake   | Barter: 10 blue, 6 green       | Spring restored, Ether (Ether / Tide Charm)       |
+| Cave Hermit        | Arcane    | Grinds Moon Shards into salves            | Offering: grind a Moon Shard   | 2 Ethers, 2 Herbs (Herb / Moon Charm)             |
+| Sealed Chest       | Arcane    | (a thing)                                 | Puzzle: break the seal         | Phoenix Feather, 2 Moon Shards (a delver's cache) |
+
+Spell tomes left the shops: mentors teach spells. Their items remain, so
+a tome an old save holds can still be read. The sealed chest's Blizzard
+tome became a delver's cache (Maren teaches Blizzard).
 
 ## Enemy roster
 
@@ -468,16 +556,19 @@ recoloured to their element.
 
 Mossvale (learn the challenge types) → overworld monsters (drops, levels)
 → Brightwater (shops, Thunder, earn the Cave Pass by barter) → Moon Caves
-(Blizzard tome, hermit) → Moon Wyrm boss. Fire is a tome at the Mossvale
-stall. The Sunken Ruins are sealed as the hook for the next region.
+(sealed chest, hermit) → Moon Wyrm boss. Spells beyond the class spell
+come from mentors, the Elder (Quake) and the sage (Thunder); shops sell no
+tomes. The Sunken Ruins are sealed as the hook for the next region.
 
 ## Planned: progression redesign
 
-**Status: stages 1–4 are built and now documented in
+**Status: stages 1–6 are built and now documented in
 [Elements](#elements), [Hero classes and alignment](#hero-classes-and-alignment),
 [Stats and skill points](#stats-and-skill-points),
 [Hero magic](#hero-magic), [Enhancements](#enhancements),
-[Mentors](#mentors) and [Hidden spells](#hidden-spells). The rest is planned.** All numbers are starting values to tune in play.
+[Mentors](#mentors), [Hidden spells](#hidden-spells) and
+[NPCs and attitude](#npcs-and-attitude). Only new content remains (see
+below).** All numbers are starting values to tune in play.
 
 ### Goals
 
@@ -505,36 +596,6 @@ stats delays a spell's next level, so in practice one spell reaches level
 Built (see [Hidden spells](#hidden-spells)): one per element, revealed by a
 stat, alignment, a board feat, a quest or an item.
 
-### NPC alignment and attitude
-
-Every non-mentor NPC has an element. Their **attitude** toward the hero is:
-
-> your alignment in their element + ½ × your related alignments
-> − ½ × your opposed alignments + Charm
-
-| Attitude | Face icon | Prices | Rewards       | Will deal?             | Dialogue        |
-| -------- | --------- | ------ | ------------- | ---------------------- | --------------- |
-| Hostile  | Scowl     | —      | —             | Refuses                | Curt            |
-| Wary     | Frown     | +20%   | Base          | Harder challenge       | Suspicious      |
-| Neutral  | Flat      | ±0     | Base          | Yes                    | Plain           |
-| Friendly | Smile     | −10%   | +1 extra item | Yes                    | Warm            |
-| Devoted  | Grin      | −20%   | Best reward   | Yes, plus secret offer | Confides, hints |
-
-The face shows before you talk, so the hero can see who likes them.
-
-### NPC dialogue rules
-
-Every NPC encounter follows three rules:
-
-1. **A real need.** The NPC wants something for a reason in their life.
-2. **The challenge is the task.** The battle is doing that thing, not a
-   test of the hero.
-3. **The reward follows.** What they give comes from what you did for them.
-
-Example: Elder Rowan's spore field is choking the village well. Clearing it
-(the battle) cleans the well, and she teaches Quake, the spell she used to
-break the ground for that well.
-
 ### What this changes
 
 - **Content**: one spell to level 3 takes 12–15 levels, so the realm needs
@@ -550,8 +611,8 @@ break the ground for that well.
   at home) and replaces locked categories with the lost lesson behind each
   lock (`failedLessons`; older saves had none). v7 (built) adds the
   hero's lifetime board feats (`feats`; older saves start empty).
-- **Removed**: attunement and the level 3 choice (done); spell tomes from
-  shops (later: they become quest or mentor rewards).
+- **Removed**: attunement and the level 3 choice; spell tomes from shops
+  (mentors teach spells).
 
 ### Build order
 
@@ -560,6 +621,6 @@ break the ground for that well.
 3. Spell levels, enhancements and the category menu. **Done.**
 4. Mentors, team-up battles, supports and combo spells. **Done.**
 5. Hidden spells and their unlocks. **Done.**
-6. NPC attitudes and the dialogue rewrite.
+6. NPC attitudes and the dialogue rewrite. **Done.**
 
 Each stage ships with tests and keeps the game playable.
