@@ -19,6 +19,7 @@ import {
   totalDefense,
   useItem,
 } from '../game/hero';
+import { CRIT_MULTIPLIER, critChance } from '../game/stats';
 import { crystalAffinity, elementMultiplier, lineSurge, type LineSurge } from './elemental';
 import type { BattleContext, BattleStatus, Challenge, Objective } from './types';
 
@@ -37,18 +38,24 @@ export interface Spoils {
   readonly drops: string[];
 }
 
-/** Rolls the XP, gil and item drops for defeating `enemy`. */
-export function rollSpoils(enemy: EnemyDef, rng: Rng): Spoils {
-  const drops = (enemy.drops ?? []).filter((d) => rng.next() < d.chance).map((d) => d.itemId);
+/**
+ * Rolls the XP, gil and item drops for defeating `enemy`. `dropBonus` is
+ * added to every drop chance (from Luck).
+ */
+export function rollSpoils(enemy: EnemyDef, rng: Rng, dropBonus = 0): Spoils {
+  const drops = (enemy.drops ?? [])
+    .filter((d) => rng.next() < d.chance + dropBonus)
+    .map((d) => d.itemId);
   return { xp: enemy.xp, gil: enemy.gil, drops };
 }
 
 /**
- * A fight. Each cleared line strikes the enemy, and the line's strongest
- * element triggers its own effect (burn, chill, chain, regrowth, ward,
- * surge or tailwind). Spells spend elemental mana. Every `actEvery` actions
- * the enemy uses one of its moves, physical or magical. Everything that
- * happens is emitted as a `BattleEvent` for the screen to show.
+ * A fight. Each cleared line strikes the enemy (a big clear can crit, from
+ * Luck), and the line's strongest element triggers its own effect (burn,
+ * chill, chain, regrowth, ward, surge or tailwind). Spells spend elemental
+ * mana. Every `actEvery` actions the enemy uses one of its moves, physical
+ * or magical, chosen one turn ahead so Insight can reveal it. Everything
+ * that happens is emitted as a `BattleEvent` for the screen to show.
  */
 export class CombatChallenge implements Challenge {
   readonly enemy: EnemyDef;
@@ -57,6 +64,8 @@ export class CombatChallenge implements Challenge {
   countdown: number;
   /** Earth ward: damage absorbed before HP. */
   ward = 0;
+  /** The move the enemy will use when the countdown runs out. */
+  nextMove: EnemyMove;
 
   private readonly ctx: BattleContext;
 
@@ -67,15 +76,24 @@ export class CombatChallenge implements Challenge {
     this.enemy = enemy;
     this.enemyHp = enemy.hp;
     this.countdown = enemy.actEvery;
+    this.nextMove = ctx.rng.pick(enemy.moves);
   }
 
   onLock(result: LockResult): void {
     if (result.linesCleared > 0) {
       const lines = Math.min(result.linesCleared, LINE_DAMAGE.length - 1);
       const affinity = crystalAffinity(this.enemy, elementsOf(result.clearedCells));
-      const damage = Math.max(1, (LINE_DAMAGE[lines] ?? 0) + totalAttack(this.ctx.hero) + affinity);
-      this.hitEnemy(damage, null, affinity > 0 ? 'weak' : affinity < 0 ? 'resist' : null);
-      const alignment = heroAlignment(this.ctx.hero);
+      const hero = this.ctx.hero;
+      const chance = critChance(hero.stats.luck, result.linesCleared);
+      const crit = chance > 0 && this.ctx.rng.next() < chance;
+      if (crit) this.ctx.emit({ kind: 'crit' });
+      const damage = Math.max(1, (LINE_DAMAGE[lines] ?? 0) + totalAttack(hero) + affinity);
+      this.hitEnemy(
+        crit ? damage * CRIT_MULTIPLIER : damage,
+        null,
+        affinity > 0 ? 'weak' : affinity < 0 ? 'resist' : null,
+      );
+      const alignment = heroAlignment(hero);
       result.lines.forEach((line, i) => {
         const surge = lineSurge(line, alignment);
         if (surge && this.status() === 'ongoing') {
@@ -242,7 +260,9 @@ export class CombatChallenge implements Challenge {
     this.countdown--;
     if (this.countdown <= 0) {
       this.countdown = this.enemy.actEvery;
-      this.enemyAct(this.ctx.rng.pick(this.enemy.moves));
+      const move = this.nextMove;
+      this.nextMove = this.ctx.rng.pick(this.enemy.moves);
+      this.enemyAct(move);
     }
   }
 

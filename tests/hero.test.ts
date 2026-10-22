@@ -29,6 +29,7 @@ import {
   totalDefense,
   useItem,
 } from '../src/game/hero';
+import { SKILL_POINTS_PER_LEVEL } from '../src/game/stats';
 
 describe('hero', () => {
   it('starts at level 1 with its class spell and Cure, named after the class', () => {
@@ -40,29 +41,51 @@ describe('hero', () => {
     expect(createHero('mage', 'Test').name).toBe('Test');
   });
 
-  it('takes starting stats and gil from its class', () => {
-    for (const cls of Object.values(CLASSES)) {
-      const hero = createHero(cls.id);
-      expect([hero.maxHp, hero.manaCap, hero.atk, hero.def, hero.gil]).toEqual([
-        cls.base.hp,
-        cls.base.mana,
-        cls.base.atk,
-        cls.base.def,
-        cls.gil,
-      ]);
-    }
+  it('starts with the same totals as before stats existed', () => {
+    const totals = (id: string) => {
+      const hero = createHero(id);
+      return [hero.maxHp, hero.manaCap, hero.atk, hero.def, hero.gil];
+    };
+    expect(totals('ranger')).toEqual([40, 12, 5, 1, 25]);
+    expect(totals('knight')).toEqual([48, 10, 5, 3, 20]);
+    expect(totals('mage')).toEqual([34, 16, 4, 1, 25]);
+    expect(totals('rogue')).toEqual([36, 12, 6, 1, 60]);
   });
 
-  it('grows by its class on level-up', () => {
-    const knight = createHero('knight');
-    gainXp(knight, knight.nextXp);
-    const { growth, base } = CLASSES.knight!;
-    expect([knight.maxHp, knight.manaCap, knight.atk, knight.def]).toEqual([
-      base.hp + growth.hp,
-      base.mana + growth.mana,
-      base.atk + growth.atk,
-      base.def + growth.def,
+  it('starts with its class spread of 4 stat ranks and no points', () => {
+    const spread = (id: string) =>
+      Object.entries(createHero(id).stats).filter(([, rank]) => rank > 0);
+    expect(spread('knight')).toEqual([
+      ['vitality', 2],
+      ['guard', 2],
     ]);
+    expect(spread('mage')).toEqual([
+      ['focus', 2],
+      ['insight', 2],
+    ]);
+    expect(spread('ranger')).toEqual([
+      ['agility', 2],
+      ['luck', 2],
+    ]);
+    expect(spread('rogue')).toEqual([
+      ['strength', 2],
+      ['charm', 2],
+    ]);
+    expect(createHero().skillPoints).toBe(0);
+  });
+
+  it('gains 2 skill points and only HP growth per level', () => {
+    const knight = createHero('knight');
+    const before = { ...knight };
+    gainXp(knight, knight.nextXp);
+    expect(knight.skillPoints).toBe(SKILL_POINTS_PER_LEVEL);
+    expect(knight.maxHp).toBe(before.maxHp + CLASSES.knight!.hpGrowth);
+    expect([knight.manaCap, knight.atk, knight.def]).toEqual([
+      before.manaCap,
+      before.atk,
+      before.def,
+    ]);
+    expect(knight.stats).toEqual(before.stats);
   });
 
   it('falls back to the default class for unknown ids', () => {
@@ -178,8 +201,9 @@ describe('hero', () => {
   describe('elemental mana', () => {
     it('starts with every pool full at the class capacity', () => {
       const mage = createHero('mage');
-      expect(mage.mana).toEqual(emptyCounts(CLASSES.mage!.base.mana));
-      expect(mage.manaCap).toBe(CLASSES.mage!.base.mana);
+      const cap = CLASSES.mage!.base.mana + mage.stats.focus;
+      expect(mage.mana).toEqual(emptyCounts(cap));
+      expect(mage.manaCap).toBe(cap);
     });
 
     it('adds mana per element, capped', () => {

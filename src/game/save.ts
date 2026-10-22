@@ -2,7 +2,8 @@ import { emptyCounts, type Element } from '../core/elements';
 import { DEFAULT_CLASS } from '../data/classes';
 import { MAPS } from '../data/maps';
 import { titleElementFor } from './alignment';
-import { heroAlignment, heroClass, type Hero } from './hero';
+import { heroAlignment, heroClass, refreshStats, type Hero } from './hero';
+import { SKILL_POINTS_PER_LEVEL, statRanks } from './stats';
 import type { Direction, Location } from '../world/map';
 import type { GameState } from '../world/state';
 
@@ -11,10 +12,11 @@ export const SAVE_KEY = 'the-realm/save';
  * Version history:
  * - 2 replaced MP with elemental mana and added attunement and charms.
  * - 3 replaced attunement with alignment and gave each class its own spell.
+ * - 4 added stats and skill points; levels no longer raise mana, attack or defence.
  */
-export const SAVE_VERSION = 3;
+export const SAVE_VERSION = 4;
 /** Older versions `deserialize` can still upgrade. */
-const MIGRATABLE_VERSIONS: readonly number[] = [1, 2, SAVE_VERSION];
+const MIGRATABLE_VERSIONS: readonly number[] = [1, 2, 3, SAVE_VERSION];
 
 /** JSON-friendly form of `GameState` (sets become arrays). */
 interface SaveData {
@@ -116,7 +118,11 @@ type StoredHero = Partial<Hero> & { mp?: number; maxMp?: number; attunement?: El
  * - saves from before hero classes get the default class;
  * - version 1 MP becomes a full set of elemental pools;
  * - version 2 attunement is dropped: the hero learns their class's spell and
- *   keeps their attuned title until another element pulls ahead.
+ *   keeps their attuned title until another element pulls ahead;
+ * - before version 4 there were no stats: the hero gets the class's starting
+ *   ranks and 2 unspent points per level gained, and max HP, mana, attack
+ *   and defence are recomputed (levels now only add HP), with current HP and
+ *   mana kept within the new caps.
  */
 function migrateHero(stored: StoredHero): Hero {
   const { mp, maxMp, attunement, ...rest } = stored;
@@ -125,7 +131,7 @@ function migrateHero(stored: StoredHero): Hero {
   const manaCap = rest.manaCap ?? maxMp ?? 12;
   const known = rest.spells ?? [];
   const spells = known.includes(cls.spell) ? known : [cls.spell, ...known];
-  return {
+  const hero: Hero = {
     ...(rest as Hero),
     classId,
     titleElement:
@@ -135,4 +141,10 @@ function migrateHero(stored: StoredHero): Hero {
     manaCap,
     mana: rest.mana ?? emptyCounts(Math.min(mp ?? manaCap, manaCap)),
   };
+  if (!rest.stats) {
+    hero.stats = statRanks(cls.stats);
+    hero.skillPoints = SKILL_POINTS_PER_LEVEL * (hero.level - 1);
+    refreshStats(hero);
+  }
+  return hero;
 }

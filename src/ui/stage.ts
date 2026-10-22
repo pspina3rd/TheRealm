@@ -5,10 +5,11 @@ import type { Objective } from '../battle/types';
 import type { Atlas } from './art/atlas';
 import { CREATURES, battleFrame, mapFrame, type CreatureId } from './art/creatures';
 import { ELEMENT_COLOR_OF, type Feedback, type Target } from './art/feedback';
-import { ELEMENT_ICONS, ICON_SIZE, type IconId } from './art/icons';
+import { ELEMENT_ICONS, ICON_SIZE, MOVE_ICONS, type IconId } from './art/icons';
 import { effectDuration, effectFrame, type EffectId } from './art/vfx';
 import { drawCount } from './boardView';
-import { drawIcon } from './iconDraw';
+import { drawIcon, drawIconSpec } from './iconDraw';
+import { seesEnemyMove } from '../game/stats';
 
 const FLOAT_MS = 1000;
 const POP_MS = 800;
@@ -117,7 +118,7 @@ export class Stage {
     this.drawHero(timeMs);
     this.drawOpponent(dtMs, timeMs);
     const combat = battle.combat;
-    if (combat) this.drawEnemyStatus(combat, timeMs);
+    if (combat) this.drawEnemyStatus(combat, seesEnemyMove(battle.hero.stats.insight), timeMs);
     else this.drawObjective(battle.objective);
     this.drawEffects(dtMs);
     this.drawPops(dtMs);
@@ -170,8 +171,11 @@ export class Stage {
     ctx.restore();
   }
 
-  /** HP bar, weakness/resistance icons and turn pips above the enemy. */
-  private drawEnemyStatus(combat: CombatChallenge, timeMs: number): void {
+  /**
+   * HP bar, weakness/resistance icons and turn pips above the enemy, and
+   * the icon of its next move when the hero's Insight reveals it.
+   */
+  private drawEnemyStatus(combat: CombatChallenge, showMove: boolean, timeMs: number): void {
     const { ctx } = this;
     const { x, y, w, h } = LAYOUT.bar;
     const ratio = Math.max(0, combat.enemyHp) / combat.enemy.hp;
@@ -199,18 +203,25 @@ export class Stage {
       ix += 12;
     }
 
-    // Turn pips: one per action until the enemy acts; the last one pulses.
+    // Turn pips on their own row: one per action until the enemy acts; the
+    // last one pulses. Insight can show the coming move just before them.
     const pips = combat.countdown;
+    const pipY = iconY + 42;
     for (let i = 0; i < pips; i++) {
       const px = x + w - 10 - i * 14;
       const urgent = pips === 1;
       const pulse = urgent ? 0.5 + 0.5 * Math.sin(timeMs / 90) : 1;
       ctx.fillStyle = urgent ? `rgba(255, 92, 122, ${pulse})` : '#f5d77b';
       ctx.beginPath();
-      ctx.arc(px, iconY + 12, 6, 0, Math.PI * 2);
+      ctx.arc(px, pipY, 6, 0, Math.PI * 2);
       ctx.fill();
     }
-
+    if (showMove) {
+      const mx = x + w - 10 - pips * 14 - 22;
+      ctx.fillStyle = '#10132acc';
+      ctx.fillRect(mx - 3, pipY - 15, 30, 30);
+      drawIconSpec(ctx, MOVE_ICONS[combat.nextMove.kind], mx, pipY - 12, 2);
+    }
     if (combat.ward > 0) {
       drawIcon(ctx, 'ward', LAYOUT.hero.x + 30, LAYOUT.hero.baseline - 100, { scale: 2 });
       drawCount(ctx, combat.ward, LAYOUT.hero.x + 58, LAYOUT.hero.baseline - 80);

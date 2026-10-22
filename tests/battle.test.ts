@@ -47,8 +47,31 @@ describe('Battle', () => {
   it('applies gravity over time', () => {
     const battle = makeBattle(haggle);
     const y = battle.board.active!.y;
-    battle.update(gravityInterval(1) * 2);
+    battle.update(battle.gravityMs * 2);
     expect(battle.board.active!.y).toBe(y + 2);
+  });
+
+  it('slows gravity 4% per Agility rank', () => {
+    const battle = makeBattle(haggle);
+    battle.hero.stats.agility = 0;
+    expect(battle.gravityMs).toBe(gravityInterval(1));
+    battle.hero.stats.agility = 5;
+    expect(battle.gravityMs).toBeCloseTo(gravityInterval(1) * 1.2);
+    battle.hastePieces = 2;
+    expect(battle.gravityMs).toBeCloseTo((gravityInterval(1) * 1.2) / 2);
+  });
+
+  it('shows more upcoming pieces with Insight', () => {
+    const battle = makeBattle(haggle);
+    const seen = (insight: number) => {
+      battle.hero.stats.insight = insight;
+      return battle.upcoming;
+    };
+    expect(seen(0)).toHaveLength(1);
+    expect(seen(3)).toHaveLength(2);
+    expect(seen(6)).toHaveLength(3);
+    expect(seen(9)).toHaveLength(3);
+    expect(seen(6)).toEqual(battle.board.preview(3));
   });
 
   it('ignores input and time while paused', () => {

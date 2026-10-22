@@ -9,6 +9,7 @@ import type { EntityDef } from '../world/map';
 import { markDefeated, travel, type GameState } from '../world/state';
 import { addItem, fillMana, gainXp, itemCount, removeItem } from './hero';
 import { grantRewards, type Gain } from './rewards';
+import { SKILL_POINTS_PER_LEVEL, dropBonus } from './stats';
 
 /** Who is speaking in an interaction, for the conversation screen. */
 interface Speaker {
@@ -115,14 +116,17 @@ function resolveCombat(
   const gains: Gain[] = [];
 
   if (won) {
-    const spoils = rollSpoils(combat.enemy, rng);
+    const spoils = rollSpoils(combat.enemy, rng, dropBonus(hero.stats.luck));
     gains.push({ kind: 'xp', amount: spoils.xp }, { kind: 'gil', amount: spoils.gil });
     hero.gil += spoils.gil;
     for (const itemId of spoils.drops) {
       addItem(hero, itemId);
       gains.push({ kind: 'item', itemId, count: 1 });
     }
-    if (gainXp(hero, spoils.xp) > 0) gains.push({ kind: 'level', level: hero.level });
+    const levels = gainXp(hero, spoils.xp);
+    if (levels > 0) {
+      gains.push({ kind: 'level', level: hero.level, points: levels * SKILL_POINTS_PER_LEVEL });
+    }
     markDefeated(state, entity);
   } else {
     const lost = Math.floor(hero.gil / 2);

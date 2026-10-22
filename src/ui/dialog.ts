@@ -1,8 +1,11 @@
-import { button, byId } from './dom';
+import { button, byId, el } from './dom';
 
 export interface DialogAction {
   readonly label: string;
   readonly onClick: () => void;
+  readonly disabled?: boolean;
+  /** A count shown as a badge on the button (e.g. unspent skill points); hidden when 0. */
+  readonly badge?: number;
 }
 
 export interface DialogOptions {
@@ -58,7 +61,13 @@ export class Dialog {
           : part,
       ),
     );
-    this.actionsEl.replaceChildren(...options.actions.map((a) => button(a.label, a.onClick)));
+    this.actionsEl.replaceChildren(
+      ...options.actions.map((a) => {
+        const node = button(a.label, a.onClick, { disabled: a.disabled ?? false });
+        if (a.badge) node.append(el('span', { className: 'badge', text: String(a.badge) }));
+        return node;
+      }),
+    );
     this.onCancel = options.onCancel ?? (() => this.close());
     if (!this.root.open) this.root.showModal();
     // The last action is the default; callers keep destructive choices away from it.

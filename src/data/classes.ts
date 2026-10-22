@@ -1,6 +1,7 @@
 import type { Element } from '../core/elements';
+import type { StatRanks } from './stats';
 
-/** Starting stats and per-level growth for a hero class. */
+/** A class's base numbers, before stat ranks. */
 export interface ClassStats {
   readonly hp: number;
   /** Capacity of each of the seven elemental mana pools. */
@@ -21,26 +22,33 @@ export interface HeroClass {
   readonly element: Element;
   /** The class's first spell, a level 1 spell of its element. */
   readonly spell: string;
+  /** Base numbers; stat ranks add to these (see `derivedStats`). */
   readonly base: ClassStats;
-  readonly growth: ClassStats;
+  /** Max HP gained automatically per level; everything else comes from skill points. */
+  readonly hpGrowth: number;
+  /** Stat ranks the class starts with. */
+  readonly stats: Partial<StatRanks>;
   readonly gil: number;
 }
 
 /**
  * Playable classes. They differ only slightly, so any class can finish the
  * game; the choice shapes whether you lean on line clears, magic or gil.
+ * Each starts with 4 stat ranks; bases are set so starting totals match
+ * the classes before stats existed.
  */
 export const CLASSES: Readonly<Record<string, HeroClass>> = {
   ranger: {
     id: 'ranger',
     name: 'Ranger',
     heroName: 'Fen',
-    description: 'Balanced in every stat. A good first adventure.',
+    description: 'Quick and lucky: slower pieces and better drops. A good first adventure.',
     sprite: 'char.026',
     element: 'wind',
     spell: 'gale',
     base: { hp: 40, mana: 12, atk: 5, def: 1 },
-    growth: { hp: 8, mana: 2, atk: 2, def: 1 },
+    hpGrowth: 8,
+    stats: { agility: 2, luck: 2 },
     gil: 25,
   },
   knight: {
@@ -51,32 +59,35 @@ export const CLASSES: Readonly<Record<string, HeroClass>> = {
     sprite: 'char.019',
     element: 'earth',
     spell: 'quake',
-    base: { hp: 48, mana: 10, atk: 5, def: 3 },
-    growth: { hp: 10, mana: 1, atk: 2, def: 2 },
+    base: { hp: 36, mana: 10, atk: 5, def: 1 },
+    hpGrowth: 10,
+    stats: { vitality: 2, guard: 2 },
     gil: 20,
   },
   mage: {
     id: 'mage',
     name: 'Mage',
     heroName: 'Lyra',
-    description: 'Deep mana pools for frequent spells, but fragile.',
+    description: 'Deep mana pools and keen insight, but fragile.',
     sprite: 'char.016',
     element: 'arcane',
     spell: 'shadow',
-    base: { hp: 34, mana: 16, atk: 4, def: 1 },
-    growth: { hp: 6, mana: 3, atk: 2, def: 1 },
+    base: { hp: 34, mana: 14, atk: 4, def: 1 },
+    hpGrowth: 6,
+    stats: { focus: 2, insight: 2 },
     gil: 25,
   },
   rogue: {
     id: 'rogue',
     name: 'Rogue',
     heroName: 'Vex',
-    description: 'Hits a little harder and starts with a fat purse.',
+    description: 'Hits harder, haggles better and starts with a fat purse.',
     sprite: 'char.004',
     element: 'lightning',
     spell: 'thunder',
-    base: { hp: 36, mana: 12, atk: 6, def: 1 },
-    growth: { hp: 7, mana: 2, atk: 3, def: 1 },
+    base: { hp: 36, mana: 12, atk: 4, def: 1 },
+    hpGrowth: 7,
+    stats: { strength: 2, charm: 2 },
     gil: 60,
   },
 };

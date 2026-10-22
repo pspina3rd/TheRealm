@@ -1,11 +1,15 @@
 import { ITEMS } from '../data/items';
 import type { ItemDef } from '../data/types';
 import type { GameState } from '../world/state';
-import { addItem, applyItemEffect, equip, slotFor } from './hero';
+import { addItem, applyItemEffect, equip, slotFor, type Hero } from './hero';
+import { charmPriceMultiplier } from './stats';
 
-/** Price after a haggle multiplier, rounded and never below 1 gil. */
-export function priceFor(item: ItemDef, multiplier: number): number {
-  return Math.max(1, Math.round(item.price * multiplier));
+/**
+ * What the hero pays: the list price times a haggle multiplier, less their
+ * Charm discount, rounded and never below 1 gil.
+ */
+export function priceFor(hero: Pick<Hero, 'stats'>, item: ItemDef, multiplier: number): number {
+  return Math.max(1, Math.round(item.price * multiplier * charmPriceMultiplier(hero.stats.charm)));
 }
 
 /** Why the hero can't buy `item`, or null if they can. */
@@ -15,7 +19,7 @@ export function cannotBuyReason(
   multiplier: number,
 ): string | null {
   const hero = state.hero;
-  if (hero.gil < priceFor(item, multiplier)) return 'Not enough gil.';
+  if (hero.gil < priceFor(hero, item, multiplier)) return 'Not enough gil.';
   const slot = slotFor(item);
   if (slot) {
     const owned = (hero[slot] === item.id ? 1 : 0) + (hero.items[item.id] ?? 0);
@@ -41,7 +45,7 @@ export function buy(state: GameState, itemId: string, multiplier: number): strin
   if (reason) throw new Error(reason);
 
   const hero = state.hero;
-  const price = priceFor(item, multiplier);
+  const price = priceFor(hero, item, multiplier);
   hero.gil -= price;
 
   if (item.kind === 'service') {

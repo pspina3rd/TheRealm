@@ -4,8 +4,8 @@ import { addItem, learnSpell, type Hero } from './hero';
 /** Something the hero gained or lost, for the results screen to show as icons. */
 export type Gain =
   | { readonly kind: 'xp'; readonly amount: number }
-  /** Reached a new level. */
-  | { readonly kind: 'level'; readonly level: number }
+  /** Reached a new level, earning skill points. */
+  | { readonly kind: 'level'; readonly level: number; readonly points: number }
   /** Gil gained (negative when lost). */
   | { readonly kind: 'gil'; readonly amount: number }
   /** Items gained (negative count when handed over). */

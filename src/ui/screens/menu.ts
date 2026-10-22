@@ -13,7 +13,8 @@ import {
 } from '../../game/hero';
 import type { Atlas } from '../art/atlas';
 import { alignmentStar } from '../alignmentStarView';
-import { ELEMENT_ICONS, itemIcon, type IconId } from '../art/icons';
+import { ELEMENT_ICONS, STAT_ICONS, itemIcon, type IconId } from '../art/icons';
+import { STATS, STAT_IDS } from '../../data/stats';
 import { button, el } from '../dom';
 import { iconElement } from '../iconDraw';
 import { ManaBars, costIcons } from '../manaBars';
@@ -24,7 +25,7 @@ export interface MenuHandlers {
   readonly onEquip: (itemId: string) => void;
 }
 
-/** Name, title, level, stats and XP, with the hero's sprite and alignment star. */
+/** Name, title, level, totals, stat ranks and XP, with the hero's sprite and alignment star. */
 function heroCard(atlas: Atlas, hero: Hero): HTMLElement {
   const xp = el(
     'div',
@@ -47,6 +48,16 @@ function heroCard(atlas: Atlas, hero: Hero): HTMLElement {
         chip('heart', `${hero.hp}/${hero.maxHp}`, 'HP'),
         chip('sword', totalAttack(hero), 'Attack'),
         chip('ward', totalDefense(hero), 'Defence'),
+      ),
+      el(
+        'div',
+        { className: 'chips stat-strip' },
+        ...STAT_IDS.map((id) =>
+          chip(STAT_ICONS[id], hero.stats[id], `${STATS[id].name}: ${STATS[id].description}`),
+        ),
+        ...(hero.skillPoints > 0
+          ? [chip('point', hero.skillPoints, 'Unspent skill points', 'up')]
+          : []),
       ),
       el('div', { className: 'xp-row' }, iconElement('star', 2, 'Experience'), xp),
     ),

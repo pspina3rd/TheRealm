@@ -11,6 +11,7 @@ import {
 import { ENEMIES } from '../data/enemies';
 import type { ChallengeSpec } from '../data/types';
 import { addMana, type Hero } from '../game/hero';
+import { fallMultiplier, previewCount } from '../game/stats';
 import { BarterChallenge } from './barter';
 import { CombatChallenge } from './combat';
 import { HaggleChallenge } from './haggle';
@@ -82,11 +83,16 @@ export class Battle implements BattleContext {
     return this.challenge instanceof CombatChallenge ? this.challenge : null;
   }
 
-  /** Milliseconds between gravity steps right now. */
+  /** Milliseconds between gravity steps right now (slower with Agility). */
   get gravityMs(): number {
-    const base = gravityInterval(this.level);
+    const base = gravityInterval(this.level) * fallMultiplier(this.hero.stats.agility);
     if (this.hastePieces > 0) return base / 2;
     return this.slowPieces > 0 ? base * TAILWIND_SLOWDOWN : base;
+  }
+
+  /** The upcoming pieces the hero can see (more with Insight). */
+  get upcoming(): PieceName[] {
+    return this.board.preview(previewCount(this.hero.stats.insight));
   }
 
   emit(event: BattleEvent): void {

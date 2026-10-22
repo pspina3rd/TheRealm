@@ -862,3 +862,148 @@ dialog h2 {
 dialog {
   width: min(560px, calc(100vw - 32px));
 }
+
+/* ------------------------------------------------------------ skills --- */
+
+/* Unspent skill points: a badge on the menu button and on the Skills action. */
+#menu-button {
+  position: relative;
+}
+
+#menu-button[data-points]::after {
+  content: attr(data-points);
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  padding: 1px 4px;
+  border-radius: 9px;
+  background: var(--gold);
+  color: #2a2234;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 16px;
+}
+
+.badge {
+  display: inline-block;
+  margin-left: 6px;
+  min-width: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--gold);
+  color: #2a2234;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 18px;
+}
+
+.stat-strip {
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.skill-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  min-height: 28px;
+}
+
+.skill-points b {
+  margin-left: 6px;
+  font-size: 18px;
+  color: var(--gold);
+}
+
+.skill-points .spent {
+  opacity: 0.25;
+}
+
+.stat-rows {
+  display: grid;
+  gap: 6px;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: auto minmax(110px, 1fr) minmax(90px, auto) auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 8px;
+  background: var(--panel-deep);
+  border: 1px solid transparent;
+  border-radius: 8px;
+}
+
+.stat-row.staged {
+  border-color: var(--good);
+}
+
+/* A stat with no ranks yet: its effect shows faintly. */
+.stat-row .chips.none {
+  opacity: 0.4;
+}
+
+.stat-name b {
+  display: block;
+  font-size: 13px;
+}
+
+.rank-pips {
+  display: flex;
+  gap: 3px;
+}
+
+.rank-pips .pip {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #2a2f4d;
+}
+
+.rank-pips .pip.milestone {
+  box-shadow: 0 0 0 1px var(--gold);
+}
+
+.rank-pips .pip.on {
+  background: var(--gold);
+}
+
+.rank-pips .pip.staged {
+  background: var(--good);
+}
+
+.stat-row .step {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+@media (max-width: 760px) {
+  .stat-row {
+    grid-template-columns: auto 1fr auto auto;
+    gap: 4px 8px;
+  }
+
+  .stat-row > .icon,
+  .stat-row .step {
+    grid-row: 1 / span 2;
+  }
+
+  .stat-row .stat-name,
+  .stat-row .chips {
+    grid-column: 2;
+  }
+
+  .stat-row .step:first-of-type {
+    grid-column: 3;
+  }
+
+  .stat-row .step:last-of-type {
+    grid-column: 4;
+  }
+}

@@ -2,13 +2,22 @@ import { ELEMENTS, emptyCounts, type Element, type ElementCounts } from '../core
 import { CLASSES, DEFAULT_CLASS, type HeroClass } from '../data/classes';
 import { ITEMS } from '../data/items';
 import { STARTING_SPELLS } from '../data/spells';
+import { STAT_IDS, type StatRanks } from '../data/stats';
 import type { ElementAmounts, ItemDef, SpellDef } from '../data/types';
 import { ALIGNMENT_TITLES, alignmentOf, titleElementFor } from './alignment';
+import {
+  SKILL_POINTS_PER_LEVEL,
+  derivedStats,
+  isValidPlan,
+  planCost,
+  statRanks,
+  type StatPlan,
+} from './stats';
 
 /** The player character. Plain data so it can be saved as JSON. */
 export interface Hero {
   name: string;
-  /** Key into `CLASSES`; decides starting stats, growth and sprite. */
+  /** Key into `CLASSES`; decides base numbers, starting ranks, HP growth and sprite. */
   classId: string;
   /**
    * The element the hero's title comes from: their strongest alignment,
@@ -20,15 +29,20 @@ export interface Hero {
   /** XP needed to reach the next level. */
   nextXp: number;
   hp: number;
+  /** From class, level and Vitality (kept in step by `refreshStats`). */
   maxHp: number;
   /** Seven elemental mana pools, filled by clearing crystals of each element. */
   mana: ElementCounts;
-  /** Capacity of each mana pool. */
+  /** Capacity of each mana pool: class base plus Focus. */
   manaCap: number;
-  /** Base attack added to every line-clear strike (before weapon bonus). */
+  /** Attack added to every line-clear strike: class base plus Strength (before weapon). */
   atk: number;
-  /** Base defence subtracted from every enemy hit (before armour bonus). */
+  /** Defence subtracted from every enemy hit: class base plus Guard (before armour). */
   def: number;
+  /** Rank of each stat, bought with skill points. */
+  stats: StatRanks;
+  /** Unspent skill points. */
+  skillPoints: number;
   gil: number;
   weaponId: string | null;
   armorId: string | null;
@@ -46,6 +60,8 @@ export function heroClass(hero: Pick<Hero, 'classId'>): HeroClass {
 
 export function createHero(classId = DEFAULT_CLASS, name?: string): Hero {
   const cls = heroClass({ classId });
+  const stats = statRanks(cls.stats);
+  const derived = derivedStats(cls, 1, stats);
   return {
     name: name ?? cls.heroName,
     classId: cls.id,
@@ -53,12 +69,11 @@ export function createHero(classId = DEFAULT_CLASS, name?: string): Hero {
     level: 1,
     xp: 0,
     nextXp: 30,
-    hp: cls.base.hp,
-    maxHp: cls.base.hp,
-    mana: emptyCounts(cls.base.mana),
-    manaCap: cls.base.mana,
-    atk: cls.base.atk,
-    def: cls.base.def,
+    hp: derived.maxHp,
+    mana: emptyCounts(derived.manaCap),
+    ...derived,
+    stats,
+    skillPoints: 0,
     gil: cls.gil,
     weaponId: null,
     armorId: null,
@@ -89,26 +104,48 @@ export function totalDefense(hero: Hero): number {
 }
 
 /**
- * Adds XP and applies any level-ups (each restores HP and mana and raises
- * stats by the class's growth). Returns the number of levels gained.
+ * Adds XP and applies any level-ups. Each gives skill points and the
+ * class's HP growth, and restores HP and mana. Returns the levels gained.
  */
 export function gainXp(hero: Hero, amount: number): number {
-  const growth = heroClass(hero).growth;
   hero.xp += amount;
   let gained = 0;
   while (hero.xp >= hero.nextXp) {
     hero.xp -= hero.nextXp;
     hero.level++;
     hero.nextXp = Math.floor(hero.nextXp * 1.45);
-    hero.maxHp += growth.hp;
-    hero.manaCap += growth.mana;
-    hero.atk += growth.atk;
-    hero.def += growth.def;
+    hero.skillPoints += SKILL_POINTS_PER_LEVEL;
+    refreshStats(hero);
     hero.hp = hero.maxHp;
     fillMana(hero);
     gained++;
   }
   return gained;
+}
+
+/**
+ * Recomputes max HP, mana capacity, attack and defence from the class,
+ * level and stat ranks, keeping current HP and mana within the new caps.
+ */
+export function refreshStats(hero: Hero): void {
+  Object.assign(hero, derivedStats(heroClass(hero), hero.level, hero.stats));
+  hero.hp = Math.min(hero.hp, hero.maxHp);
+  for (const element of ELEMENTS) hero.mana[element] = Math.min(hero.mana[element], hero.manaCap);
+}
+
+/**
+ * Buys the planned stat ranks with skill points. This is permanent. New
+ * max HP is added to current HP too. Returns false (and spends nothing)
+ * if the plan is invalid or costs more points than the hero has.
+ */
+export function spendSkillPoints(hero: Hero, plan: StatPlan): boolean {
+  if (!isValidPlan(hero.stats, hero.skillPoints, plan)) return false;
+  for (const id of STAT_IDS) hero.stats[id] += plan[id] ?? 0;
+  hero.skillPoints -= planCost(plan);
+  const maxBefore = hero.maxHp;
+  refreshStats(hero);
+  hero.hp += hero.maxHp - maxBefore;
+  return true;
 }
 
 /** Restores up to `amount` HP. Returns the HP actually restored. */

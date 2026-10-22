@@ -10,6 +10,9 @@ const CELL = 30;
 const FLASH_MS = 380;
 const POP_MS = 900;
 const SHAKE_MS = 300;
+/** Width of the next-piece area for the first piece, and for each column of smaller ones. */
+const NEXT_MAIN_WIDTH = 96;
+const NEXT_SMALL_WIDTH = 48;
 /** The element glyph drawn on each crystal: a darker silhouette of its icon. */
 const GLYPH = { scale: 2, silhouette: 'rgba(20, 16, 36, 0.32)' } as const;
 
@@ -74,7 +77,7 @@ export class BoardView {
 
   render(
     board: Board,
-    status: { slowPieces: number; hastePieces: number },
+    status: { slowPieces: number; hastePieces: number; upcoming: readonly PieceName[] },
     dtMs: number,
     timeMs: number,
     dimmed: boolean,
@@ -120,7 +123,7 @@ export class BoardView {
     }
     ctx.restore();
 
-    this.drawNext(board.preview(1)[0]);
+    this.drawNext(status.upcoming);
   }
 
   private drawFlashes(width: number, dtMs: number): void {
@@ -175,22 +178,44 @@ export class BoardView {
     });
   }
 
-  private drawNext(name: PieceName | undefined): void {
+  /** The next piece, large, with any further pieces Insight reveals stacked small beside it. */
+  private drawNext(names: readonly PieceName[]): void {
     const ctx = this.nextCtx;
-    const { width, height } = ctx.canvas;
-    ctx.clearRect(0, 0, width, height);
-    if (!name) return;
-    const def = PIECES[name];
-    const size = 24;
-    const xs = def.cells.map(([x]) => x);
-    const ys = def.cells.map(([, y]) => y);
-    const minX = Math.min(...xs);
-    const minY = Math.min(...ys);
-    const ox = (width - (Math.max(...xs) - minX + 1) * size) / 2;
-    const oy = (height - (Math.max(...ys) - minY + 1) * size) / 2;
-    for (const [x, y] of def.cells) {
-      drawCrystal(ctx, def.color, ox + (x - minX) * size, oy + (y - minY) * size, size);
+    const width = NEXT_MAIN_WIDTH + (names.length > 1 ? NEXT_SMALL_WIDTH : 0);
+    if (ctx.canvas.width !== width) {
+      ctx.canvas.width = width; // resizing resets the context
+      ctx.imageSmoothingEnabled = false;
     }
+    const { height } = ctx.canvas;
+    ctx.clearRect(0, 0, width, height);
+    const [first, ...rest] = names;
+    if (first) drawPiece(ctx, first, 0, 0, NEXT_MAIN_WIDTH, height, 24);
+    const slot = height / Math.max(1, rest.length);
+    rest.forEach((name, i) =>
+      drawPiece(ctx, name, NEXT_MAIN_WIDTH, i * slot, NEXT_SMALL_WIDTH, slot, 10),
+    );
+  }
+}
+
+/** A piece in its spawn orientation, centred in the given box. */
+function drawPiece(
+  ctx: CanvasRenderingContext2D,
+  name: PieceName,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  size: number,
+): void {
+  const def = PIECES[name];
+  const xs = def.cells.map(([cx]) => cx);
+  const ys = def.cells.map(([, cy]) => cy);
+  const minX = Math.min(...xs);
+  const minY = Math.min(...ys);
+  const ox = x + (width - (Math.max(...xs) - minX + 1) * size) / 2;
+  const oy = y + (height - (Math.max(...ys) - minY + 1) * size) / 2;
+  for (const [cx, cy] of def.cells) {
+    drawCrystal(ctx, def.color, ox + (cx - minX) * size, oy + (cy - minY) * size, size);
   }
 }
 

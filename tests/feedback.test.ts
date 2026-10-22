@@ -13,12 +13,16 @@ import {
   ICONS,
   ICON_SIZE,
   ITEM_ICONS,
+  MOVE_ICONS,
   PALETTES,
+  STAT_ICONS,
   iconPixels,
   itemIcon,
   type IconId,
 } from '../src/ui/art/icons';
+import { ENEMIES } from '../src/data/enemies';
 import { ITEMS } from '../src/data/items';
+import { STAT_IDS } from '../src/data/stats';
 import { CRYSTAL_HEX } from '../src/ui/crystals';
 
 const kinds = (feedback: Feedback[]) => feedback.map((f) => f.kind);
@@ -38,6 +42,14 @@ describe('icons', () => {
     const icons = ELEMENTS.map((e) => ELEMENT_ICONS[e]);
     expect(new Set(icons).size).toBe(ELEMENTS.length);
     for (const icon of icons) expect(ICONS[icon]).toBeDefined();
+  });
+
+  it('gives every stat its own icon and every enemy move an icon', () => {
+    const icons = STAT_IDS.map((id) => STAT_ICONS[id]);
+    expect(new Set(icons).size).toBe(STAT_IDS.length);
+    for (const icon of icons) expect(ICONS[icon]).toBeDefined();
+    const moves = Object.values(ENEMIES).flatMap((enemy) => enemy.moves.map((m) => m.kind));
+    for (const kind of moves) expect(ICONS[MOVE_ICONS[kind].icon], kind).toBeDefined();
   });
 
   it('gives every item an icon, with valid shapes and badges', () => {
@@ -121,6 +133,7 @@ describe('feedbackFor', () => {
   it('shows something for every event', () => {
     const events: BattleEvent[] = [
       { kind: 'enemyDefeated' },
+      { kind: 'crit' },
       { kind: 'enemyHeal', amount: 5 },
       { kind: 'heroHit', amount: 7 },
       { kind: 'heroHeal', amount: 9 },
@@ -154,6 +167,12 @@ describe('feedbackFor', () => {
     const drain = feedbackFor({ kind: 'drain', element: 'arcane', amount: 3 });
     expect(drain).toContainEqual({ kind: 'mana', elements: ['arcane'], direction: 'down' });
     expect(drain[0]).toMatchObject({ text: '-3', icon: ELEMENT_ICONS.arcane satisfies IconId });
+  });
+
+  it('marks a critical strike with a clover and ×2', () => {
+    expect(feedbackFor({ kind: 'crit' })).toContainEqual(
+      expect.objectContaining({ kind: 'float', target: 'enemy', text: '×2', icon: 'clover' }),
+    );
   });
 
   it('shows haggle prices as percentages', () => {

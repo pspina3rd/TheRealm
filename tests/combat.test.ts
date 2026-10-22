@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { CombatChallenge } from '../src/battle/combat';
 import { LINE_DAMAGE, MAX_WARD, rollSpoils } from '../src/battle/combat';
 import { TAILWIND_SLOWDOWN } from '../src/battle/battle';
@@ -8,12 +8,14 @@ import { gravityInterval } from '../src/core/scoring';
 import { createRng } from '../src/core/rng';
 import { ENEMIES } from '../src/data/enemies';
 import type { EnemyMove } from '../src/data/types';
-import { addItem, totalAttack } from '../src/game/hero';
+import { addItem, createHero, spendSkillPoints, totalAttack } from '../src/game/hero';
+import { CRIT_MULTIPLIER, dropBonus, statRanks } from '../src/game/stats';
 import { makeBattle, setUpVerticalIClear } from './helpers';
 
 /**
  * A fight against `enemyId`. The hero knows Fire and Cure (fire 1, nature 1
- * alignment) so the maths below doesn't depend on the default class.
+ * alignment) and has no stat ranks, so the maths below doesn't depend on
+ * the default class.
  *
  * Element chart for the enemies used here (the vertical I piece adds one
  * wind crystal to every cleared line):
@@ -26,15 +28,17 @@ function fight(enemyId = 'slime') {
   const combat = battle.combat;
   if (!combat) throw new Error('expected combat');
   battle.hero.spells = ['fire', 'cure'];
+  battle.hero.stats = statRanks();
   return { battle, combat, hero: battle.hero };
 }
 
-/** Forces the enemy to use `move` on its next action. */
+/** Forces the enemy to use `move` on its next action (and every one after). */
 function nextMove(combat: CombatChallenge, move: EnemyMove): void {
   (combat as unknown as { enemy: { moves: EnemyMove[] } }).enemy = {
     ...combat.enemy,
     moves: [move],
   };
+  combat.nextMove = move;
   combat.countdown = 1;
 }
 
@@ -86,6 +90,62 @@ describe('CombatChallenge', () => {
     battle.input('hardDrop');
     expect(hero.hp).toBe(hero.maxHp - (2 + ENEMIES.shroom!.atk - hero.def));
     expect(combat.countdown).toBe(ENEMIES.shroom!.actEvery);
+  });
+
+  it('Strength adds to every strike and Guard takes from every hit', () => {
+    const { battle, combat, hero } = fight('shroom');
+    spendSkillPoints(Object.assign(hero, { skillPoints: 4 }), { strength: 2, guard: 2 });
+    combat.enemyHp = 999;
+    nextMove(combat, { kind: 'attack', name: 'Bite', power: 6 });
+    setUpVerticalIClear(battle.board, 1);
+    battle.input('hardDrop');
+    const base = createHero(hero.classId);
+    expect(999 - combat.enemyHp).toBe(LINE_DAMAGE[1]! + base.atk + 2);
+    expect(hero.maxHp - hero.hp).toBe(6 + ENEMIES.shroom!.atk - (base.def + 2));
+  });
+
+  it('picks its next move a turn ahead and then uses it', () => {
+    const { battle, combat } = fight('goblin');
+    const planned = combat.nextMove;
+    expect(ENEMIES.goblin!.moves).toContain(planned);
+    combat.countdown = 1;
+    battle.input('hardDrop');
+    expect(battle.events.map((e) => e.event)).toContainEqual({ kind: 'enemyMove', move: planned });
+    expect(ENEMIES.goblin!.moves).toContain(combat.nextMove);
+  });
+
+  describe('critical strikes (Luck)', () => {
+    /** A Luck 10 hero (30% crit) clearing `lines` with the next roll fixed at `roll`. */
+    const clear = (lines: number, roll: number) => {
+      const { battle, combat, hero } = fight('shroom');
+      hero.stats.luck = 10;
+      combat.enemyHp = 999;
+      const next = vi.spyOn(battle.rng, 'next').mockReturnValue(roll);
+      setUpVerticalIClear(battle.board, lines);
+      battle.input('hardDrop');
+      const events = battle.events.map((e) => e.event);
+      return { dealt: 999 - combat.enemyHp, events, rolls: next.mock.calls.length, hero };
+    };
+
+    it('double the strike of a 3+ line clear', () => {
+      const { dealt, events, hero } = clear(3, 0.29);
+      expect(dealt).toBe((LINE_DAMAGE[3]! + totalAttack(hero)) * CRIT_MULTIPLIER);
+      const crit = events.findIndex((e) => e.kind === 'crit');
+      expect(crit).toBeGreaterThanOrEqual(0);
+      expect(events[crit + 1]).toMatchObject({ kind: 'enemyHit', amount: dealt });
+    });
+
+    it('miss when the roll is above the chance', () => {
+      const { dealt, events, hero } = clear(3, 0.3);
+      expect(dealt).toBe(LINE_DAMAGE[3]! + totalAttack(hero));
+      expect(events.some((e) => e.kind === 'crit')).toBe(false);
+    });
+
+    it('never happen on smaller clears, which roll nothing', () => {
+      const { events, rolls } = clear(2, 0);
+      expect(events.some((e) => e.kind === 'crit')).toBe(false);
+      expect(rolls).toBe(0);
+    });
   });
 
   it('enemy attacks always deal at least 1 damage', () => {
@@ -375,6 +435,13 @@ describe('CombatChallenge', () => {
     combat.enemyHp = combat.enemy.hp / 2;
     expect(combat.objective().progress).toBeCloseTo(0.5);
     expect(combat.objective().label).toContain('Green Slime');
+  });
+
+  it('adds Luck to every drop chance', () => {
+    const roll = createRng(7).next();
+    const enemy = { ...ENEMIES.slime!, drops: [{ itemId: 'slimeGel', chance: roll - 0.01 }] };
+    expect(rollSpoils(enemy, createRng(7)).drops).toEqual([]);
+    expect(rollSpoils(enemy, createRng(7), dropBonus(1)).drops).toEqual(['slimeGel']);
   });
 
   it('rolls spoils with drop chances', () => {

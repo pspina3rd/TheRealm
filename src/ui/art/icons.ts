@@ -5,6 +5,8 @@
  * Colours come from the icon's palette, so one shape can be recoloured.
  */
 import type { Element } from '../../core/elements';
+import type { StatId } from '../../data/stats';
+import type { EnemyMove } from '../../data/types';
 
 export const ICON_SIZE = 12;
 
@@ -592,6 +594,57 @@ export const ICONS = {
       '.....oo.....',
     ],
   },
+  eye: {
+    palette: palette('#1d6f8a', '#3fb6d8', '#a8ecff'),
+    rows: [
+      '............',
+      '............',
+      '....oooo....',
+      '..oowwwwoo..',
+      '.owwbbbbwwo.',
+      'owwbhoobbwwo',
+      'owwbhoobdwwo',
+      '.owwbbddwwo.',
+      '..oowwwwoo..',
+      '....oooo....',
+      '............',
+      '............',
+    ],
+  },
+  clover: {
+    palette: palette('#1f8a3c', '#4fd36f', '#b4f5a0'),
+    rows: [
+      '.ooo....ooo.',
+      'ohhbo..ohhbo',
+      'ohwhboohwhbo',
+      'ohhbboohhbbo',
+      '.obbdoobbdo.',
+      '..oooooooo..',
+      '.obbboobbbo.',
+      'obbbboobbbbo',
+      'obbbdoobbbdo',
+      'odddo..odddo',
+      '.ooo.oo.ooo.',
+      '......oo....',
+    ],
+  },
+  point: {
+    palette: palette('#c58a10', '#ffd23f', '#fff4a8'),
+    rows: [
+      '.....oo.....',
+      '....ohbo....',
+      '....ohbo....',
+      '...ohhbbo...',
+      '.oohhwhbboo.',
+      'ohhhwwwhbbdo',
+      'obbbhwhbbddo',
+      '.oobbhbbdoo.',
+      '...obbddo...',
+      '....obdo....',
+      '....obdo....',
+      '.....oo.....',
+    ],
+  },
 } as const satisfies Record<string, IconDef>;
 
 export type IconId = keyof typeof ICONS;
@@ -629,6 +682,27 @@ export const PALETTES = {
 } as const satisfies Record<string, IconPalette>;
 
 const elementPalette = (element: Element): IconPalette => ICONS[ELEMENT_ICONS[element]].palette;
+
+/** The icon for each stat. */
+export const STAT_ICONS: Readonly<Record<StatId, IconId>> = {
+  vitality: 'heart',
+  strength: 'sword',
+  guard: 'ward',
+  focus: 'potion',
+  agility: 'wind',
+  insight: 'eye',
+  charm: 'gift',
+  luck: 'clover',
+};
+
+/** The icon for each kind of enemy move, shown when Insight reveals it. */
+export const MOVE_ICONS: Readonly<Record<EnemyMove['kind'], IconSpec>> = {
+  attack: { icon: 'sword', palette: ICONS.heart.palette },
+  curse: { icon: 'piece', palette: PALETTES.iron },
+  haste: { icon: 'haste' },
+  heal: { icon: 'heart' },
+  drain: { icon: 'potion' },
+};
 
 /** The icon for every item. `tests/feedback.test.ts` checks none are missing. */
 export const ITEM_ICONS: Readonly<Record<string, IconSpec>> = {

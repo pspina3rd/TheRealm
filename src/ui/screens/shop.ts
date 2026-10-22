@@ -5,10 +5,11 @@ import type { Hero } from '../../game/hero';
 import { cannotBuyReason, priceFor } from '../../game/shop';
 import type { GameState } from '../../world/state';
 import type { Atlas } from '../art/atlas';
-import { ELEMENT_ICONS, itemIcon } from '../art/icons';
+import { ELEMENT_ICONS, STAT_ICONS, itemIcon } from '../art/icons';
+import { CHARM_DISCOUNT } from '../../game/stats';
 import { button, el } from '../dom';
 import { iconElement } from '../iconDraw';
-import { chip, spritePortrait } from './widgets';
+import { chip, percent, spritePortrait } from './widgets';
 
 /** How a piece of gear compares with what the hero wears, as icon chips. */
 function comparison(hero: Hero, item: ItemDef): HTMLElement[] {
@@ -45,8 +46,9 @@ function comparison(hero: Hero, item: ItemDef): HTMLElement[] {
 }
 
 /**
- * A shop: the shopkeeper, your gil, and a card per item with its price (the
- * list price struck through when haggled) and how it compares with your gear.
+ * A shop: the shopkeeper, your gil and Charm discount, and a card per item
+ * with its price (the list price struck through when haggled or charmed)
+ * and how it compares with your gear.
  */
 export function shopBody(
   atlas: Atlas,
@@ -60,7 +62,7 @@ export function shopBody(
     const item = ITEMS[itemId];
     if (!item) return [];
     const reason = cannotBuyReason(state, item, multiplier);
-    const price = priceFor(item, multiplier);
+    const price = priceFor(state.hero, item, multiplier);
     const card = button('', () => onBuy(itemId), {
       disabled: reason !== null,
       title: reason ?? item.description,
@@ -95,6 +97,16 @@ export function shopBody(
       { className: 'shop-header' },
       spritePortrait(atlas, keeperSprite, 96),
       chip('coin', state.hero.gil, 'Your gil'),
+      ...(state.hero.stats.charm > 0
+        ? [
+            chip(
+              STAT_ICONS.charm,
+              `−${percent(CHARM_DISCOUNT * state.hero.stats.charm)}`,
+              'Charm',
+              'up',
+            ),
+          ]
+        : []),
     ),
     el('div', { className: 'shop-cards' }, ...cards),
   ];

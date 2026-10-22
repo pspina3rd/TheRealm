@@ -39,12 +39,22 @@ A new game starts by choosing a hero class. The game saves automatically
 after every battle and map change (browser local storage). Start over from
 the menu.
 
-| Class  | Strengths                                 |
-| ------ | ----------------------------------------- |
-| Ranger | Balanced; the original stats              |
-| Knight | Most HP and defence, smallest mana pools  |
-| Mage   | Largest mana pools and growth, fragile    |
-| Rogue  | Highest attack growth, starts with 60 gil |
+| Class  | Strengths                                              |
+| ------ | ------------------------------------------------------ |
+| Ranger | Agility and Luck: slower pieces, more drops and crits  |
+| Knight | Vitality and Guard: most HP and defence, small pools   |
+| Mage   | Focus and Insight: deepest pools, sees ahead; fragile  |
+| Rogue  | Strength and Charm: hits harder, cheaper shops, 60 gil |
+
+### Stats and skill points
+
+Every level gives 2 skill points (and a little HP). Spend them on the skill
+screen, which opens after a level-up and from the menu's Skills button (a
+badge counts waiting points), on eight stats: Vitality (HP), Strength
+(strike damage), Guard (less damage taken), Focus (mana pools), Agility
+(slower pieces), Insight (more next pieces, then the enemy's next move),
+Charm (cheaper shops) and Luck (drops and critical strikes). Points can be
+saved; spending is permanent.
 
 ### Elements and magic
 
@@ -100,7 +110,7 @@ reasoning behind them.
 src/
   core/      Falling-block engine: board, pieces, seeded RNG, scoring (no DOM)
   battle/    Battle runner plus one rules module per challenge type
-  game/      Hero, rewards, encounters, shops, save/load
+  game/      Hero, stats, alignment, rewards, encounters, shops, save/load
   world/     Map model, tile legend, game state, movement
   data/      All content: enemies, spells, items, NPCs, shops, maps
   ui/        Canvas renderers (world, board, battle stage), HUD, app controller

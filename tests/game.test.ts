@@ -1,13 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import type { HaggleChallenge } from '../src/battle/haggle';
 import { createRng } from '../src/core/rng';
+import { CLASSES } from '../src/data/classes';
 import { ENEMIES } from '../src/data/enemies';
 import { ITEMS } from '../src/data/items';
 import { MAPS } from '../src/data/maps';
 import { NPCS } from '../src/data/npcs';
 import { describeInteraction, npcCompletionFlag, resolveBattle } from '../src/game/encounter';
-import { addItem, itemCount } from '../src/game/hero';
+import { addItem, createHero, itemCount } from '../src/game/hero';
 import { grantRewards } from '../src/game/rewards';
+import { VITALITY_HP } from '../src/game/stats';
 import {
   SAVE_KEY,
   deleteSave,
@@ -99,7 +101,7 @@ describe('resolveBattle', () => {
       { kind: 'xp', amount: ENEMIES.moonWyrm!.xp },
       { kind: 'gil', amount: ENEMIES.moonWyrm!.gil },
       { kind: 'item', itemId: 'phoenixFeather', count: 1 },
-      { kind: 'level', level: state.hero.level },
+      { kind: 'level', level: state.hero.level, points: 2 * (state.hero.level - 1) },
     ]);
     expect(fell).toBe(false);
     expect(speech).toBeNull();
@@ -202,8 +204,23 @@ describe('grantRewards', () => {
 
 describe('shop', () => {
   it('applies the haggle multiplier with a 1 gil minimum', () => {
-    expect(priceFor(ITEMS.ironSword!, 0.5)).toBe(28);
-    expect(priceFor(ITEMS.herb!, 0.01)).toBe(1);
+    const hero = createHero('knight'); // no Charm
+    expect(priceFor(hero, ITEMS.ironSword!, 0.5)).toBe(28);
+    expect(priceFor(hero, ITEMS.herb!, 0.01)).toBe(1);
+  });
+
+  it('takes 3% off every price per Charm rank', () => {
+    const hero = createHero('knight');
+    hero.stats.charm = 5; // 15% off the 55 gil sword
+    expect(priceFor(hero, ITEMS.ironSword!, 1)).toBe(47);
+    expect(priceFor(hero, ITEMS.ironSword!, 0.5)).toBe(23);
+  });
+
+  it('charges a charming hero less', () => {
+    const state = newGame('rogue'); // Charm 2: 6% off
+    state.hero.gil = 100;
+    buy(state, 'ironSword', 1);
+    expect(state.hero.gil).toBe(100 - 52);
   });
 
   it('refuses purchases the hero cannot afford', () => {
@@ -316,20 +333,29 @@ describe('save compatibility', () => {
   });
 });
 
+/** Fields a hero gained in save version 4. */
+const V4_FIELDS = ['stats', 'skillPoints'];
+
+/** A saved hero without `fields`, as an older version stored it. */
+const without = (hero: Record<string, unknown>, fields: readonly string[]) =>
+  Object.fromEntries(Object.entries(hero).filter(([key]) => !fields.includes(key)));
+
 describe('save migration from version 1 (MP)', () => {
   const v1 = () => {
     const data = JSON.parse(serialize(newGame()));
-    const hero = Object.fromEntries(
-      Object.entries(data.hero).filter(
-        ([key]) => !['mana', 'manaCap', 'titleElement', 'accessoryId'].includes(key),
-      ),
-    );
+    const hero = without(data.hero, [
+      'mana',
+      'manaCap',
+      'titleElement',
+      'accessoryId',
+      ...V4_FIELDS,
+    ]);
     return { ...data, version: 1, hero: { ...hero, mp: 5, maxMp: 15 } };
   };
 
   it('turns MP into elemental pools and adds the new fields', () => {
     const hero = deserialize(JSON.stringify(v1()))!.hero;
-    expect(hero.manaCap).toBe(15);
+    expect(hero.manaCap).toBe(12); // recomputed from the class in version 4
     expect(hero.mana.fire).toBe(5);
     expect(hero.mana.wind).toBe(5);
     expect(hero.titleElement).toBe('wind');
@@ -357,8 +383,8 @@ describe('save migration from version 1 (MP)', () => {
 describe('save migration from version 2 (attunement)', () => {
   const v2 = (attunement: string | null) => {
     const data = JSON.parse(serialize(newGame('knight')));
-    delete data.hero.titleElement;
-    return { ...data, version: 2, hero: { ...data.hero, attunement, spells: ['fire', 'cure'] } };
+    const hero = without(data.hero, ['titleElement', ...V4_FIELDS]);
+    return { ...data, version: 2, hero: { ...hero, attunement, spells: ['fire', 'cure'] } };
   };
 
   it('drops attunement, keeps its title and teaches the class spell', () => {
@@ -374,6 +400,57 @@ describe('save migration from version 2 (attunement)', () => {
 
   it('rejects unknown versions', () => {
     expect(deserialize(JSON.stringify({ ...v2(null), version: 99 }))).toBeNull();
+  });
+});
+
+describe('save migration from version 3 (stats)', () => {
+  /** A level 5 Knight as version 3 saved it, with the old automatic growth. */
+  const v3 = () => {
+    const data = JSON.parse(serialize(newGame('knight')));
+    const hero = {
+      ...without(data.hero, V4_FIELDS),
+      level: 5,
+      maxHp: 88,
+      hp: 80,
+      atk: 13,
+      def: 11,
+      manaCap: 14,
+      mana: { ...data.hero.mana, fire: 14, water: 3 },
+    };
+    return { ...data, version: 3, hero };
+  };
+
+  it('gives the class spread and 2 unspent points per level gained', () => {
+    const hero = deserialize(JSON.stringify(v3()))!.hero;
+    expect(hero.stats).toEqual(createHero('knight').stats);
+    expect(hero.skillPoints).toBe(8);
+  });
+
+  it('recomputes stats from the class with HP growth only', () => {
+    const hero = deserialize(JSON.stringify(v3()))!.hero;
+    const knight = CLASSES.knight!;
+    expect(hero.maxHp).toBe(knight.base.hp + 4 * knight.hpGrowth + 2 * VITALITY_HP);
+    expect([hero.manaCap, hero.atk, hero.def]).toEqual([
+      knight.base.mana,
+      knight.base.atk,
+      knight.base.def + 2,
+    ]);
+  });
+
+  it('keeps current HP and mana within the new caps', () => {
+    const data = v3();
+    data.hero.hp = 999;
+    const hero = deserialize(JSON.stringify(data))!.hero;
+    expect(hero.hp).toBe(hero.maxHp);
+    expect(hero.mana.fire).toBe(hero.manaCap);
+    expect(hero.mana.water).toBe(3);
+  });
+
+  it('keeps version 4 stats and points as saved', () => {
+    const state = newGame('rogue');
+    state.hero.skillPoints = 3;
+    state.hero.stats.luck = 4;
+    expect(deserialize(serialize(state))!.hero).toEqual(state.hero);
   });
 });
 

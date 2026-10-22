@@ -62,14 +62,15 @@ creature also resists its own element.
 
 Chosen when starting a new game. Differences are deliberately small so any
 class can finish the game. Mana is the capacity of each of the seven pools.
-Every hero also starts with Cure.
+Every hero also starts with Cure. Starting numbers include the class's
+starting stats (below); levels only add HP.
 
-| Class  | Element   | First spell  | HP  | Mana | ATK | DEF | Gil | Growth per level (HP/Mana/ATK/DEF) |
-| ------ | --------- | ------------ | --- | ---- | --- | --- | --- | ---------------------------------- |
-| Ranger | Wind      | Gale         | 40  | 12   | 5   | 1   | 25  | 8 / 2 / 2 / 1                      |
-| Knight | Earth     | Quake        | 48  | 10   | 5   | 3   | 20  | 10 / 1 / 2 / 2                     |
-| Mage   | Arcane    | Shadow Drain | 34  | 16   | 4   | 1   | 25  | 6 / 3 / 2 / 1                      |
-| Rogue  | Lightning | Thunder      | 36  | 12   | 6   | 1   | 60  | 7 / 2 / 3 / 1                      |
+| Class  | Element   | First spell  | HP  | Mana | ATK | DEF | Gil | Starting stats      | HP per level |
+| ------ | --------- | ------------ | --- | ---- | --- | --- | --- | ------------------- | ------------ |
+| Ranger | Wind      | Gale         | 40  | 12   | 5   | 1   | 25  | Agility 2, Luck 2   | 8            |
+| Knight | Earth     | Quake        | 48  | 10   | 5   | 3   | 20  | Vitality 2, Guard 2 | 10           |
+| Mage   | Arcane    | Shadow Drain | 34  | 16   | 4   | 1   | 25  | Focus 2, Insight 2  | 6            |
+| Rogue  | Lightning | Thunder      | 36  | 12   | 6   | 1   | 60  | Strength 2, Charm 2 | 7            |
 
 ### Alignment
 
@@ -90,21 +91,51 @@ of its elements. Alignment only goes up; you grow by learning.
 - Spells have no levels yet, so each known spell counts 1. Combo spells
   will count toward both elements once they exist (stage 4).
 
+## Stats and skill points
+
+The hero has eight stats. Each is a rank from 0 to its max, bought with
+skill points.
+
+| Stat     | Icon       | Per rank                                                    | Max |
+| -------- | ---------- | ----------------------------------------------------------- | --- |
+| Vitality | Heart      | +6 max HP                                                   | 10  |
+| Strength | Sword      | +1 damage on every line-clear strike                        | 10  |
+| Guard    | Shield     | −1 damage from every enemy hit                              | 10  |
+| Focus    | Potion     | +1 capacity in every mana pool                              | 10  |
+| Agility  | Wind swirl | Pieces fall 4% slower (40% at max)                          | 10  |
+| Insight  | Eye        | Rank 3: see 2 next pieces. 6: see 3. 9: enemy's next move   | 9   |
+| Charm    | Gift       | 3% off shop prices (after haggling); NPC attitude (planned) | 10  |
+| Luck     | Clover     | +2% to every item drop; 3% crit chance on 3+ line clears    | 10  |
+
+- **Skill points**: 2 per hero level. A stat rank costs 1 point. Points can
+  be saved; spending is permanent (no respec, for now).
+- **Level-ups** give the points plus the class's HP growth, and restore HP
+  and mana. Mana, attack and defence only grow through stats and gear.
+- **Crit**: a critical strike doubles the clear's strike damage (not its
+  line effects) and shows a clover and ×2 over the enemy.
+- **Skill screen**: opens after a battle that levelled the hero up (before
+  any shop) and from the menu's Skills button. Each stat shows its icon,
+  rank pips (Insight's unlock ranks are ringed) and what its ranks add up
+  to; − and + stage choices, Confirm spends them. A badge on the menu
+  button counts unspent points.
+
 ## Combat (monsters)
 
 - Clearing lines strikes the enemy: 8 / 20 / 35 / 55 base damage for
-  1 / 2 / 3 / 4 lines, plus the hero's attack (base, level and weapon),
-  plus the elemental crystal bonus above. Then each line's effect fires.
+  1 / 2 / 3 / 4 lines, plus the hero's attack (class base, Strength and
+  weapon), plus the elemental crystal bonus above; Luck can crit it. Then
+  each line's effect fires.
 - The enemy acts after a set number of your **actions** (placing a piece,
-  casting a spell or using an item). Enemy magic:
+  casting a spell or using an item). It picks its move a turn ahead, so
+  Insight 9 can show it beside the turn pips. Enemy magic:
 
-  | Move   | Effect                                                                |
-  | ------ | --------------------------------------------------------------------- |
-  | attack | Damage = power + enemy attack − your defence; a ward absorbs it first |
-  | curse  | Pushes stone rows (one gap each) up the board                         |
-  | haste  | Doubles gravity for your next N pieces; ends a tailwind               |
-  | heal   | Restores the enemy's HP                                               |
-  | drain  | Burns mana from your fullest pool                                     |
+  | Move   | Effect                                                                                         |
+  | ------ | ---------------------------------------------------------------------------------------------- |
+  | attack | Damage = power + enemy attack − your defence (base, Guard and armour); a ward absorbs it first |
+  | curse  | Pushes stone rows (one gap each) up the board                                                  |
+  | haste  | Doubles gravity for your next N pieces; ends a tailwind                                        |
+  | heal   | Restores the enemy's HP                                                                        |
+  | drain  | Burns mana from your fullest pool                                                              |
 
 - If the board overflows you lose 25% of max HP and the board is cleared.
 - A Phoenix Feather revives you once at half HP, automatically.
@@ -161,7 +192,8 @@ Used by every shop and the inn. The price starts at 100%. Each line you
 clear pushes it down (−5% / −12% / −20% / −30% for 1–4 lines); the merchant
 pushes it up 3% on a timer. After a fixed number of pieces the deal is
 struck at the current price (50%–150%). Overflowing ends the haggle with no
-deal. Fast, clean play is literally cheaper.
+deal. Fast, clean play is literally cheaper. The hero's Charm then takes 3%
+a rank off every price.
 
 ### Puzzle
 
@@ -200,9 +232,9 @@ stall. The Sunken Ruins are sealed as the hook for the next region.
 
 ## Planned: progression redesign
 
-**Status: stage 1 (the element chart and alignment) is built and now
-documented in [Elements](#elements) and
-[Hero classes and alignment](#hero-classes-and-alignment). The rest is
+**Status: stages 1 and 2 are built and now documented in
+[Elements](#elements), [Hero classes and alignment](#hero-classes-and-alignment)
+and [Stats and skill points](#stats-and-skill-points). The rest is
 planned.** All numbers are starting values to tune in play.
 
 ### Goals
@@ -213,32 +245,11 @@ planned.** All numbers are starting values to tune in play.
 - What the hero knows changes how the world treats them (alignment).
 - Most of it is shown, not told: icons, colours, silhouettes.
 
-### Stats
+### Skill points and spells
 
-The hero has eight stats. Each level gives a small automatic gain from the
-class (HP only); everything else comes from skill points.
-
-| Stat     | Icon       | Per point                                                 |
-| -------- | ---------- | --------------------------------------------------------- |
-| Vitality | Heart      | +6 max HP                                                 |
-| Strength | Sword      | +1 damage on every line-clear strike                      |
-| Guard    | Shield     | −1 damage from every enemy hit                            |
-| Focus    | Potion     | +1 capacity in every mana pool                            |
-| Agility  | Wind swirl | Pieces fall 4% slower and wait longer to lock             |
-| Insight  | Eye        | Rank 3: see 2 next pieces. 6: see 3. 9: enemy's next move |
-| Charm    | Gift       | +1 NPC attitude; 3% better prices                         |
-| Luck     | Star       | +2% item drops; big clears can crit                       |
-
-Classes start with different stat spreads (Knight: Vitality and Guard;
-Mage: Focus and Insight; Ranger: Agility and Luck; Rogue: Strength and
-Charm), so the existing "slightly different base stats" stays.
-
-### Skill points
-
-- **2 skill points per hero level.**
-- A **stat** rank costs **1 point**.
-- A **spell enhancement** costs more as the spell rises (below).
-- Points can be saved. Spending is permanent (no respec, for now).
+Skill points (see [Stats and skill points](#stats-and-skill-points)) also
+buy **spell enhancements**, which cost more as the spell rises (below).
+The skill screen will gain a Spells section beside Stats.
 
 ### Spells
 
@@ -352,15 +363,17 @@ break the ground for that well.
   well over the ~7 levels it has now. New regions come after the Moon
   Caves, starting with the Sunken Ruins.
 - **Saves**: v3 (built) drops attunement, keeps an attuned hero's title
-  and teaches the class spell. Stage 2 will grant unspent points as
-  2 × (level − 1) and recompute stats from the class.
+  and teaches the class spell. v4 (built) gives older heroes their class's
+  starting stats and 2 × (level − 1) unspent points, and recomputes their
+  numbers from the class (HP growth only), keeping HP and mana within the
+  new caps.
 - **Removed**: attunement and the level 3 choice (done); spell tomes from
   shops (later: they become quest or mentor rewards).
 
 ### Build order
 
 1. Element chart and alignment, replacing attunement. **Done.**
-2. Stats, skill points and the level-up screen.
+2. Stats, skill points and the level-up screen. **Done.**
 3. Spell levels, enhancements and the category menu.
 4. Mentors, team-up battles and combo spells.
 5. Hidden spells and their unlocks.

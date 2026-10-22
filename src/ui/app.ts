@@ -8,7 +8,9 @@ import type { ChallengeSpec } from '../data/types';
 import { describeInteraction, resolveBattle } from '../game/encounter';
 import { ELEMENT_NAMES } from '../core/elements';
 import { SPELLS } from '../data/spells';
-import { equip, heroClass, heroTitle, useItem } from '../game/hero';
+import { createHero, equip, heroClass, heroTitle, spendSkillPoints, useItem } from '../game/hero';
+import { adjustPlan, planCost, type StatPlan } from '../game/stats';
+import { STATS } from '../data/stats';
 import { pieceWeights } from '../game/pieceOdds';
 import { deleteSave, loadGame, saveGame, type KeyValueStore } from '../game/save';
 import { buy } from '../game/shop';
@@ -17,13 +19,14 @@ import { step } from '../world/movement';
 import { currentMap, newGame, travel, type GameState } from '../world/state';
 import { Dialog } from './dialog';
 import { button, byId, el } from './dom';
-import { ELEMENT_ICONS } from './art/icons';
+import { ELEMENT_ICONS, STAT_ICONS } from './art/icons';
 import { BattleView } from './battleView';
 import { iconElement } from './iconDraw';
 import { ManaBars } from './manaBars';
 import { conversationBody, resultsBody } from './screens/conversation';
 import { menuBody } from './screens/menu';
 import { shopBody } from './screens/shop';
+import { skillsBody } from './screens/skills';
 import { chip, spritePortrait } from './screens/widgets';
 import type { IconId, IconSpec } from './art/icons';
 import type { Atlas } from './art/atlas';
@@ -220,28 +223,29 @@ export class App {
     const titleBefore = this.state.hero.titleElement;
     const resolution = resolveBattle(this.state, active.entity, active.battle, this.rng);
     const newTitle = this.state.hero.titleElement !== titleBefore;
+    const levelled = resolution.gains.some((gain) => gain.kind === 'level');
     this.save();
     this.renderHud();
     const speaker = portraitFor(active.entity);
+    // After the results: the skill screen if the hero levelled up, then any shop.
+    const next = (): void => {
+      if (resolution.shopId) this.openShop(resolution.shopId, resolution.priceMultiplier, speaker);
+      else this.dialog.close();
+    };
+    const proceed = (): void => {
+      this.endBattle();
+      if (newTitle) {
+        const hero = this.state.hero;
+        this.say(heroTitle(hero), ELEMENT_ICONS[hero.titleElement]);
+      }
+      if (levelled) this.openSkills(next);
+      else next();
+    };
     this.dialog.show({
       title: resolution.won ? 'Victory!' : 'Defeat',
       body: resultsBody(this.atlas, resolution, speaker),
-      actions: [
-        {
-          label: 'Continue',
-          onClick: () => {
-            this.endBattle();
-            if (newTitle) {
-              const hero = this.state.hero;
-              this.say(heroTitle(hero), ELEMENT_ICONS[hero.titleElement]);
-            }
-            if (resolution.shopId) {
-              this.openShop(resolution.shopId, resolution.priceMultiplier, speaker);
-            }
-          },
-        },
-      ],
-      onCancel: () => this.endBattle(),
+      actions: [{ label: 'Continue', onClick: proceed }],
+      onCancel: proceed,
     });
   }
 
@@ -259,6 +263,40 @@ export class App {
       action(combat);
     } catch {
       this.battleView.hero.deny(id);
+    }
+  }
+
+  // ---------------------------------------------------------- skills ---
+
+  /**
+   * The skill screen. −/+ stage ranks in `plan`; Confirm spends them for
+   * good, Later keeps the points. Either way `then` runs afterwards.
+   */
+  private openSkills(then: () => void, plan: StatPlan = {}, focusKey?: string): void {
+    const hero = this.state.hero;
+    this.dialog.show({
+      title: 'Skills',
+      body: skillsBody(hero, plan, (stat, delta) =>
+        this.openSkills(then, adjustPlan(plan, stat, delta), `${stat}${delta}`),
+      ),
+      actions: [
+        { label: 'Later', onClick: then },
+        {
+          label: 'Confirm',
+          disabled: planCost(plan) === 0,
+          onClick: () => {
+            spendSkillPoints(hero, plan);
+            this.save();
+            this.renderHud();
+            then();
+          },
+        },
+      ],
+      onCancel: then,
+    });
+    if (focusKey) {
+      const target = document.querySelector<HTMLButtonElement>(`[data-key="${focusKey}"]`);
+      if (target && !target.disabled) target.focus();
     }
   }
 
@@ -305,6 +343,11 @@ export class App {
       actions: [
         { label: 'New Game', onClick: () => this.confirmNewGame() },
         {
+          label: 'Skills',
+          badge: hero.skillPoints,
+          onClick: () => this.openSkills(() => this.openMenu()),
+        },
+        {
           label: 'Save',
           onClick: () => {
             refresh();
@@ -335,7 +378,7 @@ export class App {
       const preview = spritePortrait(this.atlas, cls.sprite, 72);
       const card = button('', () => this.startNewGame(cls.id));
       card.className = 'class-card';
-      const { hp, mana, atk, def } = cls.base;
+      const { maxHp, manaCap, atk, def, stats } = createHero(cls.id);
       card.append(
         preview,
         el(
@@ -346,8 +389,8 @@ export class App {
           el(
             'span',
             { className: 'chips' },
-            chip('heart', hp, 'HP'),
-            chip('potion', mana, 'Mana per element'),
+            chip('heart', maxHp, 'HP'),
+            chip('potion', manaCap, 'Mana per element'),
             chip('sword', atk, 'Attack'),
             chip('ward', def, 'Defence'),
             chip('coin', cls.gil, 'Gil'),
@@ -356,6 +399,16 @@ export class App {
               SPELLS[cls.spell]?.name ?? cls.spell,
               `${ELEMENT_NAMES[cls.element]} spell`,
             ),
+          ),
+          el(
+            'span',
+            { className: 'chips' },
+            ...Object.entries(stats)
+              .filter(([, rank]) => rank > 0)
+              .map(([id, rank]) => {
+                const stat = STATS[id as keyof typeof STATS];
+                return chip(STAT_ICONS[stat.id], rank, `${stat.name}: ${stat.description}`);
+              }),
           ),
         ),
       );
@@ -395,6 +448,13 @@ export class App {
     this.hudMana.update(hero);
     byId('hud-gil').textContent = String(hero.gil);
     byId('hud-place').textContent = currentMap(this.state).name;
+    const menu = byId('menu-button');
+    if (hero.skillPoints > 0) menu.dataset.points = String(hero.skillPoints);
+    else delete menu.dataset.points;
+    menu.setAttribute(
+      'aria-label',
+      hero.skillPoints > 0 ? `Menu (${hero.skillPoints} skill points)` : 'Menu',
+    );
   }
 
   /** A short banner over the map: a place name, or a notice with an icon. */

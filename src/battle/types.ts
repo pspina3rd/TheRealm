@@ -34,6 +34,8 @@ export type BattleEvent =
       readonly affinity: 'weak' | 'resist' | null;
     }
   | { readonly kind: 'enemyDefeated' }
+  /** The next strike is critical (Luck); the hit that follows is already doubled. */
+  | { readonly kind: 'crit' }
   /** The enemy used a move (its name is shown as a banner, as in classic RPGs). */
   | { readonly kind: 'enemyMove'; readonly move: EnemyMove }
   | { readonly kind: 'enemyHeal'; readonly amount: number }

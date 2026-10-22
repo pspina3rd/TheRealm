@@ -49,6 +49,7 @@ export const COLORS = {
   heroDamage: '#ff5c7a',
   heal: '#6ff08f',
   price: '#f5d77b',
+  crit: '#b4f5a0',
 } as const;
 
 /** Colour of each element's crystals. */
@@ -111,6 +112,11 @@ export function feedbackFor(event: BattleEvent): Feedback[] {
         { kind: 'shake', target: 'enemy' },
       ];
     }
+    case 'crit':
+      return [
+        { kind: 'icon', target: 'enemy', icon: 'clover' },
+        { kind: 'float', target: 'enemy', text: '×2', color: COLORS.crit, icon: 'clover' },
+      ];
     case 'enemyDefeated':
       return [{ kind: 'defeat' }];
     case 'enemyMove':

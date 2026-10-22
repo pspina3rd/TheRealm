@@ -32,6 +32,11 @@ export function chip(
   return node;
 }
 
+/** A fraction as a whole percentage, e.g. 0.09 → "9%". */
+export function percent(fraction: number): string {
+  return `${Math.round(fraction * 100)}%`;
+}
+
 /**
  * A sprite drawn large on a small canvas, animated while it is on screen.
  * `pose` 'battle' uses the creature's battle portrait.
@@ -153,6 +158,7 @@ export function gainRows(gains: readonly Gain[]): HTMLElement[] {
           'div',
           { className: 'gain level-up' },
           chip('star', `Lv ${gain.level}`, 'Level up!'),
+          chip('point', `+${gain.points}`, 'Skill points'),
         );
       case 'gil':
         return el(
