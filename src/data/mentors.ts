@@ -3,6 +3,8 @@ import type { Location } from '../world/map';
 
 /** A place on a mentor's route; it joins the route once the hero has `requiresFlag`. */
 export interface MentorStop extends Location {
+  /** A few words saying where on the map, e.g. "cave seal", shown with the map's name. */
+  readonly landmark: string;
   readonly requiresFlag?: string;
 }
 
@@ -43,10 +45,10 @@ export const MENTORS: Readonly<Record<string, MentorDef>> = {
     loseText: 'It went out. Find me again and we will relight it.',
     trialFoe: 'emberWisp',
     route: [
-      { map: 'mossvale', x: 3, y: 11 },
-      { map: 'overworld', x: 8, y: 6 },
-      { map: 'brightwater', x: 23, y: 11 },
-      { map: 'caves1', x: 9, y: 11, requiresFlag: 'cavePass' },
+      { map: 'mossvale', x: 3, y: 11, landmark: 'village green' },
+      { map: 'overworld', x: 8, y: 6, landmark: 'village road' },
+      { map: 'brightwater', x: 23, y: 11, landmark: 'east square' },
+      { map: 'caves1', x: 9, y: 11, requiresFlag: 'cavePass', landmark: 'moon pool' },
     ],
     moveEvery: 4,
   },
@@ -60,9 +62,9 @@ export const MENTORS: Readonly<Record<string, MentorDef>> = {
     loseText: 'The tide pulled away. Come find me and we will try again.',
     trialFoe: 'tideWisp',
     route: [
-      { map: 'overworld', x: 26, y: 9 },
-      { map: 'brightwater', x: 7, y: 11 },
-      { map: 'mossvale', x: 16, y: 2 },
+      { map: 'overworld', x: 26, y: 9, landmark: 'lake shore' },
+      { map: 'brightwater', x: 7, y: 11, landmark: 'fountain' },
+      { map: 'mossvale', x: 16, y: 2, landmark: 'north houses' },
     ],
     moveEvery: 5,
   },
@@ -77,10 +79,10 @@ export const MENTORS: Readonly<Record<string, MentorDef>> = {
     loseText: 'Too slow. I will be chasing the clouds; catch me.',
     trialFoe: 'sparkWisp',
     route: [
-      { map: 'overworld', x: 36, y: 6 },
-      { map: 'brightwater', x: 17, y: 12 },
-      { map: 'caves1', x: 4, y: 9, requiresFlag: 'cavePass' },
-      { map: 'caves2', x: 12, y: 5, requiresFlag: 'defeated:c2-wyrm' },
+      { map: 'overworld', x: 36, y: 6, landmark: 'north-east peaks' },
+      { map: 'brightwater', x: 17, y: 12, landmark: 'fountain' },
+      { map: 'caves1', x: 4, y: 9, requiresFlag: 'cavePass', landmark: 'west tunnels' },
+      { map: 'caves2', x: 12, y: 5, requiresFlag: 'defeated:c2-wyrm', landmark: "wyrm's lair" },
     ],
     moveEvery: 3,
   },
@@ -94,9 +96,9 @@ export const MENTORS: Readonly<Record<string, MentorDef>> = {
     loseText: 'Roots take time. Look for me in the meadows.',
     trialFoe: 'mossWisp',
     route: [
-      { map: 'overworld', x: 3, y: 10 },
-      { map: 'mossvale', x: 17, y: 8 },
-      { map: 'overworld', x: 20, y: 18 },
+      { map: 'overworld', x: 3, y: 10, landmark: 'west meadow' },
+      { map: 'mossvale', x: 17, y: 8, landmark: 'east fields' },
+      { map: 'overworld', x: 20, y: 18, landmark: 'south meadow' },
     ],
     moveEvery: 6,
   },
@@ -110,10 +112,10 @@ export const MENTORS: Readonly<Record<string, MentorDef>> = {
     loseText: 'The rock won that one. I will be down by the stone; come back.',
     trialFoe: 'stoneWisp',
     route: [
-      { map: 'overworld', x: 32, y: 4 },
-      { map: 'caves1', x: 10, y: 7, requiresFlag: 'cavePass' },
-      { map: 'caves2', x: 3, y: 5, requiresFlag: 'cavePass' },
-      { map: 'brightwater', x: 14, y: 13 },
+      { map: 'overworld', x: 32, y: 4, landmark: 'cave seal' },
+      { map: 'caves1', x: 10, y: 7, requiresFlag: 'cavePass', landmark: 'crystal hall' },
+      { map: 'caves2', x: 3, y: 5, requiresFlag: 'cavePass', landmark: 'depths, west' },
+      { map: 'brightwater', x: 14, y: 13, landmark: 'south square' },
     ],
     moveEvery: 4,
   },
@@ -127,9 +129,9 @@ export const MENTORS: Readonly<Record<string, MentorDef>> = {
     loseText: 'It slipped. Follow the moonlight to me and we begin again.',
     trialFoe: 'moonWisp',
     route: [
-      { map: 'brightwater', x: 8, y: 2 },
-      { map: 'overworld', x: 25, y: 4 },
-      { map: 'caves2', x: 7, y: 2, requiresFlag: 'cavePass' },
+      { map: 'brightwater', x: 8, y: 2, landmark: 'north houses' },
+      { map: 'overworld', x: 25, y: 4, landmark: 'north hills' },
+      { map: 'caves2', x: 7, y: 2, requiresFlag: 'cavePass', landmark: "wyrm's lair" },
     ],
     moveEvery: 5,
   },
@@ -143,10 +145,10 @@ export const MENTORS: Readonly<Record<string, MentorDef>> = {
     loseText: 'Blown off course. I am always on the road; catch me.',
     trialFoe: 'galeWisp',
     route: [
-      { map: 'overworld', x: 17, y: 18 },
-      { map: 'mossvale', x: 12, y: 12 },
-      { map: 'brightwater', x: 19, y: 2 },
-      { map: 'overworld', x: 30, y: 12 },
+      { map: 'overworld', x: 17, y: 18, landmark: 'south road' },
+      { map: 'mossvale', x: 12, y: 12, landmark: 'village gate' },
+      { map: 'brightwater', x: 19, y: 2, landmark: 'north houses' },
+      { map: 'overworld', x: 30, y: 12, landmark: 'east road' },
     ],
     moveEvery: 3,
   },

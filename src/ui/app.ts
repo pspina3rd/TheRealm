@@ -7,7 +7,7 @@ import type { ChallengeSpec } from '../data/types';
 import { describeInteraction, entitySprite, resolveBattle } from '../game/encounter';
 import { lessonSpec } from '../game/lessons';
 import { MENTORS } from '../data/mentors';
-import { mentorOf, mentorStop } from '../world/mentors';
+import { mentorOf, mentorPlace } from '../world/mentors';
 import { MAPS } from '../data/maps';
 import { ELEMENT_NAMES, type Element } from '../core/elements';
 import { SPELLS } from '../data/spells';
@@ -19,7 +19,7 @@ import {
   skillPlanCost,
   type SkillPlan,
 } from '../game/skills';
-import { spellName } from '../game/spells';
+import { spellLevel, spellName } from '../game/spells';
 import { STATS, STAT_IDS } from '../data/stats';
 import { pieceWeights } from '../game/pieceOdds';
 import { deleteSave, loadGame, saveGame, type KeyValueStore } from '../game/save';
@@ -29,7 +29,7 @@ import { step } from '../world/movement';
 import { currentMap, newGame, travel, type GameState } from '../world/state';
 import { Dialog } from './dialog';
 import { button, byId, el } from './dom';
-import { ELEMENT_ICONS, STAT_ICONS } from './art/icons';
+import { ELEMENT_ICONS, SPELL_KIND_ICONS, STAT_ICONS } from './art/icons';
 import { BattleView } from './battleView';
 import { iconElement } from './iconDraw';
 import { ManaBars } from './manaBars';
@@ -78,6 +78,8 @@ interface ActiveBattle {
 
 /** How long the last moments of a battle play before the result appears. */
 const RESULT_DELAY_MS = 1000;
+/** Keys can't dismiss the result for this long, so mashing from the board doesn't skip it. */
+const RESULT_GUARD_MS = 350;
 
 /**
  * Top-level controller. Owns the game state and switches between walking
@@ -285,7 +287,11 @@ export class App {
       body: resultsBody(this.atlas, resolution, speaker),
       actions: [...retry, { label: 'Continue', onClick: proceed }],
       onCancel: proceed,
+      guardMs: RESULT_GUARD_MS,
     });
+    // After a lost lesson, trying again is the likely next step.
+    if (retry.length > 0)
+      byId('dialog-actions').querySelector<HTMLButtonElement>('button')?.focus();
   }
 
   private endBattle(): void {
@@ -356,11 +362,18 @@ export class App {
   private readonly lockHint = (category: Element): HTMLElement => {
     const mentor = mentorOf(category);
     if (!mentor) return el('span');
-    const stop = mentorStop(mentor, this.state.flags, this.state.victories);
-    const place = MAPS[stop.map]?.name ?? stop.map;
+    const stop = mentorPlace(mentor, this.state);
+    const place = `${MAPS[stop.map]?.name ?? stop.map} · ${stop.landmark}`;
+    const failed = this.state.hero.failedLessons[category];
+    const spell = failed && SPELLS[failed.spellId];
+    const lesson = spell ? spellLevel(spell, failed.level) : null;
     return el(
       'span',
-      { className: 'lock-hint', title: `${mentor.name} · ${place}` },
+      {
+        className: 'lock-hint',
+        title: `${lesson ? `${lesson.name} · ` : ''}${mentor.name} · ${place}`,
+      },
+      ...(lesson ? [iconElement(SPELL_KIND_ICONS[lesson.effect.kind], 2, lesson.name)] : []),
       spritePortrait(this.atlas, mentor.sprite, 24),
       el('span', { text: place }),
     );

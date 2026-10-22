@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { Battle } from '../src/battle/battle';
 import type { LessonChallenge } from '../src/battle/lesson';
 import { bestPlacement } from '../src/core/bestFit';
 import { emptyCounts } from '../src/core/elements';
@@ -6,7 +7,7 @@ import { ENEMIES } from '../src/data/enemies';
 import { MAPS } from '../src/data/maps';
 import { MENTORS, type MentorDef } from '../src/data/mentors';
 import { describeInteraction, entitySprite, resolveBattle } from '../src/game/encounter';
-import { createHero, type Hero } from '../src/game/hero';
+import { createHero, learnSpell, type Hero } from '../src/game/hero';
 import {
   FOE_ATK_PER_DIFFICULTY,
   completeLesson,
@@ -19,8 +20,15 @@ import {
   type LessonSpec,
 } from '../src/game/lessons';
 import { createRng } from '../src/core/rng';
-import { enhancements, knownSpell } from '../src/game/spells';
-import { isAtHome, mentorEntities, mentorOf, mentorStop, openStops } from '../src/world/mentors';
+import { enhancements, isCategoryLocked, knownSpell } from '../src/game/spells';
+import {
+  isAtHome,
+  mentorEntities,
+  mentorOf,
+  mentorPlace,
+  mentorStop,
+  openStops,
+} from '../src/world/mentors';
 import { activeEntities, markDefeated, newGame, travel } from '../src/world/state';
 import { SPELLS } from '../src/data/spells';
 import { knownSpells, makeBattle, rowWithGaps, setUpVerticalIClear } from './helpers';
@@ -119,14 +127,14 @@ describe('lesson foes', () => {
   });
 
   it('fights the toughest local monster away, preferring the mentor’s element', () => {
-    expect(lessonFoeId(mentor('torva'), { map: 'overworld', x: 8, y: 6 })).toBe('goblin');
-    expect(lessonFoeId(mentor('dorn'), { map: 'caves1', x: 10, y: 7 })).toBe('brute');
-    expect(lessonFoeId(mentor('hazel'), { map: 'overworld', x: 20, y: 18 })).toBe('shroom');
-    expect(lessonFoeId(mentor('rook'), { map: 'caves2', x: 12, y: 5 })).toBe('shadeImp');
+    expect(lessonFoeId(mentor('torva'), mentor('torva').route[1]!)).toBe('goblin');
+    expect(lessonFoeId(mentor('dorn'), mentor('dorn').route[1]!)).toBe('brute');
+    expect(lessonFoeId(mentor('hazel'), mentor('hazel').route[2]!)).toBe('shroom');
+    expect(lessonFoeId(mentor('rook'), mentor('rook').route[3]!)).toBe('shadeImp');
   });
 
   it('falls back to the wisp where there are no monsters', () => {
-    expect(lessonFoeId(mentor('kestrel'), { map: 'mossvale', x: 12, y: 12 })).toBe('galeWisp');
+    expect(lessonFoeId(mentor('kestrel'), mentor('kestrel').route[1]!)).toBe('galeWisp');
   });
 
   it('scales the foe with difficulty and drops its spoils', () => {
@@ -173,24 +181,24 @@ describe('completeLesson', () => {
     expect(knownSpell(hero, 'gust')?.level).toBe(1);
   });
 
-  it('raises a ready spell and lifts the lock on a win', () => {
+  it('raises a ready spell, lifting the lock it set', () => {
     const hero = heroKnowing('gale');
     hero.spells.gale!.step = enhancements(ready);
-    hero.lockedCategories = ['wind'];
+    hero.failedLessons = { wind: { spellId: 'gale', level: 2 } };
     expect(completeLesson(hero, spec('gale'), true)).toEqual([
       { kind: 'spellLevel', spellId: 'gale', level: 2 },
       { kind: 'unlock', element: 'wind' },
     ]);
     expect(hero.spells.gale?.level).toBe(2);
-    expect(hero.lockedCategories).toEqual([]);
+    expect(hero.failedLessons).toEqual({});
   });
 
-  it('locks the category once on a loss and patches the hero up to half HP', () => {
+  it('records the lost lesson, locks the category and patches the hero up to half HP', () => {
     const hero = heroKnowing('gale');
     hero.hp = 0;
     expect(completeLesson(hero, spec('gust'), false)).toEqual([{ kind: 'lock', element: 'wind' }]);
-    completeLesson(hero, spec('gust'), false);
-    expect(hero.lockedCategories).toEqual(['wind']);
+    expect(hero.failedLessons).toEqual({ wind: { spellId: 'gust', level: 1 } });
+    expect(isCategoryLocked(hero, 'wind')).toBe(true);
     expect(hero.hp).toBe(Math.ceil(hero.maxHp / 2));
     hero.hp = hero.maxHp;
     completeLesson(hero, spec('gust'), false);
@@ -198,14 +206,38 @@ describe('completeLesson', () => {
     expect(knownSpell(hero, 'gust')).toBeUndefined();
   });
 
-  it('keeps the lesson open after a loss, then a win unlocks', () => {
-    const hero = heroKnowing('gale');
+  it('keeps the first lost lesson as the one to win', () => {
+    const hero = heroKnowing('gale', 'shadow');
+    completeLesson(hero, spec('moonwind'), false);
     completeLesson(hero, spec('gust'), false);
-    expect(lessonsFor(hero, mentor('kestrel'))).toEqual([
-      { spellId: 'gust', level: 1, difficulty: 1 },
+    expect(hero.failedLessons.wind).toEqual({ spellId: 'moonwind', level: 1 });
+  });
+
+  it('does not unlock for an easier lesson, only for the lost one', () => {
+    const hero = heroKnowing('gale', 'shadow');
+    completeLesson(hero, spec('moonwind'), false);
+    expect(lessonsFor(hero, mentor('kestrel')).map((l) => l.spellId)).toEqual(['gust', 'moonwind']);
+    expect(completeLesson(hero, spec('gust'), true)).toEqual([{ kind: 'spell', spellId: 'gust' }]);
+    expect(isCategoryLocked(hero, 'wind')).toBe(true);
+    expect(completeLesson(hero, spec('moonwind'), true)).toEqual([
+      { kind: 'spell', spellId: 'moonwind' },
+      { kind: 'unlock', element: 'wind' },
     ]);
-    completeLesson(hero, spec('gust'), true);
-    expect(hero.lockedCategories).toEqual([]);
+    expect(isCategoryLocked(hero, 'wind')).toBe(false);
+    expect(hero.failedLessons).toEqual({});
+  });
+
+  it('clears a lock whose lesson can no longer be offered', () => {
+    const hero = heroKnowing('cure');
+    hero.failedLessons = { fire: { spellId: 'fire', level: 1 } };
+    learnSpell(hero, 'fire'); // from a tome, say
+    expect(isCategoryLocked(hero, 'fire')).toBe(false);
+    expect(lessonsFor(hero, mentor('torva')).map((l) => l.spellId)).not.toContain('fire');
+    // The stale record is tidied away by the next lesson won, with no unlock to show.
+    expect(completeLesson(hero, spec('kindle', 'torva'), true)).toEqual([
+      { kind: 'spell', spellId: 'kindle' },
+    ]);
+    expect(hero.failedLessons).toEqual({});
   });
 
   it('rejects unknown mentors', () => {
@@ -234,6 +266,17 @@ describe('mentor movement', () => {
     expect(openStops(torva, new Set())).toHaveLength(3);
     expect(mentorStop(torva, new Set(), 12)).toBe(torva.route[0]);
     expect(mentorStop(torva, new Set(['cavePass']), 12)).toBe(torva.route[3]);
+  });
+
+  it('never arrives on the hero’s tile: they wait at the stop before', () => {
+    const k = mentor('kestrel');
+    const gate = k.route[1]!; // reached after 3 wins
+    expect(mentorStop(k, new Set(), 3, { map: 'mossvale', x: 9, y: 12 })).toBe(gate);
+    expect(mentorStop(k, new Set(), 3, gate)).toBe(k.route[0]);
+    expect(mentorStop(k, new Set(), 0, k.route[0])).toBe(k.route[3]);
+    const state = { ...newGame('ranger'), victories: 3, mapId: 'mossvale', x: gate.x, y: gate.y };
+    expect(mentorEntities(state).map((e) => e.mentorId)).toEqual(['torva']);
+    expect(mentorPlace(k, { ...state, x: gate.x + 1 })).toBe(gate);
   });
 
   it('knows home', () => {
@@ -279,6 +322,11 @@ describe('mentor encounters', () => {
       sprite: 'char.020',
       mentorId: 'torva',
       lessons: [{ spellId: 'fire' }, { spellId: 'wildfire' }],
+      failed: null,
+    });
+    state.hero.failedLessons = { fire: { spellId: 'wildfire', level: 1 } };
+    expect(describeInteraction(state, torva)).toMatchObject({
+      failed: { spellId: 'wildfire', level: 1 },
     });
     state.hero.spells = knownSpells('fire', 'kindle', 'wildfire');
     expect(describeInteraction(state, torva)).toEqual({
@@ -318,7 +366,7 @@ describe('mentor encounters', () => {
     const result = resolveBattle(state, torva, battle, createRng(1));
     expect(result).toMatchObject({ won: false, speech: MENTORS.torva!.loseText, fell: false });
     expect(state.mapId).toBe('mossvale');
-    expect(state.hero.lockedCategories).toEqual(['fire']);
+    expect(state.hero.failedLessons).toEqual({ fire: { spellId: 'fire', level: 1 } });
   });
 
   it('rejects a mentor battle that is not a lesson', () => {
@@ -348,25 +396,44 @@ describe('LessonChallenge', () => {
 
   it('fights a scaled foe at the scaled speed, as a lesson', () => {
     const { battle, challenge } = lesson(2);
-    expect(challenge.enemy.hp).toBe(45);
+    expect(challenge.enemy.hp).toBe(60);
     expect(battle.level).toBe(3);
     expect(challenge.objective().label).toBe('Lesson: Fire');
     expect(challenge.helpChance).toBeCloseTo(0.5 * 0.8);
   });
 
-  it('tosses the best-fitting piece in the mentor’s colour, whose crystals give her mana', () => {
+  it('tosses the best-fitting shape in the mentor’s colour, entering as usual', () => {
     const { battle, challenge, hero } = lesson();
     (challenge as { helpChance: number }).helpChance = 1;
     const board = battle.board;
     for (let y = 16; y < 20; y++) board.grid[y] = rowWithGaps(10, [9]);
     battle.input('hardDrop'); // lands in the middle, clearing nothing
-    const best = bestPlacement(board.grid);
-    expect(best).toMatchObject({ name: 'I', x: 9, lines: 4 });
-    expect(board.active).toMatchObject({ name: 'I', color: 'red', recolored: true, x: 9 });
+    expect(bestPlacement(board.grid)).toMatchObject({ name: 'I', x: 9, lines: 4 });
+    // The hero still has to place it: it spawns flat at the usual column.
+    expect(board.active).toMatchObject({ name: 'I', color: 'red', recolored: true, x: 3, y: 0 });
     expect(battle.events.at(-1)?.event).toEqual({ kind: 'toss', element: 'fire', piece: 'I' });
+    battle.input('rotate');
+    for (let i = 0; i < 10; i++) battle.input('right');
     battle.input('hardDrop');
     expect(battle.lines).toBe(4);
+    // Its four crystals were red: the mentor's fire mana.
     expect(hero.mana.fire).toBe(4);
+  });
+
+  it('is a real fight: hard-dropping in place with no spells usually loses', () => {
+    let losses = 0;
+    for (let seed = 1; seed <= 10; seed++) {
+      const hero = createHero('ranger');
+      const spec = lessonSpec(newGame('ranger'), 'kestrel', {
+        spellId: 'gust',
+        level: 1,
+        difficulty: 1,
+      });
+      const battle = new Battle(spec, hero, createRng(seed));
+      for (let i = 0; i < 400 && battle.status === 'ongoing'; i++) battle.input('hardDrop');
+      if (battle.status === 'lost') losses++;
+    }
+    expect(losses).toBeGreaterThanOrEqual(8);
   });
 
   it('never tosses without luck', () => {

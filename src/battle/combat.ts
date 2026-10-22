@@ -164,7 +164,16 @@ export class CombatChallenge implements Challenge {
     const cast = heroSpell(hero, spellId);
     if (!cast) return "You don't know that spell.";
     if (!canAfford(hero, cast.cost)) return 'Not enough mana!';
-    if (cast.effect.kind === 'heal' && hero.hp >= hero.maxHp) return 'HP is already full.';
+    const effect = cast.effect;
+    if ((effect.kind === 'heal' || effect.kind === 'regen') && hero.hp >= hero.maxHp) {
+      return 'HP is already full.';
+    }
+    const category = SPELLS[spellId]?.category;
+    const others = ELEMENTS.filter((element) => element !== category);
+    if (effect.kind === 'manaTap' && others.every((e) => hero.mana[e] >= hero.manaCap)) {
+      return 'Mana is already full.';
+    }
+    if (effect.kind === 'swap' && !this.ctx.board.canSwapWithNext()) return 'No room to swap.';
     return null;
   }
 

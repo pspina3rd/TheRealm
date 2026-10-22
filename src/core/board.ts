@@ -178,34 +178,47 @@ export class Board {
 
   /**
    * Swaps the falling piece for `name` at the top of the board, optionally
-   * recoloured, turned and moved (a mentor's toss). The queue is untouched.
-   * Returns false, changing nothing, if there is no active piece or the new
-   * one would not fit.
+   * recoloured, turned and moved (a mentor's toss). The displaced piece is
+   * gone: the toss takes its turn, and the queue is untouched. Returns
+   * false, changing nothing, if there is no active piece or the new one
+   * would not fit.
    */
   replaceActive(name: PieceName, options: PieceOptions = {}): boolean {
-    if (!this.active) return false;
     const piece = makePiece(name, options);
-    const previous = this.active;
+    if (!this.active || !this.fits(piece)) return false;
     this.active = piece;
-    if (!this.collides(0, 0)) return true;
-    this.active = previous;
-    return false;
+    return true;
+  }
+
+  /** True if the falling piece could be swapped for the next one (see `swapWithNext`). */
+  canSwapWithNext(): boolean {
+    const [next] = this.preview(1);
+    return this.active !== null && next !== undefined && this.fits(makePiece(next));
   }
 
   /**
    * Swaps the falling piece for the next one in the queue, which restarts
-   * at the top; the falling piece's shape takes its place in the queue.
-   * Returns false, changing nothing, if there is no next piece or it would
-   * not fit.
+   * at the top; the falling piece's shape takes its place in the queue, in
+   * its own colour (a recoloured toss goes back as a plain piece). Returns
+   * false, changing nothing, if `canSwapWithNext` is false.
    */
   swapWithNext(): boolean {
     const previous = this.active;
     const [next] = this.preview(1);
-    if (!previous || !next) return false;
-    if (!this.replaceActive(next)) return false;
+    if (!previous || !next || !this.replaceActive(next)) return false;
     const queue = this.fixedQueue ?? this.bag;
     queue[0] = previous.name;
     return true;
+  }
+
+  /** True if `piece`, where it is, overlaps no wall, floor or block. */
+  private fits(piece: ActivePiece): boolean {
+    return piece.cells.every(([cx, cy]) => {
+      const x = piece.x + cx;
+      const y = piece.y + cy;
+      if (x < 0 || x >= this.width || y >= this.height) return false;
+      return y < 0 || this.grid[y]?.[x] === null;
+    });
   }
 
   /** True if the active piece, moved by (dx, dy) with `cells`, overlaps walls or blocks. */

@@ -12,6 +12,7 @@ import {
   knownSpell,
   newKnownSpell,
   totalEnhancements,
+  type FailedLesson,
   type KnownSpell,
 } from './spells';
 import { SKILL_POINTS_PER_LEVEL, derivedStats, statRanks } from './stats';
@@ -55,10 +56,10 @@ export interface Hero {
   /** Spell id → its level and enhancements, in the order learned. */
   spells: Record<string, KnownSpell>;
   /**
-   * Categories whose spells can't be enhanced until a lost mentor lesson
-   * is won (stage 4 sets these; see `isCategoryLocked`).
+   * The lesson lost in each category, if any: its spells can't be enhanced
+   * until that lesson is won (see `isCategoryLocked`).
    */
-  lockedCategories: Element[];
+  failedLessons: Partial<Record<Element, FailedLesson>>;
 }
 
 /** The hero's class, falling back to the default for unknown ids (e.g. old saves). */
@@ -93,7 +94,7 @@ export function createHero(classId = DEFAULT_CLASS, name?: string): Hero {
         newKnownSpell(),
       ]),
     ),
-    lockedCategories: [],
+    failedLessons: {},
   };
 }
 

@@ -12,9 +12,10 @@ import type { BattleContext, Objective } from './types';
 /**
  * A mentor's lesson: a fight against a foe scaled to the lesson's
  * difficulty, fought side by side with the mentor. On every new piece the
- * mentor may (with `helpChance`) toss in the best-fitting piece instead,
- * turned and placed over its best column, its crystals in the mentor's
- * colour so clearing them fills the mentor's mana.
+ * mentor may (with `helpChance`) toss in the best-fitting shape instead:
+ * it replaces the piece that came out of the bag and enters as usual, so
+ * the hero still has to place it, but its crystals are in the mentor's
+ * colour, so clearing them fills the mentor's mana.
  */
 export class LessonChallenge extends CombatChallenge {
   readonly mentor: MentorDef;
@@ -42,17 +43,13 @@ export class LessonChallenge extends CombatChallenge {
     return { ...super.objective(), label: `Lesson: ${spell ? spellName(spell) : this.spellId}` };
   }
 
-  /** Replaces the new falling piece with the best-fitting one, in the mentor's colour. */
+  /** Replaces the new falling piece with the best-fitting shape, in the mentor's colour. */
   private toss(): void {
     const board = this.ctx.board;
     const best = bestPlacement(board.grid);
     const element = this.mentor.element;
-    if (!best) return;
-    const tossed = board.replaceActive(best.name, {
-      color: colorOfElement(element),
-      cells: best.cells,
-      x: best.x,
-    });
-    if (tossed) this.ctx.emit({ kind: 'toss', element, piece: best.name });
+    if (best && board.replaceActive(best.name, { color: colorOfElement(element) })) {
+      this.ctx.emit({ kind: 'toss', element, piece: best.name });
+    }
   }
 }

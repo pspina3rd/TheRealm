@@ -40,7 +40,7 @@ describe('hero', () => {
     expect(hero.classId).toBe('ranger');
     expect(hero.level).toBe(1);
     expect(hero.spells).toEqual(knownSpells('gale', 'cure'));
-    expect(hero.lockedCategories).toEqual([]);
+    expect(hero.failedLessons).toEqual({});
     expect(createHero('mage', 'Test').name).toBe('Test');
   });
 

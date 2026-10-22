@@ -15,7 +15,8 @@ export const SAVE_KEY = 'the-realm/save';
  * - 3 replaced attunement with alignment and gave each class its own spell.
  * - 4 added stats and skill points; levels no longer raise mana, attack or defence.
  * - 5 gave spells levels and enhancements, and added locked categories.
- * - 6 added the count of monster battles won, which moves the mentors.
+ * - 6 added the count of monster battles won, which moves the mentors, and
+ *   replaced locked categories with the lost lesson behind each lock.
  */
 export const SAVE_VERSION = 6;
 /** Older versions `deserialize` can still upgrade. */
@@ -125,6 +126,8 @@ type StoredHero = Omit<Partial<Hero>, 'spells'> & {
   attunement?: Element | null;
   /** A list of spell ids before version 5. */
   spells?: string[] | Record<string, KnownSpell>;
+  /** Version 5 only; nothing set it then, so it is dropped. */
+  lockedCategories?: Element[];
 };
 
 /**
@@ -138,10 +141,12 @@ type StoredHero = Omit<Partial<Hero>, 'spells'> & {
  *   and defence are recomputed (levels now only add HP), with current HP and
  *   mana kept within the new caps;
  * - before version 5 spells were a list of ids: each becomes a level 1
- *   spell with no enhancements, and no category is locked.
+ *   spell with no enhancements;
+ * - before version 6 no lesson had been lost, so none locks a category.
  */
 function migrateHero(stored: StoredHero): Hero {
   const { mp, maxMp, attunement, ...rest } = stored;
+  delete rest.lockedCategories;
   const classId = rest.classId ?? DEFAULT_CLASS;
   const cls = heroClass({ classId });
   const manaCap = rest.manaCap ?? maxMp ?? 12;
@@ -159,7 +164,7 @@ function migrateHero(stored: StoredHero): Hero {
     titleElement:
       rest.titleElement ?? titleElementFor(attunement ?? cls.element, heroAlignment({ spells })),
     spells,
-    lockedCategories: rest.lockedCategories ?? [],
+    failedLessons: rest.failedLessons ?? {},
     accessoryId: rest.accessoryId ?? null,
     manaCap,
     mana: rest.mana ?? emptyCounts(Math.min(mp ?? manaCap, manaCap)),

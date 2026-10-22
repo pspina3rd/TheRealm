@@ -76,10 +76,11 @@ Seven mentors, one per element, teach their element's spells: Torva
 Selene (arcane) and Kestrel (wind). A glow at their feet shows their
 element and a scroll over their head means they have a lesson for you.
 A lesson is a fight side by side: now and then the mentor tosses you the
-piece that fits best, in their colour. Win and you learn the spell or its
-next level. Lose and that element's spells are locked until you win a
-lesson again; the lock shows the mentor's face and where they are, because
-mentors travel as you win battles and open new places.
+shape that fits best, in their colour, for you to place. Win and you
+learn the spell or its next level. Lose and that element's spells are
+locked until you win that same lesson; the lock shows the spell, the
+mentor's face and where they are, because mentors travel as you win
+battles and open new places.
 
 ### Elements and magic
 

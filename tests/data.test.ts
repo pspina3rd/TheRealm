@@ -21,9 +21,13 @@ const allEntities = Object.values(MAPS).flatMap((m) => m.entities.map((e) => ({ 
 function reachableTiles(): Set<string> {
   const seen = new Set<string>();
   const queue: [string, number, number][] = [[START.map, START.x, START.y]];
-  const blockers = new Set(
-    allEntities.filter(({ e }) => e.kind === 'npc').map(({ map, e }) => `${map.id}:${e.x},${e.y}`),
-  );
+  // People (and mentors, wherever they may stand) block the way; monsters can be beaten.
+  const blockers = new Set([
+    ...allEntities
+      .filter(({ e }) => e.kind === 'npc')
+      .map(({ map, e }) => `${map.id}:${e.x},${e.y}`),
+    ...Object.values(MENTORS).flatMap((m) => m.route.map((s) => `${s.map}:${s.x},${s.y}`)),
+  ]);
   while (queue.length) {
     const [mapId, x, y] = queue.pop()!;
     const key = `${mapId}:${x},${y}`;
@@ -110,6 +114,7 @@ describe('mentors', () => {
       expect(ENEMIES[m.trialFoe]?.element, m.id).toBe(m.element);
       expect(m.route[0].requiresFlag, m.id).toBeUndefined();
       expect(m.moveEvery).toBeGreaterThan(0);
+      for (const stop of m.route) expect(stop.landmark.length, m.id).toBeGreaterThan(0);
     }
   });
 

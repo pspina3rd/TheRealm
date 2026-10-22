@@ -16,7 +16,7 @@ import {
   spellElements,
 } from '../src/game/spells';
 import { statRanks } from '../src/game/stats';
-import { forceQueue, knownSpells, makeBattle, setUpVerticalIClear } from './helpers';
+import { forceQueue, knownSpells, makeBattle, rowWithGaps, setUpVerticalIClear } from './helpers';
 
 /** A fight against a slime (nature: weak to fire, resists earth), knowing `spells`. */
 function fight(...spells: string[]) {
@@ -96,7 +96,7 @@ describe('support spells', () => {
     expect(combat.ward).toBe(MAX_WARD);
   });
 
-  it('Mana Tap fills every other pool', () => {
+  it('Mana Tap fills every other pool, and needs room in one', () => {
     const { battle, combat, hero } = fight('manaTap');
     combat.countdown = 99;
     hero.mana = { ...emptyCounts(), arcane: 10 };
@@ -104,9 +104,16 @@ describe('support spells', () => {
     expect(hero.mana).toEqual({ ...emptyCounts(2), arcane: 6 });
     expect(kinds(battle)).toContain('mana');
     hero.mana = { ...emptyCounts(hero.manaCap), arcane: 10 };
-    const before = battle.events.length;
-    combat.castSpell('manaTap');
-    expect(battle.events.slice(before).map((e) => e.event.kind)).not.toContain('mana');
+    expect(combat.cannotCastReason('manaTap')).toBe('Mana is already full.');
+    hero.mana.fire = 0;
+    expect(combat.cannotCastReason('manaTap')).toBeNull();
+  });
+
+  it('Regen needs missing HP', () => {
+    const { combat, hero } = fight('regen');
+    expect(combat.cannotCastReason('regen')).toBe('HP is already full.');
+    hero.hp--;
+    expect(combat.cannotCastReason('regen')).toBeNull();
   });
 
   it('Gust swaps the falling piece for the next one', () => {
@@ -117,9 +124,24 @@ describe('support spells', () => {
     expect(battle.board.active?.name).toBe('O');
   });
 
-  it('effects stop once the enemy is down', () => {
-    const { battle, combat } = fight('kindle', 'regen');
+  it('Gust can’t be cast, spending nothing, when the next piece has no room', () => {
+    const { battle, combat, hero } = fight('gust');
     combat.countdown = 99;
+    forceQueue(battle, ['T', 'I']);
+    battle.board.grid[1] = rowWithGaps(10, [3, 4, 5]); // room for the T only
+    const wind = hero.mana.wind;
+    expect(battle.board.canSwapWithNext()).toBe(false);
+    expect(combat.cannotCastReason('gust')).toBe('No room to swap.');
+    expect(() => combat.castSpell('gust')).toThrow('No room to swap.');
+    expect(hero.mana.wind).toBe(wind);
+    expect(battle.board.active?.name).toBe('T');
+    expect(combat.countdown).toBe(99);
+  });
+
+  it('effects stop once the enemy is down', () => {
+    const { battle, combat, hero } = fight('kindle', 'regen');
+    combat.countdown = 99;
+    hero.hp = 10;
     combat.castSpell('kindle');
     combat.castSpell('regen');
     combat.enemyHp = 1;

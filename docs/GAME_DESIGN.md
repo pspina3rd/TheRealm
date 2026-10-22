@@ -180,10 +180,10 @@ then rows or pieces after the slash.
 | Kindle    | Fire      | 5 fire      | Burns the enemy for 4 (fire, so ×1.5 if weak) after each of 5 pieces |
 | Mist      | Water     | 6 water     | The enemy's next move fizzles ("Miss")                               |
 | Static    | Lightning | 5 lightning | Each of the next 3 line clears also strikes for 6 lightning          |
-| Regen     | Nature    | 6 nature    | Heals 4 HP after each of 5 pieces                                    |
+| Regen     | Nature    | 6 nature    | Heals 4 HP after each of 5 pieces (not at full HP)                   |
 | Stoneskin | Earth     | 5 earth     | +15 ward (up to the usual 25)                                        |
-| Mana Tap  | Arcane    | 4 arcane    | +2 mana to every other pool                                          |
-| Gust      | Wind      | 3 wind      | Swaps the falling piece for the next one                             |
+| Mana Tap  | Arcane    | 4 arcane    | +2 mana to every other pool (not when they are all full)             |
+| Gust      | Wind      | 3 wind      | Swaps the falling piece for the next one (not if it has no room)     |
 
 Running supports show on the stage with a count: Kindle and Mist under
 the enemy's turn pips, Regen and Static beside the hero.
@@ -254,9 +254,10 @@ Enhancing a spell makes it **ready** for its next level:
 - A **ready** spell waits for a [mentor](#mentors) lesson to raise it
   (`raiseSpellLevel` in `src/game/hero.ts`). Bonuses stay after the
   level-up and the next step starts empty.
-- **Locks**: a category listed in the hero's `lockedCategories` can't be
-  enhanced. A lost mentor lesson sets it (see [Mentors](#mentors)); the
-  category shows a lock, the mentor's face and the place they are now.
+- **Locks**: a category can't be enhanced while the hero has a lost
+  mentor lesson in it still to win (`failedLessons`, see
+  [Mentors](#mentors)). It shows a lock, the lost spell's kind icon, the
+  mentor's face and where they are now (map and landmark).
 - **Skill screen**: each spell shows its level pips, the points one
   enhancement costs, step pips (bought, staged in green), and per
   attribute its icon, current value (Efficiency shows the mana taken off,
@@ -288,7 +289,10 @@ buttons (spell, level pips, kind, cost, difficulty as swords).
 - **Travel**: a mentor's place is a pure function of the story flags and
   the number of monster battles won (saved): the route's open stops, home
   first, and one stop on every _N_ wins, wrapping round. So a mentor is in
-  exactly one place, and story progress opens new stops.
+  exactly one place, and story progress opens new stops. A mentor never
+  arrives on the hero's tile: while the hero stands on their next stop,
+  they wait at the one before. Each stop has a landmark ("cave seal",
+  "lake shore") shown with the map's name in lock hints.
 - **What they teach** (only their element): the next level of a _ready_
   spell; the primary, if the hero lacks it; the support, once the primary
   is known; each combo, once its other spell is known.
@@ -306,22 +310,31 @@ buttons (spell, level pips, kind, cost, difficulty as swords).
   where relation compares the mentor's element to the hero's title
   element: same ×1, related ×0.8, the mentor's beats the hero's ×0.6, the
   hero's beats the mentor's ×0.8. The mentor then tosses the best-fitting
-  piece instead: every shape, rotation and column is scored (lines
-  completed +0.76, covered holes −0.36, total height −0.51, bumpiness
-  −0.18; ties go to the first tried) and the winner appears already turned
-  over its best column, its crystals in the mentor's colour, so clearing
-  them gives the mentor's mana. The tossed piece glows, the mentor (beside
-  the hero on the stage, and in a portrait by the next piece) hops and
-  flashes their element.
+  **shape** in place of the piece that came out of the bag: every shape,
+  rotation and column is scored (lines completed +0.76, covered holes
+  −0.36, total height −0.51, bumpiness −0.18; ties go to the first tried)
+  and the best placement's shape enters as usual (spawn rotation and
+  column), so the hero still has to place it. Its crystals are in the
+  mentor's colour, so clearing them gives the mentor's mana. The tossed
+  piece glows, and the mentor (beside the hero on the stage, and in a
+  portrait by the next piece) hops and flashes their element. Gust sends a
+  tossed piece back to the queue in its own colour.
 
 - **Win**: the spell is learned or raised, shown on the results with its
-  icon and level pips, and the category's lock (if any) opens.
-- **Lose**: the lesson stays open. The mentor patches the hero up to at
-  least half HP (no trip to the inn). The hero can **Retry** at once from
-  the results, or walk away, but the category is **locked**: none of its
-  spells can be enhanced until a lesson of that mentor is won. The lock
-  shows the mentor's face and where they are now; since mentors travel,
-  the hero may have to go and find them.
+  icon and level pips. If it was the lesson that locked the category, the
+  lock opens.
+- **Lose**: the lesson is recorded and stays open. The mentor patches the
+  hero up to at least half HP (no trip to the inn). The hero can **Retry**
+  at once from the results (it has focus; keys are ignored for 350 ms so
+  mashing can't skip the result), or walk away, but the category is
+  **locked**: none of its spells can be enhanced until **that** lesson is
+  won. The mentor's other lessons stay on offer but don't lift the lock;
+  the lost one is marked with a lock in their list. If the hero comes to
+  know that spell at that level another way (e.g. a tome), the lock lifts
+  by itself, so it can never become permanent. A later loss while locked
+  keeps the first lesson as the one to win. The lock shows the mentor's
+  face and where they are now; since mentors travel, the hero may have to
+  go and find them.
 
 ### Charms
 
@@ -390,7 +403,7 @@ and bigger, scarier Pixel Battlers monsters underground.
 | Lessons    | Wisps (×7)   | Each    | From chart    | From chart                              | attack + one of their element's | —               |
 
 The seven wisps (Ember, Tide, Spark, Moss, Stone, Moon, Gale) are mentors'
-trial foes: 30 HP, attack 5, acting every 4 pieces, drawn as a slime
+trial foes: 40 HP, attack 6, acting every 3 pieces, drawn as a slime
 recoloured to their element.
 
 ## Progression
@@ -484,7 +497,8 @@ break the ground for that well.
   new caps. v5 (built) turns each known spell into a level 1 spell with
   no enhancements and adds an empty list of locked categories. v6 (built)
   counts monster battles won (older saves start at 0, so every mentor is
-  at home).
+  at home) and replaces locked categories with the lost lesson behind each
+  lock (`failedLessons`; older saves had none).
 - **Removed**: attunement and the level 3 choice (done); spell tomes from
   shops (later: they become quest or mentor rewards).
 

@@ -8,8 +8,10 @@
  *   known) and its combos (once their other element's spell is known).
  * - Difficulty is the level taught (a new spell is level 1); a combo's is
  *   the number of its elements (2, or 3 for Meteor).
- * - Winning teaches the spell or level and lifts the category's lock;
- *   losing locks the category until a lesson of that mentor is won.
+ * - Losing records the lesson and locks the category's enhancements until
+ *   that lesson is won (or the hero comes to know that spell at that
+ *   level some other way). Winning another of the mentor's lessons
+ *   teaches it but does not lift the lock.
  */
 import { relationOf, type Element, type ElementRelation } from '../core/elements';
 import { ENEMIES } from '../data/enemies';
@@ -17,11 +19,11 @@ import { MAPS } from '../data/maps';
 import { MENTORS, type MentorDef, type MentorStop } from '../data/mentors';
 import { SPELLS } from '../data/spells';
 import type { ChallengeSpec, EnemyDef, SpellDef } from '../data/types';
-import { isAtHome, mentorStop } from '../world/mentors';
+import { isAtHome, mentorPlace } from '../world/mentors';
 import type { GameState } from '../world/state';
 import { heroAlignment, learnSpell, raiseSpellLevel, type Hero } from './hero';
 import type { Gain } from './rewards';
-import { ROLE_ORDER, isReady, knownSpell, spellElements } from './spells';
+import { ROLE_ORDER, isCategoryLocked, isReady, knownSpell, spellElements } from './spells';
 
 /** A lesson a mentor offers: the spell, the level it teaches (1 = new) and its difficulty. */
 export interface Lesson {
@@ -138,7 +140,7 @@ export function scaledFoe(enemy: EnemyDef, difficulty: number): EnemyDef {
 export function lessonSpec(state: GameState, mentorId: string, lesson: Lesson): LessonSpec {
   const mentor = MENTORS[mentorId];
   if (!mentor) throw new Error(`Unknown mentor: ${mentorId}`);
-  const stop = mentorStop(mentor, state.flags, state.victories);
+  const stop = mentorPlace(mentor, state);
   return {
     kind: 'lesson',
     mentorId,
@@ -150,31 +152,36 @@ export function lessonSpec(state: GameState, mentorId: string, lesson: Lesson): 
 
 /**
  * Applies a finished lesson to the hero. A win teaches the spell (or
- * raises it a level) and lifts the category's lock; a loss locks the
- * category and the mentor patches the hero up to at least half HP.
- * Returns what changed, for the results screen.
+ * raises it a level), lifting the category's lock if this was the lesson
+ * that set it. A loss records the lesson and locks the category (an
+ * earlier lost lesson that still locks it stays the one to win), and the
+ * mentor patches the hero up to at least half HP. Returns what changed,
+ * for the results screen.
  */
 export function completeLesson(hero: Hero, spec: LessonSpec, won: boolean): Gain[] {
   const mentor = MENTORS[spec.mentorId];
   if (!mentor) throw new Error(`Unknown mentor: ${spec.mentorId}`);
   const element = mentor.element;
-  const locked = hero.lockedCategories.includes(element);
+  const locked = isCategoryLocked(hero, element);
+  const known = knownSpell(hero, spec.spellId);
   if (!won) {
-    if (!locked) hero.lockedCategories.push(element);
+    if (!locked)
+      hero.failedLessons[element] = { spellId: spec.spellId, level: (known?.level ?? 0) + 1 };
     hero.hp = Math.max(hero.hp, Math.ceil(hero.maxHp / 2));
     return [{ kind: 'lock', element }];
   }
   const gains: Gain[] = [];
-  const known = knownSpell(hero, spec.spellId);
   if (known) {
     raiseSpellLevel(hero, spec.spellId);
     gains.push({ kind: 'spellLevel', spellId: spec.spellId, level: known.level + 1 });
   } else if (learnSpell(hero, spec.spellId)) {
     gains.push({ kind: 'spell', spellId: spec.spellId });
   }
-  if (locked) {
-    hero.lockedCategories = hero.lockedCategories.filter((e) => e !== element);
-    gains.push({ kind: 'unlock', element });
+  if (!isCategoryLocked(hero, element)) {
+    hero.failedLessons = Object.fromEntries(
+      Object.entries(hero.failedLessons).filter(([category]) => category !== element),
+    );
+    if (locked) gains.push({ kind: 'unlock', element });
   }
   return gains;
 }

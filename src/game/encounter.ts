@@ -11,6 +11,7 @@ import { markDefeated, travel, type GameState } from '../world/state';
 import { addItem, fillMana, gainXp, itemCount, removeItem } from './hero';
 import { completeLesson, lessonsFor, type Lesson } from './lessons';
 import { grantRewards, type Gain } from './rewards';
+import { isCategoryLocked, type FailedLesson } from './spells';
 import { SKILL_POINTS_PER_LEVEL, dropBonus } from './stats';
 
 /** Who is speaking in an interaction, for the conversation screen. */
@@ -33,6 +34,8 @@ export type Interaction =
       readonly kind: 'lessons';
       readonly mentorId: string;
       readonly lessons: readonly Lesson[];
+      /** The lesson the hero lost here and must win to lift the lock, if any. */
+      readonly failed: FailedLesson | null;
     })
   /** Offer a battle the player can accept or decline. */
   | (Speaker & {
@@ -94,7 +97,15 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
     const lessons = lessonsFor(state.hero, mentor);
     const speaker = { title: mentor.name, sprite: mentor.sprite, text: mentor.motive };
     return lessons.length > 0
-      ? { kind: 'lessons', ...speaker, mentorId: mentor.id, lessons }
+      ? {
+          kind: 'lessons',
+          ...speaker,
+          mentorId: mentor.id,
+          lessons,
+          failed: isCategoryLocked(state.hero, mentor.element)
+            ? (state.hero.failedLessons[mentor.element] ?? null)
+            : null,
+        }
       : { kind: 'message', ...speaker };
   }
   if (entity.kind === 'monster') {

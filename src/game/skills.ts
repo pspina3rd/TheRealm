@@ -28,7 +28,7 @@ export interface SkillPlan {
 /** Nothing chosen yet. */
 export const EMPTY_PLAN: SkillPlan = { stats: {}, spells: {} };
 
-type PlanHero = Pick<Hero, 'stats' | 'skillPoints' | 'spells' | 'lockedCategories'>;
+type PlanHero = Pick<Hero, 'stats' | 'skillPoints' | 'spells' | 'failedLessons'>;
 
 /** A known spell with a level still to gain, and the step toward it; null otherwise. */
 function enhanceable(hero: Pick<Hero, 'spells'>, spellId: string) {

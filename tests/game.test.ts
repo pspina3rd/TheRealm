@@ -343,7 +343,7 @@ const V4_FIELDS = ['stats', 'skillPoints'];
  */
 const without = (hero: Record<string, unknown>, fields: readonly string[]) => ({
   ...Object.fromEntries(
-    Object.entries(hero).filter(([key]) => ![...fields, 'lockedCategories'].includes(key)),
+    Object.entries(hero).filter(([key]) => ![...fields, 'failedLessons'].includes(key)),
   ),
   spells: Object.keys(hero.spells as object),
 });
@@ -474,17 +474,16 @@ describe('save migration from version 4 (spell levels)', () => {
     const hero = deserialize(JSON.stringify(v4(['shadow', 'cure', 'fire'])))!.hero;
     expect(hero.spells).toEqual(knownSpells('shadow', 'cure', 'fire'));
     expect(Object.keys(hero.spells)).toEqual(['shadow', 'cure', 'fire']);
-    expect(hero.lockedCategories).toEqual([]);
+    expect(hero.failedLessons).toEqual({});
   });
 
-  it('keeps version 5 levels, enhancements and locks as saved', () => {
+  it('keeps version 5 levels and enhancements as saved', () => {
     const state = newGame('mage');
     state.hero.spells.shadow = {
       level: 2,
       step: enhancements({ power: 1 }),
       kept: enhancements({ power: 1, efficiency: 1, effect: 1 }),
     };
-    state.hero.lockedCategories = ['arcane'];
     expect(deserialize(serialize(state))!.hero).toEqual(state.hero);
   });
 });
@@ -498,16 +497,22 @@ describe('save migration to version 6 (mentors)', () => {
     expect(deserialize(serialize(state))!.victories).toBe(7);
   });
 
-  it('starts older saves with no victories, every mentor at home, keeping locks', () => {
+  it('saves the lost lesson behind each lock', () => {
     const state = newGame('mage');
-    state.hero.lockedCategories = ['arcane'];
-    const v5 = { ...JSON.parse(serialize(state)), version: 5 };
+    state.hero.failedLessons = { arcane: { spellId: 'manaTap', level: 1 } };
+    expect(deserialize(serialize(state))!.hero.failedLessons).toEqual(state.hero.failedLessons);
+  });
+
+  it('starts version 5 saves with no victories (every mentor at home) and no lost lessons', () => {
+    const data = JSON.parse(serialize(newGame('mage')));
+    const hero = { ...data.hero, lockedCategories: ['arcane'] };
+    delete hero.failedLessons;
+    const v5 = { ...data, version: 5, hero };
     delete v5.victories;
     const loaded = deserialize(JSON.stringify(v5))!;
     expect(loaded.victories).toBe(0);
-    expect(loaded.hero.lockedCategories).toEqual(['arcane']);
-    const v1 = { ...v5, version: 1 };
-    expect(deserialize(JSON.stringify(v1))!.victories).toBe(0);
+    expect(loaded.hero.failedLessons).toEqual({});
+    expect(loaded.hero).not.toHaveProperty('lockedCategories');
   });
 });
 

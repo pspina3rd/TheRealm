@@ -35,7 +35,11 @@ function speech(atlas: Atlas, sprite: string, text: string): HTMLElement {
  * and level pips at the level taught, what it does and costs, and the
  * lesson's difficulty. A raised level shows the ready scroll.
  */
-function lessonButton(lesson: Lesson, onPick: (lesson: Lesson) => void): HTMLButtonElement {
+function lessonButton(
+  lesson: Lesson,
+  failed: boolean,
+  onPick: (lesson: Lesson) => void,
+): HTMLButtonElement {
   const spell = SPELLS[lesson.spellId];
   const node = button('', () => onPick(lesson));
   node.className = 'lesson';
@@ -45,7 +49,11 @@ function lessonButton(lesson: Lesson, onPick: (lesson: Lesson) => void): HTMLBut
   node.append(
     iconElement(ELEMENT_ICONS[spell.category], 3, ELEMENT_NAMES[spell.category]),
     el('span', {}, el('b', { text: cast.name }), levelPips(spell, lesson.level), spellMeta(cast)),
-    ...(lesson.level > 1 ? [iconElement('scroll', 2, 'Next level')] : []),
+    failed
+      ? iconElement('lock', 2, 'Win this lesson to unlock')
+      : lesson.level > 1
+        ? iconElement('scroll', 2, 'Next level')
+        : el('span'),
     difficultyPips(lesson.difficulty),
   );
   return node;
@@ -67,7 +75,14 @@ export function conversationBody(
       el(
         'div',
         { className: 'lessons' },
-        ...interaction.lessons.map((lesson) => lessonButton(lesson, onLesson)),
+        ...interaction.lessons.map((lesson) =>
+          lessonButton(
+            lesson,
+            interaction.failed?.spellId === lesson.spellId &&
+              interaction.failed.level === lesson.level,
+            onLesson,
+          ),
+        ),
       ),
     );
   }

@@ -23,7 +23,15 @@ export interface DialogOptions {
    * that manage focus themselves pass false.
    */
   readonly autofocus?: boolean;
+  /**
+   * Milliseconds during which keys can't press a button or dismiss the
+   * dialog, so keys still being mashed from a battle don't skip it.
+   */
+  readonly guardMs?: number;
 }
+
+/** Keys that press a focused button or dismiss the dialog. */
+const ACTIVATION_KEYS = new Set(['Enter', ' ', 'Escape']);
 
 /**
  * The single modal dialog used for conversations, results, shops and the
@@ -37,8 +45,18 @@ export class Dialog {
   private onCancel: () => void = () => this.close();
   /** True while `close()` is closing the dialog, to tell it apart from the browser doing so. */
   private closingByCode = false;
+  /** Keys are ignored until this time (see `guardMs`). */
+  private guardUntil = 0;
 
   constructor() {
+    const guard = (event: KeyboardEvent): void => {
+      if (performance.now() < this.guardUntil && ACTIVATION_KEYS.has(event.key)) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    };
+    this.root.addEventListener('keydown', guard, true);
+    this.root.addEventListener('keyup', guard, true);
     this.root.addEventListener('cancel', (event) => {
       // Browsers may refuse to cancel the close (e.g. Escape before any click);
       // the 'close' handler below covers that case.
@@ -74,6 +92,7 @@ export class Dialog {
       }),
     );
     this.onCancel = options.onCancel ?? (() => this.close());
+    this.guardUntil = performance.now() + (options.guardMs ?? 0);
     if (!this.root.open) this.root.showModal();
     // The last enabled action is the default; callers keep destructive choices away from it.
     if (options.autofocus ?? true) {

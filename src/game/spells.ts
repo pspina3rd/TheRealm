@@ -334,12 +334,24 @@ export function heroSpell(hero: Pick<Hero, 'spells'>, spellId: string): CastSpel
   return spell && known ? castSpellFor(spell, known) : null;
 }
 
+/** A mentor lesson the hero lost: the spell and the level it was to teach (1 = new). */
+export interface FailedLesson {
+  readonly spellId: string;
+  readonly level: number;
+}
+
 /**
- * True while the hero may not enhance spells in `category`: a mentor
- * lesson in it was lost and not yet won again (set by mentors, stage 4).
+ * True while the hero may not enhance spells in `category`: they lost a
+ * mentor lesson in it that is still to be won. The lock lifts once the
+ * hero knows that spell at that level, by winning the lesson or any other
+ * way, so it can never outlive the lesson.
  */
-export function isCategoryLocked(hero: Pick<Hero, 'lockedCategories'>, category: Element): boolean {
-  return hero.lockedCategories.includes(category);
+export function isCategoryLocked(
+  hero: Pick<Hero, 'failedLessons' | 'spells'>,
+  category: Element,
+): boolean {
+  const failed = hero.failedLessons[category];
+  return failed !== undefined && (knownSpell(hero, failed.spellId)?.level ?? 0) < failed.level;
 }
 
 /** A category the hero knows spells in, for the battle menu. */
