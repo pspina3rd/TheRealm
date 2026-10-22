@@ -82,6 +82,9 @@ locked until you win that same lesson; the lock shows the spell, the
 mentor's face and where they are, because mentors travel as you win
 battles and open new places.
 
+Some spells are hidden: their slot is only a dark silhouette until
+something you do reveals it, and then its mentor will teach it.
+
 ### Elements and magic
 
 Every piece has an element, shown by its colour: red fire, blue water,
@@ -112,8 +115,8 @@ attack the moment you walk into them. Full rules and numbers are in
 
 1. **Mossvale Village** (start): Elder Rowan, Farmer Bea, Pip and a stall keeper.
 2. **The Realm** (overworld): slimes, Spore Shrooms and goblins guard the roads.
-3. **Brightwater Town**: shop, smithy, inn, a sage, a collector and Captain
-   Vale, who holds the pass to the caves.
+3. **Brightwater Town**: shop, smithy, inn, a sage, a collector, a shrine
+   keeper and Captain Vale, who holds the pass to the caves.
 4. **Moon Caves** (two floors): imps and a Cave Brute, a sealed chest, a
    hermit and the Moon Wyrm boss.
 5. **Sunken Ruins**: sealed for now. This is where the next region goes.

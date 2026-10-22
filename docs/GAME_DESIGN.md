@@ -295,9 +295,11 @@ buttons (spell, level pips, kind, cost, difficulty as swords).
   "lake shore") shown with the map's name in lock hints.
 - **What they teach** (only their element): the next level of a _ready_
   spell; the primary, if the hero lacks it; the support, once the primary
-  is known; each combo, once its other spell is known.
+  is known; each combo, once its other spell is known; a hidden spell,
+  once revealed.
 - **Difficulty**: the level being taught (a new spell is 1); a combo's is
-  its number of elements (2; Meteor 3).
+  its number of elements (2; Meteor 3). A [hidden spell](#hidden-spells)
+  is one harder.
 - **The foe**: at home, the mentor's trial **wisp** of their element;
   away, the toughest non-boss monster of the area (of the mentor's element
   if there is one), or the wisp in a town. Per difficulty above 1 the foe
@@ -343,6 +345,51 @@ every bag. Ember (fire) sells in Mossvale; Ember, Tide (water), Storm
 (lightning) and Wind sell at the Brightwater smithy. The Storm Charm undoes
 the Moon Caves' lightning penalty, which matters against the
 lightning-weak Shade Imp and Moon Wyrm.
+
+## Hidden spells
+
+Seven spells, one per element, appear on no list until something the hero
+does reveals them. Each has a single level and can't be enhanced; once
+revealed, its element's mentor teaches it (difficulty one above the usual:
+2, or 3 for Volcano). Code: `hidden` on the spell (`src/data/spells.ts`),
+`src/game/hidden.ts` and `src/game/feats.ts`.
+
+| Spell          | Element   | Kind               | Cost            | Effect                                                       | Unlock    | Condition (for developers)                                    |
+| -------------- | --------- | ------------------ | --------------- | ------------------------------------------------------------ | --------- | ------------------------------------------------------------- |
+| Volcano        | Fire      | Combo (fire+earth) | 6 fire, 6 earth | Clears the bottom 3 rows, 40 fire damage (no level bonus)    | Alignment | Fire 4 and earth 4                                            |
+| Purify         | Water     | Support            | 5 water         | Every stone on the board becomes a water crystal             | Quest     | Shrine Keeper Ilse's barter in Brightwater (`shrineRestored`) |
+| Ball Lightning | Lightning | Support            | 6 lightning     | 2 damage per lightning crystal on the board (no level bonus) | Pattern   | 6 pure lightning lines over the hero's life                   |
+| Bloom          | Nature    | Support            | 7 nature        | Heals 6 after each of the next 8 pieces                      | Item      | Bring a Spore Cap to Hazel                                    |
+| Fault Line     | Earth     | Support            | 5 earth         | For 4 pieces every element strikes as a weakness             | Stat      | Insight 5                                                     |
+| Eclipse        | Arcane    | Support            | 9 arcane        | 36 damage, heals all of it                                   | Item      | Bring a Moon Shard to Selene                                  |
+| Tempest        | Wind      | Support            | 7 wind          | 34 damage, tailwind 8 (cancels haste)                        | Pattern   | A four-line clear under the enemy's haste                     |
+
+- **Silhouettes**: until revealed, a hidden spell's slot is a dark
+  silhouette of its element with a faint hint of what kind of thing
+  reveals it (eye: a stat, star: alignment, piece: a board feat, scroll: a
+  quest, bag: an item); never its name or condition. Revealed but untaught,
+  it lights up in its element's colour with its mentor's face. It shows in
+  the spellbook (after its element's spells), at the end of an open
+  category menu in battle, and in its mentor's lesson list (where a
+  revealed spell is an ordinary lesson). `hiddenState` derives hidden /
+  unlocked / known.
+- **Feats** (`hero.feats`, saved): every battle counts each cleared line
+  made of one element alone (`pure.<element>`; any stone spoils it) and
+  each four-line clear made while the enemy's haste is on (`hastedQuad`).
+- **Items**: walking into the mentor with the item hands it over (shown
+  under their speech) and reveals the spell for good (`gift:<spell>` flag).
+- **The mentor noticed**: while a feat-revealed spell is untaught, its
+  mentor leaves their route and seeks the hero out: they wait at their
+  open stop fewest warps from the hero's map (one on that map first, the
+  earlier stop on a tie, never the hero's own tile), with a leaping star of
+  their colour overhead instead of the scroll. Once taught, they go back to
+  their route.
+- **Fault Line** shows on the stage: all seven elements line up under the
+  enemy's weakness mark, resistances vanish, and a ▲ count under the turn
+  pips shows the pieces left.
+- **Meteor** stays an ordinary stage 4 combo (Quake and Shadow Drain, taught
+  by Torva): it is already listed and taught, and the alignment unlock went
+  to Volcano instead.
 
 ## NPC interactions
 
@@ -418,8 +465,8 @@ stall. The Sunken Ruins are sealed as the hook for the next region.
 **Status: stages 1–4 are built and now documented in
 [Elements](#elements), [Hero classes and alignment](#hero-classes-and-alignment),
 [Stats and skill points](#stats-and-skill-points),
-[Hero magic](#hero-magic), [Enhancements](#enhancements) and
-[Mentors](#mentors). The rest is planned.** All numbers are starting values to tune in play.
+[Hero magic](#hero-magic), [Enhancements](#enhancements),
+[Mentors](#mentors) and [Hidden spells](#hidden-spells). The rest is planned.** All numbers are starting values to tune in play.
 
 ### Goals
 
@@ -444,16 +491,8 @@ stats delays a spell's next level, so in practice one spell reaches level
 
 ### Hidden spells
 
-Some spells don't appear on any list. Their slot shows as a dark silhouette
-in the category menu until unlocked; then a mentor can teach them.
-
-| Unlock    | Example                                                                     |
-| --------- | --------------------------------------------------------------------------- |
-| Stat      | Insight 5 → **Foresight** (see the enemy's next move early)                 |
-| Alignment | Fire 4 and Earth 4 → **Volcano**                                            |
-| Pattern   | Clear 4 pure-fire lines at once → a fire mentor "noticed" and seeks you out |
-| Quest     | Restore the Brightwater shrine → **Purify**                                 |
-| Item      | Bring the Moon Shard to the arcane mentor → **Eclipse**                     |
+Built (see [Hidden spells](#hidden-spells)): one per element, revealed by a
+stat, alignment, a board feat, a quest or an item.
 
 ### NPC alignment and attitude
 
@@ -498,7 +537,8 @@ break the ground for that well.
   no enhancements and adds an empty list of locked categories. v6 (built)
   counts monster battles won (older saves start at 0, so every mentor is
   at home) and replaces locked categories with the lost lesson behind each
-  lock (`failedLessons`; older saves had none).
+  lock (`failedLessons`; older saves had none). v7 (built) adds the
+  hero's lifetime board feats (`feats`; older saves start empty).
 - **Removed**: attunement and the level 3 choice (done); spell tomes from
   shops (later: they become quest or mentor rewards).
 
@@ -508,7 +548,7 @@ break the ground for that well.
 2. Stats, skill points and the level-up screen. **Done.**
 3. Spell levels, enhancements and the category menu. **Done.**
 4. Mentors, team-up battles, supports and combo spells. **Done.**
-5. Hidden spells and their unlocks.
+5. Hidden spells and their unlocks. **Done.**
 6. NPC attitudes and the dialogue rewrite.
 
 Each stage ships with tests and keeps the game playable.
