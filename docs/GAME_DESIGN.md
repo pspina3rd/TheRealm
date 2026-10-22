@@ -312,7 +312,11 @@ spell levels and combos through **team-up battles**.
     lesson difficulty), clamped to 10–50%.
   - Relation to your highest alignment: same element ×1, related ×0.8,
     opposed ×0.6.
-- **Win**: learn the spell or level. **Lose**: nothing lost; try again later.
+- **Win**: learn the spell or level.
+- **Lose**: the lesson stays open. The hero can fight it again straight away
+  or walk away for now, but **no spell in that category can be enhanced**
+  until the lesson is won. The category shows a lock icon, and the mentor
+  waits at home to be challenged again.
 
 ### Hidden spells
 
