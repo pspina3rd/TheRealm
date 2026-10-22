@@ -39,8 +39,9 @@ export class HeroPanel {
   private open: Element | null = null;
   /** What the number keys choose: categories, or the open category's spells. */
   private choices: ((() => void) | undefined)[] = [];
-  /** Height of the category slots, kept while a category menu is open. */
+  /** Height of the category slots and of one slot, kept while a category menu is open. */
   private categoriesHeight = 0;
+  private slotHeight = 0;
 
   onCast: (spellId: string) => void = () => {};
   onItem: (itemId: string) => void = () => {};
@@ -129,6 +130,7 @@ export class HeroPanel {
       );
       // Keep the categories' height so the controls below don't jump.
       this.spellList.style.minHeight = `${this.categoriesHeight}px`;
+      this.spellList.style.gridAutoRows = `${this.slotHeight}px`;
     } else {
       this.open = null;
       // One slot per element, always in the same place; unknown ones are dark.
@@ -160,7 +162,9 @@ export class HeroPanel {
           : []),
       );
       this.spellList.style.minHeight = '';
+      this.spellList.style.gridAutoRows = '';
       this.categoriesHeight = this.spellList.offsetHeight;
+      this.slotHeight = (this.spellList.firstElementChild as HTMLElement | null)?.offsetHeight ?? 0;
     }
 
     const items = Object.entries(hero.items).filter(([id]) => {

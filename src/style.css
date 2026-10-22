@@ -357,10 +357,49 @@ canvas {
   gap: 6px;
 }
 
-/* Seven element slots, two rows of four; a category menu keeps their height. */
+/*
+ * Seven element slots: up to four a row, fewer when a slot would get too
+ * narrow for its longest name; rows share one height, and a category menu
+ * keeps the slots' height. Each slot stacks the icon (hotkey beside it,
+ * top right), then name, pips and cost, so a name never runs under the key.
+ */
 .spells {
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(max(84px, calc((100% - 18px) / 4)), 1fr));
+  grid-auto-rows: 1fr;
   align-content: start;
+}
+
+.spells .spell {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 5px 6px;
+  font-size: 12px;
+  min-width: 0;
+}
+
+.spells .spell > span {
+  max-width: 100%;
+}
+
+.spells .spell b {
+  font-size: 13px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.spells .spell .spell-meta,
+.spells .spell .cost {
+  flex-wrap: wrap;
+}
+
+.spells .spell .cost {
+  gap: 3px;
+  font-size: 11px;
+}
+
+.spells .spell.back {
+  justify-content: center;
 }
 
 .spell.empty-slot {
@@ -383,22 +422,8 @@ canvas {
 }
 
 @media (max-width: 760px) {
-  /* Narrow slots: icon on top, then name, pips and cost. */
   .spells {
     gap: 4px;
-  }
-
-  .spell {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2px;
-    padding: 4px 5px;
-    font-size: 12px;
-  }
-
-  .spell .cost {
-    gap: 3px;
-    font-size: 11px;
   }
 }
 
@@ -427,18 +452,14 @@ canvas {
   color: var(--muted);
 }
 
-/* A category with several spells: how many more its menu holds. */
+/* A category with several spells: how many more its menu holds (under the hotkey). */
 .spell .more {
   position: absolute;
-  bottom: 3px;
+  top: 18px;
   right: 6px;
   font-size: 11px;
   font-weight: 700;
   color: var(--gold);
-}
-
-.spell.back {
-  justify-content: flex-start;
 }
 
 /* A spell's level: one pip per level, filled up to the current one. */
