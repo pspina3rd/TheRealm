@@ -106,6 +106,7 @@ gold lightning, green nature, orange earth, violet arcane and cyan wind.
   Charm, sets their attitude, shown as a face over their head: from a
   scowl (won't deal) through a frown (dearer, harder) to a grin (cheaper,
   extra rewards and a secret offer). Anyone the story needs always deals.
+- Shops also buy what's in your bag at half its list price.
 
 The battle screen shows all of this instead of describing it: every
 crystal carries its element's icon, cleared lines flash and burst their

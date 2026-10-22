@@ -180,7 +180,7 @@ export function epilogueBody(atlas: Atlas, epilogue: Epilogue): HTMLElement[] {
       'div',
       { className: 'epilogue-mentors' },
       ...epilogue.mentors.map((mentor) => {
-        const portrait = spritePortrait(atlas, mentor.sprite, 48);
+        const portrait = spritePortrait(atlas, mentor.sprite, 64);
         portrait.title = mentor.name;
         return portrait;
       }),
