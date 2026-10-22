@@ -34,16 +34,57 @@ import {
 } from './elemental';
 import type { BattleContext, BattleStatus, Challenge, Objective } from './types';
 
-/** Base damage for clearing 0–4 lines at once. */
-export const LINE_DAMAGE: readonly number[] = [0, 8, 20, 35, 55];
+/** Base damage for clearing 0–4 lines at once: single lines are weak, big clears steep. */
+export const LINE_DAMAGE: readonly number[] = [0, 4, 12, 26, 48];
+/** Strike bonus per point of attack (class base, Strength and weapon): 0.04 = +4%. */
+export const ATTACK_PERCENT = 0.04;
+/** A multi-line clear right after another multi-line clear strikes this much harder. */
+export const BACK_TO_BACK_MULTIPLIER = 1.5;
+/** Each consecutive piece that clears adds this share to the strike… */
+export const COMBO_STEP = 0.25;
+/** …counting at most this many steps. */
+export const MAX_COMBO = 8;
+/** A piece's worth of time, for effects counted in pieces (Blizzard's chill). */
+export const PIECE_MS = 1500;
+/** A water line pushes the enemy's gauge back this far… */
+export const CHILL_MS = 1500;
+/** …but never more than this below empty. */
+export const MAX_CHILL_MS = 3000;
+/** Each new covered hole a placement leaves fills this share of the enemy's gauge… */
+export const HOLE_RUSH = 0.15;
+/** …up to this much per placement. */
+export const MAX_HOLE_RUSH = 0.45;
 /** Fraction of max HP lost when the board overflows. */
 export const OVERFLOW_PENALTY = 0.25;
 /** Most HP an earth ward can hold. */
 export const MAX_WARD = 25;
 /** Spell damage added per hero level (not for spells that clear rows). */
 export const SPELL_LEVEL_BONUS = 2;
-/** Chill can push the enemy's next action back at most this far past its normal pace. */
-export const MAX_CHILL = 2;
+
+/** How a line-clear strike was set up, for `strikeDamage`. */
+export interface StrikeSetup {
+  /** The hero's total attack. */
+  readonly attack: number;
+  /** A multi-line clear following another. */
+  readonly backToBack: boolean;
+  /** Consecutive clearing pieces before this one (0 for the first). */
+  readonly combo: number;
+  /** Elemental multiplier from the cleared crystals (see `crystalAffinity`). */
+  readonly affinity: number;
+}
+
+/**
+ * Damage of a line-clear strike, before any crit:
+ * `LINE_DAMAGE[lines] × (1 + 4% × attack) × back-to-back × combo × affinity`,
+ * rounded, at least 1.
+ */
+export function strikeDamage(lines: number, setup: StrikeSetup): number {
+  const base = LINE_DAMAGE[Math.min(lines, LINE_DAMAGE.length - 1)] ?? 0;
+  const attack = 1 + ATTACK_PERCENT * setup.attack;
+  const backToBack = setup.backToBack ? BACK_TO_BACK_MULTIPLIER : 1;
+  const combo = 1 + COMBO_STEP * Math.min(MAX_COMBO, setup.combo);
+  return Math.max(1, Math.round(base * attack * backToBack * combo * setup.affinity));
+}
 
 export interface Spoils {
   readonly xp: number;
@@ -63,18 +104,25 @@ export function rollSpoils(enemy: EnemyDef, rng: Rng, dropBonus = 0): Spoils {
 }
 
 /**
- * A fight. Each cleared line strikes the enemy (a big clear can crit, from
- * Luck), and the line's strongest element triggers its own effect (burn,
- * chill, chain, regrowth, ward, surge or tailwind). Spells spend elemental
- * mana. Every `actEvery` actions the enemy uses one of its moves, physical
- * or magical, chosen one turn ahead so Insight can reveal it. Everything
- * that happens is emitted as a `BattleEvent` for the screen to show.
+ * A fight. Each clear strikes the enemy (see `strikeDamage`: big clears,
+ * back-to-back and combos hit far harder; a big clear can crit, from Luck),
+ * and each line's strongest element triggers its own effect (burn, chill,
+ * chain, regrowth, ward, surge or tailwind). Spells spend elemental mana.
+ * The enemy acts in real time: its gauge fills over `actMs` and it uses
+ * one of its moves, chosen one turn ahead so Insight can reveal it.
+ * Sloppy play feeds it: new covered holes fill the gauge, and an overflow
+ * gives it a free move. Everything that happens is emitted as a
+ * `BattleEvent` for the screen to show.
  */
 export class CombatChallenge implements Challenge {
   readonly enemy: EnemyDef;
   enemyHp: number;
-  /** Actions remaining before the enemy acts. */
-  countdown: number;
+  /** Milliseconds filled toward the enemy's next move (below 0 while chilled). */
+  gauge = 0;
+  /** Consecutive pieces that cleared lines, less one (−1 after a piece that cleared none). */
+  combo = -1;
+  /** True when the last clear was a multi-line one (the next can be back-to-back). */
+  backToBack = false;
   /** Earth ward: damage absorbed before HP. */
   ward = 0;
   /** The move the enemy will use when the countdown runs out. */
@@ -99,7 +147,6 @@ export class CombatChallenge implements Challenge {
     this.ctx = ctx;
     this.enemy = def;
     this.enemyHp = def.hp;
-    this.countdown = def.actEvery;
     this.nextMove = ctx.rng.pick(def.moves);
   }
 
@@ -109,30 +156,40 @@ export class CombatChallenge implements Challenge {
    */
   enraged = false;
 
-  /** Pieces between the enemy's moves: fewer once enraged. */
-  private get actEvery(): number {
-    return this.enraged
-      ? (this.enemy.enrage?.actEvery ?? this.enemy.actEvery)
-      : this.enemy.actEvery;
+  /** Milliseconds for the gauge to fill: less once enraged. */
+  get actMs(): number {
+    return this.enraged ? (this.enemy.enrage?.actMs ?? this.enemy.actMs) : this.enemy.actMs;
   }
 
   onLock(result: LockResult): void {
     if (result.linesCleared > 0) {
-      const lines = Math.min(result.linesCleared, LINE_DAMAGE.length - 1);
+      const lines = result.linesCleared;
       const cleared = elementsOf(result.clearedCells);
+      const cells = Object.values(result.clearedCells).reduce((sum, n) => sum + n, 0);
+      const crystals = ELEMENTS.reduce((sum, e) => sum + cleared[e], 0);
       const affinity =
         this.exposed > 0
-          ? ELEMENTS.reduce((sum, e) => sum + cleared[e], 0) * WEAK_CRYSTAL_BONUS
-          : crystalAffinity(this.enemy, cleared);
+          ? 1 + (crystals / Math.max(1, cells)) * WEAK_CRYSTAL_BONUS
+          : crystalAffinity(this.enemy, cleared, cells);
       const hero = this.ctx.hero;
-      const chance = critChance(hero.stats.luck, result.linesCleared);
+      this.combo++;
+      const backToBack = lines >= 2 && this.backToBack;
+      this.backToBack = lines >= 2;
+      if (backToBack) this.ctx.emit({ kind: 'backToBack' });
+      if (this.combo > 0) this.ctx.emit({ kind: 'combo', steps: this.combo });
+      const chance = critChance(hero.stats.luck, lines);
       const crit = chance > 0 && this.ctx.rng.next() < chance;
       if (crit) this.ctx.emit({ kind: 'crit' });
-      const damage = Math.max(1, (LINE_DAMAGE[lines] ?? 0) + totalAttack(hero) + affinity);
+      const damage = strikeDamage(lines, {
+        attack: totalAttack(hero),
+        backToBack,
+        combo: this.combo,
+        affinity,
+      });
       this.hitEnemy(
         crit ? damage * CRIT_MULTIPLIER : damage,
         null,
-        affinity > 0 ? 'weak' : affinity < 0 ? 'resist' : null,
+        affinity > 1 ? 'weak' : affinity < 1 ? 'resist' : null,
       );
       const alignment = heroAlignment(hero);
       result.lines.forEach((line, i) => {
@@ -145,10 +202,30 @@ export class CombatChallenge implements Challenge {
         this.charge.clears--;
         this.elementalHit(this.charge.power, 'lightning');
       }
-    }
+    } else this.combo = -1;
     this.tick();
-    if (result.toppedOut) this.overflow();
-    this.spendAction();
+    if (result.toppedOut) {
+      this.overflow();
+      // The hero's own overflow hands the enemy a free move, on top of its gauge.
+      this.takeTurn();
+    } else if (result.holesMade > 0) this.rush(result.holesMade);
+  }
+
+  /** New covered holes fill the enemy's gauge (capped); a full gauge acts at once. */
+  private rush(holes: number): void {
+    if (this.status() !== 'ongoing') return;
+    const share = Math.min(MAX_HOLE_RUSH, HOLE_RUSH * holes);
+    this.gauge += share * this.actMs;
+    this.ctx.emit({ kind: 'rush', holes });
+    if (this.gauge >= this.actMs) this.fillGauge();
+  }
+
+  /** Pushes the gauge back `ms`, never below `-floor`. */
+  private chill(ms: number, floor: number): void {
+    const target = Math.max(-floor, this.gauge - ms);
+    if (target >= this.gauge) return;
+    this.gauge = target;
+    this.ctx.emit({ kind: 'chill' });
   }
 
   /** Kindle and Regen act once per piece placed; then Fault Line wears off a piece. */
@@ -185,8 +262,17 @@ export class CombatChallenge implements Challenge {
     return this.exposed > 0 ? [] : resistancesOf(this.enemy);
   }
 
-  update(): void {
-    // Combat is paced by pieces placed, not time.
+  /** Fills the enemy's gauge in real time; it moves each time the gauge is full. */
+  update(dtMs: number): void {
+    if (this.status() !== 'ongoing') return;
+    this.gauge += dtMs;
+    if (this.gauge >= this.actMs) this.fillGauge();
+  }
+
+  /** The gauge is full: it empties and the enemy moves. */
+  private fillGauge(): void {
+    this.gauge = 0;
+    this.takeTurn();
   }
 
   status(): BattleStatus {
@@ -232,7 +318,7 @@ export class CombatChallenge implements Challenge {
 
   /**
    * Casts a known spell at the hero's level of it, with its enhancements.
-   * Counts as an action. Throws if it can't be cast.
+   * Takes no time: the enemy's gauge keeps filling. Throws if it can't be cast.
    */
   castSpell(spellId: string): void {
     const reason = this.cannotCastReason(spellId);
@@ -257,8 +343,7 @@ export class CombatChallenge implements Challenge {
         break;
       case 'freeze':
         strike(effect.power);
-        this.countdown += effect.pieces;
-        this.ctx.emit({ kind: 'chill' });
+        this.chill(effect.pieces * PIECE_MS, this.actMs);
         break;
       case 'tailwind':
         strike(effect.power);
@@ -320,10 +405,9 @@ export class CombatChallenge implements Challenge {
     if (cast.surge > 0 && this.status() === 'ongoing') {
       this.applySurge({ element, power: cast.surge }, 1, this.ctx.board.height - 1);
     }
-    this.spendAction();
   }
 
-  /** Uses a consumable mid-fight. Counts as an action. Throws if it can't be used. */
+  /** Uses a consumable mid-fight (taking no time). Throws if it can't be used. */
   useItem(itemId: string): void {
     const hpBefore = this.ctx.hero.hp;
     useItem(this.ctx.hero, itemId, true);
@@ -335,7 +419,6 @@ export class CombatChallenge implements Challenge {
       this.ctx.manaBoostPieces = Math.max(this.ctx.manaBoostPieces, boost);
       this.ctx.emit({ kind: 'manaBoost', pieces: this.ctx.manaBoostPieces });
     }
-    this.spendAction();
   }
 
   /** Applies one cleared line's elemental effect. */
@@ -351,10 +434,7 @@ export class CombatChallenge implements Challenge {
         strike(power * linesTogether);
         break;
       case 'water':
-        if (this.countdown < this.actEvery + MAX_CHILL) {
-          this.countdown++;
-          this.ctx.emit({ kind: 'chill' });
-        }
+        this.chill(CHILL_MS, MAX_CHILL_MS);
         break;
       case 'nature':
         this.healHero(power);
@@ -400,7 +480,6 @@ export class CombatChallenge implements Challenge {
     if (this.enemyHp <= 0) this.ctx.emit({ kind: 'enemyDefeated' });
     else if (enrage && !this.enraged && this.enemyHp <= this.enemy.hp * enrage.below) {
       this.enraged = true;
-      this.countdown = Math.min(this.countdown, this.actEvery);
       this.ctx.emit({ kind: 'enrage' });
     }
   }
@@ -417,18 +496,15 @@ export class CombatChallenge implements Challenge {
     this.ctx.board.reset();
   }
 
-  private spendAction(): void {
+  /** The enemy uses the move it picked last time (or it fizzles in Mist) and picks the next. */
+  private takeTurn(): void {
     if (this.status() !== 'ongoing') return;
-    this.countdown--;
-    if (this.countdown <= 0) {
-      this.countdown = this.actEvery;
-      const move = this.nextMove;
-      this.nextMove = this.ctx.rng.pick(this.enemy.moves);
-      if (this.mist > 0) {
-        this.mist--;
-        this.ctx.emit({ kind: 'fizzle', move });
-      } else this.enemyAct(move);
-    }
+    const move = this.nextMove;
+    this.nextMove = this.ctx.rng.pick(this.enemy.moves);
+    if (this.mist > 0) {
+      this.mist--;
+      this.ctx.emit({ kind: 'fizzle', move });
+    } else this.enemyAct(move);
   }
 
   private enemyAct(move: EnemyMove): void {
@@ -467,6 +543,28 @@ export class CombatChallenge implements Challenge {
         this.ctx.emit({ kind: 'drain', element, amount: drained });
         break;
       }
+      case 'fog':
+        this.ctx.fogPieces = Math.max(this.ctx.fogPieces, move.pieces);
+        this.ctx.emit({ kind: 'fog', pieces: this.ctx.fogPieces });
+        break;
+      case 'seal': {
+        const board = this.ctx.board;
+        const columns = board.sealableColumns();
+        // A falling piece spanning every sealable column can't happen on a 10-wide board.
+        const column = this.ctx.rng.pick(columns);
+        board.sealColumn(column, move.pieces);
+        this.ctx.emit({ kind: 'seal', column, pieces: move.pieces });
+        break;
+      }
+      case 'petrify': {
+        const cells = this.ctx.board.petrify(move.cells);
+        this.ctx.emit({ kind: 'petrify', cells });
+        break;
+      }
+      case 'quicken':
+        this.ctx.quickenMs = Math.max(this.ctx.quickenMs, move.ms);
+        this.ctx.emit({ kind: 'quicken', ms: move.ms });
+        break;
     }
   }
 

@@ -20,14 +20,17 @@ export const SURGE_THRESHOLD = 3;
 /** Damage multipliers against weak and resistant enemies. */
 export const WEAK_MULTIPLIER = 1.5;
 export const RESIST_MULTIPLIER = 0.5;
-/** Strike damage added (or removed) per cleared crystal an enemy is weak to (or resists). */
-export const WEAK_CRYSTAL_BONUS = 2;
-export const RESIST_CRYSTAL_PENALTY = 1;
+/**
+ * Strike damage share added (or removed) when every cleared cell is a
+ * crystal the enemy is weak to (or resists); partial clears scale it.
+ */
+export const WEAK_CRYSTAL_BONUS = 0.5;
+export const RESIST_CRYSTAL_PENALTY = 0.25;
 
 /** What a cleared line's strongest element does. */
 export const SURGE_DESCRIPTIONS: Readonly<Record<Element, string>> = {
   fire: 'Burn: extra damage',
-  water: 'Chill: the enemy acts a piece later',
+  water: "Chill: pushes the enemy's action gauge back",
   lightning: 'Chain: extra damage, multiplied by lines cleared together',
   nature: 'Regrowth: heal HP',
   earth: 'Ward: a shield that absorbs hits',
@@ -78,14 +81,21 @@ export function elementMultiplier(enemy: EnemyDef, element: Element): number {
 }
 
 /**
- * Bonus (or penalty) strike damage from the elements of the cleared
- * crystals: +2 per crystal the enemy is weak to, −1 per crystal it resists.
+ * The strike multiplier from the elements of `cells` cleared cells:
+ * 1 + 0.5 × (share the enemy is weak to) − 0.25 × (share it resists).
+ * Stone counts as neither.
  */
-export function crystalAffinity(enemy: EnemyDef, counts: Readonly<ElementCounts>): number {
+export function crystalAffinity(
+  enemy: EnemyDef,
+  counts: Readonly<ElementCounts>,
+  cells: number,
+): number {
+  if (cells <= 0) return 1;
   return ELEMENTS.reduce((sum, element) => {
     const multiplier = elementMultiplier(enemy, element);
-    if (multiplier > 1) return sum + counts[element] * WEAK_CRYSTAL_BONUS;
-    if (multiplier < 1) return sum - counts[element] * RESIST_CRYSTAL_PENALTY;
+    const share = counts[element] / cells;
+    if (multiplier > 1) return sum + share * WEAK_CRYSTAL_BONUS;
+    if (multiplier < 1) return sum - share * RESIST_CRYSTAL_PENALTY;
     return sum;
-  }, 0);
+  }, 1);
 }

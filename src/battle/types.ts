@@ -60,6 +60,20 @@ export type BattleEvent =
   | { readonly kind: 'spell'; readonly spellId: string }
   | { readonly kind: 'item'; readonly itemId: string }
   | { readonly kind: 'overflow' }
+  /** A placement left `holes` new covered holes: the enemy's gauge jumped. */
+  | { readonly kind: 'rush'; readonly holes: number }
+  /** A clear by the `steps`-th consecutive clearing piece after the first. */
+  | { readonly kind: 'combo'; readonly steps: number }
+  /** A multi-line clear right after another. */
+  | { readonly kind: 'backToBack' }
+  /** The enemy hid the next-piece preview for `pieces` pieces. */
+  | { readonly kind: 'fog'; readonly pieces: number }
+  /** The enemy sealed `column` for `pieces` pieces. */
+  | { readonly kind: 'seal'; readonly column: number; readonly pieces: number }
+  /** The enemy turned these board cells ([x, y]) to stone. */
+  | { readonly kind: 'petrify'; readonly cells: readonly (readonly [number, number])[] }
+  /** The enemy made pieces fall faster for `ms` milliseconds. */
+  | { readonly kind: 'quicken'; readonly ms: number }
   | { readonly kind: 'revive' }
   /** A haggle price moved. */
   | { readonly kind: 'price'; readonly multiplier: number };
@@ -106,6 +120,10 @@ export interface BattleContext {
   slowPieces: number;
   /** Pieces remaining in which cleared crystals give double mana (an Ether). */
   manaBoostPieces: number;
+  /** Pieces remaining with the next-piece preview hidden (enemy fog). */
+  fogPieces: number;
+  /** Milliseconds remaining of quickened gravity (enemy quicken). */
+  quickenMs: number;
   emit(event: BattleEvent): void;
 }
 

@@ -7,6 +7,7 @@ import {
   type EntityDef,
   type Location,
 } from './map';
+import { walkRegen } from '../game/hero';
 import { activeEntities, currentMap, type GameState } from './state';
 
 /** The result of trying to take one step. */
@@ -20,8 +21,9 @@ export type StepResult =
 /**
  * Attempts to move the hero one tile. Bumping into an entity starts an
  * interaction (always a battle of some kind); stepping on a warp travels.
- * Only `moved` changes the hero's position; the caller handles warps so it
- * can play a transition.
+ * Only `moved` changes the hero's position (and, below half HP, heals a
+ * little: see `walkRegen`); the caller handles warps so it can play a
+ * transition.
  */
 export function step(state: GameState, direction: Direction): StepResult {
   state.facing = direction;
@@ -46,5 +48,6 @@ export function step(state: GameState, direction: Direction): StepResult {
 
   state.x = x;
   state.y = y;
+  walkRegen(state.hero);
   return { kind: 'moved' };
 }

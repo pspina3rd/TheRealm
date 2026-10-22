@@ -26,6 +26,9 @@ import { grantRewards, type Gain } from './rewards';
 import { isCategoryLocked, type FailedLesson } from './spells';
 import { SKILL_POINTS_PER_LEVEL, dropBonus } from './stats';
 
+/** Share of max HP the hero wakes with at the last inn after falling in a fight. */
+export const FALL_HP_SHARE = 0.3;
+
 /** Who is speaking in an interaction, for the conversation screen. */
 interface Speaker {
   readonly title: string;
@@ -252,7 +255,7 @@ function resolveCombat(
   } else {
     const lost = Math.floor(hero.gil / 2);
     hero.gil -= lost;
-    hero.hp = hero.maxHp;
+    hero.hp = Math.max(1, Math.ceil(hero.maxHp * FALL_HP_SHARE));
     travel(state, state.respawn);
     if (lost > 0) gains.push({ kind: 'gil', amount: -lost });
   }

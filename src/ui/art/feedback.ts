@@ -45,7 +45,11 @@ export type Feedback =
     }
   | { readonly kind: 'defeat' }
   /** A mentor tossed a piece: their portrait pulses and the tossed piece glows. */
-  | { readonly kind: 'toss'; readonly element: Element };
+  | { readonly kind: 'toss'; readonly element: Element }
+  /** The enemy's action gauge jumped (a mistake fed it): the gauge flashes. */
+  | { readonly kind: 'rush' }
+  /** Board cells ([x, y]) flash, e.g. crystals just turned to stone. */
+  | { readonly kind: 'flashCells'; readonly cells: readonly (readonly [number, number])[] };
 
 export const COLORS = {
   damage: '#ffffff',
@@ -53,6 +57,8 @@ export const COLORS = {
   heal: '#6ff08f',
   price: '#f5d77b',
   crit: '#b4f5a0',
+  combo: '#f5d77b',
+  rush: '#ff9a3c',
 } as const;
 
 /** Colour of each element's crystals. */
@@ -202,6 +208,43 @@ export function feedbackFor(event: BattleEvent): Feedback[] {
         { kind: 'vfx', target: 'hero', effect: 'heal' },
         { kind: 'icon', target: 'hero', icon: 'heart' },
       ];
+    case 'rush':
+      return [
+        { kind: 'rush' },
+        {
+          kind: 'float',
+          target: 'enemy',
+          text: `+${event.holes}`,
+          color: COLORS.rush,
+          icon: 'haste',
+        },
+      ];
+    case 'combo':
+      return [
+        {
+          kind: 'float',
+          target: 'enemy',
+          text: `×${event.steps + 1}`,
+          color: COLORS.combo,
+          icon: 'burst',
+        },
+      ];
+    case 'backToBack':
+      return [{ kind: 'float', target: 'enemy', text: '×1.5', color: COLORS.combo, icon: 'lines' }];
+    case 'fog':
+      return [{ kind: 'icon', target: 'board', icon: 'eye' }];
+    case 'seal':
+      return [
+        { kind: 'icon', target: 'board', icon: 'lock' },
+        { kind: 'shake', target: 'board' },
+      ];
+    case 'petrify':
+      return [
+        { kind: 'flashCells', cells: event.cells },
+        { kind: 'icon', target: 'board', icon: 'shard' },
+      ];
+    case 'quicken':
+      return [{ kind: 'icon', target: 'board', icon: 'hourglass' }];
     case 'price':
       return [
         {

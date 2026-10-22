@@ -8,9 +8,11 @@ import {
   gravityInterval,
   lineClearPoints,
 } from '../core/scoring';
+import { ENEMIES } from '../data/enemies';
 import type { ChallengeSpec } from '../data/types';
 import { featsOfLock, recordFeats } from '../game/feats';
 import { addMana, clearMana, type Hero } from '../game/hero';
+import { scaledEnemy } from '../game/scaling';
 import { fallMultiplier, previewCount } from '../game/stats';
 import { BarterChallenge } from './barter';
 import { CombatChallenge } from './combat';
@@ -31,10 +33,12 @@ export type BattleAction = 'left' | 'right' | 'rotate' | 'softDrop' | 'hardDrop'
 
 /** Most recent events kept; the screen reads them every frame. */
 const MAX_EVENTS = 100;
-/** Gravity interval multiplier under a tailwind (higher = slower). */
 /** Mana from cleared crystals is multiplied by this while an Ether lasts. */
 export const MANA_BOOST_MULTIPLIER = 2;
+/** Gravity interval multiplier under a tailwind (higher = slower). */
 export const TAILWIND_SLOWDOWN = 1.6;
+/** Pieces fall this many times faster while an enemy's quicken lasts. */
+export const QUICKEN_SPEED = 2.5;
 
 export interface BattleOptions {
   /** Copies of each piece per bag, from area, charm and alignment (see `pieceWeights`). */
@@ -58,6 +62,8 @@ export class Battle implements BattleContext {
   hastePieces = 0;
   slowPieces = 0;
   manaBoostPieces = 0;
+  fogPieces = 0;
+  quickenMs = 0;
   paused = false;
   /** Oldest first, numbered so the screen can play each event once. */
   readonly events: NumberedEvent[] = [];
@@ -91,14 +97,15 @@ export class Battle implements BattleContext {
 
   /** Milliseconds between gravity steps right now (slower with Agility). */
   get gravityMs(): number {
-    const base = gravityInterval(this.level) * fallMultiplier(this.hero.stats.agility);
+    const agile = gravityInterval(this.level) * fallMultiplier(this.hero.stats.agility);
+    const base = this.quickenMs > 0 ? agile / QUICKEN_SPEED : agile;
     if (this.hastePieces > 0) return base / 2;
     return this.slowPieces > 0 ? base * TAILWIND_SLOWDOWN : base;
   }
 
-  /** The upcoming pieces the hero can see (more with Insight). */
+  /** The upcoming pieces the hero can see (more with Insight; none in an enemy's fog). */
   get upcoming(): PieceName[] {
-    return this.board.preview(previewCount(this.hero.stats.insight));
+    return this.fogPieces > 0 ? [] : this.board.preview(previewCount(this.hero.stats.insight));
   }
 
   emit(event: BattleEvent): void {
@@ -145,6 +152,7 @@ export class Battle implements BattleContext {
   update(dtMs: number): void {
     if (!this.accepting()) return;
     this.challenge.update(dtMs);
+    this.quickenMs = Math.max(0, this.quickenMs - dtMs);
     this.gravityTimer += dtMs;
     while (this.gravityTimer >= this.gravityMs && this.accepting()) {
       this.gravityTimer -= this.gravityMs;
@@ -169,6 +177,7 @@ export class Battle implements BattleContext {
     this.score += lineClearPoints(result.linesCleared);
     if (this.hastePieces > 0) this.hastePieces--;
     if (this.slowPieces > 0) this.slowPieces--;
+    if (this.fogPieces > 0) this.fogPieces--;
     const boost = this.manaBoostPieces > 0 ? MANA_BOOST_MULTIPLIER : 1;
     if (this.manaBoostPieces > 0) this.manaBoostPieces--;
     if (result.linesCleared > 0) {
@@ -183,8 +192,11 @@ export class Battle implements BattleContext {
 
 function createChallenge(ctx: BattleContext, spec: ChallengeSpec): Challenge {
   switch (spec.kind) {
-    case 'combat':
-      return new CombatChallenge(ctx, spec.enemyId);
+    case 'combat': {
+      const enemy = ENEMIES[spec.enemyId];
+      if (!enemy) throw new Error(`Unknown enemy: ${spec.enemyId}`);
+      return new CombatChallenge(ctx, scaledEnemy(enemy, ctx.hero.level));
+    }
     case 'offering':
       return new OfferingChallenge(ctx, spec.itemId, spec.targetScore, spec.pieceLimit);
     case 'barter':

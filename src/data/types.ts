@@ -110,7 +110,7 @@ export interface SpellDef {
 
 // --------------------------------------------------------------- enemies ---
 
-/** An action an enemy performs every `actEvery` pieces the hero places. */
+/** An action an enemy performs each time its action gauge fills (see `EnemyDef.actMs`). */
 export type EnemyMove =
   /** Physical or magical hit; damage is `power + enemy atk - hero defence`. */
   | { readonly kind: 'attack'; readonly name: string; readonly power: number }
@@ -121,14 +121,22 @@ export type EnemyMove =
   /** Restores the enemy's HP. */
   | { readonly kind: 'heal'; readonly name: string; readonly amount: number }
   /** Burns mana from the hero's fullest pool. */
-  | { readonly kind: 'drain'; readonly name: string; readonly mana: number };
+  | { readonly kind: 'drain'; readonly name: string; readonly mana: number }
+  /** Hides the next-piece preview for the hero's next `pieces` pieces. */
+  | { readonly kind: 'fog'; readonly name: string; readonly pieces: number }
+  /** Seals a column (never a spawn column) so no piece can enter it for `pieces` pieces. */
+  | { readonly kind: 'seal'; readonly name: string; readonly pieces: number }
+  /** Turns `cells` random crystals on the board to stone. */
+  | { readonly kind: 'petrify'; readonly name: string; readonly cells: number }
+  /** Makes pieces fall `QUICKEN_SPEED` times faster for `ms` milliseconds. */
+  | { readonly kind: 'quicken'; readonly name: string; readonly ms: number };
 
 /** How an enemy changes once enraged. */
 export interface EnrageDef {
   /** Enrages at or below this fraction of max HP, e.g. 0.5. */
   readonly below: number;
-  /** Acts after this many pieces instead. */
-  readonly actEvery: number;
+  /** Its action gauge fills in this many milliseconds instead. */
+  readonly actMs: number;
   /** Its curses push this many stone rows instead. */
   readonly curseRows: number;
 }
@@ -154,10 +162,15 @@ export interface EnemyDef {
    * usual resistances come from the chart; see `src/battle/elemental.ts`.
    */
   readonly extraResist?: readonly Element[];
-  /** The enemy acts after this many hero pieces. */
-  readonly actEvery: number;
+  /**
+   * Milliseconds for the enemy's action gauge to fill at its base level; it
+   * acts each time it fills (real time, paused with the battle).
+   */
+  readonly actMs: number;
   /** Bosses: below `below` (a fraction of max HP) the enemy enrages for the rest of the fight. */
   readonly enrage?: EnrageDef;
+  /** A boss: grows less with the hero and its XP never falls off (see `src/game/scaling.ts`). */
+  readonly boss?: boolean;
   /** Beating it ends the chapter (see `src/game/ending.ts`). */
   readonly finale?: boolean;
   /** Moves are picked uniformly at random; repeat a move to weight it. */

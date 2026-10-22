@@ -892,6 +892,8 @@ export const PALETTES = {
   violet: palette('#5b2fa6', '#b07cff', '#e3ccff'),
   gold: palette('#c58a10', '#ffd23f', '#fff4a8'),
   open: palette('#1f8a3c', '#4fd36f', '#b4f5a0'),
+  /** Grey mist, e.g. an enemy's fog over the preview. */
+  fog: palette('#4a5068', '#9aa3bd', '#dfe5f5'),
   /** A dark silhouette, e.g. a spell slot not yet filled. */
   shadow: palette('#2a2f4d', '#2a2f4d', '#2a2f4d', '#20243c', '#2a2f4d'),
 } as const satisfies Record<string, IconPalette>;
@@ -967,6 +969,10 @@ export const MOVE_ICONS: Readonly<Record<EnemyMove['kind'], IconSpec>> = {
   haste: { icon: 'haste' },
   heal: { icon: 'heart' },
   drain: { icon: 'potion' },
+  fog: { icon: 'eye', palette: PALETTES.fog },
+  seal: { icon: 'lock', palette: PALETTES.iron },
+  petrify: { icon: 'shard', palette: PALETTES.iron },
+  quicken: { icon: 'hourglass' },
 };
 
 /** The icon for every item. `tests/feedback.test.ts` checks none are missing. */

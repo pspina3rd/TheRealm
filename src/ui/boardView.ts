@@ -22,6 +22,20 @@ interface Flash {
   elapsed: number;
 }
 
+/** What the board shows besides the grid: timed effects and the visible preview. */
+export interface BoardStatus {
+  readonly slowPieces: number;
+  readonly hastePieces: number;
+  readonly fogPieces: number;
+  readonly quickenMs: number;
+  readonly upcoming: readonly PieceName[];
+}
+
+interface CellFlash {
+  readonly cells: readonly (readonly [number, number])[];
+  elapsed: number;
+}
+
 interface Pop {
   readonly icon: IconId;
   readonly row: number | undefined;
@@ -31,13 +45,15 @@ interface Pop {
 /**
  * Draws the falling-block board: crystals marked with their element, the
  * ghost piece, flashing cleared rows, element icons bursting from cleared
- * lines, and badges for tailwind and haste.
+ * lines, badges for tailwind, haste and quicken, an enemy's sealed column,
+ * and its fog over the next-piece preview.
  */
 export class BoardView {
   private readonly ctx: CanvasRenderingContext2D;
   private readonly nextCtx: CanvasRenderingContext2D;
   private flashes: Flash[] = [];
   private pops: Pop[] = [];
+  private cellFlashes: CellFlash[] = [];
   private shake = 0;
 
   constructor(canvas: HTMLCanvasElement, next: HTMLCanvasElement) {
@@ -63,6 +79,9 @@ export class BoardView {
       case 'shake':
         if (feedback.target === 'board') this.shake = SHAKE_MS;
         break;
+      case 'flashCells':
+        this.cellFlashes.push({ cells: feedback.cells, elapsed: 0 });
+        break;
       default:
         break;
     }
@@ -72,16 +91,11 @@ export class BoardView {
   reset(): void {
     this.flashes = [];
     this.pops = [];
+    this.cellFlashes = [];
     this.shake = 0;
   }
 
-  render(
-    board: Board,
-    status: { slowPieces: number; hastePieces: number; upcoming: readonly PieceName[] },
-    dtMs: number,
-    timeMs: number,
-    dimmed: boolean,
-  ): void {
+  render(board: Board, status: BoardStatus, dtMs: number, timeMs: number, dimmed: boolean): void {
     const { ctx } = this;
     const w = board.width * CELL;
     const h = board.height * CELL;
@@ -101,6 +115,7 @@ export class BoardView {
       }
     }
 
+    this.drawSeal(board, timeMs);
     const piece = board.active;
     if (piece && !dimmed) {
       const ghostY = board.ghostY();
@@ -127,6 +142,7 @@ export class BoardView {
     }
 
     this.drawFlashes(w, dtMs);
+    this.drawCellFlashes(dtMs);
     this.drawPops(w, dtMs);
     this.drawBadges(status, w, timeMs);
     if (dimmed) {
@@ -135,7 +151,48 @@ export class BoardView {
     }
     ctx.restore();
 
-    this.drawNext(status.upcoming);
+    this.drawNext(status.upcoming, status.fogPieces);
+  }
+
+  /** An enemy's sealed column: hatched stone with a lock and the pieces it lasts. */
+  private drawSeal(board: Board, timeMs: number): void {
+    const seal = board.seal;
+    if (!seal) return;
+    const { ctx } = this;
+    const x = seal.column * CELL;
+    const h = board.height * CELL;
+    ctx.save();
+    ctx.fillStyle = 'rgba(120, 132, 160, 0.38)';
+    ctx.fillRect(x, 0, CELL, h);
+    ctx.strokeStyle = 'rgba(200, 210, 230, 0.35)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let y = -CELL; y < h; y += 14) {
+      ctx.moveTo(x, y + CELL);
+      ctx.lineTo(x + CELL, y);
+    }
+    ctx.stroke();
+    ctx.strokeStyle = '#b9c6d8';
+    ctx.strokeRect(x + 1, 1, CELL - 2, h - 2);
+    const bob = Math.sin(timeMs / 200) * 2;
+    drawIcon(ctx, 'lock', x + (CELL - ICON_SIZE * 2) / 2, 6 + bob, { scale: 2 });
+    drawCount(ctx, seal.pieces, x + CELL - 2, 50);
+    ctx.restore();
+  }
+
+  /** Cells that just changed (turned to stone) flash white, then fade. */
+  private drawCellFlashes(dtMs: number): void {
+    const { ctx } = this;
+    this.cellFlashes = this.cellFlashes.filter((flash) => {
+      flash.elapsed += dtMs;
+      const t = flash.elapsed / (FLASH_MS * 2);
+      if (t >= 1) return false;
+      ctx.globalAlpha = 1 - t;
+      ctx.fillStyle = '#e6ecff';
+      for (const [x, y] of flash.cells) ctx.fillRect(x * CELL, y * CELL, CELL, CELL);
+      ctx.globalAlpha = 1;
+      return true;
+    });
   }
 
   private drawFlashes(width: number, dtMs: number): void {
@@ -170,19 +227,16 @@ export class BoardView {
     });
   }
 
-  /** Tailwind and haste counters, top-right of the board. */
-  private drawBadges(
-    status: { slowPieces: number; hastePieces: number },
-    width: number,
-    timeMs: number,
-  ): void {
+  /** Tailwind, haste and quicken (seconds) counters, top-right of the board. */
+  private drawBadges(status: BoardStatus, width: number, timeMs: number): void {
     const badges: [IconId, number][] = [];
     if (status.slowPieces > 0) badges.push(['wind', status.slowPieces]);
     if (status.hastePieces > 0) badges.push(['haste', status.hastePieces]);
+    if (status.quickenMs > 0) badges.push(['hourglass', Math.ceil(status.quickenMs / 1000)]);
     badges.forEach(([icon, count], i) => {
       const x = width - 52;
       const y = 8 + i * 34;
-      const bob = icon === 'haste' ? Math.sin(timeMs / 90) * 2 : 0;
+      const bob = icon === 'wind' ? 0 : Math.sin(timeMs / 90) * 2;
       this.ctx.fillStyle = '#10132acc';
       this.ctx.fillRect(x - 4, y - 2, 52, 30);
       drawIcon(this.ctx, icon, x, y + bob, { scale: 2 });
@@ -190,8 +244,12 @@ export class BoardView {
     });
   }
 
-  /** The next piece, large, with any further pieces Insight reveals stacked small beside it. */
-  private drawNext(names: readonly PieceName[]): void {
+  /**
+   * The next piece, large, with any further pieces Insight reveals stacked
+   * small beside it; in an enemy's fog, a grey cloud with an eye and the
+   * pieces it lasts instead.
+   */
+  private drawNext(names: readonly PieceName[], fog: number): void {
     const ctx = this.nextCtx;
     const width = NEXT_MAIN_WIDTH + (names.length > 1 ? NEXT_SMALL_WIDTH : 0);
     if (ctx.canvas.width !== width) {
@@ -200,6 +258,19 @@ export class BoardView {
     }
     const { height } = ctx.canvas;
     ctx.clearRect(0, 0, width, height);
+    if (fog > 0) {
+      ctx.fillStyle = '#4a5068';
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = '#9aa3bd';
+      for (let i = 0; i < 5; i++) {
+        ctx.beginPath();
+        ctx.arc(12 + i * 18, height / 2 + (i % 2 ? 8 : -6), 16, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      drawIcon(ctx, 'eye', width / 2 - ICON_SIZE, height / 2 - ICON_SIZE, { scale: 2 });
+      drawCount(ctx, fog, width - 6, height - 6);
+      return;
+    }
     const [first, ...rest] = names;
     if (first) drawPiece(ctx, first, 0, 0, NEXT_MAIN_WIDTH, height, 24);
     const slot = height / Math.max(1, rest.length);

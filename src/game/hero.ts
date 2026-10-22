@@ -125,7 +125,8 @@ export function totalDefense(hero: Hero): number {
 
 /**
  * Adds XP and applies any level-ups. Each gives skill points and the
- * class's HP growth, and restores HP (never mana). Returns the levels gained.
+ * class's HP growth; the new max HP is added to current HP too, but a
+ * level-up is no full heal. Returns the levels gained.
  */
 export function gainXp(hero: Hero, amount: number): number {
   hero.xp += amount;
@@ -135,8 +136,9 @@ export function gainXp(hero: Hero, amount: number): number {
     hero.level++;
     hero.nextXp = Math.floor(hero.nextXp * 1.45);
     hero.skillPoints += SKILL_POINTS_PER_LEVEL;
+    const before = hero.maxHp;
     refreshStats(hero);
-    hero.hp = hero.maxHp;
+    hero.hp = Math.min(hero.maxHp, hero.hp + hero.maxHp - before);
     gained++;
   }
   return gained;
@@ -170,6 +172,18 @@ export function spendSkillPoints(hero: Hero, plan: SkillPlan): boolean {
   refreshStats(hero);
   hero.hp = Math.min(hero.maxHp, hero.hp + hero.maxHp - before);
   return true;
+}
+
+/** HP regained per step walked on the map… */
+export const WALK_REGEN = 1;
+/** …only while below this share of max HP: a broke, battered hero can always recover. */
+export const WALK_REGEN_CAP = 0.5;
+
+/** One step's regeneration (see `WALK_REGEN`). Returns the HP restored. */
+export function walkRegen(hero: Hero): number {
+  const cap = Math.ceil(hero.maxHp * WALK_REGEN_CAP);
+  if (hero.hp >= cap) return 0;
+  return heal(hero, Math.min(WALK_REGEN, cap - hero.hp));
 }
 
 /** Restores up to `amount` HP. Returns the HP actually restored. */

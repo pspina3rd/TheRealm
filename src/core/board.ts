@@ -60,6 +60,17 @@ export interface LockResult {
   readonly rows: readonly number[];
   /** True when the piece locked above the top or no new piece fits. */
   readonly toppedOut: boolean;
+  /** New covered holes the placement left (after any clears), never negative. */
+  readonly holesMade: number;
+}
+
+/** Columns a new piece can spawn into; a seal never lands here, so spawning stays possible. */
+export const SPAWN_COLUMNS: readonly number[] = [3, 4, 5, 6];
+
+/** A column sealed by an enemy: no piece can enter it for `pieces` more locks. */
+export interface Seal {
+  readonly column: number;
+  pieces: number;
 }
 
 /**
@@ -74,6 +85,8 @@ export class Board {
   active: ActivePiece | null = null;
   piecesPlaced = 0;
   toppedOut = false;
+  /** A sealed column, if an enemy has sealed one (see `sealColumn`). */
+  seal: Seal | null = null;
 
   private readonly rng: Rng;
   private readonly weights: Readonly<Record<PieceName, number>>;
@@ -216,7 +229,7 @@ export class Board {
     return piece.cells.every(([cx, cy]) => {
       const x = piece.x + cx;
       const y = piece.y + cy;
-      if (x < 0 || x >= this.width || y >= this.height) return false;
+      if (x < 0 || x >= this.width || y >= this.height || x === this.seal?.column) return false;
       return y < 0 || this.grid[y]?.[x] === null;
     });
   }
@@ -228,7 +241,7 @@ export class Board {
     return cells.some(([cx, cy]) => {
       const x = piece.x + cx + dx;
       const y = piece.y + cy + dy;
-      if (x < 0 || x >= this.width || y >= this.height) return true;
+      if (x < 0 || x >= this.width || y >= this.height || x === this.seal?.column) return true;
       return y >= 0 && this.grid[y]?.[x] !== null;
     });
   }
@@ -284,8 +297,16 @@ export class Board {
   lock(): LockResult {
     const piece = this.active;
     if (!piece) {
-      return { linesCleared: 0, clearedCells: {}, lines: [], rows: [], toppedOut: this.toppedOut };
+      return {
+        linesCleared: 0,
+        clearedCells: {},
+        lines: [],
+        rows: [],
+        toppedOut: this.toppedOut,
+        holesMade: 0,
+      };
     }
+    const holesBefore = this.holes();
 
     for (const [cx, cy] of piece.cells) {
       const y = piece.y + cy;
@@ -296,6 +317,8 @@ export class Board {
     this.active = null;
 
     const { lines, rows, tally } = this.clearFullLines();
+    if (this.seal && --this.seal.pieces <= 0) this.seal = null;
+    const holesMade = Math.max(0, this.holes() - holesBefore);
     if (!this.toppedOut) this.spawn();
     return {
       linesCleared: lines.length,
@@ -303,7 +326,58 @@ export class Board {
       lines,
       rows,
       toppedOut: this.toppedOut,
+      holesMade,
     };
+  }
+
+  /** Empty cells with a locked block somewhere above them in their column. */
+  holes(): number {
+    let holes = 0;
+    for (let x = 0; x < this.width; x++) {
+      let covered = false;
+      for (const row of this.grid) {
+        if (row[x] !== null) covered = true;
+        else if (covered) holes++;
+      }
+    }
+    return holes;
+  }
+
+  /**
+   * Columns that can be sealed now: outside the spawn columns and clear of
+   * the falling piece, so neither the falling nor the next piece is stuck.
+   */
+  sealableColumns(): number[] {
+    const piece = this.active;
+    const used = new Set(piece ? piece.cells.map(([cx]) => piece.x + cx) : []);
+    return Array.from({ length: this.width }, (_, x) => x).filter(
+      (x) => !SPAWN_COLUMNS.includes(x) && !used.has(x),
+    );
+  }
+
+  /** Seals `column` for the next `pieces` locks: no piece can enter it, so its rows can't fill. */
+  sealColumn(column: number, pieces: number): void {
+    this.seal = { column, pieces };
+  }
+
+  /**
+   * Turns up to `count` random locked crystals to stone (an enemy's
+   * petrify). Returns the cells changed as [x, y].
+   */
+  petrify(count: number): [number, number][] {
+    const crystals: [number, number][] = [];
+    this.grid.forEach((row, y) =>
+      row.forEach((cell, x) => {
+        if (cell !== null && cell !== 'stone') crystals.push([x, y]);
+      }),
+    );
+    const changed: [number, number][] = [];
+    while (changed.length < count && crystals.length > 0) {
+      const [cell] = crystals.splice(this.rng.int(crystals.length), 1) as [[number, number]];
+      (this.grid[cell[1]] as Cell[])[cell[0]] = 'stone';
+      changed.push(cell);
+    }
+    return changed;
   }
 
   /**
@@ -349,6 +423,7 @@ export class Board {
   reset(): void {
     this.grid = Board.emptyGrid(this.width, this.height);
     this.toppedOut = false;
+    this.seal = null;
     this.active = null;
     this.spawn();
   }

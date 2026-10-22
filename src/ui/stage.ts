@@ -26,6 +26,7 @@ const SHAKE_MS = 320;
 const DEFEAT_MS = 700;
 const EFFECT_SIZE = 128;
 const HOP_MS = 400;
+const RUSH_MS = 450;
 
 /** Extras for a lesson: the foe's colour wash, and the mentor fighting beside the hero. */
 export interface StageOptions {
@@ -61,7 +62,7 @@ interface Timed<T> {
 /**
  * The battle stage: your opponent large and animated, the hero seen from
  * behind, and everything that happens between them drawn as pictures:
- * HP bar, weakness and resistance icons, the enemy's turn pips, floating
+ * HP bar, weakness and resistance icons, the enemy's action gauge, floating
  * numbers, spell effects and move banners. Non-combat challenges draw
  * their goal (crystals wanted, price gauge, score or lines) instead.
  */
@@ -80,6 +81,8 @@ export class Stage {
   /** Time since the ally last tossed a piece (they hop), or null. */
   private hop: number | null = null;
   private tintCanvas: HTMLCanvasElement | null = null;
+  /** Time left of the gauge's flash after a mistake fed it. */
+  private rushFlash = 0;
 
   constructor(canvas: HTMLCanvasElement, atlas: Atlas) {
     const ctx = canvas.getContext('2d');
@@ -100,6 +103,7 @@ export class Stage {
     this.banner = options.line ? { value: options.line, elapsed: 0 } : null;
     this.shakes = {};
     this.defeat = null;
+    this.rushFlash = 0;
   }
 
   play(feedback: Feedback): void {
@@ -130,6 +134,9 @@ export class Stage {
       case 'toss':
         this.hop = 0;
         break;
+      case 'rush':
+        this.rushFlash = RUSH_MS;
+        break;
       default:
         break;
     }
@@ -147,6 +154,7 @@ export class Stage {
     this.drawHero(timeMs);
     this.drawOpponent(dtMs, timeMs, battle.combat?.enraged ?? false);
     const combat = battle.combat;
+    this.rushFlash = Math.max(0, this.rushFlash - dtMs);
     if (combat) this.drawEnemyStatus(combat, seesEnemyMove(battle.hero.stats.insight), timeMs);
     else this.drawObjective(battle.objective);
     this.drawEffects(dtMs);
@@ -269,8 +277,9 @@ export class Stage {
   }
 
   /**
-   * HP bar, weakness/resistance icons and turn pips above the enemy, and
-   * the icon of its next move when the hero's Insight reveals it.
+   * HP bar and level, weakness/resistance icons and the action gauge above
+   * the enemy, and the icon of its next move when the hero's Insight
+   * reveals it.
    */
   private drawEnemyStatus(combat: CombatChallenge, showMove: boolean, timeMs: number): void {
     const { ctx } = this;
@@ -280,6 +289,14 @@ export class Stage {
     ctx.fillRect(x - 2, y - 2, w + 4, h + 4);
     ctx.fillStyle = ratio > 0.5 ? '#6ff08f' : ratio > 0.25 ? '#f5d77b' : '#ff5c7a';
     ctx.fillRect(x, y, Math.round(w * ratio), h);
+    // The level it fights at (monsters grow with the hero), left of the bar.
+    ctx.font = 'bold 12px system-ui';
+    ctx.textAlign = 'right';
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = '#10132a';
+    ctx.strokeText(`Lv${combat.enemy.level}`, x - 6, y + h);
+    ctx.fillStyle = '#f5d77b';
+    ctx.fillText(`Lv${combat.enemy.level}`, x - 6, y + h);
 
     // Weaknesses (green ▲ then elements) and resistances (red ▼ then elements).
     let ix = x;
@@ -300,21 +317,30 @@ export class Stage {
       ix += 12;
     }
 
-    // Turn pips on their own row: one per action until the enemy acts; the
-    // last one pulses. Insight can show the coming move just before them.
-    const pips = combat.countdown;
-    const pipY = iconY + 42;
-    for (let i = 0; i < pips; i++) {
-      const px = x + w - 10 - i * 14;
-      const urgent = pips === 1;
-      const pulse = urgent ? 0.5 + 0.5 * Math.sin(timeMs / 90) : 1;
-      ctx.fillStyle = urgent ? `rgba(255, 92, 122, ${pulse})` : '#f5d77b';
-      ctx.beginPath();
-      ctx.arc(px, pipY, 6, 0, Math.PI * 2);
-      ctx.fill();
+    // The action gauge on its own row: it fills in real time and the enemy
+    // moves when it is full. Chill shows as ice below empty; a mistake that
+    // fed it flashes it; near full it pulses red. Insight shows the coming
+    // move just before it.
+    const gaugeY = iconY + 36;
+    const gw = w - 34;
+    const gx = x + 34;
+    const fill = Math.max(0, Math.min(1, combat.gauge / combat.actMs));
+    const ice = Math.max(0, Math.min(1, -combat.gauge / combat.actMs));
+    ctx.fillStyle = '#090b15';
+    ctx.fillRect(gx - 2, gaugeY - 2, gw + 4, 14);
+    const urgent = fill > 0.8;
+    const pulse = urgent ? 0.6 + 0.4 * Math.sin(timeMs / 70) : 1;
+    ctx.fillStyle =
+      this.rushFlash > 0 ? '#ffffff' : urgent ? `rgba(255, 92, 122, ${pulse})` : '#f5a83b';
+    ctx.fillRect(gx, gaugeY, Math.round(gw * fill), 10);
+    if (ice > 0) {
+      ctx.fillStyle = '#7fd4ff';
+      ctx.fillRect(gx, gaugeY, Math.round(gw * ice), 10);
     }
+    drawIcon(ctx, 'hourglass', x + 4, gaugeY - 7, { scale: 1 });
+    const pipY = gaugeY + 5;
     if (showMove) {
-      const mx = x + w - 10 - pips * 14 - 22;
+      const mx = x - 34;
       ctx.fillStyle = '#10132acc';
       ctx.fillRect(mx - 3, pipY - 15, 30, 30);
       drawIconSpec(ctx, MOVE_ICONS[combat.nextMove.kind], mx, pipY - 12, 2);
