@@ -40,8 +40,11 @@ export type SpellEffect =
   | { readonly kind: 'swap' }
   /** Turn every stone on the board into crystals of the spell's element. */
   | { readonly kind: 'purify' }
-  /** Damage the enemy by `power` for every crystal of the spell's element on the board. */
-  | { readonly kind: 'resonate'; readonly power: number }
+  /**
+   * Damage the enemy by `power` for every crystal of the spell's element on
+   * the board, at most `max` (before weakness or resistance).
+   */
+  | { readonly kind: 'resonate'; readonly power: number; readonly max: number }
   /** For the hero's next `pieces` pieces every element strikes the enemy as a weakness. */
   | { readonly kind: 'expose'; readonly pieces: number };
 

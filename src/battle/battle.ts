@@ -153,11 +153,13 @@ export class Battle implements BattleContext {
   }
 
   /**
-   * Counts any board feats (see `src/game/feats.ts`), scores the lock, fills elemental mana from every cleared crystal (in any
-   * kind of battle), then lets the challenge apply its rules.
+   * Counts board feats in fights (see `src/game/feats.ts`), scores the
+   * lock, fills elemental mana from every cleared crystal (in any kind of
+   * battle), then lets the challenge apply its rules.
    */
   private afterLock(result: LockResult): void {
-    recordFeats(this.hero, featsOfLock(result, this.hastePieces > 0));
+    // Only fights (and lessons) count: puzzles' preset boards can't be replayed for feats.
+    if (this.combat) recordFeats(this.hero, featsOfLock(result, this.hastePieces > 0));
     this.lines += result.linesCleared;
     this.score += lineClearPoints(result.linesCleared);
     if (this.hastePieces > 0) this.hastePieces--;

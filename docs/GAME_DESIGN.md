@@ -373,11 +373,22 @@ revealed, its element's mentor teaches it (difficulty one above the usual:
   category menu in battle, and in its mentor's lesson list (where a
   revealed spell is an ordinary lesson). `hiddenState` derives hidden /
   unlocked / known.
-- **Feats** (`hero.feats`, saved): every battle counts each cleared line
-  made of one element alone (`pure.<element>`; any stone spoils it) and
-  each four-line clear made while the enemy's haste is on (`hastedQuad`).
-- **Items**: walking into the mentor with the item hands it over (shown
-  under their speech) and reveals the spell for good (`gift:<spell>` flag).
+- **Feats** (`hero.feats`, saved): fights and lessons (not puzzles,
+  trades or haggles, whose preset or forgiving boards could be replayed)
+  count each cleared line made of one element alone (`pure.<element>`;
+  any stone spoils it) and each four-line clear made while the enemy's
+  haste is on (`hastedQuad`). Crystals Purify makes from stone count as
+  water; no hidden spell needs pure water lines.
+- **Items**: walking into the mentor with the item first asks: the item,
+  an arrow and the mentor's face, with **Give** or **Keep** (so a Spore Cap
+  can still go to Elder Rowan). Giving hands it over (shown under their
+  speech) and reveals the spell for good (`gift:<spell>` flag); keeping
+  goes on to the usual conversation and asks again next time.
+- **Running effects**: a heal-over-time keeps whichever of Regen and
+  Bloom has more healing left. Fault Line wears off after each piece's
+  Kindle and Regen, so all four of its pieces expose every hit, burns
+  included. Eclipse heals all the damage it actually deals (level bonus
+  and weakness included), up to max HP.
 - **The mentor noticed**: while a feat-revealed spell is untaught, its
   mentor leaves their route and seeks the hero out: they wait at their
   open stop fewest warps from the hero's map (one on that map first, the

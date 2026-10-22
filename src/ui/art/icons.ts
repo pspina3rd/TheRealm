@@ -561,6 +561,24 @@ export const ICONS = {
       '............',
     ],
   },
+  // A small board whose two bottom lines flash as they clear.
+  lines: {
+    palette: palette('#1a1d33', '#ffd23f', '#fff4a8', '#8a93c8'),
+    rows: [
+      'oooooooooooo',
+      'oddddddddddo',
+      'oddddbbddddo',
+      'oddddbbddddo',
+      'oddbdddddddo',
+      'odbbbddbdddo',
+      'ohhhhhhhhhho',
+      'owwwwwwwwwwo',
+      'ohhhhhhhhhho',
+      'owwwwwwwwwwo',
+      'obbbdbbbbbdo',
+      'oooooooooooo',
+    ],
+  },
   weak: {
     palette: palette('#1f8a3c', '#4fd36f', '#b4f5a0'),
     rows: [
@@ -822,7 +840,7 @@ export const ENHANCEMENT_ICONS: Readonly<Record<EnhancementId, IconId>> = {
 export const UNLOCK_HINT_ICONS: Readonly<Record<HiddenUnlock['kind'], IconId>> = {
   stat: 'eye',
   alignment: 'star',
-  pattern: 'piece',
+  pattern: 'lines',
   quest: 'scroll',
   item: 'bag',
 };

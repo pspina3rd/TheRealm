@@ -16,6 +16,7 @@ import {
   hiddenSpells,
   hiddenState,
   isRevealed,
+  itemsFor,
   seeksHero,
 } from '../src/game/hidden';
 import { completeLesson, lessonsFor } from '../src/game/lessons';
@@ -65,7 +66,7 @@ describe('hidden spell data', () => {
     expect(rows).toEqual([
       ['Volcano · Lv 1 · clear 3 rows · 40 damage', 40, 3],
       ['Purify · Lv 1 · stone becomes crystal', 0, 0],
-      ['Ball Lightning · Lv 1 · 2 damage per crystal of its element', 2, 0],
+      ['Ball Lightning · Lv 1 · 2 damage per crystal of its element (max 40)', 2, 0],
       ['Bloom · Lv 1 · heal 6 × 8 pieces', 6, 8],
       ['Fault Line · Lv 1 · every hit is a weakness × 4 pieces', 0, 4],
       ['Eclipse · Lv 1 · 36 damage · heal 100% of it', 36, 100],
@@ -111,15 +112,20 @@ describe('revealing hidden spells', () => {
   it('item: Eclipse once the Moon Shard is brought to the arcane mentor', () => {
     const s = seeker();
     expect(bringItems(s, mentor('selene'))).toEqual([]); // nothing to bring
+    expect(itemsFor(s, mentor('selene'))).toEqual([]);
     expect(isRevealed(spell('eclipse'), s)).toBe(false);
     addItem(s.hero, 'moonShard', 2);
-    expect(bringItems(s, mentor('torva'))).toEqual([]); // the wrong mentor
+    // Selene asks for it (the hero may keep it); the wrong mentor doesn't.
+    expect(itemsFor(s, mentor('selene'))).toEqual(['moonShard']);
+    expect(itemsFor(s, mentor('torva'))).toEqual([]);
+    expect(bringItems(s, mentor('torva'))).toEqual([]);
     expect(bringItems(s, mentor('selene'))).toEqual([
       { kind: 'item', itemId: 'moonShard', count: -1 },
     ]);
     expect(s.flags.has(giftFlag('eclipse'))).toBe(true);
     expect(isRevealed(spell('eclipse'), s)).toBe(true);
     // Once revealed, no second shard is taken.
+    expect(itemsFor(s, mentor('selene'))).toEqual([]);
     expect(bringItems(s, mentor('selene'))).toEqual([]);
     expect(itemCount(s.hero, 'moonShard')).toBe(1);
   });
@@ -184,7 +190,7 @@ describe('board feats', () => {
     expect(hero.feats).toEqual({ 'pure.fire': 3, hastedQuad: 1 });
   });
 
-  it('are recorded by battles of every kind', () => {
+  it('are recorded only in fights, never on a puzzle or trade board', () => {
     const battle = makeBattle({ kind: 'combat', enemyId: 'slime' });
     battle.combat!.enemyHp = 999;
     setUpVerticalIClear(battle.board, 4, 'cyan'); // the I is cyan too: four pure wind lines
@@ -196,6 +202,11 @@ describe('board feats', () => {
     setUpVerticalIClear(barter.board, 1, 'red');
     barter.input('hardDrop');
     expect(barter.hero.feats).toEqual({});
+
+    const puzzle = makeBattle({ kind: 'puzzle', rows: [], queue: ['I'], linesToClear: 4 });
+    setUpVerticalIClear(puzzle.board, 4, 'cyan');
+    puzzle.input('hardDrop');
+    expect(puzzle.hero.feats).toEqual({});
   });
 });
 
@@ -340,6 +351,55 @@ describe('hidden spells in combat', () => {
     expect(combat.enemyHp).toBe(
       999 - Math.round(2 * 7 * elementMultiplier(combat.enemy, 'lightning')),
     );
+  });
+
+  it('Ball Lightning needs lightning crystals and strikes for at most 40', () => {
+    const { battle, combat } = fight('ballLightning');
+    expect(combat.cannotCastReason('ballLightning')).toBe(
+      'No crystals of its element on the board.',
+    );
+    for (let y = 16; y < 20; y++) battle.board.grid[y] = rowWithGaps(10, [0], 'gold'); // 36
+    combat.castSpell('ballLightning');
+    expect(combat.enemyHp).toBe(
+      999 - Math.round(40 * elementMultiplier(combat.enemy, 'lightning')),
+    );
+  });
+
+  it('keeps the stronger heal-over-time: Regen never cuts Bloom short', () => {
+    const { combat, hero } = fight('bloom', 'regen');
+    hero.hp = 1;
+    combat.castSpell('bloom');
+    combat.castSpell('regen');
+    expect(combat.regen).toEqual({ amount: 6, pieces: 8 });
+    combat.regen = { amount: 0, pieces: 0 };
+    combat.castSpell('regen');
+    combat.castSpell('bloom');
+    expect(combat.regen).toEqual({ amount: 6, pieces: 8 });
+  });
+
+  it('Fault Line exposes Kindle’s burn on each of its 4 pieces, like every other hit', () => {
+    const { battle, combat } = fight('faultLine', 'kindle');
+    // A fire foe resists fire: Kindle's 4 burns for 2, or 6 while exposed.
+    Object.assign(combat, { enemy: { ...combat.enemy, element: 'fire' } });
+    combat.castSpell('faultLine');
+    combat.castSpell('kindle');
+    const burns = () =>
+      battle.events.flatMap((e) =>
+        e.event.kind === 'enemyHit' && e.event.element === 'fire' ? [e.event.amount] : [],
+      );
+    forceQueue(battle, ['O', 'O', 'O', 'O', 'O']);
+    for (let i = 0; i < 5; i++) battle.input('hardDrop');
+    expect(burns()).toEqual([6, 6, 6, 6, 2]);
+  });
+
+  it('Eclipse heals all the damage it actually deals, Fault Line included', () => {
+    const { combat, hero } = fight('faultLine', 'eclipse');
+    hero.hp = 1;
+    combat.castSpell('faultLine');
+    combat.castSpell('eclipse');
+    const dealt = 999 - combat.enemyHp;
+    expect(dealt).toBe(Math.round((36 + 2 * hero.level) * WEAK_MULTIPLIER));
+    expect(hero.hp).toBe(Math.min(hero.maxHp, 1 + dealt));
   });
 
   it('Bloom heals after each of the next 8 pieces', () => {

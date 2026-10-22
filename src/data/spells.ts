@@ -301,7 +301,11 @@ export const SPELLS: Readonly<Record<string, SpellDef>> = {
     role: 'support',
     hidden: { kind: 'pattern', feat: 'pure.lightning', count: 6 },
     levels: [
-      { name: 'Ball Lightning', cost: { lightning: 6 }, effect: { kind: 'resonate', power: 2 } },
+      {
+        name: 'Ball Lightning',
+        cost: { lightning: 6 },
+        effect: { kind: 'resonate', power: 2, max: 40 },
+      },
     ],
   },
   bloom: {

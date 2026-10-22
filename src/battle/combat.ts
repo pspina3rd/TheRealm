@@ -137,9 +137,8 @@ export class CombatChallenge implements Challenge {
     this.spendAction();
   }
 
-  /** Kindle and Regen act once per piece placed; Fault Line wears off. */
+  /** Kindle and Regen act once per piece placed; then Fault Line wears off a piece. */
   private tick(): void {
-    if (this.exposed > 0) this.exposed--;
     if (this.burn.pieces > 0 && this.status() === 'ongoing') {
       this.burn.pieces--;
       this.elementalHit(this.burn.power, 'fire');
@@ -148,6 +147,7 @@ export class CombatChallenge implements Challenge {
       this.regen.pieces--;
       this.healHero(this.regen.amount);
     }
+    if (this.exposed > 0) this.exposed--;
   }
 
   /** Strikes the enemy with `element`, scaled by its weakness or resistance (at least 1). */
@@ -207,6 +207,12 @@ export class CombatChallenge implements Challenge {
     if (effect.kind === 'swap' && !this.ctx.board.canSwapWithNext()) return 'No room to swap.';
     if (effect.kind === 'purify' && this.ctx.board.count('stone') === 0)
       return 'No stone to purify.';
+    if (
+      effect.kind === 'resonate' &&
+      category &&
+      this.ctx.board.count(colorOfElement(category)) === 0
+    )
+      return 'No crystals of its element on the board.';
     return null;
   }
 
@@ -265,7 +271,9 @@ export class CombatChallenge implements Challenge {
         this.charge = { power: effect.power, clears: effect.clears };
         break;
       case 'regen':
-        this.regen = { amount: effect.amount, pieces: effect.pieces };
+        // Keep whichever heal-over-time has more healing left (Regen won't cut Bloom short).
+        if (effect.amount * effect.pieces > this.regen.amount * this.regen.pieces)
+          this.regen = { amount: effect.amount, pieces: effect.pieces };
         break;
       case 'ward':
         this.addWard(effect.amount);
@@ -285,7 +293,10 @@ export class CombatChallenge implements Challenge {
         break;
       // Board-scaled damage: no level bonus, like spells that clear rows.
       case 'resonate':
-        strike(effect.power * this.ctx.board.count(colorOfElement(element)), 0);
+        strike(
+          Math.min(effect.max, effect.power * this.ctx.board.count(colorOfElement(element))),
+          0,
+        );
         break;
       case 'expose':
         this.exposed = Math.max(this.exposed, effect.pieces);

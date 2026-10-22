@@ -1350,7 +1350,7 @@ dialog {
 }
 
 .hidden-spell .hint {
-  opacity: 0.35;
+  opacity: 0.5;
 }
 
 .hidden-spell.unlocked {
@@ -1361,4 +1361,12 @@ dialog {
 .hidden-spell .portrait {
   width: 32px;
   height: 32px;
+}
+
+/* A mentor asks for an item: the item, an arrow and the mentor's face. */
+.gift-offer {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
 }

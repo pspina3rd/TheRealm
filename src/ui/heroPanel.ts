@@ -46,9 +46,6 @@ export class HeroPanel {
   private categoriesHeight = 0;
   private slotHeight = 0;
 
-  /** The story flags, which reveal some hidden spells (set when a battle starts). */
-  flags: ReadonlySet<string> = new Set();
-
   onCast: (spellId: string) => void = () => {};
   onItem: (itemId: string) => void = () => {};
 
@@ -93,7 +90,8 @@ export class HeroPanel {
     node.classList.add('denied');
   }
 
-  render(battle: Battle): void {
+  /** Draws the panel; `flags` (the story flags) reveal some hidden spells. */
+  render(battle: Battle, flags: ReadonlySet<string>): void {
     const hero = battle.hero;
     this.hpFill.style.width = `${(100 * hero.hp) / hero.maxHp}%`;
     this.hpText.textContent = `${hero.hp}/${hero.maxHp}`;
@@ -137,7 +135,7 @@ export class HeroPanel {
         ...menu.spells.map((id, index) =>
           this.spellButton(hero, id, index + 1, usable(id), () => cast(id)),
         ),
-        ...hiddenSlots({ hero, flags: this.flags }, menu.category).map((slot) =>
+        ...hiddenSlots({ hero, flags }, menu.category).map((slot) =>
           hiddenSpellSlot(this.atlas, slot),
         ),
       );

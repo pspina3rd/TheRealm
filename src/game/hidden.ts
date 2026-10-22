@@ -15,7 +15,7 @@ import { knownSpell } from './spells';
 
 /** Who a hidden spell is revealed to: the hero and the story flags. */
 export interface Seeker {
-  readonly hero: Pick<Hero, 'spells' | 'stats' | 'feats'>;
+  readonly hero: Pick<Hero, 'spells' | 'stats' | 'feats' | 'items'>;
   readonly flags: ReadonlySet<string>;
 }
 
@@ -82,18 +82,34 @@ export function hiddenSlots(seeker: Seeker, element?: Element): HiddenSlot[] {
 }
 
 /**
- * The hero meets `mentor`: each hidden spell of theirs that waits for an
- * item the hero carries is revealed, and the item handed over. Returns the
- * items given, for the conversation to show.
+ * The items the hero carries that `mentor` would take to reveal a hidden
+ * spell of theirs, so the hero can choose to give or keep them.
+ */
+export function itemsFor(seeker: Seeker, mentor: MentorDef): string[] {
+  return hiddenSpells(mentor.element).flatMap((spell) => {
+    const unlock = spell.hidden;
+    return unlock?.kind === 'item' &&
+      hiddenState(spell, seeker) === 'hidden' &&
+      (seeker.hero.items[unlock.itemId] ?? 0) > 0
+      ? [unlock.itemId]
+      : [];
+  });
+}
+
+/**
+ * The hero gives `mentor` the items they asked for (see `itemsFor`): each
+ * reveals its hidden spell for good. Returns the items given, for the
+ * conversation to show.
  */
 export function bringItems(
   state: { readonly hero: Hero; readonly flags: Set<string> },
   mentor: MentorDef,
 ): Gain[] {
+  const wanted = new Set(itemsFor(state, mentor));
   return hiddenSpells(mentor.element).flatMap((spell): Gain[] => {
     const unlock = spell.hidden;
-    if (unlock?.kind !== 'item' || hiddenState(spell, state) !== 'hidden') return [];
-    if (!removeItem(state.hero, unlock.itemId)) return [];
+    if (unlock?.kind !== 'item' || !wanted.has(unlock.itemId)) return [];
+    removeItem(state.hero, unlock.itemId);
     state.flags.add(giftFlag(spell.id));
     return [{ kind: 'item', itemId: unlock.itemId, count: -1 }];
   });

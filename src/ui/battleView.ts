@@ -57,7 +57,13 @@ export class BattleView {
     }
   }
 
-  render(battle: Battle, dtMs: number, timeMs: number, finished: boolean): void {
+  render(
+    battle: Battle,
+    flags: ReadonlySet<string>,
+    dtMs: number,
+    timeMs: number,
+    finished: boolean,
+  ): void {
     for (const { seq, event } of battle.eventsSince(this.nextSeq)) {
       this.nextSeq = seq + 1;
       for (const feedback of feedbackFor(event)) {
@@ -69,7 +75,7 @@ export class BattleView {
     }
     this.board.render(battle.board, battle, dtMs, timeMs, battle.paused || finished);
     this.stage.render(battle, dtMs, timeMs);
-    this.hero.render(battle);
+    this.hero.render(battle, flags);
     this.pauseButton.setAttribute('aria-pressed', String(battle.paused));
     this.pauseButton.textContent = battle.paused ? '▶' : '❚❚';
   }

@@ -283,7 +283,7 @@ export function castSummary(cast: CastSpell): string {
       parts.push('stone becomes crystal');
       break;
     case 'resonate':
-      parts.push(`${effect.power} damage per crystal of its element`);
+      parts.push(`${effect.power} damage per crystal of its element (max ${effect.max})`);
       break;
     case 'expose':
       parts.push(`every hit is a weakness × ${effect.pieces} pieces`);

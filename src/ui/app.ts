@@ -5,9 +5,12 @@ import { CLASSES } from '../data/classes';
 import { ENEMIES } from '../data/enemies';
 import type { ChallengeSpec } from '../data/types';
 import { describeInteraction, entitySprite, resolveBattle } from '../game/encounter';
-import { bringItems, hiddenSlots } from '../game/hidden';
+import { bringItems, hiddenSlots, itemsFor } from '../game/hidden';
+import type { Gain } from '../game/rewards';
+import { ITEMS } from '../data/items';
+import { itemIcon } from './art/icons';
 import { lessonSpec } from '../game/lessons';
-import { MENTORS } from '../data/mentors';
+import { MENTORS, type MentorDef } from '../data/mentors';
 import { mentorOf, mentorPlace } from '../world/mentors';
 import { MAPS } from '../data/maps';
 import { ELEMENT_NAMES, type Element } from '../core/elements';
@@ -144,7 +147,7 @@ export class App {
         active.resultDelay -= dt;
         if (active.resultDelay <= 0) this.finishBattle();
       }
-      this.battleView.render(battle, dt, timeMs, active.finished);
+      this.battleView.render(battle, this.state.flags, dt, timeMs, active.finished);
       this.renderHud();
     } else {
       this.updateWalking(dt);
@@ -192,14 +195,49 @@ export class App {
     }
   }
 
-  private interact(entity: EntityDef): void {
-    // A mentor takes any item the hero brought for a hidden spell of theirs.
+  private interact(entity: EntityDef, decided = false): void {
+    // A mentor asks for any item the hero carries for a hidden spell of
+    // theirs: the hero chooses to give it (revealing the spell) or keep it.
     const mentor = entity.kind === 'mentor' ? MENTORS[entity.mentorId] : undefined;
-    const given = mentor ? bringItems(this.state, mentor) : [];
-    if (given.length > 0) {
-      this.save();
-      this.renderHud();
+    const wanted = mentor && !decided ? itemsFor(this.state, mentor) : [];
+    if (mentor && wanted.length > 0) {
+      this.offerItems(entity, mentor, wanted);
+      return;
     }
+    this.talk(entity);
+  }
+
+  /** The give-or-keep choice: the item, an arrow and the mentor's face. */
+  private offerItems(entity: EntityDef, mentor: MentorDef, itemIds: readonly string[]): void {
+    const names = itemIds.map((id) => ITEMS[id]?.name ?? id).join(', ');
+    this.dialog.show({
+      title: mentor.name,
+      body: [
+        el(
+          'div',
+          { className: 'gift-offer', title: `${names} → ${mentor.name}` },
+          ...itemIds.map((id) => iconElement(itemIcon(id), 4, ITEMS[id]?.name)),
+          el('span', { className: 'deal-arrow', text: '➜' }),
+          spritePortrait(this.atlas, mentor.sprite, 72),
+        ),
+      ],
+      actions: [
+        { label: 'Keep', onClick: () => this.interact(entity, true) },
+        {
+          label: 'Give',
+          onClick: () => {
+            const given = bringItems(this.state, mentor);
+            this.save();
+            this.renderHud();
+            this.talk(entity, given);
+          },
+        },
+      ],
+      onCancel: () => this.dialog.close(),
+    });
+  }
+
+  private talk(entity: EntityDef, given: readonly Gain[] = []): void {
     const interaction = describeInteraction(this.state, entity);
     // Monsters attack on contact; people talk first.
     if (entity.kind === 'monster' && interaction.kind === 'challenge') {
@@ -250,7 +288,6 @@ export class App {
     this.dialog.close();
     const weights = pieceWeights(currentMap(this.state), this.state.hero);
     const battle = new Battle(spec, this.state.hero, this.rng, { weights });
-    this.battleView.hero.flags = this.state.flags;
     this.active = { battle, entity, finished: false, resultDelay: RESULT_DELAY_MS };
     const hero = creature(heroClass(this.state.hero).sprite) ?? 'char.026';
     if (spec.kind === 'lesson') {
