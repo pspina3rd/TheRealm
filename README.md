@@ -29,12 +29,12 @@ npm run build      # static site in dist/
 
 ## How to play
 
-| Where  | Keys                                                                              |
-| ------ | --------------------------------------------------------------------------------- |
-| World  | Arrows / WASD walk · walk into anyone to challenge them · M or Esc opens the menu |
-| Battle | ← → move · ↑ or X rotate · ↓ soft drop · Space hard drop · P pause                |
-| Magic  | 1–7 pick a spell category (a lone spell casts at once) · then 1–n cast · Esc back |
-| Touch  | On-screen buttons appear on touch devices                                         |
+| Where  | Keys                                                                                 |
+| ------ | ------------------------------------------------------------------------------------ |
+| World  | Arrows / WASD walk · walk into anyone to challenge them · M or Esc opens the menu    |
+| Battle | ← → move · ↑ or X rotate · ↓ soft drop · Space hard drop · P pause                   |
+| Magic  | 1–7 pick an element's spells (a lone spell casts at once) · then 1–n cast · Esc back |
+| Touch  | On-screen buttons appear on touch devices                                            |
 
 A new game starts by choosing a hero class. The game saves automatically
 after every battle and map change (browser local storage). Start over from

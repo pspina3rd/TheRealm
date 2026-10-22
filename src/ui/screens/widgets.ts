@@ -2,15 +2,22 @@
 import { ELEMENT_NAMES } from '../../core/elements';
 import { ITEMS } from '../../data/items';
 import { SPELLS } from '../../data/spells';
-import type { ChallengeSpec, Reward } from '../../data/types';
+import type { ChallengeSpec, Reward, SpellDef } from '../../data/types';
 import type { Gain } from '../../game/rewards';
-import { maxLevel, spellName } from '../../game/spells';
-import type { SpellDef } from '../../data/types';
+import { maxLevel, spellName, type CastSpell } from '../../game/spells';
 import { ELEMENT_OF_COLOR } from '../../core/elements';
 import type { CrystalColor } from '../../core/pieces';
 import type { Atlas } from '../art/atlas';
 import { isCreatureId, mapFrame, battleFrame, type CreatureId } from '../art/creatures';
-import { ELEMENT_ICONS, PALETTES, itemIcon, type IconId, type IconSpec } from '../art/icons';
+import {
+  ELEMENT_ICONS,
+  PALETTES,
+  SPELL_KIND_ICONS,
+  itemIcon,
+  type IconId,
+  type IconSpec,
+} from '../art/icons';
+import { costIcons } from '../manaBars';
 import { el } from '../dom';
 import { iconElement } from '../iconDraw';
 
@@ -139,8 +146,9 @@ export function rewardIcons(rewards: readonly Reward[]): HTMLElement[] {
         return [chip(itemIcon(reward.itemId), `×${reward.count}`, ITEMS[reward.itemId]?.name)];
       case 'spell': {
         const spell = SPELLS[reward.spellId];
-        const name = spell && spellName(spell);
-        return spell ? [chip(ELEMENT_ICONS[spell.category], name ?? '', `Learn ${name}`)] : [];
+        if (!spell) return [];
+        const name = spellName(spell);
+        return [chip(ELEMENT_ICONS[spell.category], name, `Learn ${name}`)];
       }
       case 'shop':
         return [chip('bag', '', 'Opens the shop')];
@@ -203,5 +211,15 @@ export function levelPips(spell: SpellDef, level: number): HTMLElement {
     ...(max > 1
       ? Array.from({ length: max }, (_, i) => el('span', { className: i < level ? 'on' : '' }))
       : []),
+  );
+}
+
+/** What kind of spell a cast is (an icon) and what it costs. */
+export function spellMeta(cast: CastSpell): HTMLElement {
+  return el(
+    'span',
+    { className: 'spell-meta' },
+    iconElement(SPELL_KIND_ICONS[cast.effect.kind], 1),
+    costIcons(cast.cost),
   );
 }

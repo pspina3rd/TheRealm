@@ -357,6 +357,51 @@ canvas {
   gap: 6px;
 }
 
+/* Seven element slots, two rows of four; a category menu keeps their height. */
+.spells {
+  grid-template-columns: repeat(4, 1fr);
+  align-content: start;
+}
+
+.spell.empty-slot {
+  background: var(--panel-deep);
+  border-color: #2a2f4d;
+  opacity: 1;
+}
+
+.spell-meta {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* No keyboard here: hide the Escape hint. */
+@media (pointer: coarse) {
+  .spell kbd.esc {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  /* Narrow slots: icon on top, then name, pips and cost. */
+  .spells {
+    gap: 4px;
+  }
+
+  .spell {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 4px 5px;
+    font-size: 12px;
+  }
+
+  .spell .cost {
+    gap: 3px;
+    font-size: 11px;
+  }
+}
+
 .items {
   margin-top: 6px;
 }
@@ -1155,8 +1200,14 @@ dialog {
   font-size: 13px;
 }
 
-.attribute-head .cost.up {
-  color: var(--good);
+.attribute-head .efficiency {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.attribute-head .efficiency .cost {
+  color: var(--muted);
 }
 
 .spell-attribute .rank-pips {

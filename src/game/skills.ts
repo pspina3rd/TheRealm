@@ -30,15 +30,20 @@ export const EMPTY_PLAN: SkillPlan = { stats: {}, spells: {} };
 
 type PlanHero = Pick<Hero, 'stats' | 'skillPoints' | 'spells' | 'lockedCategories'>;
 
+/** A known spell with a level still to gain, and the step toward it; null otherwise. */
+function enhanceable(hero: Pick<Hero, 'spells'>, spellId: string) {
+  const spell = SPELLS[spellId];
+  const known = knownSpell(hero, spellId);
+  const step = spell && known && levelStep(spell, known.level);
+  return step ? { spell, known, step } : null;
+}
+
 /** Skill points the planned enhancements cost: each at its spell's current step price. */
 export function enhancementCost(hero: Pick<Hero, 'spells'>, plan: SkillPlan): number {
   let total = 0;
   for (const [spellId, staged] of Object.entries(plan.spells)) {
-    const spell = SPELLS[spellId];
-    const known = knownSpell(hero, spellId);
-    const step = spell && known && levelStep(spell, known.level);
     const count = ENHANCEMENT_IDS.reduce((sum, id) => sum + (staged[id] ?? 0), 0);
-    total += count * (step ? step.cost : 0);
+    total += count * (enhanceable(hero, spellId)?.step.cost ?? 0);
   }
   return total;
 }
@@ -64,14 +69,12 @@ export function canEnhance(
   spellId: string,
   attribute: EnhancementId,
 ): boolean {
-  const spell = SPELLS[spellId];
-  const known = knownSpell(hero, spellId);
-  const step = spell && known && levelStep(spell, known.level);
+  const target = enhanceable(hero, spellId);
   return (
-    !!step &&
-    !isCategoryLocked(hero, spell.category) &&
-    canAddEnhancement(spell, known, plan.spells[spellId] ?? {}, attribute) &&
-    skillPlanCost(hero, plan) + step.cost <= hero.skillPoints
+    !!target &&
+    !isCategoryLocked(hero, target.spell.category) &&
+    canAddEnhancement(target.spell, target.known, plan.spells[spellId] ?? {}, attribute) &&
+    skillPlanCost(hero, plan) + target.step.cost <= hero.skillPoints
   );
 }
 
@@ -82,10 +85,9 @@ export function canEnhance(
  */
 export function isValidSkillPlan(hero: PlanHero, plan: SkillPlan): boolean {
   const spellsOk = Object.entries(plan.spells).every(([spellId, staged]) => {
-    const spell = SPELLS[spellId];
-    const known = knownSpell(hero, spellId);
-    const step = spell && known && levelStep(spell, known.level);
-    if (!step) return Object.values(staged).every((count) => count === 0);
+    const target = enhanceable(hero, spellId);
+    if (!target) return Object.values(staged).every((count) => count === 0);
+    const { spell, known, step } = target;
     const counts = enhancements(
       Object.fromEntries(ENHANCEMENT_IDS.map((id) => [id, known.step[id] + (staged[id] ?? 0)])),
     );

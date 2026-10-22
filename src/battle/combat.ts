@@ -29,6 +29,8 @@ export const LINE_DAMAGE: readonly number[] = [0, 8, 20, 35, 55];
 export const OVERFLOW_PENALTY = 0.25;
 /** Most HP an earth ward can hold. */
 export const MAX_WARD = 25;
+/** Spell damage added per hero level (not for spells that clear rows). */
+export const SPELL_LEVEL_BONUS = 2;
 /** Chill can push the enemy's next action back at most this far past its normal pace. */
 export const MAX_CHILL = 2;
 
@@ -147,9 +149,10 @@ export class CombatChallenge implements Challenge {
     this.ctx.emit({ kind: 'spell', spellId });
     const element = spell.category;
     const effect = cast.effect;
-    const strike = (base: number): number => {
+    // Spells that clear rows keep their damage small: no level bonus.
+    const strike = (base: number, levelBonus = SPELL_LEVEL_BONUS * hero.level): number => {
       const multiplier = elementMultiplier(this.enemy, element);
-      const dealt = Math.round((base + hero.level * 2) * multiplier);
+      const dealt = Math.round((base + levelBonus) * multiplier);
       this.hitEnemy(dealt, element, affinityOf(multiplier));
       return dealt;
     };
@@ -175,7 +178,7 @@ export class CombatChallenge implements Challenge {
         break;
       case 'clearRows':
         this.ctx.board.removeBottomRows(effect.rows);
-        strike(effect.power);
+        strike(effect.power, 0);
         break;
     }
     // Effect enhancements: the spell also fires its element's line effect.

@@ -13,7 +13,6 @@ import {
   heroAlignment,
   heroTitle,
   manaFull,
-  spellCost,
   spendMana,
   cannotUseReason,
   createHero,
@@ -30,7 +29,7 @@ import {
   totalDefense,
   useItem,
 } from '../src/game/hero';
-import { enhancements, newKnownSpell } from '../src/game/spells';
+import { enhancements, heroSpell, newKnownSpell } from '../src/game/spells';
 import { SKILL_POINTS_PER_LEVEL } from '../src/game/stats';
 import { knownSpells } from './helpers';
 
@@ -275,8 +274,11 @@ describe('hero', () => {
       expect(heroTitle(hero)).toBe('Ember Knight');
     });
 
-    it('prices unknown spells at level 1', () => {
-      expect(spellCost(createHero(), SPELLS.meteor!)).toEqual(SPELLS.meteor!.levels[0].cost);
+    it('prices a newly learned spell at its level 1 cost', () => {
+      const hero = createHero();
+      expect(heroSpell(hero, 'meteor')).toBeNull();
+      learnSpell(hero, 'meteor');
+      expect(heroSpell(hero, 'meteor')?.cost).toEqual(SPELLS.meteor!.levels[0].cost);
     });
   });
 

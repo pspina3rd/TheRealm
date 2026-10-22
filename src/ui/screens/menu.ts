@@ -12,6 +12,7 @@ import {
 } from '../../game/hero';
 import {
   castSpellFor,
+  castSummary,
   isCategoryLocked,
   isReady,
   knownSpell,
@@ -23,8 +24,8 @@ import { ELEMENT_ICONS, STAT_ICONS, itemIcon, type IconId } from '../art/icons';
 import { STATS, STAT_IDS } from '../../data/stats';
 import { button, el } from '../dom';
 import { iconElement } from '../iconDraw';
-import { ManaBars, costIcons } from '../manaBars';
-import { chip, levelPips, sectionTitle, spritePortrait } from './widgets';
+import { ManaBars } from '../manaBars';
+import { chip, levelPips, sectionTitle, spellMeta, spritePortrait } from './widgets';
 
 export interface MenuHandlers {
   readonly onUse: (itemId: string) => void;
@@ -147,7 +148,7 @@ export function menuBody(atlas: Atlas, hero: Hero, handlers: MenuHandlers): HTML
           'div',
           {
             className: `spell-tile${ready ? ' ready' : ''}`,
-            title: `${cast.name} · Lv ${cast.level}`,
+            title: castSummary(cast),
           },
           iconElement(ELEMENT_ICONS[spell.category], 3),
           el(
@@ -155,7 +156,7 @@ export function menuBody(atlas: Atlas, hero: Hero, handlers: MenuHandlers): HTML
             {},
             el('b', { text: cast.name }),
             levelPips(spell, cast.level),
-            costIcons(cast.cost),
+            spellMeta(cast),
           ),
           ...(ready ? [iconElement('scroll', 2, 'Ready: a mentor can teach the next level')] : []),
           ...(locked ? [iconElement('lock', 2, 'Locked until the lesson is won')] : []),

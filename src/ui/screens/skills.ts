@@ -19,6 +19,7 @@ import {
   levelStep,
   spellCategories,
   stepSize,
+  totalEnhancements,
   type CastSpell,
 } from '../../game/spells';
 import {
@@ -139,17 +140,29 @@ function attributePips(have: number, staged: number, required: number): HTMLElem
   );
 }
 
-/** What an attribute currently gives, beside its icon: damage or healing, cost, or side effect. */
-function attributeValue(attribute: EnhancementId, cast: CastSpell, up: boolean): HTMLElement {
+/**
+ * What an attribute currently gives, beside its icon: damage or healing,
+ * mana taken off (with the cost left), or the side effect. `count` is the
+ * attribute's enhancements in all, staged ones included.
+ */
+function attributeValue(
+  attribute: EnhancementId,
+  cast: CastSpell,
+  count: number,
+  up: boolean,
+): HTMLElement {
   const tone = up ? ' up' : '';
   switch (attribute) {
     case 'power':
       return el('span', { className: `chip-value${tone}`, text: String(castPower(cast.effect)) });
-    case 'efficiency': {
-      const node = costIcons(cast.cost);
-      if (up) node.classList.add('up');
-      return node;
-    }
+    case 'efficiency':
+      // Mana taken off each element, then the cost that leaves.
+      return el(
+        'span',
+        { className: 'efficiency' },
+        el('span', { className: `chip-value${tone}`, text: `−${count}` }),
+        costIcons(cast.cost),
+      );
     case 'effect': {
       const value = castEffect(cast);
       const text = cast.effect.kind === 'drain' ? `${value}%` : String(value);
@@ -235,7 +248,12 @@ function spellRows(
                   'span',
                   { className: 'attribute-head' },
                   iconElement(ENHANCEMENT_ICONS[attribute], 2, def.name),
-                  attributeValue(attribute, cast, added > 0),
+                  attributeValue(
+                    attribute,
+                    cast,
+                    totalEnhancements(known)[attribute] + added,
+                    added > 0,
+                  ),
                 ),
                 attributePips(known.step[attribute], added, step.each),
                 stepButton(target, -1, added > 0, title, onAdjust),

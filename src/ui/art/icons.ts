@@ -7,7 +7,7 @@
 import type { Element } from '../../core/elements';
 import type { EnhancementId } from '../../data/spells';
 import type { StatId } from '../../data/stats';
-import type { EnemyMove } from '../../data/types';
+import type { EnemyMove, SpellEffect } from '../../data/types';
 
 export const ICON_SIZE = 12;
 
@@ -681,24 +681,25 @@ export const ICONS = {
       '.o....oo...o',
     ],
   },
-  /** Spell Efficiency: less mana. */
+  /** Spell Efficiency: a drop of mana (shown with how much it takes off). */
   drop: {
     palette: palette('#5b2fa6', '#b07cff', '#e3ccff'),
     rows: [
-      '...oo.......',
-      '...oo.......',
-      '..obbo......',
-      '..obbo......',
-      '.ohbbdo.....',
-      '.ohbbdo.....',
-      'ohwbbbdooooo',
-      'ohwbbbdoowwo',
-      'ohhbbbdooooo',
-      'ohbbbbdo....',
-      '.oddddo.....',
-      '..oooo......',
+      '.....oo.....',
+      '.....oo.....',
+      '....obbo....',
+      '....obbo....',
+      '...ohbbdo...',
+      '..ohwbbbdo..',
+      '..ohwbbbdo..',
+      '.ohwbbbbbdo.',
+      '.ohhbbbbbdo.',
+      '.obbbbbbddo.',
+      '..oddddddo..',
+      '...oooooo...',
     ],
   },
+
   /** Spell Effect. */
   wand: {
     palette: palette('#7a3d1c', '#b07cff', '#e3ccff'),
@@ -735,6 +736,24 @@ export const ICONS = {
       '.oooooooooo.',
     ],
   },
+  /** A frozen enemy waits. */
+  hourglass: {
+    palette: palette('#a8743a', '#e8c88a', '#fff4d0'),
+    rows: [
+      'oooooooooooo',
+      'obbbbbbbbbdo',
+      '.oooooooooo.',
+      '..owhhhhbo..',
+      '...obhhbo...',
+      '....obbo....',
+      '....obbo....',
+      '...ob..bo...',
+      '..ob.hh.bo..',
+      '.oooooooooo.',
+      'obbbbbbbbbdo',
+      'oooooooooooo',
+    ],
+  },
 } as const satisfies Record<string, IconDef>;
 
 export type IconId = keyof typeof ICONS;
@@ -769,6 +788,8 @@ export const PALETTES = {
   violet: palette('#5b2fa6', '#b07cff', '#e3ccff'),
   gold: palette('#c58a10', '#ffd23f', '#fff4a8'),
   open: palette('#1f8a3c', '#4fd36f', '#b4f5a0'),
+  /** A dark silhouette, e.g. a spell slot not yet filled. */
+  shadow: palette('#2a2f4d', '#2a2f4d', '#2a2f4d', '#20243c', '#2a2f4d'),
 } as const satisfies Record<string, IconPalette>;
 
 const elementPalette = (element: Element): IconPalette => ICONS[ELEMENT_ICONS[element]].palette;
@@ -790,6 +811,16 @@ export const ENHANCEMENT_ICONS: Readonly<Record<EnhancementId, IconId>> = {
   power: 'burst',
   efficiency: 'drop',
   effect: 'wand',
+};
+
+/** The icon for what each kind of spell does. */
+export const SPELL_KIND_ICONS: Readonly<Record<SpellEffect['kind'], IconSpec>> = {
+  damage: { icon: 'burst' },
+  heal: { icon: 'heart' },
+  drain: { icon: 'fang' },
+  freeze: { icon: 'hourglass' },
+  tailwind: { icon: 'boot' },
+  clearRows: { icon: 'piece', palette: PALETTES.iron },
 };
 
 /** The icon for each kind of enemy move, shown when Insight reveals it. */

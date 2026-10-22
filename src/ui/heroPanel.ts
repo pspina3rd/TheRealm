@@ -1,15 +1,15 @@
 import type { Battle } from '../battle/battle';
 import { ITEMS } from '../data/items';
-import { ELEMENT_NAMES, type Element } from '../core/elements';
+import { ELEMENTS, ELEMENT_NAMES, type Element } from '../core/elements';
 import { SPELLS } from '../data/spells';
 import { cannotUseReason, type Hero } from '../game/hero';
-import { heroSpell, spellCategories } from '../game/spells';
+import { castSummary, heroSpell, spellCategories } from '../game/spells';
 import type { Feedback } from './art/feedback';
-import { ELEMENT_ICONS, type IconId } from './art/icons';
+import { ELEMENT_ICONS, PALETTES, type IconId } from './art/icons';
 import { button, byId, el } from './dom';
 import { iconElement } from './iconDraw';
-import { ManaBars, costIcons } from './manaBars';
-import { levelPips } from './screens/widgets';
+import { ManaBars } from './manaBars';
+import { levelPips, spellMeta } from './screens/widgets';
 
 /** Icon for a usable item, from what it does. */
 function itemIcon(itemId: string): IconId {
@@ -19,9 +19,11 @@ function itemIcon(itemId: string): IconId {
 
 /**
  * The hero's side of the battle screen: HP, the seven mana pools, and spell
- * and item buttons. Spells sit in one button per category (element); a
- * category with several spells opens its own menu, one with a single spell
- * casts it straight away. Buttons show the element, the best spell's name
+ * and item buttons. Spells sit in seven fixed slots, one per element in
+ * element order (dark until the hero knows a spell in it), so key 1–7
+ * always means the same element. A category with several spells opens its
+ * own menu; one with a single spell casts it straight away. Buttons show
+ * the element, the best spell's name, level pips, what kind of spell it is
  * and its icon cost; ones you can't use are dimmed, and pressing one
  * shakes it. Number keys pick a category, then a spell; Escape goes back.
  */
@@ -36,7 +38,9 @@ export class HeroPanel {
   /** The category whose menu is open, if any. */
   private open: Element | null = null;
   /** What the number keys choose: categories, or the open category's spells. */
-  private choices: (() => void)[] = [];
+  private choices: ((() => void) | undefined)[] = [];
+  /** Height of the category slots, kept while a category menu is open. */
+  private categoriesHeight = 0;
 
   onCast: (spellId: string) => void = () => {};
   onItem: (itemId: string) => void = () => {};
@@ -115,7 +119,7 @@ export class HeroPanel {
       back.append(
         iconElement(ELEMENT_ICONS[menu.category], 2, ELEMENT_NAMES[menu.category]),
         el('b', { text: '◀' }),
-        el('kbd', { text: 'Esc' }),
+        el('kbd', { className: 'esc', text: 'Esc' }),
       );
       this.spellList.replaceChildren(
         back,
@@ -123,25 +127,40 @@ export class HeroPanel {
           this.spellButton(hero, id, index + 1, usable(id), () => cast(id)),
         ),
       );
+      // Keep the categories' height so the controls below don't jump.
+      this.spellList.style.minHeight = `${this.categoriesHeight}px`;
     } else {
       this.open = null;
-      this.choices = categories.map(({ category, spells }) => {
-        const [only] = spells;
-        return spells.length === 1 && only ? () => cast(only) : () => this.setOpen(category);
-      });
+      // One slot per element, always in the same place; unknown ones are dark.
+      this.choices = [];
       this.spellList.replaceChildren(
-        ...categories.map(({ category, spells }, index) => {
-          const node = this.spellButton(hero, spells[0] ?? '', index + 1, spells.some(usable), () =>
-            this.choices[index]?.(),
-          );
-          if (spells.length > 1) {
-            node.dataset.action = `category-${category}`;
-            node.classList.add('category');
-            node.append(el('span', { className: 'more', text: `+${spells.length - 1}` }));
-          }
-          return node;
-        }),
+        ...(combat
+          ? ELEMENTS.map((element, index) => {
+              const known = categories.find((c) => c.category === element);
+              if (!known) return emptySlot(element, index + 1);
+              const { spells } = known;
+              const [first] = spells;
+              const choose =
+                spells.length === 1 && first ? () => cast(first) : () => this.setOpen(element);
+              this.choices[index] = choose;
+              const node = this.spellButton(
+                hero,
+                first ?? '',
+                index + 1,
+                spells.some(usable),
+                choose,
+              );
+              if (spells.length > 1) {
+                node.dataset.action = `category-${element}`;
+                node.classList.add('category');
+                node.append(el('span', { className: 'more', text: `+${spells.length - 1}` }));
+              }
+              return node;
+            })
+          : []),
       );
+      this.spellList.style.minHeight = '';
+      this.categoriesHeight = this.spellList.offsetHeight;
     }
 
     const items = Object.entries(hero.items).filter(([id]) => {
@@ -184,7 +203,7 @@ export class HeroPanel {
   ): HTMLButtonElement {
     const spell = SPELLS[spellId];
     const cast = heroSpell(hero, spellId);
-    const node = button('', onClick, { title: cast ? `${cast.name} · Lv ${cast.level}` : '' });
+    const node = button('', onClick, { title: cast ? castSummary(cast) : '' });
     node.dataset.action = spellId;
     node.classList.add('spell');
     node.classList.toggle('unusable', !usable);
@@ -192,16 +211,21 @@ export class HeroPanel {
     if (spell && cast) {
       node.append(
         iconElement(ELEMENT_ICONS[spell.category], 3),
-        el(
-          'span',
-          {},
-          el('b', { text: cast.name }),
-          levelPips(spell, cast.level),
-          costIcons(cast.cost),
-        ),
+        el('span', {}, el('b', { text: cast.name }), levelPips(spell, cast.level), spellMeta(cast)),
       );
     }
     node.append(el('kbd', { text: String(hotkey) }));
     return node;
   }
+}
+
+/** A dark slot for an element the hero knows no spell in yet, keeping every key in place. */
+function emptySlot(element: Element, hotkey: number): HTMLButtonElement {
+  const node = button('', () => {}, { disabled: true, title: ELEMENT_NAMES[element] });
+  node.classList.add('spell', 'empty-slot');
+  node.append(
+    iconElement({ icon: ELEMENT_ICONS[element], palette: PALETTES.shadow }, 3),
+    el('kbd', { text: String(hotkey) }),
+  );
+  return node;
 }

@@ -362,6 +362,20 @@ describe('CombatChallenge', () => {
         expect(hero.hp).toBe(1 + Math.floor(dealt * 0.7));
       });
 
+      it('Quake deals its small damage without the level bonus, raised by Power', () => {
+        const { combat, hero } = fight('moonImp'); // neutral to earth
+        hero.level = 9;
+        learnSpell(hero, 'quake');
+        combat.enemyHp = 999;
+        combat.castSpell('quake');
+        expect(999 - combat.enemyHp).toBe(6);
+        hero.spells.quake = at(4, { power: 2 });
+        hero.mana.earth = hero.manaCap;
+        combat.enemyHp = 999;
+        combat.castSpell('quake');
+        expect(999 - combat.enemyHp).toBe(Math.round(26 * 1.4));
+      });
+
       it('clear more rows and freeze longer', () => {
         const { battle, combat, hero } = fight('brute');
         combat.enemyHp = 999;

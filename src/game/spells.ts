@@ -15,7 +15,7 @@
  *   damage (at most all of it); clearRows removes 1 more row at 1, 3 and 5
  *   Effect.
  */
-import type { Element } from '../core/elements';
+import { ELEMENTS, type Element } from '../core/elements';
 import {
   ENHANCEMENT_IDS,
   LEVEL_STEPS,
@@ -204,6 +204,34 @@ export function castEffect(cast: CastSpell): number {
   }
 }
 
+/** A short description of what a cast does, for tooltips, e.g. "Blaze · Lv 2 · 22 damage". */
+export function castSummary(cast: CastSpell): string {
+  const effect = cast.effect;
+  const parts = [cast.name, `Lv ${cast.level}`];
+  switch (effect.kind) {
+    case 'damage':
+      parts.push(`${effect.power} damage`);
+      break;
+    case 'heal':
+      parts.push(`heal ${effect.amount}`);
+      break;
+    case 'clearRows':
+      parts.push(`clear ${effect.rows} rows`, `${effect.power} damage`);
+      break;
+    case 'freeze':
+      parts.push(`${effect.power} damage`, `enemy waits ${effect.pieces}`);
+      break;
+    case 'tailwind':
+      parts.push(`${effect.power} damage`, `slow ${effect.pieces} pieces`);
+      break;
+    case 'drain':
+      parts.push(`${effect.power} damage`, `heal ${Math.round(effect.share * 100)}% of it`);
+      break;
+  }
+  if (cast.surge > 0) parts.push(`+${cast.surge} line effect`);
+  return parts.join(' · ');
+}
+
 function enhancedEffect(
   effect: SpellEffect,
   extra: number,
@@ -268,20 +296,16 @@ export interface SpellCategory {
 const ROLE_ORDER = ['primary', 'support', 'combo'] as const;
 
 /**
- * The hero's spell categories, in the order they first learned a spell in
- * each (so a class's own spell comes first). Unknown spell ids are skipped.
+ * The categories the hero knows spells in, in element order (so each
+ * element keeps its place for every hero). Unknown spell ids are skipped.
  */
 export function spellCategories(hero: Pick<Hero, 'spells'>): SpellCategory[] {
-  const byCategory = new Map<Element, SpellDef[]>();
-  for (const id of Object.keys(hero.spells)) {
-    const spell = SPELLS[id];
-    if (!spell) continue;
-    byCategory.set(spell.category, [...(byCategory.get(spell.category) ?? []), spell]);
-  }
-  return [...byCategory].map(([category, spells]) => ({
-    category,
-    spells: [...spells]
+  const known = Object.keys(hero.spells).flatMap((id) => SPELLS[id] ?? []);
+  return ELEMENTS.flatMap((category) => {
+    const spells = known
+      .filter((spell) => spell.category === category)
       .sort((a, b) => ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role))
-      .map((spell) => spell.id),
-  }));
+      .map((spell) => spell.id);
+    return spells.length ? [{ category, spells }] : [];
+  });
 }

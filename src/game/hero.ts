@@ -3,11 +3,10 @@ import { CLASSES, DEFAULT_CLASS, type HeroClass } from '../data/classes';
 import { ITEMS } from '../data/items';
 import { ENHANCEMENT_IDS, SPELLS, STARTING_SPELLS } from '../data/spells';
 import { STAT_IDS, type StatRanks } from '../data/stats';
-import type { ElementAmounts, ItemDef, SpellDef } from '../data/types';
+import type { ElementAmounts, ItemDef } from '../data/types';
 import { ALIGNMENT_TITLES, alignmentOf, titleElementFor } from './alignment';
 import { isValidSkillPlan, skillPlanCost, type SkillPlan } from './skills';
 import {
-  castSpellFor,
   enhancements,
   isReady,
   knownSpell,
@@ -209,14 +208,6 @@ export function fillMana(hero: Hero): void {
 
 export function manaFull(hero: Hero): boolean {
   return ELEMENTS.every((e) => hero.mana[e] >= hero.manaCap);
-}
-
-/**
- * What a spell costs this hero: its cost at their level of it, less
- * Efficiency enhancements. An unknown spell costs its level 1 price.
- */
-export function spellCost(hero: Pick<Hero, 'spells'>, spell: SpellDef): ElementAmounts {
-  return castSpellFor(spell, knownSpell(hero, spell.id) ?? newKnownSpell()).cost;
 }
 
 export function canAfford(hero: Hero, cost: ElementAmounts): boolean {

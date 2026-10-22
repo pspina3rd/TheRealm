@@ -15,6 +15,7 @@ import {
   ITEM_ICONS,
   MOVE_ICONS,
   PALETTES,
+  SPELL_KIND_ICONS,
   STAT_ICONS,
   iconPixels,
   itemIcon,
@@ -22,6 +23,7 @@ import {
 } from '../src/ui/art/icons';
 import { ENEMIES } from '../src/data/enemies';
 import { ITEMS } from '../src/data/items';
+import { SPELLS } from '../src/data/spells';
 import { STAT_IDS } from '../src/data/stats';
 import { CRYSTAL_HEX } from '../src/ui/crystals';
 
@@ -50,6 +52,12 @@ describe('icons', () => {
     for (const icon of icons) expect(ICONS[icon]).toBeDefined();
     const moves = Object.values(ENEMIES).flatMap((enemy) => enemy.moves.map((m) => m.kind));
     for (const kind of moves) expect(ICONS[MOVE_ICONS[kind].icon], kind).toBeDefined();
+  });
+
+  it('gives every kind of spell an icon', () => {
+    const kinds = Object.values(SPELLS).map((s) => s.levels[0].effect.kind);
+    expect(Object.keys(SPELL_KIND_ICONS).sort()).toEqual([...new Set(kinds)].sort());
+    for (const spec of Object.values(SPELL_KIND_ICONS)) expect(ICONS[spec.icon]).toBeDefined();
   });
 
   it('gives every item an icon, with valid shapes and badges', () => {

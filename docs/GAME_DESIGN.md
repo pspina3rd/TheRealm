@@ -148,11 +148,13 @@ skill points.
 ### Hero magic
 
 Damage spells deal power + 2×level, scaled by the enemy's weakness or
-resistance to the spell's element (its category).
+resistance to the spell's element (its category). Spells that clear rows
+(the Quake line) get no level bonus, so their damage stays small.
 
 Spells sit in **categories**, one per element. Each element has a
-**primary** spell with four levels, each with its own name; power,
-healing, rows and pieces grow about ×1.6 a level and the cost +2 a level.
+**primary** spell with four levels, each with its own name; power and
+healing grow about ×1.6 a level, rows and pieces by about 1 every level or
+two, and the cost +2 a level.
 A category can also hold **supports** (none yet) and **combos**, spells of
 several elements that cost each one's mana.
 
@@ -173,15 +175,20 @@ then rows or pieces after the slash.
 | ------ | -------- | ------------------- | ------------------------- | --------- | -------------- |
 | Meteor | Fire     | Fire, earth, arcane | 6 fire, 6 earth, 6 arcane | 58 damage | Not placed yet |
 
-- **Battle menu**: one button per category the hero knows, showing its
-  element, its best spell's name, level pips and cost, dimmed when nothing
-  in it can be cast. A category with several spells (a +N badge) opens its
-  menu: the primary at its level, then supports and combos, each with
-  level pips and cost. A category with one spell casts it straight away.
-  Keys 1–7 pick a category, then 1–n a spell; Escape (or the ◀ button)
-  goes back. Casting closes the menu and counts as an action.
+- **Battle menu**: seven fixed slots, one per element in chart order
+  (fire, water, lightning, nature, earth, arcane, wind), so keys 1–7
+  always mean the same element. A slot shows its element, its best
+  spell's name, level pips, a kind icon (burst damage, heart heal, fang
+  drain, hourglass freeze, boot tailwind, stone piece clear rows) and the
+  cost, dimmed when nothing in it can be cast. An element with no known
+  spell is a dark silhouette. A slot with several spells (a +N badge)
+  opens its menu: the primary at its level, then supports and combos;
+  the panel keeps its height. A slot with one spell casts it straight
+  away. Then 1–n picks a spell; Escape (or the ◀ button) goes back.
+  Casting closes the menu and counts as an action. Tooltips give a short
+  summary, e.g. "Blaze · Lv 2 · 22 damage".
 - **Spellbook** (menu): every known spell at its level, with level pips,
-  cost, a scroll and a glowing frame when ready, and a lock when its
+  kind icon, cost, a scroll and a glowing frame when ready, and a lock when its
   category is locked.
 
 ### Enhancements
@@ -223,8 +230,8 @@ Enhancing a spell makes it **ready** for its next level:
   will (stage 4).
 - **Skill screen**: each spell shows its level pips, the points one
   enhancement costs, step pips (bought, staged in green), and per
-  attribute its icon, current value, pips (the required one ringed) and
-  −/+. When an attribute can take no more, focus moves on to the next
+  attribute its icon, current value (Efficiency shows the mana taken off,
+  e.g. −1, then the cost left), pips (the required one ringed) and −/+. When an attribute can take no more, focus moves on to the next
   attribute's +, so Enter can walk a step from the keyboard. A ready
   spell glows and shows a scroll.
 

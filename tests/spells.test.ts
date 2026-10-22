@@ -15,7 +15,6 @@ import {
   heroAlignment,
   learnSpell,
   raiseSpellLevel,
-  spellCost,
   spendSkillPoints,
   type Hero,
 } from '../src/game/hero';
@@ -34,6 +33,7 @@ import {
   castEffect,
   castPower,
   castSpellFor,
+  castSummary,
   enhancements,
   fitsStep,
   heroSpell,
@@ -190,6 +190,20 @@ describe('enhancements', () => {
   });
 });
 
+describe('castSummary', () => {
+  const summary = (id: string, level = 1, kept = {}) =>
+    castSummary(castSpellFor(spell(id), at(level, {}, kept)));
+
+  it('names the spell, its level and what it does', () => {
+    expect(summary('fire', 2)).toBe('Blaze · Lv 2 · 22 damage');
+    expect(summary('cure', 1, { effect: 1 })).toBe('Cure · Lv 1 · heal 20 · +3 line effect');
+    expect(summary('quake')).toBe('Quake · Lv 1 · clear 2 rows · 6 damage');
+    expect(summary('blizzard')).toBe('Blizzard · Lv 1 · 18 damage · enemy waits 3');
+    expect(summary('gale')).toBe('Gale · Lv 1 · 10 damage · slow 5 pieces');
+    expect(summary('shadow')).toBe('Shadow Drain · Lv 1 · 18 damage · heal 50% of it');
+  });
+});
+
 describe('level steps', () => {
   const fire = spell('fire');
 
@@ -242,15 +256,15 @@ describe('the hero’s spells', () => {
 
   it('cost what their level and Efficiency say', () => {
     const hero = heroWith(0, { fire: at(2, { efficiency: 1 }) });
-    expect(spellCost(hero, spell('fire'))).toEqual({ fire: 7 });
+    expect(heroSpell(hero, 'fire')?.cost).toEqual({ fire: 7 });
   });
 
-  it('group into categories in learning order, primary first', () => {
+  it('group into categories in element order, primary first', () => {
     const hero = heroWith(0, knownSpells('gale', 'meteor', 'cure', 'fire', 'nope'));
     expect(spellCategories(hero)).toEqual([
-      { category: 'wind', spells: ['gale'] },
       { category: 'fire', spells: ['fire', 'meteor'] },
       { category: 'nature', spells: ['cure'] },
+      { category: 'wind', spells: ['gale'] },
     ]);
   });
 

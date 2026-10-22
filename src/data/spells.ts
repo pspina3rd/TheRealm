@@ -4,8 +4,9 @@ import type { SpellDef, SpellEffect } from './types';
  * Every spell in the game, keyed by id. Each costs mana from specific
  * elemental pools, which you fill by clearing crystals of that element.
  *
- * Each element's primary spell has four levels: power, healing or rows
- * grow about ×1.6 a level and the cost +2 a level. The rules for levels
+ * Each element's primary spell has four levels: power and healing grow
+ * about ×1.6 a level, rows and pieces by about 1 every level or two, and
+ * the cost +2 a level. The rules for levels
  * and enhancements live in `src/game/spells.ts`.
  */
 export const SPELLS: Readonly<Record<string, SpellDef>> = {
