@@ -84,7 +84,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       },
       lose: "Too thin. They'll never take.",
     },
-    challenge: { kind: 'barter', wants: { green: 8 }, pieceLimit: 21 },
+    challenge: { kind: 'barter', wants: { green: 7 }, pieceLimit: 21 },
     rewards: [{ kind: 'item', itemId: 'herb', count: 2 }],
     bonus: { kind: 'item', itemId: 'herb', count: 1 },
     secret: { kind: 'item', itemId: 'groveCharm', count: 1 },

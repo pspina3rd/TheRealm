@@ -102,11 +102,11 @@ export class CombatChallenge implements Challenge {
     this.nextMove = ctx.rng.pick(def.moves);
   }
 
-  /** True once a boss has fallen to its enrage threshold (see `EnemyDef.enrage`). */
-  get enraged(): boolean {
-    const enrage = this.enemy.enrage;
-    return !!enrage && this.enemyHp > 0 && this.enemyHp <= this.enemy.hp * enrage.below;
-  }
+  /**
+   * True once a boss has fallen to its enrage threshold (see
+   * `EnemyDef.enrage`); it stays enraged even if it heals back above it.
+   */
+  enraged = false;
 
   /** Pieces between the enemy's moves: fewer once enraged. */
   private get actEvery(): number {
@@ -388,11 +388,12 @@ export class CombatChallenge implements Challenge {
     element: Element | null,
     affinity: 'weak' | 'resist' | null,
   ): void {
-    const wasEnraged = this.enraged;
     this.enemyHp -= amount;
     this.ctx.emit({ kind: 'enemyHit', amount, element, affinity });
+    const enrage = this.enemy.enrage;
     if (this.enemyHp <= 0) this.ctx.emit({ kind: 'enemyDefeated' });
-    else if (this.enraged && !wasEnraged) {
+    else if (enrage && !this.enraged && this.enemyHp <= this.enemy.hp * enrage.below) {
+      this.enraged = true;
       this.countdown = Math.min(this.countdown, this.actEvery);
       this.ctx.emit({ kind: 'enrage' });
     }

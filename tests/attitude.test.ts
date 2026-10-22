@@ -303,7 +303,7 @@ describe('encounters on terms', () => {
     expect(wary).toMatchObject({
       attitude: 'wary',
       text: npc.lines.intro.cold,
-      spec: { wants: { green: 10 } },
+      spec: { wants: { green: 9 } },
     });
     const warm = describeInteraction(stateFor(npc, 'friendly'), entityOf('farmer'));
     expect(warm).toMatchObject({ text: npc.lines.intro.warm, extras: [npc.bonus] });

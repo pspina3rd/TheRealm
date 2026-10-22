@@ -5,7 +5,7 @@
  * its slot is a dark silhouette; once revealed, the mentor teaches it.
  */
 import type { Element } from '../core/elements';
-import type { MentorDef } from '../data/mentors';
+import { MENTORS, type MentorDef } from '../data/mentors';
 import { SPELLS } from '../data/spells';
 import type { SpellDef } from '../data/types';
 import { featCount } from './feats';
@@ -71,14 +71,40 @@ export function hiddenState(spell: SpellDef, seeker: Seeker): HiddenState {
 export interface HiddenSlot {
   readonly spell: SpellDef;
   readonly state: Exclude<HiddenState, 'known'>;
+  /** For a still-hidden board-feat unlock: feats done so far, of those needed (shown as pips). */
+  readonly progress?: { readonly have: number; readonly want: number };
 }
 
 /** The hidden spells the hero doesn't know yet (only `element`'s if given), in element order. */
 export function hiddenSlots(seeker: Seeker, element?: Element): HiddenSlot[] {
   return hiddenSpells(element).flatMap((spell): HiddenSlot[] => {
     const state = hiddenState(spell, seeker);
-    return state === 'known' ? [] : [{ spell, state }];
+    if (state === 'known') return [];
+    const unlock = spell.hidden;
+    return [
+      unlock?.kind === 'pattern' && state === 'hidden'
+        ? {
+            spell,
+            state,
+            progress: { have: featCount(seeker.hero, unlock.feat), want: unlock.count },
+          }
+        : { spell, state },
+    ];
   });
+}
+
+/**
+ * The mentor who wants `itemId` to reveal one of their hidden spells not
+ * yet revealed, or null (so the shop can warn before it is sold).
+ */
+export function wantedBy(seeker: Seeker, itemId: string): MentorDef | null {
+  const spell = hiddenSpells().find(
+    (s) =>
+      s.hidden?.kind === 'item' &&
+      s.hidden.itemId === itemId &&
+      hiddenState(s, seeker) === 'hidden',
+  );
+  return Object.values(MENTORS).find((m) => m.element === spell?.category) ?? null;
 }
 
 /**

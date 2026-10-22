@@ -1376,6 +1376,12 @@ dialog {
   opacity: 0.5;
 }
 
+.hidden-spell .progress-pips {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--gold);
+}
+
 .hidden-spell.unlocked {
   border: 1px solid var(--glow);
   box-shadow: 0 0 10px var(--glow);

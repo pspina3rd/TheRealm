@@ -92,9 +92,9 @@ describe('revealing hidden spells', () => {
     expect(isRevealed(spell('volcano'), s)).toBe(true);
   });
 
-  it('pattern: Ball Lightning after 4 pure lightning lines, Tempest after a hasted clear', () => {
+  it('pattern: Ball Lightning after 2 pure lightning lines, Tempest after a hasted clear', () => {
     const s = seeker();
-    s.hero.feats = { 'pure.lightning': 3, 'pure.fire': 9 };
+    s.hero.feats = { 'pure.lightning': 1, 'pure.fire': 9 };
     expect(isRevealed(spell('ballLightning'), s)).toBe(false);
     expect(isRevealed(spell('tempest'), s)).toBe(false);
     recordFeats(s.hero, ['pure.lightning', 'hastedClear']);
@@ -163,25 +163,24 @@ describe('silhouettes', () => {
 });
 
 describe('board feats', () => {
-  it('counts a cleared line with 8 or more crystals of one element as pure', () => {
+  it('counts a cleared line with 7 or more crystals of one element as pure', () => {
     expect(
       featsOfLock(
-        lock([{ gold: 10 }, { gold: 8, red: 2 }, { cyan: 8, stone: 2 }, { gold: 7, red: 3 }]),
+        lock([{ gold: 10 }, { gold: 7, red: 3 }, { cyan: 7, stone: 3 }, { gold: 6, red: 4 }]),
         false,
       ),
     ).toEqual(['pure.lightning', 'pure.lightning', 'pure.wind']);
-    expect(featsOfLock(lock([{ stone: 10 }, { gold: 7, stone: 3 }]), false)).toEqual([]);
+    expect(featsOfLock(lock([{ stone: 10 }, { gold: 6, stone: 4 }]), false)).toEqual([]);
   });
 
-  it('counts a clear of three or more lines only under haste', () => {
-    const triple = lock([
-      { red: 5, cyan: 5 },
+  it('counts a clear of two or more lines only under haste', () => {
+    const double = lock([
       { red: 5, cyan: 5 },
       { red: 5, cyan: 5 },
     ]);
-    expect(featsOfLock(triple, true)).toEqual(['hastedClear']);
-    expect(featsOfLock(triple, false)).toEqual([]);
-    expect(featsOfLock(lock(triple.lines.slice(1)), true)).toEqual([]);
+    expect(featsOfLock(double, true)).toEqual(['hastedClear']);
+    expect(featsOfLock(double, false)).toEqual([]);
+    expect(featsOfLock(lock(double.lines.slice(1)), true)).toEqual([]);
   });
 
   it('adds up over the hero’s life', () => {
@@ -216,7 +215,7 @@ describe('mentors teaching hidden spells', () => {
   it('offers a hidden spell only once revealed, one harder than usual', () => {
     const s = seeker('thunder', 'static');
     expect(lessonsFor(s, mentor('rook'))).toEqual([]);
-    s.hero.feats['pure.lightning'] = 4;
+    s.hero.feats['pure.lightning'] = 2;
     expect(lessonsFor(s, mentor('rook'))).toEqual([
       { spellId: 'ballLightning', level: 1, difficulty: 2 },
     ]);
@@ -250,7 +249,9 @@ describe('mentors teaching hidden spells', () => {
   it('shows the mentor’s unrevealed hidden spells as silhouettes', () => {
     const state = newGame('ranger');
     const selene = { id: 'mentor:selene', kind: 'mentor' as const, mentorId: 'selene', x: 0, y: 0 };
-    expect(describeInteraction(state, selene)).toMatchObject({ silhouettes: [spell('eclipse')] });
+    expect(describeInteraction(state, selene)).toMatchObject({
+      silhouettes: [{ spell: spell('eclipse'), state: 'hidden' }],
+    });
     state.flags.add(giftFlag('eclipse'));
     expect(describeInteraction(state, selene)).toMatchObject({
       silhouettes: [],
@@ -265,7 +266,7 @@ describe('a mentor who noticed seeks the hero out', () => {
   function noticed(map: string, x = 1, y = 1): GameState {
     const state = newGame('ranger');
     Object.assign(state, { mapId: map, x, y });
-    state.hero.feats['pure.lightning'] = 4;
+    state.hero.feats['pure.lightning'] = 2;
     return state;
   }
 

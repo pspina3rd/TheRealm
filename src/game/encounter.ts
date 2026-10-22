@@ -5,7 +5,7 @@ import type { Rng } from '../core/rng';
 import { ENEMIES } from '../data/enemies';
 import { MENTORS, type MentorDef } from '../data/mentors';
 import { NPCS } from '../data/npcs';
-import type { ChallengeSpec, NpcDef, Reward, SpellDef } from '../data/types';
+import type { ChallengeSpec, NpcDef, Reward } from '../data/types';
 import type { EntityDef } from '../world/map';
 import { markDefeated, travel, type GameState } from '../world/state';
 import {
@@ -19,7 +19,7 @@ import {
   type Attitude,
 } from './attitude';
 import { FINALE_FLAG, epilogueFor, type Epilogue } from './ending';
-import { hiddenSlots } from './hidden';
+import { hiddenSlots, type HiddenSlot } from './hidden';
 import { addItem, fillMana, gainXp, itemCount, removeItem } from './hero';
 import { completeLesson, lessonsFor, type Lesson } from './lessons';
 import { grantRewards, type Gain } from './rewards';
@@ -51,7 +51,7 @@ export type Interaction =
       /** The lesson the hero lost here and must win to lift the lock, if any. */
       readonly failed: FailedLesson | null;
       /** The mentor's hidden spells still unrevealed, shown as silhouettes. */
-      readonly silhouettes: readonly SpellDef[];
+      readonly silhouettes: readonly HiddenSlot[];
     })
   /** Offer a battle the player can accept or decline. */
   | (Speaker & {
@@ -129,9 +129,9 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
   if (entity.kind === 'mentor') {
     const mentor = mentorFor(entity);
     const lessons = lessonsFor(state, mentor);
-    const silhouettes = hiddenSlots(state, mentor.element)
-      .filter((slot) => slot.state === 'hidden')
-      .map((slot) => slot.spell);
+    const silhouettes = hiddenSlots(state, mentor.element).filter(
+      (slot) => slot.state === 'hidden',
+    );
     const speaker = { title: mentor.name, sprite: mentor.sprite, text: mentor.motive };
     return lessons.length + silhouettes.length > 0
       ? {

@@ -26,22 +26,36 @@ export interface Epilogue {
   readonly level: number;
   /** How many spells the hero knows. */
   readonly spells: number;
-  /** The mentors whose magic the hero learned (an element beyond their start). */
+  /** The mentors whose lessons the hero won (see `mentorsTaught`). */
   readonly mentors: readonly MentorDef[];
   readonly speaker: { readonly name: string; readonly sprite: string; readonly text: string };
 }
 
+/**
+ * The mentors whose lessons the hero won, derived without a saved record:
+ * only a lesson raises a spell past level 1, and only a lesson teaches a
+ * spell that is neither a starting spell nor an NPC's reward. (A tome an
+ * old save still holds could also teach one; that is the one exception.)
+ */
+export function mentorsTaught(hero: Hero): MentorDef[] {
+  const elsewhere = new Set([
+    heroClass(hero).spell,
+    ...STARTING_SPELLS,
+    ...Object.values(NPCS).flatMap((npc) =>
+      npc.rewards.flatMap((r) => (r.kind === 'spell' ? [r.spellId] : [])),
+    ),
+  ]);
+  const taught = new Set(
+    Object.entries(hero.spells).flatMap(([id, known]) => {
+      const spell = SPELLS[id];
+      return spell && (known.level > 1 || !elsewhere.has(id)) ? [spell.category] : [];
+    }),
+  );
+  return Object.values(MENTORS).filter((mentor) => taught.has(mentor.element));
+}
+
 /** The epilogue for this hero. */
 export function epilogueFor(hero: Hero): Epilogue {
-  const start = new Set([heroClass(hero).spell, ...STARTING_SPELLS]);
-  const learned = new Set(
-    Object.keys(hero.spells)
-      .filter((id) => !start.has(id))
-      .flatMap((id) => {
-        const spell = SPELLS[id];
-        return spell ? [spell.category] : [];
-      }),
-  );
   const speaker = NPCS[FINALE_WORDS.npcId];
   return {
     title: heroTitle(hero),
@@ -49,7 +63,7 @@ export function epilogueFor(hero: Hero): Epilogue {
     classSprite: heroClass(hero).sprite,
     level: hero.level,
     spells: Object.keys(hero.spells).length,
-    mentors: Object.values(MENTORS).filter((mentor) => learned.has(mentor.element)),
+    mentors: mentorsTaught(hero),
     speaker: {
       name: speaker?.name ?? '',
       sprite: speaker?.sprite ?? '',

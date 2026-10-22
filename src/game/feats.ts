@@ -14,9 +14,9 @@ import type { FeatId } from '../data/types';
 import type { Hero } from './hero';
 
 /** Crystals of one element (of a line's 10 cells) that make the line pure. */
-export const PURE_CELLS = 8;
+export const PURE_CELLS = 7;
 /** Lines cleared at once under haste that count as a hasted clear. */
-export const HASTED_LINES = 3;
+export const HASTED_LINES = 2;
 
 /** Feat id → times done. Plain data so it can be saved as JSON. */
 export type Feats = Partial<Record<FeatId, number>>;

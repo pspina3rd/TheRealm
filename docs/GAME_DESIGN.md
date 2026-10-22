@@ -362,16 +362,17 @@ revealed, its element's mentor teaches it (difficulty one above the usual:
 | -------------- | --------- | ------------------ | --------------- | ------------------------------------------------------------ | --------- | ------------------------------------------------------------- |
 | Volcano        | Fire      | Combo (fire+earth) | 6 fire, 6 earth | Clears the bottom 3 rows, 40 fire damage (no level bonus)    | Alignment | Fire 4 and earth 4                                            |
 | Purify         | Water     | Support            | 5 water         | Every stone on the board becomes a water crystal             | Quest     | Shrine Keeper Ilse's barter in Brightwater (`shrineRestored`) |
-| Ball Lightning | Lightning | Support            | 6 lightning     | 2 damage per lightning crystal on the board (no level bonus) | Pattern   | 4 pure lightning lines over the hero's life                   |
+| Ball Lightning | Lightning | Support            | 6 lightning     | 2 damage per lightning crystal on the board (no level bonus) | Pattern   | 2 pure lightning lines over the hero's life                   |
 | Bloom          | Nature    | Support            | 7 nature        | Heals 6 after each of the next 8 pieces                      | Item      | Bring a Spore Cap to Hazel                                    |
 | Fault Line     | Earth     | Support            | 5 earth         | For 4 pieces every element strikes as a weakness             | Stat      | Insight 5                                                     |
 | Eclipse        | Arcane    | Support            | 9 arcane        | 36 damage, heals all of it                                   | Item      | Bring a Moon Shard to Selene                                  |
-| Tempest        | Wind      | Support            | 7 wind          | 34 damage, tailwind 8 (cancels haste)                        | Pattern   | A clear of 3+ lines at once under the enemy's haste           |
+| Tempest        | Wind      | Support            | 7 wind          | 34 damage, tailwind 8 (cancels haste)                        | Pattern   | A clear of 2+ lines at once under the enemy's haste           |
 
 - **Silhouettes**: until revealed, a hidden spell's slot is a dark
   silhouette of its element with a faint hint of what kind of thing
   reveals it (eye: a stat, star: alignment, piece: a board feat, scroll: a
-  quest, bag: an item); never its name or condition. Revealed but untaught,
+  quest, bag: an item); never its name or condition. A board-feat slot
+  also shows progress pips (●○ = 1 of 2 done). Revealed but untaught,
   it lights up in its element's colour with its mentor's face. It shows in
   the spellbook (after its element's spells), at the end of an open
   category menu in battle, and in its mentor's lesson list (where a
@@ -379,16 +380,18 @@ revealed, its element's mentor teaches it (difficulty one above the usual:
   unlocked / known.
 - **Feats** (`hero.feats`, saved): fights and lessons (not puzzles,
   trades or haggles, whose preset or forgiving boards could be replayed)
-  count each cleared line with at least 8 of its 10 cells one element
+  count each cleared line with at least 7 of its 10 cells one element
   (`pure.<element>`; stone and other colours just don't count toward it)
-  and each clear of 3+ lines at once made while the enemy's haste is on
+  and each clear of 2+ lines at once made while the enemy's haste is on
   (`hastedClear`; older saves' `hastedQuad` carries over). Both were
-  tuned so normal play reaches them: a strict all-one-element line or a
-  hasted four-line clear never happened in two full playthroughs. Crystals Purify makes from stone count as
+  tuned so an attentive player reaches them: with stricter rules (all one
+  element, then 8 of 10; a hasted four- then three-line clear) four full
+  playthroughs of ~60 fights each never got there. Crystals Purify makes from stone count as
   water; no hidden spell needs pure water lines.
 - **Items**: walking into the mentor with the item first asks: the item,
   an arrow and the mentor's face, with **Give** or **Keep** (so the hero
-  can hold on to it). Giving hands it over (shown under their
+  can hold on to it). In a shop's Sell list such an item carries the
+  wanting mentor's small face, so it isn't sold by accident. Giving hands it over (shown under their
   speech) and reveals the spell for good (`gift:<spell>` flag); keeping
   goes on to the usual conversation and asks again next time.
 - **Running effects**: a heal-over-time keeps whichever of Regen and
@@ -530,7 +533,7 @@ line shows over the map.
 | NPC                | Element   | Need                                      | Challenge                      | Reward (bonus / secret)                           |
 | ------------------ | --------- | ----------------------------------------- | ------------------------------ | ------------------------------------------------- |
 | Elder Rowan        | Earth     | Spores choke the village well             | Puzzle: clear the spore field  | Quake, or the Well Stone (Ether / Spore Cap)      |
-| Farmer Bea         | Nature    | Blight left her herb beds bare            | Barter: plant 8 green          | 2 Herbs (Herb / Grove Charm)                      |
+| Farmer Bea         | Nature    | Blight left her herb beds bare            | Barter: plant 7 green          | 2 Herbs (Herb / Grove Charm)                      |
 | Pip                | Wind      | His crystal tower is jammed before supper | Puzzle: unjam the tower        | Ether (Herb / Wind Charm)                         |
 | Stall Keeper Odo   | Nature    | Makes his living at the stall             | Haggle                         | Mossvale Stall (secret: Iron Sword)               |
 | Merchant Lio       | Water     | Must clear stock before the barges come   | Haggle                         | Brightwater Goods (secret: Crystal Mail)          |
@@ -570,13 +573,17 @@ above 1 adds 50% HP and 2 attack. They were softened after playtests
 lost 18 of 25 lessons while winning 77 of 79 fights.
 
 **Balance after two full playthroughs** (Ranger, Knight): the Moon Wyrm
-fell first try at level 7, so it now has 260 HP (was 160) and attack 15
+fell first try at level 7, so it now has 300 HP (was 160) and attack 15
 (13), and **enrages** below half HP: it acts every 2 pieces instead of 3
 and its curse pushes 3 stone rows instead of 2 (generic
 `EnemyDef.enrage`; the battle shows "Enraged!" and the wyrm glows a
-pulsing red). Its gil fell to 60 (150). Cave XP rose so heroes reach the
+pulsing red). Once enraged it stays so, even if it heals back above
+half. Its gil fell to 60 (150). Cave XP rose so heroes reach the
 lair around level 8–9: Moon Imp 22 (15), Shade Imp 30 (20), Cave Brute
-40 (28). Spore Caps drop 25% of the time (60%). The Knight starts with 6
+40 (28). Gil still piled up (~330 at Brightwater, ~500 at the end), so
+overworld gil fell 30%: Slime 4 (6), Spore Shroom 6 (9), Goblin Scout 10
+(14); Moon Shards drop 30% of the time (50%) and Spore Caps 15% (60%).
+Farmer Bea wants 7 green (8), which failed in all four runs. The Knight starts with 6
 more base HP (42; 54 with Vitality 2) to soften a harsh opening.
 
 ## Progression
@@ -590,8 +597,11 @@ tomes. The Sunken Ruins are sealed as the hook for the next region.
 **The ending**: beating the Moon Wyrm sets `wyrmBeaten` and, after the
 results (and the skill screen on a level-up), shows the chapter's end:
 the hero's portrait, title element, level and spell count, portraits of
-the mentors whose magic they learned (any element beyond their starting
-spells), and Captain Vale's last word. Back on the map the Sunken Ruins'
+the mentors whose lessons the hero won, and Captain Vale's last word.
+Lessons aren't recorded, so this is derived: only a lesson raises a spell
+past level 1, and only a lesson teaches a spell that is neither a
+starting spell nor an NPC's reward (an old save's tome is the one
+exception). Back on the map the Sunken Ruins'
 seal glows violet and, bumped, says it will open in the next chapter
 (`Warp.stirs`); it stays shut. Routes gated on the wyrm
 (`defeated:c2-wyrm`) still open as before.

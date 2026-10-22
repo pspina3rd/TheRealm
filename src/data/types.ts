@@ -72,7 +72,7 @@ export type HiddenUnlock =
 
 /**
  * A board feat the hero's life counts: a cleared line all of one element
- * (`pure.<element>`: 8 of its 10 cells), or 3+ lines cleared at once under the enemy's haste.
+ * (`pure.<element>`: 7 of its 10 cells), or 2+ lines cleared at once under the enemy's haste.
  */
 export type FeatId = `pure.${Element}` | 'hastedClear';
 

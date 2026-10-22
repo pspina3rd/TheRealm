@@ -96,9 +96,7 @@ export function conversationBody(
             onLesson,
           ),
         ),
-        ...interaction.silhouettes.map((spell) =>
-          hiddenSpellSlot(atlas, { spell, state: 'hidden' }),
-        ),
+        ...interaction.silhouettes.map((slot) => hiddenSpellSlot(atlas, slot)),
       ),
     );
   }

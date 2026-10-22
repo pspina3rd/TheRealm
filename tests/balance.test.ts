@@ -7,7 +7,8 @@ import { makeBattle, setUpVerticalIClear } from './helpers';
 import { createRng } from '../src/core/rng';
 import { MAPS } from '../src/data/maps';
 import { resolveBattle } from '../src/game/encounter';
-import { FINALE_FLAG, FINALE_WORDS } from '../src/game/ending';
+import { FINALE_FLAG, FINALE_WORDS, mentorsTaught } from '../src/game/ending';
+import { hiddenSlots, wantedBy } from '../src/game/hidden';
 import { createHero, heroTitle, learnSpell } from '../src/game/hero';
 import { feedbackFor } from '../src/ui/art/feedback';
 import { warpStirs } from '../src/world/map';
@@ -28,12 +29,15 @@ describe('boss enrage', () => {
     expect(combat.enraged).toBe(true);
     expect(battle.events.filter((e) => e.event.kind === 'enrage')).toHaveLength(1);
     expect(combat.countdown).toBeLessThanOrEqual(2);
+    // Healing back above half doesn't calm it.
+    combat.enemyHp = wyrm.hp;
+    expect(combat.enraged).toBe(true);
   });
 
   it('curses with the enraged row count and acts every 2 pieces', () => {
     const battle = makeBattle({ kind: 'combat', enemyId: 'moonWyrm' });
     const combat = battle.combat!;
-    combat.enemyHp = 10;
+    combat.enraged = true;
     combat.countdown = 1;
     combat.nextMove = { kind: 'curse', name: 'Crystal Tomb', rows: 2 };
     battle.input('hardDrop');
@@ -134,5 +138,34 @@ describe('the ending', () => {
 
   it('shows an enraged boss with a banner', () => {
     expect(feedbackFor({ kind: 'enrage' })).toContainEqual({ kind: 'banner', text: 'Enraged!' });
+  });
+});
+
+describe('final tuning', () => {
+  it('lists only mentors whose lessons were won', () => {
+    const hero = newGame('knight').hero;
+    learnSpell(hero, 'thunder'); // the sage's reward, not a lesson
+    expect(mentorsTaught(hero)).toEqual([]);
+    hero.spells.quake!.level = 2; // only a lesson raises a spell
+    hero.spells.thunder!.level = 2;
+    expect(mentorsTaught(hero).map((m) => m.id)).toEqual(['rook', 'dorn']);
+  });
+
+  it('shows progress on a hidden board-feat spell, and nothing once revealed', () => {
+    const state = newGame();
+    state.hero.feats['pure.lightning'] = 1;
+    const slot = hiddenSlots(state, 'lightning').find((s) => s.spell.id === 'ballLightning');
+    expect(slot?.progress).toEqual({ have: 1, want: 2 });
+    state.hero.feats['pure.lightning'] = 2;
+    expect(hiddenSlots(state, 'lightning')[0]).not.toHaveProperty('progress');
+    expect(hiddenSlots(state, 'nature').every((s) => s.progress === undefined)).toBe(true);
+  });
+
+  it('names the mentor who still wants an item, until its spell is revealed', () => {
+    const state = newGame();
+    expect(wantedBy(state, 'sporeCap')?.id).toBe('hazel');
+    expect(wantedBy(state, 'slimeGel')).toBeNull();
+    state.flags.add('gift:bloom');
+    expect(wantedBy(state, 'sporeCap')).toBeNull();
   });
 });

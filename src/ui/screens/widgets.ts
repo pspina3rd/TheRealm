@@ -273,7 +273,7 @@ export function spellMeta(cast: CastSpell): HTMLElement {
  * of what kind of thing reveals it, or, once revealed, lit in its element's
  * colour with the face of the mentor who will teach it. Never its name.
  */
-export function hiddenSpellSlot(atlas: Atlas, { spell, state }: HiddenSlot): HTMLElement {
+export function hiddenSpellSlot(atlas: Atlas, { spell, state, progress }: HiddenSlot): HTMLElement {
   const element = spell.category;
   const mentor = mentorOf(element);
   if (state === 'unlocked') {
@@ -295,5 +295,15 @@ export function hiddenSpellSlot(atlas: Atlas, { spell, state }: HiddenSlot): HTM
       { className: 'hint' },
       iconElement(UNLOCK_HINT_ICONS[spell.hidden?.kind ?? 'stat'], 2),
     ),
+    ...(progress
+      ? [
+          el('span', {
+            className: 'progress-pips',
+            text:
+              '●'.repeat(Math.min(progress.have, progress.want)) +
+              '○'.repeat(Math.max(0, progress.want - progress.have)),
+          }),
+        ]
+      : []),
   );
 }

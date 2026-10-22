@@ -331,7 +331,7 @@ describe('mentor encounters', () => {
       mentorId: 'torva',
       lessons: [{ spellId: 'fire' }, { spellId: 'wildfire' }],
       failed: null,
-      silhouettes: [SPELLS.volcano],
+      silhouettes: [{ spell: SPELLS.volcano, state: 'hidden' }],
     });
     state.hero.failedLessons = { fire: { spellId: 'wildfire', level: 1 } };
     expect(describeInteraction(state, torva)).toMatchObject({
@@ -341,7 +341,7 @@ describe('mentor encounters', () => {
     state.hero.spells = knownSpells('fire', 'kindle', 'wildfire');
     expect(describeInteraction(state, torva)).toMatchObject({
       lessons: [],
-      silhouettes: [SPELLS.volcano],
+      silhouettes: [{ spell: SPELLS.volcano, state: 'hidden' }],
     });
     // …and once that is known too, the mentor just talks.
     state.hero.spells = knownSpells('fire', 'kindle', 'wildfire', 'volcano');

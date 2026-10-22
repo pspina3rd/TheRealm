@@ -3,6 +3,7 @@ import { ITEMS } from '../../data/items';
 import { ATTITUDE_PRICES, stockFor, type Attitude } from '../../game/attitude';
 import type { ItemDef, ShopDef } from '../../data/types';
 import type { Hero } from '../../game/hero';
+import { wantedBy } from '../../game/hidden';
 import { cannotBuyReason, priceFor, sellPrice, sellableItems } from '../../game/shop';
 import type { GameState } from '../../world/state';
 import type { Atlas } from '../art/atlas';
@@ -57,9 +58,22 @@ function attitudeChip(attitude: Attitude): HTMLElement {
   );
 }
 
+/** A mentor's face on an item they want for a hidden spell, so it isn't sold by accident. */
+function wantedHint(atlas: Atlas, state: GameState, itemId: string): HTMLElement[] {
+  const mentor = wantedBy(state, itemId);
+  if (!mentor) return [];
+  const face = spritePortrait(atlas, mentor.sprite, 24);
+  face.title = mentor.name;
+  return [face];
+}
+
 /** The bag's sellable items, each a card with its count and what the shop pays. */
-function sellSection(hero: Hero, onSell: (itemId: string) => void): HTMLElement[] {
-  const items = sellableItems(hero);
+function sellSection(
+  atlas: Atlas,
+  state: GameState,
+  onSell: (itemId: string) => void,
+): HTMLElement[] {
+  const items = sellableItems(state.hero);
   if (items.length === 0) return [];
   const cards = items.map((item) => {
     const card = button('', () => onSell(item.id), { title: item.description });
@@ -73,7 +87,8 @@ function sellSection(hero: Hero, onSell: (itemId: string) => void): HTMLElement[
         el(
           'span',
           { className: 'chips' },
-          chip('bag', `×${hero.items[item.id] ?? 0}`, 'In your bag'),
+          chip('bag', `×${state.hero.items[item.id] ?? 0}`, 'In your bag'),
+          ...wantedHint(atlas, state, item.id),
         ),
       ),
       el(
@@ -150,6 +165,6 @@ export function shopBody(
       attitudeChip(attitude),
     ),
     el('div', { className: 'shop-cards' }, ...cards),
-    ...sellSection(state.hero, onSell),
+    ...sellSection(atlas, state, onSell),
   ];
 }
