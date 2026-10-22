@@ -41,10 +41,15 @@ describe('describeInteraction', () => {
   it('asks for the item before an offering can start', () => {
     const state = newGame();
     expect(describeInteraction(state, entity('mossvale', 'mv-elder'))).toMatchObject({
-      kind: 'message',
+      kind: 'needsItem',
+      itemId: 'sporeCap',
+      sprite: NPCS.elder!.sprite,
     });
     addItem(state.hero, 'sporeCap');
-    expect(describeInteraction(state, entity('mossvale', 'mv-elder')).kind).toBe('challenge');
+    expect(describeInteraction(state, entity('mossvale', 'mv-elder'))).toMatchObject({
+      kind: 'challenge',
+      rewards: NPCS.elder!.rewards,
+    });
   });
 
   it('shows done text once a one-time NPC is complete', () => {
@@ -53,6 +58,7 @@ describe('describeInteraction', () => {
     expect(describeInteraction(state, entity('mossvale', 'mv-kid'))).toEqual({
       kind: 'message',
       title: 'Pip',
+      sprite: NPCS.kid!.sprite,
       text: NPCS.kid!.doneText,
     });
   });
@@ -83,14 +89,20 @@ describe('resolveBattle', () => {
     expect(activeEntities(state).some((e) => e.id === slime.id)).toBe(false);
   });
 
-  it('announces level-ups and drops', () => {
+  it('reports XP, gil, drops and level-ups as gains', () => {
     const state = newGame();
     const wyrm = entity('caves2', 'c2-wyrm');
     const battle = makeBattle({ kind: 'combat', enemyId: 'moonWyrm' }, state.hero);
     battle.combat!.enemyHp = 0;
-    const { messages } = resolveBattle(state, wyrm, battle, createRng(1));
-    expect(messages.some((m) => m.includes('LEVEL UP'))).toBe(true);
-    expect(messages.some((m) => m.includes('Phoenix Feather'))).toBe(true);
+    const { gains, fell, speech } = resolveBattle(state, wyrm, battle, createRng(1));
+    expect(gains).toEqual([
+      { kind: 'xp', amount: ENEMIES.moonWyrm!.xp },
+      { kind: 'gil', amount: ENEMIES.moonWyrm!.gil },
+      { kind: 'item', itemId: 'phoenixFeather', count: 1 },
+      { kind: 'level', level: state.hero.level },
+    ]);
+    expect(fell).toBe(false);
+    expect(speech).toBeNull();
   });
 
   it('respawns the hero, restored but poorer, on defeat', () => {
@@ -101,6 +113,8 @@ describe('resolveBattle', () => {
     const battle = makeBattle({ kind: 'combat', enemyId: 'slime' }, state.hero);
     const result = resolveBattle(state, entity('overworld', 'ow-slime-1'), battle, createRng(1));
     expect(result.won).toBe(false);
+    expect(result.fell).toBe(true);
+    expect(result.gains).toEqual([{ kind: 'gil', amount: -20 }]);
     expect(state.hero.gil).toBe(21);
     expect(state.hero.hp).toBe(state.hero.maxHp);
     expect(state.mapId).toBe(state.respawn.map);
@@ -125,7 +139,11 @@ describe('resolveBattle', () => {
     expect(itemCount(state.hero, 'sporeCap')).toBe(0);
     expect(state.hero.spells).toContain('quake');
     expect(state.flags.has('npc:elder')).toBe(true);
-    expect(result.messages[0]).toBe(NPCS.elder!.successText);
+    expect(result.speech).toBe(NPCS.elder!.successText);
+    expect(result.gains).toEqual([
+      { kind: 'item', itemId: 'sporeCap', count: -1 },
+      { kind: 'spell', spellId: 'quake' },
+    ]);
   });
 
   it('keeps the item and gives no reward on failure', () => {
@@ -136,7 +154,9 @@ describe('resolveBattle', () => {
     const result = resolveBattle(state, entity('mossvale', 'mv-elder'), battle, createRng(1));
     expect(result).toEqual({
       won: false,
-      messages: [NPCS.elder!.failText],
+      gains: [],
+      speech: NPCS.elder!.failText,
+      fell: false,
       shopId: null,
       priceMultiplier: 1,
     });
@@ -171,8 +191,12 @@ describe('grantRewards', () => {
     expect(state.hero.spells).toContain('meteor');
     expect(state.flags.has('test')).toBe(true);
     expect(out.shopId).toBe('brightwaterInn');
-    // Already-known spells and flags produce no message.
-    expect(out.messages).toHaveLength(3);
+    // Already-known spells and hidden flags produce no gain.
+    expect(out.gains).toEqual([
+      { kind: 'gil', amount: 5 },
+      { kind: 'item', itemId: 'ether', count: 2 },
+      { kind: 'spell', spellId: 'meteor' },
+    ]);
   });
 });
 

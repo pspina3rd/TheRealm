@@ -1,48 +1,40 @@
 import { Battle, type BattleAction } from '../battle/battle';
 import { createRng, type Rng } from '../core/rng';
-import { ITEMS } from '../data/items';
 import { SHOPS } from '../data/shops';
-import { SPELLS } from '../data/spells';
 import { CLASSES } from '../data/classes';
 import { ENEMIES } from '../data/enemies';
 import { NPCS } from '../data/npcs';
 import type { ChallengeSpec } from '../data/types';
-import { describeSpec } from '../battle/describe';
 import { describeInteraction, resolveBattle } from '../game/encounter';
 import { ELEMENTS, ELEMENT_NAMES, type Element } from '../core/elements';
 import { SURGE_DESCRIPTIONS } from '../battle/elemental';
 import { ATTUNEMENT_TITLES } from '../data/classes';
-import {
-  attune,
-  canAttune,
-  cannotUseReason,
-  equip,
-  heroClass,
-  heroTitle,
-  slotFor,
-  spellCost,
-  totalAttack,
-  totalDefense,
-  useItem,
-} from '../game/hero';
+import { attune, canAttune, equip, heroClass, heroTitle, useItem } from '../game/hero';
 import { pieceWeights } from '../game/pieceOdds';
 import { deleteSave, loadGame, saveGame, type KeyValueStore } from '../game/save';
-import { buy, cannotBuyReason, priceFor } from '../game/shop';
+import { buy } from '../game/shop';
 import type { Direction, EntityDef } from '../world/map';
 import { step } from '../world/movement';
 import { currentMap, newGame, travel, type GameState } from '../world/state';
 import { Dialog } from './dialog';
-import { button, byId, el, listRow } from './dom';
+import { button, byId, el } from './dom';
 import { ELEMENT_ICONS } from './art/icons';
 import { BattleView } from './battleView';
 import { iconElement } from './iconDraw';
-import { ManaBars, costIcons } from './manaBars';
+import { ManaBars } from './manaBars';
+import { conversationBody, resultsBody } from './screens/conversation';
+import { menuBody } from './screens/menu';
+import { shopBody } from './screens/shop';
+import { chip, spritePortrait } from './screens/widgets';
+import type { IconId, IconSpec } from './art/icons';
 import type { Atlas } from './art/atlas';
-import { isCreatureId, mapFrame, type CreatureId } from './art/creatures';
+import { isCreatureId, type CreatureId } from './art/creatures';
 import { WorldView } from './worldView';
 
 /** Milliseconds between steps while a direction is held. */
 const WALK_REPEAT_MS = 150;
+/** How long a map banner stays up. */
+const BANNER_MS = 2600;
 
 const KEY_DIRECTIONS: Readonly<Record<string, Direction>> = {
   ArrowUp: 'up',
@@ -105,6 +97,10 @@ export class App {
     this.state = saved ?? newGame();
     this.world = new WorldView(byId<HTMLCanvasElement>('world-canvas'), atlas);
     this.battleView = new BattleView(atlas);
+    byId('hud-hp-icon').replaceChildren(iconElement('heart', 2, 'HP'));
+    byId('hud-xp-icon').replaceChildren(iconElement('star', 2, 'Experience'));
+    byId('hud-gil-icon').replaceChildren(iconElement('coin', 2, 'Gil'));
+    byId('menu-button').replaceChildren(iconElement('bag', 3));
     this.battleView.hero.onCast = (id) => this.tryCombat(id, (c) => c.castSpell(id));
     this.battleView.hero.onItem = (id) => this.tryCombat(id, (c) => c.useItem(id));
     this.bindInput();
@@ -113,7 +109,7 @@ export class App {
   start(): void {
     this.showView('world');
     this.renderHud();
-    this.say(`Welcome to ${currentMap(this.state).name}.`);
+    this.say(currentMap(this.state).name);
     if (!this.started) this.chooseClass();
     requestAnimationFrame((t) => this.frame(t));
   }
@@ -142,7 +138,7 @@ export class App {
 
     if (this.messageTimer > 0) {
       this.messageTimer -= dt;
-      if (this.messageTimer <= 0) byId('world-message').textContent = '';
+      if (this.messageTimer <= 0) byId('world-banner').classList.remove('show');
     }
     requestAnimationFrame((t) => this.frame(t));
   }
@@ -168,12 +164,12 @@ export class App {
       case 'warp':
         travel(this.state, result.to);
         this.heldDirection = null;
-        this.say(`You arrive at ${currentMap(this.state).name}.`);
+        this.say(currentMap(this.state).name);
         this.save();
         this.renderHud();
         break;
       case 'locked':
-        this.say(result.text);
+        this.say(result.text, 'lock');
         break;
       case 'moved':
       case 'blocked':
@@ -188,20 +184,18 @@ export class App {
       this.startBattle(entity, interaction.spec);
       return;
     }
-    if (interaction.kind === 'message') {
+    const body = conversationBody(this.atlas, interaction);
+    if (interaction.kind !== 'challenge') {
       this.dialog.show({
         title: interaction.title,
-        body: interaction.text,
+        body,
         actions: [{ label: 'OK', onClick: () => this.dialog.close() }],
       });
       return;
     }
     this.dialog.show({
       title: interaction.title,
-      body: [
-        interaction.text,
-        el('p', { className: 'muted', text: describeSpec(interaction.spec) }),
-      ],
+      body,
       actions: [
         { label: 'Leave', onClick: () => this.dialog.close() },
         { label: 'Accept', onClick: () => this.startBattle(entity, interaction.spec) },
@@ -227,17 +221,19 @@ export class App {
     const resolution = resolveBattle(this.state, active.entity, active.battle, this.rng);
     this.save();
     this.renderHud();
+    const speaker = portraitFor(active.entity);
     this.dialog.show({
       title: resolution.won ? 'Victory!' : 'Defeat',
-      body: resolution.messages,
+      body: resultsBody(this.atlas, resolution, speaker),
       actions: [
         {
           label: 'Continue',
           onClick: () => {
             this.endBattle();
             if (canAttune(this.state.hero)) this.chooseAttunement();
-            else if (resolution.shopId)
-              this.openShop(resolution.shopId, resolution.priceMultiplier);
+            else if (resolution.shopId) {
+              this.openShop(resolution.shopId, resolution.priceMultiplier, speaker);
+            }
           },
         },
       ],
@@ -249,7 +245,6 @@ export class App {
     this.dialog.close();
     this.active = null;
     this.showView('world');
-    this.say(`You are in ${currentMap(this.state).name}.`);
   }
 
   /** Runs a spell or item; if it can't be used, its button shakes. */
@@ -265,42 +260,20 @@ export class App {
 
   // ----------------------------------------------------------- shops ---
 
-  private openShop(shopId: string, multiplier: number): void {
+  private openShop(shopId: string, multiplier: number, keeper: string | null): void {
     const shop = SHOPS[shopId];
     if (!shop) return;
-    const status = el('p', { className: 'muted' });
-    const render = (): void => {
-      const rows = shop.stock.map((itemId) => {
-        const item = ITEMS[itemId];
-        if (!item) return el('div');
-        const reason = cannotBuyReason(this.state, item, multiplier);
-        return listRow(
-          item.name,
-          item.description,
-          button(
-            `${priceFor(item, multiplier)} G`,
-            () => {
-              status.textContent = buy(this.state, itemId, multiplier);
-              this.save();
-              this.renderHud();
-              render();
-            },
-            { disabled: reason !== null, title: reason ?? 'Buy' },
-          ),
-        );
-      });
+    const render = (): void =>
       this.dialog.show({
         title: shop.name,
-        body: [
-          el('p', {
-            text: `Prices at ${Math.round(multiplier * 100)}% · You have ${this.state.hero.gil} gil.`,
-          }),
-          ...rows,
-          status,
-        ],
+        body: shopBody(this.atlas, this.state, shop, multiplier, keeper ?? '', (itemId) => {
+          buy(this.state, itemId, multiplier);
+          this.save();
+          this.renderHud();
+          render();
+        }),
         actions: [{ label: 'Leave', onClick: () => this.dialog.close() }],
       });
-    };
     render();
   }
 
@@ -308,58 +281,23 @@ export class App {
 
   private openMenu(): void {
     const hero = this.state.hero;
-    const refresh = (message: string): void => {
+    const refresh = (): void => {
       this.save();
       this.renderHud();
       this.openMenu();
-      byId('dialog-body').append(el('p', { className: 'muted', text: message }));
     };
-
-    const items = Object.entries(hero.items).map(([id, count]) => {
-      const item = ITEMS[id];
-      if (!item) return el('div');
-      const controls: HTMLButtonElement[] = [];
-      if (slotFor(item)) {
-        controls.push(
-          button('Equip', () => {
-            equip(hero, id);
-            refresh(`Equipped ${item.name}.`);
-          }),
-        );
-      } else if (item.use) {
-        const reason = cannotUseReason(hero, item);
-        controls.push(
-          button('Use', () => refresh(useItem(hero, id)), {
-            disabled: reason !== null,
-            title: reason ?? item.description,
-          }),
-        );
-      }
-      return listRow(`${item.name} ×${count}`, item.description, ...controls);
-    });
-
-    const gear = (id: string | null): string => (id ? (ITEMS[id]?.name ?? id) : 'none');
     this.dialog.show({
-      title: `${hero.name} · ${heroTitle(hero)} · Level ${hero.level}`,
-      body: [
-        el('p', {
-          text: `Attack ${totalAttack(hero)} · Defence ${totalDefense(hero)} · Mana ${hero.manaCap} per element`,
-        }),
-        el('p', {
-          className: 'muted',
-          text: `Weapon: ${gear(hero.weaponId)} · Armour: ${gear(hero.armorId)} · Charm: ${gear(hero.accessoryId)} · Attunement: ${
-            hero.attunement ? ELEMENT_NAMES[hero.attunement] : 'none yet'
-          }`,
-        }),
-        el('h2', { text: 'Items' }),
-        ...(items.length ? items : [el('p', { className: 'muted', text: 'Your bag is empty.' })]),
-        el('h2', { text: 'Spells' }),
-        ...hero.spells.map((id) => {
-          const spell = SPELLS[id];
-          if (!spell) return el('div');
-          return listRow(spell.name, spell.description, costIcons(spellCost(hero, spell)));
-        }),
-      ],
+      title: 'Menu',
+      body: menuBody(this.atlas, hero, {
+        onUse: (itemId) => {
+          useItem(hero, itemId);
+          refresh();
+        },
+        onEquip: (itemId) => {
+          equip(hero, itemId);
+          refresh();
+        },
+      }),
       actions: [
         ...(canAttune(hero)
           ? [{ label: 'Choose element', onClick: () => this.chooseAttunement() }]
@@ -367,8 +305,10 @@ export class App {
         { label: 'New Game', onClick: () => this.confirmNewGame() },
         {
           label: 'Save',
-          onClick: () =>
-            refresh(this.save() ? 'Game saved.' : 'Saving is unavailable in this browser.'),
+          onClick: () => {
+            refresh();
+            this.say(this.save() ? 'Saved' : 'Saving is unavailable', 'book');
+          },
         },
         { label: 'Close', onClick: () => this.dialog.close() },
       ],
@@ -391,14 +331,7 @@ export class App {
   /** Shows the hero picker; choosing a class starts a new game. */
   private chooseClass(): void {
     const cards = Object.values(CLASSES).map((cls) => {
-      const preview = el('canvas');
-      preview.width = 48;
-      preview.height = 48;
-      const ctx = preview.getContext('2d');
-      if (ctx && isCreatureId(cls.sprite)) {
-        ctx.imageSmoothingEnabled = false;
-        this.atlas.draw(ctx, mapFrame(cls.sprite, 'down', false, 0), 0, 0);
-      }
+      const preview = spritePortrait(this.atlas, cls.sprite, 72);
       const card = button('', () => this.startNewGame(cls.id));
       card.className = 'class-card';
       const { hp, mana, atk, def } = cls.base;
@@ -409,9 +342,15 @@ export class App {
           {},
           el('b', { text: `${cls.name} · ${cls.heroName}` }),
           el('small', { text: cls.description }),
-          el('small', {
-            text: `HP ${hp} · Mana ${mana} each · ATK ${atk} · DEF ${def} · ${cls.gil} gil`,
-          }),
+          el(
+            'span',
+            { className: 'chips' },
+            chip('heart', hp, 'HP'),
+            chip('potion', mana, 'Mana per element'),
+            chip('sword', atk, 'Attack'),
+            chip('ward', def, 'Defence'),
+            chip('coin', cls.gil, 'Gil'),
+          ),
         ),
       );
       return card;
@@ -433,7 +372,7 @@ export class App {
     this.save();
     this.dialog.close();
     this.renderHud();
-    this.say(`${this.state.hero.name}'s adventure begins in Mossvale.`);
+    this.say(currentMap(this.state).name);
   }
 
   // ------------------------------------------------------ attunement ---
@@ -446,7 +385,7 @@ export class App {
         attune(hero, element);
         this.save();
         this.dialog.close();
-        this.say(`${hero.name} is now a ${heroTitle(hero)}!`);
+        this.say(heroTitle(hero), ELEMENT_ICONS[element]);
       });
       option.append(
         iconElement(ELEMENT_ICONS[element], 2),
@@ -464,7 +403,8 @@ export class App {
       title: 'Choose your element',
       body: [
         el('p', {
-          text: `${hero.name} has grown strong enough to attune to an element. Its line effects become 50% stronger, its spells cost 2 less of it, and its pieces fall more often. This choice is permanent.`,
+          className: 'muted',
+          text: 'Stronger lines, cheaper spells and more pieces of one element. This choice is permanent.',
         }),
         el('div', { className: 'attune-grid' }, ...options),
       ],
@@ -479,17 +419,23 @@ export class App {
     byId('hud-name').textContent = hero.name;
     byId('hud-name').title = heroTitle(hero);
     byId('hud-level').textContent = `Lv ${hero.level}`;
-    byId('hud-hp').textContent = `${hero.hp} / ${hero.maxHp}`;
+    byId('hud-hp').textContent = `${hero.hp}/${hero.maxHp}`;
     byId('hud-hp-bar').style.width = `${(100 * hero.hp) / hero.maxHp}%`;
+    byId('hud-xp-bar').style.width = `${(100 * hero.xp) / hero.nextXp}%`;
+    byId('hud-xp').title = `${hero.xp} / ${hero.nextXp} XP`;
     this.hudMana.update(hero);
     byId('hud-gil').textContent = String(hero.gil);
-    byId('hud-xp').textContent = `${hero.xp} / ${hero.nextXp}`;
     byId('hud-place').textContent = currentMap(this.state).name;
   }
 
-  private say(text: string): void {
-    byId('world-message').textContent = text;
-    this.messageTimer = 3500;
+  /** A short banner over the map: a place name, or a notice with an icon. */
+  private say(text: string, icon?: IconId | IconSpec): void {
+    const banner = byId('world-banner');
+    banner.replaceChildren(...(icon ? [iconElement(icon, 2)] : []), el('span', { text }));
+    banner.classList.remove('show');
+    void banner.offsetWidth; // restart the fade
+    banner.classList.add('show');
+    this.messageTimer = BANNER_MS;
   }
 
   private save(): boolean {

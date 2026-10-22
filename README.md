@@ -101,7 +101,8 @@ src/
   game/      Hero, rewards, encounters, shops, save/load
   world/     Map model, tile legend, game state, movement
   data/      All content: enemies, spells, items, NPCs, shops, maps
-  ui/        Canvas renderers, dialogs, battle portrait, app controller
+  ui/        Canvas renderers (world, board, battle stage), HUD, app controller
+  ui/screens/ Conversation, results, menu and shop screens, built from icons
   ui/art/    Art definitions: images, tile themes, props, creatures, effects,
              pixel icons, and battle feedback (event → what the player sees)
 tests/       Vitest unit tests, one file per area

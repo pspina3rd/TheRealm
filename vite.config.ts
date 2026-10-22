@@ -12,7 +12,7 @@ export default defineConfig({
       provider: 'v8',
       include: ['src/**/*.ts'],
       // Rendering and DOM wiring are verified by running the game, not unit tests.
-      exclude: ['src/main.ts', 'src/ui/*.ts', 'src/ui/art/atlas.ts'],
+      exclude: ['src/main.ts', 'src/ui/*.ts', 'src/ui/screens/**', 'src/ui/art/atlas.ts'],
     },
   },
 });

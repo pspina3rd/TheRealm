@@ -7,15 +7,16 @@ export function byId<T extends HTMLElement = HTMLElement>(id: string): T {
   return el as T;
 }
 
-/** Creates an element with optional class and text. */
+/** Creates an element with optional class, text and tooltip. */
 export function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,
-  options: { className?: string; text?: string } = {},
+  options: { className?: string; text?: string; title?: string } = {},
   ...children: (Node | string)[]
 ): HTMLElementTagNameMap[K] {
   const node = document.createElement(tag);
   if (options.className) node.className = options.className;
   if (options.text !== undefined) node.textContent = options.text;
+  if (options.title) node.title = options.title;
   node.append(...children);
   return node;
 }
@@ -32,14 +33,4 @@ export function button(
   if (options.title) node.title = options.title;
   node.addEventListener('click', onClick);
   return node;
-}
-
-/** A list row with a title, a muted subtitle and trailing controls. */
-export function listRow(title: string, subtitle: string, ...controls: Node[]): HTMLDivElement {
-  return el(
-    'div',
-    { className: 'list-row' },
-    el('div', {}, el('b', { text: title }), el('small', { text: subtitle })),
-    el('div', {}, ...controls),
-  );
 }

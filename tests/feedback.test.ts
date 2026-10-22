@@ -8,7 +8,17 @@ import {
   lineColor,
   type Feedback,
 } from '../src/ui/art/feedback';
-import { ELEMENT_ICONS, ICONS, ICON_SIZE, iconPixels, type IconId } from '../src/ui/art/icons';
+import {
+  ELEMENT_ICONS,
+  ICONS,
+  ICON_SIZE,
+  ITEM_ICONS,
+  PALETTES,
+  iconPixels,
+  itemIcon,
+  type IconId,
+} from '../src/ui/art/icons';
+import { ITEMS } from '../src/data/items';
 import { CRYSTAL_HEX } from '../src/ui/crystals';
 
 const kinds = (feedback: Feedback[]) => feedback.map((f) => f.kind);
@@ -28,6 +38,21 @@ describe('icons', () => {
     const icons = ELEMENTS.map((e) => ELEMENT_ICONS[e]);
     expect(new Set(icons).size).toBe(ELEMENTS.length);
     for (const icon of icons) expect(ICONS[icon]).toBeDefined();
+  });
+
+  it('gives every item an icon, with valid shapes and badges', () => {
+    expect(Object.keys(ITEM_ICONS).sort()).toEqual(Object.keys(ITEMS).sort());
+    for (const spec of Object.values(ITEM_ICONS)) {
+      expect(ICONS[spec.icon]).toBeDefined();
+      if (spec.badge) expect(ICONS[spec.badge]).toBeDefined();
+    }
+    expect(itemIcon('nope')).toEqual({ icon: 'bag' });
+  });
+
+  it('recolours a shape with another palette', () => {
+    const copper = iconPixels('sword', undefined, PALETTES.copper).flat();
+    expect(copper).toContain(PALETTES.copper.b);
+    expect(copper).not.toContain(ICONS.sword.palette.b);
   });
 
   it('resolves palette colours, or a single silhouette colour', () => {

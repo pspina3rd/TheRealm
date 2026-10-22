@@ -1,0 +1,147 @@
+import { ELEMENT_NAMES } from '../../core/elements';
+import { ITEMS } from '../../data/items';
+import { SPELLS } from '../../data/spells';
+import {
+  cannotUseReason,
+  heroClass,
+  heroTitle,
+  slotFor,
+  spellCost,
+  totalAttack,
+  totalDefense,
+  type Hero,
+} from '../../game/hero';
+import type { Atlas } from '../art/atlas';
+import { ELEMENT_ICONS, itemIcon, type IconId } from '../art/icons';
+import { button, el } from '../dom';
+import { iconElement } from '../iconDraw';
+import { ManaBars, costIcons } from '../manaBars';
+import { chip, sectionTitle, spritePortrait } from './widgets';
+
+export interface MenuHandlers {
+  readonly onUse: (itemId: string) => void;
+  readonly onEquip: (itemId: string) => void;
+}
+
+/** Name, title, level, stats and XP, with the hero's sprite. */
+function heroCard(atlas: Atlas, hero: Hero): HTMLElement {
+  const xp = el(
+    'div',
+    { className: 'bar xp', title: `${hero.xp} / ${hero.nextXp} XP` },
+    el('span'),
+  );
+  (xp.firstChild as HTMLElement).style.width = `${(100 * hero.xp) / hero.nextXp}%`;
+  return el(
+    'div',
+    { className: 'hero-card' },
+    spritePortrait(atlas, heroClass(hero).sprite, 96),
+    el(
+      'div',
+      {},
+      el('h2', { text: `${hero.name} · Lv ${hero.level}` }),
+      el('p', { className: 'muted', text: heroTitle(hero) }),
+      el(
+        'div',
+        { className: 'chips' },
+        chip('heart', `${hero.hp}/${hero.maxHp}`, 'HP'),
+        chip('sword', totalAttack(hero), 'Attack'),
+        chip('ward', totalDefense(hero), 'Defence'),
+        hero.attunement
+          ? chip(ELEMENT_ICONS[hero.attunement], ELEMENT_NAMES[hero.attunement], 'Attunement')
+          : el('span'),
+      ),
+      el('div', { className: 'xp-row' }, iconElement('star', 2, 'Experience'), xp),
+    ),
+  );
+}
+
+/** Weapon, armour and charm slots; empty slots show a faded outline of what goes there. */
+function equipmentSlots(hero: Hero): HTMLElement {
+  const slots: [IconId, string | null, string][] = [
+    ['sword', hero.weaponId, 'Weapon'],
+    ['armor', hero.armorId, 'Armour'],
+    ['amulet', hero.accessoryId, 'Charm'],
+  ];
+  return el(
+    'div',
+    { className: 'slots' },
+    ...slots.map(([icon, itemId, label]) => {
+      const tile = el('div', {
+        className: `slot${itemId ? '' : ' empty'}`,
+        title: itemId ? `${label}: ${ITEMS[itemId]?.name ?? itemId}` : `${label}: none`,
+      });
+      tile.append(itemId ? iconElement(itemIcon(itemId), 3) : iconElement(icon, 3));
+      return tile;
+    }),
+  );
+}
+
+/**
+ * The menu: the hero card, equipment, mana, an item grid (select an item to
+ * see it and use or equip it) and the spellbook.
+ */
+export function menuBody(atlas: Atlas, hero: Hero, handlers: MenuHandlers): HTMLElement[] {
+  const detail = el('div', { className: 'item-detail' });
+  const select = (itemId: string): void => {
+    const item = ITEMS[itemId];
+    if (!item) return;
+    const controls: HTMLButtonElement[] = [];
+    if (slotFor(item)) controls.push(button('Equip', () => handlers.onEquip(itemId)));
+    else if (item.use) {
+      const reason = cannotUseReason(hero, item);
+      controls.push(
+        button('Use', () => handlers.onUse(itemId), {
+          disabled: reason !== null,
+          title: reason ?? '',
+        }),
+      );
+    }
+    detail.replaceChildren(
+      iconElement(itemIcon(itemId), 3),
+      el(
+        'div',
+        {},
+        el('b', { text: item.name }),
+        el('p', { className: 'muted', text: item.description }),
+      ),
+      ...controls,
+    );
+  };
+
+  const items = Object.entries(hero.items).map(([itemId, count]) => {
+    const tile = button('', () => select(itemId), { title: ITEMS[itemId]?.name ?? itemId });
+    tile.className = 'tile';
+    tile.append(
+      iconElement(itemIcon(itemId), 3),
+      el('span', { className: 'count', text: String(count) }),
+    );
+    return tile;
+  });
+
+  const spells = hero.spells.flatMap((id) => {
+    const spell = SPELLS[id];
+    if (!spell) return [];
+    return [
+      el(
+        'div',
+        { className: 'spell-tile', title: spell.description },
+        iconElement(ELEMENT_ICONS[spell.element], 3),
+        el('span', {}, el('b', { text: spell.name }), costIcons(spellCost(hero, spell))),
+      ),
+    ];
+  });
+
+  const mana = el('div');
+  new ManaBars(mana).update(hero);
+
+  return [
+    heroCard(atlas, hero),
+    equipmentSlots(hero),
+    mana,
+    sectionTitle('bag', 'Items'),
+    el('div', { className: 'tiles' }, ...items),
+    detail,
+    sectionTitle('book', 'Spells'),
+    el('div', { className: 'spell-tiles' }, ...spells),
+  ];
+}

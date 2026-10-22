@@ -9,22 +9,31 @@
   <body>
     <main id="app">
       <header class="hud" aria-label="Hero status">
-        <div class="hud-name"><b id="hud-name">Aster</b> <span id="hud-level">Lv 1</span></div>
-        <div class="hud-bar">
-          <small>HP <span id="hud-hp">40 / 40</span></small>
+        <div class="hud-name"><b id="hud-name"></b> <span id="hud-level"></span></div>
+        <div class="hud-meter">
+          <span id="hud-hp-icon"></span>
           <div class="bar"><span id="hud-hp-bar"></span></div>
+          <small id="hud-hp"></small>
         </div>
         <div id="hud-mana" aria-label="Elemental mana"></div>
-        <div class="hud-stat"><small>Gil</small><b id="hud-gil">25</b></div>
-        <div class="hud-stat"><small>XP</small><b id="hud-xp">0 / 30</b></div>
-        <div class="hud-stat hud-place"><small>Location</small><b id="hud-place">Mossvale</b></div>
-        <button id="menu-button" type="button" aria-haspopup="dialog">Menu (M)</button>
+        <div class="hud-meter" id="hud-xp">
+          <span id="hud-xp-icon"></span>
+          <div class="bar xp"><span id="hud-xp-bar"></span></div>
+        </div>
+        <div class="hud-gil" title="Gil"><span id="hud-gil-icon"></span><b id="hud-gil"></b></div>
+        <div class="hud-place" id="hud-place"></div>
+        <button
+          id="menu-button"
+          type="button"
+          aria-haspopup="dialog"
+          aria-label="Menu"
+          title="Menu (M)"
+        ></button>
       </header>
 
       <section id="world-view" class="view" aria-label="World">
         <canvas id="world-canvas" width="640" height="416"></canvas>
-        <p id="world-message" class="world-message" role="status" aria-live="polite"></p>
-        <p class="muted">Arrows / WASD to walk · walk into anyone to challenge them · M for menu</p>
+        <div id="world-banner" class="world-banner" role="status" aria-live="polite"></div>
       </section>
 
       <section id="battle-view" class="view battle" aria-label="Battle" hidden>

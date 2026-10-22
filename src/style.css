@@ -85,8 +85,8 @@ canvas {
 
 .hud {
   display: grid;
-  grid-template-columns: auto 1fr 1fr auto auto auto auto;
-  gap: 10px;
+  grid-template-columns: auto minmax(120px, 1fr) auto minmax(80px, 0.6fr) auto auto auto;
+  gap: 12px;
   align-items: center;
   background: var(--panel);
   border: 1px solid var(--border);
@@ -95,14 +95,37 @@ canvas {
   margin-bottom: 10px;
 }
 
-.hud small {
-  display: block;
-  color: var(--muted);
+.hud-name b {
+  color: var(--gold);
 }
 
-.hud-name b,
-.hud-stat b {
+.hud-meter {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.hud-meter .bar {
+  margin: 0;
+}
+
+.hud-gil {
+  display: flex;
+  gap: 6px;
+  align-items: center;
   color: var(--gold);
+}
+
+.hud-place {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+#menu-button {
+  justify-self: end;
+  padding: 4px 6px;
+  line-height: 0;
 }
 
 .bar {
@@ -111,6 +134,10 @@ canvas {
   border-radius: 8px;
   overflow: hidden;
   margin: 3px 0;
+}
+
+.bar.xp span {
+  background: var(--gold);
 }
 
 .bar span {
@@ -150,10 +177,35 @@ canvas {
   background: #000;
 }
 
-.world-message {
-  min-height: 1.4em;
-  margin: 8px 0 0;
-  color: var(--gold);
+#world-view {
+  position: relative;
+}
+
+.world-banner {
+  position: absolute;
+  top: 26px;
+  left: 50%;
+  transform: translate(-50%, -8px);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  max-width: 80%;
+  padding: 8px 18px;
+  background: #10132ae6;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.4s,
+    transform 0.4s;
+}
+
+.world-banner.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
 
 .battle {
@@ -452,10 +504,17 @@ dialog h2 {
   }
 
   .hud {
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr minmax(60px, 0.5fr) auto auto;
+    gap: 8px;
   }
 
-  .hud-place {
+  #hud-mana {
+    grid-column: 1 / -1;
+    order: 9;
+  }
+
+  .hud-place,
+  .hud-name {
     display: none;
   }
 
@@ -514,4 +573,286 @@ dialog h2 {
 
 .hud .mana-bars {
   gap: 3px;
+}
+
+/* ----------------------------------------------------------- screens --- */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.chip-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+}
+
+.chip-value.up {
+  color: var(--good);
+}
+
+.chip-value.down {
+  color: var(--bad);
+}
+
+.portrait {
+  image-rendering: pixelated;
+  flex: none;
+}
+
+.speech {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.bubble {
+  position: relative;
+  margin: 0 0 24px;
+  padding: 10px 12px;
+  background: #f4efe2;
+  color: #2a2234;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+.bubble::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  bottom: 12px;
+  border: 8px solid transparent;
+  border-right-color: #f4efe2;
+  border-left: 0;
+}
+
+.deal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.challenge-card,
+.rewards {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--panel-deep);
+  border-radius: 8px;
+}
+
+.challenge-card.missing {
+  margin-top: 12px;
+  opacity: 0.7;
+}
+
+.deal-arrow {
+  font-size: 22px;
+  color: var(--gold);
+}
+
+.price-gauge {
+  display: inline-block;
+  width: 70px;
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #6ff08f, #f5d77b, #ff5c7a);
+}
+
+.line-pips {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.line-pips span {
+  width: 22px;
+  height: 8px;
+  background: #61d9e8;
+  border-radius: 2px;
+}
+
+.gains {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.gain {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 18px;
+  animation: rise 0.4s ease-out both;
+}
+
+.gain:nth-child(2) {
+  animation-delay: 0.12s;
+}
+.gain:nth-child(3) {
+  animation-delay: 0.24s;
+}
+.gain:nth-child(4) {
+  animation-delay: 0.36s;
+}
+.gain:nth-child(5) {
+  animation-delay: 0.48s;
+}
+
+.gain.level-up {
+  color: var(--gold);
+}
+
+.gain.loss {
+  color: var(--bad);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.section-title {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.hero-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.hero-card h2 {
+  margin: 0;
+}
+
+.hero-card p {
+  margin: 0 0 6px;
+}
+
+.xp-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.slots {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.slot {
+  padding: 6px;
+  background: var(--panel-deep);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.slot.empty {
+  opacity: 0.25;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 52px);
+  gap: 6px;
+}
+
+.tile {
+  position: relative;
+  padding: 6px;
+}
+
+.tile .count {
+  position: absolute;
+  right: 3px;
+  bottom: 1px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.item-detail:not(:empty) {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--panel-deep);
+  border-radius: 8px;
+}
+
+.item-detail p {
+  margin: 2px 0 0;
+}
+
+.spell-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+}
+
+.spell-tile {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px;
+  background: var(--panel-deep);
+  border-radius: 8px;
+}
+
+.spell-tile b {
+  display: block;
+}
+
+.shop-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 8px;
+}
+
+.shop-cards {
+  display: grid;
+  gap: 6px;
+}
+
+.shop-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  text-align: left;
+}
+
+.shop-info b {
+  display: block;
+}
+
+.shop-price {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.shop-price s {
+  color: var(--muted);
+}
+
+dialog {
+  width: min(560px, calc(100vw - 32px));
 }
