@@ -3,3 +3,6 @@ dist
 coverage
 *.log
 .DS_Store
+
+# Agent worktrees (local only)
+.claude/worktrees/
