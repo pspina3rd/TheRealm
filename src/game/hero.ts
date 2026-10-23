@@ -179,9 +179,20 @@ export const WALK_REGEN = 1;
 /** …only while below this share of max HP: a broke, battered hero can always recover. */
 export const WALK_REGEN_CAP = 0.5;
 
-/** One step's regeneration (see `WALK_REGEN`). Returns the HP restored. */
-export function walkRegen(hero: Hero): number {
-  const cap = Math.ceil(hero.maxHp * WALK_REGEN_CAP);
+/**
+ * A beginner (below `BEGINNER_LEVEL`) in the starter lands walks back up to
+ * this share instead, so a broke new hero isn't stuck fighting at half HP.
+ */
+export const BEGINNER_REGEN_CAP = 0.8;
+export const BEGINNER_LEVEL = 4;
+
+/**
+ * One step's regeneration (see `WALK_REGEN`), on a starter map (Mossvale or
+ * the Realm) when `starter` is set. Returns the HP restored.
+ */
+export function walkRegen(hero: Hero, starter = false): number {
+  const share = starter && hero.level < BEGINNER_LEVEL ? BEGINNER_REGEN_CAP : WALK_REGEN_CAP;
+  const cap = Math.ceil(hero.maxHp * share);
   if (hero.hp >= cap) return 0;
   return heal(hero, Math.min(WALK_REGEN, cap - hero.hp));
 }

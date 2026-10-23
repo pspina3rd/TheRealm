@@ -11,7 +11,15 @@ import { createRng } from '../../src/core/rng';
 import type { ChallengeSpec } from '../../src/data/types';
 import { SPELLS } from '../../src/data/spells';
 import { dualChance } from '../../src/game/pieceOdds';
-import { createHero, equip, gainXp, addItem, refreshStats, type Hero } from '../../src/game/hero';
+import {
+  addItem,
+  createHero,
+  equip,
+  gainXp,
+  learnSpell,
+  refreshStats,
+  type Hero,
+} from '../../src/game/hero';
 
 /**
  * How the bot plays: `good` builds for 3–4 line clears and casts ready
@@ -222,8 +230,28 @@ function useItems(battle: Battle): void {
 }
 
 /** A hero of `classId` at `level`, with points spread over Strength, Vitality and Guard, and level-fit gear. */
-export function heroAt(level: number, classId = 'ranger'): Hero {
+/**
+ * A late-game mentor kit: nine spells across the elements (fire hits the
+ * Moon Wyrm's weakness), the primaries at level 2.
+ */
+export const FULL_KIT = [
+  'fire',
+  'kindle',
+  'gale',
+  'gust',
+  'thunder',
+  'static',
+  'cure',
+  'regen',
+  'quake',
+] as const;
+
+export function heroAt(level: number, classId = 'ranger', kit: readonly string[] = []): Hero {
   const hero = createHero(classId);
+  for (const id of kit) {
+    learnSpell(hero, id);
+    if (SPELLS[id]?.role === 'primary') hero.spells[id] = { ...hero.spells[id]!, level: 2 };
+  }
   while (hero.level < level) gainXp(hero, hero.nextXp);
   const order = ['strength', 'vitality', 'guard'] as const;
   for (let i = 0; hero.skillPoints > 0; i++) {
@@ -234,10 +262,10 @@ export function heroAt(level: number, classId = 'ranger'): Hero {
     level >= 9
       ? [['flameBrand', 'forgePlate']]
       : level >= 7
-      ? [['knightBlade', 'crystalMail']]
-      : level >= 4
-        ? [['ironSword', 'apprenticeRobe']]
-        : [['copperSword', null]];
+        ? [['knightBlade', 'crystalMail']]
+        : level >= 4
+          ? [['ironSword', 'apprenticeRobe']]
+          : [['copperSword', null]];
   for (const [weapon, armor] of gear) {
     addItem(hero, weapon);
     equip(hero, weapon);
@@ -318,6 +346,7 @@ export function measure(
   style: Style,
   runs: number,
   classId = 'ranger',
+  kit: readonly string[] = [],
 ): { winRate: number; seconds: number; pieces: number; hpLeft: number; overflows: number } {
   let wins = 0;
   let ms = 0;
@@ -325,7 +354,7 @@ export function measure(
   let hp = 0;
   let overflows = 0;
   for (let seed = 1; seed <= runs; seed++) {
-    const hero = heroAt(level, classId);
+    const hero = heroAt(level, classId, kit);
     if (style === 'prepared') hero.items = { herb: 5, ether: 1, phoenixFeather: 1 };
     const result = simulate(spec, hero, style, seed * 7919);
     if (result.won) wins++;

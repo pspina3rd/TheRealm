@@ -133,14 +133,16 @@ describe('lesson foes', () => {
   });
 
   it('fights the toughest local monster away, preferring the mentor’s element', () => {
-    expect(lessonFoeId(mentor('torva'), mentor('torva').route[1]!)).toBe('goblin');
-    expect(lessonFoeId(mentor('dorn'), mentor('dorn').route[1]!)).toBe('brute');
-    expect(lessonFoeId(mentor('hazel'), mentor('hazel').route[2]!)).toBe('shroom');
-    expect(lessonFoeId(mentor('rook'), mentor('rook').route[3]!)).toBe('shadeImp');
+    // The quarry has no fire monster: its toughest, the Stone Ogre.
+    expect(lessonFoeId(mentor('torva'), mentor('torva').route[1]!)).toBe('stoneOgre');
+    expect(lessonFoeId(mentor('dorn'), mentor('dorn').route[1]!)).toBe('goblin');
+    expect(lessonFoeId(mentor('hazel'), mentor('hazel').route[1]!)).toBe('shroom');
+    expect(lessonFoeId(mentor('rook'), mentor('rook').route[4]!)).toBe('shadeImp');
+    expect(lessonFoeId(mentor('kestrel'), mentor('kestrel').route[1]!)).toBe('thunderhide');
   });
 
   it('falls back to the wisp where there are no monsters', () => {
-    expect(lessonFoeId(mentor('kestrel'), mentor('kestrel').route[1]!)).toBe('galeWisp');
+    expect(lessonFoeId(mentor('kestrel'), mentor('kestrel').route[3]!)).toBe('galeWisp');
   });
 
   it('scales the foe with difficulty and drops its spoils', () => {
@@ -166,7 +168,7 @@ describe('lesson foes', () => {
       enemyId: 'galeWisp',
       difficulty: 1,
     });
-    state.victories = 9; // Kestrel moves every 3 wins: stop 3, the east road
+    state.victories = 15; // Kestrel moves every 3 wins: stop 5, the east road
     expect(lessonSpec(state, 'kestrel', lesson).enemyId).toBe('goblin');
     expect(() => lessonSpec(state, 'nobody', lesson)).toThrow('Unknown mentor');
   });
@@ -263,7 +265,7 @@ describe('mentor movement', () => {
 
   it('moves one stop every moveEvery wins, wrapping, deterministically', () => {
     const k = mentor('kestrel');
-    const stops = [0, 2, 3, 6, 9, 12].map((wins) =>
+    const stops = [0, 2, 3, 6, 9, 18].map((wins) =>
       k.route.indexOf(mentorStop(k, new Set(), wins)),
     );
     expect(stops).toEqual([0, 0, 1, 2, 3, 0]);
@@ -272,20 +274,20 @@ describe('mentor movement', () => {
 
   it('adds flagged stops as the story opens them', () => {
     const torva = mentor('torva');
-    expect(openStops(torva, new Set())).toHaveLength(3);
-    expect(mentorStop(torva, new Set(), 12)).toBe(torva.route[0]);
-    expect(mentorStop(torva, new Set(['cavePass']), 12)).toBe(torva.route[3]);
+    expect(openStops(torva, new Set())).toHaveLength(4);
+    expect(mentorStop(torva, new Set(), 16)).toBe(torva.route[0]);
+    expect(mentorStop(torva, new Set(['cavePass']), 16)).toBe(torva.route[4]);
   });
 
   it('never arrives on the hero’s tile: they wait at the stop before', () => {
     const k = mentor('kestrel');
-    const gate = k.route[1]!; // reached after 3 wins
-    expect(mentorStop(k, new Set(), 3, { map: 'mossvale', x: 9, y: 12 })).toBe(gate);
-    expect(mentorStop(k, new Set(), 3, gate)).toBe(k.route[0]);
-    expect(mentorStop(k, new Set(), 0, k.route[0])).toBe(k.route[3]);
-    const state = { ...newGame('ranger'), victories: 3, mapId: 'mossvale', x: gate.x, y: gate.y };
-    expect(mentorEntities(state).map((e) => e.mentorId)).toEqual(['torva']);
-    expect(mentorPlace(k, { ...state, x: gate.x + 1 })).toBe(gate);
+    const pass = k.route[1]!; // reached after 3 wins
+    expect(mentorStop(k, new Set(), 3, { map: 'mossvale', x: 9, y: 12 })).toBe(pass);
+    expect(mentorStop(k, new Set(), 3, pass)).toBe(k.route[0]);
+    expect(mentorStop(k, new Set(), 0, k.route[0])).toBe(k.route[5]);
+    const state = { ...newGame('ranger'), victories: 3, mapId: 'peaks', x: pass.x, y: pass.y };
+    expect(mentorEntities(state).map((e) => e.mentorId)).toEqual([]);
+    expect(mentorPlace(k, { ...state, x: pass.x + 1 })).toBe(pass);
   });
 
   it('knows home', () => {
@@ -296,15 +298,19 @@ describe('mentor movement', () => {
 
   it('puts mentors on the map they stand on, as entities', () => {
     const state = newGame('ranger');
+    // Every mentor starts in their own region, so nobody is in Mossvale.
+    expect(mentorEntities(state)).toEqual([]);
+    travel(state, { map: 'forge', x: 1, y: 15 });
     expect(mentorEntities(state)).toEqual([
-      { id: 'mentor:torva', kind: 'mentor', mentorId: 'torva', x: 3, y: 11 },
+      { id: 'mentor:torva', kind: 'mentor', mentorId: 'torva', x: 15, y: 8 },
     ]);
     travel(state, { map: 'overworld', x: 5, y: 6 });
+    state.victories = 4;
     expect(
       activeEntities(state)
         .filter((e) => e.kind === 'mentor')
         .map((e) => e.id),
-    ).toEqual(['mentor:maren', 'mentor:rook', 'mentor:hazel', 'mentor:dorn', 'mentor:kestrel']);
+    ).toEqual(['mentor:dorn']);
   });
 
   it('counts monster victories, which move the mentors', () => {

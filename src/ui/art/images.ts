@@ -72,9 +72,14 @@ function enemyImages<const T extends string>(
 }
 
 /** Pixel Battlers strips of eight 64px frames. */
-function battlerImages<const T extends string>(ids: readonly T[]): Record<`battler.${T}`, ImageInfo> {
+function battlerImages<const T extends string>(
+  ids: readonly T[],
+): Record<`battler.${T}`, ImageInfo> {
   return Object.fromEntries(
-    ids.map((id) => [`battler.${id}`, { src: `elvgames/battlers/${id}.png`, width: 512, height: 64 }]),
+    ids.map((id) => [
+      `battler.${id}`,
+      { src: `elvgames/battlers/${id}.png`, width: 512, height: 64 },
+    ]),
   ) as Record<`battler.${T}`, ImageInfo>;
 }
 

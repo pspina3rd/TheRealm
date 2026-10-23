@@ -281,7 +281,10 @@ describe('a mentor who noticed seeks the hero out', () => {
     expect(mapDistance('mossvale', 'mossvale')).toBe(0);
     expect(mapDistance('mossvale', 'overworld')).toBe(1);
     expect(mapDistance('mossvale', 'brightwater')).toBe(2);
-    expect(mapDistance('mossvale', 'caves2')).toBe(3);
+    expect(mapDistance('mossvale', 'caves2')).toBe(6);
+    // Locked warps don't count for a hero without their flags.
+    expect(mapDistance('mossvale', 'peaks', new Set())).toBe(Infinity);
+    expect(mapDistance('mossvale', 'peaks', new Set(['peakGate']))).toBe(2);
     expect(mapDistance('mossvale', 'nowhere')).toBe(Infinity);
   });
 
@@ -297,16 +300,16 @@ describe('a mentor who noticed seeks the hero out', () => {
   });
 
   it('waits on the hero’s map, or the open stop fewest crossings away', () => {
-    // Rook's open stops: north-east peaks (overworld) and the Brightwater fountain.
+    // Rook's open stops the hero can reach: north-east peaks (overworld) and the Brightwater fountain.
     expect(mentorPlace(rook, noticed('brightwater'))).toMatchObject({ map: 'brightwater' });
     expect(mentorPlace(rook, noticed('mossvale'))).toMatchObject({ map: 'overworld' });
     expect(mentorEntities(noticed('brightwater'))).toContainEqual(
       expect.objectContaining({ mentorId: 'rook', x: 17, y: 12 }),
     );
-    // Without the feat, Rook keeps to his route (home, the overworld peaks).
+    // Without the feat, Rook keeps to his route (home, the storm beacon).
     const state = noticed('brightwater');
     state.hero.feats = {};
-    expect(mentorPlace(rook, state)).toMatchObject({ map: 'overworld', x: 36, y: 6 });
+    expect(mentorPlace(rook, state)).toMatchObject({ map: 'peaks', x: 17, y: 4 });
   });
 
   it('never arrives on the hero’s tile', () => {
@@ -316,7 +319,7 @@ describe('a mentor who noticed seeks the hero out', () => {
     });
     // A mentor with one open stop stays there even then.
     const loner = { ...rook, route: [rook.route[0]] as const };
-    expect(seekingStop(loner, flags, { map: 'overworld', x: 36, y: 6 })).toBe(rook.route[0]);
+    expect(seekingStop(loner, flags, { ...rook.route[0] })).toBe(rook.route[0]);
   });
 });
 

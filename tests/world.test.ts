@@ -128,7 +128,7 @@ describe('step', () => {
     travel(state, { map: 'overworld', x: 34, y: 4 });
     const locked = step(state, 'up');
     expect(locked.kind).toBe('locked');
-    state.flags.add('cavePass');
+    state.flags.add('peakGate');
     expect(step(state, 'up').kind).toBe('warp');
   });
 

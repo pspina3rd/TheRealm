@@ -181,13 +181,7 @@ export const THEMES: Readonly<Record<ThemeId, ThemeArt>> = {
     ['tree.green.a', 'tree.green.b', 'tree.green.a'],
     ['tree.green.round'],
   ),
-  lake: region(
-    '#3f8f4a',
-    'grass',
-    'path',
-    ['tree.blue.a', 'tree.blue.b'],
-    variants('rock.blue'),
-  ),
+  lake: region('#3f8f4a', 'grass', 'path', ['tree.blue.a', 'tree.blue.b'], variants('rock.blue')),
   quarry: region(
     '#7a4a35',
     'redEarth',
@@ -202,16 +196,16 @@ export const THEMES: Readonly<Record<ThemeId, ThemeArt>> = {
     'caveFloor',
     ['tree.red.a', 'tree.red.b'],
     variants('rock.dark'),
-    { '~': { terrain: 'lava' }, o: { terrain: 'caveFloor' }, ',': {} },
+    {
+      '~': { terrain: 'lava' },
+      B: { terrain: 'lava', decals: BRIDGE },
+      o: { terrain: 'caveFloor' },
+      ',': {},
+    },
   ),
-  peaks: region(
-    '#8f97a8',
-    'frost',
-    'path',
-    variants('spire.blue'),
-    variants('rock.blue'),
-    { ',': {} },
-  ),
+  peaks: region('#8f97a8', 'frost', 'path', variants('spire.blue'), variants('rock.blue'), {
+    ',': {},
+  }),
   cliffs: region(
     '#9fb35a',
     'paleGrass',
@@ -226,7 +220,7 @@ export const THEMES: Readonly<Record<ThemeId, ThemeArt>> = {
     'darkSand',
     ['tree.purple.a', 'tree.purple.b'],
     variants('rock.dark'),
-    { ',': {}, o: { terrain: 'caveFloor' } },
+    { ',': {}, o: { terrain: 'caveFloor' }, ':': { terrain: 'sageGrass' } },
   ),
   cave: {
     background: '#1d1714',

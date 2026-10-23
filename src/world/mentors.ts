@@ -10,8 +10,8 @@
  * A mentor who noticed a board feat of the hero's (a hidden spell revealed
  * by a pattern, still untaught) leaves the route and seeks the hero out:
  * they wait at their open stop closest to the hero's map, counted in map
- * crossings (an open stop on the hero's map first; the earlier stop on a
- * tie), never on the hero's own tile.
+ * crossings the hero can make (an open stop on the hero's map first; the
+ * earlier stop on a tie), never on the hero's own tile.
  */
 import type { Element } from '../core/elements';
 import { MAPS } from '../data/maps';
@@ -47,16 +47,18 @@ export function mentorStop(
 
 /**
  * The fewest warps from map `from` to map `to` (0 on the same map), or
- * Infinity if no warp leads there.
+ * Infinity if no warp leads there. Given the hero's `flags`, warps still
+ * locked to them don't count.
  */
-export function mapDistance(from: string, to: string): number {
+export function mapDistance(from: string, to: string, flags?: ReadonlySet<string>): number {
   const seen = new Map([[from, 0]]);
   const queue = [from];
   for (let map = queue.shift(); map !== undefined; map = queue.shift()) {
     const steps = seen.get(map) ?? 0;
     if (map === to) return steps;
     for (const warp of MAPS[map]?.warps ?? []) {
-      if (!seen.has(warp.to.map)) {
+      const locked = flags && warp.requiresFlag && !flags.has(warp.requiresFlag);
+      if (!locked && !seen.has(warp.to.map)) {
         seen.set(warp.to.map, steps + 1);
         queue.push(warp.to.map);
       }
@@ -77,7 +79,7 @@ export function seekingStop(
   const stops = openStops(mentor, flags);
   const free = stops.filter((s) => !(s.map === hero.map && s.x === hero.x && s.y === hero.y));
   const [first = mentor.route[0], ...rest] = free.length > 0 ? free : stops;
-  const distance = (stop: MentorStop): number => mapDistance(hero.map, stop.map);
+  const distance = (stop: MentorStop): number => mapDistance(hero.map, stop.map, flags);
   return rest.reduce((best, stop) => (distance(stop) < distance(best) ? stop : best), first);
 }
 

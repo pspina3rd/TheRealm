@@ -8,6 +8,7 @@ import {
   type Location,
 } from './map';
 import { walkRegen } from '../game/hero';
+import { STARTER_MAPS } from '../data/maps';
 import { activeEntities, currentMap, type GameState } from './state';
 
 /** The result of trying to take one step. */
@@ -48,6 +49,6 @@ export function step(state: GameState, direction: Direction): StepResult {
 
   state.x = x;
   state.y = y;
-  walkRegen(state.hero);
+  walkRegen(state.hero, STARTER_MAPS.has(state.mapId));
   return { kind: 'moved' };
 }

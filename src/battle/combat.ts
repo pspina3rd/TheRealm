@@ -25,12 +25,12 @@ import { heroSpell } from '../game/spells';
 import { CRIT_MULTIPLIER, critChance } from '../game/stats';
 import { PIECE_MS } from '../core/scoring';
 import {
-  WEAK_CRYSTAL_BONUS,
-  WEAK_MULTIPLIER,
   crystalAffinity,
   elementMultiplier,
   lineSurge,
   resistancesOf,
+  weakCrystalBonus,
+  weakMultiplier,
   weaknessesOf,
   type LineSurge,
 } from './elemental';
@@ -49,6 +49,8 @@ export const MAX_COMBO = 8;
 export { PIECE_MS } from '../core/scoring';
 /** Casting a spell takes time: it fills this share of the enemy's gauge… */
 export const SPELL_TIME = 0.15;
+/** …or this share against a boss, so a full spell kit can't simply out-cast it… */
+export const BOSS_SPELL_TIME = 0.25;
 /** …and using an item this share. */
 export const ITEM_TIME = 0.4;
 /** Items the hero can use in one battle. */
@@ -185,7 +187,7 @@ export class CombatChallenge implements Challenge {
       const crystals = ELEMENTS.reduce((sum, e) => sum + cleared[e], 0);
       const affinity =
         this.exposed > 0
-          ? 1 + (crystals / Math.max(1, cells)) * WEAK_CRYSTAL_BONUS
+          ? 1 + (crystals / Math.max(1, cells)) * weakCrystalBonus(this.enemy)
           : crystalAffinity(this.enemy, cleared, cells);
       const hero = this.ctx.hero;
       this.combo++;
@@ -265,7 +267,7 @@ export class CombatChallenge implements Challenge {
 
   /** How hard `element` hits the enemy now: always a weakness while Fault Line lasts. */
   multiplier(element: Element): number {
-    return this.exposed > 0 ? WEAK_MULTIPLIER : elementMultiplier(this.enemy, element);
+    return this.exposed > 0 ? weakMultiplier(this.enemy) : elementMultiplier(this.enemy, element);
   }
 
   /** The elements the enemy is weak to now (all of them while Fault Line lasts). */
@@ -421,7 +423,7 @@ export class CombatChallenge implements Challenge {
     if (cast.surge > 0 && this.status() === 'ongoing') {
       this.applySurge({ element, power: cast.surge }, 1, this.ctx.board.height - 1);
     }
-    this.spendTime(SPELL_TIME);
+    this.spendTime(this.enemy.boss ? BOSS_SPELL_TIME : SPELL_TIME);
   }
 
   /** Why an item can't be used in this fight now, or null if it can. */

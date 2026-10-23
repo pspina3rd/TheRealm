@@ -25,6 +25,21 @@ export const RESIST_MULTIPLIER = 0.5;
  * crystal the enemy is weak to (or resists); partial clears scale it.
  */
 export const WEAK_CRYSTAL_BONUS = 0.5;
+/**
+ * Bosses shrug off part of a weakness: they take this share of its bonus
+ * (×1.375 instead of ×1.5; a weak crystal adds 37.5% instead of 50%).
+ */
+export const BOSS_WEAKNESS_SHARE = 0.75;
+
+/** How hard a weakness hits `enemy`: less for bosses. */
+export function weakMultiplier(enemy: Pick<EnemyDef, 'boss'>): number {
+  return enemy.boss ? 1 + (WEAK_MULTIPLIER - 1) * BOSS_WEAKNESS_SHARE : WEAK_MULTIPLIER;
+}
+
+/** The strike bonus share for crystals `enemy` is weak to: less for bosses. */
+export function weakCrystalBonus(enemy: Pick<EnemyDef, 'boss'>): number {
+  return enemy.boss ? WEAK_CRYSTAL_BONUS * BOSS_WEAKNESS_SHARE : WEAK_CRYSTAL_BONUS;
+}
 export const RESIST_CRYSTAL_PENALTY = 0.25;
 
 /** What a cleared line's strongest element does. */
@@ -75,7 +90,7 @@ export function resistancesOf(enemy: EnemyDef): Element[] {
 
 /** How hard an element hits this enemy. */
 export function elementMultiplier(enemy: EnemyDef, element: Element): number {
-  if (weaknessesOf(enemy).includes(element)) return WEAK_MULTIPLIER;
+  if (weaknessesOf(enemy).includes(element)) return weakMultiplier(enemy);
   if (resistancesOf(enemy).includes(element)) return RESIST_MULTIPLIER;
   return 1;
 }
@@ -94,7 +109,7 @@ export function crystalAffinity(
   return ELEMENTS.reduce((sum, element) => {
     const multiplier = elementMultiplier(enemy, element);
     const share = counts[element] / cells;
-    if (multiplier > 1) return sum + share * WEAK_CRYSTAL_BONUS;
+    if (multiplier > 1) return sum + share * weakCrystalBonus(enemy);
     if (multiplier < 1) return sum - share * RESIST_CRYSTAL_PENALTY;
     return sum;
   }, 1);

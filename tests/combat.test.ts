@@ -253,7 +253,8 @@ describe('CombatChallenge', () => {
     hero.hp = 1;
     nextMove(combat, { kind: 'attack', name: 'Bonk', power: 50 });
     act(combat);
-    expect(hero.hp).toBe(Math.ceil(hero.maxHp / 2));
+    expect(hero.hp).toBe(Math.ceil(hero.maxHp * FEATHER_REVIVE));
+    expect(combat.itemsUsed).toBe(1);
     expect(hero.items.phoenixFeather).toBeUndefined();
     expect(battle.status).toBe('ongoing');
   });

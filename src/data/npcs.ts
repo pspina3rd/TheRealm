@@ -467,7 +467,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
         warm: 'Rot ate my mushroom rings, friend. Help me plant them back? We share the pick.',
       },
       confide: 'Hazel taught me to braid caps into charms. Replant a ring and one is yours.',
-      refuse: "My rings, my spawn. Keep your boots out of them.",
+      refuse: 'My rings, my spawn. Keep your boots out of them.',
       accept: 'Green, and keep it tidy.',
       decline: 'The rot spreads while we talk.',
       win: {
@@ -532,7 +532,8 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
         plain: 'A rockslide buried the ridge road to Emberforge. Help me shift the rubble?',
         warm: "The ridge road's buried and Emberforge is starving for ore. Shift it with me?",
       },
-      confide: 'Dorn worked this face before the caves took his crew. He left a crate; clear the road.',
+      confide:
+        'Dorn worked this face before the caves took his crew. He left a crate; clear the road.',
       accept: 'Orange first, then the loose violet shale.',
       decline: "The rubble isn't going anywhere. Neither is the ore.",
       win: {
@@ -690,7 +691,8 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     lines: {
       intro: {
         cold: 'Gust took my satchel. The letters are all over the cliffs. Catch them or do not.',
-        plain: 'A gust tore my satchel open and the letters are blowing off the cliffs! Catch them?',
+        plain:
+          'A gust tore my satchel open and the letters are blowing off the cliffs! Catch them?',
         warm: "My letters! A gust took them all. You're fast; catch them with me?",
       },
       confide: 'Kestrel trained me. She says a Phoenix Feather rides every long route. Help me.',
