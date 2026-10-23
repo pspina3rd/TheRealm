@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="description" content="Mana Crystals: a falling-block fantasy RPG." />
     <title>Mana Crystals</title>
   </head>
@@ -33,11 +33,22 @@
       <section id="world-view" class="view" aria-label="World">
         <canvas id="world-canvas" width="640" height="416"></canvas>
         <div id="world-banner" class="world-banner" role="status" aria-live="polite"></div>
+        <div id="touch-pad" class="touch-pad" aria-label="Touch movement">
+          <button type="button" data-dir="up" aria-label="Walk up">▲</button>
+          <button type="button" data-dir="left" aria-label="Walk left">◀</button>
+          <button type="button" data-dir="down" aria-label="Walk down">▼</button>
+          <button type="button" data-dir="right" aria-label="Walk right">▶</button>
+        </div>
       </section>
 
       <section id="battle-view" class="view battle" aria-label="Battle" hidden>
         <div class="battle-board">
-          <canvas id="board-canvas" width="300" height="600" aria-label="Board"></canvas>
+          <canvas
+            id="board-canvas"
+            width="300"
+            height="600"
+            aria-label="Board: tap to rotate, drag sideways to move, drag down to drop, flick down to slam"
+          ></canvas>
         </div>
         <div class="battle-side">
           <canvas id="stage-canvas" width="480" height="240" aria-hidden="true"></canvas>
@@ -53,9 +64,22 @@
           </div>
           <div class="panel actions-panel" id="actions-panel">
             <div id="spell-list" class="spells"></div>
-            <div id="battle-items" class="items"></div>
+            <div class="battle-tools">
+              <div id="battle-items" class="items"></div>
+              <button type="button" id="pause-button" aria-label="Pause" title="P">❚❚</button>
+            </div>
           </div>
-          <div class="controls" aria-label="Touch controls">
+          <button
+            type="button"
+            id="rotate-button"
+            class="rotate-button"
+            data-battle="rotate"
+            aria-label="Rotate"
+            title="Up arrow"
+          >
+            ↻
+          </button>
+          <div class="controls" aria-label="Move buttons">
             <button type="button" data-battle="left" aria-label="Move left" title="Left arrow">
               ◀
             </button>
@@ -71,17 +95,9 @@
             <button type="button" data-battle="hardDrop" aria-label="Hard drop" title="Space">
               ▼
             </button>
-            <button type="button" id="pause-button" aria-label="Pause" title="P">❚❚</button>
           </div>
         </div>
       </section>
-
-      <div id="touch-pad" class="touch-pad" aria-label="Touch movement">
-        <button type="button" data-dir="up" aria-label="Walk up">▲</button>
-        <button type="button" data-dir="left" aria-label="Walk left">◀</button>
-        <button type="button" data-dir="down" aria-label="Walk down">▼</button>
-        <button type="button" data-dir="right" aria-label="Walk right">▶</button>
-      </div>
 
       <dialog id="dialog" aria-labelledby="dialog-title">
         <h2 id="dialog-title"></h2>

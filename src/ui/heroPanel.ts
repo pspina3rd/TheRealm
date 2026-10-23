@@ -123,9 +123,12 @@ export class HeroPanel {
     };
     const categories = combat ? spellCategories(hero) : [];
     const menu = categories.find((c) => c.category === this.open);
+    // On a phone an open category's menu pops up over the board as a sheet.
+    this.spellList.classList.toggle('menu-open', Boolean(menu));
     if (menu) {
       this.choices = menu.spells.map((id) => () => cast(id));
       const back = button('', () => this.setOpen(null), { title: 'Back (Esc)' });
+      back.setAttribute('aria-label', `Back from ${ELEMENT_NAMES[menu.category]} spells`);
       back.classList.add('spell', 'back');
       back.append(
         iconElement(ELEMENT_ICONS[menu.category], 2, ELEMENT_NAMES[menu.category]),
@@ -168,6 +171,10 @@ export class HeroPanel {
               );
               if (spells.length > 1) {
                 node.dataset.action = `category-${element}`;
+                node.setAttribute(
+                  'aria-label',
+                  `${ELEMENT_NAMES[element]} spells (${spells.length})`,
+                );
                 node.classList.add('category');
                 node.append(el('span', { className: 'more', text: `+${spells.length - 1}` }));
               }
@@ -197,6 +204,7 @@ export class HeroPanel {
             const item = ITEMS[id];
             const node = button('', () => this.onItem(id), { title: item?.description ?? id });
             node.dataset.action = id;
+            node.setAttribute('aria-label', `${item?.name ?? id} ×${count}`);
             node.classList.add('item');
             node.classList.toggle(
               'unusable',
@@ -204,7 +212,8 @@ export class HeroPanel {
             );
             node.append(
               iconElement(itemIcon(id), 2),
-              el('span', { text: `${item?.name ?? id} ×${count}` }),
+              el('span', { text: item?.name ?? id }),
+              el('small', { className: 'count', text: `×${count}` }),
             );
             return node;
           })
@@ -233,6 +242,8 @@ export class HeroPanel {
     node.classList.toggle('unusable', !usable);
     node.setAttribute('aria-keyshortcuts', String(hotkey));
     if (spell && cast) {
+      // The name stays the button's name even where the phone layout hides its text.
+      node.setAttribute('aria-label', cast.name);
       node.append(
         iconElement(ELEMENT_ICONS[spell.category], 3),
         el('span', {}, el('b', { text: cast.name }), levelPips(spell, cast.level), spellMeta(cast)),

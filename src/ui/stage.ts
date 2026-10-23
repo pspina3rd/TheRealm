@@ -18,6 +18,7 @@ import { effectDuration, effectFrame, type EffectId } from './art/vfx';
 import { drawCount } from './boardView';
 import { drawIcon, drawIconSpec } from './iconDraw';
 import { seesEnemyMove } from '../game/stats';
+import { PHONE_QUERY, reducedMotion } from './touch';
 
 const FLOAT_MS = 1000;
 const POP_MS = 800;
@@ -37,13 +38,59 @@ export interface StageOptions {
   readonly line?: string;
 }
 
-/** Where things are drawn on the 480×240 stage. */
-const LAYOUT = {
-  enemy: { x: 300, baseline: 226 },
-  hero: { x: 78, baseline: 236 },
+/** Where things are drawn on the stage. */
+interface Layout {
+  readonly height: number;
+  readonly enemy: { readonly x: number; readonly baseline: number; readonly maxH: number };
+  readonly hero: { readonly x: number; readonly baseline: number; readonly maxH: number };
+  readonly ally: { readonly x: number; readonly baseline: number };
+  readonly bar: { readonly x: number; readonly y: number; readonly w: number; readonly h: number };
+  /** Where effects and icons centre on each side. */
+  readonly anchor: { readonly enemy: number; readonly hero: number };
+  /** Baseline of a fresh floating number over the enemy: below its status, so they never overlap. */
+  readonly enemyFloat: number;
+  /** Running statuses: the first one's corner per side, and the step to the next. */
+  readonly status: {
+    readonly hero: { readonly x: number; readonly y: number };
+    readonly step: { readonly x: number; readonly y: number };
+  };
+  readonly ward: { readonly x: number; readonly y: number };
+  readonly bannerTop: number;
+  readonly effectSize: number;
+}
+
+/** The desktop stage, 480×240: the hero bottom left, the enemy large on the right. */
+const WIDE: Layout = {
+  height: 240,
+  enemy: { x: 300, baseline: 226, maxH: Infinity },
+  hero: { x: 78, baseline: 236, maxH: 220 },
   ally: { x: 160, baseline: 232 },
   bar: { x: 220, y: 14, w: 200, h: 10 },
-} as const;
+  anchor: { enemy: 120, hero: 166 },
+  enemyFloat: 200,
+  status: { hero: { x: 18, y: 106 }, step: { x: 0, y: 30 } },
+  ward: { x: 108, y: 136 },
+  bannerTop: 84,
+  effectSize: EFFECT_SIZE,
+};
+
+/**
+ * The phone strip, 480×150: the hero small at the left, the enemy's bars
+ * and statuses in the middle, the enemy at the right.
+ */
+const STRIP: Layout = {
+  height: 150,
+  enemy: { x: 400, baseline: 146, maxH: 128 },
+  hero: { x: 34, baseline: 146, maxH: 80 },
+  ally: { x: 76, baseline: 146 },
+  bar: { x: 136, y: 10, w: 186, h: 10 },
+  anchor: { enemy: 84, hero: 100 },
+  enemyFloat: 120,
+  status: { hero: { x: 6, y: 6 }, step: { x: 54, y: 0 } },
+  ward: { x: 54, y: 60 },
+  bannerTop: 112,
+  effectSize: 100,
+};
 
 interface Floating {
   readonly target: Target;
@@ -83,6 +130,7 @@ export class Stage {
   private tintCanvas: HTMLCanvasElement | null = null;
   /** Time left of the gauge's flash after a mistake fed it. */
   private rushFlash = 0;
+  private layout: Layout = WIDE;
 
   constructor(canvas: HTMLCanvasElement, atlas: Atlas) {
     const ctx = canvas.getContext('2d');
@@ -90,6 +138,19 @@ export class Stage {
     ctx.imageSmoothingEnabled = false;
     this.ctx = ctx;
     this.atlas = atlas;
+    // Phones get a short strip so the board can take the screen.
+    const phone = window.matchMedia(PHONE_QUERY);
+    const fit = (): void => this.setLayout(phone.matches ? STRIP : WIDE);
+    phone.addEventListener('change', fit);
+    fit();
+  }
+
+  private setLayout(layout: Layout): void {
+    this.layout = layout;
+    const canvas = this.ctx.canvas;
+    if (canvas.height === layout.height) return;
+    canvas.height = layout.height; // resizing resets the context
+    this.ctx.imageSmoothingEnabled = false;
   }
 
   show(opponent: CreatureId | null, hero: CreatureId, options: StageOptions = {}): void {
@@ -164,26 +225,27 @@ export class Stage {
   }
 
   private shakeOffset(target: Target, timeMs: number): number {
+    if (reducedMotion()) return 0;
     const left = this.shakes[target] ?? 0;
     return left > 0 ? Math.sin(timeMs / 16) * 6 * (left / SHAKE_MS) : 0;
   }
 
   private anchor(target: Target): { x: number; y: number } {
-    return target === 'hero'
-      ? { x: LAYOUT.hero.x, y: LAYOUT.hero.baseline - 70 }
-      : { x: LAYOUT.enemy.x, y: 120 };
+    const { anchor, hero, enemy } = this.layout;
+    return target === 'hero' ? { x: hero.x, y: anchor.hero } : { x: enemy.x, y: anchor.enemy };
   }
 
   private drawHero(timeMs: number): void {
     if (!this.hero) return;
     const region = mapFrame(this.hero, 'up', false, timeMs);
-    const scale = 2;
-    const x = LAYOUT.hero.x - (region.w * scale) / 2 + this.shakeOffset('hero', timeMs);
+    const { hero } = this.layout;
+    const scale = Math.min(2, hero.maxH / region.h);
+    const x = hero.x - (region.w * scale) / 2 + this.shakeOffset('hero', timeMs);
     this.atlas.draw(
       this.ctx,
       region,
       Math.round(x),
-      LAYOUT.hero.baseline - region.h * scale,
+      Math.round(hero.baseline - region.h * scale),
       region.w * scale,
       region.h * scale,
     );
@@ -202,8 +264,8 @@ export class Stage {
       if (t >= 1) this.hop = null;
       else lift = Math.sin(t * Math.PI) * 14;
     }
-    const x = LAYOUT.ally.x - (region.w * scale) / 2;
-    const top = LAYOUT.ally.baseline - region.h * scale - lift;
+    const x = this.layout.ally.x - (region.w * scale) / 2;
+    const top = this.layout.ally.baseline - region.h * scale - lift;
     const element = this.options.allyElement;
     if (element) {
       const { ctx } = this;
@@ -211,11 +273,11 @@ export class Stage {
       ctx.globalAlpha = 0.5;
       ctx.fillStyle = ELEMENT_COLOR_OF[element];
       ctx.beginPath();
-      ctx.ellipse(LAYOUT.ally.x, LAYOUT.ally.baseline - 4, 26, 8, 0, 0, Math.PI * 2);
+      ctx.ellipse(this.layout.ally.x, this.layout.ally.baseline - 4, 26, 8, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
       if (this.hop !== null) {
-        drawIcon(ctx, ELEMENT_ICONS[element], LAYOUT.ally.x - 12, top - 28, { scale: 2 });
+        drawIcon(ctx, ELEMENT_ICONS[element], this.layout.ally.x - 12, top - 28, { scale: 2 });
       }
     }
     this.atlas.draw(
@@ -232,7 +294,7 @@ export class Stage {
   private drawOpponent(dtMs: number, timeMs: number, enraged: boolean): void {
     if (!this.opponent) return;
     const region = battleFrame(this.opponent, timeMs);
-    const scale = CREATURES[this.opponent].battleScale;
+    const scale = Math.min(CREATURES[this.opponent].battleScale, this.layout.enemy.maxH / region.h);
     const w = region.w * scale;
     const h = region.h * scale;
     const { ctx } = this;
@@ -247,8 +309,8 @@ export class Stage {
       const glow = Math.round(6 + 4 * Math.sin(timeMs / 120));
       ctx.filter = `drop-shadow(0 0 ${glow}px #ff3b3b) saturate(1.4)`;
     }
-    const x = LAYOUT.enemy.x - w / 2 + this.shakeOffset('enemy', timeMs);
-    const y = Math.round(LAYOUT.enemy.baseline - h);
+    const x = this.layout.enemy.x - w / 2 + this.shakeOffset('enemy', timeMs);
+    const y = Math.round(this.layout.enemy.baseline - h);
     const tint = this.options.tint;
     if (tint) this.drawTinted(region, Math.round(x), y, w, h, ELEMENT_COLOR_OF[tint]);
     else this.atlas.draw(ctx, region, Math.round(x), y, w, h);
@@ -283,7 +345,7 @@ export class Stage {
    */
   private drawEnemyStatus(combat: CombatChallenge, showMove: boolean, timeMs: number): void {
     const { ctx } = this;
-    const { x, y, w, h } = LAYOUT.bar;
+    const { x, y, w, h } = this.layout.bar;
     const ratio = Math.max(0, combat.enemyHp) / combat.enemy.hp;
     ctx.fillStyle = '#090b15';
     ctx.fillRect(x - 2, y - 2, w + 4, h + 4);
@@ -346,8 +408,9 @@ export class Stage {
       drawIconSpec(ctx, MOVE_ICONS[combat.nextMove.kind], mx, pipY - 12, 2);
     }
     if (combat.ward > 0) {
-      drawIcon(ctx, 'ward', LAYOUT.hero.x + 30, LAYOUT.hero.baseline - 100, { scale: 2 });
-      drawCount(ctx, combat.ward, LAYOUT.hero.x + 58, LAYOUT.hero.baseline - 80);
+      const { ward } = this.layout;
+      drawIcon(ctx, 'ward', ward.x, ward.y, { scale: 2 });
+      drawCount(ctx, combat.ward, ward.x + 28, ward.y + 20);
     }
     // Support spells still running: on the enemy (Kindle, Mist, Fault Line) and the hero (Regen, Static).
     const statuses: [IconSpec, number, 'enemy' | 'hero'][] = [
@@ -358,10 +421,12 @@ export class Stage {
       [SPELL_KIND_ICONS.charge, combat.charge.clears, 'hero'],
     ];
     const placed = { enemy: 0, hero: 0 };
+    const { status } = this.layout;
     for (const [icon, count, side] of statuses) {
       if (count <= 0) continue;
-      const sx = side === 'enemy' ? x : LAYOUT.hero.x - 60;
-      const sy = (side === 'enemy' ? pipY + 18 : LAYOUT.hero.baseline - 130) + placed[side] * 30;
+      const first = side === 'enemy' ? { x, y: pipY + 18 } : status.hero;
+      const sx = first.x + placed[side] * status.step.x;
+      const sy = first.y + placed[side] * status.step.y;
       placed[side]++;
       ctx.fillStyle = '#10132acc';
       ctx.fillRect(sx - 3, sy - 3, 50, 30);
@@ -373,7 +438,7 @@ export class Stage {
   /** The goal of a non-combat challenge, drawn as meters and icons. */
   private drawObjective(objective: Objective): void {
     const { ctx } = this;
-    const { x, y, w } = LAYOUT.bar;
+    const { x, y, w } = this.layout.bar;
     const meter = (row: number, ratio: number, color: string, label: string): void => {
       const top = y + row * 30;
       ctx.fillStyle = '#090b15';
@@ -442,14 +507,8 @@ export class Stage {
       const frame = effectFrame(effect.value.id, effect.elapsed);
       if (frame) {
         const { x, y } = this.anchor(effect.value.target);
-        this.atlas.draw(
-          this.ctx,
-          frame,
-          x - EFFECT_SIZE / 2,
-          y - EFFECT_SIZE / 2,
-          EFFECT_SIZE,
-          EFFECT_SIZE,
-        );
+        const size = this.layout.effectSize;
+        this.atlas.draw(this.ctx, frame, x - size / 2, y - size / 2, size, size);
       }
       return effect.elapsed < effectDuration(effect.value.id);
     });
@@ -477,9 +536,11 @@ export class Stage {
       const t = float.elapsed / FLOAT_MS;
       if (t >= 1) return false;
       const { x, y } = this.anchor(float.target);
-      // Pop in big, then drift up and fade.
-      const size = t < 0.12 ? 34 - t * 60 : 26;
-      const py = y - 30 - float.offset - t * 36;
+      // Pop in big, then drift up and fade (or just fade, for less motion).
+      const still = reducedMotion();
+      const size = t < 0.12 && !still ? 34 - t * 60 : 26;
+      const base = float.target === 'enemy' ? this.layout.enemyFloat : y - 30;
+      const py = base - float.offset - (still ? 0 : t * 36);
       ctx.globalAlpha = t < 0.75 ? 1 : (1 - t) / 0.25;
       ctx.font = `900 ${Math.round(size)}px system-ui`;
       ctx.textAlign = 'center';
@@ -508,7 +569,7 @@ export class Stage {
     const { ctx } = this;
     const { width } = ctx.canvas;
     ctx.globalAlpha = t < 0.1 ? t / 0.1 : t > 0.8 ? (1 - t) / 0.2 : 1;
-    const top = 84;
+    const top = this.layout.bannerTop;
     ctx.font = 'bold 16px system-ui';
     const box = Math.min(width - 8, Math.max(220, ctx.measureText(this.banner.value).width + 24));
     ctx.fillStyle = '#10132ae6';

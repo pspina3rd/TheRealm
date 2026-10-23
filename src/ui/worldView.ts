@@ -39,6 +39,11 @@ export class WorldView {
   private props: PlacedObject[] = [];
   /** Marks drawn over everything this frame (mentors' scrolls). */
   private overlays: (() => void)[] = [];
+  /** The camera's top-left corner last frame, in map pixels. */
+  private camX = 0;
+  private camY = 0;
+  /** Where a tap-to-walk is heading, marked on the ground. */
+  target: { readonly x: number; readonly y: number } | null = null;
 
   constructor(canvas: HTMLCanvasElement, atlas: Atlas) {
     const ctx = canvas.getContext('2d');
@@ -52,6 +57,7 @@ export class WorldView {
     const map = currentMap(state);
     const moving = this.glide(state, map, dtMs);
     const { ctx } = this;
+    ctx.imageSmoothingEnabled = false; // resizing the canvas resets it
     const viewW = ctx.canvas.width;
     const viewH = ctx.canvas.height;
     const camX = Math.round(
@@ -61,9 +67,13 @@ export class WorldView {
       clampCamera(this.heroY * TILE + TILE / 2 - viewH / 2, mapHeight(map) * TILE, viewH),
     );
 
+    this.camX = camX;
+    this.camY = camY;
+
     ctx.fillStyle = backgroundFor(map);
     ctx.fillRect(0, 0, viewW, viewH);
     this.drawGround(map, camX, camY, timeMs);
+    this.drawTarget(camX, camY, timeMs);
 
     const heroSortY = (this.heroY + 1) * TILE + 0.25;
     const heroCenterX = (this.heroX + 0.5) * TILE;
@@ -112,6 +122,33 @@ export class WorldView {
     drawables.sort((a, b) => a.sortY - b.sortY).forEach((d) => d.draw());
     this.overlays.forEach((draw) => draw());
     this.overlays = [];
+  }
+
+  /** The map tile under a point on screen (client coordinates), as of the last frame. */
+  tileAtPoint(clientX: number, clientY: number): { x: number; y: number } {
+    const canvas = this.ctx.canvas;
+    const rect = canvas.getBoundingClientRect();
+    const px = ((clientX - rect.left) / rect.width) * canvas.width + this.camX;
+    const py = ((clientY - rect.top) / rect.height) * canvas.height + this.camY;
+    return { x: Math.floor(px / TILE), y: Math.floor(py / TILE) };
+  }
+
+  /** A soft pulsing square where the hero is walking to. */
+  private drawTarget(camX: number, camY: number, timeMs: number): void {
+    if (!this.target) return;
+    const { ctx } = this;
+    const pulse = 0.35 + 0.25 * Math.sin(timeMs / 140);
+    ctx.save();
+    ctx.globalAlpha = pulse;
+    ctx.strokeStyle = '#f5d77b';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(
+      this.target.x * TILE - camX + 3,
+      this.target.y * TILE - camY + 3,
+      TILE - 6,
+      TILE - 6,
+    );
+    ctx.restore();
   }
 
   private drawGround(map: MapDef, camX: number, camY: number, timeMs: number): void {

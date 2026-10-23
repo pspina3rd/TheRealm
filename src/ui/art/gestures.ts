@@ -14,7 +14,7 @@ export const GESTURE = {
   /** …then one row every this many milliseconds while the finger stays down. */
   softDropRepeatMs: 50,
   /** A release moving down at least this fast (px/ms) is a flick: hard drop. */
-  flickSpeed: 0.8,
+  flickSpeed: 0.5,
   /** A flick must also travel this far down in all. */
   flickMinPx: 36,
   /** The speed of a release is measured over this last stretch of the touch. */
