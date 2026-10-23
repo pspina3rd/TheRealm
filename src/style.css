@@ -779,15 +779,15 @@ dialog h2 {
     flex: 1;
     min-height: 0;
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr);
     grid-template-rows: var(--strip-h) auto minmax(0, 1fr) auto var(--spells-h) var(--controls-h);
     grid-template-areas:
-      'stage stage tools'
-      'board hero hero'
-      'board . .'
-      'board rotate rotate'
-      'spells spells spells'
-      'controls controls controls';
+      'stage stage'
+      'board hero'
+      'board .'
+      'board rotate'
+      'spells spells'
+      'controls controls';
     row-gap: var(--gap);
     column-gap: var(--gap);
     padding: max(var(--pad), env(safe-area-inset-top)) max(var(--pad), env(safe-area-inset-right))
@@ -808,7 +808,8 @@ dialog h2 {
 
   #stage-canvas {
     grid-area: stage;
-    width: 100%;
+    justify-self: start;
+    width: calc(100% - var(--tools-w) - var(--gap));
     height: var(--strip-h);
     object-fit: contain;
     background: none;
@@ -825,9 +826,13 @@ dialog h2 {
     width: calc(var(--board-h) / 2);
   }
 
-  /* Pause and items: small icons in two rows beside the enemy strip. */
+  /* Pause and items: small icons in two rows at the right of the enemy strip. */
   .battle-tools {
-    grid-area: tools;
+    position: absolute;
+    top: max(var(--pad), env(safe-area-inset-top));
+    right: max(var(--pad), env(safe-area-inset-right));
+    height: var(--strip-h);
+    z-index: 2;
     display: grid;
     grid-template-rows: repeat(2, minmax(0, 1fr));
     grid-auto-flow: column;
@@ -1809,4 +1814,76 @@ dialog {
   flex-wrap: wrap;
   gap: 6px;
   margin: 12px 0;
+}
+
+/* ------------------------------------------------------ phone sheets --- */
+
+/*
+ * On a phone every dialog is a bottom sheet: full width, up to nearly the
+ * whole screen, its body scrolling inside and its actions pinned at the
+ * bottom where a thumb reaches them, each at least 48px tall.
+ */
+@media (max-width: 760px) {
+  dialog {
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100dvh - max(16px, env(safe-area-inset-top)));
+    margin: auto 0 0;
+    padding: 14px max(14px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom))
+      max(14px, env(safe-area-inset-left));
+    border-width: 1px 0 0;
+    border-radius: 16px 16px 0 0;
+    overflow: hidden;
+  }
+
+  dialog[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  dialog h2 {
+    flex: none;
+    margin-bottom: 8px;
+  }
+
+  #dialog-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  dialog .actions {
+    flex: none;
+    margin-top: 10px;
+    gap: 6px;
+  }
+
+  dialog .actions button {
+    flex: 1 1 0;
+    min-height: 48px;
+    min-width: 0;
+    padding: 6px 8px;
+  }
+
+  #dialog-body button {
+    min-height: 44px;
+  }
+
+  .shop-card,
+  .lesson {
+    gap: 8px;
+  }
+}
+
+/* Less motion: no shakes, pops or slides (the stage's own shake and drift stop too). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

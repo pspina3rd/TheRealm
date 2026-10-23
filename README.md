@@ -34,7 +34,25 @@ npm run build      # static site in dist/
 | World  | Arrows / WASD walk · walk into anyone to challenge them · M or Esc opens the menu    |
 | Battle | ← → move · ↑ or X rotate · ↓ soft drop · Space hard drop · P pause                   |
 | Magic  | 1–7 pick an element's spells (a lone spell casts at once) · then 1–n cast · Esc back |
-| Touch  | On-screen buttons appear on touch devices                                            |
+| Touch  | World: tap a tile to walk there (tap a person or monster to meet them) · d-pad       |
+| Touch  | Battle: the board is the controller (table below) · ↻ button rotates · tap a slot    |
+
+On a touch screen the board takes these gestures:
+
+| Gesture            | Does                                                  |
+| ------------------ | ----------------------------------------------------- |
+| Tap                | Rotate (so does the round ↻ button beside the board)  |
+| Drag sideways      | Move the piece column by column, following the finger |
+| Drag down and hold | Soft drop while held                                  |
+| Flick down         | Hard drop                                             |
+| Second finger      | Cancels the gesture until every finger is lifted      |
+
+Phones get a one-screen portrait battle (no scrolling): the enemy strip
+with pause and items on top, the board as large as fits with the next
+piece, HP and mana beside it, and a slim strip of the seven spell slots
+(a category opens as a popover). Move buttons, and a d-pad that stays,
+can be turned on with **Touch buttons** in the menu; otherwise the small
+d-pad hides once you have walked by tapping.
 
 A new game starts by choosing a hero class. The game saves automatically
 after every battle and map change (browser local storage). Start over from
