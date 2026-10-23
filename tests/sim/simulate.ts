@@ -10,6 +10,7 @@ import type { Cell, Offset, PieceName } from '../../src/core/pieces';
 import { createRng } from '../../src/core/rng';
 import type { ChallengeSpec } from '../../src/data/types';
 import { SPELLS } from '../../src/data/spells';
+import { dualChance } from '../../src/game/pieceOdds';
 import { createHero, equip, gainXp, addItem, refreshStats, type Hero } from '../../src/game/hero';
 
 /**
@@ -266,7 +267,7 @@ export function simulate(
   thinkMs = 1500,
   limitMs = 600_000,
 ): FightResult {
-  const battle = new Battle(spec, hero, createRng(seed));
+  const battle = new Battle(spec, hero, createRng(seed), { dualChance: dualChance(hero) });
   const STEP = 50;
   let ms = 0;
   let waited = 0;

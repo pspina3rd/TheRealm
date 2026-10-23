@@ -7,6 +7,7 @@ import {
   type Offset,
   type PieceName,
 } from './pieces';
+import { ELEMENT_OF_COLOR, colorOfElement, relatedTo } from './elements';
 import type { Rng } from './rng';
 
 export const BOARD_WIDTH = 10;
@@ -22,10 +23,41 @@ export const BOARD_HEIGHT = 20;
  */
 const KICKS = [0, -1, 1, -2, 2, -3, 3] as const;
 
+/**
+ * Which cells of each shape (in `PIECES` order, kept through rotation)
+ * take the second colour of a dual piece: two touching halves, except the
+ * T, whose wings take it (no 2 + 2 split of a T keeps both halves touching).
+ */
+export const DUAL_SPLIT: Readonly<Record<PieceName, readonly boolean[]>> = {
+  I: [false, false, true, true], // left pair / right pair
+  O: [false, false, true, true], // top row / bottom row
+  T: [false, true, false, true], // nub and centre / both wings
+  S: [false, false, true, true], // top pair / bottom pair
+  Z: [false, false, true, true], // top pair / bottom pair
+  J: [false, false, true, true], // hook / the rest of the bar
+  L: [false, true, true, false], // hook / the rest of the bar
+};
+
+/** A piece waiting in the queue: its shape and, for a dual piece, its second colour. */
+export interface QueuedPiece {
+  readonly name: PieceName;
+  readonly second: CrystalColor | null;
+}
+
+/** Each cell's colour (in `PIECES` cell order) of a queued piece, two-tone when dual. */
+export function cellColors({ name, second }: QueuedPiece): CrystalColor[] {
+  const { color, cells } = PIECES[name];
+  return cells.map((_, i) => (second && DUAL_SPLIT[name][i] ? second : color));
+}
+
 export interface ActivePiece {
   readonly name: PieceName;
   /** The colour its crystals lock as: the shape's own unless overridden. */
   readonly color: CrystalColor;
+  /** Each cell's colour, index-matched to `cells` (rotation keeps it). */
+  readonly colors: readonly CrystalColor[];
+  /** A dual piece's second colour (on its `DUAL_SPLIT` cells), or null. */
+  readonly second: CrystalColor | null;
   /** True when the colour was set by `replaceActive` rather than taken from the shape. */
   readonly recolored: boolean;
   cells: Offset[];
@@ -40,6 +72,8 @@ export type CellTally = Partial<Record<Exclude<Cell, null>, number>>;
 export interface PieceOptions {
   /** Crystal colour for every cell, instead of the shape's own. */
   readonly color?: CrystalColor;
+  /** Makes a dual piece: this colour on the shape's `DUAL_SPLIT` cells. */
+  readonly second?: CrystalColor | null;
   /** Cell offsets (a rotation of the shape); defaults to the spawn orientation. */
   readonly cells?: readonly Offset[];
   /** Starting column of the piece origin; defaults to the spawn column. */
@@ -87,10 +121,17 @@ export class Board {
   toppedOut = false;
   /** A sealed column, if an enemy has sealed one (see `sealColumn`). */
   seal: Seal | null = null;
+  /**
+   * Chance that each random piece arrives dual: half in its own element,
+   * half in one of that element's two related ones (see `dualChance`).
+   */
+  dualChance = 0;
 
   private readonly rng: Rng;
   private readonly weights: Readonly<Record<PieceName, number>>;
   private bag: PieceName[] = [];
+  /** Second colour of each bag piece (null = single colour), index-matched to `bag`. */
+  private seconds: (CrystalColor | null)[] = [];
   /** A fixed piece sequence (used by puzzles); when set, it replaces the random bag. */
   private fixedQueue: PieceName[] | null = null;
 
@@ -148,8 +189,26 @@ export class Board {
   /** The next pieces to spawn, without consuming them. */
   preview(count: number): PieceName[] {
     if (this.fixedQueue) return this.fixedQueue.slice(0, count);
-    while (this.bag.length < count) this.bag.push(...this.rng.shuffle(this.fillBag()));
+    while (this.bag.length < count) {
+      const names = this.rng.shuffle(this.fillBag());
+      this.bag.push(...names);
+      this.seconds.push(...names.map((name) => this.rollSecond(name)));
+    }
     return this.bag.slice(0, count);
+  }
+
+  /** The next pieces with their colours (fixed queues are never dual). */
+  previewPieces(count: number): QueuedPiece[] {
+    return this.preview(count).map((name, i) => ({
+      name,
+      second: this.fixedQueue ? null : (this.seconds[i] ?? null),
+    }));
+  }
+
+  /** Rolls whether a new bag piece is dual, and its second colour: a related element's. */
+  private rollSecond(name: PieceName): CrystalColor | null {
+    if (this.dualChance <= 0 || this.rng.next() >= this.dualChance) return null;
+    return colorOfElement(this.rng.pick(relatedTo(ELEMENT_OF_COLOR[PIECES[name].color])));
   }
 
   /** One bag's worth of pieces before shuffling. */
@@ -171,6 +230,7 @@ export class Board {
    */
   spawn(): boolean {
     let name: PieceName | undefined;
+    let second: CrystalColor | null = null;
     if (this.fixedQueue) {
       name = this.fixedQueue.shift();
       if (!name) {
@@ -180,8 +240,9 @@ export class Board {
     } else {
       this.preview(1);
       name = this.bag.shift() as PieceName;
+      second = this.seconds.shift() ?? null;
     }
-    this.active = makePiece(name);
+    this.active = makePiece(name, { second });
     if (this.collides(0, 0, this.active.cells)) {
       this.toppedOut = true;
       return false;
@@ -211,16 +272,21 @@ export class Board {
 
   /**
    * Swaps the falling piece for the next one in the queue, which restarts
-   * at the top; the falling piece's shape takes its place in the queue, in
-   * its own colour (a recoloured toss goes back as a plain piece). Returns
+   * at the top, in its colours; the falling piece takes its place in the
+   * queue, keeping a dual split (a recoloured toss goes back plain). Returns
    * false, changing nothing, if `canSwapWithNext` is false.
    */
   swapWithNext(): boolean {
     const previous = this.active;
     const [next] = this.preview(1);
-    if (!previous || !next || !this.replaceActive(next)) return false;
-    const queue = this.fixedQueue ?? this.bag;
-    queue[0] = previous.name;
+    const [queued] = this.previewPieces(1);
+    if (!previous || !next || !this.replaceActive(next, { second: queued?.second ?? null }))
+      return false;
+    if (this.fixedQueue) this.fixedQueue[0] = previous.name;
+    else {
+      this.bag[0] = previous.name;
+      this.seconds[0] = previous.recolored ? null : previous.second;
+    }
     return true;
   }
 
@@ -308,11 +374,11 @@ export class Board {
     }
     const holesBefore = this.holes();
 
-    for (const [cx, cy] of piece.cells) {
+    piece.cells.forEach(([cx, cy], i) => {
       const y = piece.y + cy;
       if (y < 0) this.toppedOut = true;
-      else (this.grid[y] as Cell[])[piece.x + cx] = piece.color;
-    }
+      else (this.grid[y] as Cell[])[piece.x + cx] = piece.colors[i] ?? piece.color;
+    });
     this.piecesPlaced++;
     this.active = null;
 
@@ -454,9 +520,13 @@ export class Board {
 /** A piece at the top of the board: the shape's spawn orientation and colour unless overridden. */
 function makePiece(name: PieceName, options: PieceOptions = {}): ActivePiece {
   const def = PIECES[name];
+  const color = options.color ?? def.color;
+  const second = options.color === undefined ? (options.second ?? null) : null;
   return {
     name,
-    color: options.color ?? def.color,
+    color,
+    colors: options.color === undefined ? cellColors({ name, second }) : def.cells.map(() => color),
+    second,
     recolored: options.color !== undefined,
     cells: (options.cells ?? def.cells).map((c) => [...c] as Offset),
     x: options.x ?? SPAWN_X,

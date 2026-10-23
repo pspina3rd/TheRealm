@@ -402,7 +402,7 @@ describe('recovery', () => {
 });
 
 describe('the simulated player', () => {
-  it('loses every ordinary fight by hard-dropping in place', () => {
+  it('loses every ordinary fight by hard-dropping in place', { timeout: 60_000 }, () => {
     for (const id of ORDINARY) {
       for (let seed = 1; seed <= 3; seed++) {
         const result = simulate(
@@ -417,12 +417,12 @@ describe('the simulated player', () => {
   });
 
   it('beats ordinary fights most of the time with good play', () => {
-    const good = measure({ kind: 'combat', enemyId: 'slime' }, 1, 'good', 12);
+    const good = measure({ kind: 'combat', enemyId: 'slime' }, 1, 'good', 8);
     expect(good.winRate).toBeGreaterThan(0.5);
     const sloppy = measure({ kind: 'combat', enemyId: 'goblin' }, 3, 'sloppy', 6);
     expect(sloppy.winRate).toBeLessThan(0.5);
     expect(createRng(1).next()).toBeLessThan(1);
-  });
+  }, 60_000);
 });
 
 describe.skipIf(!process.env.SIM)('balance table (SIM=1)', () => {

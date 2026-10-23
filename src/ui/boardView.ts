@@ -1,6 +1,6 @@
-import type { Board } from '../core/board';
+import { cellColors, type Board, type QueuedPiece } from '../core/board';
 import { ELEMENT_OF_COLOR } from '../core/elements';
-import { PIECES, type Cell, type PieceName } from '../core/pieces';
+import { PIECES, type Cell } from '../core/pieces';
 import type { Feedback } from './art/feedback';
 import { ICON_SIZE, ELEMENT_ICONS, type IconId } from './art/icons';
 import { CRYSTAL_HEX } from './crystals';
@@ -28,7 +28,7 @@ export interface BoardStatus {
   readonly hastePieces: number;
   readonly fogPieces: number;
   readonly quickenMs: number;
-  readonly upcoming: readonly PieceName[];
+  readonly upcomingPieces: readonly QueuedPiece[];
   /** While paused the stack and preview are hidden, so a pause can't be used to plan. */
   readonly paused: boolean;
 }
@@ -121,10 +121,11 @@ export class BoardView {
     const piece = board.active;
     if (piece && !dimmed) {
       const ghostY = board.ghostY();
-      for (const [cx, cy] of piece.cells) {
+      piece.cells.forEach(([cx, cy], i) => {
+        const color = piece.colors[i] ?? piece.color;
         if (ghostY + cy >= 0)
-          drawCrystal(ctx, piece.color, (piece.x + cx) * CELL, (ghostY + cy) * CELL, CELL, 0.18);
-      }
+          drawCrystal(ctx, color, (piece.x + cx) * CELL, (ghostY + cy) * CELL, CELL, 0.18);
+      });
       // A tossed piece glows in its colour while it falls.
       if (piece.recolored) {
         ctx.save();
@@ -137,10 +138,11 @@ export class BoardView {
         }
         ctx.restore();
       }
-      for (const [cx, cy] of piece.cells) {
+      piece.cells.forEach(([cx, cy], i) => {
+        const color = piece.colors[i] ?? piece.color;
         if (piece.y + cy >= 0)
-          drawCrystal(ctx, piece.color, (piece.x + cx) * CELL, (piece.y + cy) * CELL, CELL);
-      }
+          drawCrystal(ctx, color, (piece.x + cx) * CELL, (piece.y + cy) * CELL, CELL);
+      });
     }
 
     this.drawFlashes(w, dtMs);
@@ -160,7 +162,7 @@ export class BoardView {
     }
     ctx.restore();
 
-    this.drawNext(status.paused ? [] : status.upcoming, status.fogPieces);
+    this.drawNext(status.paused ? [] : status.upcomingPieces, status.fogPieces);
   }
 
   /** An enemy's sealed column: hatched stone with a lock and the pieces it lasts. */
@@ -264,7 +266,7 @@ export class BoardView {
    * small beside it; in an enemy's fog, a grey cloud with an eye and the
    * pieces it lasts instead.
    */
-  private drawNext(names: readonly PieceName[], fog: number): void {
+  private drawNext(names: readonly QueuedPiece[], fog: number): void {
     const ctx = this.nextCtx;
     const width = NEXT_MAIN_WIDTH + (names.length > 1 ? NEXT_SMALL_WIDTH : 0);
     if (ctx.canvas.width !== width) {
@@ -289,32 +291,34 @@ export class BoardView {
     const [first, ...rest] = names;
     if (first) drawPiece(ctx, first, 0, 0, NEXT_MAIN_WIDTH, height, 24);
     const slot = height / Math.max(1, rest.length);
-    rest.forEach((name, i) =>
-      drawPiece(ctx, name, NEXT_MAIN_WIDTH, i * slot, NEXT_SMALL_WIDTH, slot, 10),
+    rest.forEach((piece, i) =>
+      drawPiece(ctx, piece, NEXT_MAIN_WIDTH, i * slot, NEXT_SMALL_WIDTH, slot, 10),
     );
   }
 }
 
-/** A piece in its spawn orientation, centred in the given box. */
+/** A piece in its spawn orientation and colours (two-tone when dual), centred in the given box. */
 function drawPiece(
   ctx: CanvasRenderingContext2D,
-  name: PieceName,
+  piece: QueuedPiece,
   x: number,
   y: number,
   width: number,
   height: number,
   size: number,
 ): void {
-  const def = PIECES[name];
+  const def = PIECES[piece.name];
+  const colors = cellColors(piece);
   const xs = def.cells.map(([cx]) => cx);
   const ys = def.cells.map(([, cy]) => cy);
   const minX = Math.min(...xs);
   const minY = Math.min(...ys);
   const ox = x + (width - (Math.max(...xs) - minX + 1) * size) / 2;
   const oy = y + (height - (Math.max(...ys) - minY + 1) * size) / 2;
-  for (const [cx, cy] of def.cells) {
-    drawCrystal(ctx, def.color, ox + (cx - minX) * size, oy + (cy - minY) * size, size);
-  }
+  def.cells.forEach(([cx, cy], i) => {
+    const color = colors[i] ?? def.color;
+    drawCrystal(ctx, color, ox + (cx - minX) * size, oy + (cy - minY) * size, size);
+  });
 }
 
 /** A crystal with a highlight and, for elemental crystals, its element glyph. */

@@ -27,7 +27,7 @@ import {
 } from '../game/skills';
 import { spellLevel, spellName } from '../game/spells';
 import { STATS, STAT_IDS } from '../data/stats';
-import { pieceWeights } from '../game/pieceOdds';
+import { dualChance, pieceWeights } from '../game/pieceOdds';
 import { deleteSave, loadGame, saveGame, type KeyValueStore } from '../game/save';
 import { buy, sell } from '../game/shop';
 import type { Direction, EntityDef } from '../world/map';
@@ -314,7 +314,8 @@ export class App {
     this.dialog.close();
     if (spec.kind === 'lesson') prepareLesson(this.state.hero);
     const weights = pieceWeights(currentMap(this.state), this.state.hero);
-    const battle = new Battle(spec, this.state.hero, this.rng, { weights });
+    const dual = dualChance(this.state.hero);
+    const battle = new Battle(spec, this.state.hero, this.rng, { weights, dualChance: dual });
     this.active = {
       battle,
       entity,

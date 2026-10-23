@@ -63,6 +63,32 @@ creature also resists its own element.
 - Enemy weaknesses and resistances come from this chart instead of being set
   by hand. A boss may add one extra resistance.
 
+### Dual pieces
+
+Some pieces arrive **split** (inspired by Dr. Mario's capsules): half in
+their shape's own element, half in one of its two **related** elements
+from the chart above (picked at random), e.g. a fire Z as 2 fire + 2
+lightning or 2 fire + 2 earth.
+
+- **The split** (`DUAL_SPLIT` in `src/core/board.ts`, by cell in the
+  shape's spawn order, kept through rotation): I left pair / right pair;
+  O, S and Z top / bottom; J and L the hook / the rest of the bar; T keeps
+  its nub and centre and its two wings take the second colour (no 2 + 2
+  split of a T keeps both halves touching). Each cell keeps its colour as
+  the piece turns.
+- **How often** (`dualChance` in `src/game/pieceOdds.ts`): each random
+  piece is dual with chance `1/7 + 0.04 × (elements with alignment ≥ 2)`,
+  at most 1/3. A hero who spreads across elements meets more mixed pieces.
+  Puzzle boards (fixed queues) are never dual; a mentor's toss is always
+  in the mentor's colour.
+- **Rules unchanged**: lines still clear when full. Each crystal gives
+  its own element's mana; a line's surge is still its strongest element;
+  a pure line (7 of 10 crystals of one element) now asks you to place the
+  halves well. Purify, petrify, Gust and feats work per cell; Gust sends
+  a dual piece back to the queue still split.
+- **Shown**: every crystal carries its own colour and glyph, on the board
+  and in the next-piece preview, so a dual piece is visibly two-tone.
+
 ## Hero classes and alignment
 
 Chosen when starting a new game. Differences are deliberately small so any
@@ -163,8 +189,8 @@ Fights are real time and reward planning: a sloppy stack loses.
   HP; it pulses red when nearly full) and the enemy moves when full. The
   pause stops it.
   - **Spells and items take time**: casting a spell fills 15% of the
-    gauge and using an item 30% (the gauge flashes white; a full gauge
-    acts at once). At most **3 item uses per battle** (a bag with "2/3"
+    gauge and using an item 40% (the gauge flashes white; a full gauge
+    acts at once). At most **2 item uses per battle** (a bag with "1/2"
     leads the item list); a Herb heals 25% of max HP; a Phoenix Feather
     revives at most **once per fight**.
   - **Pauses**: 3 per battle (the pause button shows how many are left;
@@ -228,7 +254,7 @@ piece per 1.5 s) with bots:
   preview isn't fogged), keeps a well column for 3–4 line clears and
   casts whatever spell is ready; no items.
 - **prepared** plays like good but brings 5 Herbs, an Ether and a Phoenix
-  Feather (Ether at once, a Herb below 35% HP; the 3-use cap applies).
+  Feather (Ether at once, a Herb below 35% HP; the 2-use cap applies).
 - **singles** (`spammer`) clears lines as soon as it can, mostly single
   lines, and casts every ready spell: the "single lines + spells" plan.
 - **sloppy** is the greedy tidy heuristic from `bestFit` with a careless
@@ -241,30 +267,34 @@ Run `SIM=1 RUNS=30 npx vitest run tests/difficulty.test.ts` for the table
 
 | Fight                  | Hero level | Good wins | Good: time / pieces | Good: HP left | Prepared wins | Singles + spells wins | Singles: time | Sloppy wins | Dropper wins |
 | ---------------------- | ---------- | --------- | ------------------- | ------------- | ------------- | --------------------- | ------------- | ----------- | ------------ |
-| Slime                  | 1          | 80%       | 41 s / 27           | 63%           | 100%          | 70%                   | 58 s          | 3%          | 0%           |
-| Shroom                 | 2          | 83%       | 55 s / 37           | 63%           | 97%           | 80%                   | 76 s          | 0%          | 0%           |
-| Goblin                 | 3          | 73%       | 78 s / 52           | 58%           | 100%          | 70%                   | 95 s          | 0%          | 0%           |
-| Moon Imp               | 3          | 83%       | 69 s / 46           | 62%           | 93%           | 77%                   | 82 s          | 3%          | 0%           |
-| Shade Imp              | 4          | 80%       | 100 s / 67          | 61%           | 97%           | 57%                   | 175 s         | 0%          | 0%           |
-| Cave Brute             | 5          | 80%       | 94 s / 63           | 57%           | 100%          | 70%                   | 117 s         | 0%          | 0%           |
-| Moon Wyrm              | 8          | 33%       | 105 s / 71          | 42%           | 57%           | 13%                   | 129 s         | 0%          | 0%           |
-| Ember Wisp (lesson d1) | 1          | 97%       | 26 s / 17           | 53%           | 100%          | 90%                   | 32 s          | 7%          | 0%           |
-| Tide Wisp (lesson d1)  | 1          | 100%      | 35 s / 23           | 74%           | 100%          | 97%                   | 42 s          | 13%         | 0%           |
-| Gale Wisp (lesson d1)  | 1          | 97%       | 29 s / 19           | 79%           | 100%          | 100%                  | 33 s          | 10%         | 0%           |
-| Ember Wisp (lesson d2) | 3          | 83%       | 40 s / 27           | 41%           | 97%           | 60%                   | 48 s          | 0%          | 0%           |
-| Tide Wisp (lesson d2)  | 3          | 97%       | 51 s / 34           | 75%           | 100%          | 97%                   | 75 s          | 3%          | 0%           |
-| Gale Wisp (lesson d2)  | 3          | 97%       | 44 s / 29           | 68%           | 100%          | 100%                  | 55 s          | 0%          | 0%           |
-| Ember Wisp (lesson d3) | 5          | 93%       | 46 s / 31           | 52%           | 100%          | 83%                   | 59 s          | 0%          | 0%           |
-| Tide Wisp (lesson d3)  | 5          | 100%      | 57 s / 38           | 78%           | 100%          | 97%                   | 84 s          | 0%          | 0%           |
-| Gale Wisp (lesson d3)  | 5          | 97%       | 51 s / 34           | 71%           | 100%          | 100%                  | 57 s          | 3%          | 0%           |
+| Slime                  | 1          | 87%       | 42 s / 28           | 58%           | 97%           | 83%                   | 64 s          | 0%          | 0%           |
+| Shroom                 | 2          | 80%       | 56 s / 37           | 72%           | 97%           | 73%                   | 79 s          | 0%          | 0%           |
+| Goblin                 | 3          | 87%       | 71 s / 48           | 64%           | 97%           | 83%                   | 89 s          | 0%          | 0%           |
+| Moon Imp               | 3          | 70%       | 65 s / 43           | 62%           | 100%          | 57%                   | 81 s          | 0%          | 0%           |
+| Shade Imp              | 4          | 80%       | 126 s / 84          | 64%           | 97%           | 77%                   | 168 s         | 0%          | 0%           |
+| Cave Brute             | 5          | 87%       | 99 s / 67           | 51%           | 100%          | 83%                   | 118 s         | 0%          | 0%           |
+| Moon Wyrm              | 8          | 33%       | 102 s / 69          | 39%           | 73%           | 23%                   | 119 s         | 0%          | 0%           |
+| Ember Wisp (lesson d1) | 1          | 83%       | 33 s / 22           | 40%           | 93%           | 90%                   | 32 s          | 13%         | 0%           |
+| Tide Wisp (lesson d1)  | 1          | 100%      | 37 s / 24           | 75%           | 97%           | 100%                  | 44 s          | 20%         | 0%           |
+| Gale Wisp (lesson d1)  | 1          | 97%       | 31 s / 21           | 76%           | 100%          | 97%                   | 35 s          | 17%         | 0%           |
+| Ember Wisp (lesson d2) | 3          | 87%       | 40 s / 26           | 42%           | 100%          | 60%                   | 52 s          | 0%          | 0%           |
+| Tide Wisp (lesson d2)  | 3          | 93%       | 54 s / 36           | 73%           | 100%          | 97%                   | 68 s          | 0%          | 0%           |
+| Gale Wisp (lesson d2)  | 3          | 97%       | 44 s / 29           | 69%           | 100%          | 100%                  | 49 s          | 3%          | 0%           |
+| Ember Wisp (lesson d3) | 5          | 97%       | 51 s / 34           | 43%           | 100%          | 77%                   | 61 s          | 0%          | 0%           |
+| Tide Wisp (lesson d3)  | 5          | 97%       | 62 s / 41           | 78%           | 100%          | 97%                   | 79 s          | 0%          | 0%           |
+| Gale Wisp (lesson d3)  | 5          | 100%      | 45 s / 30           | 74%           | 100%          | 100%                  | 52 s          | 3%          | 0%           |
 
 Building for big clears beats single lines plus spells in every ordinary
-fight (by 3–23 points, and 20–60 s faster) and decisively against the
-Moon Wyrm (33% vs 13%); a prepared player wins the Wyrm 57–75% of the
-time (60 seeds: 23 / 32 / 33% good and 75 / 67 / 75% prepared at hero
-levels 7 / 8 / 9). The tests check that hard-dropping in place loses every
-ordinary fight. Lessons (the mentor's tosses, a full heal, gentler
-novice foes) are friendlier than fights, as intended.
+fight (Moon Imp 70% vs 57%; 15–40 s faster everywhere) and against the
+Moon Wyrm (33% vs 23%). The sim's heroes get the real `dualChance`, so
+dual pieces are on. Over 60 seeds the good bot wins 81 / 83 / 80 / 77 /
+85 / 82% of the ordinary fights (Slime to Brute) and 40 / 23 / 32% against
+the Wyrm at hero levels 7 / 8 / 9. A prepared player (2 item uses at 40%
+of a gauge each, one Feather revive) still wins nearly every ordinary
+fight and most Wyrm attempts; the Feather is the big safety net. The
+tests check that hard-dropping in place loses every ordinary fight.
+Lessons (the mentor's tosses, a full heal, gentler novice foes) are
+friendlier than fights, as intended.
 
 ### Hero magic
 
@@ -677,13 +707,13 @@ and bigger, scarier Pixel Battlers monsters underground.
 
 | Area       | Enemy        | Lv  | HP  | Atk | Gauge  | Element | Weak to       | Resists                                 | Kit                                                                                                                                 | Drops           |
 | ---------- | ------------ | --- | --- | --- | ------ | ------- | ------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | --------------- |
-| Overworld  | Green Slime  | 1   | 60  | 5   | 8.5 s  | Nature  | Fire, arcane  | Water, nature, earth                    | Bounce 3 (×2), petrify 3 (Sticky Goo)                                                                                               | Slime Gel       |
+| Overworld  | Green Slime  | 1   | 66  | 6   | 8.5 s  | Nature  | Fire, arcane  | Water, nature, earth                    | Bounce 3 (×2), petrify 3 (Sticky Goo)                                                                                               | Slime Gel       |
 | Overworld  | Spore Shroom | 2   | 85  | 6   | 7.5 s  | Nature  | Fire, arcane  | Water, nature, earth                    | Headbutt 3 (×2), haste 3 (Spore Cloud), fog 3 (Spore Haze)                                                                          | Spore Cap       |
 | Overworld  | Goblin Scout | 3   | 100 | 6   | 8 s    | Earth   | Water, nature | Lightning, earth, wind                  | Stab 4 (×2), curse 1 (Rock Toss), seal 3 (Stake)                                                                                    | Goblin Charm    |
 | Moon Caves | Moon Imp     | 3   | 110 | 12  | 6 s    | Arcane  | Fire, wind    | Lightning, nature, arcane               | Swoop 3, drain 4, fog 3 (Moon Dust), quicken 5 s (Flit)                                                                             | —               |
-| Moon Caves | Shade Imp    | 4   | 190 | 12  | 7 s    | Arcane  | Fire, wind    | Lightning, nature, arcane               | Moonbeam 5, heal 12, curse 1 (Hex), petrify 4 (Gloom)                                                                               | Moon Shard      |
+| Moon Caves | Shade Imp    | 4   | 210 | 12  | 7 s    | Arcane  | Fire, wind    | Lightning, nature, arcane               | Moonbeam 5, heal 12, curse 1 (Hex), petrify 4 (Gloom)                                                                               | Moon Shard      |
 | Moon Caves | Cave Brute   | 5   | 140 | 11  | 12.5 s | Earth   | Water, nature | Lightning, earth, wind                  | Slam 8, curse 2 (Rubble), seal 3 (Boulder)                                                                                          | Ether           |
-| Depths     | Moon Wyrm    | 7   | 320 | 13  | 8 s    | Arcane  | Fire, wind    | Water (boss), lightning, nature, arcane | All nine move kinds, attacks twice as likely (Lunar Breath 16, Tail Sweep 10); enrages at ½ HP (5 s gauge, 3-row curses, +4 attack) | Phoenix Feather |
+| Depths     | Moon Wyrm    | 7   | 300 | 13  | 8 s    | Arcane  | Fire, wind    | Water (boss), lightning, nature, arcane | All nine move kinds, attacks twice as likely (Lunar Breath 16, Tail Sweep 10); enrages at ½ HP (5 s gauge, 3-row curses, +4 attack) | Phoenix Feather |
 | Lessons    | Wisps (×7)   | 2   | 50  | 5   | 9 s    | Each    | From chart    | From chart                              | Lash 2 + one of their element's (Tide: fog 2; Gale: quicken 4 s)                                                                    | —               |
 
 The seven wisps (Ember, Tide, Spark, Moss, Stone, Moon, Gale) are mentors'
@@ -802,3 +832,11 @@ stat, alignment, a board feat, a quest or an item.
 6. NPC attitudes and the dialogue rewrite. **Done.**
 
 Each stage ships with tests and keeps the game playable.
+
+## Parked ideas
+
+- **Colour-match clears** (Dr. Mario style): four or more crystals of one
+  element in a row or column would pop on their own, beside the usual
+  full-line clears. Dual pieces would make it a real placement game. Not
+  built: it would change damage, mana and the board's pacing at once, so
+  it needs its own balance pass.

@@ -1,4 +1,4 @@
-import { BOARD_HEIGHT, BOARD_WIDTH, Board, type LockResult } from '../core/board';
+import { BOARD_HEIGHT, BOARD_WIDTH, Board, type LockResult, type QueuedPiece } from '../core/board';
 import { ELEMENTS, elementsOf } from '../core/elements';
 import type { PieceName } from '../core/pieces';
 import type { Rng } from '../core/rng';
@@ -51,6 +51,8 @@ export const QUICKEN_SPEED = 2.5;
 export interface BattleOptions {
   /** Copies of each piece per bag, from area, charm and alignment (see `pieceWeights`). */
   readonly weights?: Readonly<Record<PieceName, number>>;
+  /** Chance each random piece arrives dual (see `dualChance` in `src/game/pieceOdds.ts`). */
+  readonly dualChance?: number;
 }
 
 /**
@@ -87,6 +89,7 @@ export class Battle implements BattleContext {
     clearMana(hero);
     this.rng = rng;
     this.board = new Board(rng, BOARD_WIDTH, BOARD_HEIGHT, options.weights);
+    this.board.dualChance = options.dualChance ?? 0;
     this.challenge = createChallenge(this, spec);
     // Gravity follows the foe's own level: growing with the hero makes it
     // tougher (see `scaledEnemy`), not faster-falling.
@@ -122,7 +125,13 @@ export class Battle implements BattleContext {
 
   /** The upcoming pieces the hero can see (more with Insight; none in an enemy's fog). */
   get upcoming(): PieceName[] {
-    return this.fogPieces > 0 ? [] : this.board.preview(previewCount(this.hero.stats.insight));
+    return this.upcomingPieces.map((piece) => piece.name);
+  }
+
+  /** The same, with each piece's colours (a dual piece shows two-tone). */
+  get upcomingPieces(): QueuedPiece[] {
+    const count = this.fogPieces > 0 ? 0 : previewCount(this.hero.stats.insight);
+    return this.board.previewPieces(count);
   }
 
   emit(event: BattleEvent): void {
