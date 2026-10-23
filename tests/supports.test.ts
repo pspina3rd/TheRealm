@@ -42,7 +42,6 @@ function nextMove(combat: CombatChallenge, move: EnemyMove): void {
     moves: [move],
   };
   combat.nextMove = move;
-  combat.countdown = 1;
 }
 
 const kinds = (battle: ReturnType<typeof fight>['battle']) =>
@@ -51,7 +50,7 @@ const kinds = (battle: ReturnType<typeof fight>['battle']) =>
 describe('support spells', () => {
   it('Kindle burns the enemy after each of the next pieces, scaled by weakness', () => {
     const { battle, combat } = fight('kindle');
-    combat.countdown = 99;
+    combat.gauge = -1e9; // the enemy never moves
     combat.castSpell('kindle');
     const hp = combat.enemyHp;
     battle.input('hardDrop');
@@ -64,10 +63,9 @@ describe('support spells', () => {
   it('Mist makes the enemy’s next move fizzle', () => {
     const { battle, combat, hero } = fight('mist');
     nextMove(combat, { kind: 'attack', name: 'Bonk', power: 5 });
-    combat.countdown = 2;
     combat.castSpell('mist');
     const hp = hero.hp;
-    battle.input('hardDrop');
+    battle.update(combat.actMs);
     expect(hero.hp).toBe(hp);
     expect(combat.mist).toBe(0);
     expect(kinds(battle)).toContain('fizzle');
@@ -76,7 +74,7 @@ describe('support spells', () => {
 
   it('Static adds a lightning strike to each of the next line clears', () => {
     const { battle, combat } = fight('static');
-    combat.countdown = 99;
+    combat.gauge = -1e9; // the enemy never moves
     combat.castSpell('static');
     setUpVerticalIClear(battle.board, 1);
     battle.input('hardDrop');
@@ -87,7 +85,7 @@ describe('support spells', () => {
 
   it('Regen heals after each of the next pieces', () => {
     const { battle, combat, hero } = fight('regen');
-    combat.countdown = 99;
+    combat.gauge = -1e9; // the enemy never moves
     hero.hp = 10;
     combat.castSpell('regen');
     battle.input('hardDrop');
@@ -97,7 +95,7 @@ describe('support spells', () => {
 
   it('Stoneskin raises a ward, capped', () => {
     const { combat } = fight('stoneskin');
-    combat.countdown = 99;
+    combat.gauge = -1e9; // the enemy never moves
     combat.castSpell('stoneskin');
     expect(combat.ward).toBe(15);
     combat.castSpell('stoneskin');
@@ -106,7 +104,7 @@ describe('support spells', () => {
 
   it('Mana Tap fills every other pool, and needs room in one', () => {
     const { battle, combat, hero } = fight('manaTap');
-    combat.countdown = 99;
+    combat.gauge = -1e9; // the enemy never moves
     hero.mana = { ...emptyCounts(), arcane: 10 };
     combat.castSpell('manaTap');
     expect(hero.mana).toEqual({ ...emptyCounts(2), arcane: 6 });
@@ -126,7 +124,7 @@ describe('support spells', () => {
 
   it('Gust swaps the falling piece for the next one', () => {
     const { battle, combat } = fight('gust');
-    combat.countdown = 99;
+    combat.gauge = -1e9; // the enemy never moves
     forceQueue(battle, ['T', 'O', 'I']);
     combat.castSpell('gust');
     expect(battle.board.active?.name).toBe('O');
@@ -134,7 +132,7 @@ describe('support spells', () => {
 
   it('Gust can’t be cast, spending nothing, when the next piece has no room', () => {
     const { battle, combat, hero } = fight('gust');
-    combat.countdown = 99;
+    combat.gauge = -1e9; // the enemy never moves
     forceQueue(battle, ['T', 'I']);
     battle.board.grid[1] = rowWithGaps(10, [3, 4, 5]); // room for the T only
     const wind = hero.mana.wind;
@@ -143,12 +141,12 @@ describe('support spells', () => {
     expect(() => combat.castSpell('gust')).toThrow('No room to swap.');
     expect(hero.mana.wind).toBe(wind);
     expect(battle.board.active?.name).toBe('T');
-    expect(combat.countdown).toBe(99);
+    expect(combat.gauge).toBe(-1e9);
   });
 
   it('effects stop once the enemy is down', () => {
     const { battle, combat, hero } = fight('kindle', 'regen');
-    combat.countdown = 99;
+    combat.gauge = -1e9; // the enemy never moves
     hero.hp = 10;
     combat.castSpell('kindle');
     combat.castSpell('regen');

@@ -144,7 +144,7 @@ export class BoardView {
     this.drawFlashes(w, dtMs);
     this.drawCellFlashes(dtMs);
     this.drawPops(w, dtMs);
-    this.drawBadges(status, w, timeMs);
+    this.drawBadges(status, this.badgeRight(board), timeMs);
     if (dimmed) {
       ctx.fillStyle = '#080a12b0';
       ctx.fillRect(0, 0, w, h);
@@ -176,8 +176,14 @@ export class BoardView {
     ctx.strokeRect(x + 1, 1, CELL - 2, h - 2);
     const bob = Math.sin(timeMs / 200) * 2;
     drawIcon(ctx, 'lock', x + (CELL - ICON_SIZE * 2) / 2, 6 + bob, { scale: 2 });
-    drawCount(ctx, seal.pieces, x + CELL - 2, 50);
+    drawCount(ctx, seal.pieces, x + 10, 54);
     ctx.restore();
+  }
+
+  /** The right edge for badges: left of a sealed column near the right wall. */
+  private badgeRight(board: Board): number {
+    const column = board.seal?.column ?? 0;
+    return (column >= board.width - 2 ? column : board.width) * CELL;
   }
 
   /** Cells that just changed (turned to stone) flash white, then fade. */
@@ -268,7 +274,7 @@ export class BoardView {
         ctx.fill();
       }
       drawIcon(ctx, 'eye', width / 2 - ICON_SIZE, height / 2 - ICON_SIZE, { scale: 2 });
-      drawCount(ctx, fog, width - 6, height - 6);
+      drawCount(ctx, fog, width - 20, height - 8);
       return;
     }
     const [first, ...rest] = names;

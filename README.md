@@ -52,7 +52,7 @@ the menu.
 Every level gives 2 skill points (and a little HP). Spend them on the skill
 screen, which opens after a level-up and from the menu's Skills button (a
 badge counts waiting points), on eight stats: Vitality (HP), Strength
-(strike damage), Guard (less damage taken), Focus (mana pools), Agility
+(+4% strike damage per rank), Guard (less damage taken), Focus (mana pools), Agility
 (slower pieces), Insight (more next pieces, then the enemy's next move),
 Charm (people like you more) and Luck (drops and critical strikes). The same
 points enhance spells (below). Points can be saved; spending is permanent.
@@ -134,12 +134,23 @@ attack the moment you walk into them. Full rules and numbers are in
 
 | Type     | Who           | Win condition                                                       |
 | -------- | ------------- | ------------------------------------------------------------------- |
-| Combat   | Monsters      | Reduce the enemy to 0 HP. Lines deal damage; the enemy casts magic. |
+| Combat   | Monsters      | Reduce the enemy to 0 HP before its real-time gauge wears you down. |
 | Offering | Quest NPCs    | Hold the item and score N points within P pieces.                   |
 | Barter   | Traders       | Clear N crystals of the requested colours within P pieces.          |
 | Haggle   | Shopkeepers   | Survive P pieces; your clears lower the price, time raises it.      |
 | Puzzle   | Sages, chests | Clear N lines from a preset board using a fixed set of pieces.      |
 | Lesson   | Mentors       | Defeat the foe with the mentor's help; win to learn the spell.      |
+
+Fights are real time: the enemy's gauge (under its HP bar) fills and it
+moves when full, hitting you or your board (stone rows, a sealed column,
+fog over your next piece, crystals turned to stone, faster gravity).
+Single lines barely scratch it; 3–4 line clears, back-to-back big clears
+and combos (several pieces in a row that each clear) hit hard. Leaving
+covered holes or overflowing the board feeds its gauge. Monsters grow
+with you (within a few levels of their own), so no area turns into a
+farm. Falling in battle wakes you at the last inn with 30% HP and half
+your gil; level-ups add only the new max HP. Walking heals a little while
+you're below half HP, and the inn restores the rest.
 
 See [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md) for the full rules and the
 reasoning behind them.

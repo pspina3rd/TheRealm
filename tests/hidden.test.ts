@@ -44,7 +44,14 @@ function seeker(...spells: string[]): { hero: Hero; flags: Set<string> } {
 
 /** A lock result clearing `lines`. */
 function lock(lines: LockResult['lines']): LockResult {
-  return { linesCleared: lines.length, clearedCells: {}, lines, rows: [], toppedOut: false };
+  return {
+    linesCleared: lines.length,
+    clearedCells: {},
+    lines,
+    rows: [],
+    toppedOut: false,
+    holesMade: 0,
+  };
 }
 
 describe('hidden spell data', () => {
@@ -323,7 +330,7 @@ describe('hidden spells in combat', () => {
     battle.hero.mana = Object.fromEntries(ELEMENTS.map((e) => [e, 30])) as Hero['mana'];
     battle.hero.manaCap = 30;
     combat.enemyHp = 999;
-    combat.countdown = 99;
+    combat.gauge = -1e9; // the enemy never moves
     return { battle, combat, hero: battle.hero };
   }
   const level = (battle: Battle) => 2 * battle.hero.level;
@@ -421,12 +428,15 @@ describe('hidden spells in combat', () => {
     expect(combat.weaknesses()).toEqual([...ELEMENTS]);
     expect(combat.resistances()).toEqual([]);
     expect(combat.multiplier(resisted)).toBe(WEAK_MULTIPLIER);
-    // Every cleared crystal counts as a weakness: +2 strike damage each.
+    // Every cleared crystal counts as a weakness: the strike is ×1.5.
     setUpVerticalIClear(battle.board, 1, 'orange');
     battle.input('hardDrop');
     expect(combat.exposed).toBe(3);
     const hit = battle.events.filter((e) => e.event.kind === 'enemyHit')[0]?.event;
-    expect(hit).toMatchObject({ amount: 8 + battle.hero.atk + 2 * 10, affinity: 'weak' });
+    expect(hit).toMatchObject({
+      amount: Math.round(4 * (1 + 0.04 * battle.hero.atk) * 1.5),
+      affinity: 'weak',
+    });
     forceQueue(battle, ['O', 'O', 'O']);
     for (let i = 0; i < 3; i++) battle.input('hardDrop');
     expect(combat.exposed).toBe(0);

@@ -104,7 +104,7 @@ skill points.
 | Stat     | Icon        | Per rank                                                                   | Max |
 | -------- | ----------- | -------------------------------------------------------------------------- | --- |
 | Vitality | Heart       | +6 max HP                                                                  | 10  |
-| Strength | Sword       | +1 damage on every line-clear strike                                       | 10  |
+| Strength | Sword       | +4% damage on every line-clear strike                                      | 10  |
 | Guard    | Shield      | −1 damage from every enemy hit                                             | 10  |
 | Focus    | Potion      | +1 capacity in every mana pool                                             | 10  |
 | Agility  | Winged boot | Pieces fall 4% slower (40% at max)                                         | 10  |
@@ -115,8 +115,8 @@ skill points.
 - **Skill points**: 2 per hero level. A stat rank costs 1 point. The same
   points buy [spell enhancements](#enhancements). Points can be saved;
   spending is permanent (no respec, for now).
-- **Level-ups** give the points plus the class's HP growth, and restore HP
-  (mana is battle-only). Pool size, attack and defence only grow through
+- **Level-ups** give the points plus the class's HP growth, added to
+  current HP too, but they are no full heal (mana is battle-only). Pool size, attack and defence only grow through
   stats and gear.
 - **Crit**: a critical strike doubles the clear's strike damage (not its
   line effects) and shows a clover and ×2 over the enemy.
@@ -131,26 +131,104 @@ skill points.
 
 ## Combat (monsters)
 
-- Clearing lines strikes the enemy: 8 / 20 / 35 / 55 base damage for
-  1 / 2 / 3 / 4 lines, plus the hero's attack (class base, Strength and
-  weapon), plus the elemental crystal bonus above; Luck can crit it. Then
-  each line's effect fires.
-- The enemy acts after a set number of your **actions** (placing a piece,
-  casting a spell or using an item). It picks its move a turn ahead, so
-  Insight 9 can show it beside the turn pips. Enemy magic:
+Fights are real time and reward planning: a sloppy stack loses.
 
-  | Move   | Effect                                                                                         |
-  | ------ | ---------------------------------------------------------------------------------------------- |
-  | attack | Damage = power + enemy attack − your defence (base, Guard and armour); a ward absorbs it first |
-  | curse  | Pushes stone rows (one gap each) up the board                                                  |
-  | haste  | Doubles gravity for your next N pieces; ends a tailwind                                        |
-  | heal   | Restores the enemy's HP                                                                        |
-  | drain  | Burns mana from your fullest pool                                                              |
+- **Strike damage** for each clear (`strikeDamage` in
+  `src/battle/combat.ts`):
 
-- If the board overflows you lose 25% of max HP and the board is cleared.
+  `LINE_DAMAGE[lines] × (1 + 4% × attack) × back-to-back × combo × affinity`
+
+  | Lines together | 1   | 2   | 3   | 4   |
+  | -------------- | --- | --- | --- | --- |
+  | Base damage    | 4   | 12  | 26  | 48  |
+  - **Attack** (class base, Strength and weapon) is a percentage: +4% per
+    point (a Ranger with a copper sword, attack 8, strikes ×1.32).
+  - **Back-to-back**: a 2+ line clear right after another 2+ line clear
+    (pieces that clear nothing in between don't break it; a single does)
+    strikes ×1.5 (the stage floats "×1.5").
+  - **Combo**: each consecutive piece that clears adds +25% (up to +200%
+    at 8 steps); a piece that clears nothing ends it (floats "×2", "×3"…).
+  - **Affinity**: 1 + 0.5 × (share of cleared cells the enemy is weak to)
+    − 0.25 × (share it resists); Fault Line counts every crystal as weak.
+  - Luck can crit a 3+ line clear (×2). Then each line's surge fires
+    (3+ crystals of one element; see the line effects above) as before.
+
+- **The action gauge** (Active-Time-Battle style) replaces turn counting:
+  it fills over the enemy's `actMs` (shown as an orange bar under its
+  HP; it pulses red when nearly full) and the enemy moves when full. The
+  pause stops it. Spells and items take no time.
+  - **Slows it**: a water line pushes it back 1.5 s (never below −3 s);
+    Blizzard pushes it back 1.5 s per "piece" of its freeze (never below
+    one full gauge); Mist makes the next move fizzle. Chill shows as ice
+    over the bar.
+  - **Speeds it**: enrage (bosses) shortens `actMs`; growing with the
+    hero shortens it 3% per level.
+  - **Mistakes feed it**: each new covered hole a placement leaves adds
+    15% of a gauge (at most 45% per piece; the gauge flashes and "+N"
+    floats); a full gauge moves at once. Overflowing the board costs 25%
+    of max HP, clears the board **and** gives the enemy a free move on
+    top of its gauge (not when its own curse caused the overflow).
+  - Agility and tailwind still act on gravity, not on the gauge.
+- **Enemy moves**, chosen one move ahead (Insight 9 shows its icon left
+  of the gauge):
+
+  | Move    | Effect                                                                                          | Shown as                                   |
+  | ------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------ |
+  | attack  | Damage = power + enemy attack − your defence (base, Guard and armour); a ward absorbs it first  | Red number, hero shakes                    |
+  | curse   | Pushes stone rows (one gap each) up the board                                                   | Board shakes                               |
+  | haste   | Doubles gravity for your next N pieces; ends a tailwind                                         | Haste badge with a count                   |
+  | heal    | Restores the enemy's HP                                                                         | Green number                               |
+  | drain   | Burns mana from your fullest pool                                                               | Pool flashes                               |
+  | fog     | Hides the next-piece preview for N pieces                                                       | Grey cloud and eye over the preview, count |
+  | seal    | Seals a column (never one of the spawn columns 3–6, never under the falling piece) for N pieces | Hatched column with a lock and count       |
+  | petrify | Turns K random crystals on the board to stone                                                   | Cells flash white, then show as stone      |
+  | quicken | Pieces fall 2.5× faster for N seconds                                                           | Hourglass badge counting seconds           |
+
 - A Phoenix Feather revives you once at half HP, automatically.
-- Losing sends you back to the last inn you rested at, with half your gil.
-  Normal monsters reappear when you leave the map; bosses stay beaten.
+- **Failure costs**: losing a fight sends you back to the last inn you
+  rested at with **30% HP** and half your gil (no free heal). Normal
+  monsters reappear when you leave the map; bosses stay beaten. So a
+  broke, battered hero never soft-locks, **walking heals 1 HP per step
+  while below half HP**; the inn (10 gil) restores the rest. A lesson
+  still starts at full HP (the mentor's setup) and a lost one leaves you
+  at least half.
+
+### Monster scaling
+
+Each monster grows with the hero inside a band (`src/game/scaling.ts`):
+its effective level is `clamp(hero level, own level, own level + band)`,
+with band 3 (1 for bosses; `EnemyDef.band` overrides it per monster, for
+new regions). Each level grown adds 10% of its base HP, 1 attack and 3%
+gauge speed, and the same 10% to its XP. Gravity stays at the monster's
+own level. Once the hero stands above the effective level, XP falls 25%
+per level (at least 10%); bosses' XP never falls off. The stage shows the
+level it fights at ("Lv4") left of its HP bar.
+
+### Balance (simulated)
+
+`tests/sim/simulate.ts` plays the real `Battle` on simulated time (one
+piece per 1.5 s) with a bot: **good** stacks flat with no holes, keeps
+the right column as a well for 3–4 line clears and casts whatever spell
+is ready; **sloppy** is the greedy tidy heuristic from `bestFit` with a
+careless drop a third of the time; **dropper** hard-drops in place. Each
+fight starts at full HP, the hero (Ranger) at the monster's level with
+points spread over Strength, Vitality and Guard and level-fit gear. Run
+`SIM=1 RUNS=100 npx vitest run tests/difficulty.test.ts` for the table
+(100 seeds):
+
+| Enemy      | Hero level | Good wins     | Good: time / pieces | Good: HP left | Sloppy wins | Dropper wins |
+| ---------- | ---------- | ------------- | ------------------- | ------------- | ----------- | ------------ |
+| Slime      | 1          | 77%           | 43 s / 29           | 64%           | 8%          | 0%           |
+| Shroom     | 2          | 81%           | 55 s / 37           | 66%           | 0%          | 0%           |
+| Goblin     | 3          | 78%           | 63 s / 42           | 61%           | 0%          | 0%           |
+| Moon Imp   | 3          | 80%           | 62 s / 41           | 63%           | 2%          | 0%           |
+| Shade Imp  | 4          | 85%           | 90 s / 60           | 65%           | 0%          | 0%           |
+| Cave Brute | 5          | 76%           | 91 s / 62           | 51%           | 0%          | 0%           |
+| Moon Wyrm  | 7 / 8 / 9  | 38 / 34 / 45% | ~165 s / 112        | ~40%          | 0%          | 0%           |
+
+The tests check that hard-dropping in place loses every ordinary fight.
+Lessons (with the mentor's tosses and a full heal) run 70–100% for the
+good bot and mostly lose for the sloppy one.
 
 ### Hero magic
 
@@ -192,7 +270,7 @@ then rows or pieces after the slash.
 | Gust      | Wind      | 3 wind      | Swaps the falling piece for the next one (not if it has no room)     |
 
 Running supports show on the stage with a count: Kindle and Mist under
-the enemy's turn pips, Regen and Static beside the hero.
+the enemy's action gauge, Regen and Static beside the hero.
 
 **Combos** have a single level and build both (or all) of their elements'
 alignment. Each needs another element's primary.
@@ -309,7 +387,7 @@ buttons (spell, level pips, kind, cost, difficulty as swords).
 - **The foe**: at home, the mentor's trial **wisp** of their element;
   away, the toughest non-boss monster of the area (of the mentor's element
   if there is one), or the wisp in a town. Per difficulty above 1 the foe
-  gains 50% HP, +2 attack and a level (faster pieces). Lessons give no XP,
+  gains 60% HP, +3 attack and a level (faster pieces). Lessons give no XP,
   gil or drops.
 - **The mentor's help**: on every new piece, with chance
 
@@ -561,24 +639,30 @@ tome became a delver's cache (Maren teaches Blizzard).
 Art is mixed by area: cute Fantasy Dreamland creatures in the open world,
 and bigger, scarier Pixel Battlers monsters underground.
 
-| Area       | Enemy        | Element | Weak to       | Resists                                 | Magic                           | Drops           |
-| ---------- | ------------ | ------- | ------------- | --------------------------------------- | ------------------------------- | --------------- |
-| Overworld  | Green Slime  | Nature  | Fire, arcane  | Water, nature, earth                    | attack                          | Slime Gel       |
-| Overworld  | Spore Shroom | Nature  | Fire, arcane  | Water, nature, earth                    | attack, haste (Spore Cloud)     | Spore Cap       |
-| Overworld  | Goblin Scout | Earth   | Water, nature | Lightning, earth, wind                  | attack, curse (Rock Toss)       | Goblin Charm    |
-| Moon Caves | Moon Imp     | Arcane  | Fire, wind    | Lightning, nature, arcane               | attack, drain                   | —               |
-| Moon Caves | Shade Imp    | Arcane  | Fire, wind    | Lightning, nature, arcane               | attack, heal, curse             | Moon Shard      |
-| Moon Caves | Cave Brute   | Earth   | Water, nature | Lightning, earth, wind                  | attack, curse (2 rows)          | Ether           |
-| Depths     | Moon Wyrm    | Arcane  | Fire, wind    | Water (boss), lightning, nature, arcane | everything; enrages at ½ HP     | Phoenix Feather |
-| Lessons    | Wisps (×7)   | Each    | From chart    | From chart                              | attack + one of their element's | —               |
+| Area       | Enemy        | Lv  | HP  | Atk | Gauge  | Element | Weak to       | Resists                                 | Kit                                                              | Drops           |
+| ---------- | ------------ | --- | --- | --- | ------ | ------- | ------------- | --------------------------------------- | ---------------------------------------------------------------- | --------------- |
+| Overworld  | Green Slime  | 1   | 50  | 4   | 8.5 s  | Nature  | Fire, arcane  | Water, nature, earth                    | Bounce 3 (×2), petrify 3 (Sticky Goo)                            | Slime Gel       |
+| Overworld  | Spore Shroom | 2   | 70  | 5   | 7.5 s  | Nature  | Fire, arcane  | Water, nature, earth                    | Headbutt 3 (×2), haste 3 (Spore Cloud), fog 3 (Spore Haze)       | Spore Cap       |
+| Overworld  | Goblin Scout | 3   | 80  | 5   | 8 s    | Earth   | Water, nature | Lightning, earth, wind                  | Stab 4 (×2), curse 1 (Rock Toss), seal 3 (Stake)                 | Goblin Charm    |
+| Moon Caves | Moon Imp     | 3   | 85  | 10  | 6 s    | Arcane  | Fire, wind    | Lightning, nature, arcane               | Swoop 3, drain 4, fog 3 (Moon Dust), quicken 5 s (Flit)          | —               |
+| Moon Caves | Shade Imp    | 4   | 140 | 10  | 7 s    | Arcane  | Fire, wind    | Lightning, nature, arcane               | Moonbeam 5, heal 12, curse 1 (Hex), petrify 4 (Gloom)            | Moon Shard      |
+| Moon Caves | Cave Brute   | 5   | 115 | 10  | 12.5 s | Earth   | Water, nature | Lightning, earth, wind                  | Slam 8, curse 2 (Rubble), seal 3 (Boulder)                       | Ether           |
+| Depths     | Moon Wyrm    | 7   | 420 | 13  | 7 s    | Arcane  | Fire, wind    | Water (boss), lightning, nature, arcane | All nine move kinds; enrages at ½ HP (5 s gauge, 3-row curses)   | Phoenix Feather |
+| Lessons    | Wisps (×7)   | 2   | 50  | 5   | 9 s    | Each    | From chart    | From chart                              | Lash 2 + one of their element's (Tide: fog 2; Gale: quicken 4 s) | —               |
 
 The seven wisps (Ember, Tide, Spark, Moss, Stone, Moon, Gale) are mentors'
-trial foes: 24 HP, attack 4, acting every 5 pieces (their haste lasts 2
-pieces), drawn as a slime recoloured to their element. Each difficulty
-above 1 adds 50% HP and 2 attack. They were softened after playtests
-lost 18 of 25 lessons while winning 77 of 79 fights.
+trial foes, drawn as a slime recoloured to their element. Each lesson
+difficulty above 1 adds 60% HP and 3 attack (and a level of gravity).
 
-**Balance after two full playthroughs** (Ranger, Knight): the Moon Wyrm
+**The difficulty overhaul** (after bot playthroughs won 59–0 and 60–0):
+monsters died in 1–4 single lines and acted only every 3–5 pieces, so the
+board never needed planning. Now HP is roughly 3× (a fight is 30–60
+pieces for a good stacker), single lines are weak, enemies act in real
+time and attack the board, mistakes feed the enemy, failure costs HP,
+and monsters grow with the hero. The Moon Wyrm wants preparation (a
+level or two, items, a weakness spell) and usually a few attempts.
+
+**Earlier history — balance after two full playthroughs** (Ranger, Knight; numbers since replaced by the overhaul above): the Moon Wyrm
 fell first try at level 7, so it now has 300 HP (was 160) and attack 15
 (13), and **enrages** below half HP: it acts every 2 pieces instead of 3
 and its curse pushes 3 stone rows instead of 2 (generic

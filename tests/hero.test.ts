@@ -29,6 +29,9 @@ import {
   totalAttack,
   totalDefense,
   useItem,
+  walkRegen,
+  WALK_REGEN,
+  WALK_REGEN_CAP,
 } from '../src/game/hero';
 import { enhancements, heroSpell, newKnownSpell } from '../src/game/spells';
 import { SKILL_POINTS_PER_LEVEL } from '../src/game/stats';
@@ -97,15 +100,28 @@ describe('hero', () => {
     expect(createHero('nope').classId).toBe('ranger');
   });
 
-  it('levels up, raising max HP and fully restoring', () => {
+  it('levels up, raising max HP and adding only the gain to current HP', () => {
     const hero = createHero();
     hero.hp = 1;
     expect(gainXp(hero, 30)).toBe(1);
     expect(hero.level).toBe(2);
     expect(hero.xp).toBe(0);
     expect(hero.nextXp).toBe(43);
-    expect(hero.hp).toBe(hero.maxHp);
     expect(hero.maxHp).toBe(48);
+    expect(hero.hp).toBe(1 + 8); // the Ranger's growth, not a full heal
+    hero.hp = hero.maxHp;
+    gainXp(hero, hero.nextXp);
+    expect(hero.hp).toBe(hero.maxHp);
+  });
+
+  it('regenerates while walking, but only up to half HP', () => {
+    const hero = createHero();
+    hero.hp = 1;
+    expect(walkRegen(hero)).toBe(WALK_REGEN);
+    hero.hp = Math.ceil(hero.maxHp * WALK_REGEN_CAP) - 1;
+    expect(walkRegen(hero)).toBe(1);
+    expect(walkRegen(hero)).toBe(0);
+    expect(hero.hp).toBe(Math.ceil(hero.maxHp * WALK_REGEN_CAP));
   });
 
   it('can gain several levels at once and keeps leftover XP', () => {

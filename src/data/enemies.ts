@@ -88,7 +88,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     id: 'shadeImp',
     name: 'Shade Imp',
     level: 4,
-    hp: 130,
+    hp: 140,
     atk: 10,
     xp: 30,
     gil: 16,

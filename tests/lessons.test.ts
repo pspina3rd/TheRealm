@@ -10,6 +10,7 @@ import { describeInteraction, entitySprite, resolveBattle } from '../src/game/en
 import { createHero, learnSpell, type Hero } from '../src/game/hero';
 import {
   FOE_ATK_PER_DIFFICULTY,
+  FOE_HP_PER_DIFFICULTY,
   completeLesson,
   helpChance,
   heroHelpChance,
@@ -146,7 +147,7 @@ describe('lesson foes', () => {
     const wisp = ENEMIES.emberWisp!;
     expect(scaledFoe(wisp, 1)).toMatchObject({ hp: wisp.hp, atk: wisp.atk, level: wisp.level });
     expect(scaledFoe(ENEMIES.goblin!, 3)).toMatchObject({
-      hp: ENEMIES.goblin!.hp * 2,
+      hp: Math.round(ENEMIES.goblin!.hp * (1 + 2 * FOE_HP_PER_DIFFICULTY)),
       atk: ENEMIES.goblin!.atk + 2 * FOE_ATK_PER_DIFFICULTY,
       level: ENEMIES.goblin!.level + 2,
       xp: 0,
@@ -406,13 +407,13 @@ describe('LessonChallenge', () => {
     };
     const battle = makeBattle(spec, hero);
     const challenge = battle.challenge as LessonChallenge;
-    challenge.countdown = 99;
+    challenge.gauge = -1e9; // the enemy never moves
     return { battle, challenge, hero };
   }
 
   it('fights a scaled foe at the scaled speed, as a lesson', () => {
     const { battle, challenge } = lesson(2);
-    expect(challenge.enemy.hp).toBe(36);
+    expect(challenge.enemy.hp).toBe(Math.round(50 * (1 + FOE_HP_PER_DIFFICULTY)));
     expect(battle.level).toBe(3);
     expect(challenge.objective().label).toBe('Lesson: Fire');
     expect(challenge.helpChance).toBeCloseTo(0.5 * 0.8);

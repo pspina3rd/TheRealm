@@ -19,7 +19,7 @@ describe('boss enrage', () => {
   const wyrm = ENEMIES.moonWyrm!;
 
   it('enrages the Moon Wyrm at half HP: faster moves, heavier curses', () => {
-    expect(wyrm.enrage).toEqual({ below: 0.5, actEvery: 2, curseRows: 3 });
+    expect(wyrm.enrage).toEqual({ below: 0.5, actMs: 5000, curseRows: 3 });
     const battle = makeBattle({ kind: 'combat', enemyId: 'moonWyrm' });
     const combat = battle.combat!;
     expect(combat.enraged).toBe(false);
@@ -28,22 +28,23 @@ describe('boss enrage', () => {
     battle.input('hardDrop');
     expect(combat.enraged).toBe(true);
     expect(battle.events.filter((e) => e.event.kind === 'enrage')).toHaveLength(1);
-    expect(combat.countdown).toBeLessThanOrEqual(2);
+    expect(combat.actMs).toBe(5000);
     // Healing back above half doesn't calm it.
     combat.enemyHp = wyrm.hp;
     expect(combat.enraged).toBe(true);
   });
 
-  it('curses with the enraged row count and acts every 2 pieces', () => {
+  it('curses with the enraged row count and acts on its faster gauge', () => {
     const battle = makeBattle({ kind: 'combat', enemyId: 'moonWyrm' });
     const combat = battle.combat!;
     combat.enraged = true;
-    combat.countdown = 1;
     combat.nextMove = { kind: 'curse', name: 'Crystal Tomb', rows: 2 };
-    battle.input('hardDrop');
+    combat.update(4999);
+    expect(battle.events.some((e) => e.event.kind === 'curse')).toBe(false);
+    combat.update(1);
     const curse = battle.events.find((e) => e.event.kind === 'curse')?.event;
     expect(curse).toEqual({ kind: 'curse', rows: 3 });
-    expect(combat.countdown).toBe(2);
+    expect(combat.gauge).toBe(0);
   });
 
   it('never enrages an enemy without an enrage', () => {
@@ -65,8 +66,8 @@ describe('lessons', () => {
 
   it('use gentle difficulty-1 wisps', () => {
     const wisp = ENEMIES.galeWisp!;
-    expect([wisp.hp, wisp.atk, wisp.actEvery]).toEqual([24, 4, 5]);
-    expect(wisp.moves).toContainEqual({ kind: 'haste', name: 'Gust', pieces: 2 });
+    expect([wisp.hp, wisp.atk, wisp.actMs]).toEqual([50, 5, 9000]);
+    expect(wisp.moves).toContainEqual({ kind: 'quicken', name: 'Gust', ms: 4000 });
   });
 });
 

@@ -1,14 +1,27 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { CombatChallenge } from '../src/battle/combat';
-import { LINE_DAMAGE, MAX_WARD, rollSpoils } from '../src/battle/combat';
+import {
+  CHILL_MS,
+  MAX_CHILL_MS,
+  MAX_WARD,
+  PIECE_MS,
+  rollSpoils,
+  strikeDamage,
+} from '../src/battle/combat';
 import { TAILWIND_SLOWDOWN } from '../src/battle/battle';
-import { WEAK_CRYSTAL_BONUS } from '../src/battle/elemental';
 import { emptyCounts } from '../src/core/elements';
 import { gravityInterval } from '../src/core/scoring';
 import { createRng } from '../src/core/rng';
 import { ENEMIES } from '../src/data/enemies';
 import type { EnemyMove } from '../src/data/types';
-import { addItem, createHero, learnSpell, spendSkillPoints, totalAttack } from '../src/game/hero';
+import {
+  addItem,
+  createHero,
+  learnSpell,
+  spendSkillPoints,
+  totalAttack,
+  type Hero,
+} from '../src/game/hero';
 import { CRIT_MULTIPLIER, dropBonus, statRanks } from '../src/game/stats';
 import { enhancements, type Enhancements } from '../src/game/spells';
 import { charge, knownSpells, makeBattle, setUpVerticalIClear } from './helpers';
@@ -41,7 +54,17 @@ function nextMove(combat: CombatChallenge, move: EnemyMove): void {
     moves: [move],
   };
   combat.nextMove = move;
-  combat.countdown = 1;
+}
+
+/** Fills the enemy's gauge so it moves now (no time passes for gravity). */
+function act(combat: CombatChallenge): void {
+  combat.gauge = combat.actMs;
+  combat.update(0);
+}
+
+/** A plain strike of `lines` lines (no combo or back-to-back) at `affinity`. */
+function strike(lines: number, hero: Hero, affinity = 1): number {
+  return strikeDamage(lines, { attack: totalAttack(hero), backToBack: false, combo: 0, affinity });
 }
 
 describe('CombatChallenge', () => {
@@ -53,12 +76,13 @@ describe('CombatChallenge', () => {
     expect(fight('brute').battle.level).toBe(ENEMIES.brute!.level);
   });
 
-  it('strikes the enemy for line damage plus attack', () => {
+  it('strikes the enemy for line damage raised by attack', () => {
     const { battle, combat, hero } = fight('shroom'); // neutral to the wind crystals
     combat.enemyHp = 999;
     setUpVerticalIClear(battle.board, 2);
     battle.input('hardDrop');
-    expect(combat.enemyHp).toBe(999 - (LINE_DAMAGE[2]! + totalAttack(hero)));
+    expect(combat.enemyHp).toBe(999 - strike(2, hero));
+    expect(strike(2, hero)).toBe(Math.round(12 * (1 + 0.04 * totalAttack(hero))));
   });
 
   it('adds strike damage for crystals the enemy is weak to', () => {
@@ -66,8 +90,7 @@ describe('CombatChallenge', () => {
     combat.enemyHp = 999;
     setUpVerticalIClear(battle.board, 1, 'violet');
     battle.input('hardDrop');
-    const expected = LINE_DAMAGE[1]! + totalAttack(hero) + 9 * WEAK_CRYSTAL_BONUS;
-    expect(combat.enemyHp).toBe(999 - expected);
+    expect(combat.enemyHp).toBe(999 - strike(1, hero, 1 + 0.5 * 0.9));
   });
 
   it('reduces strike damage for crystals the enemy resists', () => {
@@ -75,7 +98,7 @@ describe('CombatChallenge', () => {
     combat.enemyHp = 999;
     setUpVerticalIClear(battle.board, 1, 'blue');
     battle.input('hardDrop');
-    expect(combat.enemyHp).toBe(999 - (LINE_DAMAGE[1]! + totalAttack(hero) - 9));
+    expect(combat.enemyHp).toBe(999 - strike(1, hero, 1 - 0.25 * 0.9));
   });
 
   it('wins when the enemy reaches 0 HP', () => {
@@ -86,12 +109,14 @@ describe('CombatChallenge', () => {
     expect(battle.status).toBe('won');
   });
 
-  it('enemy attacks after its countdown, reduced by defence', () => {
+  it('enemy attacks when its gauge fills, reduced by defence', () => {
     const { battle, combat, hero } = fight('shroom');
     nextMove(combat, { kind: 'attack', name: 'Bite', power: 2 });
-    battle.input('hardDrop');
+    battle.update(combat.actMs - 1);
+    expect(hero.hp).toBe(hero.maxHp);
+    battle.update(1);
     expect(hero.hp).toBe(hero.maxHp - (2 + ENEMIES.shroom!.atk - hero.def));
-    expect(combat.countdown).toBe(ENEMIES.shroom!.actEvery);
+    expect(combat.gauge).toBe(0);
   });
 
   it('Strength adds to every strike and Guard takes from every hit', () => {
@@ -104,8 +129,9 @@ describe('CombatChallenge', () => {
     nextMove(combat, { kind: 'attack', name: 'Bite', power: 6 });
     setUpVerticalIClear(battle.board, 1);
     battle.input('hardDrop');
+    act(combat);
     const base = createHero(hero.classId);
-    expect(999 - combat.enemyHp).toBe(LINE_DAMAGE[1]! + base.atk + 2);
+    expect(999 - combat.enemyHp).toBe(Math.round(4 * (1 + 0.04 * (base.atk + 2))));
     expect(hero.maxHp - hero.hp).toBe(6 + ENEMIES.shroom!.atk - (base.def + 2));
   });
 
@@ -113,8 +139,7 @@ describe('CombatChallenge', () => {
     const { battle, combat } = fight('goblin');
     const planned = combat.nextMove;
     expect(ENEMIES.goblin!.moves).toContain(planned);
-    combat.countdown = 1;
-    battle.input('hardDrop');
+    act(combat);
     expect(battle.events.map((e) => e.event)).toContainEqual({ kind: 'enemyMove', move: planned });
     expect(ENEMIES.goblin!.moves).toContain(combat.nextMove);
   });
@@ -134,7 +159,7 @@ describe('CombatChallenge', () => {
 
     it('double the strike of a 3+ line clear', () => {
       const { dealt, events, hero } = clear(3, 0.29);
-      expect(dealt).toBe((LINE_DAMAGE[3]! + totalAttack(hero)) * CRIT_MULTIPLIER);
+      expect(dealt).toBe(strike(3, hero) * CRIT_MULTIPLIER);
       const crit = events.findIndex((e) => e.kind === 'crit');
       expect(crit).toBeGreaterThanOrEqual(0);
       expect(events[crit + 1]).toMatchObject({ kind: 'enemyHit', amount: dealt });
@@ -142,7 +167,7 @@ describe('CombatChallenge', () => {
 
     it('miss when the roll is above the chance', () => {
       const { dealt, events, hero } = clear(3, 0.3);
-      expect(dealt).toBe(LINE_DAMAGE[3]! + totalAttack(hero));
+      expect(dealt).toBe(strike(3, hero));
       expect(events.some((e) => e.kind === 'crit')).toBe(false);
     });
 
@@ -154,17 +179,17 @@ describe('CombatChallenge', () => {
   });
 
   it('enemy attacks always deal at least 1 damage', () => {
-    const { battle, combat, hero } = fight();
+    const { combat, hero } = fight();
     hero.def = 999;
     nextMove(combat, { kind: 'attack', name: 'Tap', power: 0 });
-    battle.input('hardDrop');
+    act(combat);
     expect(hero.hp).toBe(hero.maxHp - 1);
   });
 
   it('curse magic raises stone rows', () => {
     const { battle, combat } = fight();
     nextMove(combat, { kind: 'curse', name: 'Hex', rows: 2 });
-    battle.input('hardDrop');
+    act(combat);
     const stones = battle.board.grid.flat().filter((c) => c === 'stone').length;
     expect(stones).toBe(18);
   });
@@ -173,7 +198,7 @@ describe('CombatChallenge', () => {
     const { battle, combat } = fight();
     const normal = battle.gravityMs;
     nextMove(combat, { kind: 'haste', name: 'Howl', pieces: 2 });
-    battle.input('hardDrop');
+    act(combat);
     expect(battle.hastePieces).toBe(2);
     expect(battle.gravityMs).toBe(normal / 2);
     battle.input('hardDrop');
@@ -182,18 +207,18 @@ describe('CombatChallenge', () => {
   });
 
   it('heal magic restores enemy HP up to its maximum', () => {
-    const { battle, combat } = fight('shadeImp');
+    const { combat } = fight('shadeImp');
     combat.enemyHp = combat.enemy.hp - 3;
     nextMove(combat, { kind: 'heal', name: 'Glimmer', amount: 10 });
-    battle.input('hardDrop');
+    act(combat);
     expect(combat.enemyHp).toBe(combat.enemy.hp);
   });
 
   it('drain magic burns mana from the fullest pool', () => {
-    const { battle, combat, hero } = fight('moonImp');
+    const { combat, hero } = fight('moonImp');
     hero.mana = { ...emptyCounts(0), water: 2, fire: 7 };
     nextMove(combat, { kind: 'drain', name: 'Leech', mana: 3 });
-    battle.input('hardDrop');
+    act(combat);
     expect(hero.mana.fire).toBe(4);
     expect(hero.mana.water).toBe(2);
   });
@@ -215,7 +240,7 @@ describe('CombatChallenge', () => {
     const { battle, combat, hero } = fight();
     hero.hp = 1;
     nextMove(combat, { kind: 'attack', name: 'Bonk', power: 50 });
-    battle.input('hardDrop');
+    act(combat);
     expect(battle.status).toBe('lost');
   });
 
@@ -224,7 +249,7 @@ describe('CombatChallenge', () => {
     addItem(hero, 'phoenixFeather');
     hero.hp = 1;
     nextMove(combat, { kind: 'attack', name: 'Bonk', power: 50 });
-    battle.input('hardDrop');
+    act(combat);
     expect(hero.hp).toBe(Math.ceil(hero.maxHp / 2));
     expect(hero.items.phoenixFeather).toBeUndefined();
     expect(battle.status).toBe('ongoing');
@@ -269,10 +294,10 @@ describe('CombatChallenge', () => {
     it('Blizzard damages and delays the enemy', () => {
       const { combat, hero } = fight('brute');
       learnSpell(hero, 'blizzard');
-      const before = combat.countdown;
+      combat.gauge = 0;
       combat.castSpell('blizzard');
-      // +3 from the freeze, -1 for the action spent casting.
-      expect(combat.countdown).toBe(before + 3 - 1);
+      // Three pieces' worth of time pushed back (casting takes none).
+      expect(combat.gauge).toBe(-3 * PIECE_MS);
       expect(combat.enemyHp).toBeLessThan(ENEMIES.brute!.hp);
     });
 
@@ -385,17 +410,17 @@ describe('CombatChallenge', () => {
         combat.castSpell('quake');
         expect(battle.board.grid.flat().filter((c) => c === 'stone')).toHaveLength(9);
         hero.spells.blizzard = at(2, { effect: 1 });
-        const before = combat.countdown;
+        combat.gauge = 0;
         combat.castSpell('blizzard');
-        expect(combat.countdown).toBe(before + 3 + 1 - 1);
+        expect(combat.gauge).toBe(-(3 + 1) * PIECE_MS);
       });
     });
 
-    it('casting counts as an action and can trigger the enemy', () => {
-      const { combat, hero } = fight('goblin');
-      nextMove(combat, { kind: 'attack', name: 'Bonk', power: 1 });
+    it('casting takes no time: the gauge is untouched', () => {
+      const { combat } = fight('goblin');
+      combat.gauge = 1234;
       combat.castSpell('fire');
-      expect(hero.hp).toBeLessThan(hero.maxHp);
+      expect(combat.gauge).toBe(1234);
     });
 
     it('explains why a spell cannot be cast', () => {
@@ -414,9 +439,9 @@ describe('CombatChallenge', () => {
       const { battle, combat, hero } = fight('goblin'); // neutral to fire, resists wind
       setUpVerticalIClear(battle.board, 1, 'red');
       battle.input('hardDrop');
-      const strike = LINE_DAMAGE[1]! + totalAttack(hero) - 1; // −1 for the wind crystal
+      const struck = strike(1, hero, 1 - 0.25 * 0.1); // the wind crystal is resisted
       const burn = Math.floor(9 * 1.1); // fire alignment 1
-      expect(ENEMIES.goblin!.hp - combat.enemyHp).toBe(strike + burn);
+      expect(combat.enemy.hp - combat.enemyHp).toBe(struck + burn);
     });
 
     it('lightning chains, multiplied by lines cleared together', () => {
@@ -425,23 +450,28 @@ describe('CombatChallenge', () => {
       setUpVerticalIClear(battle.board, 2, 'gold');
       battle.input('hardDrop');
       const chains = 2 * (9 * 2); // two lines, each 9 crystals × 2 lines together
-      expect(999 - combat.enemyHp).toBe(LINE_DAMAGE[2]! + totalAttack(hero) + chains);
+      expect(999 - combat.enemyHp).toBe(strike(2, hero) + chains);
     });
 
-    it('water chills the enemy so it acts a piece later', () => {
+    it('water chills the enemy, pushing its gauge back', () => {
       const { battle, combat } = fight('brute');
-      const before = combat.countdown;
+      combat.gauge = 2000;
       setUpVerticalIClear(battle.board, 1, 'blue');
       battle.input('hardDrop');
-      expect(combat.countdown).toBe(before); // +1 chill, -1 for the piece
+      expect(combat.gauge).toBe(2000 - CHILL_MS);
+      expect(battle.events.map((e) => e.event)).toContainEqual({ kind: 'chill' });
     });
 
     it('chill cannot stall the enemy forever', () => {
       const { battle, combat } = fight('brute');
-      combat.countdown = ENEMIES.brute!.actEvery + 2;
+      combat.gauge = -MAX_CHILL_MS + 500;
       setUpVerticalIClear(battle.board, 1, 'blue');
       battle.input('hardDrop');
-      expect(combat.countdown).toBe(ENEMIES.brute!.actEvery + 1);
+      expect(combat.gauge).toBe(-MAX_CHILL_MS);
+      // Already at the floor: a further chill does nothing.
+      setUpVerticalIClear(battle.board, 1, 'blue');
+      battle.input('hardDrop');
+      expect(combat.gauge).toBe(-MAX_CHILL_MS);
     });
 
     it('nature regrows HP', () => {
@@ -457,6 +487,7 @@ describe('CombatChallenge', () => {
       setUpVerticalIClear(battle.board, 1, 'orange');
       nextMove(combat, { kind: 'attack', name: 'Stab', power: 3 });
       battle.input('hardDrop');
+      act(combat);
       const hit = 3 + ENEMIES.goblin!.atk - hero.def;
       expect(combat.ward).toBe(Math.max(0, 9 - hit));
       expect(hero.hp).toBe(hero.maxHp - Math.max(0, hit - 9));
@@ -495,7 +526,7 @@ describe('CombatChallenge', () => {
       combat.enemyHp = 999;
       setUpVerticalIClear(battle.board, 1);
       battle.input('hardDrop');
-      expect(999 - combat.enemyHp).toBe(LINE_DAMAGE[1]! + totalAttack(hero));
+      expect(999 - combat.enemyHp).toBe(strike(1, hero));
     });
 
     it("surges grow with the hero's alignment in their element", () => {
@@ -508,13 +539,13 @@ describe('CombatChallenge', () => {
     });
   });
 
-  it('uses items mid-fight as an action', () => {
+  it('uses items mid-fight without spending time', () => {
     const { combat, hero } = fight();
     hero.hp = 10;
-    const before = combat.countdown;
+    combat.gauge = 100;
     combat.useItem('herb');
     expect(hero.hp).toBe(30);
-    expect(combat.countdown).toBe(before - 1);
+    expect(combat.gauge).toBe(100);
   });
 
   it('describes progress toward defeating the enemy', () => {
@@ -557,7 +588,7 @@ describe('combat events', () => {
     const battle = makeBattle({ kind: 'combat', enemyId: 'goblin' });
     const combat = battle.combat!;
     nextMove(combat, { kind: 'curse', name: 'Rock Toss', rows: 1 });
-    battle.input('hardDrop');
+    act(combat);
     const list = events(battle);
     const move = list.findIndex((e) => e.kind === 'enemyMove');
     expect(move).toBeGreaterThanOrEqual(0);
@@ -569,7 +600,7 @@ describe('combat events', () => {
     const combat = battle.combat!;
     combat.ward = 50;
     nextMove(combat, { kind: 'attack', name: 'Stab', power: 3 });
-    battle.input('hardDrop');
+    act(combat);
     expect(events(battle).some((e) => e.kind === 'heroHit')).toBe(false);
     expect(events(battle)).toContainEqual({ kind: 'ward', total: combat.ward });
   });
@@ -585,9 +616,10 @@ describe('combat events', () => {
     addItem(battle.hero, 'phoenixFeather');
     battle.hero.hp = 1;
     nextMove(combat, { kind: 'attack', name: 'Bonk', power: 99 });
-    battle.input('hardDrop');
+    act(combat);
     expect(events(battle)).toContainEqual({ kind: 'revive' });
     learnSpell(battle.hero, 'fire');
+    combat.enemyHp = 5;
     combat.castSpell('fire');
     expect(events(battle)).toContainEqual({ kind: 'spell', spellId: 'fire' });
     expect(events(battle).at(-1)).toEqual({ kind: 'enemyDefeated' });

@@ -125,7 +125,7 @@ export class CombatChallenge implements Challenge {
   backToBack = false;
   /** Earth ward: damage absorbed before HP. */
   ward = 0;
-  /** The move the enemy will use when the countdown runs out. */
+  /** The move the enemy will use when its gauge next fills. */
   nextMove: EnemyMove;
   /** Kindle: fire damage after each of the next `pieces` pieces. */
   burn = { power: 0, pieces: 0 };

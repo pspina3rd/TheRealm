@@ -42,7 +42,10 @@ function settle(grid: Grid, cells: readonly Offset[], x: number, y: number) {
   const kept = next.filter((row) => row.some((cell) => cell === null));
   const lines = next.length - kept.length;
   const width = grid[0]?.length ?? 0;
-  return { grid: [...Array.from({ length: lines }, () => Array<Cell>(width).fill(null)), ...kept], lines };
+  return {
+    grid: [...Array.from({ length: lines }, () => Array<Cell>(width).fill(null)), ...kept],
+    lines,
+  };
 }
 
 function features(grid: Grid) {
@@ -116,7 +119,8 @@ const key = (cells: readonly Offset[]): string => {
 function execute(battle: Battle, spot: Spot): void {
   const board = battle.board;
   const want = key(spot.cells);
-  for (let i = 0; i < 4 && board.active && key(board.active.cells) !== want; i++) battle.input('rotate');
+  for (let i = 0; i < 4 && board.active && key(board.active.cells) !== want; i++)
+    battle.input('rotate');
   const piece = board.active;
   if (piece) {
     const minX = Math.min(...piece.cells.map(([cx]) => cx));

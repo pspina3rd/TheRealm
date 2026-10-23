@@ -25,7 +25,7 @@ export const MIN_XP_SHARE = 0.1;
 
 /** The level `enemy` fights at against a hero of `heroLevel`. */
 export function effectiveLevel(enemy: EnemyDef, heroLevel: number): number {
-  const band = enemy.boss ? BOSS_BAND : LEVEL_BAND;
+  const band = enemy.band ?? (enemy.boss ? BOSS_BAND : LEVEL_BAND);
   return Math.min(enemy.level + band, Math.max(enemy.level, heroLevel));
 }
 
@@ -52,7 +52,9 @@ export function scaledEnemy(enemy: EnemyDef, heroLevel: number): EnemyDef {
     hp: Math.round(enemy.hp * (1 + HP_PER_LEVEL * grown)),
     atk: enemy.atk + ATK_PER_LEVEL * grown,
     actMs: Math.round(enemy.actMs / speed),
-    ...(enemy.enrage ? { enrage: { ...enemy.enrage, actMs: Math.round(enemy.enrage.actMs / speed) } } : {}),
+    ...(enemy.enrage
+      ? { enrage: { ...enemy.enrage, actMs: Math.round(enemy.enrage.actMs / speed) } }
+      : {}),
     xp,
   };
 }

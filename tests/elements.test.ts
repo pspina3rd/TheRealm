@@ -109,7 +109,11 @@ describe('enemy weaknesses and resistances', () => {
     expect(elementMultiplier(brute, 'water')).toBe(1.5);
     expect(elementMultiplier(brute, 'earth')).toBe(0.5);
     expect(elementMultiplier(brute, 'fire')).toBe(1);
-    expect(crystalAffinity(brute, { ...emptyCounts(), water: 3, wind: 2, fire: 5 })).toBe(6 - 2);
+    // 3 of 10 weak (water), 2 of 10 resisted (wind): 1 + 0.5 × 0.3 − 0.25 × 0.2.
+    expect(
+      crystalAffinity(brute, { ...emptyCounts(), water: 3, wind: 2, fire: 5 }, 10),
+    ).toBeCloseTo(1.1);
+    expect(crystalAffinity(brute, emptyCounts(), 0)).toBe(1);
   });
 });
 

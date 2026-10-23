@@ -7,7 +7,12 @@ import { ITEMS } from '../src/data/items';
 import { MAPS } from '../src/data/maps';
 import { NPCS } from '../src/data/npcs';
 import { say } from '../src/game/attitude';
-import { describeInteraction, npcCompletionFlag, resolveBattle } from '../src/game/encounter';
+import {
+  FALL_HP_SHARE,
+  describeInteraction,
+  npcCompletionFlag,
+  resolveBattle,
+} from '../src/game/encounter';
 import { addItem, createHero, itemCount, learnSpell } from '../src/game/hero';
 import { grantRewards } from '../src/game/rewards';
 import { VITALITY_HP } from '../src/game/stats';
@@ -113,7 +118,7 @@ describe('resolveBattle', () => {
     expect(speech).toBeNull();
   });
 
-  it('respawns the hero, restored but poorer, on defeat', () => {
+  it('respawns the hero, battered and poorer, on defeat', () => {
     const state = newGame();
     travel(state, { map: 'overworld', x: 5, y: 6 });
     state.hero.gil = 41;
@@ -124,7 +129,7 @@ describe('resolveBattle', () => {
     expect(result.fell).toBe(true);
     expect(result.gains).toEqual([{ kind: 'gil', amount: -20 }]);
     expect(state.hero.gil).toBe(21);
-    expect(state.hero.hp).toBe(state.hero.maxHp);
+    expect(state.hero.hp).toBe(Math.ceil(state.hero.maxHp * FALL_HP_SHARE));
     expect(state.mapId).toBe(state.respawn.map);
   });
 

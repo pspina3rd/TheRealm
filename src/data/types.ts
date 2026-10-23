@@ -169,6 +169,11 @@ export interface EnemyDef {
   readonly actMs: number;
   /** Bosses: below `below` (a fraction of max HP) the enemy enrages for the rest of the fight. */
   readonly enrage?: EnrageDef;
+  /**
+   * Levels it can grow above its own to meet the hero; defaults to
+   * `LEVEL_BAND` (`BOSS_BAND` for bosses). See `src/game/scaling.ts`.
+   */
+  readonly band?: number;
   /** A boss: grows less with the hero and its XP never falls off (see `src/game/scaling.ts`). */
   readonly boss?: boolean;
   /** Beating it ends the chapter (see `src/game/ending.ts`). */
