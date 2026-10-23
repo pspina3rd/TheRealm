@@ -88,7 +88,7 @@ PROPS = [
     *[(f'tree.{c}.{v}', 'forest', (192, y + dy, 32, 46), 2, 1)
       for c, y in TREE_ROWS.items() for v, dy in (('a', 17), ('b', 81))],
     *[(f'tree.{c}.round', 'forest', (233, y + 16, 46, 48), 2, 1) for c, y in TREE_ROWS.items()],
-    *[(f'rock.{s}', 'mountains', (ox + 48, oy + 1, 68, 14), 2, 4) for s, (ox, oy) in ROCK_SETS.items()],
+    *[(f'rock.{s}', 'mountains', (ox + 48, oy + 1, 64, 14), 2, 4) for s, (ox, oy) in ROCK_SETS.items()],
     *[(f'spire.{s}', 'mountains', (ox + 48, oy + 33, 64, 32), 2, 4) for s, (ox, oy) in ROCK_SETS.items()],
     *[(f'mine.{s}', 'mountains', (ox + 1, oy + 210, 46, 30), 2, 1) for s, (ox, oy) in ROCK_SETS.items()],
     ('hut', 'mountains', (304, 512, 95, 80), 2, 1),
