@@ -12,8 +12,13 @@ import type { ChallengeSpec } from '../../src/data/types';
 import { SPELLS } from '../../src/data/spells';
 import { createHero, equip, gainXp, addItem, refreshStats, type Hero } from '../../src/game/hero';
 
-/** How the bot plays. */
-export type Style = 'good' | 'sloppy' | 'dropper';
+/**
+ * How the bot plays: `good` builds for 3–4 line clears and casts ready
+ * spells; `spammer` clears lines as soon as it can (mostly singles) and
+ * casts every ready spell; `sloppy` is tidy but careless a third of the
+ * time; `dropper` hard-drops in place.
+ */
+export type Style = 'good' | 'spammer' | 'tidy' | 'sloppy' | 'dropper';
 
 type Grid = readonly (readonly Cell[])[];
 
@@ -138,6 +143,8 @@ function choose(battle: Battle, style: Style): Spot | null {
     return all.reduce<Spot | null>((b, s) => (!b || s.score > b.score ? s : b), null);
   }
   const all = spots(battle.board, tidyScore);
+  if (style === 'spammer')
+    return all.reduce<Spot | null>((b, s) => (!b || s.score > b.score ? s : b), null);
   // Sloppy: a careless drop a third of the time, otherwise greedy and tidy.
   if (all.length > 0 && rng.next() < 0.35) return all[rng.int(all.length)] ?? null;
   return all.reduce<Spot | null>((b, s) => (!b || s.score > b.score ? s : b), null);
@@ -213,7 +220,7 @@ export function simulate(
       waited = 0;
     }
     if (waited >= thinkMs) {
-      if (style === 'good') castReady(battle);
+      if (style === 'good' || style === 'spammer') castReady(battle);
       if (battle.status !== 'ongoing') break;
       if (style === 'dropper') battle.input('hardDrop');
       else {

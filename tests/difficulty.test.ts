@@ -16,7 +16,7 @@ import { SPAWN_COLUMNS } from '../src/core/board';
 import { createRng } from '../src/core/rng';
 import { gravityInterval } from '../src/core/scoring';
 import { ENEMIES } from '../src/data/enemies';
-import type { EnemyDef, EnemyMove } from '../src/data/types';
+import type { ChallengeSpec, EnemyDef, EnemyMove } from '../src/data/types';
 import { createHero, gainXp, totalAttack } from '../src/game/hero';
 import {
   ATK_PER_LEVEL,
@@ -361,20 +361,37 @@ describe('the simulated player', () => {
 });
 
 describe.skipIf(!process.env.SIM)('balance table (SIM=1)', () => {
+  const pct = (n: number) => `${(n * 100).toFixed(0)}%`;
+  const row = (name: string, level: number, spec: ChallengeSpec, runs: number): string => {
+    const good = measure(spec, level, 'good', runs);
+    const spam = measure(spec, level, 'spammer', runs);
+    const sloppy = measure(spec, level, 'sloppy', runs);
+    const drop = measure(spec, level, 'dropper', Math.min(runs, 10));
+    return `| ${name} | ${level} | ${pct(good.winRate)} | ${good.seconds.toFixed(0)} s / ${good.pieces.toFixed(0)} | ${pct(good.hpLeft)} | ${pct(spam.winRate)} | ${spam.seconds.toFixed(0)} s | ${pct(sloppy.winRate)} | ${pct(drop.winRate)} |`;
+  };
+
   it('prints win rates', () => {
     const runs = Number(process.env.RUNS ?? 40);
-    const pct = (n: number) => `${(n * 100).toFixed(0)}%`;
     const rows: string[] = [];
     for (const id of [...ORDINARY, 'moonWyrm']) {
       const enemy = ENEMIES[id]!;
       const level = id === 'moonWyrm' ? Number(process.env.WYRM_LEVEL ?? 8) : enemy.level;
-      const spec = { kind: 'combat', enemyId: id } as const;
-      const good = measure(spec, level, 'good', runs);
-      const sloppy = measure(spec, level, 'sloppy', runs);
-      const drop = measure(spec, level, 'dropper', Math.min(runs, 10));
-      rows.push(
-        `| ${id} | ${level} | ${pct(good.winRate)} | ${good.seconds.toFixed(0)} s / ${good.pieces.toFixed(0)} | ${pct(good.hpLeft)} | ${pct(sloppy.winRate)} | ${sloppy.seconds.toFixed(0)} s | ${pct(drop.winRate)} |`,
-      );
+      rows.push(row(id, level, { kind: 'combat', enemyId: id }, runs));
+    }
+    const lessons = [
+      ['torva', 'emberWisp', 'fire'],
+      ['maren', 'tideWisp', 'blizzard'],
+      ['kestrel', 'galeWisp', 'gale'],
+    ] as const;
+    for (const [difficulty, level] of [
+      [1, 1],
+      [2, 3],
+      [3, 5],
+    ] as const) {
+      for (const [mentorId, enemyId, spellId] of lessons) {
+        const spec = { kind: 'lesson', mentorId, enemyId, spellId, difficulty } as const;
+        rows.push(row(`${enemyId} d${difficulty}`, level, spec, runs));
+      }
     }
     process.stderr.write(rows.join('\n') + '\n');
   }, 600_000);

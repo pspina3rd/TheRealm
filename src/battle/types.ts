@@ -60,6 +60,8 @@ export type BattleEvent =
   | { readonly kind: 'spell'; readonly spellId: string }
   | { readonly kind: 'item'; readonly itemId: string }
   | { readonly kind: 'overflow' }
+  /** A spell or item took time: the enemy's gauge jumped `share` of a gauge. */
+  | { readonly kind: 'gaugeJump'; readonly share: number }
   /** A placement left `holes` new covered holes: the enemy's gauge jumped. */
   | { readonly kind: 'rush'; readonly holes: number }
   /** A clear by the `steps`-th consecutive clearing piece after the first. */

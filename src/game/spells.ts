@@ -16,6 +16,7 @@
  *   Effect.
  */
 import { ELEMENTS, type Element } from '../core/elements';
+import { PIECE_MS } from '../core/scoring';
 import {
   ENHANCEMENT_IDS,
   LEVEL_STEPS,
@@ -250,7 +251,7 @@ export function castSummary(cast: CastSpell): string {
       parts.push(`clear ${effect.rows} rows`, `${effect.power} damage`);
       break;
     case 'freeze':
-      parts.push(`${effect.power} damage`, `enemy waits ${effect.pieces}`);
+      parts.push(`${effect.power} damage`, `enemy gauge −${(effect.pieces * PIECE_MS) / 1000} s`);
       break;
     case 'tailwind':
       parts.push(`${effect.power} damage`, `slow ${effect.pieces} pieces`);

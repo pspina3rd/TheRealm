@@ -9,6 +9,7 @@ import {
   addMana,
   addManaToAll,
   canAfford,
+  cannotUseReason,
   drainMana,
   heal,
   itemCount,
@@ -22,6 +23,7 @@ import {
 } from '../game/hero';
 import { heroSpell } from '../game/spells';
 import { CRIT_MULTIPLIER, critChance } from '../game/stats';
+import { PIECE_MS } from '../core/scoring';
 import {
   WEAK_CRYSTAL_BONUS,
   WEAK_MULTIPLIER,
@@ -44,8 +46,13 @@ export const BACK_TO_BACK_MULTIPLIER = 1.5;
 export const COMBO_STEP = 0.25;
 /** …counting at most this many steps. */
 export const MAX_COMBO = 8;
-/** A piece's worth of time, for effects counted in pieces (Blizzard's chill). */
-export const PIECE_MS = 1500;
+export { PIECE_MS } from '../core/scoring';
+/** Casting a spell takes time: it fills this share of the enemy's gauge… */
+export const SPELL_TIME = 0.2;
+/** …and using an item this share. */
+export const ITEM_TIME = 0.3;
+/** Items the hero can use in one battle. */
+export const MAX_ITEMS_PER_BATTLE = 3;
 /** A water line pushes the enemy's gauge back this far… */
 export const CHILL_MS = 1500;
 /** …but never more than this below empty. */
@@ -133,6 +140,8 @@ export class CombatChallenge implements Challenge {
   regen = { amount: 0, pieces: 0 };
   /** Static: extra lightning damage on each of the next `clears` line clears. */
   charge = { power: 0, clears: 0 };
+  /** Items used this battle (at most `MAX_ITEMS_PER_BATTLE`). */
+  itemsUsed = 0;
   /** Mist: enemy moves left that fizzle. */
   mist = 0;
   /** Fault Line: pieces left during which every element strikes as a weakness. */
@@ -318,7 +327,7 @@ export class CombatChallenge implements Challenge {
 
   /**
    * Casts a known spell at the hero's level of it, with its enhancements.
-   * Takes no time: the enemy's gauge keeps filling. Throws if it can't be cast.
+   * It takes time: the enemy's gauge jumps `SPELL_TIME`. Throws if it can't be cast.
    */
   castSpell(spellId: string): void {
     const reason = this.cannotCastReason(spellId);
@@ -405,10 +414,26 @@ export class CombatChallenge implements Challenge {
     if (cast.surge > 0 && this.status() === 'ongoing') {
       this.applySurge({ element, power: cast.surge }, 1, this.ctx.board.height - 1);
     }
+    this.spendTime(SPELL_TIME);
   }
 
-  /** Uses a consumable mid-fight (taking no time). Throws if it can't be used. */
+  /** Why an item can't be used in this fight now, or null if it can. */
+  cannotUseItemReason(itemId: string): string | null {
+    const item = ITEMS[itemId];
+    if (!item) return `Unknown item: ${itemId}`;
+    if (this.itemsUsed >= MAX_ITEMS_PER_BATTLE) return 'No more items this battle.';
+    return cannotUseReason(this.ctx.hero, item, true);
+  }
+
+  /**
+   * Uses a consumable mid-fight (at most `MAX_ITEMS_PER_BATTLE` per
+   * battle). It takes time: the enemy's gauge jumps `ITEM_TIME`. Throws if
+   * it can't be used.
+   */
   useItem(itemId: string): void {
+    const reason = this.cannotUseItemReason(itemId);
+    if (reason) throw new Error(reason);
+    this.itemsUsed++;
     const hpBefore = this.ctx.hero.hp;
     useItem(this.ctx.hero, itemId, true);
     this.ctx.emit({ kind: 'item', itemId });
@@ -419,6 +444,15 @@ export class CombatChallenge implements Challenge {
       this.ctx.manaBoostPieces = Math.max(this.ctx.manaBoostPieces, boost);
       this.ctx.emit({ kind: 'manaBoost', pieces: this.ctx.manaBoostPieces });
     }
+    this.spendTime(ITEM_TIME);
+  }
+
+  /** A spell or item took time: the enemy's gauge jumps `share` (a full gauge acts at once). */
+  private spendTime(share: number): void {
+    if (this.status() !== 'ongoing') return;
+    this.gauge += share * this.actMs;
+    this.ctx.emit({ kind: 'gaugeJump', share });
+    if (this.gauge >= this.actMs) this.fillGauge();
   }
 
   /** Applies one cleared line's elemental effect. */

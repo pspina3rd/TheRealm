@@ -219,6 +219,8 @@ export function feedbackFor(event: BattleEvent): Feedback[] {
           icon: 'haste',
         },
       ];
+    case 'gaugeJump':
+      return [{ kind: 'rush' }];
     case 'combo':
       return [
         {

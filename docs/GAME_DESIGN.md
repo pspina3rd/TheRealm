@@ -15,7 +15,7 @@ cast and what happens with every line.
 | Piece | Colour | Element   | Line effect (3+ crystals of it in the line)                           |
 | ----- | ------ | --------- | --------------------------------------------------------------------- |
 | Z     | Red    | Fire      | Burn: extra damage equal to its crystals                              |
-| J     | Blue   | Water     | Chill: the enemy acts a piece later (at most 2 past normal)           |
+| J     | Blue   | Water     | Chill: pushes the enemy's gauge back 1.5 s (never below −3 s)         |
 | O     | Gold   | Lightning | Chain: extra damage × lines cleared together                          |
 | S     | Green  | Nature    | Regrowth: heal HP equal to its crystals                               |
 | L     | Orange | Earth     | Ward: a shield (max 25) that absorbs attacks                          |
@@ -156,7 +156,10 @@ Fights are real time and reward planning: a sloppy stack loses.
 - **The action gauge** (Active-Time-Battle style) replaces turn counting:
   it fills over the enemy's `actMs` (shown as an orange bar under its
   HP; it pulses red when nearly full) and the enemy moves when full. The
-  pause stops it. Spells and items take no time.
+  pause stops it.
+  - **Spells and items take time**: casting a spell fills 20% of the
+    gauge and using an item 30% (the gauge flashes; a full gauge acts at
+    once). At most **3 items per battle**, so herbs can't pad HP for free.
   - **Slows it**: a water line pushes it back 1.5 s (never below −3 s);
     Blizzard pushes it back 1.5 s per "piece" of its freeze (never below
     one full gauge); Mist makes the next move fizzle. Chill shows as ice
@@ -247,7 +250,7 @@ taught by that element's [mentor](#mentors).
 | Category  | Level 1               | Level 2               | Level 3               | Level 4                 | Effect                             | How to learn                       |
 | --------- | --------------------- | --------------------- | --------------------- | ----------------------- | ---------------------------------- | ---------------------------------- |
 | Fire      | Fire · 6 · 14         | Blaze · 8 · 22        | Inferno · 10 · 36     | Cataclysm · 12 · 57     | Damage                             | Torva (mentor)                     |
-| Water     | Blizzard · 8 · 18/3   | Hailstorm · 10 · 29/3 | Glacier · 12 · 46/4   | Deep Winter · 14 · 74/4 | Damage / delays the enemy N pieces | Maren (mentor)                     |
+| Water     | Blizzard · 8 · 18/3   | Hailstorm · 10 · 29/3 | Glacier · 12 · 46/4   | Deep Winter · 14 · 74/4 | Damage / gauge back N × 1.5 s      | Maren (mentor)                     |
 | Lightning | Thunder · 8 · 24      | Thunderclap · 10 · 38 | Stormcall · 12 · 61   | Skyfall · 14 · 98       | Damage                             | Rogue start; Sage Orrin (puzzle)   |
 | Nature    | Cure · 6 · 20         | Mend · 8 · 32         | Restore · 10 · 51     | Rebirth · 12 · 82       | Heal HP                            | Start (every class)                |
 | Earth     | Quake · 6 · 6/2       | Rockslide · 8 · 10/3  | Upheaval · 10 · 16/3  | Worldsplit · 12 · 26/4  | Damage / removes the bottom N rows | Knight start; Elder Rowan (puzzle) |
@@ -275,16 +278,16 @@ the enemy's action gauge, Regen and Static beside the hero.
 **Combos** have a single level and build both (or all) of their elements'
 alignment. Each needs another element's primary.
 
-| Combo       | Category  | Needs                  | Cost                      | Effect                   |
-| ----------- | --------- | ---------------------- | ------------------------- | ------------------------ |
-| Wildfire    | Fire      | Gale                   | 4 fire, 4 wind            | 28 damage, tailwind 4    |
-| Spring Rain | Water     | Cure                   | 4 water, 4 nature         | Heals 36                 |
-| Storm Surge | Lightning | Blizzard               | 4 lightning, 4 water      | 28 damage, enemy waits 2 |
-| Bramble     | Nature    | Quake                  | 4 nature, 4 earth         | Clears 2 rows, 12 damage |
-| Magma       | Earth     | Fire                   | 4 earth, 4 fire           | 34 damage                |
-| Void Bolt   | Arcane    | Thunder                | 4 arcane, 4 lightning     | 28 damage, heals half    |
-| Moonwind    | Wind      | Shadow Drain           | 4 wind, 4 arcane          | 32 damage                |
-| Meteor      | Fire      | Quake and Shadow Drain | 6 fire, 6 earth, 6 arcane | 58 damage                |
+| Combo       | Category  | Needs                  | Cost                      | Effect                      |
+| ----------- | --------- | ---------------------- | ------------------------- | --------------------------- |
+| Wildfire    | Fire      | Gale                   | 4 fire, 4 wind            | 28 damage, tailwind 4       |
+| Spring Rain | Water     | Cure                   | 4 water, 4 nature         | Heals 36                    |
+| Storm Surge | Lightning | Blizzard               | 4 lightning, 4 water      | 28 damage, enemy gauge −3 s |
+| Bramble     | Nature    | Quake                  | 4 nature, 4 earth         | Clears 2 rows, 12 damage    |
+| Magma       | Earth     | Fire                   | 4 earth, 4 fire           | 34 damage                   |
+| Void Bolt   | Arcane    | Thunder                | 4 arcane, 4 lightning     | 28 damage, heals half       |
+| Moonwind    | Wind      | Shadow Drain           | 4 wind, 4 arcane          | 32 damage                   |
+| Meteor      | Fire      | Quake and Shadow Drain | 6 fire, 6 earth, 6 arcane | 58 damage                   |
 
 A combo strikes as its category's element (Magma is earth).
 
@@ -298,7 +301,7 @@ A combo strikes as its category's element (Magma is earth).
   opens its menu: the primary at its level, then supports and combos;
   the panel keeps its height. A slot with one spell casts it straight
   away. Then 1–n picks a spell; Escape (or the ◀ button) goes back.
-  Casting closes the menu and counts as an action. Tooltips give a short
+  Casting closes the menu and takes time (the enemy's gauge jumps 20%). Tooltips give a short
   summary, e.g. "Blaze · Lv 2 · 22 damage".
 - **Spellbook** (menu): every known spell at its level, with level pips,
   kind icon, cost, a scroll and a glowing frame when ready, and a lock when its
@@ -319,7 +322,7 @@ skill points on the skill screen:
 | ---------------------- | ------------------------------------------------------------------ |
 | Damage (Fire, Thunder) | Also fires the element's line effect at 3 per Effect (burn, chain) |
 | Heal (Cure)            | Also fires regrowth at 3 per Effect                                |
-| Freeze (Blizzard)      | The enemy waits 1 more piece                                       |
+| Freeze (Blizzard)      | Pushes the enemy's gauge back 1.5 s more                           |
 | Tailwind (Gale)        | 1 more slow piece                                                  |
 | Drain (Shadow Drain)   | Heals 10% more of the damage (50% → at most 100%)                  |
 | Clear rows (Quake)     | +1 row at 1, 3 and 5 Effect                                        |
@@ -664,7 +667,7 @@ level or two, items, a weakness spell) and usually a few attempts.
 
 **Earlier history — balance after two full playthroughs** (Ranger, Knight; numbers since replaced by the overhaul above): the Moon Wyrm
 fell first try at level 7, so it now has 300 HP (was 160) and attack 15
-(13), and **enrages** below half HP: it acts every 2 pieces instead of 3
+(13), and **enrages** below half HP: it acted every 2 pieces instead of 3
 and its curse pushes 3 stone rows instead of 2 (generic
 `EnemyDef.enrage`; the battle shows "Enraged!" and the wyrm glows a
 pulsing red). Once enraged it stays so, even if it heals back above

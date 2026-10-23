@@ -384,7 +384,7 @@ export const EFFECT_ENHANCEMENTS: Readonly<Partial<Record<SpellEffect['kind'], s
   damage: '+3 to its element’s line effect (burn, chain…)',
   heal: '+3 regrowth healing',
   clearRows: '+1 row at 1, 3 and 5 Effect',
-  freeze: 'The enemy waits 1 more piece',
+  freeze: "Pushes the enemy's gauge back 1.5 s more",
   tailwind: '1 more slow piece',
   drain: 'Heals 10% more of the damage (up to all of it)',
 };

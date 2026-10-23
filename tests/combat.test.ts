@@ -2,7 +2,10 @@ import { describe, expect, it, vi } from 'vitest';
 import type { CombatChallenge } from '../src/battle/combat';
 import {
   CHILL_MS,
+  ITEM_TIME,
   MAX_CHILL_MS,
+  MAX_ITEMS_PER_BATTLE,
+  SPELL_TIME,
   MAX_WARD,
   PIECE_MS,
   rollSpoils,
@@ -296,8 +299,8 @@ describe('CombatChallenge', () => {
       learnSpell(hero, 'blizzard');
       combat.gauge = 0;
       combat.castSpell('blizzard');
-      // Three pieces' worth of time pushed back (casting takes none).
-      expect(combat.gauge).toBe(-3 * PIECE_MS);
+      // Three pieces' worth of time pushed back, then the cast's own time.
+      expect(combat.gauge).toBe(-3 * PIECE_MS + SPELL_TIME * combat.actMs);
       expect(combat.enemyHp).toBeLessThan(ENEMIES.brute!.hp);
     });
 
@@ -412,15 +415,24 @@ describe('CombatChallenge', () => {
         hero.spells.blizzard = at(2, { effect: 1 });
         combat.gauge = 0;
         combat.castSpell('blizzard');
-        expect(combat.gauge).toBe(-(3 + 1) * PIECE_MS);
+        expect(combat.gauge).toBe(-(3 + 1) * PIECE_MS + SPELL_TIME * combat.actMs);
       });
     });
 
-    it('casting takes no time: the gauge is untouched', () => {
-      const { combat } = fight('goblin');
+    it('casting takes time: the gauge jumps, and acts at once when full', () => {
+      const { battle, combat, hero } = fight('goblin');
       combat.gauge = 1234;
       combat.castSpell('fire');
-      expect(combat.gauge).toBe(1234);
+      expect(combat.gauge).toBe(1234 + SPELL_TIME * combat.actMs);
+      expect(battle.events.map((e) => e.event)).toContainEqual({
+        kind: 'gaugeJump',
+        share: SPELL_TIME,
+      });
+      nextMove(combat, { kind: 'attack', name: 'Bonk', power: 1 });
+      combat.gauge = combat.actMs - 1;
+      combat.castSpell('fire');
+      expect(hero.hp).toBeLessThan(hero.maxHp);
+      expect(combat.gauge).toBe(0);
     });
 
     it('explains why a spell cannot be cast', () => {
@@ -539,13 +551,31 @@ describe('CombatChallenge', () => {
     });
   });
 
-  it('uses items mid-fight without spending time', () => {
+  it('uses items mid-fight, spending time, at most 3 per battle', () => {
     const { combat, hero } = fight();
     hero.hp = 10;
     combat.gauge = 100;
     combat.useItem('herb');
     expect(hero.hp).toBe(30);
-    expect(combat.gauge).toBe(100);
+    expect(combat.gauge).toBe(100 + ITEM_TIME * combat.actMs);
+    addItem(hero, 'herb', 5);
+    for (let i = 1; i < MAX_ITEMS_PER_BATTLE; i++) {
+      hero.hp = 10;
+      combat.gauge = 0;
+      combat.useItem('herb');
+    }
+    hero.hp = 10;
+    expect(combat.cannotUseItemReason('herb')).toBe('No more items this battle.');
+    expect(() => combat.useItem('herb')).toThrow('No more items this battle.');
+    expect(combat.cannotUseItemReason('nope')).toBe('Unknown item: nope');
+  });
+
+  it('spends no time once the fight is over', () => {
+    const { combat } = fight();
+    combat.enemyHp = 1;
+    combat.castSpell('fire');
+    expect(combat.status()).toBe('won');
+    expect(combat.gauge).toBe(0);
   });
 
   it('describes progress toward defeating the enemy', () => {

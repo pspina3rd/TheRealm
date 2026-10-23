@@ -2,7 +2,7 @@ import type { Battle } from '../battle/battle';
 import { ITEMS } from '../data/items';
 import { ELEMENTS, ELEMENT_NAMES, type Element } from '../core/elements';
 import { SPELLS } from '../data/spells';
-import { cannotUseReason, type Hero } from '../game/hero';
+import type { Hero } from '../game/hero';
 import { castSummary, heroSpell, spellCategories } from '../game/spells';
 import type { Feedback } from './art/feedback';
 import { ELEMENT_ICONS, PALETTES, type IconId } from './art/icons';
@@ -192,7 +192,7 @@ export class HeroPanel {
             node.classList.add('item');
             node.classList.toggle(
               'unusable',
-              !ongoing || !item || cannotUseReason(hero, item, true) !== null,
+              !ongoing || !item || combat.cannotUseItemReason(id) !== null,
             );
             node.append(
               iconElement(itemIcon(id), 2),

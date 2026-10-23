@@ -16,3 +16,6 @@ export const SOFT_DROP_POINTS_PER_ROW = 1;
 export function gravityInterval(level: number): number {
   return Math.max(120, 720 - (Math.max(1, level) - 1) * 45);
 }
+
+/** A piece's worth of time, for effects counted in pieces (Blizzard's freeze), in ms. */
+export const PIECE_MS = 1500;

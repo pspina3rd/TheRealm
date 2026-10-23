@@ -199,7 +199,7 @@ describe('castSummary', () => {
     expect(summary('fire', 2)).toBe('Blaze · Lv 2 · 22 damage');
     expect(summary('cure', 1, { effect: 1 })).toBe('Cure · Lv 1 · heal 20 · +3 line effect');
     expect(summary('quake')).toBe('Quake · Lv 1 · clear 2 rows · 6 damage');
-    expect(summary('blizzard')).toBe('Blizzard · Lv 1 · 18 damage · enemy waits 3');
+    expect(summary('blizzard')).toBe('Blizzard · Lv 1 · 18 damage · enemy gauge −4.5 s');
     expect(summary('gale')).toBe('Gale · Lv 1 · 10 damage · slow 5 pieces');
     expect(summary('shadow')).toBe('Shadow Drain · Lv 1 · 18 damage · heal 50% of it');
   });
