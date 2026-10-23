@@ -50,9 +50,9 @@ export { PIECE_MS } from '../core/scoring';
 /** Casting a spell takes time: it fills this share of the enemy's gauge… */
 export const SPELL_TIME = 0.15;
 /** …and using an item this share. */
-export const ITEM_TIME = 0.3;
+export const ITEM_TIME = 0.4;
 /** Items the hero can use in one battle. */
-export const MAX_ITEMS_PER_BATTLE = 3;
+export const MAX_ITEMS_PER_BATTLE = 2;
 /** A water line pushes the enemy's gauge back this far… */
 export const CHILL_MS = 1500;
 /** …but never more than this below empty. */
