@@ -57,9 +57,9 @@ export const HELP_RELATION: Readonly<Record<ElementRelation, number>> = {
 };
 
 /** A lesson foe gains this share of its HP per difficulty above 1… */
-export const FOE_HP_PER_DIFFICULTY = 0.5;
+export const FOE_HP_PER_DIFFICULTY = 0.6;
 /** …and this much attack. */
-export const FOE_ATK_PER_DIFFICULTY = 2;
+export const FOE_ATK_PER_DIFFICULTY = 3;
 
 /** Extra difficulty of teaching a hidden spell. */
 export const HIDDEN_DIFFICULTY = 1;

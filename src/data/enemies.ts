@@ -168,7 +168,7 @@ function wisp(id: string, name: string, element: Element, special: EnemyMove): E
     name,
     level: 2,
     hp: 50,
-    atk: 4,
+    atk: 5,
     xp: 0,
     gil: 0,
     element,
