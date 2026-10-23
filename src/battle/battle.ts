@@ -55,7 +55,7 @@ export class Battle implements BattleContext {
   readonly hero: Hero;
   readonly rng: Rng;
   readonly challenge: Challenge;
-  /** Difficulty level; sets gravity speed. */
+  /** Difficulty level (the foe's own level, unscaled); sets gravity speed. */
   readonly level: number;
   score = 0;
   lines = 0;
@@ -78,7 +78,14 @@ export class Battle implements BattleContext {
     this.rng = rng;
     this.board = new Board(rng, BOARD_WIDTH, BOARD_HEIGHT, options.weights);
     this.challenge = createChallenge(this, spec);
-    this.level = this.challenge instanceof CombatChallenge ? this.challenge.enemy.level : 1;
+    // Gravity follows the foe's own level: growing with the hero makes it
+    // tougher (see `scaledEnemy`), not faster-falling.
+    this.level =
+      spec.kind === 'combat'
+        ? (ENEMIES[spec.enemyId]?.level ?? 1)
+        : this.challenge instanceof CombatChallenge
+          ? this.challenge.enemy.level
+          : 1;
     this.board.spawn();
   }
 

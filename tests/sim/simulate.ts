@@ -1,0 +1,268 @@
+/**
+ * A battle simulator for balance checks: plays a real `Battle` on simulated
+ * time with a simple bot. Not shipped; used by `tests/difficulty.test.ts`
+ * (set `SIM=1` to print the full table).
+ */
+import { Battle } from '../../src/battle/battle';
+import { rotationsOf } from '../../src/core/bestFit';
+import type { Board } from '../../src/core/board';
+import type { Cell, Offset } from '../../src/core/pieces';
+import { createRng } from '../../src/core/rng';
+import type { ChallengeSpec } from '../../src/data/types';
+import { SPELLS } from '../../src/data/spells';
+import { createHero, equip, gainXp, addItem, refreshStats, type Hero } from '../../src/game/hero';
+
+/** How the bot plays. */
+export type Style = 'good' | 'sloppy' | 'dropper';
+
+type Grid = readonly (readonly Cell[])[];
+
+interface Spot {
+  readonly cells: readonly Offset[];
+  readonly x: number;
+  readonly score: number;
+}
+
+function fits(grid: Grid, cells: readonly Offset[], x: number, y: number, sealed: number | null) {
+  const width = grid[0]?.length ?? 0;
+  return cells.every(([cx, cy]) => {
+    const gx = x + cx;
+    const gy = y + cy;
+    if (gx < 0 || gx >= width || gy >= grid.length || gx === sealed) return false;
+    return gy < 0 || grid[gy]?.[gx] === null;
+  });
+}
+
+function settle(grid: Grid, cells: readonly Offset[], x: number, y: number) {
+  const next = grid.map((row) => row.slice());
+  for (const [cx, cy] of cells) {
+    const row = next[y + cy];
+    if (row) row[x + cx] = 'stone';
+  }
+  const kept = next.filter((row) => row.some((cell) => cell === null));
+  const lines = next.length - kept.length;
+  const width = grid[0]?.length ?? 0;
+  return { grid: [...Array.from({ length: lines }, () => Array<Cell>(width).fill(null)), ...kept], lines };
+}
+
+function features(grid: Grid) {
+  const height = grid.length;
+  const width = grid[0]?.length ?? 0;
+  const heights: number[] = [];
+  let holes = 0;
+  for (let x = 0; x < width; x++) {
+    let top = height;
+    for (let y = 0; y < height; y++) {
+      if (grid[y]?.[x] !== null) top = Math.min(top, y);
+      else if (top < y) holes++;
+    }
+    heights.push(height - top);
+  }
+  return { heights, holes };
+}
+
+/** A competent stacker: no holes, flat, keeps the right column as a well for multi-line clears. */
+function goodScore(after: Grid, lines: number): number {
+  const { heights, holes } = features(after);
+  const stack = heights.slice(0, 9);
+  const max = Math.max(...heights);
+  const bump = stack.slice(1).reduce((s, h, i) => s + Math.abs(h - (stack[i] ?? 0)), 0);
+  const total = stack.reduce((s, h) => s + h, 0);
+  const well = heights[9] ?? 0;
+  const danger = max > 10;
+  const reward = danger ? [0, 5, 9, 15, 26] : [0, -3, 5, 14, 30];
+  return (
+    (reward[lines] ?? 30) -
+    7 * holes -
+    0.3 * bump -
+    (danger ? 0.5 : 0.12) * total -
+    (danger ? 0 : 2.5 * well) -
+    Math.max(0, max - 14) * 3
+  );
+}
+
+/** The bestFit heuristic: greedy and tidy, clears lines as soon as it can. */
+function tidyScore(after: Grid, lines: number): number {
+  const { heights, holes } = features(after);
+  const total = heights.reduce((s, h) => s + h, 0);
+  const bump = heights.slice(1).reduce((s, h, i) => s + Math.abs(h - (heights[i] ?? 0)), 0);
+  return 0.76 * lines - 0.36 * holes - 0.51 * total - 0.18 * bump;
+}
+
+function spots(board: Board, score: (g: Grid, lines: number) => number): Spot[] {
+  const piece = board.active;
+  if (!piece) return [];
+  const sealed = board.seal?.column ?? null;
+  const out: Spot[] = [];
+  for (const cells of rotationsOf(piece.name)) {
+    const span = Math.max(...cells.map(([cx]) => cx)) + 1;
+    for (let x = 0; x + span <= board.width; x++) {
+      if (!fits(board.grid, cells, x, 0, sealed)) continue;
+      let y = 0;
+      while (fits(board.grid, cells, x, y + 1, sealed)) y++;
+      const after = settle(board.grid, cells, x, y);
+      out.push({ cells, x, score: score(after.grid, after.lines) });
+    }
+  }
+  return out;
+}
+
+const key = (cells: readonly Offset[]): string => {
+  const minY = Math.min(...cells.map(([, y]) => y));
+  return JSON.stringify(cells.map(([x, y]) => [x, y - minY]).sort());
+};
+
+/** Turns and slides the falling piece to `spot`, then hard-drops (it may fall short if blocked). */
+function execute(battle: Battle, spot: Spot): void {
+  const board = battle.board;
+  const want = key(spot.cells);
+  for (let i = 0; i < 4 && board.active && key(board.active.cells) !== want; i++) battle.input('rotate');
+  const piece = board.active;
+  if (piece) {
+    const minX = Math.min(...piece.cells.map(([cx]) => cx));
+    const target = spot.x - minX;
+    for (let i = 0; i < 12 && piece.x > target; i++) battle.input('left');
+    for (let i = 0; i < 12 && piece.x < target; i++) battle.input('right');
+  }
+  battle.input('hardDrop');
+}
+
+function choose(battle: Battle, style: Style): Spot | null {
+  const rng = battle.rng;
+  if (style === 'good') {
+    const all = spots(battle.board, goodScore);
+    return all.reduce<Spot | null>((b, s) => (!b || s.score > b.score ? s : b), null);
+  }
+  const all = spots(battle.board, tidyScore);
+  // Sloppy: a careless drop a third of the time, otherwise greedy and tidy.
+  if (all.length > 0 && rng.next() < 0.35) return all[rng.int(all.length)] ?? null;
+  return all.reduce<Spot | null>((b, s) => (!b || s.score > b.score ? s : b), null);
+}
+
+/** Casts whatever spell is ready, damage first (a good player spends mana as it comes). */
+function castReady(battle: Battle): void {
+  const combat = battle.combat;
+  if (!combat) return;
+  for (const id of Object.keys(battle.hero.spells)) {
+    const kind = SPELLS[id]?.levels[0].effect.kind;
+    if (kind === 'heal' && battle.hero.hp > battle.hero.maxHp * 0.5) continue;
+    if (combat.cannotCastReason(id) === null && combat.status() === 'ongoing') combat.castSpell(id);
+  }
+}
+
+/** A hero of `classId` at `level`, with points spread over Strength, Vitality and Guard, and level-fit gear. */
+export function heroAt(level: number, classId = 'ranger'): Hero {
+  const hero = createHero(classId);
+  while (hero.level < level) gainXp(hero, hero.nextXp);
+  const order = ['strength', 'vitality', 'guard'] as const;
+  for (let i = 0; hero.skillPoints > 0; i++) {
+    hero.stats[order[i % 3]!]++;
+    hero.skillPoints--;
+  }
+  const gear: [string, string | null][] =
+    level >= 7
+      ? [['knightBlade', 'crystalMail']]
+      : level >= 4
+        ? [['ironSword', 'apprenticeRobe']]
+        : [['copperSword', null]];
+  for (const [weapon, armor] of gear) {
+    addItem(hero, weapon);
+    equip(hero, weapon);
+    if (armor) {
+      addItem(hero, armor);
+      equip(hero, armor);
+    }
+  }
+  refreshStats(hero);
+  hero.hp = hero.maxHp;
+  return hero;
+}
+
+export interface FightResult {
+  readonly won: boolean;
+  readonly ms: number;
+  readonly pieces: number;
+  readonly hpLeft: number;
+  /** Times the board overflowed. */
+  readonly overflows: number;
+}
+
+/** Plays one fight on simulated time: the bot thinks `thinkMs` per piece, then places it. */
+export function simulate(
+  spec: ChallengeSpec,
+  hero: Hero,
+  style: Style,
+  seed: number,
+  thinkMs = 1500,
+  limitMs = 600_000,
+): FightResult {
+  const battle = new Battle(spec, hero, createRng(seed));
+  const STEP = 50;
+  let ms = 0;
+  let waited = 0;
+  let current = battle.board.active;
+  let overflows = 0;
+  let seen = 0;
+  while (battle.status === 'ongoing' && ms < limitMs) {
+    if (battle.board.active !== current) {
+      current = battle.board.active;
+      waited = 0;
+    }
+    if (waited >= thinkMs) {
+      if (style === 'good') castReady(battle);
+      if (battle.status !== 'ongoing') break;
+      if (style === 'dropper') battle.input('hardDrop');
+      else {
+        const spot = choose(battle, style);
+        if (spot) execute(battle, spot);
+        else battle.input('hardDrop');
+      }
+      current = battle.board.active;
+      waited = 0;
+      continue;
+    }
+    for (const e of battle.eventsSince(seen)) if (e.event.kind === 'overflow') overflows++;
+    seen = battle.events.at(-1)?.seq ?? 0;
+    seen++;
+    battle.update(STEP);
+    ms += STEP;
+    waited += STEP;
+  }
+  return {
+    won: battle.status === 'won',
+    ms,
+    pieces: battle.board.piecesPlaced,
+    hpLeft: hero.hp / hero.maxHp,
+    overflows,
+  };
+}
+
+/** Win rate, mean fight seconds and mean HP left over `runs` seeds. */
+export function measure(
+  spec: ChallengeSpec,
+  level: number,
+  style: Style,
+  runs: number,
+  classId = 'ranger',
+): { winRate: number; seconds: number; pieces: number; hpLeft: number; overflows: number } {
+  let wins = 0;
+  let ms = 0;
+  let pieces = 0;
+  let hp = 0;
+  let overflows = 0;
+  for (let seed = 1; seed <= runs; seed++) {
+    const result = simulate(spec, heroAt(level, classId), style, seed * 7919);
+    if (result.won) wins++;
+    overflows += result.overflows;
+    ms += result.ms;
+    pieces += result.pieces;
+    hp += result.won ? result.hpLeft : 0;
+  }
+  return {
+    winRate: wins / runs,
+    seconds: ms / runs / 1000,
+    pieces: pieces / runs,
+    hpLeft: wins > 0 ? hp / wins : 0,
+    overflows: overflows / runs,
+  };
+}

@@ -11,13 +11,13 @@ import type { EnemyDef } from '../data/types';
 /** Levels a monster can grow above its own to meet the hero. */
 export const LEVEL_BAND = 3;
 /** Levels a boss can grow. */
-export const BOSS_BAND = 2;
+export const BOSS_BAND = 1;
 /** Share of base HP gained per level grown. */
-export const HP_PER_LEVEL = 0.15;
+export const HP_PER_LEVEL = 0.1;
 /** Attack gained per level grown. */
 export const ATK_PER_LEVEL = 1;
 /** Share by which each level grown speeds up the action gauge. */
-export const SPEED_PER_LEVEL = 0.05;
+export const SPEED_PER_LEVEL = 0.03;
 /** Share of XP lost per level the hero stands above the monster… */
 export const XP_FALLOFF = 0.25;
 /** …down to this share. */
