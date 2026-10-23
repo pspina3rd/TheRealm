@@ -6,7 +6,7 @@
 import { Battle } from '../../src/battle/battle';
 import { rotationsOf } from '../../src/core/bestFit';
 import type { Board } from '../../src/core/board';
-import type { Cell, Offset } from '../../src/core/pieces';
+import type { Cell, Offset, PieceName } from '../../src/core/pieces';
 import { createRng } from '../../src/core/rng';
 import type { ChallengeSpec } from '../../src/data/types';
 import { SPELLS } from '../../src/data/spells';
@@ -16,9 +16,11 @@ import { createHero, equip, gainXp, addItem, refreshStats, type Hero } from '../
  * How the bot plays: `good` builds for 3–4 line clears and casts ready
  * spells; `spammer` clears lines as soon as it can (mostly singles) and
  * casts every ready spell; `sloppy` is tidy but careless a third of the
- * time; `dropper` hard-drops in place.
+ * time; `dropper` hard-drops in place. `prepared` plays like `good` but
+ * brings 5 Herbs, an Ether and a Phoenix Feather, drinking the Ether at
+ * once and a Herb below 35% HP (items cost gauge time and 3 per fight).
  */
-export type Style = 'good' | 'spammer' | 'tidy' | 'sloppy' | 'dropper';
+export type Style = 'good' | 'prepared' | 'spammer' | 'tidy' | 'sloppy' | 'dropper';
 
 type Grid = readonly (readonly Cell[])[];
 
@@ -69,24 +71,31 @@ function features(grid: Grid) {
   return { heights, holes };
 }
 
-/** A competent stacker: no holes, flat, keeps the right column as a well for multi-line clears. */
-function goodScore(after: Grid, lines: number): number {
+/**
+ * A competent stacker's view of a board: no holes, flat, with a well
+ * column (the right wall, or the left one while the right is sealed) kept
+ * open for 3–4 line clears until the stack grows tall.
+ */
+function goodValue(after: Grid, wellColumn: number): number {
   const { heights, holes } = features(after);
-  const stack = heights.slice(0, 9);
+  const stack = heights.filter((_, x) => x !== wellColumn);
   const max = Math.max(...heights);
   const bump = stack.slice(1).reduce((s, h, i) => s + Math.abs(h - (stack[i] ?? 0)), 0);
   const total = stack.reduce((s, h) => s + h, 0);
-  const well = heights[9] ?? 0;
-  const danger = max > 10;
-  const reward = danger ? [0, 5, 9, 15, 26] : [0, -3, 5, 14, 30];
+  const well = heights[wellColumn] ?? 0;
+  const danger = max > 9;
   return (
-    (reward[lines] ?? 30) -
-    7 * holes -
-    0.3 * bump -
-    (danger ? 0.5 : 0.12) * total -
+    -7 * holes -
+    0.35 * bump -
+    (danger ? 0.5 : 0.1) * total -
     (danger ? 0 : 2.5 * well) -
-    Math.max(0, max - 14) * 3
+    Math.max(0, max - 12) * 4
   );
+}
+
+/** What clearing `lines` at once is worth to the competent stacker, given the stack height. */
+function goodReward(lines: number, tall: boolean): number {
+  return (tall ? [0, 5, 10, 16, 28] : [0, -2, 6, 15, 32])[lines] ?? 32;
 }
 
 /** The bestFit heuristic: greedy and tidy, clears lines as soon as it can. */
@@ -97,22 +106,65 @@ function tidyScore(after: Grid, lines: number): number {
   return 0.76 * lines - 0.36 * holes - 0.51 * total - 0.18 * bump;
 }
 
-function spots(board: Board, score: (g: Grid, lines: number) => number): Spot[] {
-  const piece = board.active;
-  if (!piece) return [];
-  const sealed = board.seal?.column ?? null;
-  const out: Spot[] = [];
-  for (const cells of rotationsOf(piece.name)) {
+interface Landing {
+  readonly cells: readonly Offset[];
+  readonly x: number;
+  readonly grid: Grid;
+  readonly lines: number;
+}
+
+/** Every landing of `name` on `grid`, dropped straight down outside the sealed column. */
+function landings(grid: Grid, name: PieceName, sealed: number | null): Landing[] {
+  const width = grid[0]?.length ?? 0;
+  const out: Landing[] = [];
+  for (const cells of rotationsOf(name)) {
     const span = Math.max(...cells.map(([cx]) => cx)) + 1;
-    for (let x = 0; x + span <= board.width; x++) {
-      if (!fits(board.grid, cells, x, 0, sealed)) continue;
+    for (let x = 0; x + span <= width; x++) {
+      if (!fits(grid, cells, x, 0, sealed)) continue;
       let y = 0;
-      while (fits(board.grid, cells, x, y + 1, sealed)) y++;
-      const after = settle(board.grid, cells, x, y);
-      out.push({ cells, x, score: score(after.grid, after.lines) });
+      while (fits(grid, cells, x, y + 1, sealed)) y++;
+      const after = settle(grid, cells, x, y);
+      out.push({ cells, x, grid: after.grid, lines: after.lines });
     }
   }
   return out;
+}
+
+function spots(board: Board, score: (g: Grid, lines: number) => number): Spot[] {
+  const piece = board.active;
+  if (!piece) return [];
+  return landings(board.grid, piece.name, board.seal?.column ?? null).map((l) => ({
+    cells: l.cells,
+    x: l.x,
+    score: score(l.grid, l.lines),
+  }));
+}
+
+/** The competent stacker's pick: two pieces deep when the next one is visible. */
+function goodSpot(battle: Battle): Spot | null {
+  const board = battle.board;
+  const piece = board.active;
+  if (!piece) return null;
+  const sealed = board.seal?.column ?? null;
+  const wellColumn = sealed === 9 ? 0 : 9;
+  const tall = (grid: Grid) => Math.max(...features(grid).heights) > 9;
+  const [next] = battle.upcoming;
+  let best: Spot | null = null;
+  for (const first of landings(board.grid, piece.name, sealed)) {
+    let score = goodReward(first.lines, tall(board.grid));
+    if (next) {
+      let second = -Infinity;
+      for (const l of landings(first.grid, next, sealed)) {
+        second = Math.max(
+          second,
+          goodReward(l.lines, tall(first.grid)) + goodValue(l.grid, wellColumn),
+        );
+      }
+      score += second === -Infinity ? -1000 : second;
+    } else score += goodValue(first.grid, wellColumn);
+    if (!best || score > best.score) best = { cells: first.cells, x: first.x, score };
+  }
+  return best;
 }
 
 const key = (cells: readonly Offset[]): string => {
@@ -138,12 +190,9 @@ function execute(battle: Battle, spot: Spot): void {
 
 function choose(battle: Battle, style: Style): Spot | null {
   const rng = battle.rng;
-  if (style === 'good') {
-    const all = spots(battle.board, goodScore);
-    return all.reduce<Spot | null>((b, s) => (!b || s.score > b.score ? s : b), null);
-  }
+  if (style === 'good' || style === 'prepared') return goodSpot(battle);
   const all = spots(battle.board, tidyScore);
-  if (style === 'spammer')
+  if (style === 'spammer' || style === 'tidy')
     return all.reduce<Spot | null>((b, s) => (!b || s.score > b.score ? s : b), null);
   // Sloppy: a careless drop a third of the time, otherwise greedy and tidy.
   if (all.length > 0 && rng.next() < 0.35) return all[rng.int(all.length)] ?? null;
@@ -159,6 +208,16 @@ function castReady(battle: Battle): void {
     if (kind === 'heal' && battle.hero.hp > battle.hero.maxHp * 0.5) continue;
     if (combat.cannotCastReason(id) === null && combat.status() === 'ongoing') combat.castSpell(id);
   }
+}
+
+/** The prepared player's items: an Ether at once, a Herb when low. */
+function useItems(battle: Battle): void {
+  const combat = battle.combat;
+  const hero = battle.hero;
+  if (!combat || combat.status() !== 'ongoing') return;
+  if (combat.cannotUseItemReason('ether') === null) combat.useItem('ether');
+  if (hero.hp < hero.maxHp * 0.35 && combat.cannotUseItemReason('herb') === null)
+    combat.useItem('herb');
 }
 
 /** A hero of `classId` at `level`, with points spread over Strength, Vitality and Guard, and level-fit gear. */
@@ -220,7 +279,8 @@ export function simulate(
       waited = 0;
     }
     if (waited >= thinkMs) {
-      if (style === 'good' || style === 'spammer') castReady(battle);
+      if (style === 'prepared') useItems(battle);
+      if (style === 'good' || style === 'prepared' || style === 'spammer') castReady(battle);
       if (battle.status !== 'ongoing') break;
       if (style === 'dropper') battle.input('hardDrop');
       else {
@@ -262,7 +322,9 @@ export function measure(
   let hp = 0;
   let overflows = 0;
   for (let seed = 1; seed <= runs; seed++) {
-    const result = simulate(spec, heroAt(level, classId), style, seed * 7919);
+    const hero = heroAt(level, classId);
+    if (style === 'prepared') hero.items = { herb: 5, ether: 1, phoenixFeather: 1 };
+    const result = simulate(spec, hero, style, seed * 7919);
     if (result.won) wins++;
     overflows += result.overflows;
     ms += result.ms;

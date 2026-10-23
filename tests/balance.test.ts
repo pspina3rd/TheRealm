@@ -19,7 +19,7 @@ describe('boss enrage', () => {
   const wyrm = ENEMIES.moonWyrm!;
 
   it('enrages the Moon Wyrm at half HP: faster moves, heavier curses', () => {
-    expect(wyrm.enrage).toEqual({ below: 0.5, actMs: 5000, curseRows: 3 });
+    expect(wyrm.enrage).toEqual({ below: 0.5, actMs: 5000, curseRows: 3, atk: 4 });
     const battle = makeBattle({ kind: 'combat', enemyId: 'moonWyrm' });
     const combat = battle.combat!;
     expect(combat.enraged).toBe(false);

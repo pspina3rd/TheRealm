@@ -158,7 +158,7 @@ export const SPELLS: Readonly<Record<string, SpellDef>> = {
     category: 'arcane',
     role: 'support',
     requires: ['shadow'],
-    levels: [{ name: 'Mana Tap', cost: { arcane: 4 }, effect: { kind: 'manaTap', amount: 2 } }],
+    levels: [{ name: 'Mana Tap', cost: { arcane: 4 }, effect: { kind: 'manaTap', amount: 1 } }],
   },
   gust: {
     id: 'gust',

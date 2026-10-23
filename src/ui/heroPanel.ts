@@ -1,4 +1,5 @@
 import type { Battle } from '../battle/battle';
+import { MAX_ITEMS_PER_BATTLE } from '../battle/combat';
 import { ITEMS } from '../data/items';
 import { ELEMENTS, ELEMENT_NAMES, type Element } from '../core/elements';
 import { SPELLS } from '../data/spells';
@@ -108,6 +109,7 @@ export class HeroPanel {
       hero.feats,
       ongoing,
       Boolean(combat),
+      combat?.itemsUsed,
       this.open,
     ]);
     if (key === this.controlsKey) return;
@@ -183,7 +185,13 @@ export class HeroPanel {
       const use = ITEMS[id]?.use;
       return Boolean(use?.heal || use?.manaBoost);
     });
+    // Item uses left this battle, as a bag with a count, before the items.
+    const usesLeft = combat ? MAX_ITEMS_PER_BATTLE - combat.itemsUsed : 0;
+    const uses = el('span', { className: 'item-uses' });
+    uses.title = `${usesLeft} item uses left this battle`;
+    uses.append(iconElement('bag', 2), el('b', { text: `${usesLeft}/${MAX_ITEMS_PER_BATTLE}` }));
     this.itemList.replaceChildren(
+      ...(combat && items.length > 0 ? [uses] : []),
       ...(combat
         ? items.map(([id, count]) => {
             const item = ITEMS[id];

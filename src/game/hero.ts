@@ -321,7 +321,7 @@ export function applyItemEffect(hero: Hero, item: ItemDef): string {
     hero.hp = hero.maxHp;
     parts.push('HP fully restored');
   }
-  if (use.heal) parts.push(`restored ${heal(hero, use.heal)} HP`);
+  if (use.heal) parts.push(`restored ${heal(hero, Math.ceil(hero.maxHp * use.heal))} HP`);
   if (use.learnSpell && learnSpell(hero, use.learnSpell)) parts.push(`learned a new spell`);
   return parts.length ? `${item.name}: ${parts.join(', ')}.` : `${item.name} had no effect.`;
 }

@@ -37,7 +37,7 @@ import {
 import type { BattleContext, BattleStatus, Challenge, Objective } from './types';
 
 /** Base damage for clearing 0–4 lines at once: single lines are weak, big clears steep. */
-export const LINE_DAMAGE: readonly number[] = [0, 4, 12, 26, 48];
+export const LINE_DAMAGE: readonly number[] = [0, 3, 12, 26, 48];
 /** Strike bonus per point of attack (class base, Strength and weapon): 0.04 = +4%. */
 export const ATTACK_PERCENT = 0.04;
 /** A multi-line clear right after another multi-line clear strikes this much harder. */
@@ -48,7 +48,7 @@ export const COMBO_STEP = 0.25;
 export const MAX_COMBO = 8;
 export { PIECE_MS } from '../core/scoring';
 /** Casting a spell takes time: it fills this share of the enemy's gauge… */
-export const SPELL_TIME = 0.2;
+export const SPELL_TIME = 0.15;
 /** …and using an item this share. */
 export const ITEM_TIME = 0.3;
 /** Items the hero can use in one battle. */
@@ -140,6 +140,8 @@ export class CombatChallenge implements Challenge {
   regen = { amount: 0, pieces: 0 };
   /** Static: extra lightning damage on each of the next `clears` line clears. */
   charge = { power: 0, clears: 0 };
+  /** True once a Phoenix Feather has revived the hero this fight (once per fight). */
+  revived = false;
   /** Items used this battle (at most `MAX_ITEMS_PER_BATTLE`). */
   itemsUsed = 0;
   /** Mist: enemy moves left that fizzle. */
@@ -545,7 +547,9 @@ export class CombatChallenge implements Challenge {
     this.ctx.emit({ kind: 'enemyMove', move });
     switch (move.kind) {
       case 'attack': {
-        const damage = Math.max(1, move.power + this.enemy.atk - totalDefense(this.ctx.hero));
+        const fury = this.enraged ? (this.enemy.enrage?.atk ?? 0) : 0;
+        const attack = move.power + this.enemy.atk + fury;
+        const damage = Math.max(1, attack - totalDefense(this.ctx.hero));
         const absorbed = Math.min(this.ward, damage);
         if (absorbed > 0) {
           this.ward -= absorbed;
@@ -605,7 +609,8 @@ export class CombatChallenge implements Challenge {
   private hurtHero(damage: number): void {
     const hero = this.ctx.hero;
     this.ctx.emit({ kind: 'heroHit', amount: takeDamage(hero, damage) });
-    if (hero.hp === 0 && itemCount(hero, 'phoenixFeather') > 0) {
+    if (hero.hp === 0 && !this.revived && itemCount(hero, 'phoenixFeather') > 0) {
+      this.revived = true;
       removeItem(hero, 'phoenixFeather');
       hero.hp = Math.ceil(hero.maxHp / 2);
       this.ctx.emit({ kind: 'revive' });

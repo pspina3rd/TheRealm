@@ -107,7 +107,7 @@ describe('support spells', () => {
     combat.gauge = -1e9; // the enemy never moves
     hero.mana = { ...emptyCounts(), arcane: 10 };
     combat.castSpell('manaTap');
-    expect(hero.mana).toEqual({ ...emptyCounts(2), arcane: 6 });
+    expect(hero.mana).toEqual({ ...emptyCounts(1), arcane: 6 });
     expect(kinds(battle)).toContain('mana');
     hero.mana = { ...emptyCounts(hero.manaCap), arcane: 10 };
     expect(combat.cannotCastReason('manaTap')).toBe('Mana is already full.');
@@ -218,7 +218,7 @@ describe('support and combo data', () => {
       ['Static · Lv 1 · +6 damage × 3 clears', 6, 3],
       ['Regen · Lv 1 · heal 4 × 5 pieces', 4, 5],
       ['Stoneskin · Lv 1 · ward 15', 15, 0],
-      ['Mana Tap · Lv 1 · +2 mana to the other pools', 2, 0],
+      ['Mana Tap · Lv 1 · +1 mana to the other pools', 1, 0],
       ['Gust · Lv 1 · swap for the next piece', 0, 0],
     ]);
   });

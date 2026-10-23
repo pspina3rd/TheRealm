@@ -133,13 +133,23 @@ export function lessonFoeId(mentor: MentorDef, stop: MentorStop): string {
   return rest.reduce((best, enemy) => (enemy.level > best.level ? enemy : best), first).id;
 }
 
-/** A foe made harder for a lesson: more HP, attack and speed per difficulty above 1, no spoils. */
-export function scaledFoe(enemy: EnemyDef, difficulty: number): EnemyDef {
+/** Heroes below this level meet gentler difficulty-1 lesson foes… */
+export const NOVICE_LEVEL = 3;
+/** …with this share of their HP (a 50 HP wisp has 36). */
+export const NOVICE_FOE_HP = 0.72;
+
+/**
+ * A foe made harder for a lesson: more HP, attack and speed per difficulty
+ * above 1, no spoils. At difficulty 1 a hero below `NOVICE_LEVEL` meets it
+ * with `NOVICE_FOE_HP` of its HP, so the first lessons stay gentle.
+ */
+export function scaledFoe(enemy: EnemyDef, difficulty: number, heroLevel = NOVICE_LEVEL): EnemyDef {
   const extra = Math.max(0, difficulty - 1);
+  const novice = extra === 0 && heroLevel < NOVICE_LEVEL ? NOVICE_FOE_HP : 1;
   return {
     ...enemy,
     level: enemy.level + extra,
-    hp: Math.round(enemy.hp * (1 + FOE_HP_PER_DIFFICULTY * extra)),
+    hp: Math.round(enemy.hp * (1 + FOE_HP_PER_DIFFICULTY * extra) * novice),
     atk: enemy.atk + FOE_ATK_PER_DIFFICULTY * extra,
     xp: 0,
     gil: 0,
@@ -174,7 +184,7 @@ export function lessonSpec(state: GameState, mentorId: string, lesson: Lesson): 
  * raises it a level), lifting the category's lock if this was the lesson
  * that set it. A loss records the lesson and locks the category (an
  * earlier lost lesson that still locks it stays the one to win), and the
- * mentor patches the hero up to at least half HP. Returns what changed,
+ * mentor patches the hero up to at least half HP (after a win too). Returns what changed,
  * for the results screen.
  */
 export function completeLesson(hero: Hero, spec: LessonSpec, won: boolean): Gain[] {
@@ -189,6 +199,8 @@ export function completeLesson(hero: Hero, spec: LessonSpec, won: boolean): Gain
     hero.hp = Math.max(hero.hp, Math.ceil(hero.maxHp / 2));
     return [{ kind: 'lock', element }];
   }
+  // The mentor patches a winner up too, to at least half HP.
+  hero.hp = Math.max(hero.hp, Math.ceil(hero.maxHp / 2));
   const gains: Gain[] = [];
   if (known) {
     raiseSpellLevel(hero, spec.spellId);

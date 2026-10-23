@@ -139,6 +139,8 @@ export interface EnrageDef {
   readonly actMs: number;
   /** Its curses push this many stone rows instead. */
   readonly curseRows: number;
+  /** Attack it gains while enraged. */
+  readonly atk?: number;
 }
 
 export interface Drop {
@@ -193,6 +195,7 @@ export interface EnemyDef {
 export type ItemKind = 'consumable' | 'weapon' | 'armor' | 'accessory' | 'treasure' | 'service';
 
 export interface ItemUse {
+  /** Heals this share (0–1) of max HP, rounded up. */
   readonly heal?: number;
   /**
    * Battle only: for this many pieces, cleared crystals give double mana.

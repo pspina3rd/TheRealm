@@ -433,8 +433,8 @@ describe('LessonChallenge', () => {
     for (let i = 0; i < 10; i++) battle.input('right');
     battle.input('hardDrop');
     expect(battle.lines).toBe(4);
-    // Its four crystals were red: the mentor's fire mana.
-    expect(hero.mana.fire).toBe(4);
+    // Its four crystals were red: the mentor's fire mana (×2 for four lines).
+    expect(hero.mana.fire).toBe(8);
   });
 
   it('is a real fight: hard-dropping in place with no spells usually loses', () => {

@@ -134,7 +134,7 @@ describe('CombatChallenge', () => {
     battle.input('hardDrop');
     act(combat);
     const base = createHero(hero.classId);
-    expect(999 - combat.enemyHp).toBe(Math.round(4 * (1 + 0.04 * (base.atk + 2))));
+    expect(999 - combat.enemyHp).toBe(Math.round(3 * (1 + 0.04 * (base.atk + 2))));
     expect(hero.maxHp - hero.hp).toBe(6 + ENEMIES.shroom!.atk - (base.def + 2));
   });
 
@@ -518,8 +518,8 @@ describe('CombatChallenge', () => {
       hero.mana = emptyCounts(0);
       setUpVerticalIClear(battle.board, 1, 'violet');
       battle.input('hardDrop');
-      expect(hero.mana.arcane).toBe(Math.min(hero.manaCap, 9 + 3));
-      expect(hero.mana.wind).toBe(1 + 3); // the I piece is wind
+      expect(hero.mana.arcane).toBe(Math.min(hero.manaCap, 4 + 3)); // half of 9, rounded down
+      expect(hero.mana.wind).toBe(0 + 3); // the I piece's lone wind crystal rounds to 0
       expect(hero.mana.fire).toBe(3);
     });
 
@@ -556,7 +556,7 @@ describe('CombatChallenge', () => {
     hero.hp = 10;
     combat.gauge = 100;
     combat.useItem('herb');
-    expect(hero.hp).toBe(30);
+    expect(hero.hp).toBe(10 + Math.ceil(hero.maxHp / 4));
     expect(combat.gauge).toBe(100 + ITEM_TIME * combat.actMs);
     addItem(hero, 'herb', 5);
     for (let i = 1; i < MAX_ITEMS_PER_BATTLE; i++) {
@@ -642,7 +642,10 @@ describe('combat events', () => {
     battle.hero.hp = 1;
     combat.useItem('herb');
     expect(events(battle)).toContainEqual({ kind: 'item', itemId: 'herb' });
-    expect(events(battle)).toContainEqual({ kind: 'heroHeal', amount: 20 });
+    expect(events(battle)).toContainEqual({
+      kind: 'heroHeal',
+      amount: Math.ceil(battle.hero.maxHp / 4),
+    });
     addItem(battle.hero, 'phoenixFeather');
     battle.hero.hp = 1;
     nextMove(combat, { kind: 'attack', name: 'Bonk', power: 99 });

@@ -77,6 +77,8 @@ export class BattleView {
     this.stage.render(battle, dtMs, timeMs);
     this.hero.render(battle, flags);
     this.pauseButton.setAttribute('aria-pressed', String(battle.paused));
-    this.pauseButton.textContent = battle.paused ? '▶' : '❚❚';
+    // Pauses left beside the pause sign (resume is always possible).
+    this.pauseButton.textContent = battle.paused ? '▶' : `❚❚ ${battle.pausesLeft}`;
+    this.pauseButton.disabled = !battle.paused && battle.pausesLeft <= 0;
   }
 }

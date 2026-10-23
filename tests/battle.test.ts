@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { HARD_DROP_POINTS_PER_ROW, gravityInterval } from '../src/core/scoring';
 import { emptyCounts } from '../src/core/elements';
-import { MANA_BOOST_MULTIPLIER } from '../src/battle/battle';
+import { MANA_BOOST_MULTIPLIER, MANA_PER_LINES } from '../src/battle/battle';
 import { addItem, createHero } from '../src/game/hero';
 import { forceQueue, makeBattle, setUpVerticalIClear } from './helpers';
 
@@ -135,7 +135,11 @@ describe('mana belongs to the battle', () => {
     const battle = makeBattle(fight);
     setUpVerticalIClear(battle.board, 1, 'red');
     battle.input('hardDrop');
-    expect(battle.hero.mana.fire).toBe(9);
+    // A lone line gives half its crystals as mana (rounded down).
+    expect(battle.hero.mana.fire).toBe(Math.floor(9 * MANA_PER_LINES[1]!));
+    setUpVerticalIClear(battle.board, 2, 'red');
+    battle.input('hardDrop');
+    expect(battle.hero.mana.fire).toBe(Math.min(battle.hero.manaCap, 4 + 18));
   });
 
   it('doubles cleared crystals for the pieces an Ether lasts, and adds nothing itself', () => {
@@ -146,7 +150,7 @@ describe('mana belongs to the battle', () => {
     expect(battle.manaBoostPieces).toBe(3);
     setUpVerticalIClear(battle.board, 1, 'red');
     battle.input('hardDrop');
-    expect(battle.hero.mana.fire).toBe(Math.min(battle.hero.manaCap, 9 * MANA_BOOST_MULTIPLIER));
+    expect(battle.hero.mana.fire).toBe(Math.min(battle.hero.manaCap, 4 * MANA_BOOST_MULTIPLIER));
     expect(battle.manaBoostPieces).toBe(2);
   });
 });

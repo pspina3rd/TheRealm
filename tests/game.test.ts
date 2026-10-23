@@ -9,6 +9,7 @@ import { NPCS } from '../src/data/npcs';
 import { say } from '../src/game/attitude';
 import {
   FALL_HP_SHARE,
+  HOME_FALL_HP_SHARE,
   describeInteraction,
   npcCompletionFlag,
   resolveBattle,
@@ -129,8 +130,14 @@ describe('resolveBattle', () => {
     expect(result.fell).toBe(true);
     expect(result.gains).toEqual([{ kind: 'gil', amount: -20 }]);
     expect(state.hero.gil).toBe(21);
-    expect(state.hero.hp).toBe(Math.ceil(state.hero.maxHp * FALL_HP_SHARE));
+    // Mossvale's healer: half HP at home.
+    expect(state.hero.hp).toBe(Math.ceil(state.hero.maxHp * HOME_FALL_HP_SHARE));
     expect(state.mapId).toBe(state.respawn.map);
+    // Anywhere else, 30%.
+    state.respawn = { map: 'brightwater', x: 5, y: 5 };
+    state.hero.hp = 0;
+    resolveBattle(state, entity('overworld', 'ow-slime-1'), battle, createRng(1));
+    expect(state.hero.hp).toBe(Math.ceil(state.hero.maxHp * FALL_HP_SHARE));
   });
 
   it('rejects a non-combat battle against a monster', () => {

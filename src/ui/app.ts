@@ -745,7 +745,7 @@ export class App {
 
   private togglePause(): void {
     const battle = this.active?.battle;
-    if (battle && !this.active?.finished) battle.paused = !battle.paused;
+    if (battle && !this.active?.finished) battle.togglePause();
   }
 }
 

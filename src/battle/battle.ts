@@ -35,8 +35,16 @@ export type BattleAction = 'left' | 'right' | 'rotate' | 'softDrop' | 'hardDrop'
 const MAX_EVENTS = 100;
 /** Mana from cleared crystals is multiplied by this while an Ether lasts. */
 export const MANA_BOOST_MULTIPLIER = 2;
+/**
+ * Mana per cleared crystal by lines cleared together (rounded down per
+ * element): a lone line gives half, big clears more, so spells are fuelled
+ * by the same big clears that strike hardest.
+ */
+export const MANA_PER_LINES: readonly number[] = [0, 0.5, 1, 1.5, 2];
 /** Gravity interval multiplier under a tailwind (higher = slower). */
 export const TAILWIND_SLOWDOWN = 1.6;
+/** Pauses the hero may take in one battle (resuming is always allowed). */
+export const MAX_PAUSES = 3;
 /** Pieces fall this many times faster while an enemy's quicken lasts. */
 export const QUICKEN_SPEED = 2.5;
 
@@ -65,6 +73,8 @@ export class Battle implements BattleContext {
   fogPieces = 0;
   quickenMs = 0;
   paused = false;
+  /** Pauses left this battle; while paused the board and preview are hidden. */
+  pausesLeft = MAX_PAUSES;
   /** Oldest first, numbered so the screen can play each event once. */
   readonly events: NumberedEvent[] = [];
   private nextSeq = 0;
@@ -123,6 +133,21 @@ export class Battle implements BattleContext {
   /** Events numbered `afterSeq` or later. */
   eventsSince(afterSeq: number): NumberedEvent[] {
     return this.events.filter((e) => e.seq >= afterSeq);
+  }
+
+  /**
+   * Pauses (spending one of `MAX_PAUSES`) or resumes. Returns whether the
+   * state changed: a finished battle, or one out of pauses, won't pause.
+   */
+  togglePause(): boolean {
+    if (this.paused) {
+      this.paused = false;
+      return true;
+    }
+    if (this.status !== 'ongoing' || this.pausesLeft <= 0) return false;
+    this.pausesLeft--;
+    this.paused = true;
+    return true;
   }
 
   /** Applies a player input. Ignored when paused or finished. */
@@ -190,7 +215,10 @@ export class Battle implements BattleContext {
     if (result.linesCleared > 0) {
       this.emit({ kind: 'lines', rows: result.rows, lines: result.lines });
       const crystals = elementsOf(result.clearedCells);
-      const gained = Object.fromEntries(ELEMENTS.map((e) => [e, crystals[e] * boost]));
+      const share = MANA_PER_LINES[Math.min(result.linesCleared, MANA_PER_LINES.length - 1)] ?? 0;
+      const gained = Object.fromEntries(
+        ELEMENTS.map((e) => [e, Math.floor(crystals[e] * share) * boost]),
+      );
       if (addMana(this.hero, gained) > 0) this.emit({ kind: 'mana', gained });
     }
     this.challenge.onLock(result);

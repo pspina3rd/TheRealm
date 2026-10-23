@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { QUICKEN_SPEED } from '../src/battle/battle';
+import { MAX_PAUSES, QUICKEN_SPEED } from '../src/battle/battle';
 import {
   ATTACK_PERCENT,
   BACK_TO_BACK_MULTIPLIER,
@@ -17,7 +17,8 @@ import { createRng } from '../src/core/rng';
 import { gravityInterval } from '../src/core/scoring';
 import { ENEMIES } from '../src/data/enemies';
 import type { ChallengeSpec, EnemyDef, EnemyMove } from '../src/data/types';
-import { createHero, gainXp, totalAttack } from '../src/game/hero';
+import { addItem, createHero, gainXp, totalAttack } from '../src/game/hero';
+import { NOVICE_FOE_HP, NOVICE_LEVEL, completeLesson, scaledFoe } from '../src/game/lessons';
 import {
   ATK_PER_LEVEL,
   BOSS_BAND,
@@ -151,8 +152,8 @@ describe('strike damage', () => {
   const plain = { attack: 0, backToBack: false, combo: 0, affinity: 1 };
 
   it('makes single lines weak and big clears steep', () => {
-    expect(LINE_DAMAGE).toEqual([0, 4, 12, 26, 48]);
-    expect([1, 2, 3, 4].map((n) => strikeDamage(n, plain))).toEqual([4, 12, 26, 48]);
+    expect(LINE_DAMAGE).toEqual([0, 3, 12, 26, 48]);
+    expect([1, 2, 3, 4].map((n) => strikeDamage(n, plain))).toEqual([3, 12, 26, 48]);
     expect(strikeDamage(5, plain)).toBe(48);
     expect(strikeDamage(1, { ...plain, affinity: 0 })).toBe(1);
   });
@@ -325,6 +326,70 @@ describe('enemy scaling', () => {
   });
 });
 
+describe('no free safety nets', () => {
+  it('lets a Phoenix Feather revive only once per fight', () => {
+    const { combat, hero } = fight();
+    addItem(hero, 'phoenixFeather', 2);
+    only(combat, { kind: 'attack', name: 'Crush', power: 999 });
+    combat.gauge = combat.actMs;
+    combat.update(0);
+    expect(hero.hp).toBe(Math.ceil(hero.maxHp / 2));
+    combat.gauge = combat.actMs;
+    combat.update(0);
+    expect(combat.status()).toBe('lost');
+    expect(hero.items.phoenixFeather).toBe(1);
+  });
+
+  it('caps pauses per battle; resuming is always allowed', () => {
+    const { battle } = fight();
+    for (let i = 0; i < MAX_PAUSES; i++) {
+      expect(battle.togglePause()).toBe(true);
+      expect(battle.paused).toBe(true);
+      expect(battle.togglePause()).toBe(true);
+    }
+    expect(battle.pausesLeft).toBe(0);
+    expect(battle.togglePause()).toBe(false);
+    expect(battle.paused).toBe(false);
+  });
+
+  it('adds attack while enraged', () => {
+    const { combat, hero } = fight('moonWyrm');
+    only(combat, { kind: 'attack', name: 'Lunar Breath', power: 16 });
+    combat.enraged = true;
+    combat.gauge = combat.actMs;
+    combat.update(0);
+    const hit = 16 + combat.enemy.atk + combat.enemy.enrage!.atk! - hero.def;
+    expect(hero.hp).toBe(Math.max(0, hero.maxHp - hit));
+  });
+
+  it('shows spell and item time as a gauge flash', () => {
+    expect(feedbackFor({ kind: 'gaugeJump', share: 0.15 })).toEqual([{ kind: 'rush' }]);
+  });
+});
+
+describe('gentler first lessons', () => {
+  it('gives difficulty-1 foes less HP while the hero is below level 3', () => {
+    const wisp = ENEMIES.emberWisp!;
+    expect(scaledFoe(wisp, 1, 1).hp).toBe(Math.round(wisp.hp * NOVICE_FOE_HP));
+    expect(scaledFoe(wisp, 1, NOVICE_LEVEL).hp).toBe(wisp.hp);
+    expect(scaledFoe(wisp, 2, 1).hp).toBeGreaterThan(wisp.hp);
+  });
+
+  it('patches up a winner to at least half HP', () => {
+    const hero = createHero();
+    hero.hp = 1;
+    const spec = {
+      kind: 'lesson',
+      mentorId: 'kestrel',
+      spellId: 'gust',
+      enemyId: 'galeWisp',
+      difficulty: 1,
+    } as const;
+    completeLesson(hero, spec, true);
+    expect(hero.hp).toBe(Math.ceil(hero.maxHp / 2));
+  });
+});
+
 describe('recovery', () => {
   it('heals a little per step on the map while below half HP', () => {
     const state = newGame();
@@ -364,10 +429,11 @@ describe.skipIf(!process.env.SIM)('balance table (SIM=1)', () => {
   const pct = (n: number) => `${(n * 100).toFixed(0)}%`;
   const row = (name: string, level: number, spec: ChallengeSpec, runs: number): string => {
     const good = measure(spec, level, 'good', runs);
+    const prepared = measure(spec, level, 'prepared', runs);
     const spam = measure(spec, level, 'spammer', runs);
     const sloppy = measure(spec, level, 'sloppy', runs);
     const drop = measure(spec, level, 'dropper', Math.min(runs, 10));
-    return `| ${name} | ${level} | ${pct(good.winRate)} | ${good.seconds.toFixed(0)} s / ${good.pieces.toFixed(0)} | ${pct(good.hpLeft)} | ${pct(spam.winRate)} | ${spam.seconds.toFixed(0)} s | ${pct(sloppy.winRate)} | ${pct(drop.winRate)} |`;
+    return `| ${name} | ${level} | ${pct(good.winRate)} | ${good.seconds.toFixed(0)} s / ${good.pieces.toFixed(0)} | ${pct(good.hpLeft)} | ${pct(prepared.winRate)} | ${pct(spam.winRate)} | ${spam.seconds.toFixed(0)} s | ${pct(sloppy.winRate)} | ${pct(drop.winRate)} |`;
   };
 
   it('prints win rates', () => {

@@ -187,8 +187,9 @@ describe('hero', () => {
     const herb = ITEMS.herb!;
     expect(cannotUseReason(hero, herb)).toBe('HP is already full.');
     hero.hp = 10;
-    expect(useItem(hero, 'herb')).toContain('restored 20 HP');
-    expect(hero.hp).toBe(30);
+    const quarter = Math.ceil(hero.maxHp / 4);
+    expect(useItem(hero, 'herb')).toContain(`restored ${quarter} HP`);
+    expect(hero.hp).toBe(10 + quarter);
     expect(itemCount(hero, 'herb')).toBe(1);
     expect(() => useItem(hero, 'ether')).toThrow('Use it in battle.');
     expect(cannotUseReason(hero, ITEMS.ether!, true)).toBeNull();

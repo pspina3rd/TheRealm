@@ -146,7 +146,9 @@ moves when full, hitting you or your board (stone rows, a sealed column,
 fog over your next piece, crystals turned to stone, faster gravity).
 Single lines barely scratch it; 3–4 line clears, back-to-back big clears
 and combos (several pieces in a row that each clear) hit hard. Leaving
-covered holes or overflowing the board feeds its gauge. Monsters grow
+covered holes or overflowing the board feeds its gauge, and spells (15%)
+and items (30%, at most 3 per fight) take time too. You get 3 pauses per
+fight, and the board is hidden while paused. Monsters grow
 with you (within a few levels of their own), so no area turns into a
 farm. Falling in battle wakes you at the last inn with 30% HP and half
 your gil; level-ups add only the new max HP. Walking heals a little while

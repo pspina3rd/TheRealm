@@ -29,6 +29,8 @@ export interface BoardStatus {
   readonly fogPieces: number;
   readonly quickenMs: number;
   readonly upcoming: readonly PieceName[];
+  /** While paused the stack and preview are hidden, so a pause can't be used to plan. */
+  readonly paused: boolean;
 }
 
 interface CellFlash {
@@ -145,13 +147,20 @@ export class BoardView {
     this.drawCellFlashes(dtMs);
     this.drawPops(w, dtMs);
     this.drawBadges(status, this.badgeRight(board), timeMs);
-    if (dimmed) {
+    if (status.paused) {
+      ctx.fillStyle = '#080a12';
+      ctx.fillRect(-10, 0, w + 20, h);
+      ctx.fillStyle = '#aeb6d7';
+      ctx.font = 'bold 40px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText('❚❚', w / 2, h / 2);
+    } else if (dimmed) {
       ctx.fillStyle = '#080a12b0';
       ctx.fillRect(0, 0, w, h);
     }
     ctx.restore();
 
-    this.drawNext(status.upcoming, status.fogPieces);
+    this.drawNext(status.paused ? [] : status.upcoming, status.fogPieces);
   }
 
   /** An enemy's sealed column: hatched stone with a lock and the pieces it lasts. */

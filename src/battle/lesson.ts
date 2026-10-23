@@ -27,7 +27,7 @@ export class LessonChallenge extends CombatChallenge {
     const mentor = MENTORS[spec.mentorId];
     const foe = ENEMIES[spec.enemyId];
     if (!mentor || !foe) throw new Error(`Unknown lesson: ${spec.mentorId}/${spec.enemyId}`);
-    super(ctx, scaledFoe(foe, spec.difficulty));
+    super(ctx, scaledFoe(foe, spec.difficulty, ctx.hero.level));
     this.mentor = mentor;
     this.spellId = spec.spellId;
     this.helpChance = heroHelpChance(ctx.hero, mentor, spec.difficulty);

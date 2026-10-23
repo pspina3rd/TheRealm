@@ -3,6 +3,7 @@ import { HaggleChallenge } from '../battle/haggle';
 import type { Battle } from '../battle/battle';
 import type { Rng } from '../core/rng';
 import { ENEMIES } from '../data/enemies';
+import { START } from '../data/maps';
 import { MENTORS, type MentorDef } from '../data/mentors';
 import { NPCS } from '../data/npcs';
 import type { ChallengeSpec, NpcDef, Reward } from '../data/types';
@@ -26,8 +27,10 @@ import { grantRewards, type Gain } from './rewards';
 import { isCategoryLocked, type FailedLesson } from './spells';
 import { SKILL_POINTS_PER_LEVEL, dropBonus } from './stats';
 
-/** Share of max HP the hero wakes with at the last inn after falling in a fight. */
+/** Share of max HP the hero wakes with at the last inn after falling in a fight… */
 export const FALL_HP_SHARE = 0.3;
+/** …or in the home village, where the healer looks after a beginner. */
+export const HOME_FALL_HP_SHARE = 0.5;
 
 /** Who is speaking in an interaction, for the conversation screen. */
 interface Speaker {
@@ -255,7 +258,8 @@ function resolveCombat(
   } else {
     const lost = Math.floor(hero.gil / 2);
     hero.gil -= lost;
-    hero.hp = Math.max(1, Math.ceil(hero.maxHp * FALL_HP_SHARE));
+    const share = state.respawn.map === START.map ? HOME_FALL_HP_SHARE : FALL_HP_SHARE;
+    hero.hp = Math.max(1, Math.ceil(hero.maxHp * share));
     travel(state, state.respawn);
     if (lost > 0) gains.push({ kind: 'gil', amount: -lost });
   }

@@ -139,7 +139,8 @@ describe('mana from crystals', () => {
     battle.hero.mana = emptyCounts(0);
     setUpVerticalIClear(battle.board, 1, 'red');
     battle.input('hardDrop');
-    expect(battle.hero.mana).toEqual({ ...emptyCounts(), fire: 9, wind: 1 });
+    // A lone line: half of each element's crystals, rounded down.
+    expect(battle.hero.mana).toEqual({ ...emptyCounts(), fire: 4, wind: 0 });
   });
 
   it('never fills a pool past its capacity', () => {
