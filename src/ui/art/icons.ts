@@ -988,8 +988,10 @@ export const ITEM_ICONS: Readonly<Record<string, IconSpec>> = {
   copperSword: { icon: 'sword', palette: PALETTES.copper },
   ironSword: { icon: 'sword', palette: PALETTES.iron },
   knightBlade: { icon: 'sword', palette: PALETTES.knight },
+  flameBrand: { icon: 'sword', palette: elementPalette('fire') },
   apprenticeRobe: { icon: 'robe' },
   crystalMail: { icon: 'armor', palette: PALETTES.crystal },
+  forgePlate: { icon: 'armor', palette: PALETTES.iron },
   emberCharm: { icon: 'amulet', palette: elementPalette('fire'), badge: 'fire' },
   tideCharm: { icon: 'amulet', palette: elementPalette('water'), badge: 'water' },
   stormCharm: { icon: 'amulet', palette: elementPalette('lightning'), badge: 'lightning' },
@@ -1007,6 +1009,12 @@ export const ITEM_ICONS: Readonly<Record<string, IconSpec>> = {
 /** Story flags an NPC can grant, as reward icons: what opens, not a padlock. */
 export const FLAG_ICONS: Readonly<Record<string, IconSpec & { readonly label: string }>> = {
   cavePass: { icon: 'scroll', palette: PALETTES.gold, badge: 'arcane', label: 'Cave Pass' },
+  ridgeCleared: {
+    icon: 'piece',
+    palette: elementPalette('earth'),
+    label: 'The ridge road is clear',
+  },
+  peakGate: { icon: 'lock', palette: elementPalette('fire'), label: 'Key to the peak gate' },
   shrineRestored: {
     icon: 'drop',
     palette: elementPalette('water'),

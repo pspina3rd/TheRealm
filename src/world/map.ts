@@ -69,7 +69,18 @@ export type MapEntity = NpcEntity | MonsterEntity;
 export type EntityDef = MapEntity | MentorEntity;
 
 /** Which art set a map is drawn with (see `src/ui/art/themes.ts`). */
-export type ThemeId = 'outdoor' | 'town' | 'cave';
+export type ThemeId =
+  | 'outdoor'
+  | 'town'
+  | 'cave'
+  // Mentor regions
+  | 'grove'
+  | 'lake'
+  | 'quarry'
+  | 'forge'
+  | 'peaks'
+  | 'cliffs'
+  | 'ruins';
 
 /** A prop placed by position rather than by tile character (houses, doors, stalls). */
 export interface DecorDef {

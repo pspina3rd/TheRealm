@@ -231,7 +231,9 @@ export function heroAt(level: number, classId = 'ranger'): Hero {
     hero.skillPoints--;
   }
   const gear: [string, string | null][] =
-    level >= 7
+    level >= 9
+      ? [['flameBrand', 'forgePlate']]
+      : level >= 7
       ? [['knightBlade', 'crystalMail']]
       : level >= 4
         ? [['ironSword', 'apprenticeRobe']]

@@ -13,7 +13,21 @@ export const TILE = 32;
 
 // ------------------------------------------------------------- terrains ---
 
-type TerrainId = 'grass' | 'path' | 'sand' | 'caveFloor' | 'water';
+type TerrainId =
+  | 'grass'
+  | 'path'
+  | 'sand'
+  | 'caveFloor'
+  | 'water'
+  | 'paleGrass'
+  | 'sageGrass'
+  | 'darkGrass'
+  | 'darkSand'
+  | 'ash'
+  | 'frost'
+  | 'moonGrass'
+  | 'redEarth'
+  | 'lava';
 
 interface TerrainArt {
   readonly image: ImageId;
@@ -27,21 +41,48 @@ interface TerrainArt {
   };
 }
 
+/** Eight frames laid out two per row: 13 tiles apart horizontally, 5 vertically. */
+const WATER_FRAMES = {
+  count: 8,
+  fps: 4,
+  origin: (f: number): [number, number] => [(f % 2) * 13, 1 + Math.floor(f / 2) * 5],
+};
+
 const TERRAINS: Readonly<Record<TerrainId, TerrainArt>> = {
   grass: { image: 'ground', block: [0, 4] },
   path: { image: 'ground', block: [0, 8] },
   sand: { image: 'ground', block: [0, 12] },
   caveFloor: { image: 'ground', block: [12, 8] },
-  water: {
-    image: 'water',
-    block: [0, 1],
-    // Eight frames laid out two per row: 13 tiles apart horizontally, 5 vertically.
-    frames: { count: 8, fps: 4, origin: (f) => [(f % 2) * 13, 1 + Math.floor(f / 2) * 5] },
-  },
+  water: { image: 'water', block: [0, 1], frames: WATER_FRAMES },
+  // The mentor regions: the sheet's other grasses and sand, recoloured ground and lava.
+  paleGrass: { image: 'ground', block: [0, 0] },
+  sageGrass: { image: 'ground', block: [12, 0] },
+  darkGrass: { image: 'ground', block: [12, 4] },
+  darkSand: { image: 'ground', block: [12, 12] },
+  ash: { image: 'ground2', block: [0, 0] },
+  frost: { image: 'ground2', block: [12, 0] },
+  moonGrass: { image: 'ground2', block: [0, 4] },
+  redEarth: { image: 'ground2', block: [12, 4] },
+  lava: { image: 'lava', block: [0, 1], frames: { ...WATER_FRAMES, fps: 3 } },
 };
 
 /** Ground layers are drawn in this order, so paths sit on grass and water edges overlap paths. */
-const TERRAIN_ORDER: readonly TerrainId[] = ['grass', 'sand', 'caveFloor', 'path', 'water'];
+const TERRAIN_ORDER: readonly TerrainId[] = [
+  'grass',
+  'paleGrass',
+  'sageGrass',
+  'darkGrass',
+  'moonGrass',
+  'frost',
+  'ash',
+  'redEarth',
+  'sand',
+  'darkSand',
+  'caveFloor',
+  'path',
+  'water',
+  'lava',
+];
 
 // --------------------------------------------------------------- recipes ---
 
@@ -89,6 +130,38 @@ const OUTDOOR_TILES: Readonly<Record<string, TileRecipe>> = {
   R: { terrain: 'path', objects: ['ruins.arch'] },
 };
 
+const variants = <P extends string>(prefix: P, count = 4) =>
+  Array.from({ length: count }, (_, i) => `${prefix}.${i + 1}`) as ObjectId[];
+
+/**
+ * A mentor region: its own ground, path, trees (`T`) and rocks (`^`) over
+ * the outdoor legend; `o` is a plaza or shore, `~` water (or lava), `#` a wall
+ * of rocks, `C` a cave mouth and `k` a crystal.
+ */
+function region(
+  background: string,
+  base: TerrainId,
+  path: TerrainId,
+  trees: readonly ObjectId[],
+  rocks: readonly ObjectId[],
+  extra: Readonly<Record<string, TileRecipe>> = {},
+): ThemeArt {
+  return {
+    background,
+    base,
+    tiles: {
+      ...OUTDOOR_TILES,
+      '=': { terrain: path },
+      o: { terrain: 'sand' },
+      T: { objects: trees },
+      '^': { objects: rocks },
+      '#': { objects: rocks },
+      k: { terrain: path, objects: ['crystal'] },
+      ...extra,
+    },
+  };
+}
+
 export const THEMES: Readonly<Record<ThemeId, ThemeArt>> = {
   outdoor: { background: '#3f8f4a', base: 'grass', tiles: OUTDOOR_TILES },
   town: {
@@ -101,6 +174,60 @@ export const THEMES: Readonly<Record<ThemeId, ThemeArt>> = {
       '#': { objects: TREES },
     },
   },
+  grove: region(
+    '#2b5a33',
+    'darkGrass',
+    'path',
+    ['tree.green.a', 'tree.green.b', 'tree.green.a'],
+    ['tree.green.round'],
+  ),
+  lake: region(
+    '#3f8f4a',
+    'grass',
+    'path',
+    ['tree.blue.a', 'tree.blue.b'],
+    variants('rock.blue'),
+  ),
+  quarry: region(
+    '#7a4a35',
+    'redEarth',
+    'darkSand',
+    variants('spire.beige'),
+    variants('rock.orange'),
+    { o: { terrain: 'path' }, ',': {} },
+  ),
+  forge: region(
+    '#3b3430',
+    'ash',
+    'caveFloor',
+    ['tree.red.a', 'tree.red.b'],
+    variants('rock.dark'),
+    { '~': { terrain: 'lava' }, o: { terrain: 'caveFloor' }, ',': {} },
+  ),
+  peaks: region(
+    '#8f97a8',
+    'frost',
+    'path',
+    variants('spire.blue'),
+    variants('rock.blue'),
+    { ',': {} },
+  ),
+  cliffs: region(
+    '#9fb35a',
+    'paleGrass',
+    'sand',
+    ['tree.green.round', 'tree.green.a'],
+    variants('rock.beige'),
+    { o: { terrain: 'path' } },
+  ),
+  ruins: region(
+    '#4d3f63',
+    'moonGrass',
+    'darkSand',
+    ['tree.purple.a', 'tree.purple.b'],
+    variants('rock.dark'),
+    { ',': {}, o: { terrain: 'caveFloor' } },
+  ),
   cave: {
     background: '#1d1714',
     base: null,

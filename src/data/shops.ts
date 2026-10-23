@@ -35,4 +35,22 @@ export const SHOPS: Readonly<Record<string, ShopDef>> = {
     stock: ['herb', 'copperSword', 'emberCharm'],
     secretStock: ['ironSword'],
   },
+  emberforgeArmory: {
+    id: 'emberforgeArmory',
+    name: 'Emberforge Armory',
+    stock: ['herb', 'ether', 'flameBrand', 'forgePlate', 'knightBlade', 'emberCharm'],
+    secretStock: ['phoenixFeather'],
+  },
+  cinderRest: {
+    id: 'cinderRest',
+    name: 'The Cinder Rest',
+    stock: ['innRest', 'herb'],
+    secretStock: ['ether'],
+  },
+  eyrieRest: {
+    id: 'eyrieRest',
+    name: 'Eyrie Lodge',
+    stock: ['innRest', 'herb', 'ether', 'phoenixFeather'],
+    secretStock: ['windCharm'],
+  },
 };

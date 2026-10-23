@@ -454,4 +454,322 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     secret: { kind: 'item', itemId: 'moonCharm', count: 1 },
     repeatable: true,
   },
+  // ------------------------------------------------- Thornwood Grove ---
+  forager: {
+    id: 'forager',
+    name: 'Forager Wren',
+    sprite: 'char.033',
+    element: 'nature',
+    lines: {
+      intro: {
+        cold: 'Rot got into my mushroom rings. Replant them if you know how.',
+        plain: 'Rot ate my mushroom rings. Plant green crystals and the spawn takes again.',
+        warm: 'Rot ate my mushroom rings, friend. Help me plant them back? We share the pick.',
+      },
+      confide: 'Hazel taught me to braid caps into charms. Replant a ring and one is yours.',
+      refuse: "My rings, my spawn. Keep your boots out of them.",
+      accept: 'Green, and keep it tidy.',
+      decline: 'The rot spreads while we talk.',
+      win: {
+        cold: 'It takes. Here, your share.',
+        plain: "It takes! First pick's yours.",
+        warm: 'Look, they spring up already! Take a good basket.',
+      },
+      lose: 'Too thin. The rot will win that ring.',
+    },
+    challenge: { kind: 'barter', wants: { green: 8 }, pieceLimit: 21 },
+    rewards: [
+      { kind: 'item', itemId: 'herb', count: 2 },
+      { kind: 'gil', amount: 15 },
+    ],
+    bonus: { kind: 'item', itemId: 'herb', count: 1 },
+    secret: { kind: 'item', itemId: 'groveCharm', count: 1 },
+    repeatable: true,
+  },
+
+  // ------------------------------------------------- Glasswater Lake ---
+  fisher: {
+    id: 'fisher',
+    name: 'Fisher Tam',
+    sprite: 'char.014',
+    element: 'water',
+    lines: {
+      intro: {
+        cold: 'Lurkers shredded my nets. Mend them or move along.',
+        plain: 'Lurkers tore my nets to ribbons. Weave blue crystals through and I can fish again.',
+        warm: 'The lurkers tore my nets again. Help me mend them? Supper is on me.',
+      },
+      confide: 'Maren gave me a tide charm when I was a boy. Mend my nets and I pass it on.',
+      refuse: "I'll mend my own nets, thanks.",
+      accept: 'Blue, tight, no gaps.',
+      decline: "Fish won't wait.",
+      win: {
+        cold: 'Holds. Take this.',
+        plain: 'Holds water and fish both! Take what the last catch fetched.',
+        warm: 'Good as new! Take the last catch money, and come eat.',
+      },
+      lose: "Holes everywhere. That net won't hold a minnow.",
+    },
+    challenge: { kind: 'barter', wants: { blue: 8 }, pieceLimit: 21 },
+    rewards: [
+      { kind: 'gil', amount: 25 },
+      { kind: 'item', itemId: 'ether', count: 1 },
+    ],
+    bonus: { kind: 'item', itemId: 'herb', count: 1 },
+    secret: { kind: 'item', itemId: 'tideCharm', count: 1 },
+    repeatable: true,
+  },
+
+  // --------------------------------------------------- Redrock Quarry ---
+  foreman: {
+    id: 'foreman',
+    name: 'Foreman Brann',
+    sprite: 'char.027',
+    element: 'earth',
+    lines: {
+      intro: {
+        cold: 'A rockslide buried the ridge road. Shift it, and the forge gets its ore. That is all.',
+        plain: 'A rockslide buried the ridge road to Emberforge. Help me shift the rubble?',
+        warm: "The ridge road's buried and Emberforge is starving for ore. Shift it with me?",
+      },
+      confide: 'Dorn worked this face before the caves took his crew. He left a crate; clear the road.',
+      accept: 'Orange first, then the loose violet shale.',
+      decline: "The rubble isn't going anywhere. Neither is the ore.",
+      win: {
+        cold: 'Road is open. Wages. Go.',
+        plain: 'The road is open! Your wages, and the forge will thank you.',
+        warm: "The road's open! Wages, and a round on me in Emberforge.",
+      },
+      lose: 'It slid back. Again, before it settles.',
+      done: {
+        cold: 'Road is open.',
+        plain: 'Carts roll to Emberforge every morning now.',
+        warm: 'Carts roll every morning. Torva says the forge sings again.',
+      },
+    },
+    challenge: { kind: 'barter', wants: { orange: 10, violet: 6 }, pieceLimit: 28 },
+    rewards: [
+      { kind: 'flag', flag: 'ridgeCleared' },
+      { kind: 'gil', amount: 40 },
+    ],
+    bonus: { kind: 'item', itemId: 'ether', count: 1 },
+    secret: { kind: 'item', itemId: 'wellStone', count: 1 },
+    essential: true,
+    repeatable: false,
+  },
+
+  // --------------------------------------------------------- Emberforge ---
+  apprentice: {
+    id: 'apprentice',
+    name: 'Apprentice Cinda',
+    sprite: 'char.006',
+    element: 'fire',
+    lines: {
+      intro: {
+        cold: 'The peak gate needs a new key and the forge is cold. Stoke it or step aside.',
+        plain: "Torva's hands shake, so I must forge the peak gate's key. Help me stoke the fire?",
+        warm: "I'm forging the peak gate's key while Torva rests her hands. Stoke the forge with me?",
+      },
+      confide: 'Torva says a key forged hot opens more than gates. Stoke it and I make you two.',
+      accept: 'Red for the heat, orange for the iron.',
+      decline: 'The coals are dying.',
+      win: {
+        cold: 'Key. The gate is north of Mossvale. Go.',
+        plain: 'A true key! The peak gate stands north of the Realm.',
+        warm: 'A true key, and you swung like a smith! The peak gate is north of the Realm.',
+      },
+      lose: 'It cracked in the quench. Again.',
+      done: {
+        cold: 'You have the key.',
+        plain: 'The storm folk trade with us again, thanks to that key.',
+        warm: 'Torva hung the spare key over the forge. She calls it yours.',
+      },
+    },
+    challenge: { kind: 'barter', wants: { red: 10, orange: 6 }, pieceLimit: 28 },
+    rewards: [
+      { kind: 'flag', flag: 'peakGate' },
+      { kind: 'item', itemId: 'ether', count: 1 },
+    ],
+    bonus: { kind: 'item', itemId: 'herb', count: 2 },
+    secret: { kind: 'item', itemId: 'emberCharm', count: 1 },
+    essential: true,
+    repeatable: false,
+  },
+  armorer: {
+    id: 'armorer',
+    name: 'Armorer Garrick',
+    sprite: 'char.007',
+    element: 'fire',
+    lines: {
+      intro: {
+        cold: 'Ore came back, so prices came down. Not by much for you.',
+        plain: 'The ore carts are rolling and my racks are full. Haggle me down if you can.',
+        warm: 'Full racks and a friend at the counter. Haggle, and I go easy.',
+      },
+      confide: 'I keep a Phoenix Feather under the counter for those who climb the peaks.',
+      refuse: 'My steel stays on my racks.',
+      accept: 'Hammer, then talk.',
+      decline: 'The racks will keep.',
+      win: {
+        cold: 'Pick and pay.',
+        plain: 'Fair price. Pick your steel.',
+        warm: 'Done, friend! Pick your steel.',
+      },
+      lose: 'Too slow. Full price or nothing today.',
+    },
+    challenge: { kind: 'haggle', pieceLimit: 10, rivalIntervalMs: 1500 },
+    rewards: [{ kind: 'shop', shopId: 'emberforgeArmory' }],
+    repeatable: true,
+  },
+  forgeInn: {
+    id: 'forgeInn',
+    name: 'Innkeeper Rosa',
+    sprite: 'char.017',
+    element: 'fire',
+    lines: {
+      intro: {
+        cold: 'A bed by the chimney. It costs.',
+        plain: 'Smiths sleep hard and pay late. A bed? We settle the price with a game.',
+        warm: 'Sit by the fire! A bed? A quick game for the price, as always.',
+      },
+      confide: 'Regulars get my good Ether with breakfast. Play me for it.',
+      refuse: 'No beds for you.',
+      accept: 'Quick, before the shift ends.',
+      decline: 'The chimney stays warm.',
+      win: {
+        cold: 'Bed is upstairs.',
+        plain: 'Sleep well over the forge.',
+        warm: 'Sleep well! I will keep the fire in.',
+      },
+      lose: 'Ha! Full price, then.',
+    },
+    challenge: { kind: 'haggle', pieceLimit: 6, rivalIntervalMs: 3000 },
+    rewards: [{ kind: 'shop', shopId: 'cinderRest' }],
+    repeatable: true,
+  },
+
+  // ------------------------------------------------- Stormcrown Peaks ---
+  beaconKeeper: {
+    id: 'beaconKeeper',
+    name: 'Beacon Keeper Ysolde',
+    sprite: 'char.013',
+    element: 'lightning',
+    lines: {
+      intro: {
+        cold: 'The storm beacon is dark. Charge it if you can bear the sparks.',
+        plain: 'The storm beacon went dark and the valleys get no warning. Charge it with gold?',
+        warm: 'My beacon is dark and storms are coming. Help me charge it? You have quick hands.',
+      },
+      confide: 'Rook built this beacon. Charge it and take the rod he left; it calls the storm.',
+      refuse: 'Off my peak.',
+      accept: 'Gold, as much as you can.',
+      decline: 'Then the valleys go unwarned.',
+      win: {
+        cold: 'It burns. Take this and go.',
+        plain: 'It burns again! Take my spare rations.',
+        warm: 'It blazes! The valleys sleep safe. Take my best rations.',
+      },
+      lose: 'It flickers out. Again, before the clouds.',
+    },
+    challenge: { kind: 'barter', wants: { gold: 10 }, pieceLimit: 28 },
+    rewards: [
+      { kind: 'item', itemId: 'ether', count: 2 },
+      { kind: 'gil', amount: 30 },
+    ],
+    bonus: { kind: 'item', itemId: 'herb', count: 2 },
+    secret: { kind: 'item', itemId: 'stormCharm', count: 1 },
+    repeatable: true,
+  },
+
+  // ------------------------------------------------- Windward Cliffs ---
+  courier: {
+    id: 'courier',
+    name: 'Courier Finch',
+    sprite: 'char.012',
+    element: 'wind',
+    lines: {
+      intro: {
+        cold: 'Gust took my satchel. The letters are all over the cliffs. Catch them or do not.',
+        plain: 'A gust tore my satchel open and the letters are blowing off the cliffs! Catch them?',
+        warm: "My letters! A gust took them all. You're fast; catch them with me?",
+      },
+      confide: 'Kestrel trained me. She says a Phoenix Feather rides every long route. Help me.',
+      refuse: "I'll chase my own letters.",
+      accept: 'Cyan, before they hit the sea!',
+      decline: 'There goes the mail.',
+      win: {
+        cold: 'Got them. Postage, for you.',
+        plain: 'Every letter! Take the postage, you earned it.',
+        warm: 'Every last letter! Take the postage, and my thanks to every village.',
+      },
+      lose: 'Half went into the sea.',
+    },
+    challenge: { kind: 'barter', wants: { cyan: 10 }, pieceLimit: 28 },
+    rewards: [
+      { kind: 'gil', amount: 50 },
+      { kind: 'item', itemId: 'herb', count: 1 },
+    ],
+    bonus: { kind: 'item', itemId: 'ether', count: 1 },
+    secret: { kind: 'item', itemId: 'phoenixFeather', count: 1 },
+    repeatable: true,
+  },
+  eyrieInn: {
+    id: 'eyrieInn',
+    name: 'Warden Ada',
+    sprite: 'char.016',
+    element: 'wind',
+    lines: {
+      intro: {
+        cold: 'The lodge has bunks. Not free.',
+        plain: 'Climbers rest here before the ruins. A bunk? We play for the price.',
+        warm: 'Come in from the wind! A bunk? A quick game, then tea.',
+      },
+      confide: 'I keep a wind charm for climbers I like. Play me for it.',
+      refuse: 'No bunks for you.',
+      accept: 'Mind the draught.',
+      decline: 'The wind will keep you company.',
+      win: {
+        cold: 'Bunk is yours.',
+        plain: 'Rest well. The wind howls but the walls hold.',
+        warm: 'Rest well, friend. Tea at dawn.',
+      },
+      lose: 'Too slow. Full price.',
+    },
+    challenge: { kind: 'haggle', pieceLimit: 6, rivalIntervalMs: 3000 },
+    rewards: [{ kind: 'shop', shopId: 'eyrieRest' }],
+    repeatable: true,
+  },
+
+  // --------------------------------------------------- Moonfall Ruins ---
+  scholar: {
+    id: 'scholar',
+    name: 'Scholar Ivo',
+    sprite: 'char.018',
+    element: 'arcane',
+    lines: {
+      intro: {
+        cold: 'The tower rune went dark. Relight it, if you can read it.',
+        plain: 'The moon rune over the tower door went dark. Relight it with violet before dusk?',
+        warm: 'The moon rune went dark and I cannot read by starlight. Help me relight it?',
+      },
+      confide: 'Selene let me keep a Moon Shard from the old altar. Relight the rune; it is yours.',
+      refuse: 'These ruins are not for you.',
+      accept: 'Violet, and steady.',
+      decline: 'Then I read by starlight.',
+      win: {
+        cold: 'It glows. Take these.',
+        plain: 'It glows! Take my spare tonics.',
+        warm: 'It glows brighter than ever! Take my spare tonics, with thanks.',
+      },
+      lose: 'It flickers out. The rune resists.',
+    },
+    challenge: { kind: 'barter', wants: { violet: 10 }, pieceLimit: 28 },
+    rewards: [
+      { kind: 'item', itemId: 'ether', count: 2 },
+      { kind: 'gil', amount: 30 },
+    ],
+    bonus: { kind: 'item', itemId: 'herb', count: 2 },
+    secret: { kind: 'item', itemId: 'moonShard', count: 1 },
+    repeatable: true,
+  },
 };

@@ -103,6 +103,14 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     atk: 12,
     description: 'Line clears hit 12 harder.',
   },
+  flameBrand: {
+    id: 'flameBrand',
+    name: 'Flame Brand',
+    kind: 'weapon',
+    price: 260,
+    atk: 17,
+    description: 'Forged in Emberforge. Line clears hit 17 harder.',
+  },
 
   // Armour
   apprenticeRobe: {
@@ -120,6 +128,14 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     price: 90,
     def: 6,
     description: 'Reduce damage taken by 6.',
+  },
+  forgePlate: {
+    id: 'forgePlate',
+    name: 'Forge Plate',
+    kind: 'armor',
+    price: 220,
+    def: 10,
+    description: 'Emberforge steel. Reduce damage taken by 10.',
   },
 
   // Accessories: charms tilt which pieces fall, making their element more common.

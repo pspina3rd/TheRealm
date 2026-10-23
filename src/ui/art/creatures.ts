@@ -58,6 +58,15 @@ export const CREATURES = {
   'char.038': person('char.038'),
   'char.039': person('char.039'),
   'char.040': person('char.040'),
+  'char.006': person('char.006'),
+  'char.007': person('char.007'),
+  'char.012': person('char.012'),
+  'char.013': person('char.013'),
+  'char.014': person('char.014'),
+  'char.017': person('char.017'),
+  'char.018': person('char.018'),
+  'char.027': person('char.027'),
+  'char.033': person('char.033'),
   chest: {
     map: { kind: 'still', region: { image: 'caves', x: 642, y: 36, w: 28, h: 26 } },
     battleScale: 3,
@@ -80,6 +89,48 @@ export const CREATURES = {
   'battler.shadeImp': { map: strip('battler.004D', 7), battleScale: BATTLER_SCALE },
   'battler.brute': { map: strip('battler.011D'), battleScale: BATTLER_SCALE },
   'battler.wyrm': { map: strip('battler.006C'), battleScale: BATTLER_SCALE },
+
+  // Mentor-region monsters: Fantasy Dreamland critters and Pixel Battlers
+  'enemy.sproutling': {
+    map: walker('enemy.024'),
+    battle: walker('enemy.024.large', 72),
+    battleScale: 2,
+  },
+  'enemy.drip': {
+    map: walker('enemy.018'),
+    battle: walker('enemy.018.large', 72),
+    battleScale: 2,
+  },
+  'enemy.cinder': {
+    map: walker('enemy.017'),
+    battle: walker('enemy.017.large', 72),
+    battleScale: 2,
+  },
+  'enemy.puffball': {
+    map: walker('enemy.052'),
+    battle: walker('enemy.052.large', 72),
+    battleScale: 2,
+  },
+  'enemy.watcher': {
+    map: walker('enemy.051'),
+    battle: walker('enemy.051.large', 72),
+    battleScale: 2,
+  },
+  'battler.leafSprite': { map: strip('battler.023A', 6), battleScale: BATTLER_SCALE },
+  'battler.thornTroll': { map: strip('battler.017A'), battleScale: BATTLER_SCALE },
+  'battler.lakeLurker': { map: strip('battler.018B'), battleScale: BATTLER_SCALE },
+  'battler.tideOgre': { map: strip('battler.022B'), battleScale: BATTLER_SCALE },
+  'battler.quarryHound': { map: strip('battler.018C'), battleScale: BATTLER_SCALE },
+  'battler.stoneOgre': { map: strip('battler.022C'), battleScale: BATTLER_SCALE },
+  'battler.forgeImp': { map: strip('battler.036C'), battleScale: BATTLER_SCALE },
+  'battler.magmaDrake': { map: strip('battler.003A'), battleScale: BATTLER_SCALE },
+  'battler.sparkPup': { map: strip('battler.029A'), battleScale: BATTLER_SCALE },
+  'battler.stormGoblin': { map: strip('battler.025B'), battleScale: BATTLER_SCALE },
+  'battler.thunderhide': { map: strip('battler.030B'), battleScale: BATTLER_SCALE },
+  'battler.galeBat': { map: strip('battler.031D'), battleScale: BATTLER_SCALE },
+  'battler.skyRam': { map: strip('battler.033D', 6), battleScale: BATTLER_SCALE },
+  'battler.nightBat': { map: strip('battler.031A'), battleScale: BATTLER_SCALE },
+  'battler.gloomToad': { map: strip('battler.035A'), battleScale: BATTLER_SCALE },
 } as const satisfies Record<string, CreatureArt>;
 
 export type CreatureId = keyof typeof CREATURES;
