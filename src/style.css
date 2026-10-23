@@ -991,6 +991,7 @@ dialog h2 {
 
   /* An open category: a small popover just above the spell strip. */
   .spells.menu-open {
+    grid-area: auto; /* so it sits against the battle, not inside the strip's grid cell */
     position: absolute;
     left: var(--pad);
     right: var(--pad);
@@ -1861,7 +1862,7 @@ dialog {
   }
 
   dialog .actions button {
-    flex: 1 1 0;
+    flex: 1 1 28%;
     min-height: 48px;
     min-width: 0;
     padding: 6px 8px;
