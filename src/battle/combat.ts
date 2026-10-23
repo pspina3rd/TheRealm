@@ -53,6 +53,11 @@ export const SPELL_TIME = 0.15;
 export const ITEM_TIME = 0.4;
 /** Items the hero can use in one battle. */
 export const MAX_ITEMS_PER_BATTLE = 2;
+/**
+ * A Phoenix Feather revives with this share of max HP, at most once per
+ * fight, and only while an item use is left: the revive is one of them.
+ */
+export const FEATHER_REVIVE = 0.25;
 /** A water line pushes the enemy's gauge back this far… */
 export const CHILL_MS = 1500;
 /** …but never more than this below empty. */
@@ -140,7 +145,7 @@ export class CombatChallenge implements Challenge {
   regen = { amount: 0, pieces: 0 };
   /** Static: extra lightning damage on each of the next `clears` line clears. */
   charge = { power: 0, clears: 0 };
-  /** True once a Phoenix Feather has revived the hero this fight (once per fight). */
+  /** True once a Phoenix Feather has revived the hero this fight (once per fight; it uses an item use). */
   revived = false;
   /** Items used this battle (at most `MAX_ITEMS_PER_BATTLE`). */
   itemsUsed = 0;
@@ -609,10 +614,16 @@ export class CombatChallenge implements Challenge {
   private hurtHero(damage: number): void {
     const hero = this.ctx.hero;
     this.ctx.emit({ kind: 'heroHit', amount: takeDamage(hero, damage) });
-    if (hero.hp === 0 && !this.revived && itemCount(hero, 'phoenixFeather') > 0) {
+    if (
+      hero.hp === 0 &&
+      !this.revived &&
+      this.itemsUsed < MAX_ITEMS_PER_BATTLE &&
+      itemCount(hero, 'phoenixFeather') > 0
+    ) {
       this.revived = true;
+      this.itemsUsed++;
       removeItem(hero, 'phoenixFeather');
-      hero.hp = Math.ceil(hero.maxHp / 2);
+      hero.hp = Math.ceil(hero.maxHp * FEATHER_REVIVE);
       this.ctx.emit({ kind: 'revive' });
     }
   }

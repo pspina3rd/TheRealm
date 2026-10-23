@@ -5,7 +5,9 @@ import {
   BACK_TO_BACK_MULTIPLIER,
   COMBO_STEP,
   HOLE_RUSH,
+  FEATHER_REVIVE,
   LINE_DAMAGE,
+  MAX_ITEMS_PER_BATTLE,
   MAX_COMBO,
   MAX_HOLE_RUSH,
   OVERFLOW_PENALTY,
@@ -333,7 +335,19 @@ describe('no free safety nets', () => {
     only(combat, { kind: 'attack', name: 'Crush', power: 999 });
     combat.gauge = combat.actMs;
     combat.update(0);
-    expect(hero.hp).toBe(Math.ceil(hero.maxHp / 2));
+    expect(hero.hp).toBe(Math.ceil(hero.maxHp * FEATHER_REVIVE));
+    expect(combat.itemsUsed).toBe(1);
+    combat.gauge = combat.actMs;
+    combat.update(0);
+    expect(combat.status()).toBe('lost');
+    expect(hero.items.phoenixFeather).toBe(1);
+  });
+
+  it('counts the Feather’s revive as an item use: none left, no revive', () => {
+    const { combat, hero } = fight();
+    addItem(hero, 'phoenixFeather');
+    combat.itemsUsed = MAX_ITEMS_PER_BATTLE;
+    only(combat, { kind: 'attack', name: 'Crush', power: 999 });
     combat.gauge = combat.actMs;
     combat.update(0);
     expect(combat.status()).toBe('lost');
