@@ -331,6 +331,34 @@ describe('save', () => {
     expect(deserialize(JSON.stringify({ ...data, mapId: 'nowhere' }))).toBeNull();
   });
 
+  it('moves a hero saved where the map no longer lets them stand to their inn', () => {
+    const data = JSON.parse(serialize(newGame()));
+    const inn = { map: 'brightwater', x: 4, y: 17 };
+    // A tree in the Realm, then a warp tile (the old cave seal now leads to the peaks).
+    for (const spot of [
+      { mapId: 'overworld', x: 1, y: 1 },
+      { mapId: 'overworld', x: 34, y: 3 },
+    ]) {
+      const loaded = deserialize(JSON.stringify({ ...data, ...spot, respawn: inn }))!;
+      expect([loaded.mapId, loaded.x, loaded.y]).toEqual(['brightwater', 4, 17]);
+    }
+    // A lost inn falls back to the start.
+    const lost = deserialize(
+      JSON.stringify({ ...data, x: 0, y: 0, respawn: { map: 'gone', x: 1, y: 1 } }),
+    )!;
+    expect(lost.respawn).toEqual(START);
+    expect([lost.mapId, lost.x, lost.y]).toEqual([START.map, START.x, START.y]);
+  });
+
+  it('loads an old save in the Moon Caves, whose way out now leads to the ruins', () => {
+    const data = JSON.parse(serialize(newGame()));
+    const loaded = deserialize(
+      JSON.stringify({ ...data, version: 7, mapId: 'caves1', x: 2, y: 2, flags: ['cavePass'] }),
+    )!;
+    expect([loaded.mapId, loaded.x, loaded.y]).toEqual(['caves1', 2, 2]);
+    expect(MAPS.caves1!.warps[0]!.to.map).toBe('ruins');
+  });
+
   it('defaults a missing facing direction', () => {
     const data = JSON.parse(serialize(newGame()));
     delete data.facing;

@@ -14,22 +14,23 @@ import {
 } from '../core/elements';
 import type { EnemyDef } from '../data/types';
 import { surgeMultiplier } from '../game/alignment';
+import {
+  WEAK_MULTIPLIER,
+  RESIST_MULTIPLIER,
+  WEAK_CRYSTAL_BONUS,
+  BOSS_WEAKNESS_SHARE,
+  RESIST_CRYSTAL_PENALTY,
+} from '../data/balance';
+export {
+  WEAK_MULTIPLIER,
+  RESIST_MULTIPLIER,
+  WEAK_CRYSTAL_BONUS,
+  BOSS_WEAKNESS_SHARE,
+  RESIST_CRYSTAL_PENALTY,
+} from '../data/balance';
 
 /** A line needs at least this many crystals of one element to trigger its effect. */
 export const SURGE_THRESHOLD = 3;
-/** Damage multipliers against weak and resistant enemies. */
-export const WEAK_MULTIPLIER = 1.5;
-export const RESIST_MULTIPLIER = 0.5;
-/**
- * Strike damage share added (or removed) when every cleared cell is a
- * crystal the enemy is weak to (or resists); partial clears scale it.
- */
-export const WEAK_CRYSTAL_BONUS = 0.5;
-/**
- * Bosses shrug off part of a weakness: they take this share of its bonus
- * (×1.375 instead of ×1.5; a weak crystal adds 37.5% instead of 50%).
- */
-export const BOSS_WEAKNESS_SHARE = 0.75;
 
 /** How hard a weakness hits `enemy`: less for bosses. */
 export function weakMultiplier(enemy: Pick<EnemyDef, 'boss'>): number {
@@ -40,7 +41,6 @@ export function weakMultiplier(enemy: Pick<EnemyDef, 'boss'>): number {
 export function weakCrystalBonus(enemy: Pick<EnemyDef, 'boss'>): number {
   return enemy.boss ? WEAK_CRYSTAL_BONUS * BOSS_WEAKNESS_SHARE : WEAK_CRYSTAL_BONUS;
 }
-export const RESIST_CRYSTAL_PENALTY = 0.25;
 
 /** What a cleared line's strongest element does. */
 export const SURGE_DESCRIPTIONS: Readonly<Record<Element, string>> = {

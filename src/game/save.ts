@@ -1,12 +1,12 @@
 import { emptyCounts, type Element } from '../core/elements';
 import { DEFAULT_CLASS } from '../data/classes';
-import { MAPS } from '../data/maps';
+import { MAPS, START } from '../data/maps';
 import { titleElementFor } from './alignment';
 import { heroAlignment, heroClass, refreshStats, type Hero } from './hero';
 import { newKnownSpell, type KnownSpell } from './spells';
 import type { Feats } from './feats';
 import { SKILL_POINTS_PER_LEVEL, statRanks } from './stats';
-import type { Direction, Location } from '../world/map';
+import { tileAt, warpAt, type Direction, type Location } from '../world/map';
 import type { GameState } from '../world/state';
 
 export const SAVE_KEY = 'the-realm/save';
@@ -80,18 +80,32 @@ export function deserialize(json: string): GameState | null {
   ) {
     return null;
   }
+  const respawn = standable(data.respawn) ? data.respawn : { ...START };
+  const here = { map: data.mapId, x: data.x, y: data.y };
+  const spot = standable(here) ? here : respawn;
   return {
     hero: migrateHero(data.hero),
-    mapId: data.mapId,
-    x: data.x,
-    y: data.y,
+    mapId: spot.map,
+    x: spot.x,
+    y: spot.y,
     facing: data.facing ?? 'down',
     flags: new Set(data.flags),
     cleared: new Set(),
-    respawn: data.respawn,
+    respawn,
     // Before version 6 wins were not counted: every mentor starts at home.
     victories: typeof data.victories === 'number' ? data.victories : 0,
   };
+}
+
+/**
+ * True when the hero can stand at `at`: a walkable tile on a known map that
+ * no warp sits on. Maps change as the world grows (the mentor regions
+ * reshaped the Realm), so a saved spot that no longer is one sends the hero
+ * to their inn, and a lost inn to the start.
+ */
+function standable(at: Location): boolean {
+  const map = MAPS[at.map];
+  return !!map && tileAt(map, at.x, at.y).walkable && !warpAt(map, at.x, at.y);
 }
 
 /** Saves to `store`. Storage can be unavailable (private mode); failures return false. */

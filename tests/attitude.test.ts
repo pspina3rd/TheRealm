@@ -273,7 +273,15 @@ describe('rewards data', () => {
         .filter(isShop)
         .map((n) => n.id)
         .sort(),
-    ).toEqual(['innkeeper', 'merchant', 'smith', 'stallKeeper']);
+    ).toEqual([
+      'armorer',
+      'eyrieInn',
+      'forgeInn',
+      'innkeeper',
+      'merchant',
+      'smith',
+      'stallKeeper',
+    ]);
   });
 
   it('sells no spell tomes (mentors teach spells)', () => {
@@ -340,7 +348,7 @@ describe('encounters on terms', () => {
     const story = Object.values(NPCS).filter((npc) =>
       npc.rewards.some((r) => r.kind === 'flag' && needed.has(r.flag)),
     );
-    expect(story.map((n) => n.id).sort()).toEqual(['guard', 'shrineKeeper']);
+    expect(story.map((n) => n.id).sort()).toEqual(['apprentice', 'foreman', 'guard', 'shrineKeeper']);
     for (const npc of story) {
       expect(npc.essential, npc.id).toBe(true);
       const result = describeInteraction(stateFor(npc, 'hostile'), entityOf(npc.id));

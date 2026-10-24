@@ -17,6 +17,15 @@ import {
   type KnownSpell,
 } from './spells';
 import { SKILL_POINTS_PER_LEVEL, derivedStats, statRanks } from './stats';
+import {
+  BEGINNER_LEVEL,
+  BEGINNER_REGEN_CAP,
+  FIRST_LEVEL_XP,
+  WALK_REGEN,
+  WALK_REGEN_CAP,
+  XP_GROWTH,
+} from '../data/balance';
+export { WALK_REGEN, WALK_REGEN_CAP, BEGINNER_REGEN_CAP, BEGINNER_LEVEL } from '../data/balance';
 
 /** The player character. Plain data so it can be saved as JSON. */
 export interface Hero {
@@ -80,7 +89,7 @@ export function createHero(classId = DEFAULT_CLASS, name?: string): Hero {
     titleElement: cls.element,
     level: 1,
     xp: 0,
-    nextXp: 30,
+    nextXp: FIRST_LEVEL_XP,
     hp: derived.maxHp,
     // Mana belongs to a battle: pools start empty and fill from cleared crystals.
     mana: emptyCounts(),
@@ -134,7 +143,7 @@ export function gainXp(hero: Hero, amount: number): number {
   while (hero.xp >= hero.nextXp) {
     hero.xp -= hero.nextXp;
     hero.level++;
-    hero.nextXp = Math.floor(hero.nextXp * 1.45);
+    hero.nextXp = Math.floor(hero.nextXp * XP_GROWTH);
     hero.skillPoints += SKILL_POINTS_PER_LEVEL;
     const before = hero.maxHp;
     refreshStats(hero);
@@ -173,18 +182,6 @@ export function spendSkillPoints(hero: Hero, plan: SkillPlan): boolean {
   hero.hp = Math.min(hero.maxHp, hero.hp + hero.maxHp - before);
   return true;
 }
-
-/** HP regained per step walked on the map… */
-export const WALK_REGEN = 1;
-/** …only while below this share of max HP: a broke, battered hero can always recover. */
-export const WALK_REGEN_CAP = 0.5;
-
-/**
- * A beginner (below `BEGINNER_LEVEL`) in the starter lands walks back up to
- * this share instead, so a broke new hero isn't stuck fighting at half HP.
- */
-export const BEGINNER_REGEN_CAP = 0.8;
-export const BEGINNER_LEVEL = 4;
 
 /**
  * One step's regeneration (see `WALK_REGEN`), on a starter map (Mossvale or

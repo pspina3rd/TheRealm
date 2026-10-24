@@ -9,9 +9,8 @@
  */
 import type { HeroClass } from '../data/classes';
 import { STATS, STAT_IDS, type StatId, type StatRanks } from '../data/stats';
+export { SKILL_POINTS_PER_LEVEL } from '../data/balance';
 
-/** Skill points gained per hero level. */
-export const SKILL_POINTS_PER_LEVEL = 2;
 /** Skill points one stat rank costs. */
 export const STAT_RANK_COST = 1;
 

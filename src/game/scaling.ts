@@ -7,21 +7,24 @@
  * (bosses' never does).
  */
 import type { EnemyDef } from '../data/types';
-
-/** Levels a monster can grow above its own to meet the hero. */
-export const LEVEL_BAND = 3;
-/** Levels a boss can grow. */
-export const BOSS_BAND = 1;
-/** Share of base HP gained per level grown. */
-export const HP_PER_LEVEL = 0.1;
-/** Attack gained per level grown. */
-export const ATK_PER_LEVEL = 1;
-/** Share by which each level grown speeds up the action gauge. */
-export const SPEED_PER_LEVEL = 0.03;
-/** Share of XP lost per level the hero stands above the monster… */
-export const XP_FALLOFF = 0.25;
-/** …down to this share. */
-export const MIN_XP_SHARE = 0.1;
+import {
+  LEVEL_BAND,
+  BOSS_BAND,
+  HP_PER_LEVEL,
+  ATK_PER_LEVEL,
+  SPEED_PER_LEVEL,
+  XP_FALLOFF,
+  MIN_XP_SHARE,
+} from '../data/balance';
+export {
+  LEVEL_BAND,
+  BOSS_BAND,
+  HP_PER_LEVEL,
+  ATK_PER_LEVEL,
+  SPEED_PER_LEVEL,
+  XP_FALLOFF,
+  MIN_XP_SHARE,
+} from '../data/balance';
 
 /** The level `enemy` fights at against a hero of `heroLevel`. */
 export function effectiveLevel(enemy: EnemyDef, heroLevel: number): number {

@@ -27,6 +27,28 @@ import { heroAlignment, learnSpell, raiseSpellLevel, type Hero } from './hero';
 import { isRevealed, type Seeker } from './hidden';
 import type { Gain } from './rewards';
 import { ROLE_ORDER, isCategoryLocked, isReady, knownSpell, spellElements } from './spells';
+import {
+  HELP_BASE,
+  HELP_PER_POINT,
+  HELP_MIN,
+  HELP_MAX,
+  FOE_HP_PER_DIFFICULTY,
+  FOE_ATK_PER_DIFFICULTY,
+  HIDDEN_DIFFICULTY,
+  NOVICE_LEVEL,
+  NOVICE_FOE_HP,
+} from '../data/balance';
+export {
+  HELP_BASE,
+  HELP_PER_POINT,
+  HELP_MIN,
+  HELP_MAX,
+  FOE_HP_PER_DIFFICULTY,
+  FOE_ATK_PER_DIFFICULTY,
+  HIDDEN_DIFFICULTY,
+  NOVICE_LEVEL,
+  NOVICE_FOE_HP,
+} from '../data/balance';
 
 /** A lesson a mentor offers: the spell, the level it teaches (1 = new) and its difficulty. */
 export interface Lesson {
@@ -38,12 +60,6 @@ export interface Lesson {
 /** A lesson's challenge spec, as passed to `Battle`. */
 export type LessonSpec = Extract<ChallengeSpec, { kind: 'lesson' }>;
 
-/** Help chance per piece before the clamp: base − per point × (alignment − difficulty)… */
-export const HELP_BASE = 0.4;
-export const HELP_PER_POINT = 0.05;
-/** …clamped to this range… */
-export const HELP_MIN = 0.1;
-export const HELP_MAX = 0.5;
 /**
  * …then scaled by how the mentor's element stands to the hero's title
  * element: the same, related (neutral), `weak` (the mentor's element beats
@@ -55,14 +71,6 @@ export const HELP_RELATION: Readonly<Record<ElementRelation, number>> = {
   weak: 0.6,
   strong: 0.8,
 };
-
-/** A lesson foe gains this share of its HP per difficulty above 1… */
-export const FOE_HP_PER_DIFFICULTY = 0.6;
-/** …and this much attack. */
-export const FOE_ATK_PER_DIFFICULTY = 3;
-
-/** Extra difficulty of teaching a hidden spell. */
-export const HIDDEN_DIFFICULTY = 1;
 
 /** The difficulty of teaching `spell` at `level`. */
 export function lessonDifficulty(spell: SpellDef, level: number): number {
@@ -132,11 +140,6 @@ export function lessonFoeId(mentor: MentorDef, stop: MentorStop): string {
   if (!first) return mentor.trialFoe;
   return rest.reduce((best, enemy) => (enemy.level > best.level ? enemy : best), first).id;
 }
-
-/** Heroes below this level meet gentler difficulty-1 lesson foes… */
-export const NOVICE_LEVEL = 3;
-/** …with this share of their HP (a 50 HP wisp has 36). */
-export const NOVICE_FOE_HP = 0.72;
 
 /**
  * A foe made harder for a lesson: more HP, attack and speed per difficulty

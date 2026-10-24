@@ -35,45 +35,46 @@ import {
   type LineSurge,
 } from './elemental';
 import type { BattleContext, BattleStatus, Challenge, Objective } from './types';
+import {
+  LINE_DAMAGE,
+  ATTACK_PERCENT,
+  BACK_TO_BACK_MULTIPLIER,
+  COMBO_STEP,
+  MAX_COMBO,
+  SPELL_TIME,
+  BOSS_SPELL_TIME,
+  ITEM_TIME,
+  MAX_ITEMS_PER_BATTLE,
+  FEATHER_REVIVE,
+  CHILL_MS,
+  MAX_CHILL_MS,
+  HOLE_RUSH,
+  MAX_HOLE_RUSH,
+  OVERFLOW_PENALTY,
+  MAX_WARD,
+  SPELL_LEVEL_BONUS,
+} from '../data/balance';
+export {
+  LINE_DAMAGE,
+  ATTACK_PERCENT,
+  BACK_TO_BACK_MULTIPLIER,
+  COMBO_STEP,
+  MAX_COMBO,
+  SPELL_TIME,
+  BOSS_SPELL_TIME,
+  ITEM_TIME,
+  MAX_ITEMS_PER_BATTLE,
+  FEATHER_REVIVE,
+  CHILL_MS,
+  MAX_CHILL_MS,
+  HOLE_RUSH,
+  MAX_HOLE_RUSH,
+  OVERFLOW_PENALTY,
+  MAX_WARD,
+  SPELL_LEVEL_BONUS,
+} from '../data/balance';
 
-/** Base damage for clearing 0–4 lines at once: single lines are weak, big clears steep. */
-export const LINE_DAMAGE: readonly number[] = [0, 3, 12, 26, 48];
-/** Strike bonus per point of attack (class base, Strength and weapon): 0.04 = +4%. */
-export const ATTACK_PERCENT = 0.04;
-/** A multi-line clear right after another multi-line clear strikes this much harder. */
-export const BACK_TO_BACK_MULTIPLIER = 1.5;
-/** Each consecutive piece that clears adds this share to the strike… */
-export const COMBO_STEP = 0.25;
-/** …counting at most this many steps. */
-export const MAX_COMBO = 8;
 export { PIECE_MS } from '../core/scoring';
-/** Casting a spell takes time: it fills this share of the enemy's gauge… */
-export const SPELL_TIME = 0.15;
-/** …or this share against a boss, so a full spell kit can't simply out-cast it… */
-export const BOSS_SPELL_TIME = 0.25;
-/** …and using an item this share. */
-export const ITEM_TIME = 0.4;
-/** Items the hero can use in one battle. */
-export const MAX_ITEMS_PER_BATTLE = 2;
-/**
- * A Phoenix Feather revives with this share of max HP, at most once per
- * fight, and only while an item use is left: the revive is one of them.
- */
-export const FEATHER_REVIVE = 0.25;
-/** A water line pushes the enemy's gauge back this far… */
-export const CHILL_MS = 1500;
-/** …but never more than this below empty. */
-export const MAX_CHILL_MS = 3000;
-/** Each new covered hole a placement leaves fills this share of the enemy's gauge… */
-export const HOLE_RUSH = 0.15;
-/** …up to this much per placement. */
-export const MAX_HOLE_RUSH = 0.45;
-/** Fraction of max HP lost when the board overflows. */
-export const OVERFLOW_PENALTY = 0.25;
-/** Most HP an earth ward can hold. */
-export const MAX_WARD = 25;
-/** Spell damage added per hero level (not for spells that clear rows). */
-export const SPELL_LEVEL_BONUS = 2;
 
 /** How a line-clear strike was set up, for `strikeDamage`. */
 export interface StrikeSetup {

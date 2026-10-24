@@ -26,11 +26,8 @@ import { completeLesson, lessonsFor, type Lesson } from './lessons';
 import { grantRewards, type Gain } from './rewards';
 import { isCategoryLocked, type FailedLesson } from './spells';
 import { SKILL_POINTS_PER_LEVEL, dropBonus } from './stats';
-
-/** Share of max HP the hero wakes with at the last inn after falling in a fight… */
-export const FALL_HP_SHARE = 0.3;
-/** …or in the home village, where the healer looks after a beginner. */
-export const HOME_FALL_HP_SHARE = 0.5;
+import { FALL_HP_SHARE, HOME_FALL_HP_SHARE } from '../data/balance';
+export { FALL_HP_SHARE, HOME_FALL_HP_SHARE } from '../data/balance';
 
 /** Who is speaking in an interaction, for the conversation screen. */
 interface Speaker {

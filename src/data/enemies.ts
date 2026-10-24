@@ -1,11 +1,6 @@
 import type { Element } from '../core/elements';
+import { REGIONS } from './balance';
 import type { EnemyDef, EnemyMove } from './types';
-
-/**
- * Region monsters grow at most this many levels with the hero, so each
- * region keeps its own level band (see "World and regions" in the design doc).
- */
-const REGION_BAND = 2;
 
 /** Every enemy in the game, keyed by id. */
 export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
@@ -172,7 +167,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     gil: 6,
     element: 'nature',
     actMs: 7500,
-    band: REGION_BAND,
+    band: REGIONS.grove.band,
     moves: [
       { kind: 'attack', name: 'Root Slap', power: 3 },
       { kind: 'attack', name: 'Root Slap', power: 3 },
@@ -194,7 +189,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     gil: 8,
     element: 'nature',
     actMs: 7000,
-    band: REGION_BAND,
+    band: REGIONS.grove.band,
     moves: [
       { kind: 'attack', name: 'Leaf Cut', power: 4 },
       { kind: 'attack', name: 'Leaf Cut', power: 4 },
@@ -215,7 +210,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     gil: 11,
     element: 'nature',
     actMs: 10000,
-    band: REGION_BAND,
+    band: REGIONS.grove.band,
     moves: [
       { kind: 'attack', name: 'Thorn Club', power: 7 },
       { kind: 'attack', name: 'Thorn Club', power: 7 },
@@ -236,7 +231,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     gil: 7,
     element: 'water',
     actMs: 7000,
-    band: REGION_BAND,
+    band: REGIONS.lake.band,
     moves: [
       { kind: 'attack', name: 'Splash', power: 4 },
       { kind: 'attack', name: 'Splash', power: 4 },
@@ -257,7 +252,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     gil: 10,
     element: 'water',
     actMs: 8000,
-    band: REGION_BAND,
+    band: REGIONS.lake.band,
     moves: [
       { kind: 'attack', name: 'Bite', power: 6 },
       { kind: 'attack', name: 'Bite', power: 6 },
@@ -278,7 +273,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     gil: 14,
     element: 'water',
     actMs: 9500,
-    band: REGION_BAND,
+    band: REGIONS.lake.band,
     moves: [
       { kind: 'attack', name: 'Wave Crash', power: 8 },
       { kind: 'attack', name: 'Wave Crash', power: 8 },
@@ -299,7 +294,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     gil: 12,
     element: 'earth',
     actMs: 8000,
-    band: REGION_BAND,
+    band: REGIONS.quarry.band,
     moves: [
       { kind: 'attack', name: 'Pick', power: 5 },
       { kind: 'attack', name: 'Pick', power: 5 },
@@ -321,7 +316,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     gil: 13,
     element: 'earth',
     actMs: 6500,
-    band: REGION_BAND,
+    band: REGIONS.quarry.band,
     moves: [
       { kind: 'attack', name: 'Maul', power: 5 },
       { kind: 'attack', name: 'Maul', power: 5 },
@@ -342,7 +337,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     gil: 17,
     element: 'earth',
     actMs: 12000,
-    band: REGION_BAND,
+    band: REGIONS.quarry.band,
     moves: [
       { kind: 'attack', name: 'Boulder Slam', power: 9 },
       { kind: 'curse', name: 'Landslide', rows: 2 },
@@ -362,7 +357,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     gil: 14,
     element: 'fire',
     actMs: 6500,
-    band: REGION_BAND,
+    band: REGIONS.forge.band,
     moves: [
       { kind: 'attack', name: 'Flare', power: 6 },
       { kind: 'attack', name: 'Flare', power: 6 },
@@ -384,7 +379,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     gil: 17,
     element: 'fire',
     actMs: 7000,
-    band: REGION_BAND,
+    band: REGIONS.forge.band,
     moves: [
       { kind: 'attack', name: 'Pitchfork', power: 7 },
       { kind: 'attack', name: 'Pitchfork', power: 7 },
@@ -405,7 +400,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     gil: 22,
     element: 'fire',
     actMs: 9000,
-    band: REGION_BAND,
+    band: REGIONS.forge.band,
     moves: [
       { kind: 'attack', name: 'Magma Breath', power: 12 },
       { kind: 'attack', name: 'Magma Breath', power: 12 },
@@ -426,7 +421,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     gil: 16,
     element: 'lightning',
     actMs: 5500,
-    band: REGION_BAND,
+    band: REGIONS.peaks.band,
     moves: [
       { kind: 'attack', name: 'Zap', power: 5 },
       { kind: 'attack', name: 'Zap', power: 5 },
@@ -447,7 +442,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     gil: 21,
     element: 'lightning',
     actMs: 7000,
-    band: REGION_BAND,
+    band: REGIONS.peaks.band,
     moves: [
       { kind: 'attack', name: 'Shock Spear', power: 8 },
       { kind: 'attack', name: 'Shock Spear', power: 8 },
@@ -468,7 +463,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     gil: 26,
     element: 'lightning',
     actMs: 9500,
-    band: REGION_BAND,
+    band: REGIONS.peaks.band,
     moves: [
       { kind: 'attack', name: 'Thunder Slam', power: 10 },
       { kind: 'attack', name: 'Thunder Slam', power: 10 },
@@ -489,7 +484,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     gil: 20,
     element: 'wind',
     actMs: 6000,
-    band: REGION_BAND,
+    band: REGIONS.cliffs.band,
     moves: [
       { kind: 'attack', name: 'Puff', power: 6 },
       { kind: 'attack', name: 'Puff', power: 6 },
@@ -510,7 +505,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     gil: 24,
     element: 'wind',
     actMs: 6000,
-    band: REGION_BAND,
+    band: REGIONS.cliffs.band,
     moves: [
       { kind: 'attack', name: 'Wing Cut', power: 8 },
       { kind: 'attack', name: 'Wing Cut', power: 8 },
@@ -531,7 +526,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     gil: 30,
     element: 'wind',
     actMs: 9000,
-    band: REGION_BAND,
+    band: REGIONS.cliffs.band,
     moves: [
       { kind: 'attack', name: 'Ram', power: 10 },
       { kind: 'attack', name: 'Ram', power: 10 },
@@ -552,7 +547,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     gil: 25,
     element: 'arcane',
     actMs: 7000,
-    band: REGION_BAND,
+    band: REGIONS.ruins.band,
     moves: [
       { kind: 'attack', name: 'Gaze', power: 8 },
       { kind: 'attack', name: 'Gaze', power: 8 },
@@ -573,7 +568,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     gil: 28,
     element: 'arcane',
     actMs: 6500,
-    band: REGION_BAND,
+    band: REGIONS.ruins.band,
     moves: [
       { kind: 'attack', name: 'Night Bite', power: 11 },
       { kind: 'attack', name: 'Night Bite', power: 11 },
@@ -595,7 +590,7 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     gil: 34,
     element: 'arcane',
     actMs: 8500,
-    band: REGION_BAND,
+    band: REGIONS.ruins.band,
     moves: [
       { kind: 'attack', name: 'Tongue Lash', power: 13 },
       { kind: 'attack', name: 'Tongue Lash', power: 13 },

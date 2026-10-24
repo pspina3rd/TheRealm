@@ -28,25 +28,25 @@ import type {
   NumberedEvent,
   Objective,
 } from './types';
+import {
+  MANA_BOOST_MULTIPLIER,
+  MANA_PER_LINES,
+  TAILWIND_SLOWDOWN,
+  MAX_PAUSES,
+  QUICKEN_SPEED,
+} from '../data/balance';
+export {
+  MANA_BOOST_MULTIPLIER,
+  MANA_PER_LINES,
+  TAILWIND_SLOWDOWN,
+  MAX_PAUSES,
+  QUICKEN_SPEED,
+} from '../data/balance';
 
 export type BattleAction = 'left' | 'right' | 'rotate' | 'softDrop' | 'hardDrop';
 
 /** Most recent events kept; the screen reads them every frame. */
 const MAX_EVENTS = 100;
-/** Mana from cleared crystals is multiplied by this while an Ether lasts. */
-export const MANA_BOOST_MULTIPLIER = 2;
-/**
- * Mana per cleared crystal by lines cleared together (rounded down per
- * element): a lone line gives half, big clears more, so spells are fuelled
- * by the same big clears that strike hardest.
- */
-export const MANA_PER_LINES: readonly number[] = [0, 0.5, 1, 1.5, 2];
-/** Gravity interval multiplier under a tailwind (higher = slower). */
-export const TAILWIND_SLOWDOWN = 1.6;
-/** Pauses the hero may take in one battle (resuming is always allowed). */
-export const MAX_PAUSES = 3;
-/** Pieces fall this many times faster while an enemy's quicken lasts. */
-export const QUICKEN_SPEED = 2.5;
 
 export interface BattleOptions {
   /** Copies of each piece per bag, from area, charm and alignment (see `pieceWeights`). */
