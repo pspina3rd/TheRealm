@@ -1009,6 +1009,32 @@ stat, alignment, a board feat, a quest or an item.
 
 Each stage ships with tests and keeps the game playable.
 
+## Touch and phone UI
+
+- **The board is the controller.** Tap rotates; a sideways drag moves the
+  piece one column per column-width the finger travels (the first step at
+  0.6 of a column); a downward drag soft drops after 120 ms held, then a
+  row every 50 ms; a release moving down at 0.5 px/ms or faster (over the
+  last 80 ms) after 36 px or more is a flick, a hard drop. A touch keeps
+  the axis it starts on (10 px slop), a second finger cancels it, and a
+  new piece ends it, so one touch never moves two pieces. The recognizer
+  is pure (`src/ui/art/gestures.ts`) and unit-tested.
+- **Space goes to the board.** No permanent button row: one round rotate
+  button sits beside the board; pause and item uses fold into the enemy
+  strip; spells are a slim strip of seven icons with categories as a
+  popover. Move buttons are an opt-in setting (Touch buttons, in the menu).
+- **One screen.** At phone widths (≤ 760 px) the battle is sized from
+  `100dvh` and the safe-area insets, so it never scrolls; the stage
+  becomes a 480×150 strip. Desktop keeps its layout.
+- **World.** Tap a tile to walk there along the shortest path
+  (breadth-first over walkable tiles, `src/world/path.ts`); people,
+  monsters and warps end a path, so tapping one walks up and meets it. A
+  small see-through d-pad (walks while held) shows until the first tap-walk.
+- **Dialogs** are bottom sheets on phones: the body scrolls, the actions
+  stay at the bottom, 48 px tall. The result guard and focus rules stay.
+- **Less motion** (`prefers-reduced-motion`) stops the stage's shakes and
+  drifting numbers and CSS animations. Haptics (a few ms) are optional.
+
 ## Parked ideas
 
 - **Colour-match clears** (Dr. Mario style): four or more crystals of one

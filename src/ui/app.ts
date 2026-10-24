@@ -32,6 +32,7 @@ import { deleteSave, loadGame, saveGame, type KeyValueStore } from '../game/save
 import { buy, sell } from '../game/shop';
 import type { Direction, EntityDef } from '../world/map';
 import { step } from '../world/movement';
+import { pathTo } from '../world/path';
 import { currentMap, newGame, travel, type GameState } from '../world/state';
 import { Dialog } from './dialog';
 import { button, byId, el } from './dom';
@@ -47,11 +48,16 @@ import type { IconId, IconSpec } from './art/icons';
 import type { Atlas } from './art/atlas';
 import { isCreatureId, type CreatureId } from './art/creatures';
 import { WorldView } from './worldView';
+import { bindBoardGestures, bindPress, isPhoneLayout } from './touch';
+import type { ActivePiece } from '../core/board';
 
 /** Milliseconds between steps while a direction is held. */
 const WALK_REPEAT_MS = 150;
 /** How long a map banner stays up. */
 const BANNER_MS = 2600;
+/** Settings kept beside the save: the optional touch buttons, and whether tap-to-walk was found. */
+const TOUCH_BUTTONS_KEY = 'the-realm/touch-buttons';
+const TAPPED_KEY = 'the-realm/tap-walked';
 
 const KEY_DIRECTIONS: Readonly<Record<string, Direction>> = {
   ArrowUp: 'up',
@@ -105,6 +111,11 @@ export class App {
   private readonly dialog = new Dialog();
   private active: ActiveBattle | null = null;
   private heldDirection: Direction | null = null;
+  /** Steps left of a tap-to-walk, taken one per `WALK_REPEAT_MS`. */
+  private route: Direction[] = [];
+  /** Touch gestures on the board, and the piece they were moving. */
+  private gestures: ReturnType<typeof bindBoardGestures> | null = null;
+  private gesturePiece: ActivePiece | null = null;
   private walkTimer = 0;
   private lastFrame = 0;
   private messageTimer = 0;
@@ -124,6 +135,38 @@ export class App {
     this.battleView.hero.onCast = (id) => this.tryCombat(id, (c) => c.castSpell(id));
     this.battleView.hero.onItem = (id) => this.tryCombat(id, (c) => c.useItem(id));
     this.bindInput();
+    this.applyTouchPrefs();
+  }
+
+  /** Reads a setting; storage may be unavailable, which reads as unset. */
+  private pref(key: string): boolean {
+    try {
+      return this.store.getItem(key) === '1';
+    } catch {
+      return false;
+    }
+  }
+
+  private setPref(key: string, on: boolean): void {
+    try {
+      if (on) this.store.setItem(key, '1');
+      else this.store.removeItem(key);
+    } catch {
+      // Not saved; it still applies until the page is closed.
+    }
+    this.applyTouchPrefs(key, on);
+  }
+
+  /**
+   * Touch buttons (off by default): the battle's move buttons and an
+   * always-shown d-pad. Without them the d-pad shows only until the
+   * player first taps the map to walk.
+   */
+  private applyTouchPrefs(key?: string, on?: boolean): void {
+    const get = (k: string): boolean => (k === key ? Boolean(on) : this.pref(k));
+    const buttons = get(TOUCH_BUTTONS_KEY);
+    document.body.classList.toggle('touch-buttons', buttons);
+    document.body.classList.toggle('tap-walker', get(TAPPED_KEY) && !buttons);
   }
 
   start(): void {
@@ -143,7 +186,15 @@ export class App {
     if (this.active) {
       const active = this.active;
       const { battle } = active;
-      if (!this.dialog.isOpen) battle.update(dt);
+      if (!this.dialog.isOpen) {
+        this.gestures?.tick(timeMs);
+        battle.update(dt);
+      }
+      // A new piece ends the touch that moved the last one, so it can't move this one.
+      if (battle.board.active !== this.gesturePiece) {
+        this.gesturePiece = battle.board.active;
+        this.gestures?.lockout();
+      }
       if (!active.finished && battle.status !== 'ongoing') active.finished = true;
       if (active.finished && active.resultDelay > 0) {
         active.resultDelay -= dt;
@@ -166,16 +217,45 @@ export class App {
   // ----------------------------------------------------------- world ---
 
   private updateWalking(dt: number): void {
-    if (!this.heldDirection || this.dialog.isOpen || !this.started) return;
+    if (this.dialog.isOpen || !this.started) return;
+    const direction = this.heldDirection ?? this.route[0];
+    if (!direction) return;
     this.walkTimer -= dt;
     if (this.walkTimer <= 0) {
       this.walkTimer = WALK_REPEAT_MS;
-      this.walk(this.heldDirection);
+      if (!this.heldDirection) this.route.shift();
+      this.walk(direction);
+      if (this.route.length === 0) this.world.target = null;
     }
+  }
+
+  /** Tap-to-walk: heads for the tapped tile, ending by bumping into whoever stands there. */
+  private walkTo(clientX: number, clientY: number): void {
+    if (this.dialog.isOpen || !this.started || this.active) return;
+    const tile = this.world.tileAtPoint(clientX, clientY);
+    const path = pathTo(this.state, tile.x, tile.y);
+    this.heldDirection = null;
+    if (!path || path.length === 0) {
+      this.stopRoute();
+      return;
+    }
+    // The first step is taken now, so a tap feels immediate.
+    if (!document.body.classList.contains('tap-walker') && !this.pref(TOUCH_BUTTONS_KEY)) {
+      this.setPref(TAPPED_KEY, true);
+    }
+    this.route = path;
+    this.world.target = tile;
+    this.walkTimer = 0;
+  }
+
+  private stopRoute(): void {
+    this.route = [];
+    this.world.target = null;
   }
 
   private walk(direction: Direction): void {
     const result = step(this.state, direction);
+    if (result.kind !== 'moved') this.stopRoute();
     switch (result.kind) {
       case 'interact':
         this.heldDirection = null;
@@ -567,6 +647,13 @@ export class App {
             this.say(this.save() ? 'Saved' : 'Saving is unavailable', 'book');
           },
         },
+        {
+          label: `Touch buttons: ${this.pref(TOUCH_BUTTONS_KEY) ? 'On' : 'Off'}`,
+          onClick: () => {
+            this.setPref(TOUCH_BUTTONS_KEY, !this.pref(TOUCH_BUTTONS_KEY));
+            this.openMenu();
+          },
+        },
         { label: 'Close', onClick: () => this.dialog.close() },
       ],
     });
@@ -683,8 +770,25 @@ export class App {
 
   private showView(view: 'world' | 'battle'): void {
     byId('world-view').hidden = view !== 'world';
-    byId('touch-pad').hidden = view !== 'world';
     byId('battle-view').hidden = view !== 'battle';
+    // Lets the stylesheet give a battle on a phone the whole screen.
+    document.body.dataset.view = view;
+    this.heldDirection = null;
+    this.stopRoute();
+    if (view === 'world') this.fitWorld();
+  }
+
+  /**
+   * On a phone the map fills the screen below the HUD at one canvas pixel
+   * per CSS pixel (so tiles stay large); elsewhere it keeps its fixed size.
+   */
+  private fitWorld(): void {
+    const canvas = byId<HTMLCanvasElement>('world-canvas');
+    const phone = isPhoneLayout() && canvas.clientHeight > 0;
+    const width = phone ? Math.round(canvas.clientWidth) : 640;
+    const height = phone ? Math.round(canvas.clientHeight) : 416;
+    if (canvas.width !== width) canvas.width = width;
+    if (canvas.height !== height) canvas.height = height;
   }
 
   // ----------------------------------------------------------- input ---
@@ -699,17 +803,60 @@ export class App {
     byId('menu-button').addEventListener('click', () => {
       if (!this.active) this.openMenu();
     });
-    byId('pause-button').addEventListener('click', () => this.togglePause());
+    bindPress(byId('pause-button'), () => this.togglePause());
+    // Thumb buttons act on press; moves and soft drop repeat while held.
     document.querySelectorAll<HTMLButtonElement>('[data-battle]').forEach((node) => {
-      node.addEventListener('click', () =>
-        this.active?.battle.input(node.dataset.battle as BattleAction),
+      const action = node.dataset.battle as BattleAction;
+      bindPress(
+        node,
+        () => this.active?.battle.input(action),
+        action === 'left' || action === 'right' || action === 'softDrop',
       );
     });
+    this.gestures = bindBoardGestures(
+      byId('board-canvas'),
+      () => this.active?.battle.board.width ?? 10,
+      (action) => {
+        if (!this.dialog.isOpen) this.active?.battle.input(action);
+      },
+    );
+
+    // The d-pad walks while held; a keyboard press on it takes one step.
     document.querySelectorAll<HTMLButtonElement>('[data-dir]').forEach((node) => {
-      node.addEventListener('click', () => {
-        if (!this.dialog.isOpen) this.walk(node.dataset.dir as Direction);
+      const direction = node.dataset.dir as Direction;
+      const release = (): void => {
+        if (this.heldDirection === direction) this.heldDirection = null;
+      };
+      node.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
+        if (this.dialog.isOpen || !this.started) return;
+        this.stopRoute();
+        this.heldDirection = direction;
+        this.walkTimer = WALK_REPEAT_MS;
+        this.walk(direction);
+      });
+      for (const type of ['pointerup', 'pointercancel', 'pointerleave'] as const) {
+        node.addEventListener(type, release);
+      }
+      node.addEventListener('click', (event) => {
+        if (event.detail === 0 && !this.dialog.isOpen) this.walk(direction);
       });
     });
+
+    // Tap (or click) the map to walk there; a drag is not a tap.
+    const canvas = byId('world-canvas');
+    let down: { x: number; y: number } | null = null;
+    canvas.addEventListener(
+      'pointerdown',
+      (event) => (down = { x: event.clientX, y: event.clientY }),
+    );
+    canvas.addEventListener('pointerup', (event) => {
+      if (down && Math.hypot(event.clientX - down.x, event.clientY - down.y) < 12) {
+        this.walkTo(event.clientX, event.clientY);
+      }
+      down = null;
+    });
+    new ResizeObserver(() => this.fitWorld()).observe(canvas);
   }
 
   private onKeyDown(event: KeyboardEvent): void {
@@ -736,6 +883,7 @@ export class App {
     if (direction) {
       event.preventDefault();
       if (event.repeat) return;
+      this.stopRoute();
       this.heldDirection = direction;
       this.walkTimer = WALK_REPEAT_MS;
       this.walk(direction);

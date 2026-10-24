@@ -40,7 +40,10 @@ export class ManaBars {
     for (const element of ELEMENTS) {
       const pool = this.pools.get(element);
       if (!pool) continue;
-      pool.fill.style.height = `${(100 * hero.mana[element]) / hero.manaCap}%`;
+      const percent = `${(100 * hero.mana[element]) / hero.manaCap}%`;
+      pool.fill.style.height = percent;
+      // Phones lay the pools out as rows; the fill's width follows this there.
+      pool.fill.style.setProperty('--fill', percent);
       pool.value.textContent = String(hero.mana[element]);
       pool.root.classList.toggle('full', hero.mana[element] >= hero.manaCap);
     }
