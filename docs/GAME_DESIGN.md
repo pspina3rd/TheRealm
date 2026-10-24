@@ -348,9 +348,10 @@ fights (the Feather now costs an item use and revives at 25%), and the
 Moon Wyrm at level 13 is 25% for the good bot and 50% prepared (83% with
 a full kit, above target): the balance pass's first jobs.
 
-#### Balance targets (DRAFT, for review)
+#### Balance targets (approved)
 
-What the balance pass should aim for. Not yet tuned to.
+What the balance pass aims for. Regular fights and lessons as first drafted;
+the Moon Wyrm was made harder at the user's request (expect several attempts).
 
 | Area                  | Hero level entering | Good (starter spells) | Good (full kit) | Prepared | Singles + spells | Sloppy    | Fight length (good) | Gil in (per fight) / out (main buys)     |
 | --------------------- | ------------------- | --------------------- | --------------- | -------- | ---------------- | --------- | ------------------- | ---------------------------------------- |
@@ -362,7 +363,7 @@ What the balance pass should aim for. Not yet tuned to.
 | Stormcrown Peaks      | 6                   | 70–80%                | 80–90%          | 85–95%   | 55–70%           | under 5%  | 70–110 s            | 16–26 / inn, Feathers 30                 |
 | Windward Cliffs       | 7                   | 70–80%                | 80–90%          | 85–95%   | 55–70%           | under 5%  | 70–110 s            | 20–30 / inn, Feathers 30                 |
 | Moonfall Ruins        | 8                   | 70–80%                | 80–90%          | 85–95%   | 55–70%           | under 5%  | 80–120 s            | 25–34 / Ethers                           |
-| Moon Wyrm (first try) | 12–13               | 25–35%                | 35–45%          | 50–60%   | 15–25%           | 0%        | 100–140 s           | 90                                       |
+| Moon Wyrm (first try) | 12–13               | 15–20%                | 20–30%          | 35–45%   | 5–15%            | 0%        | 100–140 s           | 90                                       |
 | Mentor lessons        | at need             | 85–100%               | —               | —        | 75–100%          | 0–20%     | 30–60 s             | —                                        |
 
 "Prepared" means 5 Herbs, an Ether and a Feather with the 2-use cap.
