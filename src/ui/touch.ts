@@ -44,11 +44,17 @@ export function bindBoardGestures(
     }
   };
   canvas.addEventListener('pointerdown', (event) => {
+    // Only the primary mouse button plays; right/middle clicks do nothing.
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
     event.preventDefault();
     touch = event.pointerType === 'touch';
     recognizer.cellPx = canvas.getBoundingClientRect().width / Math.max(1, columns());
     // Keep the moves coming even if the finger slides off the board.
-    canvas.setPointerCapture?.(event.pointerId);
+    try {
+      canvas.setPointerCapture(event.pointerId);
+    } catch {
+      // The pointer can already be gone (a rare race); the gesture still works without capture.
+    }
     run(recognizer.down(event.pointerId, event.clientX, event.clientY, event.timeStamp));
   });
   canvas.addEventListener('pointermove', (event) => {
