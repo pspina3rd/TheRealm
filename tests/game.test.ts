@@ -4,7 +4,7 @@ import { createRng } from '../src/core/rng';
 import { CLASSES } from '../src/data/classes';
 import { ENEMIES } from '../src/data/enemies';
 import { ITEMS } from '../src/data/items';
-import { MAPS } from '../src/data/maps';
+import { MAPS, START } from '../src/data/maps';
 import { NPCS } from '../src/data/npcs';
 import { say } from '../src/game/attitude';
 import {
