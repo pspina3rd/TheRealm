@@ -189,10 +189,12 @@ Fights are real time and reward planning: a sloppy stack loses.
   HP; it pulses red when nearly full) and the enemy moves when full. The
   pause stops it.
   - **Spells and items take time**: casting a spell fills 15% of the
-    gauge and using an item 40% (the gauge flashes white; a full gauge
+    gauge (25% against a boss, so a full spell kit can't simply out-cast
+    it) and using an item 40% (the gauge flashes white; a full gauge
     acts at once). At most **2 item uses per battle** (a bag with "1/2"
     leads the item list); a Herb heals 25% of max HP; a Phoenix Feather
-    revives at most **once per fight**.
+    revives at most **once per fight**, and its revive is one of the 2
+    uses.
   - **Pauses**: 3 per battle (the pause button shows how many are left;
     resuming is always allowed). While paused the board and the
     next-piece preview are hidden, so a pause can't be used to plan.
@@ -223,14 +225,23 @@ Fights are real time and reward planning: a sloppy stack loses.
   | petrify | Turns K random crystals on the board to stone                                                   | Cells flash white, then show as stone      |
   | quicken | Pieces fall 2.5× faster for N seconds                                                           | Hourglass badge counting seconds           |
 
-- A Phoenix Feather revives you once at half HP, automatically (one per
-  fight, however many you carry).
+- A Phoenix Feather revives you once at **25% HP**, automatically (one
+  per fight, however many you carry), and the revive **counts as one of
+  the fight's 2 item uses**: with both uses spent there is no revive.
+  (It used to revive at half HP for free; prepared players won 97–100%
+  of fights mostly because of it.)
+- **Bosses damp weaknesses**: a boss takes `BOSS_WEAKNESS_SHARE` (75%) of
+  a weakness bonus: ×1.375 instead of ×1.5 for a weak element's spell,
+  +37.5% instead of +50% for weak crystals, and Fault Line likewise.
 - **Failure costs**: losing a fight sends you back to the last inn you
   rested at with **30% HP** (50% in Mossvale, the home village, whose
   healer looks after beginners) and half your gil (no free heal). Normal
   monsters reappear when you leave the map; bosses stay beaten. So a
   broke, battered hero never soft-locks, **walking heals 1 HP per step
-  while below half HP**; the inn (10 gil) restores the rest. A lesson
+  while below half HP**; the inn (10 gil) restores the rest. A
+  **beginner** (below level 4) walking in the starter lands (Mossvale
+  and the Realm, `STARTER_MAPS`) heals up to **80%** instead: a playtest
+  hero who spent his last gil on a sword went 7–14 at the half-HP cap. A lesson
   still starts at full HP (the mentor's setup), and afterwards, won or
   lost, the mentor leaves you at least half.
 
@@ -238,10 +249,20 @@ Fights are real time and reward planning: a sloppy stack loses.
 
 Each monster grows with the hero inside a band (`src/game/scaling.ts`):
 its effective level is `clamp(hero level, own level, own level + band)`,
-with band 3 (1 for bosses; `EnemyDef.band` overrides it per monster, for
-new regions). Each level grown adds 10% of its base HP, 1 attack and 3%
+with band 3 (1 for bosses; `EnemyDef.band` overrides it per monster: the
+mentor regions' monsters use their region's band, 2, from `REGIONS` in
+`src/data/balance.ts`). Each level grown adds 10% of its base HP, 1 attack and 3%
 gauge speed, and the same 10% to its XP. Gravity stays at the monster's
-own level. Once the hero stands above the effective level, XP falls 25%
+own level; it speeds up 45 ms per level to level 7 (450 ms a row) and
+only 20 ms per level after that, so the late regions (up to level 13)
+stay playable.
+
+**Balance constants** all live in `src/data/balance.ts` (each with a
+one-line note; the modules that use them re-export them): strike damage,
+gauge costs, item caps and the Feather, element and boss factors, battle
+pacing, monster scaling, recovery and regen caps, lessons, the XP curve
+and each region's level band. Enemy stat blocks stay in
+`src/data/enemies.ts`. Once the hero stands above the effective level, XP falls 25%
 per level (at least 10%); bosses' XP never falls off. The stage shows the
 level it fights at ("Lv4") left of its HP bar.
 
@@ -260,41 +281,48 @@ piece per 1.5 s) with bots:
 - **sloppy** is the greedy tidy heuristic from `bestFit` with a careless
   drop a third of the time; **dropper** hard-drops in place.
 
+- **full kit** gives the good or prepared bot nine mentor spells across
+  the elements (Fire, Kindle, Gale, Gust, Thunder, Static, Cure, Regen,
+  Quake; the primaries at level 2), as a late-game hero would have;
+  otherwise the bots know only the class spell (starter kit).
+
 Each fight starts at full HP; the hero (Ranger) is at the monster's level
-with points spread over Strength, Vitality and Guard and level-fit gear.
-Run `SIM=1 RUNS=30 npx vitest run tests/difficulty.test.ts` for the table
-(30 seeds each):
+with points spread over Strength, Vitality and Guard and level-fit gear
+(Copper Sword; Iron Sword and Apprentice Robe from level 4; Knight Blade
+and Crystal Mail from 7; Flame Brand and Forge Plate from 9).
+`npm run sim` plays **the whole game's fight set** (every area's monsters
+at their own level, the Moon Wyrm, and mentor lessons) against every bot
+and prints one table (`RUNS` seeds per cell, default 12; `SIM_OUT=file`
+also writes it). The tests check that hard-dropping in place loses every
+ordinary fight.
 
-| Fight                  | Hero level | Good wins | Good: time / pieces | Good: HP left | Prepared wins | Singles + spells wins | Singles: time | Sloppy wins | Dropper wins |
-| ---------------------- | ---------- | --------- | ------------------- | ------------- | ------------- | --------------------- | ------------- | ----------- | ------------ |
-| Slime                  | 1          | 87%       | 42 s / 28           | 58%           | 97%           | 83%                   | 64 s          | 0%          | 0%           |
-| Shroom                 | 2          | 80%       | 56 s / 37           | 72%           | 97%           | 73%                   | 79 s          | 0%          | 0%           |
-| Goblin                 | 3          | 87%       | 71 s / 48           | 64%           | 97%           | 83%                   | 89 s          | 0%          | 0%           |
-| Moon Imp               | 3          | 70%       | 65 s / 43           | 62%           | 100%          | 57%                   | 81 s          | 0%          | 0%           |
-| Shade Imp              | 4          | 80%       | 126 s / 84          | 64%           | 97%           | 77%                   | 168 s         | 0%          | 0%           |
-| Cave Brute             | 5          | 87%       | 99 s / 67           | 51%           | 100%          | 83%                   | 118 s         | 0%          | 0%           |
-| Moon Wyrm              | 8          | 33%       | 102 s / 69          | 39%           | 73%           | 23%                   | 119 s         | 0%          | 0%           |
-| Ember Wisp (lesson d1) | 1          | 83%       | 33 s / 22           | 40%           | 93%           | 90%                   | 32 s          | 13%         | 0%           |
-| Tide Wisp (lesson d1)  | 1          | 100%      | 37 s / 24           | 75%           | 97%           | 100%                  | 44 s          | 20%         | 0%           |
-| Gale Wisp (lesson d1)  | 1          | 97%       | 31 s / 21           | 76%           | 100%          | 97%                   | 35 s          | 17%         | 0%           |
-| Ember Wisp (lesson d2) | 3          | 87%       | 40 s / 26           | 42%           | 100%          | 60%                   | 52 s          | 0%          | 0%           |
-| Tide Wisp (lesson d2)  | 3          | 93%       | 54 s / 36           | 73%           | 100%          | 97%                   | 68 s          | 0%          | 0%           |
-| Gale Wisp (lesson d2)  | 3          | 97%       | 44 s / 29           | 69%           | 100%          | 100%                  | 49 s          | 3%          | 0%           |
-| Ember Wisp (lesson d3) | 5          | 97%       | 51 s / 34           | 43%           | 100%          | 77%                   | 61 s          | 0%          | 0%           |
-| Tide Wisp (lesson d3)  | 5          | 97%       | 62 s / 41           | 78%           | 100%          | 97%                   | 79 s          | 0%          | 0%           |
-| Gale Wisp (lesson d3)  | 5          | 100%      | 45 s / 30           | 74%           | 100%          | 100%                  | 52 s          | 3%          | 0%           |
+**Status: the numbers below are placeholders.** The region monsters, the
+shifted Moon Caves and the Wyrm were given first-guess stats (a few quick
+runs of the good bot against each); the final balance pass tunes them
+against the targets below. Latest run (12 seeds):
 
-Building for big clears beats single lines plus spells in every ordinary
-fight (Moon Imp 70% vs 57%; 15–40 s faster everywhere) and against the
-Moon Wyrm (33% vs 23%). The sim's heroes get the real `dualChance`, so
-dual pieces are on. Over 60 seeds the good bot wins 81 / 83 / 80 / 77 /
-85 / 82% of the ordinary fights (Slime to Brute) and 40 / 23 / 32% against
-the Wyrm at hero levels 7 / 8 / 9. A prepared player (2 item uses at 40%
-of a gauge each, one Feather revive) still wins nearly every ordinary
-fight and most Wyrm attempts; the Feather is the big safety net. The
-tests check that hard-dropping in place loses every ordinary fight.
-Lessons (the mentor's tosses, a full heal, gentler novice foes) are
-friendlier than fights, as intended.
+<!-- SIM TABLE -->
+
+#### Balance targets (DRAFT, for review)
+
+What the balance pass should aim for. Not yet tuned to.
+
+| Area | Hero level entering | Good (starter spells) | Good (full kit) | Prepared | Singles + spells | Sloppy | Fight length (good) | Gil in (per fight) / out (main buys) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| The Realm | 1 | 80–90% | — | 95%+ | 70–85% | under 15% | 40–70 s | 4–10 / Copper Sword 22, inn 10 |
+| Thornwood Grove | 2 | 75–85% | — | 90%+ | 65–80% | under 10% | 50–80 s | 6–11 / herbs |
+| Glasswater Lake | 3 | 75–85% | — | 90%+ | 65–80% | under 10% | 50–90 s | 7–14 / Iron Sword 80, Crystal Mail 90 |
+| Redrock Quarry | 4 | 70–85% | 80–90% | 90%+ | 60–75% | under 10% | 60–100 s | 12–17 / Knight Blade 150 |
+| Emberforge | 5 | 70–85% | 80–90% | 90%+ | 60–75% | under 10% | 60–100 s | 14–22 / Flame Brand 260, Forge Plate 220 |
+| Stormcrown Peaks | 6 | 70–80% | 80–90% | 85–95% | 55–70% | under 5% | 70–110 s | 16–26 / inn, Feathers 30 |
+| Windward Cliffs | 7 | 70–80% | 80–90% | 85–95% | 55–70% | under 5% | 70–110 s | 20–30 / inn, Feathers 30 |
+| Moonfall Ruins | 8 | 70–80% | 80–90% | 85–95% | 55–70% | under 5% | 80–120 s | 25–34 / Ethers |
+| Moon Wyrm (first try) | 12–13 | 25–35% | 35–45% | 50–60% | 15–25% | 0% | 100–140 s | 90 |
+| Mentor lessons | at need | 85–100% | — | — | 75–100% | 0–20% | 30–60 s | — |
+
+"Prepared" means 5 Herbs, an Ether and a Feather with the 2-use cap.
+Gil should cover each region's gear by the time the next one opens, with
+no more than ~150 gil unspent (the old playtests left 300–400).
 
 ### Hero magic
 
@@ -424,15 +452,24 @@ glow of their element's colour at their feet; a **scroll** floats over a
 mentor who has a lesson for you. Talking to them lists their lessons as
 buttons (spell, level pips, kind, cost, difficulty as swords).
 
-| Mentor  | Element   | Why they teach                                 | Home (trial foe)                | Route after home                                 | Moves every |
-| ------- | --------- | ---------------------------------------------- | ------------------------------- | ------------------------------------------------ | ----------- |
-| Torva   | Fire      | Her hands shake too much for the forge now     | Mossvale (Ember Wisp)           | Realm by the village · Brightwater · Moon Caves¹ | 4 wins      |
-| Maren   | Water     | The lake is clouding; she can't watch it alone | Realm, east lakeshore (Tide)    | Brightwater fountain · Mossvale                  | 5 wins      |
-| Rook    | Lightning | Storms roll off the peaks faster every year    | Realm, north-east (Spark)       | Brightwater · Moon Caves¹ · Depths²              | 3 wins      |
-| Hazel   | Nature    | Spores are choking her meadows                 | Realm, west meadow (Moss)       | Mossvale · Realm, south                          | 6 wins      |
-| Dorn    | Earth     | The caves took his crew                        | Realm, at the cave seal (Stone) | Moon Caves¹ · Depths¹ · Brightwater              | 4 wins      |
-| Selene  | Arcane    | Something below drinks the moonlight           | Brightwater (Moon Wisp)         | Realm, north · Depths¹                           | 5 wins      |
-| Kestrel | Wind      | Her letters must reach every village           | Realm, south road (Gale)        | Mossvale · Brightwater · Realm, east road        | 3 wins      |
+| Mentor  | Element   | Why they teach                                 | Home region, landmark (trial foe)   | Route after home                                                         | Moves every |
+| ------- | --------- | ---------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------ | ----------- |
+| Torva   | Fire      | Her hands shake too much for the forge now     | Emberforge, old forge (Ember Wisp)  | Quarry, ridge road · Brightwater · Mossvale · Moon Caves¹                | 4 wins      |
+| Maren   | Water     | The lake is clouding; she can't watch it alone | Glasswater Lake, jetty (Tide)       | Brightwater fountain · Grove pond · Mossvale                             | 5 wins      |
+| Rook    | Lightning | Storms roll off the peaks faster every year    | Stormcrown Peaks, beacon (Spark)    | Cliff road · Realm, north-east · Brightwater · Moon Caves¹ · Depths²     | 3 wins      |
+| Hazel   | Nature    | Spores are choking her meadows                 | Thornwood Grove, old oak (Moss)     | Realm, west meadow · Mossvale · Lake meadow                              | 6 wins      |
+| Dorn    | Earth     | The caves took his crew                        | Redrock Quarry, quarry lift (Stone) | Realm, tunnel gate · Emberforge ridge · Moon Caves¹ · Depths¹ · Brightwater | 4 wins   |
+| Selene  | Arcane    | Something below drinks the moonlight           | Moonfall Ruins, moon tower (Moon)   | Cliff path · Brightwater · Depths¹                                       | 5 wins      |
+| Kestrel | Wind      | Her letters must reach every village           | Windward Cliffs, eyrie (Gale)       | Peaks, high pass · Realm, south road · Mossvale · Brightwater · Realm, east road | 3 wins |
+
+Every mentor lives in their own region (see [World and regions](#world-and-regions))
+and travels to the neighbouring region and the starter towns, so each has
+a stop a brand-new hero can walk to (the tests check it): a class mentor
+whose home is still behind a gate comes through Brightwater, Mossvale or
+the Realm within a few wins. While a mentor is at home behind a gate the
+hero hasn't opened, the lock hint still names the place; a mentor who
+noticed a feat waits at the nearest stop the hero can actually reach
+(`mapDistance` skips warps still locked to the hero).
 
 ¹ once the hero holds the Cave Pass. ² once the Moon Wyrm is beaten.
 
@@ -710,11 +747,45 @@ and bigger, scarier Pixel Battlers monsters underground.
 | Overworld  | Green Slime  | 1   | 66  | 6   | 8.5 s  | Nature  | Fire, arcane  | Water, nature, earth                    | Bounce 3 (×2), petrify 3 (Sticky Goo)                                                                                               | Slime Gel       |
 | Overworld  | Spore Shroom | 2   | 85  | 6   | 7.5 s  | Nature  | Fire, arcane  | Water, nature, earth                    | Headbutt 3 (×2), haste 3 (Spore Cloud), fog 3 (Spore Haze)                                                                          | Spore Cap       |
 | Overworld  | Goblin Scout | 3   | 100 | 6   | 8 s    | Earth   | Water, nature | Lightning, earth, wind                  | Stab 4 (×2), curse 1 (Rock Toss), seal 3 (Stake)                                                                                    | Goblin Charm    |
-| Moon Caves | Moon Imp     | 3   | 110 | 12  | 6 s    | Arcane  | Fire, wind    | Lightning, nature, arcane               | Swoop 3, drain 4, fog 3 (Moon Dust), quicken 5 s (Flit)                                                                             | —               |
-| Moon Caves | Shade Imp    | 4   | 210 | 12  | 7 s    | Arcane  | Fire, wind    | Lightning, nature, arcane               | Moonbeam 5, heal 12, curse 1 (Hex), petrify 4 (Gloom)                                                                               | Moon Shard      |
-| Moon Caves | Cave Brute   | 5   | 140 | 11  | 12.5 s | Earth   | Water, nature | Lightning, earth, wind                  | Slam 8, curse 2 (Rubble), seal 3 (Boulder)                                                                                          | Ether           |
-| Depths     | Moon Wyrm    | 7   | 300 | 13  | 8 s    | Arcane  | Fire, wind    | Water (boss), lightning, nature, arcane | All nine move kinds, attacks twice as likely (Lunar Breath 16, Tail Sweep 10); enrages at ½ HP (5 s gauge, 3-row curses, +4 attack) | Phoenix Feather |
 | Lessons    | Wisps (×7)   | 2   | 50  | 5   | 9 s    | Each    | From chart    | From chart                              | Lash 2 + one of their element's (Tide: fog 2; Gale: quicken 4 s)                                                                    | —               |
+
+**The mentor regions and the Moon Caves** (stats are placeholders for the
+balance pass; region monsters grow at most 2 levels with the hero, the
+caves' 3, the Wyrm 1). Overworld critters are Fantasy Dreamland enemies;
+the bigger beasts are Pixel Battlers.
+
+| Area | Enemy | Lv | HP | Atk | Gauge | Element | Weak to | Resists | Kit | XP / gil | Drops |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Thornwood Grove | Sproutling | 2 | 115 | 7 | 7.5 s | Nature | Fire, Arcane | Water, Nature, Earth | Root Slap 3, Sunbathe 8, Seed Pod 3 | 9 / 6 | herb 30% |
+| Thornwood Grove | Leaf Sprite | 3 | 120 | 8 | 7.0 s | Nature | Fire, Arcane | Water, Nature, Earth | Leaf Cut 4, Pollen 3, Leaf Storm 3 | 13 / 8 | sporeCap 20% |
+| Thornwood Grove | Thorn Troll | 4 | 160 | 9 | 10.0 s | Nature | Fire, Arcane | Water, Nature, Earth | Thorn Club 7, Bramble 1, Moss Bed 12 | 18 / 11 | herb 40% |
+| Glasswater Lake | Drip | 3 | 90 | 7 | 7.0 s | Water | Lightning, Nature | Fire, Water, Earth | Splash 4, Lake Mist 3, Soak 3 | 13 / 7 | ether 15% |
+| Glasswater Lake | Lake Lurker | 4 | 150 | 9 | 8.0 s | Water | Lightning, Nature | Fire, Water, Earth | Bite 6, Undertow 3, Gulp 4 | 18 / 10 | herb 30% |
+| Glasswater Lake | Tide Ogre | 5 | 190 | 10 | 9.5 s | Water | Lightning, Nature | Fire, Water, Earth | Wave Crash 8, Silt 2, Spray 3 | 27 / 14 | ether 30% |
+| Redrock Quarry | Goblin Digger | 4 | 125 | 9 | 8.0 s | Earth | Water, Nature | Lightning, Earth, Wind | Pick 5, Rock Toss 1, Stake 3 | 18 / 12 | goblinCharm 40% |
+| Redrock Quarry | Quarry Hound | 5 | 150 | 9 | 6.5 s | Earth | Water, Nature | Lightning, Earth, Wind | Maul 5, Pounce 4 s, Grit 4 | 27 / 13 | herb 30% |
+| Redrock Quarry | Stone Ogre | 6 | 180 | 11 | 12.0 s | Earth | Water, Nature | Lightning, Earth, Wind | Boulder Slam 9, Landslide 2, Boulder 3 | 38 / 17 | ether 40% |
+| Emberforge | Cinder | 5 | 160 | 10 | 6.5 s | Fire | Water, Wind | Fire, Nature, Arcane | Flare 6, Kindle 3, Scorch 4 | 27 / 14 | herb 30% |
+| Emberforge | Forge Imp | 6 | 195 | 12 | 7.0 s | Fire | Water, Wind | Fire, Nature, Arcane | Pitchfork 7, Bellows 4, Stoke 5 s | 38 / 17 | ether 30% |
+| Emberforge | Magma Drake | 7 | 300 | 13 | 9.0 s | Fire | Water, Wind | Fire, Nature, Arcane | Magma Breath 12, Slag 2, Cinders 5 | 56 / 22 | ether 40% |
+| Stormcrown Peaks | Spark Pup | 6 | 160 | 9 | 5.5 s | Lightning | Earth, Arcane | Water, Lightning, Wind | Zap 5, Static 5 s, Jolt 3 | 38 / 16 | herb 30% |
+| Stormcrown Peaks | Storm Goblin | 7 | 180 | 11 | 7.0 s | Lightning | Earth, Arcane | Water, Lightning, Wind | Shock Spear 8, Lightning Rod 2, Thunderhead 3 | 56 / 21 | ether 30% |
+| Stormcrown Peaks | Thunderhide | 8 | 240 | 11 | 9.5 s | Lightning | Earth, Arcane | Water, Lightning, Wind | Thunder Slam 10, Roar 4, Storm Surge 6 s | 80 / 26 | ether 40% |
+| Windward Cliffs | Puffball | 7 | 200 | 12 | 6.0 s | Wind | Lightning, Earth | Fire, Arcane, Wind | Puff 6, Dust Devil 3, Updraft 5 s | 56 / 20 | herb 30% |
+| Windward Cliffs | Gale Bat | 8 | 240 | 14 | 6.0 s | Wind | Lightning, Earth | Fire, Arcane, Wind | Wing Cut 8, Gale 4, Downdraft 3 | 80 / 24 | ether 30% |
+| Windward Cliffs | Sky Ram | 9 | 280 | 13 | 9.0 s | Wind | Lightning, Earth | Fire, Arcane, Wind | Ram 10, Rockfall 1, Charge 4 s | 117 / 30 | ether 40% |
+| Moonfall Ruins | Watcher | 8 | 320 | 14 | 7.0 s | Arcane | Fire, Wind | Lightning, Nature, Arcane | Gaze 8, Stare 5, Mind Leech 5 | 80 / 25 | herb 30% |
+| Moonfall Ruins | Night Bat | 9 | 290 | 16 | 6.5 s | Arcane | Fire, Wind | Lightning, Nature, Arcane | Night Bite 11, Moon Sip 5, Eclipse Wing 3, Leech 14 | 117 / 28 | moonShard 30% |
+| Moonfall Ruins | Gloom Toad | 10 | 440 | 17 | 8.5 s | Arcane | Fire, Wind | Lightning, Nature, Arcane | Tongue Lash 13, Hex 2, Gloom 5, Wallow 25 | 170 / 34 | ether 40% |
+| Moon Caves | Moon Imp | 10 | 360 | 17 | 6.0 s | Arcane | Fire, Wind | Lightning, Nature, Arcane | Swoop 8, Leech Mana 4, Moon Dust 3, Flit 5 s | 170 / 30 | — |
+| Moon Caves | Shade Imp | 11 | 340 | 18 | 7.0 s | Arcane | Fire, Wind | Lightning, Nature, Arcane | Moonbeam 9, Glimmer 12, Hex 1, Gloom 4 | 240 / 36 | moonShard 30% |
+| Moon Caves | Cave Brute | 11 | 290 | 16 | 12.5 s | Earth | Water, Nature | Lightning, Earth, Wind | Slam 8, Rubble 2, Boulder 3 | 240 / 40 | ether 40% |
+| Moon Caves · Depths | Moon Wyrm | 13 | 460 | 14 | 8.0 s | Arcane | Fire, Wind | Water, Lightning, Nature, Arcane | Lunar Breath 16, Tail Sweep 10, Crystal Tomb 2, Eclipse 4, Moon Drain 4, Moonfog 4, Starfall 6, Tidal Pull 3, Night Wind 6 s | 900 / 90 | phoenixFeather 100% |
+
+The Moon Wyrm keeps everything from before (attacks twice as likely,
+resists water, enrages at ½ HP with a 5 s gauge, 3-row curses and +4
+attack), now at the end of the level curve, and as a boss it takes a damped
+weakness bonus and makes each spell cost 25% of its gauge.
 
 The seven wisps (Ember, Tide, Spark, Moss, Stone, Moon, Gale) are mentors'
 trial foes, drawn as a slime recoloured to their element. Each lesson

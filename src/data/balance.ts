@@ -149,7 +149,7 @@ export interface RegionBand {
   readonly band: number;
 }
 
-/** Every area's band, in progression order (keys are map ids; the caves span two floors). */
+/** Every area's band, in progression order (keys are map ids). Bosses grow `BOSS_BAND`. */
 export const REGIONS = {
   overworld: { entryLevel: 1, monsterLevels: [1, 3], band: LEVEL_BAND },
   grove: { entryLevel: 2, monsterLevels: [2, 4], band: 2 },
@@ -160,5 +160,5 @@ export const REGIONS = {
   cliffs: { entryLevel: 7, monsterLevels: [7, 9], band: 2 },
   ruins: { entryLevel: 8, monsterLevels: [8, 10], band: 2 },
   caves1: { entryLevel: 10, monsterLevels: [10, 11], band: LEVEL_BAND },
-  caves2: { entryLevel: 12, monsterLevels: [11, 13], band: BOSS_BAND },
+  caves2: { entryLevel: 12, monsterLevels: [11, 13], band: LEVEL_BAND },
 } as const satisfies Record<string, RegionBand>;

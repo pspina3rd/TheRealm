@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { REGIONS } from '../src/data/balance';
 import { ENEMIES } from '../src/data/enemies';
+import { LEVEL_BAND } from '../src/game/scaling';
 import { ITEMS } from '../src/data/items';
 import { ELEMENTS } from '../src/core/elements';
 import { MAPS, START } from '../src/data/maps';
@@ -266,6 +268,109 @@ describe('the board is never optional', () => {
       const battle = makeBattle(spec, hero);
       for (let i = 0; i < 500 && battle.status === 'ongoing'; i++) battle.input('hardDrop');
       expect(battle.status, npc.id).not.toBe('won');
+    }
+  });
+});
+
+/** Maps the hero can walk to holding `flags` (locked warps stay shut). */
+function openMaps(flags: ReadonlySet<string>): Set<string> {
+  const seen = new Set<string>([START.map]);
+  const queue: string[] = [START.map];
+  for (let id = queue.shift(); id !== undefined; id = queue.shift()) {
+    for (const warp of MAPS[id]!.warps) {
+      if (warp.requiresFlag && !flags.has(warp.requiresFlag)) continue;
+      if (!seen.has(warp.to.map)) {
+        seen.add(warp.to.map);
+        queue.push(warp.to.map);
+      }
+    }
+  }
+  return seen;
+}
+
+/** Story flags the NPCs on `maps` can grant. */
+function flagsOn(maps: ReadonlySet<string>): string[] {
+  return [...maps].flatMap((id) =>
+    MAPS[id]!.entities.flatMap((e) =>
+      e.kind === 'npc'
+        ? (NPCS[e.npcId]?.rewards ?? []).flatMap((r) => (r.kind === 'flag' ? [r.flag] : []))
+        : [],
+    ),
+  );
+}
+
+describe('the world and its regions', () => {
+  it('leads every warp back the way it came', () => {
+    for (const map of Object.values(MAPS)) {
+      for (const warp of map.warps) {
+        if (warp.to.map === map.id) continue; // the Sunken Ruins' sealed door
+        const back = MAPS[warp.to.map]!.warps.some((w) => w.to.map === map.id);
+        expect(back, `${map.id} → ${warp.to.map}`).toBe(true);
+      }
+    }
+  });
+
+  it('opens every map in order, each gate’s flag earned before it is needed', () => {
+    const flags = new Set<string>();
+    const order: string[][] = [];
+    for (;;) {
+      const open = openMaps(flags);
+      order.push([...open].filter((id) => !order.flat().includes(id)));
+      const fresh = flagsOn(open).filter((f) => !flags.has(f));
+      if (fresh.length === 0) break;
+      for (const f of fresh) flags.add(f);
+    }
+    expect(order.flat().sort()).toEqual(Object.keys(MAPS).sort());
+    expect(order[0]).toEqual(
+      expect.arrayContaining(['mossvale', 'overworld', 'brightwater', 'grove', 'lake', 'quarry']),
+    );
+    const step = (id: string) => order.findIndex((maps) => maps.includes(id));
+    expect(step('forge')).toBeGreaterThan(0);
+    expect(step('peaks')).toBeGreaterThan(step('forge'));
+    expect(step('cliffs')).toBe(step('peaks'));
+    expect(step('ruins')).toBe(step('peaks'));
+    expect(step('caves1')).toBeGreaterThan(0);
+  });
+
+  it('gives each region a level band its monsters keep to, rising along the road', () => {
+    const regions = Object.entries(REGIONS);
+    for (const [id, region] of regions) {
+      expect(MAPS[id], id).toBeDefined();
+      const [low, high] = region.monsterLevels;
+      for (const e of MAPS[id]!.entities) {
+        if (e.kind !== 'monster') continue;
+        const enemy = ENEMIES[e.enemyId]!;
+        expect(enemy.level, e.id).toBeGreaterThanOrEqual(low);
+        expect(enemy.level, e.id).toBeLessThanOrEqual(high);
+        if (!enemy.boss) expect(enemy.band ?? LEVEL_BAND, e.id).toBe(region.band);
+      }
+    }
+    const entries = regions.map(([, r]) => r.entryLevel);
+    expect(entries).toEqual([...entries].sort((a, b) => a - b));
+  });
+
+  it('gives every mentor a home region of their own and a stop a new hero can reach', () => {
+    const start = openMaps(new Set());
+    const homes = Object.values(MENTORS).map((m) => m.route[0].map);
+    expect(new Set(homes).size).toBe(homes.length);
+    for (const m of Object.values(MENTORS)) {
+      expect(REGIONS, m.id).toHaveProperty(m.route[0].map);
+      expect(
+        m.route.some((stop) => !stop.requiresFlag && start.has(stop.map)),
+        m.id,
+      ).toBe(true);
+      // The trial foe stays the mentor's own wisp; the region's monsters share their element.
+      const own = MAPS[m.route[0].map]!.entities.filter(
+        (e) => e.kind === 'monster' && ENEMIES[e.enemyId]!.element === m.element,
+      );
+      expect(own.length, m.id).toBeGreaterThan(0);
+    }
+  });
+
+  it('gives every region a person with a need', () => {
+    for (const id of ['grove', 'lake', 'quarry', 'forge', 'peaks', 'cliffs', 'ruins']) {
+      const people = MAPS[id]!.entities.filter((e) => e.kind === 'npc');
+      expect(people.length, id).toBeGreaterThan(0);
     }
   });
 });

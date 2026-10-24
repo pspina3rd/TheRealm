@@ -1,8 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import { MAX_PAUSES, QUICKEN_SPEED } from '../src/battle/battle';
 import {
+  BOSS_WEAKNESS_SHARE,
+  WEAK_CRYSTAL_BONUS,
+  WEAK_MULTIPLIER,
+  crystalAffinity,
+  elementMultiplier,
+  weakMultiplier,
+} from '../src/battle/elemental';
+import { emptyCounts } from '../src/core/elements';
+import { STARTER_MAPS } from '../src/data/maps';
+import {
   ATTACK_PERCENT,
   BACK_TO_BACK_MULTIPLIER,
+  BOSS_SPELL_TIME,
   COMBO_STEP,
   HOLE_RUSH,
   FEATHER_REVIVE,
@@ -11,6 +22,7 @@ import {
   MAX_COMBO,
   MAX_HOLE_RUSH,
   OVERFLOW_PENALTY,
+  SPELL_TIME,
   strikeDamage,
   type CombatChallenge,
 } from '../src/battle/combat';
@@ -18,8 +30,17 @@ import { SPAWN_COLUMNS } from '../src/core/board';
 import { createRng } from '../src/core/rng';
 import { gravityInterval } from '../src/core/scoring';
 import { ENEMIES } from '../src/data/enemies';
-import type { ChallengeSpec, EnemyDef, EnemyMove } from '../src/data/types';
-import { addItem, createHero, gainXp, totalAttack } from '../src/game/hero';
+import type { EnemyDef, EnemyMove } from '../src/data/types';
+import {
+  BEGINNER_LEVEL,
+  BEGINNER_REGEN_CAP,
+  WALK_REGEN_CAP,
+  addItem,
+  createHero,
+  gainXp,
+  totalAttack,
+  walkRegen,
+} from '../src/game/hero';
 import { NOVICE_FOE_HP, NOVICE_LEVEL, completeLesson, scaledFoe } from '../src/game/lessons';
 import {
   ATK_PER_LEVEL,
@@ -413,6 +434,52 @@ describe('recovery', () => {
     expect(moved).toBeGreaterThan(0);
     expect(state.hero.hp).toBe(1 + moved);
   });
+
+  it('lets a beginner in the starter lands walk back further than anyone else', () => {
+    const hero = createHero();
+    const cap = (starter: boolean) => {
+      hero.hp = 1;
+      while (walkRegen(hero, starter) > 0);
+      return hero.hp;
+    };
+    expect(cap(false)).toBe(Math.ceil(hero.maxHp * WALK_REGEN_CAP));
+    expect(cap(true)).toBe(Math.ceil(hero.maxHp * BEGINNER_REGEN_CAP));
+    while (hero.level < BEGINNER_LEVEL) gainXp(hero, hero.nextXp);
+    expect(cap(true)).toBe(Math.ceil(hero.maxHp * WALK_REGEN_CAP));
+    // Stepping in Mossvale counts as the starter lands; the grove does not.
+    const state = newGame();
+    state.hero.hp = Math.ceil(state.hero.maxHp * WALK_REGEN_CAP);
+    step(state, 'left');
+    expect(state.hero.hp).toBeGreaterThan(Math.ceil(state.hero.maxHp * WALK_REGEN_CAP));
+    expect(STARTER_MAPS.has('grove')).toBe(false);
+  });
+});
+
+describe('bosses', () => {
+  it('take a damped weakness bonus', () => {
+    const wyrm = ENEMIES.moonWyrm!;
+    expect(elementMultiplier(wyrm, 'fire')).toBe(1 + (WEAK_MULTIPLIER - 1) * BOSS_WEAKNESS_SHARE);
+    expect(elementMultiplier(ENEMIES.moonImp!, 'fire')).toBe(WEAK_MULTIPLIER);
+    const cleared = { ...emptyCounts(0), fire: 10 };
+    expect(crystalAffinity(wyrm, cleared, 10)).toBe(1 + WEAK_CRYSTAL_BONUS * BOSS_WEAKNESS_SHARE);
+    const { combat } = fight('moonWyrm');
+    combat.exposed = 2;
+    expect(combat.multiplier('water')).toBe(weakMultiplier(wyrm));
+  });
+
+  it('make each spell cast cost more of the gauge', () => {
+    for (const [id, share] of [
+      ['moonWyrm', BOSS_SPELL_TIME],
+      ['slime', SPELL_TIME],
+    ] as const) {
+      const { combat, hero } = fight(id);
+      hero.spells.fire = { ...hero.spells.gale! };
+      hero.mana = { ...hero.mana, fire: 99 };
+      combat.gauge = 0;
+      combat.castSpell('fire');
+      expect(combat.gauge, id).toBeCloseTo(share * combat.actMs);
+    }
+  });
 });
 
 describe('the simulated player', () => {
@@ -437,42 +504,4 @@ describe('the simulated player', () => {
     expect(sloppy.winRate).toBeLessThan(0.5);
     expect(createRng(1).next()).toBeLessThan(1);
   }, 60_000);
-});
-
-describe.skipIf(!process.env.SIM)('balance table (SIM=1)', () => {
-  const pct = (n: number) => `${(n * 100).toFixed(0)}%`;
-  const row = (name: string, level: number, spec: ChallengeSpec, runs: number): string => {
-    const good = measure(spec, level, 'good', runs);
-    const prepared = measure(spec, level, 'prepared', runs);
-    const spam = measure(spec, level, 'spammer', runs);
-    const sloppy = measure(spec, level, 'sloppy', runs);
-    const drop = measure(spec, level, 'dropper', Math.min(runs, 10));
-    return `| ${name} | ${level} | ${pct(good.winRate)} | ${good.seconds.toFixed(0)} s / ${good.pieces.toFixed(0)} | ${pct(good.hpLeft)} | ${pct(prepared.winRate)} | ${pct(spam.winRate)} | ${spam.seconds.toFixed(0)} s | ${pct(sloppy.winRate)} | ${pct(drop.winRate)} |`;
-  };
-
-  it('prints win rates', () => {
-    const runs = Number(process.env.RUNS ?? 40);
-    const rows: string[] = [];
-    for (const id of [...ORDINARY, 'moonWyrm']) {
-      const enemy = ENEMIES[id]!;
-      const level = id === 'moonWyrm' ? Number(process.env.WYRM_LEVEL ?? 8) : enemy.level;
-      rows.push(row(id, level, { kind: 'combat', enemyId: id }, runs));
-    }
-    const lessons = [
-      ['torva', 'emberWisp', 'fire'],
-      ['maren', 'tideWisp', 'blizzard'],
-      ['kestrel', 'galeWisp', 'gale'],
-    ] as const;
-    for (const [difficulty, level] of [
-      [1, 1],
-      [2, 3],
-      [3, 5],
-    ] as const) {
-      for (const [mentorId, enemyId, spellId] of lessons) {
-        const spec = { kind: 'lesson', mentorId, enemyId, spellId, difficulty } as const;
-        rows.push(row(`${enemyId} d${difficulty}`, level, spec, runs));
-      }
-    }
-    process.stderr.write(rows.join('\n') + '\n');
-  }, 600_000);
 });
