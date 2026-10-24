@@ -8,8 +8,8 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     name: 'Herb',
     kind: 'consumable',
     price: 10,
-    description: 'Restore a quarter of your max HP.',
-    use: { heal: 0.25 },
+    description: 'Restore 35% of your max HP.',
+    use: { heal: 0.35 },
   },
   ether: {
     id: 'ether',

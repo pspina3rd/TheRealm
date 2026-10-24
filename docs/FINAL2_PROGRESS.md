@@ -6,3 +6,6 @@
 - [x] B4-7
 - [~] C balance: XP curve FIRST_LEVEL_XP 44, ruins/caves XP up, caves gil down (economy table tests/sim/economy.ts). Baseline sim running (scratchpad runsim.sh base 30 1500 2200)
 - [ ] docs update (touch section flick 0.35/slop14/long press; targets actual col; roster)
+
+- iteration 1 applied (see scratchpad sim/base2-*.md for baseline, it1-* for results)
+- it2 applied; it3 = BOSS_SPELL_TIME .35, final runs 1500/1850/2200
