@@ -75,15 +75,59 @@ describe('GestureRecognizer', () => {
   const CELL = 30;
   const make = (): GestureRecognizer => new GestureRecognizer(CELL);
 
-  it('taps rotate; slow presses do not', () => {
+  it('taps and long presses rotate on release', () => {
     const g = make();
     g.down(1, 100, 100, 0);
     expect(g.active).toBe(true);
     expect(g.move(1, 104, 103, 50)).toEqual([]);
     expect(g.up(1, 104, 103, 120)).toEqual(['rotate']);
     expect(g.active).toBe(false);
+    // A long, still press rotates too (it used to do nothing).
     g.down(1, 100, 100, 0);
-    expect(g.up(1, 100, 100, GESTURE.tapMs + 1)).toEqual([]);
+    expect(g.move(1, 100 + GESTURE.slopPx - 1, 100, 400)).toEqual([]);
+    expect(g.tick(900)).toEqual([]);
+    expect(g.up(1, 100 + GESTURE.slopPx - 1, 100, 1000)).toEqual(['rotate']);
+  });
+
+  it('hard drops sparse, fast flicks (a phone delivering events every ~50 ms)', () => {
+    // 90–150 px in 2–8 events, each 50 ms apart; the lift comes 45 ms after the last move.
+    for (const [px, events] of [
+      [90, 2],
+      [120, 3],
+      [150, 8],
+    ] as const) {
+      const g = make();
+      g.down(1, 100, 100, 0);
+      for (let i = 1; i <= events; i++) g.move(1, 100, 100 + (px * i) / events, 50 * i);
+      expect(g.up(1, 100, 100 + px, 50 * events + 45)).toEqual(['hardDrop']);
+    }
+    // A single move event then the lift, long after the touch began.
+    const g = make();
+    g.down(1, 100, 100, 0);
+    g.move(1, 100, 104, 300);
+    g.move(1, 100, 150, 350);
+    expect(g.up(1, 100, 150, 395)).toEqual(['hardDrop']);
+  });
+
+  it('never flicks a slow drag, even with sparse events', () => {
+    const g = make();
+    g.down(1, 100, 100, 0);
+    // 6 px per 50 ms (0.12 px/ms), 120 px in all.
+    for (let i = 1; i <= 20; i++) g.move(1, 100, 100 + 6 * i, 50 * i);
+    expect(g.up(1, 100, 220, 1045)).toEqual([]);
+    // A fast stroke, then a rest before lifting: no flick.
+    g.down(1, 100, 100, 0);
+    g.move(1, 100, 110, 200);
+    g.move(1, 100, 180, 250);
+    expect(g.up(1, 100, 180, 250 + GESTURE.staleMoveMs + 50)).toEqual([]);
+  });
+
+  it('treats a short, quick drag down as a flick', () => {
+    const g = make();
+    g.down(1, 100, 100, 0);
+    g.move(1, 100, 120, 100);
+    g.move(1, 100, 100 + GESTURE.flickMinPx, 200);
+    expect(g.up(1, 100, 100 + GESTURE.flickMinPx, GESTURE.quickFlickMs)).toEqual(['hardDrop']);
   });
 
   it('drags the piece column by column, following the finger both ways', () => {

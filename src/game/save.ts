@@ -89,7 +89,7 @@ export function deserialize(json: string): GameState | null {
     x: spot.x,
     y: spot.y,
     facing: data.facing ?? 'down',
-    flags: new Set(data.flags),
+    flags: migrateFlags(data.flags),
     cleared: new Set(),
     respawn,
     // Before version 6 wins were not counted: every mentor starts at home.
@@ -98,14 +98,31 @@ export function deserialize(json: string): GameState | null {
 }
 
 /**
+ * Story flags from an old save. The Moon Caves are now entered from the
+ * Moonfall Ruins, behind the ridge (`ridgeCleared`) and the peaks' gate
+ * (`peakGate`): a hero who already holds the Cave Pass gets both, so they can
+ * still reach the caves they had opened.
+ */
+export function migrateFlags(flags: readonly string[]): Set<string> {
+  const set = new Set(flags);
+  if (set.has('cavePass')) for (const flag of ['ridgeCleared', 'peakGate']) set.add(flag);
+  return set;
+}
+
+/**
  * True when the hero can stand at `at`: a walkable tile on a known map that
- * no warp sits on. Maps change as the world grows (the mentor regions
+ * no warp or person (or monster) sits on. Maps change as the world grows (the mentor regions
  * reshaped the Realm), so a saved spot that no longer is one sends the hero
  * to their inn, and a lost inn to the start.
  */
 function standable(at: Location): boolean {
   const map = MAPS[at.map];
-  return !!map && tileAt(map, at.x, at.y).walkable && !warpAt(map, at.x, at.y);
+  return (
+    !!map &&
+    tileAt(map, at.x, at.y).walkable &&
+    !warpAt(map, at.x, at.y) &&
+    !map.entities.some((e) => e.x === at.x && e.y === at.y)
+  );
 }
 
 /** Saves to `store`. Storage can be unavailable (private mode); failures return false. */

@@ -42,7 +42,7 @@ On a touch screen the board takes these gestures:
 
 | Gesture            | Does                                                  |
 | ------------------ | ----------------------------------------------------- |
-| Tap                | Rotate (so does the round ↻ button beside the board)  |
+| Tap or long press  | Rotate (so does the round ↻ button beside the board)  |
 | Drag sideways      | Move the piece column by column, following the finger |
 | Drag down and hold | Soft drop while held                                  |
 | Flick down         | Hard drop                                             |
@@ -51,7 +51,8 @@ On a touch screen the board takes these gestures:
 Phones get a one-screen portrait battle (no scrolling): the enemy strip
 with pause and items on top, the board as large as fits with the next
 piece, HP and mana beside it, and a slim strip of the seven spell slots
-(a category opens as a popover). Move buttons, and a d-pad that stays,
+(a category opens as a popover over the enemy strip, and closes when
+you touch the board or a new piece comes). Move buttons, and a d-pad that stays,
 can be turned on with **Touch buttons** in the menu; otherwise the small
 d-pad hides once you have walked by tapping.
 

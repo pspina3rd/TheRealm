@@ -2,9 +2,20 @@
  * Every tunable balance number in one place, so a balance pass changes data,
  * not code. Each module that uses a constant re-exports it under its old
  * name. Enemy stat blocks stay in `enemies.ts`; region level bands are in
- * `REGIONS` below. Run the whole-game table with `npm run sim` (see
+ * `REGIONS` below. The gravity curve and `PIECE_MS` are defined in
+ * `src/core/scoring.ts` (the core layer never imports data) and re-exported
+ * here, so they are tuned there. Run the whole-game table with `npm run sim` (see
  * "Balance" in docs/GAME_DESIGN.md).
  */
+
+// ---- Gravity and a piece's worth of time (defined in src/core/scoring.ts)
+export {
+  GRAVITY_START_MS,
+  GRAVITY_STEEP_STEP,
+  GRAVITY_STEEP_LEVELS,
+  GRAVITY_LATE_STEP,
+  PIECE_MS,
+} from '../core/scoring';
 
 // ---- Strike damage and the action gauge (src/battle/combat.ts)
 /** Base damage for clearing 0–4 lines at once: single lines are weak, big clears steep. */
@@ -134,7 +145,7 @@ export const SKILL_POINTS_PER_LEVEL = 2;
 
 // ---- Hero levels (src/game/hero.ts)
 /** XP a new hero needs for level 2… */
-export const FIRST_LEVEL_XP = 30;
+export const FIRST_LEVEL_XP = 44;
 /** …and each level needs this many times the last. */
 export const XP_GROWTH = 1.45;
 

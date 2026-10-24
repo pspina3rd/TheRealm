@@ -288,7 +288,10 @@ export interface FightResult {
   readonly overflows: number;
 }
 
-/** Plays one fight on simulated time: the bot thinks `thinkMs` per piece, then places it. */
+/**
+ * Plays one fight on simulated time: the bot thinks `thinkMs` per piece
+ * (less when the piece is about to land), then places it.
+ */
 export function simulate(
   spec: ChallengeSpec,
   hero: Hero,
@@ -309,7 +312,12 @@ export function simulate(
       current = battle.board.active;
       waited = 0;
     }
-    if (waited >= thinkMs) {
+    // A player hurries when the piece is about to land (haste, quicken, late
+    // gravity): they place it once it is 2 rows from landing, though never
+    // faster than 40% of their usual time.
+    const piece = battle.board.active;
+    const landing = piece ? battle.board.ghostY() - piece.y : Infinity;
+    if (waited >= thinkMs || (landing <= 2 && waited >= thinkMs * 0.4)) {
       if (style === 'prepared') useItems(battle);
       if (style === 'good' || style === 'prepared' || style === 'spammer') castReady(battle);
       if (battle.status !== 'ongoing') break;
@@ -347,6 +355,7 @@ export function measure(
   runs: number,
   classId = 'ranger',
   kit: readonly string[] = [],
+  thinkMs = 1500,
 ): { winRate: number; seconds: number; pieces: number; hpLeft: number; overflows: number } {
   let wins = 0;
   let ms = 0;
@@ -356,7 +365,7 @@ export function measure(
   for (let seed = 1; seed <= runs; seed++) {
     const hero = heroAt(level, classId, kit);
     if (style === 'prepared') hero.items = { herb: 5, ether: 1, phoenixFeather: 1 };
-    const result = simulate(spec, hero, style, seed * 7919);
+    const result = simulate(spec, hero, style, seed * 7919, thinkMs);
     if (result.won) wins++;
     overflows += result.overflows;
     ms += result.ms;

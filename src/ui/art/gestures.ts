@@ -4,9 +4,7 @@ export type GestureAction = 'left' | 'right' | 'rotate' | 'softDrop' | 'hardDrop
 /** Tuning for board gestures; distances in CSS pixels, times in milliseconds. */
 export const GESTURE = {
   /** A touch that moves less than this is still a tap. */
-  slopPx: 10,
-  /** The longest press that counts as a tap (rotate). */
-  tapMs: 300,
+  slopPx: 14,
   /** The first column step comes after this fraction of a column; later ones every column. */
   firstColumn: 0.6,
   /** A downward drag soft drops once held this long (so a quick flick never soft drops)… */
@@ -14,11 +12,18 @@ export const GESTURE = {
   /** …then one row every this many milliseconds while the finger stays down. */
   softDropRepeatMs: 50,
   /** A release moving down at least this fast (px/ms) is a flick: hard drop. */
-  flickSpeed: 0.5,
+  flickSpeed: 0.35,
   /** A flick must also travel this far down in all. */
   flickMinPx: 36,
-  /** The speed of a release is measured over this last stretch of the touch. */
+  /** The speed of a release is measured over this last stretch of the touch… */
   speedWindowMs: 80,
+  /**
+   * …or, when events come sparsely (a phone at 20–30 fps), over the last
+   * two samples that actually moved, if that movement ended this recently.
+   */
+  staleMoveMs: 100,
+  /** A downward drag of `flickMinPx` that is over within this time is a flick whatever its speed. */
+  quickFlickMs: 250,
 } as const;
 
 type Mode =
@@ -44,7 +49,7 @@ interface Sample {
  * it can be tested. Feed it `down`/`move`/`up`/`cancel` and call `tick`
  * every frame; each returns the moves to apply now.
  *
- * - Tap (short, still): rotate.
+ * - Tap or long press (still): rotate, on release.
  * - Drag sideways: one column per `cellPx` the finger travels (follow the finger).
  * - Drag down and hold: soft drop, repeating while held.
  * - Flick down (fast release): hard drop.
@@ -61,6 +66,8 @@ export class GestureRecognizer {
   private start: Sample = { x: 0, y: 0, t: 0 };
   private last: Sample = { x: 0, y: 0, t: 0 };
   private samples: Sample[] = [];
+  /** The last stretch between two samples that moved down (for sparse events). */
+  private lastStroke: { from: Sample; to: Sample } | null = null;
   private columns = 0;
   private verticalSince = 0;
   private lastDrop = 0;
@@ -84,6 +91,7 @@ export class GestureRecognizer {
     this.mode = 'pending';
     this.start = this.last = { x, y, t };
     this.samples = [this.start];
+    this.lastStroke = null;
     this.columns = 0;
     return [];
   }
@@ -123,15 +131,24 @@ export class GestureRecognizer {
     const mode = this.mode;
     if (this.fingers.size === 0) this.reset();
     if (!wasPrimary) return [];
-    if (mode === 'pending') {
-      return t - this.start.t <= GESTURE.tapMs ? ['rotate'] : [];
-    }
+    // A still touch rotates on release, a quick tap or a long press alike
+    // (a long press used to do nothing, which felt like a missed tap).
+    if (mode === 'pending') return ['rotate'];
     if (mode !== 'vertical') return [];
     this.track({ x, y, t });
-    const from = this.samples.find((s) => t - s.t <= GESTURE.speedWindowMs) ?? this.last;
-    const speed = (y - from.y) / Math.max(1, t - from.t);
     const travelled = y - this.start.y;
-    return speed >= GESTURE.flickSpeed && travelled >= GESTURE.flickMinPx ? ['hardDrop'] : [];
+    if (travelled < GESTURE.flickMinPx) return [];
+    if (t - this.start.t <= GESTURE.quickFlickMs) return ['hardDrop'];
+    const from = this.samples.find((s) => t - s.t <= GESTURE.speedWindowMs) ?? this.last;
+    let speed = (y - from.y) / Math.max(1, t - from.t);
+    const stroke = this.lastStroke;
+    if (stroke && t - stroke.to.t <= GESTURE.staleMoveMs) {
+      speed = Math.max(
+        speed,
+        (stroke.to.y - stroke.from.y) / Math.max(1, stroke.to.t - stroke.from.t),
+      );
+    }
+    return speed >= GESTURE.flickSpeed ? ['hardDrop'] : [];
   }
 
   /** The browser took the touch away (e.g. a system gesture): forget it, doing nothing. */
@@ -157,6 +174,7 @@ export class GestureRecognizer {
   }
 
   private track(sample: Sample): void {
+    if (sample.y > this.last.y) this.lastStroke = { from: this.last, to: sample };
     this.last = sample;
     this.samples.push(sample);
     // Only the recent past matters for a flick's speed.

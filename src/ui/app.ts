@@ -194,6 +194,9 @@ export class App {
       if (battle.board.active !== this.gesturePiece) {
         this.gesturePiece = battle.board.active;
         this.gestures?.lockout();
+        // On a phone the spell popover closes with each new piece, so it
+        // never lingers over the play in real time.
+        if (isPhoneLayout()) this.battleView.hero.back();
       }
       if (!active.finished && battle.status !== 'ongoing') active.finished = true;
       if (active.finished && active.resultDelay > 0) {
@@ -813,6 +816,8 @@ export class App {
         action === 'left' || action === 'right' || action === 'softDrop',
       );
     });
+    // Touching the board means playing, not choosing a spell: close the popover.
+    byId('board-canvas').addEventListener('pointerdown', () => this.battleView.hero.back());
     this.gestures = bindBoardGestures(
       byId('board-canvas'),
       () => this.active?.battle.board.width ?? 10,

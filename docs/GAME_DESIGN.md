@@ -1012,18 +1012,24 @@ Each stage ships with tests and keeps the game playable.
 
 ## Touch and phone UI
 
-- **The board is the controller.** Tap rotates; a sideways drag moves the
-  piece one column per column-width the finger travels (the first step at
-  0.6 of a column); a downward drag soft drops after 120 ms held, then a
-  row every 50 ms; a release moving down at 0.5 px/ms or faster (over the
-  last 80 ms) after 36 px or more is a flick, a hard drop. A touch keeps
-  the axis it starts on (10 px slop), a second finger cancels it, and a
-  new piece ends it, so one touch never moves two pieces. The recognizer
-  is pure (`src/ui/art/gestures.ts`) and unit-tested.
+- **The board is the controller.** Tap rotates (a long, still press
+  rotates too, on release, so a resting thumb never "does nothing"); a
+  sideways drag moves the piece one column per column-width the finger
+  travels (the first step at 0.6 of a column); a downward drag soft drops
+  after 120 ms held, then a row every 50 ms; a release after 36 px or more
+  down is a flick, a hard drop, when it moved down at 0.35 px/ms or faster
+  (over the last 80 ms, or over the last two samples that moved if they
+  ended within 100 ms of the lift, since a phone at 20–30 fps sends a move
+  only every ~50 ms) or when the whole drag took 250 ms or less. A touch
+  keeps the axis it starts on (14 px slop), a second finger cancels it,
+  and a new piece ends it, so one touch never moves two pieces. The
+  recognizer is pure (`src/ui/art/gestures.ts`) and unit-tested, sparse
+  events included.
 - **Space goes to the board.** No permanent button row: one round rotate
   button sits beside the board; pause and item uses fold into the enemy
-  strip; spells are a slim strip of seven icons with categories as a
-  popover. Move buttons are an opt-in setting (Touch buttons, in the menu).
+  strip as 44 px thumb targets; spells are a slim strip of seven icons. A
+  category opens as a one-row popover over the enemy strip (never over the
+  board) and closes when the board is touched or a new piece comes. Move buttons are an opt-in setting (Touch buttons, in the menu).
 - **One screen.** At phone widths (≤ 760 px) the battle is sized from
   `100dvh` and the safe-area insets, so it never scrolls; the stage
   becomes a 480×150 strip. Desktop keeps its layout.

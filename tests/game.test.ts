@@ -28,7 +28,7 @@ import {
   type KeyValueStore,
 } from '../src/game/save';
 import { buy, cannotBuyReason, priceFor } from '../src/game/shop';
-import type { EntityDef } from '../src/world/map';
+import { tileAt, type EntityDef } from '../src/world/map';
 import { activeEntities, newGame, travel } from '../src/world/state';
 import { enhancements } from '../src/game/spells';
 import { knownSpells, makeBattle, setUpVerticalIClear } from './helpers';
@@ -313,12 +313,12 @@ describe('save', () => {
 
   it('round-trips game state', () => {
     const state = newGame();
-    state.flags.add('cavePass');
+    state.flags.add('npc:sage');
     state.hero.gil = 99;
     state.cleared.add('ow-slime-1');
     const loaded = deserialize(serialize(state))!;
     expect(loaded.hero).toEqual(state.hero);
-    expect(loaded.flags).toEqual(new Set(['cavePass']));
+    expect(loaded.flags).toEqual(new Set(['npc:sage']));
     // Temporary monster clears are not saved.
     expect(loaded.cleared.size).toBe(0);
   });
@@ -357,6 +357,26 @@ describe('save', () => {
     )!;
     expect([loaded.mapId, loaded.x, loaded.y]).toEqual(['caves1', 2, 2]);
     expect(MAPS.caves1!.warps[0]!.to.map).toBe('ruins');
+  });
+
+  it('gives an old Cave Pass holder the ridge and peak gates on the new road to the caves', () => {
+    const data = JSON.parse(serialize(newGame()));
+    const loaded = deserialize(JSON.stringify({ ...data, flags: ['cavePass', 'npc:sage'] }))!;
+    expect(loaded.flags).toEqual(new Set(['cavePass', 'npc:sage', 'ridgeCleared', 'peakGate']));
+    expect(deserialize(JSON.stringify({ ...data, flags: ['npc:sage'] }))!.flags).toEqual(
+      new Set(['npc:sage']),
+    );
+  });
+
+  it('moves a hero saved on a tile a person or monster now stands on', () => {
+    const data = JSON.parse(serialize(newGame()));
+    const inn = { map: 'brightwater', x: 4, y: 17 };
+    const map = MAPS.overworld!;
+    const entity = map.entities.find((e) => tileAt(map, e.x, e.y).walkable)!;
+    const loaded = deserialize(
+      JSON.stringify({ ...data, mapId: 'overworld', x: entity.x, y: entity.y, respawn: inn }),
+    )!;
+    expect([loaded.mapId, loaded.x, loaded.y]).toEqual(['brightwater', 4, 17]);
   });
 
   it('defaults a missing facing direction', () => {

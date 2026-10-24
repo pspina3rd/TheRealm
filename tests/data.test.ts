@@ -369,8 +369,13 @@ describe('the world and its regions', () => {
 
   it('gives every region a person with a need', () => {
     for (const id of ['grove', 'lake', 'quarry', 'forge', 'peaks', 'cliffs', 'ruins']) {
-      const people = MAPS[id]!.entities.filter((e) => e.kind === 'npc');
-      expect(people.length, id).toBeGreaterThan(0);
+      // A person (not a chest) with a challenge that pays a reward.
+      const needs = MAPS[id]!.entities.filter((e) => {
+        if (e.kind !== 'npc') return false;
+        const npc = NPCS[e.npcId]!;
+        return !npc.inanimate && Boolean(npc.challenge?.kind) && npc.rewards.length > 0;
+      });
+      expect(needs.length, id).toBeGreaterThan(0);
     }
   });
 });
