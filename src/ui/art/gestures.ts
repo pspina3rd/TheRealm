@@ -26,6 +26,16 @@ export const GESTURE = {
   quickFlickMs: 250,
 } as const;
 
+/**
+ * Downward speed (px/ms) from `a` to `b`, or 0 for a movement shorter than
+ * the slop: a few pixels of finger tremor at a high event rate can look
+ * fast, but is never a flick.
+ */
+function downSpeed(a: Sample, b: Sample): number {
+  const dy = b.y - a.y;
+  return dy < GESTURE.slopPx ? 0 : dy / Math.max(1, b.t - a.t);
+}
+
 type Mode =
   /** No touch. */
   | 'idle'
@@ -140,13 +150,10 @@ export class GestureRecognizer {
     if (travelled < GESTURE.flickMinPx) return [];
     if (t - this.start.t <= GESTURE.quickFlickMs) return ['hardDrop'];
     const from = this.samples.find((s) => t - s.t <= GESTURE.speedWindowMs) ?? this.last;
-    let speed = (y - from.y) / Math.max(1, t - from.t);
+    let speed = downSpeed(from, { x, y, t });
     const stroke = this.lastStroke;
     if (stroke && t - stroke.to.t <= GESTURE.staleMoveMs) {
-      speed = Math.max(
-        speed,
-        (stroke.to.y - stroke.from.y) / Math.max(1, stroke.to.t - stroke.from.t),
-      );
+      speed = Math.max(speed, downSpeed(stroke.from, stroke.to));
     }
     return speed >= GESTURE.flickSpeed ? ['hardDrop'] : [];
   }

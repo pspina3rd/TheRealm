@@ -122,6 +122,17 @@ describe('GestureRecognizer', () => {
     expect(g.up(1, 100, 180, 250 + GESTURE.staleMoveMs + 50)).toEqual([]);
   });
 
+  it('never flicks finger tremor at the end of a held soft drop (120 Hz events)', () => {
+    const g = make();
+    g.down(1, 100, 100, 0);
+    // A slow held drag down: 1 px every 8 ms.
+    for (let i = 1; i <= 60; i++) g.move(1, 100, 100 + i, 8 * i);
+    // Rest (the finger still reports, unmoved), then 3 px of tremor in one 8 ms event, then lift.
+    for (let t = 488; t <= 960; t += 8) g.move(1, 100, 160, t);
+    g.move(1, 100, 163, 968);
+    expect(g.up(1, 100, 163, 976)).toEqual([]);
+  });
+
   it('treats a short, quick drag down as a flick', () => {
     const g = make();
     g.down(1, 100, 100, 0);
