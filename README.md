@@ -173,8 +173,8 @@ moves when full, hitting you or your board (stone rows, a sealed column,
 fog over your next piece, crystals turned to stone, faster gravity).
 Single lines barely scratch it; 3–4 line clears, back-to-back big clears
 and combos (several pieces in a row that each clear) hit hard. Leaving
-covered holes or overflowing the board feeds its gauge, and spells (15%)
-and items (40%, at most 2 per fight; a Phoenix Feather's revive, to 25%
+covered holes or overflowing the board feeds its gauge, and spells (10%)
+and items (40%, at most 2 per fight; a Phoenix Feather's revive, to 35%
 HP, is one of the 2) take time too; against a boss a spell takes 25%. Some pieces arrive
 split between two related elements (more often as your alignment spreads). You get 3 pauses per
 fight, and the board is hidden while paused. Monsters grow

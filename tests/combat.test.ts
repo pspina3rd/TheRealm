@@ -135,7 +135,7 @@ describe('CombatChallenge', () => {
     battle.input('hardDrop');
     act(combat);
     const base = createHero(hero.classId);
-    expect(999 - combat.enemyHp).toBe(Math.round(3 * (1 + 0.04 * (base.atk + 2))));
+    expect(999 - combat.enemyHp).toBe(Math.round(4 * (1 + 0.04 * (base.atk + 2))));
     expect(hero.maxHp - hero.hp).toBe(6 + ENEMIES.shroom!.atk - (base.def + 2));
   });
 
@@ -558,7 +558,7 @@ describe('CombatChallenge', () => {
     hero.hp = 10;
     combat.gauge = 100;
     combat.useItem('herb');
-    expect(hero.hp).toBe(10 + Math.ceil(hero.maxHp / 4));
+    expect(hero.hp).toBe(10 + Math.ceil(hero.maxHp * 0.35));
     expect(combat.gauge).toBe(100 + ITEM_TIME * combat.actMs);
     addItem(hero, 'herb', 5);
     for (let i = 1; i < MAX_ITEMS_PER_BATTLE; i++) {
@@ -646,7 +646,7 @@ describe('combat events', () => {
     expect(events(battle)).toContainEqual({ kind: 'item', itemId: 'herb' });
     expect(events(battle)).toContainEqual({
       kind: 'heroHeal',
-      amount: Math.ceil(battle.hero.maxHp / 4),
+      amount: Math.ceil(battle.hero.maxHp * 0.35),
     });
     addItem(battle.hero, 'phoenixFeather');
     battle.hero.hp = 1;

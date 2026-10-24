@@ -103,10 +103,10 @@ describe('hero', () => {
   it('levels up, raising max HP and adding only the gain to current HP', () => {
     const hero = createHero();
     hero.hp = 1;
-    expect(gainXp(hero, 30)).toBe(1);
+    expect(gainXp(hero, 44)).toBe(1);
     expect(hero.level).toBe(2);
     expect(hero.xp).toBe(0);
-    expect(hero.nextXp).toBe(43);
+    expect(hero.nextXp).toBe(63);
     expect(hero.maxHp).toBe(48);
     expect(hero.hp).toBe(1 + 8); // the Ranger's growth, not a full heal
     hero.hp = hero.maxHp;
@@ -126,7 +126,7 @@ describe('hero', () => {
 
   it('can gain several levels at once and keeps leftover XP', () => {
     const hero = createHero();
-    expect(gainXp(hero, 30 + 43 + 5)).toBe(2);
+    expect(gainXp(hero, 44 + 63 + 5)).toBe(2);
     expect(hero.level).toBe(3);
     expect(hero.xp).toBe(5);
   });
@@ -187,9 +187,9 @@ describe('hero', () => {
     const herb = ITEMS.herb!;
     expect(cannotUseReason(hero, herb)).toBe('HP is already full.');
     hero.hp = 10;
-    const quarter = Math.ceil(hero.maxHp / 4);
-    expect(useItem(hero, 'herb')).toContain(`restored ${quarter} HP`);
-    expect(hero.hp).toBe(10 + quarter);
+    const share = Math.ceil(hero.maxHp * 0.35);
+    expect(useItem(hero, 'herb')).toContain(`restored ${share} HP`);
+    expect(hero.hp).toBe(10 + share);
     expect(itemCount(hero, 'herb')).toBe(1);
     expect(() => useItem(hero, 'ether')).toThrow('Use it in battle.');
     expect(cannotUseReason(hero, ITEMS.ether!, true)).toBeNull();

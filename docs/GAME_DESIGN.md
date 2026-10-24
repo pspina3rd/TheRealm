@@ -166,7 +166,7 @@ Fights are real time and reward planning: a sloppy stack loses.
 
   | Lines together   | 1   | 2   | 3   | 4   |
   | ---------------- | --- | --- | --- | --- |
-  | Base damage      | 3   | 12  | 26  | 48  |
+  | Base damage      | 4   | 12  | 26  | 48  |
   | Mana per crystal | ×½  | ×1  | ×1½ | ×2  |
 
   Mana follows the same curve (`MANA_PER_LINES` in `src/battle/battle.ts`,
@@ -188,11 +188,11 @@ Fights are real time and reward planning: a sloppy stack loses.
   it fills over the enemy's `actMs` (shown as an orange bar under its
   HP; it pulses red when nearly full) and the enemy moves when full. The
   pause stops it.
-  - **Spells and items take time**: casting a spell fills 15% of the
+  - **Spells and items take time**: casting a spell fills 10% of the
     gauge (25% against a boss, so a full spell kit can't simply out-cast
     it) and using an item 40% (the gauge flashes white; a full gauge
     acts at once). At most **2 item uses per battle** (a bag with "1/2"
-    leads the item list); a Herb heals 25% of max HP; a Phoenix Feather
+    leads the item list); a Herb heals 35% of max HP; a Phoenix Feather
     revives at most **once per fight**, and its revive is one of the 2
     uses.
   - **Pauses**: 3 per battle (the pause button shows how many are left;
@@ -225,11 +225,13 @@ Fights are real time and reward planning: a sloppy stack loses.
   | petrify | Turns K random crystals on the board to stone                                                   | Cells flash white, then show as stone      |
   | quicken | Pieces fall 2.5× faster for N seconds                                                           | Hourglass badge counting seconds           |
 
-- A Phoenix Feather revives you once at **25% HP**, automatically (one
+- A Phoenix Feather revives you once at **35% HP**, automatically (one
   per fight, however many you carry), and the revive **counts as one of
   the fight's 2 item uses**: with both uses spent there is no revive.
   (It used to revive at half HP for free; prepared players won 97–100%
-  of fights mostly because of it.)
+  of fights mostly because of it. The final balance pass raised the
+  revive from 25% to 35% and the Herb from 25% to 35%, so preparing
+  pays off again under the 2-use cap.)
 - **Bosses damp weaknesses**: a boss takes `BOSS_WEAKNESS_SHARE` (75%) of
   a weakness bonus: ×1.375 instead of ×1.5 for a weak element's spell,
   +37.5% instead of +50% for weak crystals, and Fault Line likewise.
@@ -261,15 +263,25 @@ stay playable.
 one-line note; the modules that use them re-export them): strike damage,
 gauge costs, item caps and the Feather, element and boss factors, battle
 pacing, monster scaling, recovery and regen caps, lessons, the XP curve
-and each region's level band. Enemy stat blocks stay in
-`src/data/enemies.ts`. Once the hero stands above the effective level, XP falls 25%
+and each region's level band (the gravity curve and `PIECE_MS` are
+defined in `src/core/scoring.ts`, since the core layer never imports
+data, and re-exported from `balance.ts`). Enemy stat blocks stay in
+`src/data/enemies.ts`. The XP curve: level 2 takes 44 XP and each level
+1.45× the last (it was 30, which put the hero a level ahead of every
+region's entry level). Once the hero stands above the effective level, XP falls 25%
 per level (at least 10%); bosses' XP never falls off. The stage shows the
 level it fights at ("Lv4") left of its HP bar.
 
 ### Balance (simulated)
 
-`tests/sim/simulate.ts` plays the real `Battle` on simulated time (one
-piece per 1.5 s) with bots:
+`tests/sim/simulate.ts` plays the real `Battle` on simulated time with
+bots that take a set time per piece (`PACE`, default 1.5 s, the keyboard
+pace; a phone player takes about 2.2 s, since a touch placement is
+0.6–0.8 s of finger movement, 1.5–2× the keys). Like a person, a bot
+hurries when the piece is about to land (2 rows above its landing spot,
+under haste, quicken or late gravity), but never faster than 40% of its
+pace; before this the slow bots let fast pieces lock wherever they fell,
+which alone made the Moon Wyrm 10% at touch pace. The bots:
 
 - **good** stacks flat with no holes, looks one piece ahead (when the
   preview isn't fogged), keeps a well column for 3–4 line clears and
@@ -292,79 +304,185 @@ with points spread over Strength, Vitality and Guard and level-fit gear
 and Crystal Mail from 7; Flame Brand and Forge Plate from 9).
 `npm run sim` plays **the whole game's fight set** (every area's monsters
 at their own level, the Moon Wyrm, and mentor lessons) against every bot
-and prints one table (`RUNS` seeds per cell, default 12; `SIM_OUT=file`
-also writes it). The tests check that hard-dropping in place loses every
-ordinary fight.
+and prints one table (`RUNS` seeds per cell, default 12; `PACE` ms per
+piece; `AREAS` limits it to some map ids and/or `lessons`; `SIM_OUT=file`
+also writes it). It also prints the **one-pass economy**
+(`tests/sim/economy.ts`): the hero walks the regions in order, beats every
+monster once at the hero's level, takes each person's gil once and buys
+the region's main gear as soon as it can. The tests check that
+hard-dropping in place loses every ordinary fight.
 
-**Status: the numbers below are placeholders.** The region monsters, the
-shifted Moon Caves and the Wyrm were given first-guess stats (a few quick
-runs of the good bot against each); the final balance pass tunes them
-against the targets below. Latest run (12 seeds):
+**The final balance pass** (30 seeds per cell). Baseline, at the touch
+pace: region fights 27–77% for the good bot (the slow bot also let fast
+pieces lock where they fell; with it hurrying like a person, 37–80%),
+prepared barely above good, singles 10–60%, the Ember Wisp's lessons
+30–57%, the Moon Wyrm 53% (good) and 90% (prepared, keyboard), the caves
+93–100%, and the hero a level ahead of every region's entry level. One
+planned set of changes, then one small correction:
+
+- **Regions**: monster HP down 7–20% (the most where fights ran long at
+  touch pace), a few gauges slowed (Leaf Sprite, Lake Lurker, Tide Ogre,
+  Forge Imp, Magma Drake, Gale Bat, Gloom Toad) and the opening softened
+  (Green Slime 58 HP, attack 4; Spore Shroom attack 5). The caves hit
+  harder and faster (attack 21–22, gauges 5.4–11 s) with a little more
+  HP; they were the easiest fights in the game.
+- **Moon Wyrm**: 490 HP (460), attack 17 (14), gauge 6.8 s (8 s; enraged
+  4.6 s), Lunar Breath 18 (16).
+- **Rules**: a single line strikes 4 (3); a spell fills 10% of the gauge
+  (15%; a boss still 25%); a Herb heals 35% (25%) and the Feather revives
+  at 35% (25%), so preparing pays off; the Ember Wisp's special is a haste
+  instead of a second attack.
+- **XP and gil**: level 2 takes 44 XP (30); ruins and caves XP up, caves
+  gil down (see the roster); the first slimes pay a little more XP so a
+  broke beginner reaches level 2 after four of them.
+
+Final run at the **touch pace** (2.2 s a piece), which the targets aim at:
 
 | Area                | Fight         | Hero Lv | Good (starter spells) | Good (full kit) | Prepared | Prepared (full kit) | Singles + spells | Sloppy | Good: time / pieces | Good: HP left |
 | ------------------- | ------------- | ------- | --------------------- | --------------- | -------- | ------------------- | ---------------- | ------ | ------------------- | ------------- |
-| The Realm           | Green Slime   | 1       | 100%                  | 92%             | 100%     | 83%                 | 83%              | 0%     | 39 s / 26           | 63%           |
-| The Realm           | Spore Shroom  | 2       | 100%                  | 100%            | 100%     | 100%                | 83%              | 0%     | 48 s / 32           | 73%           |
-| The Realm           | Goblin Scout  | 3       | 92%                   | 92%             | 100%     | 92%                 | 100%             | 0%     | 80 s / 54           | 56%           |
-| Thornwood Grove     | Sproutling    | 2       | 100%                  | 92%             | 100%     | 92%                 | 42%              | 0%     | 59 s / 40           | 71%           |
-| Thornwood Grove     | Leaf Sprite   | 3       | 92%                   | 92%             | 92%      | 100%                | 75%              | 0%     | 63 s / 42           | 54%           |
-| Thornwood Grove     | Thorn Troll   | 4       | 83%                   | 92%             | 100%     | 100%                | 83%              | 0%     | 82 s / 55           | 65%           |
-| Glasswater Lake     | Drip          | 3       | 83%                   | 92%             | 92%      | 92%                 | 100%             | 0%     | 57 s / 38           | 58%           |
-| Glasswater Lake     | Lake Lurker   | 4       | 83%                   | 100%            | 83%      | 100%                | 83%              | 0%     | 79 s / 53           | 63%           |
-| Glasswater Lake     | Tide Ogre     | 5       | 75%                   | 75%             | 100%     | 83%                 | 58%              | 0%     | 91 s / 61           | 50%           |
-| Redrock Quarry      | Goblin Digger | 4       | 67%                   | 100%            | 100%     | 92%                 | 92%              | 0%     | 90 s / 61           | 64%           |
-| Redrock Quarry      | Quarry Hound  | 5       | 83%                   | 92%             | 92%      | 92%                 | 33%              | 0%     | 84 s / 57           | 51%           |
-| Redrock Quarry      | Stone Ogre    | 6       | 58%                   | 83%             | 100%     | 92%                 | 58%              | 0%     | 123 s / 83          | 46%           |
-| Emberforge          | Cinder        | 5       | 83%                   | 83%             | 92%      | 83%                 | 42%              | 0%     | 63 s / 42           | 52%           |
-| Emberforge          | Forge Imp     | 6       | 67%                   | 67%             | 83%      | 100%                | 50%              | 0%     | 74 s / 50           | 54%           |
-| Emberforge          | Magma Drake   | 7       | 83%                   | 67%             | 92%      | 83%                 | 33%              | 0%     | 94 s / 63           | 50%           |
-| Stormcrown Peaks    | Spark Pup     | 6       | 83%                   | 92%             | 75%      | 83%                 | 58%              | 0%     | 81 s / 55           | 49%           |
-| Stormcrown Peaks    | Storm Goblin  | 7       | 83%                   | 83%             | 92%      | 100%                | 67%              | 0%     | 113 s / 75          | 51%           |
-| Stormcrown Peaks    | Thunderhide   | 8       | 75%                   | 83%             | 92%      | 75%                 | 92%              | 0%     | 110 s / 76          | 47%           |
-| Windward Cliffs     | Puffball      | 7       | 58%                   | 92%             | 100%     | 92%                 | 92%              | 0%     | 105 s / 72          | 55%           |
-| Windward Cliffs     | Gale Bat      | 8       | 67%                   | 83%             | 67%      | 75%                 | 58%              | 0%     | 106 s / 72          | 49%           |
-| Windward Cliffs     | Sky Ram       | 9       | 83%                   | 92%             | 100%     | 92%                 | 92%              | 0%     | 115 s / 79          | 51%           |
-| Moonfall Ruins      | Watcher       | 8       | 83%                   | 92%             | 83%      | 92%                 | 33%              | 0%     | 98 s / 65           | 50%           |
-| Moonfall Ruins      | Night Bat     | 9       | 75%                   | 100%            | 92%      | 92%                 | 67%              | 0%     | 127 s / 85          | 52%           |
-| Moonfall Ruins      | Gloom Toad    | 10      | 83%                   | 58%             | 83%      | 75%                 | 8%               | 0%     | 150 s / 101         | 48%           |
-| Moon Caves          | Moon Imp      | 10      | 83%                   | 75%             | 92%      | 100%                | 92%              | 0%     | 120 s / 82          | 65%           |
-| Moon Caves          | Shade Imp     | 11      | 92%                   | 100%            | 100%     | 92%                 | 83%              | 0%     | 115 s / 77          | 64%           |
-| Moon Caves          | Cave Brute    | 11      | 75%                   | 100%            | 100%     | 100%                | 92%              | 0%     | 125 s / 85          | 52%           |
-| Moon Caves · Depths | Shade Imp     | 11      | 92%                   | 100%            | 100%     | 92%                 | 83%              | 0%     | 115 s / 77          | 64%           |
-| Moon Caves · Depths | Moon Wyrm     | 13      | 25%                   | 25%             | 50%      | 83%                 | 33%              | 0%     | 147 s / 103         | 55%           |
-| Lesson              | Ember Wisp d1 | 1       | 83%                   | 83%             | 92%      | 92%                 | 92%              | 17%    | 35 s / 23           | 33%           |
-| Lesson              | Tide Wisp d1  | 1       | 100%                  | 92%             | 92%      | 100%                | 100%             | 25%    | 39 s / 26           | 71%           |
-| Lesson              | Gale Wisp d1  | 1       | 100%                  | 92%             | 100%     | 100%                | 100%             | 17%    | 29 s / 19           | 72%           |
-| Lesson              | Ember Wisp d2 | 3       | 92%                   | 75%             | 83%      | 75%                 | 58%              | 0%     | 40 s / 27           | 38%           |
-| Lesson              | Tide Wisp d2  | 3       | 92%                   | 83%             | 100%     | 100%                | 100%             | 0%     | 61 s / 40           | 72%           |
-| Lesson              | Gale Wisp d2  | 3       | 100%                  | 100%            | 92%      | 92%                 | 100%             | 0%     | 43 s / 28           | 69%           |
-| Lesson              | Ember Wisp d3 | 5       | 92%                   | 92%             | 100%     | 100%                | 75%              | 0%     | 53 s / 35           | 42%           |
-| Lesson              | Tide Wisp d3  | 5       | 100%                  | 100%            | 100%     | 100%                | 100%             | 0%     | 67 s / 45           | 75%           |
-| Lesson              | Gale Wisp d3  | 5       | 100%                  | 100%            | 100%     | 100%                | 100%             | 8%     | 39 s / 26           | 77%           |
+| The Realm           | Green Slime   | 1       | 90%                   | 73%             | 87%      | 90%                 | 93%              | 0%     | 63 s / 29           | 53%           |
+| The Realm           | Spore Shroom  | 2       | 90%                   | 93%             | 100%     | 100%                | 87%              | 0%     | 72 s / 33           | 63%           |
+| The Realm           | Goblin Scout  | 3       | 80%                   | 67%             | 73%      | 93%                 | 53%              | 0%     | 80 s / 38           | 56%           |
+| Thornwood Grove     | Sproutling    | 2       | 67%                   | 63%             | 70%      | 83%                 | 57%              | 0%     | 77 s / 35           | 64%           |
+| Thornwood Grove     | Leaf Sprite   | 3       | 77%                   | 90%             | 83%      | 100%                | 70%              | 0%     | 73 s / 34           | 49%           |
+| Thornwood Grove     | Thorn Troll   | 4       | 77%                   | 80%             | 80%      | 90%                 | 57%              | 0%     | 96 s / 45           | 55%           |
+| Glasswater Lake     | Drip          | 3       | 67%                   | 83%             | 87%      | 87%                 | 63%              | 0%     | 71 s / 32           | 57%           |
+| Glasswater Lake     | Lake Lurker   | 4       | 73%                   | 73%             | 73%      | 83%                 | 60%              | 0%     | 94 s / 44           | 55%           |
+| Glasswater Lake     | Tide Ogre     | 5       | 70%                   | 70%             | 93%      | 87%                 | 53%              | 0%     | 96 s / 47           | 54%           |
+| Redrock Quarry      | Goblin Digger | 4       | 73%                   | 70%             | 70%      | 90%                 | 50%              | 3%     | 87 s / 42           | 56%           |
+| Redrock Quarry      | Quarry Hound  | 5       | 73%                   | 90%             | 80%      | 83%                 | 73%              | 0%     | 89 s / 42           | 58%           |
+| Redrock Quarry      | Stone Ogre    | 6       | 90%                   | 90%             | 80%      | 90%                 | 63%              | 0%     | 114 s / 55          | 59%           |
+| Emberforge          | Cinder        | 5       | 70%                   | 90%             | 80%      | 80%                 | 57%              | 0%     | 78 s / 36           | 54%           |
+| Emberforge          | Forge Imp     | 6       | 67%                   | 77%             | 67%      | 87%                 | 50%              | 0%     | 82 s / 40           | 51%           |
+| Emberforge          | Magma Drake   | 7       | 57%                   | 67%             | 83%      | 80%                 | 43%              | 0%     | 103 s / 51          | 54%           |
+| Stormcrown Peaks    | Spark Pup     | 6       | 77%                   | 77%             | 80%      | 87%                 | 50%              | 0%     | 98 s / 49           | 50%           |
+| Stormcrown Peaks    | Storm Goblin  | 7       | 70%                   | 90%             | 93%      | 90%                 | 77%              | 0%     | 128 s / 64          | 50%           |
+| Stormcrown Peaks    | Thunderhide   | 8       | 73%                   | 83%             | 93%      | 97%                 | 70%              | 0%     | 119 s / 62          | 60%           |
+| Windward Cliffs     | Puffball      | 7       | 90%                   | 83%             | 87%      | 97%                 | 70%              | 0%     | 110 s / 55          | 54%           |
+| Windward Cliffs     | Gale Bat      | 8       | 70%                   | 87%             | 83%      | 97%                 | 57%              | 0%     | 111 s / 56          | 49%           |
+| Windward Cliffs     | Sky Ram       | 9       | 73%                   | 97%             | 97%      | 100%                | 90%              | 0%     | 156 s / 80          | 57%           |
+| Moonfall Ruins      | Watcher       | 8       | 70%                   | 70%             | 77%      | 87%                 | 40%              | 0%     | 128 s / 61          | 47%           |
+| Moonfall Ruins      | Night Bat     | 9       | 73%                   | 73%             | 90%      | 90%                 | 63%              | 0%     | 131 s / 63          | 51%           |
+| Moonfall Ruins      | Gloom Toad    | 10      | 77%                   | 93%             | 73%      | 83%                 | 20%              | 0%     | 161 s / 80          | 47%           |
+| Moon Caves          | Moon Imp      | 10      | 67%                   | 87%             | 87%      | 83%                 | 67%              | 0%     | 157 s / 82          | 46%           |
+| Moon Caves          | Shade Imp     | 11      | 67%                   | 87%             | 87%      | 90%                 | 37%              | 0%     | 159 s / 82          | 54%           |
+| Moon Caves          | Cave Brute    | 11      | 77%                   | 70%             | 93%      | 90%                 | 60%              | 0%     | 160 s / 84          | 48%           |
+| Moon Caves · Depths | Shade Imp     | 11      | 67%                   | 87%             | 87%      | 90%                 | 37%              | 0%     | 159 s / 82          | 54%           |
+| Moon Caves · Depths | Moon Wyrm     | 13      | 20%                   | 43%             | 40%      | 57%                 | 10%              | 0%     | 156 s / 85          | 34%           |
+| Lesson              | Ember Wisp d1 | 1       | 100%                  | 93%             | 97%      | 100%                | 100%             | 27%    | 49 s / 22           | 59%           |
+| Lesson              | Tide Wisp d1  | 1       | 90%                   | 97%             | 100%     | 97%                 | 97%              | 20%    | 48 s / 22           | 70%           |
+| Lesson              | Gale Wisp d1  | 1       | 97%                   | 90%             | 97%      | 100%                | 100%             | 17%    | 47 s / 21           | 65%           |
+| Lesson              | Ember Wisp d2 | 3       | 93%                   | 97%             | 97%      | 100%                | 97%              | 17%    | 71 s / 33           | 54%           |
+| Lesson              | Tide Wisp d2  | 3       | 97%                   | 93%             | 97%      | 100%                | 93%              | 0%     | 79 s / 37           | 53%           |
+| Lesson              | Gale Wisp d2  | 3       | 87%                   | 97%             | 100%     | 97%                 | 100%             | 3%     | 66 s / 31           | 54%           |
+| Lesson              | Ember Wisp d3 | 5       | 97%                   | 100%            | 100%     | 97%                 | 97%              | 7%     | 80 s / 37           | 59%           |
+| Lesson              | Tide Wisp d3  | 5       | 100%                  | 97%             | 100%     | 100%                | 97%              | 0%     | 88 s / 41           | 62%           |
+| Lesson              | Gale Wisp d3  | 5       | 97%                   | 100%            | 100%     | 97%                 | 97%              | 0%     | 73 s / 34           | 64%           |
 
-Read against the draft targets: the region fights mostly sit in the
-target band for the good bot (58–100%), prepared players still win most
-fights (the Feather now costs an item use and revives at 25%), and the
-Moon Wyrm at level 13 is 25% for the good bot and 50% prepared (83% with
-a full kit, above target): the balance pass's first jobs.
+The same at the **keyboard pace** (1.5 s a piece): keyboard players are
+stronger, region fights 80–97% for the good bot and the Wyrm 50% (good)
+and 80% (prepared). At a mix (1.85 s) the Wyrm is 40% good, 30% full kit,
+70% prepared, 27% singles.
+
+| Area                | Fight         | Hero Lv | Good (starter spells) | Good (full kit) | Prepared | Prepared (full kit) | Singles + spells | Sloppy | Good: time / pieces | Good: HP left |
+| ------------------- | ------------- | ------- | --------------------- | --------------- | -------- | ------------------- | ---------------- | ------ | ------------------- | ------------- |
+| The Realm           | Green Slime   | 1       | 97%                   | 97%             | 97%      | 93%                 | 100%             | 3%     | 39 s / 25           | 71%           |
+| The Realm           | Spore Shroom  | 2       | 90%                   | 100%            | 93%      | 100%                | 90%              | 0%     | 55 s / 37           | 70%           |
+| The Realm           | Goblin Scout  | 3       | 93%                   | 90%             | 97%      | 100%                | 90%              | 0%     | 59 s / 41           | 68%           |
+| Thornwood Grove     | Sproutling    | 2       | 83%                   | 90%             | 97%      | 97%                 | 77%              | 0%     | 54 s / 36           | 70%           |
+| Thornwood Grove     | Leaf Sprite   | 3       | 83%                   | 100%            | 90%      | 97%                 | 67%              | 0%     | 58 s / 39           | 63%           |
+| Thornwood Grove     | Thorn Troll   | 4       | 97%                   | 87%             | 100%     | 100%                | 83%              | 0%     | 65 s / 44           | 64%           |
+| Glasswater Lake     | Drip          | 3       | 90%                   | 83%             | 93%      | 93%                 | 93%              | 0%     | 50 s / 34           | 66%           |
+| Glasswater Lake     | Lake Lurker   | 4       | 97%                   | 90%             | 93%      | 100%                | 83%              | 0%     | 69 s / 47           | 57%           |
+| Glasswater Lake     | Tide Ogre     | 5       | 93%                   | 90%             | 93%      | 97%                 | 87%              | 0%     | 74 s / 51           | 52%           |
+| Redrock Quarry      | Goblin Digger | 4       | 93%                   | 90%             | 93%      | 93%                 | 90%              | 0%     | 63 s / 43           | 65%           |
+| Redrock Quarry      | Quarry Hound  | 5       | 87%                   | 97%             | 97%      | 97%                 | 87%              | 0%     | 73 s / 50           | 57%           |
+| Redrock Quarry      | Stone Ogre    | 6       | 90%                   | 100%            | 100%     | 100%                | 90%              | 0%     | 83 s / 60           | 63%           |
+| Emberforge          | Cinder        | 5       | 87%                   | 90%             | 93%      | 87%                 | 77%              | 0%     | 60 s / 40           | 60%           |
+| Emberforge          | Forge Imp     | 6       | 80%                   | 87%             | 93%      | 97%                 | 63%              | 0%     | 66 s / 45           | 58%           |
+| Emberforge          | Magma Drake   | 7       | 83%                   | 93%             | 93%      | 93%                 | 73%              | 0%     | 82 s / 58           | 56%           |
+| Stormcrown Peaks    | Spark Pup     | 6       | 87%                   | 97%             | 93%      | 100%                | 97%              | 0%     | 74 s / 53           | 55%           |
+| Stormcrown Peaks    | Storm Goblin  | 7       | 90%                   | 93%             | 97%      | 93%                 | 97%              | 0%     | 84 s / 60           | 59%           |
+| Stormcrown Peaks    | Thunderhide   | 8       | 90%                   | 93%             | 100%     | 100%                | 93%              | 0%     | 94 s / 68           | 62%           |
+| Windward Cliffs     | Puffball      | 7       | 97%                   | 93%             | 100%     | 100%                | 90%              | 0%     | 87 s / 62           | 59%           |
+| Windward Cliffs     | Gale Bat      | 8       | 90%                   | 93%             | 100%     | 97%                 | 77%              | 0%     | 79 s / 56           | 59%           |
+| Windward Cliffs     | Sky Ram       | 9       | 97%                   | 100%            | 100%     | 100%                | 93%              | 0%     | 93 s / 67           | 70%           |
+| Moonfall Ruins      | Watcher       | 8       | 83%                   | 90%             | 97%      | 97%                 | 70%              | 0%     | 87 s / 60           | 57%           |
+| Moonfall Ruins      | Night Bat     | 9       | 90%                   | 97%             | 100%     | 97%                 | 87%              | 0%     | 111 s / 78          | 55%           |
+| Moonfall Ruins      | Gloom Toad    | 10      | 97%                   | 93%             | 93%      | 97%                 | 73%              | 0%     | 112 s / 79          | 58%           |
+| Moon Caves          | Moon Imp      | 10      | 93%                   | 87%             | 100%     | 100%                | 90%              | 0%     | 99 s / 72           | 60%           |
+| Moon Caves          | Shade Imp     | 11      | 100%                  | 93%             | 100%     | 100%                | 80%              | 0%     | 111 s / 79          | 60%           |
+| Moon Caves          | Cave Brute    | 11      | 93%                   | 97%             | 100%     | 100%                | 97%              | 0%     | 125 s / 92          | 50%           |
+| Moon Caves · Depths | Shade Imp     | 11      | 100%                  | 93%             | 100%     | 100%                | 80%              | 0%     | 111 s / 79          | 60%           |
+| Moon Caves · Depths | Moon Wyrm     | 13      | 50%                   | 57%             | 80%      | 77%                 | 27%              | 0%     | 134 s / 102         | 31%           |
+| Lesson              | Ember Wisp d1 | 1       | 100%                  | 100%            | 100%     | 100%                | 100%             | 30%    | 32 s / 21           | 75%           |
+| Lesson              | Tide Wisp d1  | 1       | 100%                  | 97%             | 100%     | 100%                | 100%             | 17%    | 34 s / 23           | 76%           |
+| Lesson              | Gale Wisp d1  | 1       | 100%                  | 97%             | 100%     | 100%                | 100%             | 30%    | 29 s / 19           | 75%           |
+| Lesson              | Ember Wisp d2 | 3       | 100%                  | 100%            | 100%     | 100%                | 100%             | 10%    | 41 s / 27           | 71%           |
+| Lesson              | Tide Wisp d2  | 3       | 100%                  | 93%             | 93%      | 100%                | 97%              | 0%     | 52 s / 34           | 71%           |
+| Lesson              | Gale Wisp d2  | 3       | 97%                   | 97%             | 100%     | 100%                | 100%             | 3%     | 42 s / 28           | 72%           |
+| Lesson              | Ember Wisp d3 | 5       | 100%                  | 100%            | 100%     | 100%                | 100%             | 17%    | 48 s / 32           | 74%           |
+| Lesson              | Tide Wisp d3  | 5       | 100%                  | 100%            | 100%     | 100%                | 100%             | 3%     | 58 s / 39           | 76%           |
+| Lesson              | Gale Wisp d3  | 5       | 100%                  | 100%            | 100%     | 100%                | 100%             | 3%     | 43 s / 28           | 77%           |
+
+**Economy and levels** (one pass, no grinding, losses or herbs): the hero
+enters each region at its entry level and meets the Wyrm at 12. Gil left
+at each exit stays at or under ~150 until the depths (174 there, 264
+after the Wyrm, with nothing left to buy). The Knight Blade (150) waits a
+region, and the forge's Flame Brand and Forge Plate (480 together) are
+bought over the peaks, cliffs and ruins: one pass of per-fight gil inside
+the target bands can't pay for them sooner, so a player who wants them
+early grinds a little.
+
+| Area                | Hero Lv entering | XP gained | Gil in | Gil spent | Gil left at exit | Still wanted               |
+| ------------------- | ---------------- | --------- | ------ | --------- | ---------------- | -------------------------- |
+| The Realm           | 1                | 104       | 115    | 52        | 88               | —                          |
+| Thornwood Grove     | 2                | 91        | 71     | 30        | 129              | —                          |
+| Glasswater Lake     | 3                | 117       | 87     | 200       | 16               | —                          |
+| Redrock Quarry      | 4                | 168       | 124    | 10        | 130              | knightBlade                |
+| Emberforge          | 5                | 242       | 106    | 160       | 76               | flameBrand, forgePlate     |
+| Stormcrown Peaks    | 6                | 348       | 156    | 230       | 2                | flameBrand, phoenixFeather |
+| Windward Cliffs     | 7                | 506       | 198    | 70        | 130              | flameBrand                 |
+| Moonfall Ruins      | 8                | 1140      | 204    | 298       | 36               | —                          |
+| Moon Caves          | 10               | 2220      | 124    | 30        | 130              | —                          |
+| Moon Caves · Depths | 11               | 880       | 44     | 0         | 174              | —                          |
+| Moon Wyrm           | 12               | 900       | 90     | 0         | 264              | —                          |
+
+**The opening** (a broke level 1 Ranger, no sword, touch pace, good bot):
+a slime is won 90% at full HP and 80% at the 80% a beginner walks back up
+to (a casual "tidy" player 70% / 47%); a level 2 Spore Shroom 60% at 80% HP
+(it is meant for level 2); a Copper Sword adds only a few points. Starting
+a fight at half HP is where the old death spiral came from (37% against a
+slime), which the beginner's 80% walk-regen avoids.
 
 #### Balance targets (approved)
 
 What the balance pass aims for. Regular fights and lessons as first drafted;
 the Moon Wyrm was made harder at the user's request (expect several attempts).
 
-| Area                  | Hero level entering | Good (starter spells) | Good (full kit) | Prepared | Singles + spells | Sloppy    | Fight length (good) | Gil in (per fight) / out (main buys)     |
-| --------------------- | ------------------- | --------------------- | --------------- | -------- | ---------------- | --------- | ------------------- | ---------------------------------------- |
-| The Realm             | 1                   | 80–90%                | —               | 95%+     | 70–85%           | under 15% | 40–70 s             | 4–10 / Copper Sword 22, inn 10           |
-| Thornwood Grove       | 2                   | 75–85%                | —               | 90%+     | 65–80%           | under 10% | 50–80 s             | 6–11 / herbs                             |
-| Glasswater Lake       | 3                   | 75–85%                | —               | 90%+     | 65–80%           | under 10% | 50–90 s             | 7–14 / Iron Sword 80, Crystal Mail 90    |
-| Redrock Quarry        | 4                   | 70–85%                | 80–90%          | 90%+     | 60–75%           | under 10% | 60–100 s            | 12–17 / Knight Blade 150                 |
-| Emberforge            | 5                   | 70–85%                | 80–90%          | 90%+     | 60–75%           | under 10% | 60–100 s            | 14–22 / Flame Brand 260, Forge Plate 220 |
-| Stormcrown Peaks      | 6                   | 70–80%                | 80–90%          | 85–95%   | 55–70%           | under 5%  | 70–110 s            | 16–26 / inn, Feathers 30                 |
-| Windward Cliffs       | 7                   | 70–80%                | 80–90%          | 85–95%   | 55–70%           | under 5%  | 70–110 s            | 20–30 / inn, Feathers 30                 |
-| Moonfall Ruins        | 8                   | 70–80%                | 80–90%          | 85–95%   | 55–70%           | under 5%  | 80–120 s            | 25–34 / Ethers                           |
-| Moon Wyrm (first try) | 12–13               | 15–20%                | 20–30%          | 35–45%   | 5–15%            | 0%        | 100–140 s           | 90                                       |
-| Mentor lessons        | at need             | 85–100%               | —               | —        | 75–100%          | 0–20%     | 30–60 s             | —                                        |
+| Area                  | Hero level entering | Good (starter spells) | Good (full kit) | Prepared | Singles + spells | Sloppy    | Fight length (good) | Gil in (per fight) / out (main buys)     | Actual, touch pace (final pass)                                           |
+| --------------------- | ------------------- | --------------------- | --------------- | -------- | ---------------- | --------- | ------------------- | ---------------------------------------- | ------------------------------------------------------------------------- |
+| The Realm             | 1                   | 80–90%                | —               | 95%+     | 70–85%           | under 15% | 40–70 s             | 4–10 / Copper Sword 22, inn 10           | G 80–90 · K 67–93 · P 73–100 · S 53–93 · Sl 0 · 63–80 s (keys: G 90–97)   |
+| Thornwood Grove       | 2                   | 75–85%                | —               | 90%+     | 65–80%           | under 10% | 50–80 s             | 6–11 / herbs                             | G 67–77 · K 63–90 · P 70–83 · S 57–70 · Sl 0 · 73–96 s (keys: G 83–97)    |
+| Glasswater Lake       | 3                   | 75–85%                | —               | 90%+     | 65–80%           | under 10% | 50–90 s             | 7–14 / Iron Sword 80, Crystal Mail 90    | G 67–73 · K 70–83 · P 73–93 · S 53–63 · Sl 0 · 71–96 s (keys: G 90–97)    |
+| Redrock Quarry        | 4                   | 70–85%                | 80–90%          | 90%+     | 60–75%           | under 10% | 60–100 s            | 12–17 / Knight Blade 150                 | G 73–90 · K 70–90 · P 70–80 · S 50–73 · Sl 0–3 · 87–114 s (keys: G 87–93) |
+| Emberforge            | 5                   | 70–85%                | 80–90%          | 90%+     | 60–75%           | under 10% | 60–100 s            | 14–22 / Flame Brand 260, Forge Plate 220 | G 57–70 · K 67–90 · P 67–83 · S 43–57 · Sl 0 · 78–103 s (keys: G 80–87)   |
+| Stormcrown Peaks      | 6                   | 70–80%                | 80–90%          | 85–95%   | 55–70%           | under 5%  | 70–110 s            | 16–26 / inn, Feathers 30                 | G 70–77 · K 77–90 · P 80–93 · S 50–77 · Sl 0 · 98–128 s (keys: G 87–90)   |
+| Windward Cliffs       | 7                   | 70–80%                | 80–90%          | 85–95%   | 55–70%           | under 5%  | 70–110 s            | 20–30 / inn, Feathers 30                 | G 70–90 · K 83–97 · P 83–97 · S 57–90 · Sl 0 · 110–156 s (keys: G 90–97)  |
+| Moonfall Ruins        | 8                   | 70–80%                | 80–90%          | 85–95%   | 55–70%           | under 5%  | 80–120 s            | 25–34 / Ethers                           | G 70–77 · K 70–93 · P 73–90 · S 20–63 · Sl 0 · 128–161 s (keys: G 83–97)  |
+| Moon Wyrm (first try) | 12–13               | 15–20%                | 20–30%          | 35–45%   | 5–15%            | 0%        | 100–140 s           | 90                                       | Lv 12 · G 20 · K 43 · P 40 · S 10 · Sl 0 · 156 s (keys: G 50, P 80)       |
+| Mentor lessons        | at need             | 85–100%               | —               | —        | 75–100%          | 0–20%     | 30–60 s             | —                                        | G 87–100 · S 93–100 · Sl 0–27 · 47–88 s (keys: G 97–100)                  |
+
+Actual: win rates in % for Good (G), Good with the full kit (K),
+Prepared (P), Singles + spells (S) and Sloppy (Sl) at the touch pace
+(2.2 s a piece), the good bot's fight length, and the good bot at the
+keyboard pace (1.5 s). Misses: Emberforge's good bot (57–70%) and
+singles (43–57%), the ruins' singles (20% against the healing Gloom
+Toad), prepared below 90% in the early regions (the 2-use cap leaves one
+Herb after the Ether), touch fights running 10–40 s longer than the
+length targets (keyboard fights sit inside them), the Wyrm's full kit
+(43%: its fire hits the weakness) and the Ember and Gale Wisps' first
+lessons for the sloppy bot (27%).
 
 "Prepared" means 5 Herbs, an Ether and a Feather with the 2-use cap.
 Gil should cover each region's gear by the time the next one opens, with
@@ -438,7 +556,7 @@ A combo strikes as its category's element (Magma is earth).
   opens its menu: the primary at its level, then supports and combos;
   the panel keeps its height. A slot with one spell casts it straight
   away. Then 1–n picks a spell; Escape (or the ◀ button) goes back.
-  Casting closes the menu and takes time (the enemy's gauge jumps 15%). Tooltips give a short
+  Casting closes the menu and takes time (the enemy's gauge jumps 10%). Tooltips give a short
   summary, e.g. "Blaze · Lv 2 · 22 damage".
 - **Spellbook** (menu): every known spell at its level, with level pips,
   kind icon, cost, a scroll and a glowing frame when ready, and a lock when its
@@ -798,48 +916,48 @@ tome became a delver's cache (Maren teaches Blizzard).
 Art is mixed by area: cute Fantasy Dreamland creatures in the open world,
 and bigger, scarier Pixel Battlers monsters underground.
 
-| Area      | Enemy        | Lv  | HP  | Atk | Gauge | Element | Weak to       | Resists                | Kit                                                              | Drops        |
-| --------- | ------------ | --- | --- | --- | ----- | ------- | ------------- | ---------------------- | ---------------------------------------------------------------- | ------------ |
-| Overworld | Green Slime  | 1   | 66  | 6   | 8.5 s | Nature  | Fire, arcane  | Water, nature, earth   | Bounce 3 (×2), petrify 3 (Sticky Goo)                            | Slime Gel    |
-| Overworld | Spore Shroom | 2   | 85  | 6   | 7.5 s | Nature  | Fire, arcane  | Water, nature, earth   | Headbutt 3 (×2), haste 3 (Spore Cloud), fog 3 (Spore Haze)       | Spore Cap    |
-| Overworld | Goblin Scout | 3   | 100 | 6   | 8 s   | Earth   | Water, nature | Lightning, earth, wind | Stab 4 (×2), curse 1 (Rock Toss), seal 3 (Stake)                 | Goblin Charm |
-| Lessons   | Wisps (×7)   | 2   | 50  | 5   | 9 s   | Each    | From chart    | From chart             | Lash 2 + one of their element's (Tide: fog 2; Gale: quicken 4 s) | —            |
+| Area      | Enemy        | Lv  | HP  | Atk | Gauge | Element | Weak to       | Resists                | Kit                                                                              | Drops        |
+| --------- | ------------ | --- | --- | --- | ----- | ------- | ------------- | ---------------------- | -------------------------------------------------------------------------------- | ------------ |
+| Overworld | Green Slime  | 1   | 58  | 4   | 8.5 s | Nature  | Fire, arcane  | Water, nature, earth   | Bounce 3 (×2), petrify 3 (Sticky Goo)                                            | Slime Gel    |
+| Overworld | Spore Shroom | 2   | 85  | 5   | 7.5 s | Nature  | Fire, arcane  | Water, nature, earth   | Headbutt 3 (×2), haste 3 (Spore Cloud), fog 3 (Spore Haze)                       | Spore Cap    |
+| Overworld | Goblin Scout | 3   | 92  | 6   | 8 s   | Earth   | Water, nature | Lightning, earth, wind | Stab 4 (×2), curse 1 (Rock Toss), seal 3 (Stake)                                 | Goblin Charm |
+| Lessons   | Wisps (×7)   | 2   | 50  | 5   | 9 s   | Each    | From chart    | From chart             | Lash 2 + one of their element's (Ember: haste 2; Tide: fog 2; Gale: quicken 4 s) | —            |
 
-**The mentor regions and the Moon Caves** (stats are placeholders for the
-balance pass; region monsters grow at most 2 levels with the hero, the
+**The mentor regions and the Moon Caves** (stats from the final balance pass,
+tuned at touch pace; region monsters grow at most 2 levels with the hero, the
 caves' 3, the Wyrm 1). Overworld critters are Fantasy Dreamland enemies;
 the bigger beasts are Pixel Battlers.
 
 | Area                | Enemy         | Lv  | HP  | Atk | Gauge  | Element   | Weak to           | Resists                          | Kit                                                                                                                          | XP / gil | Drops               |
 | ------------------- | ------------- | --- | --- | --- | ------ | --------- | ----------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------- |
-| Thornwood Grove     | Sproutling    | 2   | 115 | 7   | 7.5 s  | Nature    | Fire, Arcane      | Water, Nature, Earth             | Root Slap 3, Sunbathe 8, Seed Pod 3                                                                                          | 9 / 6    | herb 30%            |
-| Thornwood Grove     | Leaf Sprite   | 3   | 120 | 8   | 7.0 s  | Nature    | Fire, Arcane      | Water, Nature, Earth             | Leaf Cut 4, Pollen 3, Leaf Storm 3                                                                                           | 13 / 8   | sporeCap 20%        |
-| Thornwood Grove     | Thorn Troll   | 4   | 160 | 9   | 10.0 s | Nature    | Fire, Arcane      | Water, Nature, Earth             | Thorn Club 7, Bramble 1, Moss Bed 12                                                                                         | 18 / 11  | herb 40%            |
-| Glasswater Lake     | Drip          | 3   | 90  | 7   | 7.0 s  | Water     | Lightning, Nature | Fire, Water, Earth               | Splash 4, Lake Mist 3, Soak 3                                                                                                | 13 / 7   | ether 15%           |
-| Glasswater Lake     | Lake Lurker   | 4   | 150 | 9   | 8.0 s  | Water     | Lightning, Nature | Fire, Water, Earth               | Bite 6, Undertow 3, Gulp 4                                                                                                   | 18 / 10  | herb 30%            |
-| Glasswater Lake     | Tide Ogre     | 5   | 190 | 10  | 9.5 s  | Water     | Lightning, Nature | Fire, Water, Earth               | Wave Crash 8, Silt 2, Spray 3                                                                                                | 27 / 14  | ether 30%           |
-| Redrock Quarry      | Goblin Digger | 4   | 125 | 9   | 8.0 s  | Earth     | Water, Nature     | Lightning, Earth, Wind           | Pick 5, Rock Toss 1, Stake 3                                                                                                 | 18 / 12  | goblinCharm 40%     |
-| Redrock Quarry      | Quarry Hound  | 5   | 150 | 9   | 6.5 s  | Earth     | Water, Nature     | Lightning, Earth, Wind           | Maul 5, Pounce 4 s, Grit 4                                                                                                   | 27 / 13  | herb 30%            |
-| Redrock Quarry      | Stone Ogre    | 6   | 180 | 11  | 12.0 s | Earth     | Water, Nature     | Lightning, Earth, Wind           | Boulder Slam 9, Landslide 2, Boulder 3                                                                                       | 38 / 17  | ether 40%           |
-| Emberforge          | Cinder        | 5   | 160 | 10  | 6.5 s  | Fire      | Water, Wind       | Fire, Nature, Arcane             | Flare 6, Kindle 3, Scorch 4                                                                                                  | 27 / 14  | herb 30%            |
-| Emberforge          | Forge Imp     | 6   | 195 | 12  | 7.0 s  | Fire      | Water, Wind       | Fire, Nature, Arcane             | Pitchfork 7, Bellows 4, Stoke 5 s                                                                                            | 38 / 17  | ether 30%           |
-| Emberforge          | Magma Drake   | 7   | 300 | 13  | 9.0 s  | Fire      | Water, Wind       | Fire, Nature, Arcane             | Magma Breath 12, Slag 2, Cinders 5                                                                                           | 56 / 22  | ether 40%           |
-| Stormcrown Peaks    | Spark Pup     | 6   | 160 | 9   | 5.5 s  | Lightning | Earth, Arcane     | Water, Lightning, Wind           | Zap 5, Static 5 s, Jolt 3                                                                                                    | 38 / 16  | herb 30%            |
-| Stormcrown Peaks    | Storm Goblin  | 7   | 180 | 11  | 7.0 s  | Lightning | Earth, Arcane     | Water, Lightning, Wind           | Shock Spear 8, Lightning Rod 2, Thunderhead 3                                                                                | 56 / 21  | ether 30%           |
-| Stormcrown Peaks    | Thunderhide   | 8   | 240 | 11  | 9.5 s  | Lightning | Earth, Arcane     | Water, Lightning, Wind           | Thunder Slam 10, Roar 4, Storm Surge 6 s                                                                                     | 80 / 26  | ether 40%           |
+| Thornwood Grove     | Sproutling    | 2   | 95  | 7   | 7.5 s  | Nature    | Fire, Arcane      | Water, Nature, Earth             | Root Slap 3, Sunbathe 8, Seed Pod 3                                                                                          | 9 / 6    | herb 30%            |
+| Thornwood Grove     | Leaf Sprite   | 3   | 100 | 8   | 7.5 s  | Nature    | Fire, Arcane      | Water, Nature, Earth             | Leaf Cut 4, Pollen 3, Leaf Storm 3                                                                                           | 13 / 8   | sporeCap 20%        |
+| Thornwood Grove     | Thorn Troll   | 4   | 135 | 9   | 10.0 s | Nature    | Fire, Arcane      | Water, Nature, Earth             | Thorn Club 7, Bramble 1, Moss Bed 12                                                                                         | 18 / 11  | herb 40%            |
+| Glasswater Lake     | Drip          | 3   | 85  | 7   | 7.0 s  | Water     | Lightning, Nature | Fire, Water, Earth               | Splash 4, Lake Mist 3, Soak 3                                                                                                | 13 / 7   | ether 15%           |
+| Glasswater Lake     | Lake Lurker   | 4   | 125 | 9   | 8.6 s  | Water     | Lightning, Nature | Fire, Water, Earth               | Bite 6, Undertow 3, Gulp 4                                                                                                   | 18 / 10  | herb 30%            |
+| Glasswater Lake     | Tide Ogre     | 5   | 155 | 9   | 10.2 s | Water     | Lightning, Nature | Fire, Water, Earth               | Wave Crash 8, Silt 2, Spray 3                                                                                                | 27 / 14  | ether 30%           |
+| Redrock Quarry      | Goblin Digger | 4   | 110 | 9   | 8.0 s  | Earth     | Water, Nature     | Lightning, Earth, Wind           | Pick 5, Rock Toss 1, Stake 3                                                                                                 | 18 / 12  | goblinCharm 40%     |
+| Redrock Quarry      | Quarry Hound  | 5   | 140 | 9   | 6.5 s  | Earth     | Water, Nature     | Lightning, Earth, Wind           | Maul 5, Pounce 4 s, Grit 4                                                                                                   | 27 / 13  | herb 30%            |
+| Redrock Quarry      | Stone Ogre    | 6   | 165 | 11  | 12.0 s | Earth     | Water, Nature     | Lightning, Earth, Wind           | Boulder Slam 9, Landslide 2, Boulder 3                                                                                       | 38 / 17  | ether 40%           |
+| Emberforge          | Cinder        | 5   | 150 | 10  | 6.5 s  | Fire      | Water, Wind       | Fire, Nature, Arcane             | Flare 6, Kindle 3, Scorch 4                                                                                                  | 27 / 14  | herb 30%            |
+| Emberforge          | Forge Imp     | 6   | 165 | 12  | 7.5 s  | Fire      | Water, Wind       | Fire, Nature, Arcane             | Pitchfork 7, Bellows 4, Stoke 5 s                                                                                            | 38 / 17  | ether 30%           |
+| Emberforge          | Magma Drake   | 7   | 250 | 13  | 9.6 s  | Fire      | Water, Wind       | Fire, Nature, Arcane             | Magma Breath 12, Slag 2, Cinders 5                                                                                           | 56 / 22  | ether 40%           |
+| Stormcrown Peaks    | Spark Pup     | 6   | 150 | 9   | 5.5 s  | Lightning | Earth, Arcane     | Water, Lightning, Wind           | Zap 5, Static 5 s, Jolt 3                                                                                                    | 38 / 16  | herb 30%            |
+| Stormcrown Peaks    | Storm Goblin  | 7   | 165 | 11  | 7.0 s  | Lightning | Earth, Arcane     | Water, Lightning, Wind           | Shock Spear 8, Lightning Rod 2, Thunderhead 3                                                                                | 56 / 21  | ether 30%           |
+| Stormcrown Peaks    | Thunderhide   | 8   | 225 | 11  | 9.5 s  | Lightning | Earth, Arcane     | Water, Lightning, Wind           | Thunder Slam 10, Roar 4, Storm Surge 6 s                                                                                     | 80 / 26  | ether 40%           |
 | Windward Cliffs     | Puffball      | 7   | 200 | 12  | 6.0 s  | Wind      | Lightning, Earth  | Fire, Arcane, Wind               | Puff 6, Dust Devil 3, Updraft 5 s                                                                                            | 56 / 20  | herb 30%            |
-| Windward Cliffs     | Gale Bat      | 8   | 240 | 14  | 6.0 s  | Wind      | Lightning, Earth  | Fire, Arcane, Wind               | Wing Cut 8, Gale 4, Downdraft 3                                                                                              | 80 / 24  | ether 30%           |
-| Windward Cliffs     | Sky Ram       | 9   | 280 | 13  | 9.0 s  | Wind      | Lightning, Earth  | Fire, Arcane, Wind               | Ram 10, Rockfall 1, Charge 4 s                                                                                               | 117 / 30 | ether 40%           |
-| Moonfall Ruins      | Watcher       | 8   | 320 | 14  | 7.0 s  | Arcane    | Fire, Wind        | Lightning, Nature, Arcane        | Gaze 8, Stare 5, Mind Leech 5                                                                                                | 80 / 25  | herb 30%            |
-| Moonfall Ruins      | Night Bat     | 9   | 290 | 16  | 6.5 s  | Arcane    | Fire, Wind        | Lightning, Nature, Arcane        | Night Bite 11, Moon Sip 5, Eclipse Wing 3, Leech 14                                                                          | 117 / 28 | moonShard 30%       |
-| Moonfall Ruins      | Gloom Toad    | 10  | 440 | 17  | 8.5 s  | Arcane    | Fire, Wind        | Lightning, Nature, Arcane        | Tongue Lash 13, Hex 2, Gloom 5, Wallow 25                                                                                    | 170 / 34 | ether 40%           |
-| Moon Caves          | Moon Imp      | 10  | 360 | 17  | 6.0 s  | Arcane    | Fire, Wind        | Lightning, Nature, Arcane        | Swoop 8, Leech Mana 4, Moon Dust 3, Flit 5 s                                                                                 | 170 / 30 | —                   |
-| Moon Caves          | Shade Imp     | 11  | 340 | 18  | 7.0 s  | Arcane    | Fire, Wind        | Lightning, Nature, Arcane        | Moonbeam 9, Glimmer 12, Hex 1, Gloom 4                                                                                       | 240 / 36 | moonShard 30%       |
-| Moon Caves          | Cave Brute    | 11  | 290 | 16  | 12.5 s | Earth     | Water, Nature     | Lightning, Earth, Wind           | Slam 8, Rubble 2, Boulder 3                                                                                                  | 240 / 40 | ether 40%           |
-| Moon Caves · Depths | Moon Wyrm     | 13  | 460 | 14  | 8.0 s  | Arcane    | Fire, Wind        | Water, Lightning, Nature, Arcane | Lunar Breath 16, Tail Sweep 10, Crystal Tomb 2, Eclipse 4, Moon Drain 4, Moonfog 4, Starfall 6, Tidal Pull 3, Night Wind 6 s | 900 / 90 | phoenixFeather 100% |
+| Windward Cliffs     | Gale Bat      | 8   | 190 | 13  | 6.4 s  | Wind      | Lightning, Earth  | Fire, Arcane, Wind               | Wing Cut 8, Gale 4, Downdraft 3                                                                                              | 80 / 24  | ether 30%           |
+| Windward Cliffs     | Sky Ram       | 9   | 270 | 13  | 9.0 s  | Wind      | Lightning, Earth  | Fire, Arcane, Wind               | Ram 10, Rockfall 1, Charge 4 s                                                                                               | 117 / 30 | ether 40%           |
+| Moonfall Ruins      | Watcher       | 8   | 285 | 14  | 7.0 s  | Arcane    | Fire, Wind        | Lightning, Nature, Arcane        | Gaze 8, Stare 5, Mind Leech 5                                                                                                | 125 / 25 | herb 30%            |
+| Moonfall Ruins      | Night Bat     | 9   | 275 | 16  | 6.5 s  | Arcane    | Fire, Wind        | Lightning, Nature, Arcane        | Night Bite 11, Moon Sip 5, Eclipse Wing 3, Leech 14                                                                          | 180 / 28 | moonShard 30%       |
+| Moonfall Ruins      | Gloom Toad    | 10  | 380 | 17  | 9.0 s  | Arcane    | Fire, Wind        | Lightning, Nature, Arcane        | Tongue Lash 13, Hex 2, Gloom 5, Wallow 25                                                                                    | 265 / 34 | ether 40%           |
+| Moon Caves          | Moon Imp      | 10  | 370 | 22  | 5.4 s  | Arcane    | Fire, Wind        | Lightning, Nature, Arcane        | Swoop 8, Leech Mana 4, Moon Dust 3, Flit 5 s                                                                                 | 300 / 18 | —                   |
+| Moon Caves          | Shade Imp     | 11  | 350 | 22  | 6.3 s  | Arcane    | Fire, Wind        | Lightning, Nature, Arcane        | Moonbeam 9, Glimmer 12, Hex 1, Gloom 4                                                                                       | 440 / 22 | moonShard 30%       |
+| Moon Caves          | Cave Brute    | 11  | 310 | 21  | 11.0 s | Earth     | Water, Nature     | Lightning, Earth, Wind           | Slam 8, Rubble 2, Boulder 3                                                                                                  | 440 / 24 | ether 40%           |
+| Moon Caves · Depths | Moon Wyrm     | 13  | 490 | 17  | 6.8 s  | Arcane    | Fire, Wind        | Water, Lightning, Nature, Arcane | Lunar Breath 18, Tail Sweep 10, Crystal Tomb 2, Eclipse 4, Moon Drain 4, Moonfog 4, Starfall 6, Tidal Pull 3, Night Wind 6 s | 900 / 90 | phoenixFeather 100% |
 
 The Moon Wyrm keeps everything from before (attacks twice as likely,
-resists water, enrages at ½ HP with a 5 s gauge, 3-row curses and +4
+resists water, enrages at ½ HP with a 4.6 s gauge, 3-row curses and +4
 attack), now at the end of the level curve, and as a boss it takes a damped
 weakness bonus and makes each spell cost 25% of its gauge.
 
@@ -847,11 +965,16 @@ The seven wisps (Ember, Tide, Spark, Moss, Stone, Moon, Gale) are mentors'
 trial foes, drawn as a slime recoloured to their element. Each lesson
 difficulty above 1 adds 60% HP and 3 attack (and a level of gravity).
 At difficulty 1 a hero below level 3 meets a gentler foe with 72% of its
-HP (a wisp has 36).
+HP (a wisp has 36). The Ember Wisp's special is a haste (it was a
+second attack, which made Torva's lessons the only ones a good player
+lost: 30–57% at touch pace against 90%+ for the others).
 
-**Gil**: cave monsters pay about 30% less than before (Moon Imp 7, Shade
-Imp 11, Cave Brute 15, Moon Wyrm 42), so gil no longer piles up late
-while Brightwater stays tight.
+**Gil and XP late**: the caves pay less gil (Moon Imp 18, Shade Imp 22,
+Cave Brute 24; the Wyrm 90) since nothing is left to buy there, and the
+ruins and caves pay more XP (Watcher 125, Night Bat 180, Gloom Toad 265,
+Moon Imp 300, Shade Imp and Cave Brute 440), so one pass through them
+takes the hero from level 8 to 12 for the Wyrm (see the economy table
+under Balance).
 
 **The difficulty overhaul** (after bot playthroughs won 59–0 and 60–0):
 monsters died in 1–4 single lines and acted only every 3–5 pieces, so the

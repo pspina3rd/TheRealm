@@ -19,7 +19,7 @@ describe('boss enrage', () => {
   const wyrm = ENEMIES.moonWyrm!;
 
   it('enrages the Moon Wyrm at half HP: faster moves, heavier curses', () => {
-    expect(wyrm.enrage).toEqual({ below: 0.5, actMs: 5000, curseRows: 3, atk: 4 });
+    expect(wyrm.enrage).toEqual({ below: 0.5, actMs: 4600, curseRows: 3, atk: 4 });
     const battle = makeBattle({ kind: 'combat', enemyId: 'moonWyrm' });
     const combat = battle.combat!;
     expect(combat.enraged).toBe(false);
@@ -28,7 +28,7 @@ describe('boss enrage', () => {
     battle.input('hardDrop');
     expect(combat.enraged).toBe(true);
     expect(battle.events.filter((e) => e.event.kind === 'enrage')).toHaveLength(1);
-    expect(combat.actMs).toBe(5000);
+    expect(combat.actMs).toBe(4600);
     // Healing back above half doesn't calm it.
     combat.enemyHp = wyrm.hp;
     expect(combat.enraged).toBe(true);
@@ -39,7 +39,7 @@ describe('boss enrage', () => {
     const combat = battle.combat!;
     combat.enraged = true;
     combat.nextMove = { kind: 'curse', name: 'Crystal Tomb', rows: 2 };
-    combat.update(4999);
+    combat.update(4599);
     expect(battle.events.some((e) => e.event.kind === 'curse')).toBe(false);
     combat.update(1);
     const curse = battle.events.find((e) => e.event.kind === 'curse')?.event;

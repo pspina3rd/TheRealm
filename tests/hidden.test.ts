@@ -437,7 +437,7 @@ describe('hidden spells in combat', () => {
     expect(combat.exposed).toBe(3);
     const hit = battle.events.filter((e) => e.event.kind === 'enemyHit')[0]?.event;
     expect(hit).toMatchObject({
-      amount: Math.round(3 * (1 + 0.04 * battle.hero.atk) * 1.5),
+      amount: Math.round(4 * (1 + 0.04 * battle.hero.atk) * 1.5),
       affinity: 'weak',
     });
     forceQueue(battle, ['O', 'O', 'O']);

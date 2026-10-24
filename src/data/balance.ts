@@ -31,7 +31,7 @@ export const MAX_COMBO = 8;
 /** Casting a spell takes time: it fills this share of the enemy's gauge… */
 export const SPELL_TIME = 0.1;
 /** …or this share against a boss, so a full spell kit can't simply out-cast it… */
-export const BOSS_SPELL_TIME = 0.35;
+export const BOSS_SPELL_TIME = 0.25;
 /** …and using an item this share. */
 export const ITEM_TIME = 0.4;
 /** Items the hero can use in one battle. */

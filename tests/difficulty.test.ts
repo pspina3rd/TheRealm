@@ -175,8 +175,8 @@ describe('strike damage', () => {
   const plain = { attack: 0, backToBack: false, combo: 0, affinity: 1 };
 
   it('makes single lines weak and big clears steep', () => {
-    expect(LINE_DAMAGE).toEqual([0, 3, 12, 26, 48]);
-    expect([1, 2, 3, 4].map((n) => strikeDamage(n, plain))).toEqual([3, 12, 26, 48]);
+    expect(LINE_DAMAGE).toEqual([0, 4, 12, 26, 48]);
+    expect([1, 2, 3, 4].map((n) => strikeDamage(n, plain))).toEqual([4, 12, 26, 48]);
     expect(strikeDamage(5, plain)).toBe(48);
     expect(strikeDamage(1, { ...plain, affinity: 0 })).toBe(1);
   });

@@ -25,7 +25,7 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     kind: 'consumable',
     price: 30,
     description:
-      'Revives you with a quarter of your HP if you fall in battle. Used automatically; counts as one of the fight’s 2 item uses.',
+      'Revives you with 35% of your HP if you fall in battle. Used automatically; counts as one of the fight’s 2 item uses.',
   },
   // Spell tomes are no longer sold (mentors teach spells); old saves may still hold them.
   fireTome: {
