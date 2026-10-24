@@ -263,7 +263,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
       'T.....T....=.....^^..........T',
       'T..,.......=....^^^^.........T',
       'T..........====.............TT',
-      'TT^^..........=.....,....TTTTT',
+      'Thhh..........=.....,....hhhTT',
       'T^^^...TT.....=..........T^^^T',
       'T^^...TTTT....=...TT.......^^T',
       'T^.....TT.....=..........,..^T',
@@ -288,8 +288,8 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
     ],
     decor: [
       { object: 'mush.house', x: 13, y: 4 },
-      { object: 'mush.tree.red', x: 1, y: 14 },
-      { object: 'mush.tree.blue', x: 24, y: 14 },
+      { object: 'mush.tree.red', x: 1, y: 15 },
+      { object: 'mush.tree.blue', x: 25, y: 15 },
     ],
   },
   lake: {

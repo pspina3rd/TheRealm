@@ -23,6 +23,7 @@ npm run build      # static site in dist/
 | `npm run preview`  | Serve the production build locally  |
 | `npm test`         | Run the unit tests once             |
 | `npm run coverage` | Tests with a coverage report        |
+| `npm run sim`      | Whole-game balance table (bots)     |
 | `npm run lint`     | ESLint                              |
 | `npm run format`   | Rewrite files with Prettier         |
 | `npm run check`    | Everything CI runs                  |
@@ -121,12 +122,19 @@ attack the moment you walk into them. Full rules and numbers are in
 ### The adventure so far
 
 1. **Mossvale Village** (start): Elder Rowan, Farmer Bea, Pip and a stall keeper.
-2. **The Realm** (overworld): slimes, Spore Shrooms and goblins guard the roads.
+2. **The Realm** (the hub): slimes, Spore Shrooms and goblins guard the roads,
+   which lead on to Brightwater and to the mentors' regions.
 3. **Brightwater Town**: shop, smithy, inn, a sage, a collector, a shrine
    keeper and Captain Vale, who holds the pass to the caves.
-4. **Moon Caves** (two floors): imps and a Cave Brute, a sealed chest, a
-   hermit and the Moon Wyrm boss.
-5. **Sunken Ruins**: sealed for now. Beat the Moon Wyrm (it enrages at
+4. **The mentor regions**, one per element, each with its own monsters,
+   people and mentor's home, rising in level along the road:
+   Thornwood Grove (Hazel, west), Glasswater Lake (Maren, east), Redrock
+   Quarry (Dorn, south), Emberforge past the quarry's buried ridge road
+   (Torva), Stormcrown Peaks through the tunnel north-east (Rook), Windward
+   Cliffs (Kestrel) and the Moonfall Ruins (Selene).
+5. **Moon Caves** (two floors, under the ruins): imps and a Cave Brute, a
+   sealed chest, a hermit and the Moon Wyrm boss.
+6. **Sunken Ruins**: sealed for now. Beat the Moon Wyrm (it enrages at
    half HP) to see the chapter's end; the ruins' seal then glows, waiting
    for the next chapter.
 
@@ -147,13 +155,17 @@ fog over your next piece, crystals turned to stone, faster gravity).
 Single lines barely scratch it; 3–4 line clears, back-to-back big clears
 and combos (several pieces in a row that each clear) hit hard. Leaving
 covered holes or overflowing the board feeds its gauge, and spells (15%)
-and items (40%, at most 2 per fight) take time too. Some pieces arrive
+and items (40%, at most 2 per fight; a Phoenix Feather's revive, to 25%
+HP, is one of the 2) take time too; against a boss a spell takes 25%. Some pieces arrive
 split between two related elements (more often as your alignment spreads). You get 3 pauses per
 fight, and the board is hidden while paused. Monsters grow
 with you (within a few levels of their own), so no area turns into a
 farm. Falling in battle wakes you at the last inn with 30% HP and half
 your gil; level-ups add only the new max HP. Walking heals a little while
-you're below half HP, and the inn restores the rest.
+you're below half HP (below 80% for a hero under level 4 in Mossvale and
+the Realm), and the inn restores the rest. Every balance number lives in
+`src/data/balance.ts`; `npm run sim` plays the whole game's fights against
+bots and prints one table.
 
 See [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md) for the full rules and the
 reasoning behind them.
@@ -199,8 +211,9 @@ be solved. Add a solution to `PUZZLE_SOLUTIONS` for each new puzzle.
 
 ## Art
 
-Maps stay plain text; each map has a **theme** (`outdoor`, `town` or
-`cave`) that decides how its characters are drawn
+Maps stay plain text; each map has a **theme** (`outdoor`, `town`,
+`cave`, or a mentor region's: `grove`, `lake`, `quarry`, `forge`, `peaks`,
+`cliffs`, `ruins`) that decides how its characters are drawn
 (`src/ui/art/themes.ts`):
 
 - **Ground** (grass, paths, sand, water, cave floor) is blended at the
@@ -222,6 +235,12 @@ in `tools/import_art.py`), add the files to its lists, and run:
 python3 tools/import_art.py <extracted-packs-dir>   # needs Pillow
 ```
 
+The script also builds the mentor regions' sheets: every prop listed in
+its `PROPS` is cropped (16px packs doubled), trimmed and packed into
+`tiles/props.png`, with its rectangle written to `src/ui/art/propAtlas.ts`;
+`tiles/ground2.png` holds recoloured ground (ash, frost, moon grass, red
+earth) and `tiles/lava.png` the animated water recoloured as lava.
+
 Then register the image in `src/ui/art/images.ts` and reference it from
 `objects.ts`, `creatures.ts` or `themes.ts`. `tests/art.test.ts` checks
 that every image exists at its declared size, that every sprite rectangle
@@ -231,8 +250,10 @@ exists.
 ## Credits
 
 - Gameplay prototype: `mana_crystals.html`.
-- Art: Fantasy Dreamland tilesets, characters and enemies, Pixel Battlers
-  monsters, and pixel spell effects by [ElvGames](https://elvgames.itch.io),
+- Art: Fantasy Dreamland tilesets (Green Plains, Caves, Village,
+  Blacksmith Workshop, Castle, Dungeon, Enchanted Forest, Forest,
+  Mountains, Desert), characters and enemies, Pixel Battlers monsters, and
+  pixel spell effects by [ElvGames](https://elvgames.itch.io),
   used under the ElvGames licence (`public/assets/elvgames/LICENSE.txt`).
   The licence requires credit and forbids reselling or redistributing the
   packs, so keep this repository private and copy in only the files the

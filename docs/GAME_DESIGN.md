@@ -301,24 +301,69 @@ shifted Moon Caves and the Wyrm were given first-guess stats (a few quick
 runs of the good bot against each); the final balance pass tunes them
 against the targets below. Latest run (12 seeds):
 
-<!-- SIM TABLE -->
+| Area                | Fight         | Hero Lv | Good (starter spells) | Good (full kit) | Prepared | Prepared (full kit) | Singles + spells | Sloppy | Good: time / pieces | Good: HP left |
+| ------------------- | ------------- | ------- | --------------------- | --------------- | -------- | ------------------- | ---------------- | ------ | ------------------- | ------------- |
+| The Realm           | Green Slime   | 1       | 100%                  | 92%             | 100%     | 83%                 | 83%              | 0%     | 39 s / 26           | 63%           |
+| The Realm           | Spore Shroom  | 2       | 100%                  | 100%            | 100%     | 100%                | 83%              | 0%     | 48 s / 32           | 73%           |
+| The Realm           | Goblin Scout  | 3       | 92%                   | 92%             | 100%     | 92%                 | 100%             | 0%     | 80 s / 54           | 56%           |
+| Thornwood Grove     | Sproutling    | 2       | 100%                  | 92%             | 100%     | 92%                 | 42%              | 0%     | 59 s / 40           | 71%           |
+| Thornwood Grove     | Leaf Sprite   | 3       | 92%                   | 92%             | 92%      | 100%                | 75%              | 0%     | 63 s / 42           | 54%           |
+| Thornwood Grove     | Thorn Troll   | 4       | 83%                   | 92%             | 100%     | 100%                | 83%              | 0%     | 82 s / 55           | 65%           |
+| Glasswater Lake     | Drip          | 3       | 83%                   | 92%             | 92%      | 92%                 | 100%             | 0%     | 57 s / 38           | 58%           |
+| Glasswater Lake     | Lake Lurker   | 4       | 83%                   | 100%            | 83%      | 100%                | 83%              | 0%     | 79 s / 53           | 63%           |
+| Glasswater Lake     | Tide Ogre     | 5       | 75%                   | 75%             | 100%     | 83%                 | 58%              | 0%     | 91 s / 61           | 50%           |
+| Redrock Quarry      | Goblin Digger | 4       | 67%                   | 100%            | 100%     | 92%                 | 92%              | 0%     | 90 s / 61           | 64%           |
+| Redrock Quarry      | Quarry Hound  | 5       | 83%                   | 92%             | 92%      | 92%                 | 33%              | 0%     | 84 s / 57           | 51%           |
+| Redrock Quarry      | Stone Ogre    | 6       | 58%                   | 83%             | 100%     | 92%                 | 58%              | 0%     | 123 s / 83          | 46%           |
+| Emberforge          | Cinder        | 5       | 83%                   | 83%             | 92%      | 83%                 | 42%              | 0%     | 63 s / 42           | 52%           |
+| Emberforge          | Forge Imp     | 6       | 67%                   | 67%             | 83%      | 100%                | 50%              | 0%     | 74 s / 50           | 54%           |
+| Emberforge          | Magma Drake   | 7       | 83%                   | 67%             | 92%      | 83%                 | 33%              | 0%     | 94 s / 63           | 50%           |
+| Stormcrown Peaks    | Spark Pup     | 6       | 83%                   | 92%             | 75%      | 83%                 | 58%              | 0%     | 81 s / 55           | 49%           |
+| Stormcrown Peaks    | Storm Goblin  | 7       | 83%                   | 83%             | 92%      | 100%                | 67%              | 0%     | 113 s / 75          | 51%           |
+| Stormcrown Peaks    | Thunderhide   | 8       | 75%                   | 83%             | 92%      | 75%                 | 92%              | 0%     | 110 s / 76          | 47%           |
+| Windward Cliffs     | Puffball      | 7       | 58%                   | 92%             | 100%     | 92%                 | 92%              | 0%     | 105 s / 72          | 55%           |
+| Windward Cliffs     | Gale Bat      | 8       | 67%                   | 83%             | 67%      | 75%                 | 58%              | 0%     | 106 s / 72          | 49%           |
+| Windward Cliffs     | Sky Ram       | 9       | 83%                   | 92%             | 100%     | 92%                 | 92%              | 0%     | 115 s / 79          | 51%           |
+| Moonfall Ruins      | Watcher       | 8       | 83%                   | 92%             | 83%      | 92%                 | 33%              | 0%     | 98 s / 65           | 50%           |
+| Moonfall Ruins      | Night Bat     | 9       | 75%                   | 100%            | 92%      | 92%                 | 67%              | 0%     | 127 s / 85          | 52%           |
+| Moonfall Ruins      | Gloom Toad    | 10      | 83%                   | 58%             | 83%      | 75%                 | 8%               | 0%     | 150 s / 101         | 48%           |
+| Moon Caves          | Moon Imp      | 10      | 83%                   | 75%             | 92%      | 100%                | 92%              | 0%     | 120 s / 82          | 65%           |
+| Moon Caves          | Shade Imp     | 11      | 92%                   | 100%            | 100%     | 92%                 | 83%              | 0%     | 115 s / 77          | 64%           |
+| Moon Caves          | Cave Brute    | 11      | 75%                   | 100%            | 100%     | 100%                | 92%              | 0%     | 125 s / 85          | 52%           |
+| Moon Caves · Depths | Shade Imp     | 11      | 92%                   | 100%            | 100%     | 92%                 | 83%              | 0%     | 115 s / 77          | 64%           |
+| Moon Caves · Depths | Moon Wyrm     | 13      | 25%                   | 25%             | 50%      | 83%                 | 33%              | 0%     | 147 s / 103         | 55%           |
+| Lesson              | Ember Wisp d1 | 1       | 83%                   | 83%             | 92%      | 92%                 | 92%              | 17%    | 35 s / 23           | 33%           |
+| Lesson              | Tide Wisp d1  | 1       | 100%                  | 92%             | 92%      | 100%                | 100%             | 25%    | 39 s / 26           | 71%           |
+| Lesson              | Gale Wisp d1  | 1       | 100%                  | 92%             | 100%     | 100%                | 100%             | 17%    | 29 s / 19           | 72%           |
+| Lesson              | Ember Wisp d2 | 3       | 92%                   | 75%             | 83%      | 75%                 | 58%              | 0%     | 40 s / 27           | 38%           |
+| Lesson              | Tide Wisp d2  | 3       | 92%                   | 83%             | 100%     | 100%                | 100%             | 0%     | 61 s / 40           | 72%           |
+| Lesson              | Gale Wisp d2  | 3       | 100%                  | 100%            | 92%      | 92%                 | 100%             | 0%     | 43 s / 28           | 69%           |
+| Lesson              | Ember Wisp d3 | 5       | 92%                   | 92%             | 100%     | 100%                | 75%              | 0%     | 53 s / 35           | 42%           |
+| Lesson              | Tide Wisp d3  | 5       | 100%                  | 100%            | 100%     | 100%                | 100%             | 0%     | 67 s / 45           | 75%           |
+| Lesson              | Gale Wisp d3  | 5       | 100%                  | 100%            | 100%     | 100%                | 100%             | 8%     | 39 s / 26           | 77%           |
+
+Read against the draft targets: the region fights mostly sit in the
+target band for the good bot (58–100%), prepared players still win most
+fights (the Feather now costs an item use and revives at 25%), and the
+Moon Wyrm at level 13 is 25% for the good bot and 50% prepared (83% with
+a full kit, above target): the balance pass's first jobs.
 
 #### Balance targets (DRAFT, for review)
 
 What the balance pass should aim for. Not yet tuned to.
 
-| Area | Hero level entering | Good (starter spells) | Good (full kit) | Prepared | Singles + spells | Sloppy | Fight length (good) | Gil in (per fight) / out (main buys) |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| The Realm | 1 | 80–90% | — | 95%+ | 70–85% | under 15% | 40–70 s | 4–10 / Copper Sword 22, inn 10 |
-| Thornwood Grove | 2 | 75–85% | — | 90%+ | 65–80% | under 10% | 50–80 s | 6–11 / herbs |
-| Glasswater Lake | 3 | 75–85% | — | 90%+ | 65–80% | under 10% | 50–90 s | 7–14 / Iron Sword 80, Crystal Mail 90 |
-| Redrock Quarry | 4 | 70–85% | 80–90% | 90%+ | 60–75% | under 10% | 60–100 s | 12–17 / Knight Blade 150 |
-| Emberforge | 5 | 70–85% | 80–90% | 90%+ | 60–75% | under 10% | 60–100 s | 14–22 / Flame Brand 260, Forge Plate 220 |
-| Stormcrown Peaks | 6 | 70–80% | 80–90% | 85–95% | 55–70% | under 5% | 70–110 s | 16–26 / inn, Feathers 30 |
-| Windward Cliffs | 7 | 70–80% | 80–90% | 85–95% | 55–70% | under 5% | 70–110 s | 20–30 / inn, Feathers 30 |
-| Moonfall Ruins | 8 | 70–80% | 80–90% | 85–95% | 55–70% | under 5% | 80–120 s | 25–34 / Ethers |
-| Moon Wyrm (first try) | 12–13 | 25–35% | 35–45% | 50–60% | 15–25% | 0% | 100–140 s | 90 |
-| Mentor lessons | at need | 85–100% | — | — | 75–100% | 0–20% | 30–60 s | — |
+| Area                  | Hero level entering | Good (starter spells) | Good (full kit) | Prepared | Singles + spells | Sloppy    | Fight length (good) | Gil in (per fight) / out (main buys)     |
+| --------------------- | ------------------- | --------------------- | --------------- | -------- | ---------------- | --------- | ------------------- | ---------------------------------------- |
+| The Realm             | 1                   | 80–90%                | —               | 95%+     | 70–85%           | under 15% | 40–70 s             | 4–10 / Copper Sword 22, inn 10           |
+| Thornwood Grove       | 2                   | 75–85%                | —               | 90%+     | 65–80%           | under 10% | 50–80 s             | 6–11 / herbs                             |
+| Glasswater Lake       | 3                   | 75–85%                | —               | 90%+     | 65–80%           | under 10% | 50–90 s             | 7–14 / Iron Sword 80, Crystal Mail 90    |
+| Redrock Quarry        | 4                   | 70–85%                | 80–90%          | 90%+     | 60–75%           | under 10% | 60–100 s            | 12–17 / Knight Blade 150                 |
+| Emberforge            | 5                   | 70–85%                | 80–90%          | 90%+     | 60–75%           | under 10% | 60–100 s            | 14–22 / Flame Brand 260, Forge Plate 220 |
+| Stormcrown Peaks      | 6                   | 70–80%                | 80–90%          | 85–95%   | 55–70%           | under 5%  | 70–110 s            | 16–26 / inn, Feathers 30                 |
+| Windward Cliffs       | 7                   | 70–80%                | 80–90%          | 85–95%   | 55–70%           | under 5%  | 70–110 s            | 20–30 / inn, Feathers 30                 |
+| Moonfall Ruins        | 8                   | 70–80%                | 80–90%          | 85–95%   | 55–70%           | under 5%  | 80–120 s            | 25–34 / Ethers                           |
+| Moon Wyrm (first try) | 12–13               | 25–35%                | 35–45%          | 50–60%   | 15–25%           | 0%        | 100–140 s           | 90                                       |
+| Mentor lessons        | at need             | 85–100%               | —               | —        | 75–100%          | 0–20%     | 30–60 s             | —                                        |
 
 "Prepared" means 5 Herbs, an Ether and a Feather with the 2-use cap.
 Gil should cover each region's gear by the time the next one opens, with
@@ -452,15 +497,15 @@ glow of their element's colour at their feet; a **scroll** floats over a
 mentor who has a lesson for you. Talking to them lists their lessons as
 buttons (spell, level pips, kind, cost, difficulty as swords).
 
-| Mentor  | Element   | Why they teach                                 | Home region, landmark (trial foe)   | Route after home                                                         | Moves every |
-| ------- | --------- | ---------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------ | ----------- |
-| Torva   | Fire      | Her hands shake too much for the forge now     | Emberforge, old forge (Ember Wisp)  | Quarry, ridge road · Brightwater · Mossvale · Moon Caves¹                | 4 wins      |
-| Maren   | Water     | The lake is clouding; she can't watch it alone | Glasswater Lake, jetty (Tide)       | Brightwater fountain · Grove pond · Mossvale                             | 5 wins      |
-| Rook    | Lightning | Storms roll off the peaks faster every year    | Stormcrown Peaks, beacon (Spark)    | Cliff road · Realm, north-east · Brightwater · Moon Caves¹ · Depths²     | 3 wins      |
-| Hazel   | Nature    | Spores are choking her meadows                 | Thornwood Grove, old oak (Moss)     | Realm, west meadow · Mossvale · Lake meadow                              | 6 wins      |
-| Dorn    | Earth     | The caves took his crew                        | Redrock Quarry, quarry lift (Stone) | Realm, tunnel gate · Emberforge ridge · Moon Caves¹ · Depths¹ · Brightwater | 4 wins   |
-| Selene  | Arcane    | Something below drinks the moonlight           | Moonfall Ruins, moon tower (Moon)   | Cliff path · Brightwater · Depths¹                                       | 5 wins      |
-| Kestrel | Wind      | Her letters must reach every village           | Windward Cliffs, eyrie (Gale)       | Peaks, high pass · Realm, south road · Mossvale · Brightwater · Realm, east road | 3 wins |
+| Mentor  | Element   | Why they teach                                 | Home region, landmark (trial foe)   | Route after home                                                                 | Moves every |
+| ------- | --------- | ---------------------------------------------- | ----------------------------------- | -------------------------------------------------------------------------------- | ----------- |
+| Torva   | Fire      | Her hands shake too much for the forge now     | Emberforge, old forge (Ember Wisp)  | Quarry, ridge road · Brightwater · Mossvale · Moon Caves¹                        | 4 wins      |
+| Maren   | Water     | The lake is clouding; she can't watch it alone | Glasswater Lake, jetty (Tide)       | Brightwater fountain · Grove pond · Mossvale                                     | 5 wins      |
+| Rook    | Lightning | Storms roll off the peaks faster every year    | Stormcrown Peaks, beacon (Spark)    | Cliff road · Realm, north-east · Brightwater · Moon Caves¹ · Depths²             | 3 wins      |
+| Hazel   | Nature    | Spores are choking her meadows                 | Thornwood Grove, old oak (Moss)     | Realm, west meadow · Mossvale · Lake meadow                                      | 6 wins      |
+| Dorn    | Earth     | The caves took his crew                        | Redrock Quarry, quarry lift (Stone) | Realm, tunnel gate · Emberforge ridge · Moon Caves¹ · Depths¹ · Brightwater      | 4 wins      |
+| Selene  | Arcane    | Something below drinks the moonlight           | Moonfall Ruins, moon tower (Moon)   | Cliff path · Brightwater · Depths¹                                               | 5 wins      |
+| Kestrel | Wind      | Her letters must reach every village           | Windward Cliffs, eyrie (Gale)       | Peaks, high pass · Realm, south road · Mossvale · Brightwater · Realm, east road | 3 wins      |
 
 Every mentor lives in their own region (see [World and regions](#world-and-regions))
 and travels to the neighbouring region and the starter towns, so each has
@@ -717,21 +762,31 @@ Devoted NPCs confide instead of the warm intro, and NPCs who can refuse
 have a refusal. The accept line opens the battle as a banner; the decline
 line shows over the map.
 
-| NPC                | Element   | Need                                      | Challenge                      | Reward (bonus / secret)                           |
-| ------------------ | --------- | ----------------------------------------- | ------------------------------ | ------------------------------------------------- |
-| Elder Rowan        | Earth     | Spores choke the village well             | Puzzle: clear the spore field  | Quake, or the Well Stone (Ether / Spore Cap)      |
-| Farmer Bea         | Nature    | Blight left her herb beds bare            | Barter: plant 7 green          | 2 Herbs (Herb / Grove Charm)                      |
-| Pip                | Wind      | His crystal tower is jammed before supper | Puzzle: unjam the tower        | Ether (Herb / Wind Charm)                         |
-| Stall Keeper Odo   | Nature    | Makes his living at the stall             | Haggle                         | Mossvale Stall (secret: Iron Sword)               |
-| Merchant Lio       | Water     | Must clear stock before the barges come   | Haggle                         | Brightwater Goods (secret: Crystal Mail)          |
-| Smith Hilda        | Fire      | The forge eats coal faster than she sells | Haggle                         | Ember Forge (secret: Hilda's Hammer)              |
-| Innkeeper Mae      | Fire      | Empty rooms since the caves closed        | Haggle                         | The Sleeping Lantern (secret: Phoenix Feather)    |
-| Sage Orrin         | Lightning | The storm broke his roof lattice          | Puzzle: rebuild the lattice    | Thunder, or a Storm Charm (Ether / 2 Ethers)      |
-| Captain Vale       | Earth     | The cave ward lamps are dying             | Barter: 8 blue, 8 violet       | Cave Pass, 20 gil (Herb / Phoenix Feather)        |
-| Collector Nim      | Wind      | Goblin Charms for his cabinet, but clean  | Offering: clean a Goblin Charm | 45 gil (Ether / Moon Shard)                       |
-| Shrine Keeper Ilse | Water     | The shrine spring clouded with the lake   | Barter: 10 blue, 6 green       | Spring restored, Ether (Ether / Tide Charm)       |
-| Cave Hermit        | Arcane    | Grinds Moon Shards into salves            | Offering: grind a Moon Shard   | 2 Ethers, 2 Herbs (Herb / Moon Charm)             |
-| Sealed Chest       | Arcane    | (a thing)                                 | Puzzle: break the seal         | Phoenix Feather, 2 Moon Shards (a delver's cache) |
+| NPC                  | Element   | Need                                      | Challenge                      | Reward (bonus / secret)                           |
+| -------------------- | --------- | ----------------------------------------- | ------------------------------ | ------------------------------------------------- |
+| Elder Rowan          | Earth     | Spores choke the village well             | Puzzle: clear the spore field  | Quake, or the Well Stone (Ether / Spore Cap)      |
+| Farmer Bea           | Nature    | Blight left her herb beds bare            | Barter: plant 7 green          | 2 Herbs (Herb / Grove Charm)                      |
+| Pip                  | Wind      | His crystal tower is jammed before supper | Puzzle: unjam the tower        | Ether (Herb / Wind Charm)                         |
+| Stall Keeper Odo     | Nature    | Makes his living at the stall             | Haggle                         | Mossvale Stall (secret: Iron Sword)               |
+| Merchant Lio         | Water     | Must clear stock before the barges come   | Haggle                         | Brightwater Goods (secret: Crystal Mail)          |
+| Smith Hilda          | Fire      | The forge eats coal faster than she sells | Haggle                         | Ember Forge (secret: Hilda's Hammer)              |
+| Innkeeper Mae        | Fire      | Empty rooms since the caves closed        | Haggle                         | The Sleeping Lantern (secret: Phoenix Feather)    |
+| Sage Orrin           | Lightning | The storm broke his roof lattice          | Puzzle: rebuild the lattice    | Thunder, or a Storm Charm (Ether / 2 Ethers)      |
+| Captain Vale         | Earth     | The cave ward lamps are dying             | Barter: 8 blue, 8 violet       | Cave Pass, 20 gil (Herb / Phoenix Feather)        |
+| Collector Nim        | Wind      | Goblin Charms for his cabinet, but clean  | Offering: clean a Goblin Charm | 45 gil (Ether / Moon Shard)                       |
+| Shrine Keeper Ilse   | Water     | The shrine spring clouded with the lake   | Barter: 10 blue, 6 green       | Spring restored, Ether (Ether / Tide Charm)       |
+| Cave Hermit          | Arcane    | Grinds Moon Shards into salves            | Offering: grind a Moon Shard   | 2 Ethers, 2 Herbs (Herb / Moon Charm)             |
+| Sealed Chest         | Arcane    | (a thing)                                 | Puzzle: break the seal         | Phoenix Feather, 2 Moon Shards (a delver's cache) |
+| Forager Wren         | Nature    | Rot ate her mushroom rings (grove)        | Barter: plant 8 green          | 2 Herbs, 15 gil (Herb / Grove Charm)              |
+| Fisher Tam           | Water     | Lurkers tore his nets (lake)              | Barter: weave 8 blue           | 25 gil, Ether (Herb / Tide Charm)                 |
+| Foreman Brann        | Earth     | A rockslide buried the ridge road         | Barter: 10 orange, 6 violet    | Ridge road open, 40 gil (Ether / Well Stone)      |
+| Apprentice Cinda     | Fire      | Must forge the peak gate's key for Torva  | Barter: 10 red, 6 orange       | Peak gate key, Ether (2 Herbs / Ember Charm)      |
+| Armorer Garrick      | Fire      | The ore is back and his racks are full    | Haggle                         | Emberforge Armory (secret: Phoenix Feather)       |
+| Innkeeper Rosa       | Fire      | Smiths sleep hard and pay late            | Haggle                         | The Cinder Rest (secret: Ether)                   |
+| Beacon Keeper Ysolde | Lightning | The storm beacon went dark                | Barter: charge 10 gold         | 2 Ethers, 30 gil (2 Herbs / Storm Charm)          |
+| Courier Finch        | Wind      | A gust scattered his letters (cliffs)     | Barter: catch 10 cyan          | 50 gil, Herb (Ether / Phoenix Feather)            |
+| Warden Ada           | Wind      | Climbers rest at her lodge                | Haggle                         | Eyrie Lodge (secret: Wind Charm)                  |
+| Scholar Ivo          | Arcane    | The moon rune over the tower went dark    | Barter: relight with 10 violet | 2 Ethers, 30 gil (2 Herbs / Moon Shard)           |
 
 Spell tomes left the shops: mentors teach spells. Their items remain, so
 a tome an old save holds can still be read. The sealed chest's Blizzard
@@ -742,45 +797,45 @@ tome became a delver's cache (Maren teaches Blizzard).
 Art is mixed by area: cute Fantasy Dreamland creatures in the open world,
 and bigger, scarier Pixel Battlers monsters underground.
 
-| Area       | Enemy        | Lv  | HP  | Atk | Gauge  | Element | Weak to       | Resists                                 | Kit                                                                                                                                 | Drops           |
-| ---------- | ------------ | --- | --- | --- | ------ | ------- | ------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | --------------- |
-| Overworld  | Green Slime  | 1   | 66  | 6   | 8.5 s  | Nature  | Fire, arcane  | Water, nature, earth                    | Bounce 3 (×2), petrify 3 (Sticky Goo)                                                                                               | Slime Gel       |
-| Overworld  | Spore Shroom | 2   | 85  | 6   | 7.5 s  | Nature  | Fire, arcane  | Water, nature, earth                    | Headbutt 3 (×2), haste 3 (Spore Cloud), fog 3 (Spore Haze)                                                                          | Spore Cap       |
-| Overworld  | Goblin Scout | 3   | 100 | 6   | 8 s    | Earth   | Water, nature | Lightning, earth, wind                  | Stab 4 (×2), curse 1 (Rock Toss), seal 3 (Stake)                                                                                    | Goblin Charm    |
-| Lessons    | Wisps (×7)   | 2   | 50  | 5   | 9 s    | Each    | From chart    | From chart                              | Lash 2 + one of their element's (Tide: fog 2; Gale: quicken 4 s)                                                                    | —               |
+| Area      | Enemy        | Lv  | HP  | Atk | Gauge | Element | Weak to       | Resists                | Kit                                                              | Drops        |
+| --------- | ------------ | --- | --- | --- | ----- | ------- | ------------- | ---------------------- | ---------------------------------------------------------------- | ------------ |
+| Overworld | Green Slime  | 1   | 66  | 6   | 8.5 s | Nature  | Fire, arcane  | Water, nature, earth   | Bounce 3 (×2), petrify 3 (Sticky Goo)                            | Slime Gel    |
+| Overworld | Spore Shroom | 2   | 85  | 6   | 7.5 s | Nature  | Fire, arcane  | Water, nature, earth   | Headbutt 3 (×2), haste 3 (Spore Cloud), fog 3 (Spore Haze)       | Spore Cap    |
+| Overworld | Goblin Scout | 3   | 100 | 6   | 8 s   | Earth   | Water, nature | Lightning, earth, wind | Stab 4 (×2), curse 1 (Rock Toss), seal 3 (Stake)                 | Goblin Charm |
+| Lessons   | Wisps (×7)   | 2   | 50  | 5   | 9 s   | Each    | From chart    | From chart             | Lash 2 + one of their element's (Tide: fog 2; Gale: quicken 4 s) | —            |
 
 **The mentor regions and the Moon Caves** (stats are placeholders for the
 balance pass; region monsters grow at most 2 levels with the hero, the
 caves' 3, the Wyrm 1). Overworld critters are Fantasy Dreamland enemies;
 the bigger beasts are Pixel Battlers.
 
-| Area | Enemy | Lv | HP | Atk | Gauge | Element | Weak to | Resists | Kit | XP / gil | Drops |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Thornwood Grove | Sproutling | 2 | 115 | 7 | 7.5 s | Nature | Fire, Arcane | Water, Nature, Earth | Root Slap 3, Sunbathe 8, Seed Pod 3 | 9 / 6 | herb 30% |
-| Thornwood Grove | Leaf Sprite | 3 | 120 | 8 | 7.0 s | Nature | Fire, Arcane | Water, Nature, Earth | Leaf Cut 4, Pollen 3, Leaf Storm 3 | 13 / 8 | sporeCap 20% |
-| Thornwood Grove | Thorn Troll | 4 | 160 | 9 | 10.0 s | Nature | Fire, Arcane | Water, Nature, Earth | Thorn Club 7, Bramble 1, Moss Bed 12 | 18 / 11 | herb 40% |
-| Glasswater Lake | Drip | 3 | 90 | 7 | 7.0 s | Water | Lightning, Nature | Fire, Water, Earth | Splash 4, Lake Mist 3, Soak 3 | 13 / 7 | ether 15% |
-| Glasswater Lake | Lake Lurker | 4 | 150 | 9 | 8.0 s | Water | Lightning, Nature | Fire, Water, Earth | Bite 6, Undertow 3, Gulp 4 | 18 / 10 | herb 30% |
-| Glasswater Lake | Tide Ogre | 5 | 190 | 10 | 9.5 s | Water | Lightning, Nature | Fire, Water, Earth | Wave Crash 8, Silt 2, Spray 3 | 27 / 14 | ether 30% |
-| Redrock Quarry | Goblin Digger | 4 | 125 | 9 | 8.0 s | Earth | Water, Nature | Lightning, Earth, Wind | Pick 5, Rock Toss 1, Stake 3 | 18 / 12 | goblinCharm 40% |
-| Redrock Quarry | Quarry Hound | 5 | 150 | 9 | 6.5 s | Earth | Water, Nature | Lightning, Earth, Wind | Maul 5, Pounce 4 s, Grit 4 | 27 / 13 | herb 30% |
-| Redrock Quarry | Stone Ogre | 6 | 180 | 11 | 12.0 s | Earth | Water, Nature | Lightning, Earth, Wind | Boulder Slam 9, Landslide 2, Boulder 3 | 38 / 17 | ether 40% |
-| Emberforge | Cinder | 5 | 160 | 10 | 6.5 s | Fire | Water, Wind | Fire, Nature, Arcane | Flare 6, Kindle 3, Scorch 4 | 27 / 14 | herb 30% |
-| Emberforge | Forge Imp | 6 | 195 | 12 | 7.0 s | Fire | Water, Wind | Fire, Nature, Arcane | Pitchfork 7, Bellows 4, Stoke 5 s | 38 / 17 | ether 30% |
-| Emberforge | Magma Drake | 7 | 300 | 13 | 9.0 s | Fire | Water, Wind | Fire, Nature, Arcane | Magma Breath 12, Slag 2, Cinders 5 | 56 / 22 | ether 40% |
-| Stormcrown Peaks | Spark Pup | 6 | 160 | 9 | 5.5 s | Lightning | Earth, Arcane | Water, Lightning, Wind | Zap 5, Static 5 s, Jolt 3 | 38 / 16 | herb 30% |
-| Stormcrown Peaks | Storm Goblin | 7 | 180 | 11 | 7.0 s | Lightning | Earth, Arcane | Water, Lightning, Wind | Shock Spear 8, Lightning Rod 2, Thunderhead 3 | 56 / 21 | ether 30% |
-| Stormcrown Peaks | Thunderhide | 8 | 240 | 11 | 9.5 s | Lightning | Earth, Arcane | Water, Lightning, Wind | Thunder Slam 10, Roar 4, Storm Surge 6 s | 80 / 26 | ether 40% |
-| Windward Cliffs | Puffball | 7 | 200 | 12 | 6.0 s | Wind | Lightning, Earth | Fire, Arcane, Wind | Puff 6, Dust Devil 3, Updraft 5 s | 56 / 20 | herb 30% |
-| Windward Cliffs | Gale Bat | 8 | 240 | 14 | 6.0 s | Wind | Lightning, Earth | Fire, Arcane, Wind | Wing Cut 8, Gale 4, Downdraft 3 | 80 / 24 | ether 30% |
-| Windward Cliffs | Sky Ram | 9 | 280 | 13 | 9.0 s | Wind | Lightning, Earth | Fire, Arcane, Wind | Ram 10, Rockfall 1, Charge 4 s | 117 / 30 | ether 40% |
-| Moonfall Ruins | Watcher | 8 | 320 | 14 | 7.0 s | Arcane | Fire, Wind | Lightning, Nature, Arcane | Gaze 8, Stare 5, Mind Leech 5 | 80 / 25 | herb 30% |
-| Moonfall Ruins | Night Bat | 9 | 290 | 16 | 6.5 s | Arcane | Fire, Wind | Lightning, Nature, Arcane | Night Bite 11, Moon Sip 5, Eclipse Wing 3, Leech 14 | 117 / 28 | moonShard 30% |
-| Moonfall Ruins | Gloom Toad | 10 | 440 | 17 | 8.5 s | Arcane | Fire, Wind | Lightning, Nature, Arcane | Tongue Lash 13, Hex 2, Gloom 5, Wallow 25 | 170 / 34 | ether 40% |
-| Moon Caves | Moon Imp | 10 | 360 | 17 | 6.0 s | Arcane | Fire, Wind | Lightning, Nature, Arcane | Swoop 8, Leech Mana 4, Moon Dust 3, Flit 5 s | 170 / 30 | — |
-| Moon Caves | Shade Imp | 11 | 340 | 18 | 7.0 s | Arcane | Fire, Wind | Lightning, Nature, Arcane | Moonbeam 9, Glimmer 12, Hex 1, Gloom 4 | 240 / 36 | moonShard 30% |
-| Moon Caves | Cave Brute | 11 | 290 | 16 | 12.5 s | Earth | Water, Nature | Lightning, Earth, Wind | Slam 8, Rubble 2, Boulder 3 | 240 / 40 | ether 40% |
-| Moon Caves · Depths | Moon Wyrm | 13 | 460 | 14 | 8.0 s | Arcane | Fire, Wind | Water, Lightning, Nature, Arcane | Lunar Breath 16, Tail Sweep 10, Crystal Tomb 2, Eclipse 4, Moon Drain 4, Moonfog 4, Starfall 6, Tidal Pull 3, Night Wind 6 s | 900 / 90 | phoenixFeather 100% |
+| Area                | Enemy         | Lv  | HP  | Atk | Gauge  | Element   | Weak to           | Resists                          | Kit                                                                                                                          | XP / gil | Drops               |
+| ------------------- | ------------- | --- | --- | --- | ------ | --------- | ----------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------- |
+| Thornwood Grove     | Sproutling    | 2   | 115 | 7   | 7.5 s  | Nature    | Fire, Arcane      | Water, Nature, Earth             | Root Slap 3, Sunbathe 8, Seed Pod 3                                                                                          | 9 / 6    | herb 30%            |
+| Thornwood Grove     | Leaf Sprite   | 3   | 120 | 8   | 7.0 s  | Nature    | Fire, Arcane      | Water, Nature, Earth             | Leaf Cut 4, Pollen 3, Leaf Storm 3                                                                                           | 13 / 8   | sporeCap 20%        |
+| Thornwood Grove     | Thorn Troll   | 4   | 160 | 9   | 10.0 s | Nature    | Fire, Arcane      | Water, Nature, Earth             | Thorn Club 7, Bramble 1, Moss Bed 12                                                                                         | 18 / 11  | herb 40%            |
+| Glasswater Lake     | Drip          | 3   | 90  | 7   | 7.0 s  | Water     | Lightning, Nature | Fire, Water, Earth               | Splash 4, Lake Mist 3, Soak 3                                                                                                | 13 / 7   | ether 15%           |
+| Glasswater Lake     | Lake Lurker   | 4   | 150 | 9   | 8.0 s  | Water     | Lightning, Nature | Fire, Water, Earth               | Bite 6, Undertow 3, Gulp 4                                                                                                   | 18 / 10  | herb 30%            |
+| Glasswater Lake     | Tide Ogre     | 5   | 190 | 10  | 9.5 s  | Water     | Lightning, Nature | Fire, Water, Earth               | Wave Crash 8, Silt 2, Spray 3                                                                                                | 27 / 14  | ether 30%           |
+| Redrock Quarry      | Goblin Digger | 4   | 125 | 9   | 8.0 s  | Earth     | Water, Nature     | Lightning, Earth, Wind           | Pick 5, Rock Toss 1, Stake 3                                                                                                 | 18 / 12  | goblinCharm 40%     |
+| Redrock Quarry      | Quarry Hound  | 5   | 150 | 9   | 6.5 s  | Earth     | Water, Nature     | Lightning, Earth, Wind           | Maul 5, Pounce 4 s, Grit 4                                                                                                   | 27 / 13  | herb 30%            |
+| Redrock Quarry      | Stone Ogre    | 6   | 180 | 11  | 12.0 s | Earth     | Water, Nature     | Lightning, Earth, Wind           | Boulder Slam 9, Landslide 2, Boulder 3                                                                                       | 38 / 17  | ether 40%           |
+| Emberforge          | Cinder        | 5   | 160 | 10  | 6.5 s  | Fire      | Water, Wind       | Fire, Nature, Arcane             | Flare 6, Kindle 3, Scorch 4                                                                                                  | 27 / 14  | herb 30%            |
+| Emberforge          | Forge Imp     | 6   | 195 | 12  | 7.0 s  | Fire      | Water, Wind       | Fire, Nature, Arcane             | Pitchfork 7, Bellows 4, Stoke 5 s                                                                                            | 38 / 17  | ether 30%           |
+| Emberforge          | Magma Drake   | 7   | 300 | 13  | 9.0 s  | Fire      | Water, Wind       | Fire, Nature, Arcane             | Magma Breath 12, Slag 2, Cinders 5                                                                                           | 56 / 22  | ether 40%           |
+| Stormcrown Peaks    | Spark Pup     | 6   | 160 | 9   | 5.5 s  | Lightning | Earth, Arcane     | Water, Lightning, Wind           | Zap 5, Static 5 s, Jolt 3                                                                                                    | 38 / 16  | herb 30%            |
+| Stormcrown Peaks    | Storm Goblin  | 7   | 180 | 11  | 7.0 s  | Lightning | Earth, Arcane     | Water, Lightning, Wind           | Shock Spear 8, Lightning Rod 2, Thunderhead 3                                                                                | 56 / 21  | ether 30%           |
+| Stormcrown Peaks    | Thunderhide   | 8   | 240 | 11  | 9.5 s  | Lightning | Earth, Arcane     | Water, Lightning, Wind           | Thunder Slam 10, Roar 4, Storm Surge 6 s                                                                                     | 80 / 26  | ether 40%           |
+| Windward Cliffs     | Puffball      | 7   | 200 | 12  | 6.0 s  | Wind      | Lightning, Earth  | Fire, Arcane, Wind               | Puff 6, Dust Devil 3, Updraft 5 s                                                                                            | 56 / 20  | herb 30%            |
+| Windward Cliffs     | Gale Bat      | 8   | 240 | 14  | 6.0 s  | Wind      | Lightning, Earth  | Fire, Arcane, Wind               | Wing Cut 8, Gale 4, Downdraft 3                                                                                              | 80 / 24  | ether 30%           |
+| Windward Cliffs     | Sky Ram       | 9   | 280 | 13  | 9.0 s  | Wind      | Lightning, Earth  | Fire, Arcane, Wind               | Ram 10, Rockfall 1, Charge 4 s                                                                                               | 117 / 30 | ether 40%           |
+| Moonfall Ruins      | Watcher       | 8   | 320 | 14  | 7.0 s  | Arcane    | Fire, Wind        | Lightning, Nature, Arcane        | Gaze 8, Stare 5, Mind Leech 5                                                                                                | 80 / 25  | herb 30%            |
+| Moonfall Ruins      | Night Bat     | 9   | 290 | 16  | 6.5 s  | Arcane    | Fire, Wind        | Lightning, Nature, Arcane        | Night Bite 11, Moon Sip 5, Eclipse Wing 3, Leech 14                                                                          | 117 / 28 | moonShard 30%       |
+| Moonfall Ruins      | Gloom Toad    | 10  | 440 | 17  | 8.5 s  | Arcane    | Fire, Wind        | Lightning, Nature, Arcane        | Tongue Lash 13, Hex 2, Gloom 5, Wallow 25                                                                                    | 170 / 34 | ether 40%           |
+| Moon Caves          | Moon Imp      | 10  | 360 | 17  | 6.0 s  | Arcane    | Fire, Wind        | Lightning, Nature, Arcane        | Swoop 8, Leech Mana 4, Moon Dust 3, Flit 5 s                                                                                 | 170 / 30 | —                   |
+| Moon Caves          | Shade Imp     | 11  | 340 | 18  | 7.0 s  | Arcane    | Fire, Wind        | Lightning, Nature, Arcane        | Moonbeam 9, Glimmer 12, Hex 1, Gloom 4                                                                                       | 240 / 36 | moonShard 30%       |
+| Moon Caves          | Cave Brute    | 11  | 290 | 16  | 12.5 s | Earth     | Water, Nature     | Lightning, Earth, Wind           | Slam 8, Rubble 2, Boulder 3                                                                                                  | 240 / 40 | ether 40%           |
+| Moon Caves · Depths | Moon Wyrm     | 13  | 460 | 14  | 8.0 s  | Arcane    | Fire, Wind        | Water, Lightning, Nature, Arcane | Lunar Breath 16, Tail Sweep 10, Crystal Tomb 2, Eclipse 4, Moon Drain 4, Moonfog 4, Starfall 6, Tidal Pull 3, Night Wind 6 s | 900 / 90 | phoenixFeather 100% |
 
 The Moon Wyrm keeps everything from before (attacks twice as likely,
 resists water, enrages at ½ HP with a 5 s gauge, 3-row curses and +4
@@ -826,6 +881,56 @@ Mossvale (learn the challenge types) → overworld monsters (drops, levels)
 (sealed chest, hermit) → Moon Wyrm boss. Spells beyond the class spell
 come from mentors, the Elder (Quake) and the sage (Thunder); shops sell no
 tomes. The Sunken Ruins are sealed as the hook for the next region.
+
+That road now runs through the seven mentor regions (see
+[World and regions](#world-and-regions)): the grove and the lake, the
+quarry and the forge town, then the peaks, the cliffs and the moonlit
+ruins over the Moon Caves, so the Wyrm sits at the end of a curve from
+level 1 to about 13.
+
+## World and regions
+
+"Why is everyone in the same area?" The realm was five small maps sharing
+every person and monster. Each mentor now has a **home region** with its
+own map, monsters, people and landmark, joined to the Realm (the hub, which
+gained road exits west, east and south) or to the region before it.
+Regions keep a level band (`REGIONS` in `src/data/balance.ts`; their
+monsters grow at most 2 levels with the hero) and tilt the bag toward
+their element.
+
+| #   | Region (map)                     | Mentor, landmark   | Monster levels | Monsters                                   | People                                            | Reached from                                      | Gate                      |
+| --- | -------------------------------- | ------------------ | -------------- | ------------------------------------------ | ------------------------------------------------- | ------------------------------------------------- | ------------------------- |
+| 0   | The Realm, Mossvale, Brightwater | (visits)           | 1–3            | Slime, Spore Shroom, Goblin Scout          | the old cast                                      | start                                             | —                         |
+| 1   | Thornwood Grove (`grove`)        | Hazel, old oak     | 2–4            | Sproutling, Leaf Sprite, Thorn Troll       | Forager Wren                                      | Realm, west road                                  | —                         |
+| 2   | Glasswater Lake (`lake`)         | Maren, jetty       | 3–5            | Drip, Lake Lurker, Tide Ogre               | Fisher Tam                                        | Realm, east road                                  | —                         |
+| 3   | Redrock Quarry (`quarry`)        | Dorn, quarry lift  | 4–6            | Goblin Digger, Quarry Hound, Stone Ogre    | Foreman Brann                                     | Realm, south road                                 | —                         |
+| 4   | Emberforge (`forge`)             | Torva, old forge   | 5–7            | Cinder, Forge Imp, Magma Drake             | Apprentice Cinda, Armorer Garrick, Innkeeper Rosa | quarry, ridge road                                | `ridgeCleared` (Brann)    |
+| 5   | Stormcrown Peaks (`peaks`)       | Rook, storm beacon | 6–8            | Spark Pup, Storm Goblin, Thunderhide       | Beacon Keeper Ysolde                              | Realm, the tunnel north-east (once the cave seal) | `peakGate` (Cinda)        |
+| 6   | Windward Cliffs (`cliffs`)       | Kestrel, eyrie     | 7–9            | Puffball, Gale Bat, Sky Ram                | Courier Finch, Warden Ada (inn)                   | peaks, west                                       | —                         |
+| 7   | Moonfall Ruins (`ruins`)         | Selene, moon tower | 8–10           | Watcher, Night Bat, Gloom Toad             | Scholar Ivo                                       | cliffs, south-west                                | —                         |
+| 8   | Moon Caves, Depths               | (visits)           | 10–11, Wyrm 13 | Moon Imp, Shade Imp, Cave Brute, Moon Wyrm | Cave Hermit, Sealed Chest                         | ruins, cave mouth                                 | `cavePass` (Captain Vale) |
+
+- **Gates are people, never items**: each flag comes from an `essential`
+  NPC (they deal even when Hostile) in a region the hero can already
+  reach; the tests flood-fill the world flag by flag and check every map
+  opens and every gate's flag is earned before it is needed. A locked
+  warp says who holds the key.
+- **Inns** in Brightwater, Emberforge and the cliffs' lodge; Emberforge's
+  armory sells the next gear tier (Flame Brand, Forge Plate).
+- **Moved**: the Moon Caves' entrance moved from the Realm into the
+  Moonfall Ruins, and the old cave seal is now the tunnel gate to the
+  peaks. Old saves load as they were (the caves' way out now leads to the
+  ruins); a saved spot that is no longer walkable sends the hero to their
+  inn (or the start). The Moon Caves' monsters moved up the level curve
+  (Moon Imp 10, Shade Imp and Cave Brute 11, Moon Wyrm 13).
+- **Moon Shards** (Eclipse, the hermit) also drop from the ruins' Night
+  Bats and are Scholar Ivo's secret, so Selene's hidden spell no longer
+  waits for the caves.
+- **Art**: each region has its own theme (`src/ui/art/themes.ts`): the
+  ground sheet's other grasses and sand, recoloured ash, frost, moon grass
+  and red earth, animated lava (the water recoloured), and props from the
+  Blacksmith, Castle, Dungeon, Enchanted Forest, Forest, Mountains and
+  Desert packs, cropped and packed into one sheet by `tools/import_art.py`.
 
 **The ending**: beating the Moon Wyrm sets `wyrmBeaten` and, after the
 results (and the skill screen on a level-up), shows the chapter's end:
