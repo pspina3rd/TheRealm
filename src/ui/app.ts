@@ -38,6 +38,7 @@ import { currentMap, newGame, travel, type GameState } from '../world/state';
 import { Dialog } from './dialog';
 import { button, byId, el, lineNodes } from './dom';
 import { ELEMENT_ICONS, SPELL_KIND_ICONS, STAT_ICONS } from './art/icons';
+import { battleKey, normalizeKey } from './battleKeys';
 import { BattleView } from './battleView';
 import { iconElement } from './iconDraw';
 import { conversationBody, epilogueBody, resultsBody } from './screens/conversation';
@@ -69,15 +70,6 @@ const KEY_DIRECTIONS: Readonly<Record<string, Direction>> = {
   s: 'down',
   a: 'left',
   d: 'right',
-};
-
-const KEY_BATTLE: Readonly<Record<string, BattleAction>> = {
-  ArrowLeft: 'left',
-  ArrowRight: 'right',
-  ArrowUp: 'rotate',
-  x: 'rotate',
-  ArrowDown: 'softDrop',
-  ' ': 'hardDrop',
 };
 
 interface ActiveBattle {
@@ -945,18 +937,16 @@ export class App {
     const key = normalizeKey(event.key);
 
     if (this.active) {
-      const action = KEY_BATTLE[key];
-      if (action) {
+      const command = battleKey(event.key, event.repeat);
+      if (command?.kind === 'input') {
         event.preventDefault();
-        this.active.battle.input(action);
-      } else if (key === 'p') {
-        if (event.repeat) return;
+        this.active.battle.input(command.action);
+      } else if (command?.kind === 'pause') {
         this.togglePause();
-      } else if (/^[1-9]$/.test(key)) {
-        // A category, then a spell in its menu.
-        this.battleView.hero.pick(Number(key));
-      } else if (key === 'Escape') {
-        if (this.battleView.hero.back()) event.preventDefault();
+      } else if (command?.kind === 'pick') {
+        this.battleView.hero.pick(command.slot);
+      } else if (command?.kind === 'back' && this.battleView.hero.back()) {
+        event.preventDefault();
       }
       return;
     }
@@ -978,11 +968,6 @@ export class App {
     const battle = this.active?.battle;
     if (battle && !this.active?.finished) battle.togglePause();
   }
-}
-
-/** Lower-cases single letters so WASD works with Caps Lock or Shift. */
-function normalizeKey(key: string): string {
-  return key.length === 1 ? key.toLowerCase() : key;
 }
 
 /** A creature id for a sprite key, or null if there is no such creature. */

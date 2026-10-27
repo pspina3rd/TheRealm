@@ -1,6 +1,11 @@
 import type { KeyValueStore } from './save';
 
-/** Falls back to a visibly temporary store when browser persistence is unavailable. */
+/**
+ * The store saves go to: the browser's `localStorage` (or `getPersistentStore`
+ * in tests) once a probe write succeeds, leaving any existing probe value
+ * as it was. When persistence is unavailable it falls back to an in-memory
+ * store marked `persistent: false`, which the UI discloses as temporary.
+ */
 export function createStore(
   getPersistentStore: () => KeyValueStore = () => localStorage,
 ): KeyValueStore {

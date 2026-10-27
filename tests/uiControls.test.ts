@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../src/ui/app';
+import { battleKey } from '../src/ui/battleKeys';
 import { HeroPanel } from '../src/ui/heroPanel';
 import type { Atlas } from '../src/ui/art/atlas';
 import type { ChallengeSpec } from '../src/data/types';
@@ -89,22 +90,6 @@ describe('battle controls in the DOM', () => {
     expect(battle.paused).toBe(false);
   });
 
-  it('spends one pause when P is held, and resumes on a fresh press', () => {
-    const battle = makeBattle(challenges[0]!);
-    bindBattleInput(battle);
-    const pauses = battle.pausesLeft;
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'p' }));
-    for (let i = 0; i < 10; i++) {
-      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'p', repeat: true }));
-    }
-    expect(battle.paused).toBe(true);
-    expect(battle.pausesLeft).toBe(pauses - 1);
-    document.dispatchEvent(new KeyboardEvent('keyup', { key: 'p' }));
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'p' }));
-    expect(battle.paused).toBe(false);
-    expect(battle.pausesLeft).toBe(pauses - 1);
-  });
-
   it.each(['spell', 'item'])('preserves focused %s through HP and mana updates', (kind) => {
     const battle = makeBattle(challenges[0]!);
     addItem(battle.hero, 'herb', 2);
@@ -130,5 +115,23 @@ describe('battle controls in the DOM', () => {
     battle.hero.hp--;
     panel.render(battle, new Set());
     expect(document.activeElement).toBe(pause);
+  });
+});
+
+describe('battle keys', () => {
+  it('pauses on a fresh P press only, so holding P spends one pause', () => {
+    expect(battleKey('p', false)).toEqual({ kind: 'pause' });
+    expect(battleKey('P', false)).toEqual({ kind: 'pause' });
+    expect(battleKey('p', true)).toBeNull();
+  });
+
+  it('repeats piece moves, picks spells by digit and backs out with Escape', () => {
+    expect(battleKey('ArrowLeft', true)).toEqual({ kind: 'input', action: 'left' });
+    expect(battleKey('X', false)).toEqual({ kind: 'input', action: 'rotate' });
+    expect(battleKey(' ', false)).toEqual({ kind: 'input', action: 'hardDrop' });
+    expect(battleKey('3', false)).toEqual({ kind: 'pick', slot: 3 });
+    expect(battleKey('0', false)).toBeNull();
+    expect(battleKey('Escape', false)).toEqual({ kind: 'back' });
+    expect(battleKey('m', false)).toBeNull();
   });
 });

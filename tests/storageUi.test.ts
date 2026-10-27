@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createStore } from '../src/game/storage';
-import { saveGame, type KeyValueStore } from '../src/game/save';
+import { CORRUPT_KEY, SAVE_KEY, saveGame, type KeyValueStore } from '../src/game/save';
 import { newGame } from '../src/world/state';
 import { App } from '../src/ui/app';
 import type { Atlas } from '../src/ui/art/atlas';
@@ -123,5 +123,16 @@ describe('save durability messaging', () => {
     });
     manualSave();
     expect(document.querySelector('#world-banner')?.textContent).toBe('Saving is unavailable');
+  });
+
+  it('tells the player an unreadable save was backed up, and keeps the backup', () => {
+    const store = persistentStore();
+    store.setItem(SAVE_KEY, '{"version":8');
+    new App(atlas, store).start();
+    expect(document.querySelector('.session-notice')?.textContent).toContain('kept as a backup');
+    expect(store.getItem(CORRUPT_KEY)).toBe('{"version":8');
+    manualSave();
+    expect(document.querySelector('#world-banner')?.textContent).toBe('Saved');
+    expect(store.getItem(CORRUPT_KEY)).toBe('{"version":8');
   });
 });

@@ -833,6 +833,11 @@ selling can't lock anything. Treasures now have a price for this (Slime
 Gel 6, Spore Cap 10, Goblin Charm 20, Moon Shard 20), so every drop is
 worth something; the collector and hermit still pay far better.
 
+No discount buys below resale: a bought item costs at least its sell
+price (and at least 1 gil), so a cheap haggle and a grinning keeper can't
+be chained into buy-then-sell profit. Services (the inn) can't be resold,
+so their discounts are unrestricted.
+
 Prices were raised after playtests left heroes 300–400 gil unspent: Iron
 Sword 80 (was 55), Crystal Mail 90 (65), Knight Blade 150 (105).
 
@@ -1062,6 +1067,27 @@ ruins or the caves, or with the Cave Pass, the Sunken Ruins open or the
 Wyrm beaten. Each step implies every step before it, so an old save made
 on the hub late in the game is never shown a vision out of order, and
 Vesper waits where its story stands.
+
+Loading runs in a fixed order: parse, migrate (old flags, the version 8
+story, the hero's older shapes), then sanitise. Only structural garbage
+is refused: text that isn't a JSON object, an unknown version, or a
+missing or mistyped core field (map, position, flag list; the hero's
+name, level, XP, HP, gil, skill points). Everything else is repaired, so
+one stale entry never costs a whole adventure: removed items, spells,
+failed lessons and feats are dropped; gear that no longer exists is
+unequipped; numbers become whole and in range (stats to their max rank,
+spell levels to the spell's levels, enhancements and line counts 0 or
+more); max HP, mana cap, attack and defence are recomputed from class,
+level and stats, and HP and mana clamped to them; an unknown class
+becomes the default; a spot (or inn) that no longer exists sends the hero
+to their inn (or the start). A save that still can't be read is copied
+to `the-realm/save.corrupt` before a new game begins, autosaves never
+touch that copy, and a notice above the HUD tells the player.
+
+Storage is probed at startup. If the browser refuses it (private mode,
+blocked site data, a full quota), the game keeps running on an in-memory
+store, says so in a lasting notice, and the Save command reports "Session
+only" rather than "Saved".
 
 ## Enemy roster
 

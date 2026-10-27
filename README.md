@@ -67,7 +67,10 @@ d-pad hides once you have walked by tapping.
 
 A new game starts by choosing a hero class. The game saves automatically
 after every battle and map change (browser local storage). Start over from
-the menu.
+the menu. If the browser blocks storage, a notice says progress is
+temporary. A save that can't be read is kept as a backup
+(`the-realm/save.corrupt`) and you are told; stale entries in an old save
+(a removed item, an unknown spell) are simply dropped.
 
 | Class  | Strengths                                                            |
 | ------ | -------------------------------------------------------------------- |
@@ -137,7 +140,8 @@ gold lightning, green nature, orange earth, violet arcane and cyan wind.
   Charm, sets their attitude, shown as a face over their head: from a
   scowl (won't deal) through a frown (dearer, harder) to a grin (cheaper,
   extra rewards and a secret offer). Anyone the story needs always deals.
-- Shops also buy what's in your bag at half its list price.
+- Shops also buy what's in your bag at half its list price; no discount
+  sells an item for less than that.
 
 The battle screen shows all of this instead of describing it: every
 crystal carries its element's icon, cleared lines flash and burst their

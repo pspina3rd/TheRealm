@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createStore } from '../src/game/storage';
-import { loadGame, saveGame, type KeyValueStore } from '../src/game/save';
+import { deleteSave, loadGame, saveGame, type KeyValueStore } from '../src/game/save';
 import { newGame } from '../src/world/state';
 
 function memory(): KeyValueStore {
@@ -52,5 +52,24 @@ describe('browser storage selection', () => {
     expect(selected.persistent).toBe(false);
     expect(saveGame(selected, newGame())).toBe(false);
     expect(loadGame(selected)).not.toBeNull();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('uses the browser localStorage by default', () => {
+    const browser = memory();
+    vi.stubGlobal('localStorage', browser);
+    expect(createStore()).toBe(browser);
+  });
+
+  it('falls back to a temporary store when localStorage is missing, which can still delete', () => {
+    vi.stubGlobal('localStorage', undefined);
+    const selected = createStore();
+    expect(selected.persistent).toBe(false);
+    saveGame(selected, newGame());
+    deleteSave(selected);
+    expect(loadGame(selected)).toBeNull();
   });
 });
