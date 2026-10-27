@@ -571,32 +571,43 @@ export class Stage {
     const { ctx } = this;
     const { width } = ctx.canvas;
     ctx.globalAlpha = t < 0.1 ? t / 0.1 : t > 0.8 ? (1 - t) / 0.2 : 1;
-    const top = this.layout.bannerTop;
     // Stage directions (`*…*`) are drawn as italic narration, a shade dimmer.
-    // Long lines wrap onto more rows.
-    const fontOf = (kind: string): string =>
-      kind === 'stage' ? 'italic 15px system-ui' : 'bold 16px system-ui';
-    const words = parseStage(this.banner.value).flatMap((beat) =>
-      beat.text
-        .split(/(?<=\s)/)
-        .filter((w) => w.length > 0)
-        .map((text) => {
-          ctx.font = fontOf(beat.kind);
-          return { kind: beat.kind, text, w: ctx.measureText(text).width };
-        }),
-    );
-    const room = width - 32;
-    const rows: { words: typeof words; w: number }[] = [];
-    for (const word of words) {
-      const row = rows.at(-1);
-      if (row && row.w + word.w <= room) {
-        row.words.push(word);
-        row.w += word.w;
-      } else rows.push({ words: [word], w: word.w });
-    }
+    // Long lines wrap onto more rows, in a smaller font if the stage is short.
+    const beats = parseStage(this.banner.value);
+    const layOut = (size: number) => {
+      const fontOf = (kind: string): string =>
+        kind === 'stage' ? `italic ${size - 1}px system-ui` : `bold ${size}px system-ui`;
+      const words = beats.flatMap((beat) =>
+        beat.text
+          .split(/(?<=\s)/)
+          .filter((w) => w.length > 0)
+          .map((text) => {
+            ctx.font = fontOf(beat.kind);
+            return {
+              kind: beat.kind,
+              text,
+              w: ctx.measureText(text).width,
+              font: fontOf(beat.kind),
+            };
+          }),
+      );
+      const rows: { words: typeof words; w: number }[] = [];
+      for (const word of words) {
+        const row = rows.at(-1);
+        if (row && row.w + word.w <= width - 32) {
+          row.words.push(word);
+          row.w += word.w;
+        } else rows.push({ words: [word], w: word.w });
+      }
+      const step = Math.round(size * 1.25);
+      return { rows, step, height: 10 + step * Math.max(1, rows.length) };
+    };
+    const fits = (l: ReturnType<typeof layOut>): boolean => l.height <= ctx.canvas.height - 4;
+    const layout = [16, 13, 11].map(layOut).find(fits) ?? layOut(11);
+    const { rows, step, height } = layout;
+    const top = Math.max(2, Math.min(this.layout.bannerTop, ctx.canvas.height - height - 2));
     const textWidth = Math.max(0, ...rows.map((row) => row.w));
     const box = Math.min(width - 8, Math.max(220, textWidth + 24));
-    const height = 10 + 20 * Math.max(1, rows.length);
     ctx.fillStyle = '#10132ae6';
     ctx.fillRect(width / 2 - box / 2, top, box, height);
     ctx.strokeStyle = '#f5d77b';
@@ -605,9 +616,9 @@ export class Stage {
     rows.forEach((row, r) => {
       let x = width / 2 - row.w / 2;
       for (const word of row.words) {
-        ctx.font = fontOf(word.kind);
+        ctx.font = word.font;
         ctx.fillStyle = word.kind === 'stage' ? '#c9c3e6' : '#ffffff';
-        ctx.fillText(word.text, x, top + 21 + 20 * r);
+        ctx.fillText(word.text, x, top + 5 + step * (r + 0.8));
         x += word.w;
       }
     });
