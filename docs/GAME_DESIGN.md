@@ -1004,7 +1004,7 @@ Mossvale (learn the challenge types) → overworld monsters (drops, levels)
 → Brightwater (shops, Thunder, earn the Cave Pass by barter) → Moon Caves
 (sealed chest, hermit) → Moon Wyrm boss. Spells beyond the class spell
 come from mentors, the Elder (Quake) and the sage (Thunder); shops sell no
-tomes. The Sunken Ruins are sealed as the hook for the next region.
+tomes. The Sunken Ruins open after the Moon Wyrm as the hook for the next region.
 
 That road now runs through the seven mentor regions (see
 [World and regions](#world-and-regions)): the grove and the lake, the
@@ -1063,9 +1063,8 @@ the mentors whose lessons the hero won, and Captain Vale's last word.
 Lessons aren't recorded, so this is derived: only a lesson raises a spell
 past level 1, and only a lesson teaches a spell that is neither a
 starting spell nor an NPC's reward (an old save's tome is the one
-exception). Back on the map the Sunken Ruins'
-seal glows violet and, bumped, says it will open in the next chapter
-(`Warp.stirs`); it stays shut. Routes gated on the wyrm
+exception). Back on the map the Sunken Ruins' ward opens, allowing the
+hero to explore the next region's currently empty map. Routes gated on the wyrm
 (`defeated:c2-wyrm`) still open as before.
 
 ## Planned: progression redesign

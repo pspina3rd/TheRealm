@@ -293,9 +293,7 @@ function flagsOn(maps: ReadonlySet<string>): string[] {
   return [...maps].flatMap((id) =>
     MAPS[id]!.entities.flatMap((e) => {
       if (e.kind === 'npc') {
-        return (NPCS[e.npcId]?.rewards ?? []).flatMap((r) =>
-          r.kind === 'flag' ? [r.flag] : [],
-        );
+        return (NPCS[e.npcId]?.rewards ?? []).flatMap((r) => (r.kind === 'flag' ? [r.flag] : []));
       }
       return ENEMIES[e.enemyId]?.finale ? ['wyrmBeaten'] : [];
     }),

@@ -251,9 +251,9 @@ describe('grantRewards', () => {
 });
 
 describe('shop', () => {
-  it('applies the price multiplier with a 1 gil minimum', () => {
+  it('applies the price multiplier without undercutting resale', () => {
     expect(priceFor(ITEMS.ironSword!, 0.5)).toBe(40);
-    expect(priceFor(ITEMS.herb!, 0.01)).toBe(1);
+    expect(priceFor(ITEMS.herb!, 0.01)).toBe(5);
   });
 
   it('charges the multiplied price', () => {

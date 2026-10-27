@@ -3,7 +3,7 @@
  * time with a simple bot. Not shipped; used by `tests/difficulty.test.ts`
  * (set `SIM=1` to print the full table).
  */
-import { Battle } from '../../src/battle/battle';
+import { Battle, type BattleOptions } from '../../src/battle/battle';
 import { rotationsOf } from '../../src/core/bestFit';
 import type { Board } from '../../src/core/board';
 import type { Cell, Offset, PieceName } from '../../src/core/pieces';
@@ -299,8 +299,23 @@ export function simulate(
   seed: number,
   thinkMs = 1500,
   limitMs = 600_000,
+  options: BattleOptions = {},
 ): FightResult {
-  const battle = new Battle(spec, hero, createRng(seed), { dualChance: dualChance(hero) });
+  const battle = new Battle(spec, hero, createRng(seed), {
+    dualChance: dualChance(hero),
+    ...options,
+  });
+  return simulateBattle(battle, style, thinkMs, limitMs);
+}
+
+/** Runs an existing battle so campaign tests can apply its real resolution afterwards. */
+export function simulateBattle(
+  battle: Battle,
+  style: Style,
+  thinkMs = 1500,
+  limitMs = 600_000,
+): FightResult {
+  const hero = battle.hero;
   const STEP = 50;
   let ms = 0;
   let waited = 0;

@@ -136,6 +136,14 @@ export class App {
     this.battleView.hero.onItem = (id) => this.tryCombat(id, (c) => c.useItem(id));
     this.bindInput();
     this.applyTouchPrefs();
+    if (store.persistent === false) {
+      const notice = el('p', {
+        className: 'session-notice',
+        text: 'Progress is temporary. Saving is unavailable; reloading or closing this page will lose your adventure.',
+      });
+      notice.setAttribute('role', 'status');
+      document.querySelector('.hud')?.prepend(notice);
+    }
   }
 
   /** Reads a setting; storage may be unavailable, which reads as unset. */
@@ -647,7 +655,15 @@ export class App {
           label: 'Save',
           onClick: () => {
             refresh();
-            this.say(this.save() ? 'Saved' : 'Saving is unavailable', 'book');
+            const saved = this.save();
+            this.say(
+              saved
+                ? 'Saved'
+                : this.store.persistent === false
+                  ? 'Session only: progress will be lost on reload'
+                  : 'Saving is unavailable',
+              'book',
+            );
           },
         },
         {
@@ -874,6 +890,7 @@ export class App {
         event.preventDefault();
         this.active.battle.input(action);
       } else if (key === 'p') {
+        if (event.repeat) return;
         this.togglePause();
       } else if (/^[1-9]$/.test(key)) {
         // A category, then a spell in its menu.

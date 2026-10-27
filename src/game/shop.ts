@@ -7,10 +7,12 @@ import { knownSpell } from './spells';
 /**
  * What the hero pays: the list price times `multiplier` (the haggle's
  * result times the keeper's attitude price, see `src/game/attitude.ts`),
- * rounded and never below 1 gil.
+ * rounded and never below 1 gil or the item's resale price. Services have
+ * no resale value, so their discounts are unrestricted.
  */
 export function priceFor(item: ItemDef, multiplier: number): number {
-  return Math.max(1, Math.round(item.price * multiplier));
+  const resaleFloor = item.kind === 'service' ? 0 : sellPrice(item);
+  return Math.max(1, resaleFloor, Math.round(item.price * multiplier));
 }
 
 /** Shops buy items back at this fraction of the list price. */

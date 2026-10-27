@@ -114,6 +114,14 @@ export class HeroPanel {
     ]);
     if (key === this.controlsKey) return;
     this.controlsKey = key;
+    // Live HP/mana updates rebuild controls. Keep keyboard focus on the
+    // same action instead of dropping it back to the document body.
+    const focused = document.activeElement;
+    const focusedAction =
+      focused instanceof HTMLElement &&
+      (this.spellList.contains(focused) || this.itemList.contains(focused))
+        ? focused.dataset.action
+        : undefined;
 
     const usable = (id: string): boolean => ongoing && combat?.cannotCastReason(id) === null;
     const cast = (id: string): void => {
@@ -128,6 +136,7 @@ export class HeroPanel {
     if (menu) {
       this.choices = menu.spells.map((id) => () => cast(id));
       const back = button('', () => this.setOpen(null), { title: 'Back (Esc)' });
+      back.dataset.action = `back-${menu.category}`;
       back.setAttribute('aria-label', `Back from ${ELEMENT_NAMES[menu.category]} spells`);
       back.classList.add('spell', 'back');
       back.append(
@@ -219,6 +228,14 @@ export class HeroPanel {
           })
         : []),
     );
+    if (focusedAction) {
+      [
+        ...this.spellList.querySelectorAll<HTMLElement>('[data-action]'),
+        ...this.itemList.querySelectorAll<HTMLElement>('[data-action]'),
+      ]
+        .find((node) => node.dataset.action === focusedAction)
+        ?.focus({ preventScroll: true });
+    }
   }
 
   private setOpen(category: Element | null): void {

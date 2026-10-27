@@ -1,6 +1,9 @@
-import { emptyCounts, type Element } from '../core/elements';
-import { DEFAULT_CLASS } from '../data/classes';
+import { ELEMENTS, emptyCounts, type Element } from '../core/elements';
+import { CLASSES, DEFAULT_CLASS } from '../data/classes';
 import { MAPS, START } from '../data/maps';
+import { ITEMS } from '../data/items';
+import { ENHANCEMENT_IDS, SPELLS } from '../data/spells';
+import { STATS, STAT_IDS } from '../data/stats';
 import { titleElementFor } from './alignment';
 import { heroAlignment, heroClass, refreshStats, type Hero } from './hero';
 import { newKnownSpell, type KnownSpell } from './spells';
@@ -40,6 +43,8 @@ interface SaveData {
 
 /** Minimal storage interface so tests can supply an in-memory store. */
 export interface KeyValueStore {
+  /** False for a temporary session store; omitted means persistent for existing adapters. */
+  readonly persistent?: boolean;
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
   removeItem(key: string): void;
@@ -62,39 +67,46 @@ export function serialize(state: GameState): string {
 
 /** Parses a save string. Returns null if it is malformed or from another version. */
 export function deserialize(json: string): GameState | null {
-  let data: Partial<SaveData>;
   try {
-    data = JSON.parse(json) as Partial<SaveData>;
+    const decoded: unknown = JSON.parse(json);
+    if (!record(decoded)) return null;
+    const data = decoded as Partial<SaveData>;
+    if (
+      !MIGRATABLE_VERSIONS.includes(data.version ?? 0) ||
+      !record(data.hero) ||
+      typeof data.mapId !== 'string' ||
+      !Object.hasOwn(MAPS, data.mapId) ||
+      !integer(data.x) ||
+      !integer(data.y) ||
+      !Array.isArray(data.flags) ||
+      !data.flags.every((flag) => typeof flag === 'string') ||
+      !record(data.respawn) ||
+      (data.facing !== undefined && !['up', 'down', 'left', 'right'].includes(data.facing)) ||
+      (data.victories !== undefined && !count(data.victories))
+    ) {
+      return null;
+    }
+    const hero = migrateHero(data.hero);
+    if (!validHero(hero)) return null;
+    const respawn = standable(data.respawn) ? data.respawn : { ...START };
+    const here = { map: data.mapId, x: data.x, y: data.y };
+    const spot = standable(here) ? here : respawn;
+    return {
+      hero,
+      mapId: spot.map,
+      x: spot.x,
+      y: spot.y,
+      facing: data.facing ?? 'down',
+      flags: migrateFlags(data.flags),
+      cleared: new Set(),
+      respawn,
+      // Before version 6 wins were not counted: every mentor starts at home.
+      victories: data.victories ?? 0,
+    };
   } catch {
+    // Migration may encounter malformed nested data as well as invalid JSON.
     return null;
   }
-  if (
-    !MIGRATABLE_VERSIONS.includes(data.version ?? 0) ||
-    !data.hero ||
-    typeof data.mapId !== 'string' ||
-    !MAPS[data.mapId] ||
-    typeof data.x !== 'number' ||
-    typeof data.y !== 'number' ||
-    !Array.isArray(data.flags) ||
-    !data.respawn
-  ) {
-    return null;
-  }
-  const respawn = standable(data.respawn) ? data.respawn : { ...START };
-  const here = { map: data.mapId, x: data.x, y: data.y };
-  const spot = standable(here) ? here : respawn;
-  return {
-    hero: migrateHero(data.hero),
-    mapId: spot.map,
-    x: spot.x,
-    y: spot.y,
-    facing: data.facing ?? 'down',
-    flags: migrateFlags(data.flags),
-    cleared: new Set(),
-    respawn,
-    // Before version 6 wins were not counted: every mentor starts at home.
-    victories: typeof data.victories === 'number' ? data.victories : 0,
-  };
 }
 
 /**
@@ -116,6 +128,8 @@ export function migrateFlags(flags: readonly string[]): Set<string> {
  * to their inn, and a lost inn to the start.
  */
 function standable(at: Location): boolean {
+  if (typeof at.map !== 'string' || !Object.hasOwn(MAPS, at.map)) return false;
+  if (!integer(at.x) || !integer(at.y)) return false;
   const map = MAPS[at.map];
   return (
     !!map &&
@@ -129,7 +143,7 @@ function standable(at: Location): boolean {
 export function saveGame(store: KeyValueStore, state: GameState): boolean {
   try {
     store.setItem(SAVE_KEY, serialize(state));
-    return true;
+    return store.persistent !== false;
   } catch {
     return false;
   }
@@ -181,7 +195,10 @@ type StoredHero = Omit<Partial<Hero>, 'spells'> & {
 function migrateHero(stored: StoredHero): Hero {
   const { mp, maxMp, attunement, ...rest } = stored;
   delete rest.lockedCategories;
-  const classId = rest.classId ?? DEFAULT_CLASS;
+  const classId =
+    typeof rest.classId === 'string' && Object.hasOwn(CLASSES, rest.classId)
+      ? rest.classId
+      : DEFAULT_CLASS;
   const cls = heroClass({ classId });
   const manaCap = rest.manaCap ?? maxMp ?? 12;
   const storedSpells = rest.spells ?? [];
@@ -194,7 +211,7 @@ function migrateHero(stored: StoredHero): Hero {
     : storedSpells;
   const hero: Hero = {
     ...(rest as Hero),
-    classId,
+    classId: cls.id,
     titleElement:
       rest.titleElement ?? titleElementFor(attunement ?? cls.element, heroAlignment({ spells })),
     spells,
@@ -219,4 +236,88 @@ function migrateHero(stored: StoredHero): Hero {
 function renamedFeats(feats: Feats & { hastedQuad?: number }): Feats {
   const { hastedQuad, ...rest } = feats;
   return hastedQuad ? { ...rest, hastedClear: (rest.hastedClear ?? 0) + hastedQuad } : rest;
+}
+
+/** Runtime checks guard the boundary between untrusted JSON and game state. */
+function record(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function integer(value: unknown): value is number {
+  return typeof value === 'number' && Number.isSafeInteger(value);
+}
+
+function count(value: unknown): value is number {
+  return integer(value) && value >= 0;
+}
+
+function validHero(hero: Hero): boolean {
+  const equipment = (id: unknown, kind: string): boolean =>
+    id === null || (typeof id === 'string' && Object.hasOwn(ITEMS, id) && ITEMS[id]?.kind === kind);
+  const enhancementsValid = (value: unknown): boolean =>
+    record(value) && ENHANCEMENT_IDS.every((id) => count(value[id]));
+  return (
+    typeof hero.name === 'string' &&
+    typeof hero.classId === 'string' &&
+    Object.hasOwn(CLASSES, hero.classId) &&
+    ELEMENTS.includes(hero.titleElement) &&
+    integer(hero.level) &&
+    hero.level >= 1 &&
+    count(hero.xp) &&
+    integer(hero.nextXp) &&
+    hero.nextXp > 0 &&
+    count(hero.hp) &&
+    integer(hero.maxHp) &&
+    hero.maxHp > 0 &&
+    hero.hp <= hero.maxHp &&
+    integer(hero.manaCap) &&
+    hero.manaCap > 0 &&
+    count(hero.atk) &&
+    count(hero.def) &&
+    count(hero.gil) &&
+    count(hero.skillPoints) &&
+    record(hero.mana) &&
+    ELEMENTS.every((id) => count(hero.mana[id]) && hero.mana[id] <= hero.manaCap) &&
+    record(hero.stats) &&
+    STAT_IDS.every((id) => count(hero.stats[id]) && hero.stats[id] <= STATS[id].maxRank) &&
+    equipment(hero.weaponId, 'weapon') &&
+    equipment(hero.armorId, 'armor') &&
+    equipment(hero.accessoryId, 'accessory') &&
+    record(hero.items) &&
+    Object.entries(hero.items).every(
+      ([id, amount]) => Object.hasOwn(ITEMS, id) && count(amount) && amount > 0,
+    ) &&
+    record(hero.spells) &&
+    Object.entries(hero.spells).every(([id, known]) => {
+      const spell = Object.hasOwn(SPELLS, id) ? SPELLS[id] : undefined;
+      return (
+        !!spell &&
+        record(known) &&
+        integer(known.level) &&
+        known.level >= 1 &&
+        known.level <= spell.levels.length &&
+        enhancementsValid(known.step) &&
+        enhancementsValid(known.kept)
+      );
+    }) &&
+    record(hero.failedLessons) &&
+    Object.entries(hero.failedLessons).every(([element, failed]) => {
+      if (!record(failed) || typeof failed.spellId !== 'string') return false;
+      const spell = Object.hasOwn(SPELLS, failed.spellId) ? SPELLS[failed.spellId] : undefined;
+      return (
+        !!spell &&
+        ELEMENTS.some((id) => id === element) &&
+        spell.category === element &&
+        integer(failed.level) &&
+        failed.level >= 1 &&
+        failed.level <= spell.levels.length
+      );
+    }) &&
+    record(hero.feats) &&
+    Object.entries(hero.feats).every(
+      ([id, value]) =>
+        (id === 'hastedClear' || ELEMENTS.some((element) => id === `pure.${element}`)) &&
+        count(value),
+    )
+  );
 }
