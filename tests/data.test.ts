@@ -291,11 +291,14 @@ function openMaps(flags: ReadonlySet<string>): Set<string> {
 /** Story flags the NPCs on `maps` can grant. */
 function flagsOn(maps: ReadonlySet<string>): string[] {
   return [...maps].flatMap((id) =>
-    MAPS[id]!.entities.flatMap((e) =>
-      e.kind === 'npc'
-        ? (NPCS[e.npcId]?.rewards ?? []).flatMap((r) => (r.kind === 'flag' ? [r.flag] : []))
-        : [],
-    ),
+    MAPS[id]!.entities.flatMap((e) => {
+      if (e.kind === 'npc') {
+        return (NPCS[e.npcId]?.rewards ?? []).flatMap((r) =>
+          r.kind === 'flag' ? [r.flag] : [],
+        );
+      }
+      return ENEMIES[e.enemyId]?.finale ? ['wyrmBeaten'] : [];
+    }),
   );
 }
 
@@ -303,11 +306,16 @@ describe('the world and its regions', () => {
   it('leads every warp back the way it came', () => {
     for (const map of Object.values(MAPS)) {
       for (const warp of map.warps) {
-        if (warp.to.map === map.id) continue; // the Sunken Ruins' sealed door
         const back = MAPS[warp.to.map]!.warps.some((w) => w.to.map === map.id);
         expect(back, `${map.id} → ${warp.to.map}`).toBe(true);
       }
     }
+  });
+
+  it('keeps Sunken Ruins sealed until the Moon Wyrm is defeated', () => {
+    expect(openMaps(new Set()).has('sunkenRuins')).toBe(false);
+    expect(openMaps(new Set(['wyrmBeaten'])).has('sunkenRuins')).toBe(true);
+    expect(MAPS.sunkenRuins!.warps.some((w) => w.to.map === 'overworld')).toBe(true);
   });
 
   it('opens every map in order, each gate’s flag earned before it is needed', () => {
