@@ -1,4 +1,5 @@
 /** Small DOM helpers shared by the UI modules. */
+import { parseStage } from '../game/lines';
 
 /** Returns the element with `id`, throwing if the page is missing it. */
 export function byId<T extends HTMLElement = HTMLElement>(id: string): T {
@@ -33,4 +34,13 @@ export function button(
   if (options.title) node.title = options.title;
   node.addEventListener('click', onClick);
   return node;
+}
+
+/** A line as nodes: its `*stage directions*` become italic narration (`em.stage`). */
+export function lineNodes(text: string): Node[] {
+  return parseStage(text).map((beat) =>
+    beat.kind === 'stage'
+      ? el('em', { className: 'stage', text: beat.text })
+      : document.createTextNode(beat.text),
+  );
 }

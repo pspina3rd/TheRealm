@@ -18,6 +18,7 @@ import { effectDuration, effectFrame, type EffectId } from './art/vfx';
 import { drawCount } from './boardView';
 import { drawIcon, drawIconSpec } from './iconDraw';
 import { seesEnemyMove } from '../game/stats';
+import { parseStage } from '../game/lines';
 import { PHONE_QUERY, reducedMotion } from './touch';
 
 const FLOAT_MS = 1000;
@@ -561,7 +562,8 @@ export class Stage {
   private drawBanner(dtMs: number): void {
     if (!this.banner) return;
     this.banner.elapsed += dtMs;
-    const t = this.banner.elapsed / BANNER_MS;
+    // Longer lines stay up long enough to read.
+    const t = this.banner.elapsed / Math.max(BANNER_MS, this.banner.value.length * 45);
     if (t >= 1) {
       this.banner = null;
       return;
@@ -570,15 +572,45 @@ export class Stage {
     const { width } = ctx.canvas;
     ctx.globalAlpha = t < 0.1 ? t / 0.1 : t > 0.8 ? (1 - t) / 0.2 : 1;
     const top = this.layout.bannerTop;
-    ctx.font = 'bold 16px system-ui';
-    const box = Math.min(width - 8, Math.max(220, ctx.measureText(this.banner.value).width + 24));
+    // Stage directions (`*…*`) are drawn as italic narration, a shade dimmer.
+    // Long lines wrap onto more rows.
+    const fontOf = (kind: string): string =>
+      kind === 'stage' ? 'italic 15px system-ui' : 'bold 16px system-ui';
+    const words = parseStage(this.banner.value).flatMap((beat) =>
+      beat.text
+        .split(/(?<=\s)/)
+        .filter((w) => w.length > 0)
+        .map((text) => {
+          ctx.font = fontOf(beat.kind);
+          return { kind: beat.kind, text, w: ctx.measureText(text).width };
+        }),
+    );
+    const room = width - 32;
+    const rows: { words: typeof words; w: number }[] = [];
+    for (const word of words) {
+      const row = rows.at(-1);
+      if (row && row.w + word.w <= room) {
+        row.words.push(word);
+        row.w += word.w;
+      } else rows.push({ words: [word], w: word.w });
+    }
+    const textWidth = Math.max(0, ...rows.map((row) => row.w));
+    const box = Math.min(width - 8, Math.max(220, textWidth + 24));
+    const height = 10 + 20 * Math.max(1, rows.length);
     ctx.fillStyle = '#10132ae6';
-    ctx.fillRect(width / 2 - box / 2, top, box, 30);
+    ctx.fillRect(width / 2 - box / 2, top, box, height);
     ctx.strokeStyle = '#f5d77b';
-    ctx.strokeRect(width / 2 - box / 2 + 0.5, top + 0.5, box - 1, 29);
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(this.banner.value, width / 2, top + 21);
+    ctx.strokeRect(width / 2 - box / 2 + 0.5, top + 0.5, box - 1, height - 1);
+    ctx.textAlign = 'left';
+    rows.forEach((row, r) => {
+      let x = width / 2 - row.w / 2;
+      for (const word of row.words) {
+        ctx.font = fontOf(word.kind);
+        ctx.fillStyle = word.kind === 'stage' ? '#c9c3e6' : '#ffffff';
+        ctx.fillText(word.text, x, top + 21 + 20 * r);
+        x += word.w;
+      }
+    });
     ctx.globalAlpha = 1;
   }
 }

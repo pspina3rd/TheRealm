@@ -7,6 +7,7 @@ import type { ChallengeSpec } from '../data/types';
 import type { Attitude } from '../game/attitude';
 import type { Epilogue } from '../game/ending';
 import { describeInteraction, entitySprite, resolveBattle } from '../game/encounter';
+import { arrive } from '../game/story';
 import { bringItems, hiddenSlots, itemsFor } from '../game/hidden';
 import type { Gain } from '../game/rewards';
 import { ITEMS } from '../data/items';
@@ -35,7 +36,7 @@ import { step } from '../world/movement';
 import { pathTo } from '../world/path';
 import { currentMap, newGame, travel, type GameState } from '../world/state';
 import { Dialog } from './dialog';
-import { button, byId, el } from './dom';
+import { button, byId, el, lineNodes } from './dom';
 import { ELEMENT_ICONS, SPELL_KIND_ICONS, STAT_ICONS } from './art/icons';
 import { BattleView } from './battleView';
 import { iconElement } from './iconDraw';
@@ -264,13 +265,17 @@ export class App {
         this.heldDirection = null;
         this.interact(result.entity);
         break;
-      case 'warp':
+      case 'warp': {
+        const from = this.state.mapId;
         travel(this.state, result.to);
         this.heldDirection = null;
         this.say(currentMap(this.state).name);
+        const vision = arrive(this.state, from);
         this.save();
         this.renderHud();
+        if (vision) this.showInterlude('A vision', vision.text);
         break;
+      }
       case 'locked':
         this.say(result.text, 'lock');
         break;
@@ -324,9 +329,12 @@ export class App {
 
   private talk(entity: EntityDef, given: readonly Gain[] = []): void {
     const interaction = describeInteraction(this.state, entity);
-    // Monsters attack on contact; people talk first.
+    this.save(); // who said what, so lines keep rotating after a reload
+    // Monsters attack on contact (a boss has its say first); people talk first.
     if (entity.kind === 'monster' && interaction.kind === 'challenge') {
-      this.startBattle(entity, interaction.spec);
+      const fight = (): void => this.startBattle(entity, interaction.spec);
+      if (interaction.prelude) this.showInterlude(interaction.title, interaction.prelude, fight);
+      else fight();
       return;
     }
     const body = conversationBody(
@@ -379,6 +387,32 @@ export class App {
             ),
         },
       ],
+    });
+  }
+
+  /**
+   * An interlude over everything: the screen goes dark for a vision or a
+   * boss's words. A tap, Enter or Continue goes on (to `then`, or back to
+   * the map), but not in the first moments, so held keys or taps can't skip it.
+   */
+  private showInterlude(title: string, text: string, then?: () => void): void {
+    this.stopRoute();
+    const shown = performance.now();
+    const go = (): void => {
+      if (performance.now() - shown < RESULT_GUARD_MS) return;
+      if (then) then();
+      else this.dialog.close();
+    };
+    this.dialog.show({
+      title,
+      body: [
+        el('p', { className: 'interlude-text' }, ...lineNodes(text)),
+        el('p', { className: 'interlude-hint', text: 'Tap or press Enter' }),
+      ],
+      actions: [{ label: 'Continue', onClick: go }],
+      onCancel: go,
+      guardMs: RESULT_GUARD_MS,
+      interlude: true,
     });
   }
 
@@ -760,11 +794,14 @@ export class App {
   /** A short banner over the map: a place name, or a notice with an icon. */
   private say(text: string, icon?: IconId | IconSpec): void {
     const banner = byId('world-banner');
-    banner.replaceChildren(...(icon ? [iconElement(icon, 2)] : []), el('span', { text }));
+    banner.replaceChildren(
+      ...(icon ? [iconElement(icon, 2)] : []),
+      el('span', {}, ...lineNodes(text)),
+    );
     banner.classList.remove('show');
     void banner.offsetWidth; // restart the fade
     banner.classList.add('show');
-    this.messageTimer = BANNER_MS;
+    this.messageTimer = Math.max(BANNER_MS, text.length * 50);
   }
 
   private save(): boolean {

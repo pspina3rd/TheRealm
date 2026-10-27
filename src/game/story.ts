@@ -70,10 +70,11 @@ export function vesperStop(flags: ReadonlySet<string>): VesperStop | null {
   return open.at(-1) ?? null;
 }
 
-/** Vesper, as an entity, when standing on the current map. */
-export function vesperEntities(state: Pick<GameState, 'flags' | 'mapId'>): NpcEntity[] {
+/** Vesper, as an entity, when standing on the current map (and not on the hero's own tile). */
+export function vesperEntities(state: Pick<GameState, 'flags' | 'mapId' | 'x' | 'y'>): NpcEntity[] {
   const stop = vesperStop(state.flags);
-  return stop && stop.map === state.mapId
+  const here = stop?.x === state.x && stop.y === state.y;
+  return stop && stop.map === state.mapId && !here
     ? [{ id: `vesper:${stop.npcId}`, kind: 'npc', npcId: stop.npcId, x: stop.x, y: stop.y }]
     : [];
 }

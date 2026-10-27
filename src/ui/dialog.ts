@@ -28,6 +28,11 @@ export interface DialogOptions {
    * dialog, so keys still being mashed from a battle don't skip it.
    */
   readonly guardMs?: number;
+  /**
+   * An interlude: the dialog fills the screen in the dark, and a tap
+   * anywhere (once `guardMs` has passed) presses the last action.
+   */
+  readonly interlude?: boolean;
 }
 
 /** Keys that press a focused button or dismiss the dialog. */
@@ -47,8 +52,15 @@ export class Dialog {
   private closingByCode = false;
   /** Keys are ignored until this time (see `guardMs`). */
   private guardUntil = 0;
+  /** What a tap anywhere does, for an interlude. */
+  private tapAction: (() => void) | null = null;
 
   constructor() {
+    this.root.addEventListener('click', (event) => {
+      const onButton = (event.target as Element | null)?.closest('button');
+      if (!this.tapAction || onButton || performance.now() < this.guardUntil) return;
+      this.tapAction();
+    });
     const guard = (event: KeyboardEvent): void => {
       if (performance.now() < this.guardUntil && ACTIVATION_KEYS.has(event.key)) {
         event.preventDefault();
@@ -92,6 +104,8 @@ export class Dialog {
       }),
     );
     this.onCancel = options.onCancel ?? (() => this.close());
+    this.root.classList.toggle('interlude', options.interlude ?? false);
+    this.tapAction = options.interlude ? (options.actions.at(-1)?.onClick ?? null) : null;
     this.guardUntil = performance.now() + (options.guardMs ?? 0);
     if (!this.root.open) this.root.showModal();
     // The last enabled action is the default; callers keep destructive choices away from it.

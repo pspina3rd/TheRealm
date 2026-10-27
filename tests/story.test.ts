@@ -173,6 +173,7 @@ describe('Vesper, one step ahead', () => {
     const [vesper] = vesperEntities(state);
     expect(vesper).toMatchObject({ kind: 'npc', npcId: 'vesperRoad', x: 8, y: 6 });
     expect(activeEntities(state)).toContainEqual(vesper);
+    expect(vesperEntities({ ...state, x: 8, y: 6 })).toEqual([]);
     state.flags.add('vision:2');
     expect(vesperEntities(state)).toEqual([]);
   });
