@@ -18,7 +18,7 @@ import { effectDuration, effectFrame, type EffectId } from './art/vfx';
 import { drawCount } from './boardView';
 import { drawIcon, drawIconSpec } from './iconDraw';
 import { seesEnemyMove } from '../game/stats';
-import { parseStage } from '../game/lines';
+import { layOutBanner } from './art/bannerLayout';
 import { PHONE_QUERY, reducedMotion } from './touch';
 
 const FLOAT_MS = 1000;
@@ -573,37 +573,15 @@ export class Stage {
     ctx.globalAlpha = t < 0.1 ? t / 0.1 : t > 0.8 ? (1 - t) / 0.2 : 1;
     // Stage directions (`*…*`) are drawn as italic narration, a shade dimmer.
     // Long lines wrap onto more rows, in a smaller font if the stage is short.
-    const beats = parseStage(this.banner.value);
-    const layOut = (size: number) => {
-      const fontOf = (kind: string): string =>
-        kind === 'stage' ? `italic ${size - 1}px system-ui` : `bold ${size}px system-ui`;
-      const words = beats.flatMap((beat) =>
-        beat.text
-          .split(/(?<=\s)/)
-          .filter((w) => w.length > 0)
-          .map((text) => {
-            ctx.font = fontOf(beat.kind);
-            return {
-              kind: beat.kind,
-              text,
-              w: ctx.measureText(text).width,
-              font: fontOf(beat.kind),
-            };
-          }),
-      );
-      const rows: { words: typeof words; w: number }[] = [];
-      for (const word of words) {
-        const row = rows.at(-1);
-        if (row && row.w + word.w <= width - 32) {
-          row.words.push(word);
-          row.w += word.w;
-        } else rows.push({ words: [word], w: word.w });
-      }
-      const step = Math.round(size * 1.25);
-      return { rows, step, height: 10 + step * Math.max(1, rows.length) };
-    };
-    const fits = (l: ReturnType<typeof layOut>): boolean => l.height <= ctx.canvas.height - 4;
-    const layout = [16, 13, 11].map(layOut).find(fits) ?? layOut(11);
+    const layout = layOutBanner(
+      this.banner.value,
+      (text, font) => {
+        ctx.font = font;
+        return ctx.measureText(text).width;
+      },
+      width,
+      ctx.canvas.height,
+    );
     const { rows, step, height } = layout;
     const top = Math.max(2, Math.min(this.layout.bannerTop, ctx.canvas.height - height - 2));
     const textWidth = Math.max(0, ...rows.map((row) => row.w));
