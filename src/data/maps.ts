@@ -56,13 +56,9 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
       {
         x: 15,
         y: 20,
-        to: { map: 'overworld', x: 15, y: 19 },
-        requiresFlag: 'ruinsOpen',
-        lockedText: 'The Sunken Ruins are sealed by an ancient ward. (Coming soon)',
-        stirs: {
-          flag: 'wyrmBeaten',
-          text: 'With the wyrm gone, the ward hums and glows. It will open in the next chapter.',
-        },
+        to: { map: 'sunkenRuins', x: 7, y: 10 },
+        requiresFlag: 'wyrmBeaten',
+        lockedText: 'An ancient ward seals the Sunken Ruins. Its power is bound to the Moon Wyrm.',
       },
     ],
     entities: [
@@ -569,6 +565,33 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
       { id: 'cl-ram-2', kind: 'monster', enemyId: 'skyRam', x: 13, y: 9 },
     ],
     decor: [{ object: 'hut', x: 5, y: 7 }],
+  },
+  sunkenRuins: {
+    // The next chapter opens only after the Moon Wyrm falls.
+    id: 'sunkenRuins',
+    name: 'Sunken Ruins',
+    theme: 'ruins',
+    pieceBias: { water: 1, arcane: 1 },
+    music: 'music.dungeon',
+    tiles: [
+      '^^^^^^^^^^^^^^^',
+      '^.............^',
+      '^...^^^.......^',
+      '^...^.^.......^',
+      '^...^^^.......^',
+      '^.............^',
+      '^....www......^',
+      '^....www......^',
+      '^.............^',
+      '^.............^',
+      '^.............^',
+      '^.............^',
+      '^^^^^^^^^^^^^^^',
+    ],
+    warps: [
+      { x: 7, y: 11, to: { map: 'overworld', x: 15, y: 19 } },
+    ],
+    entities: [],
   },
   ruins: {
     // Selene's home: moonlit ruins below the cliffs, over the Moon Caves (arcane, Lv 8–10).
