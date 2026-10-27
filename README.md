@@ -24,17 +24,18 @@ npm run check      # format check, lint, typecheck and tests (run before pushing
 npm run build      # static site in dist/
 ```
 
-| Script             | What it does                        |
-| ------------------ | ----------------------------------- |
-| `npm run dev`      | Development server with hot reload  |
-| `npm run build`    | Typecheck and build the static site |
-| `npm run preview`  | Serve the production build locally  |
-| `npm test`         | Run the unit tests once             |
-| `npm run coverage` | Tests with a coverage report        |
-| `npm run sim`      | Whole-game balance table (bots)     |
-| `npm run lint`     | ESLint                              |
-| `npm run format`   | Rewrite files with Prettier         |
-| `npm run check`    | Everything CI runs                  |
+| Script                    | What it does                         |
+| ------------------------- | ------------------------------------ |
+| `npm run dev`             | Development server with hot reload   |
+| `npm run build`           | Typecheck and build the static site  |
+| `npm run preview`         | Serve the production build locally   |
+| `npm test`                | Run the unit tests once              |
+| `npm run coverage`        | Tests with a coverage report         |
+| `npm run sim`             | Whole-game balance table (bots)      |
+| `npm run sim:progression` | Campaign resources by class and pace |
+| `npm run lint`            | ESLint                               |
+| `npm run format`          | Rewrite files with Prettier          |
+| `npm run check`           | Everything CI runs                   |
 
 ## How to play
 
@@ -196,6 +197,32 @@ you're below half HP (below 80% for a hero under level 4 in Mossvale and
 Sevenstones), and the inn restores the rest. Every balance number lives in
 `src/data/balance.ts`; `npm run sim` plays the whole game's fights against
 bots and prints one table.
+
+`npm run sim` keeps its isolated combat benchmarks: their heroes receive
+synthetic equipment and spell kits, so those results do not establish that
+a real player can afford the same build. `npm run sim:progression` is a
+separate attainable-resource benchmark. It starts all four classes from a
+new game, runs deterministic seeds at 1500 ms (keyboard) and 2200 ms (touch)
+per piece, and carries HP, items, gil, earned skill points and learned
+spells between encounters. It uses the production regional/charm/alignment
+piece odds, reward and defeat resolution, paid shop purchases, enhancement
+costs, and mentor lesson prerequisites. Closed story gates remain closed;
+failed challenges grant no rewards. The report includes region levels,
+wins/losses, lessons, spending, equipment and spell levels.
+
+This benchmark models a policy rather than a complete world-playing bot:
+it follows the region itinerary through unlocked map crossings, tries each
+placed encounter once, models twenty walking recovery steps between
+encounters, and attempts at most two offered lessons per mentor visit.
+Return trips add no extra road fights, and shops open only after won
+challenges. Mentor healing follows the actual lesson rules. It neither
+proves campaign completion nor replaces keyboard/touch playtests. A battle
+that reaches a three-minute simulated deadline is reported as a timeout
+and ends that seed without inventing a victory or a defeat.
+Use `RUNS=3 npm run sim:progression` for more seeds;
+`SIM_OUT=/tmp/progression.md npm run sim:progression` also writes its table
+to a file. Numerical balance tuning should wait for these results and
+playtest evidence together.
 
 See [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md) for the full rules and the
 reasoning behind them.

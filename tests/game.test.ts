@@ -251,9 +251,9 @@ describe('grantRewards', () => {
 });
 
 describe('shop', () => {
-  it('applies the price multiplier with a 1 gil minimum', () => {
+  it('applies the price multiplier without undercutting resale', () => {
     expect(priceFor(ITEMS.ironSword!, 0.5)).toBe(40);
-    expect(priceFor(ITEMS.herb!, 0.01)).toBe(1);
+    expect(priceFor(ITEMS.herb!, 0.01)).toBe(5);
   });
 
   it('charges the multiplied price', () => {
@@ -328,7 +328,13 @@ describe('save', () => {
     expect(deserialize('{}')).toBeNull();
     const data = JSON.parse(serialize(newGame()));
     expect(deserialize(JSON.stringify({ ...data, version: 999 }))).toBeNull();
-    expect(deserialize(JSON.stringify({ ...data, mapId: 'nowhere' }))).toBeNull();
+    expect(deserialize(JSON.stringify({ ...data, mapId: 7 }))).toBeNull();
+  });
+
+  it('sends a hero saved on a map that no longer exists to their inn', () => {
+    const data = JSON.parse(serialize(newGame()));
+    const loaded = deserialize(JSON.stringify({ ...data, mapId: 'nowhere' }))!;
+    expect([loaded.mapId, loaded.x, loaded.y]).toEqual([START.map, START.x, START.y]);
   });
 
   it('moves a hero saved where the map no longer lets them stand to their inn', () => {

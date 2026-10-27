@@ -29,7 +29,7 @@ import {
 import { spellLevel, spellName } from '../game/spells';
 import { STATS, STAT_IDS } from '../data/stats';
 import { dualChance, pieceWeights } from '../game/pieceOdds';
-import { deleteSave, loadGame, saveGame, type KeyValueStore } from '../game/save';
+import { CORRUPT_KEY, deleteSave, loadSave, saveGame, type KeyValueStore } from '../game/save';
 import { buy, sell } from '../game/shop';
 import type { Direction, EntityDef } from '../world/map';
 import { step } from '../world/movement';
@@ -124,7 +124,8 @@ export class App {
   constructor(atlas: Atlas, store: KeyValueStore) {
     this.store = store;
     this.atlas = atlas;
-    const saved = loadGame(store);
+    const loaded = loadSave(store);
+    const saved = loaded.state;
     this.started = saved !== null;
     this.state = saved ?? newGame();
     this.world = new WorldView(byId<HTMLCanvasElement>('world-canvas'), atlas);
@@ -137,6 +138,25 @@ export class App {
     this.battleView.hero.onItem = (id) => this.tryCombat(id, (c) => c.useItem(id));
     this.bindInput();
     this.applyTouchPrefs();
+    if (store.persistent === false) {
+      this.notice(
+        'Progress is temporary. Saving is unavailable; reloading or closing this page will lose your adventure.',
+      );
+    }
+    if (loaded.corrupt) {
+      this.notice(
+        loaded.backedUp
+          ? `Your saved adventure couldn't be read, so a new one begins. The old save was kept as a backup (${CORRUPT_KEY}).`
+          : "Your saved adventure couldn't be read, so a new one begins. It couldn't be backed up either.",
+      );
+    }
+  }
+
+  /** A lasting notice above the HUD (temporary saves, an unreadable save). */
+  private notice(text: string): void {
+    const notice = el('p', { className: 'session-notice', text });
+    notice.setAttribute('role', 'status');
+    document.querySelector('.hud')?.prepend(notice);
   }
 
   /** Reads a setting; storage may be unavailable, which reads as unset. */
@@ -692,7 +712,15 @@ export class App {
           label: 'Save',
           onClick: () => {
             refresh();
-            this.say(this.save() ? 'Saved' : 'Saving is unavailable', 'book');
+            const saved = this.save();
+            this.say(
+              saved
+                ? 'Saved'
+                : this.store.persistent === false
+                  ? 'Session only: progress will be lost on reload'
+                  : 'Saving is unavailable',
+              'book',
+            );
           },
         },
         {
@@ -922,6 +950,7 @@ export class App {
         event.preventDefault();
         this.active.battle.input(action);
       } else if (key === 'p') {
+        if (event.repeat) return;
         this.togglePause();
       } else if (/^[1-9]$/.test(key)) {
         // A category, then a spell in its menu.
