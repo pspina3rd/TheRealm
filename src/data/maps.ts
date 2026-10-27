@@ -242,7 +242,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
 
   // ------------------------------------------------- Mentor regions ---
   grove: {
-    // Hazel's home: a mushroom glade west of the Realm (nature, Lv 2–4).
+    // Hazel's home: a mushroom glade west of Sevenstones (nature, Lv 2–4).
     id: 'grove',
     name: 'Thornwood Grove',
     theme: 'grove',
@@ -294,7 +294,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
     ],
   },
   lake: {
-    // Maren's home: the lake shore east of the Realm (water, Lv 3–5).
+    // Maren's home: the lake shore east of Sevenstones (water, Lv 3–5).
     id: 'lake',
     name: 'Glasswater Lake',
     theme: 'lake',
@@ -341,7 +341,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
     decor: [{ object: 'hut', x: 6, y: 4 }],
   },
   quarry: {
-    // Dorn's home: the quarry south of the Realm (earth, Lv 4–6). The ridge road east leads to Emberforge.
+    // Dorn's home: the quarry south of Sevenstones (earth, Lv 4–6). The ridge road east leads to Emberforge.
     id: 'quarry',
     name: 'Redrock Quarry',
     theme: 'quarry',
@@ -383,7 +383,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
         to: { map: 'forge', x: 1, y: 15 },
         requiresFlag: 'ridgeCleared',
         lockedText:
-          'A rockslide buries the ridge road to Emberforge. Foreman Brann is digging it out.',
+          'A rockslide buries the ridge road to Emberforge. Foreman Flint is digging it out.',
       },
     ],
     entities: [
@@ -460,7 +460,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
     ],
   },
   peaks: {
-    // Rook's home: the storm peaks through the gate north of the Realm (lightning, Lv 6–8).
+    // Rook's home: the storm peaks through the gate in the north-east of Sevenstones (lightning, Lv 6–8).
     id: 'peaks',
     name: 'Stormcrown Peaks',
     theme: 'peaks',

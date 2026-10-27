@@ -185,7 +185,7 @@ export function spendSkillPoints(hero: Hero, plan: SkillPlan): boolean {
 
 /**
  * One step's regeneration (see `WALK_REGEN`), on a starter map (Mossvale or
- * the Realm) when `starter` is set. Returns the HP restored.
+ * Sevenstones) when `starter` is set. Returns the HP restored.
  */
 export function walkRegen(hero: Hero, starter = false): number {
   const share = starter && hero.level < BEGINNER_LEVEL ? BEGINNER_REGEN_CAP : WALK_REGEN_CAP;

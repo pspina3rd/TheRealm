@@ -54,7 +54,7 @@ export const CLASSES: Readonly<Record<string, HeroClass>> = {
   knight: {
     id: 'knight',
     name: 'Knight',
-    heroName: 'Bram',
+    heroName: 'Lance',
     description: 'Tough and well armoured, with shallow mana pools.',
     sprite: 'char.019',
     element: 'earth',

@@ -18,7 +18,7 @@ A new game starts by picking a class; the hero wakes in Mossvale Village. Class 
 | Class | Hero's name | Element | First spell | Description |
 | --- | --- | --- | --- | --- |
 | Ranger | Fen | Wind | Gale | Quick and lucky: slower pieces and better drops. A good first adventure. |
-| Knight | Bram | Earth | Quake | Tough and well armoured, with shallow mana pools. |
+| Knight | Lance | Earth | Quake | Tough and well armoured, with shallow mana pools. |
 | Mage | Lyra | Arcane | Shadow | Deep mana pools and keen insight, but fragile. |
 | Rogue | Vex | Lightning | Thunder | Hits harder, pays less in shops and starts with a fat purse. |
 

@@ -143,7 +143,7 @@ export function migrateFlags(flags: readonly string[]): Set<string> {
 /**
  * True when the hero can stand at `at`: a walkable tile on a known map that
  * no warp or person (or monster) sits on. Maps change as the world grows (the mentor regions
- * reshaped the Realm), so a saved spot that no longer is one sends the hero
+ * reshaped Sevenstones), so a saved spot that no longer is one sends the hero
  * to their inn, and a lost inn to the start.
  */
 function standable(at: unknown): at is Location {

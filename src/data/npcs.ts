@@ -785,7 +785,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   // --------------------------------------------------- Redrock Quarry ---
   foreman: {
     id: 'foreman',
-    name: 'Foreman Brann',
+    name: 'Foreman Flint',
     sprite: 'char.027',
     element: 'earth',
     lines: {
@@ -837,9 +837,9 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       accept: 'Red for the heat, orange for the iron.',
       decline: 'The coals are dying.',
       win: {
-        cold: 'Key. The gate is north of Mossvale. Go.',
-        plain: 'A true key! The peak gate stands north of Sevenstones.',
-        warm: 'A true key, and you swung like a smith! The peak gate is north of Sevenstones.',
+        cold: 'Key. The gate is north-east of Sevenstones. Go.',
+        plain: 'A true key! The peak gate stands in the north-east of Sevenstones.',
+        warm: 'A true key, and you swung like a smith! The peak gate is in the north-east of Sevenstones.',
       },
       lose: 'It cracked in the quench. Again.',
       done: {

@@ -340,7 +340,7 @@ describe('save', () => {
   it('moves a hero saved where the map no longer lets them stand to their inn', () => {
     const data = JSON.parse(serialize(newGame()));
     const inn = { map: 'brightwater', x: 4, y: 17 };
-    // A tree in the Realm, then a warp tile (the old cave seal now leads to the peaks).
+    // A tree in Sevenstones, then a warp tile (the old cave seal now leads to the peaks).
     for (const spot of [
       { mapId: 'overworld', x: 1, y: 1 },
       { mapId: 'overworld', x: 34, y: 3 },
