@@ -150,7 +150,7 @@ attack the moment you walk into them. Full rules and numbers are in
 
 1. **Mossvale Village** (start): Elder Rowan, Farmer Bea, Pip and a stall keeper.
    Leaving it brings the first of the Moon Wyrm's visions.
-2. **The Realm** (the hub): slimes, Spore Shrooms and goblins guard the roads,
+2. **Sevenstones** (the hub, ringed by seven standing mana crystals): slimes, Spore Shrooms and goblins guard the roads,
    which lead on to Brightwater and to the mentors' regions.
 3. **Brightwater Town**: shop, smithy, inn, a sage, a collector, a shrine
    keeper and Captain Vale, who holds the pass to the caves.
@@ -193,7 +193,7 @@ with you (within a few levels of their own), so no area turns into a
 farm. Falling in battle wakes you at the last inn with 30% HP and half
 your gil; level-ups add only the new max HP. Walking heals a little while
 you're below half HP (below 80% for a hero under level 4 in Mossvale and
-the Realm), and the inn restores the rest. Every balance number lives in
+Sevenstones), and the inn restores the rest. Every balance number lives in
 `src/data/balance.ts`; `npm run sim` plays the whole game's fights against
 bots and prints one table.
 

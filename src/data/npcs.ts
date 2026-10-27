@@ -838,8 +838,8 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       decline: 'The coals are dying.',
       win: {
         cold: 'Key. The gate is north of Mossvale. Go.',
-        plain: 'A true key! The peak gate stands north of the Realm.',
-        warm: 'A true key, and you swung like a smith! The peak gate is north of the Realm.',
+        plain: 'A true key! The peak gate stands north of Sevenstones.',
+        warm: 'A true key, and you swung like a smith! The peak gate is north of Sevenstones.',
       },
       lose: 'It cracked in the quench. Again.',
       done: {
