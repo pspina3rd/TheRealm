@@ -40,13 +40,12 @@ export interface Interlude {
   readonly text: string;
 }
 
-/** Set while a shown vision is still on screen, so a reload shows it again. */
-export function pendingFlag(visionId: string): string {
-  return `pending:${visionId}`;
-}
-
-function interludeOf(state: GameState, vision: VisionDef): Interlude {
-  return { id: vision.id, text: pickVariant(variantsOf(vision.lines), state.talk, WYRM_VOICE) };
+/**
+ * Set while a shown vision is still on screen, with the variant shown
+ * (`pending:<vision>:<n>`), so a reload shows the same words again.
+ */
+export function pendingFlag(visionId: string, variant: number): string {
+  return `pending:${visionId}:${variant}`;
 }
 
 /**
@@ -59,20 +58,38 @@ export function arrive(state: GameState, from: string): Interlude | null {
   state.flags.add(reachedFlag(state.mapId));
   const vision = visionOnWarp(from, state.mapId, state.flags);
   if (!vision) return null;
+  const lines = variantsOf(vision.lines);
+  const variant = (state.talk[WYRM_VOICE] ?? 0) % lines.length;
+  const text = pickVariant(lines, state.talk, WYRM_VOICE);
   state.flags.add(vision.flag);
-  state.flags.add(pendingFlag(vision.id));
-  return interludeOf(state, vision);
+  state.flags.add(pendingFlag(vision.id, variant));
+  return { id: vision.id, text };
 }
 
-/** The vision shown but never dismissed (the game was closed on it), to show again. */
+/** The pending flag of a vision, if it is pending. */
+function pendingOf(flags: ReadonlySet<string>, visionId: string): string | undefined {
+  return [...flags].find((flag) => flag.startsWith(`pending:${visionId}:`));
+}
+
+/**
+ * The vision shown but never dismissed (the game was closed on it), to
+ * show again, word for word; the rotation doesn't move.
+ */
 export function pendingVision(state: GameState): Interlude | null {
-  const vision = VISIONS.find((v) => state.flags.has(pendingFlag(v.id)));
-  return vision ? interludeOf(state, vision) : null;
+  for (const vision of VISIONS) {
+    const flag = pendingOf(state.flags, vision.id);
+    if (!flag) continue;
+    const lines = variantsOf(vision.lines);
+    const variant = Number(flag.split(':')[2]) || 0;
+    return { id: vision.id, text: lines[variant % lines.length] ?? lines[0] ?? '...' };
+  }
+  return null;
 }
 
 /** The hero dismissed the vision. */
 export function dismissVision(state: GameState, visionId: string): void {
-  state.flags.delete(pendingFlag(visionId));
+  const flag = pendingOf(state.flags, visionId);
+  if (flag) state.flags.delete(flag);
 }
 
 /** What a monster says before its fight (the Wyrm in its lair), rotated; null for most. */

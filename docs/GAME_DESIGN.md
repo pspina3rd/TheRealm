@@ -1009,8 +1009,8 @@ and the Wyrm speaks, a stage direction and a line. A tap, Enter or
 Continue (or Escape) dismisses it after a 350 ms guard, so keys or taps
 still held from walking can't skip it. `src/game/story.ts` decides them
 from the warp just taken (pure, tested) and records each as a flag; a
-shown vision is also `pending:<vision>` until dismissed, so a game closed
-on a vision shows it again on the next load:
+shown vision is also `pending:<vision>:<variant>` until dismissed, so a game closed
+on a vision shows the same words again on the next load:
 
 | Vision | Shown on the first warp…        | Flag       |
 | ------ | ------------------------------- | ---------- |

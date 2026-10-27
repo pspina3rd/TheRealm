@@ -160,12 +160,15 @@ describe('the Moon Wyrm’s visions', () => {
     travel(state, { map: 'overworld', x: 5, y: 6 });
     const first = arrive(state, 'mossvale');
     expect(first).toEqual({ id: 'vision1', text: variantsOf(VISIONS[0]!.lines)[0] });
-    expect(state.flags).toEqual(new Set([reachedFlag('overworld'), 'vision:1', 'pending:vision1']));
-    // Closed on the vision, the game shows it again (the Wyrm's next words); dismissed, never.
-    expect(pendingVision(state)).toEqual({
-      id: 'vision1',
-      text: variantsOf(VISIONS[0]!.lines)[1],
-    });
+    expect(state.flags).toEqual(
+      new Set([reachedFlag('overworld'), 'vision:1', 'pending:vision1:0']),
+    );
+    // Closed on the vision, the game shows the same words again, without
+    // moving the rotation; dismissed, never.
+    expect(pendingVision(state)).toEqual(first);
+    expect(pendingVision(deserialize(serialize(state))!)).toEqual(first);
+    expect(state.talk.wyrm).toBe(1);
+    dismissVision(state, 'vision1');
     dismissVision(state, 'vision1');
     expect(pendingVision(state)).toBeNull();
     expect(state.flags).toEqual(new Set([reachedFlag('overworld'), 'vision:1']));
@@ -174,7 +177,10 @@ describe('the Moon Wyrm’s visions', () => {
     travel(state, { map: 'overworld', x: 5, y: 6 });
     expect(arrive(state, 'mossvale')).toBeNull();
     travel(state, { map: 'quarry', x: 16, y: 1 });
-    expect(arrive(state, 'overworld')?.text).toBe(variantsOf(VISIONS[1]!.lines)[0]);
+    const second = arrive(state, 'overworld');
+    expect(second?.text).toBe(variantsOf(VISIONS[1]!.lines)[1]);
+    expect(state.flags.has('pending:vision2:1')).toBe(true);
+    expect(pendingVision(state)).toEqual(second);
   });
 
   it('speaks in the lair before the fight, rotating, and nowhere else', () => {
