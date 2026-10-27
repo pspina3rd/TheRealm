@@ -697,7 +697,7 @@ every bag. Ember (fire) sells in Mossvale; Ember, Tide (water), Storm
 (lightning) and Wind sell at the Brightwater smithy. The Storm Charm undoes
 the Moon Caves' lightning penalty, which matters against the
 lightning-weak Shade Imp and Moon Wyrm. The rest come from people: the
-Well Stone (earth) from Elder Rowan, for a hero who already knows Quake;
+Focus Stone (earth) from Elder Rowan, for a hero who already knows Quake;
 the Grove Charm (nature), the Moon Charm (arcane) and Pip's Wind Charm as
 Devoted secrets (see [NPCs and attitude](#npcs-and-attitude)).
 
@@ -861,7 +861,7 @@ takes real growth. A hero deep in the two elements that beat an NPC's
   lines. The tests check every flag a warp or hidden spell needs comes from
   such an NPC. Everyone else may refuse; nothing they give is required.
 - **Known spells**: a spell reward names an `instead`, given to a hero who
-  already knows the spell (the Knight gets the Elder's Well Stone, the
+  already knows the spell (the Knight gets the Elder's Focus Stone, the
   Rogue the sage's Storm Charm). A deed is never repaid with nothing.
 - **Things** (the sealed chest) have no face and always deal at Neutral.
 
@@ -879,11 +879,12 @@ line once a one-time task is finished). Lines that matter come in three
 moods: cold (Hostile, Wary), plain (Neutral) and warm (Friendly, Devoted).
 Devoted NPCs confide instead of the warm intro, and NPCs who can refuse
 have a refusal. The accept line opens the battle as a banner; the decline
-line shows over the map.
+line shows over the map. Any line may hold several variants, which the
+speaker rotates through, and `*stage directions*` (see [Story](#story)).
 
 | NPC                  | Element   | Need                                      | Challenge                      | Reward (bonus / secret)                           |
 | -------------------- | --------- | ----------------------------------------- | ------------------------------ | ------------------------------------------------- |
-| Elder Rowan          | Earth     | Spores choke the village well             | Puzzle: clear the spore field  | Quake, or the Well Stone (Ether / Spore Cap)      |
+| Elder Rowan          | Earth     | Spores choke the village well             | Puzzle: clear the spore field  | Quake, or the Focus Stone (Ether / Spore Cap)     |
 | Farmer Bea           | Nature    | Blight left her herb beds bare            | Barter: plant 7 green          | 2 Herbs (Herb / Grove Charm)                      |
 | Pip                  | Wind      | His crystal tower is jammed before supper | Puzzle: unjam the tower        | Ether (Herb / Wind Charm)                         |
 | Stall Keeper Odo     | Nature    | Makes his living at the stall             | Haggle                         | Mossvale Stall (secret: Iron Sword)               |
@@ -898,7 +899,7 @@ line shows over the map.
 | Sealed Chest         | Arcane    | (a thing)                                 | Puzzle: break the seal         | Phoenix Feather, 2 Moon Shards (a delver's cache) |
 | Forager Wren         | Nature    | Rot ate her mushroom rings (grove)        | Barter: plant 8 green          | 2 Herbs, 15 gil (Herb / Grove Charm)              |
 | Fisher Tam           | Water     | Lurkers tore his nets (lake)              | Barter: weave 8 blue           | 25 gil, Ether (Herb / Tide Charm)                 |
-| Foreman Brann        | Earth     | A rockslide buried the ridge road         | Barter: 10 orange, 6 violet    | Ridge road open, 40 gil (Ether / Well Stone)      |
+| Foreman Brann        | Earth     | A rockslide buried the ridge road         | Barter: 10 orange, 6 violet    | Ridge road open, 40 gil (Ether / Focus Stone)     |
 | Apprentice Cinda     | Fire      | Must forge the peak gate's key for Torva  | Barter: 10 red, 6 orange       | Peak gate key, Ether (2 Herbs / Ember Charm)      |
 | Armorer Garrick      | Fire      | The ore is back and his racks are full    | Haggle                         | Emberforge Armory (secret: Phoenix Feather)       |
 | Innkeeper Rosa       | Fire      | Smiths sleep hard and pay late            | Haggle                         | The Cinder Rest (secret: Ether)                   |
@@ -910,6 +911,106 @@ line shows over the map.
 Spell tomes left the shops: mentors teach spells. Their items remain, so
 a tome an old save holds can still be read. The sealed chest's Blizzard
 tome became a delver's cache (Maren teaches Blizzard).
+
+## Story
+
+The author's script, [docs/STORY.md](STORY.md), is the source of truth for
+the text it covers: the opening (class names, hero names, descriptions),
+Mossvale (Elder Rowan, Farmer Bea, Pip, Stall Keeper Odo), Captain Vale,
+Shrine Keeper Ilse, the mentors' motive / win / lose lines, Vesper and the
+Moon Wyrm. Their lines are in the game word for word, punctuation and
+stage directions included; `tests/script.test.ts` reads the script's tables
+and checks every imported cell against the data. Everyone else keeps their
+lines until the script covers them.
+
+### Rotating lines
+
+A line is one sentence or a list of variants (the script's `•` bullets).
+Each speaker counts how often each of their moments (greeting, accept,
+win, …) has been said (`GameState.talk`, saved), and the n-th time says
+variant n mod count (`src/game/lines.ts`). So a character with two or more
+variants never says the same sentence twice running, and the order is the
+same in every game (deterministic, no dice). One character met as several
+NPCs (Vesper) shares one count through `NpcDef.voice`.
+
+- **Moods**: a line is either one cell for everyone or a cell per mood:
+  cold (Hostile, Wary), plain (Neutral), warm (Friendly, Devoted). The
+  script never uses a "(same)" cell, so every imported row is per mood.
+- **Missing cells** fall back to the nearest mood: a missing cold or warm
+  cell uses plain, then the other extreme; a missing plain uses warm, then
+  cold. A missing moment uses the old default (`...`).
+- **Script conventions**: a bullet that is one quoted sentence is said
+  without its quotes (the quotes are the table's notation); a bullet with
+  a stage direction keeps them, since they part speech from narration.
+  "You succeed, already knowing the spell" is the `winKnown` line.
+- **Cells the rules can't reach yet**: confidences are said only when
+  Devoted (so their warm cell) and refusals only when Hostile (their cold
+  cell); the other cells are kept verbatim for the author. Farmer Bea's
+  "Afterwards" row is kept too, though she can be helped again and again,
+  so her done line never shows.
+
+### Stage directions
+
+Text wrapped in `*…*` is narration, not speech: `parseStage` splits a line
+into speech and stage runs, and the UI draws stage runs as italic
+narration (`em.stage`) in conversations, the map banner, the battle
+banner (drawn on the canvas, wrapping long lines) and interludes. A lone
+asterisk stays as written. Emphasis in speech (Elder Rowan's "purple
+_and_ full of gravel") reads as italic too.
+
+### The Moon Wyrm's visions
+
+Three visions, each shown once as an **interlude**: the screen goes dark
+and the Wyrm speaks, a stage direction and a line. A tap, Enter or
+Continue dismisses it after a 350 ms guard, so keys or taps still held
+from walking can't skip it. `src/game/story.ts` decides them from the warp
+just taken (pure, tested) and records each as a flag:
+
+| Vision | Shown on the first warp…        | Flag       |
+| ------ | ------------------------------- | ---------- |
+| 1      | out of Mossvale                 | `vision:1` |
+| 2      | into Redrock Quarry (the ridge) | `vision:2` |
+| 3      | into Stormcrown Peaks           | `vision:3` |
+
+Each arrival also sets `reached:<map>`. The Wyrm's words rotate under one
+voice, visions and lair alike, so its two variants alternate.
+
+**The lair**: bumping the Moon Wyrm shows its lair words as an interlude
+first (`PRELUDES` in `src/data/story.ts`, rotating each time), and the
+fight starts when it is dismissed.
+
+### Vesper, Thrall of the Depths
+
+The Wyrm's thrall (arcane, hooded) appears region to region, always one
+step ahead: Vesper waits at the stop of the newest story beat the hero
+has reached (`VESPER_ROUTE`), one place at a time, derived from the saved
+flags (deterministic, survives a reload). Vesper is gone before the first
+vision and after the Wyrm falls, and never stands on the hero's tile.
+
+| Stop | Where                                  | After              | Challenge                    | Reward                             |
+| ---- | -------------------------------------- | ------------------ | ---------------------------- | ---------------------------------- |
+| 1    | The Realm, the road out of Mossvale    | Vision 1           | Puzzle: two O pieces, 2 rows | Moon Shard, `lore:vesper.road`     |
+| 2    | Redrock Quarry, by the ridge road      | Vision 2           | Offering: a Herb (600 pts)   | Moon Shard, `lore:vesper.ridge`    |
+| 3    | Stormcrown Peaks, the west road        | Vision 3           | Puzzle: O then I, 3 rows     | Moon Shard, `lore:vesper.peaks`    |
+| 4    | Moonfall Ruins, by the Moon Caves seal | reaching the ruins | Offering: an Ether (900 pts) | 2 Moon Shards, `lore:vesper.ruins` |
+
+Each stop is its own NPC (`vesperRoad` … `vesperRuins`) sharing Vesper's
+lines and voice, done once ("Afterwards" until Vesper moves on). Attitude
+is the usual arcane one: Hostile refuses (Vesper is not essential, nothing
+needed comes from Vesper), Wary raises the offering's target. The Devoted
+secret is a Moon Shard, the one Vesper's confidence hands over; the
+script gives Vesper no warm bonus. The lore flags show as an arcane book
+and are kept for the story to build on.
+
+### Saves
+
+Save version 8 adds the line memory (`talk`). An older save starts every
+speaker at their first variant, and marks story beats it is already past:
+the map it stands on counts as reached; Vision 1 counts as seen once the
+hero has left Mossvale or done anything; Visions 2 and 3 and the ruins
+count once the hero stands in or beyond the quarry, the peaks or the ruins
+(all of them once the Wyrm has fallen). So an old save is never shown a
+vision out of order, and Vesper waits where its story stands.
 
 ## Enemy roster
 

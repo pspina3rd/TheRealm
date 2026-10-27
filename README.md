@@ -5,6 +5,14 @@ and descend into dungeons. **Every interaction is a battle**: monsters fight
 you with magic, merchants haggle, villagers barter and sages set puzzles,
 all played out on a falling-block board.
 
+**The story.** Something vast stirs under the realm: the Moon Wyrm, coiled
+around a moon-crystal deep in the Moon Caves, drinks the moonlight while
+spores choke Mossvale's well and the lake clouds over. You wake in
+Mossvale, mend what you can, and learn magic from seven mentors on the
+road down. The Wyrm speaks to you in visions as you go, and its thrall,
+Vesper, is always one step ahead of you. The words are the author's own,
+from the story script in [docs/STORY.md](docs/STORY.md).
+
 ## Quick start
 
 Requires Node.js 20 or newer.
@@ -141,6 +149,7 @@ attack the moment you walk into them. Full rules and numbers are in
 ### The adventure so far
 
 1. **Mossvale Village** (start): Elder Rowan, Farmer Bea, Pip and a stall keeper.
+   Leaving it brings the first of the Moon Wyrm's visions.
 2. **The Realm** (the hub): slimes, Spore Shrooms and goblins guard the roads,
    which lead on to Brightwater and to the mentors' regions.
 3. **Brightwater Town**: shop, smithy, inn, a sage, a collector, a shrine
@@ -150,7 +159,9 @@ attack the moment you walk into them. Full rules and numbers are in
    Thornwood Grove (Hazel, west), Glasswater Lake (Maren, east), Redrock
    Quarry (Dorn, south), Emberforge past the quarry's buried ridge road
    (Torva), Stormcrown Peaks through the tunnel north-east (Rook), Windward
-   Cliffs (Kestrel) and the Moonfall Ruins (Selene).
+   Cliffs (Kestrel) and the Moonfall Ruins (Selene). Vesper, Thrall of the
+   Depths, waits at each new step of the road: the road out of Mossvale,
+   the quarry's ridge, the peaks and the ruins.
 5. **Moon Caves** (two floors, under the ruins): imps and a Cave Brute, a
    sealed chest, a hermit and the Moon Wyrm boss.
 6. **Sunken Ruins**: sealed for now. Beat the Moon Wyrm (it enrages at

@@ -1525,6 +1525,7 @@ dialog.interlude h2 {
 
 dialog.interlude #dialog-body {
   max-width: 34em;
+  flex: 0 1 auto;
 }
 
 .interlude-text {

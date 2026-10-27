@@ -7,6 +7,7 @@ import type { MapDef } from '../world/map';
 export const MAPS: Readonly<Record<string, MapDef>> = {
   overworld: {
     id: 'overworld',
+    // The hub's place name (the author will choose a new one): shown on arrival.
     name: 'The Realm',
     theme: 'outdoor',
     // Meadows: nature is plentiful.
