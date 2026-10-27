@@ -42,24 +42,38 @@ export function variantsFor(line: Line, mood: Mood): readonly string[] {
 }
 
 /**
- * Picks the next variant for `key` and counts it in `memory`. Without a
- * memory the first variant is said. An empty list says '...'.
+ * The next variant for `key`. It is counted in `memory` as said, unless
+ * `commit` is false: a line offered but maybe never shown (an accept or a
+ * decline) is counted with `noteSaid` once it is. Without a memory the
+ * first variant is said; an empty list says '...'.
  */
 export function pickVariant(
   variants: readonly string[],
   memory?: LineMemory,
   key?: string,
+  commit = true,
 ): string {
   if (variants.length === 0) return '...';
   if (!memory || key === undefined) return variants[0] ?? '...';
   const count = memory[key] ?? 0;
-  memory[key] = count + 1;
+  if (commit) noteSaid(memory, key);
   return variants[count % variants.length] ?? '...';
 }
 
-/** Speaks a line in a mood, rotating under `key` when a memory is given. */
-export function speak(line: Line, mood: Mood, memory?: LineMemory, key?: string): string {
-  return pickVariant(variantsFor(line, mood), memory, key);
+/** Counts one saying of `key`, so its next variant comes up. */
+export function noteSaid(memory: LineMemory, key: string): void {
+  memory[key] = (memory[key] ?? 0) + 1;
+}
+
+/** Speaks a line in a mood, rotating under `key` when a memory is given (see `pickVariant`). */
+export function speak(
+  line: Line,
+  mood: Mood,
+  memory?: LineMemory,
+  key?: string,
+  commit = true,
+): string {
+  return pickVariant(variantsFor(line, mood), memory, key, commit);
 }
 
 /** A run of text: spoken words, or a stage direction (narration, shown in italics). */
@@ -69,25 +83,27 @@ export interface Beat {
 }
 
 /**
- * Splits a line at its `*stage directions*`. An asterisk with no partner is
- * kept as written, and the spaces between beats stay with the speech.
+ * A stage direction: `*` at the start or after a space, text that neither
+ * starts nor ends with a space, and `*` before a space, punctuation or the
+ * end. So `5 * 3 * 2` and `**bold**` stay as written.
+ */
+const STAGE = /(^|\s)\*([^*\s](?:[^*]*[^*\s])?)\*(?=$|[\s.,;:!?"'’”)\]—–-])/g;
+
+/**
+ * Splits a line at its `*stage directions*`; anything else with asterisks
+ * is kept as written, and the spaces between beats stay with the speech.
+ * Single-word emphasis (the Elder's "purple *and* full of gravel") reads
+ * the same way and renders in italics like narration.
  */
 export function parseStage(text: string): Beat[] {
   const beats: Beat[] = [];
-  const pattern = /\*([^*]+)\*/g;
   let last = 0;
-  for (let match = pattern.exec(text); match; match = pattern.exec(text)) {
-    if (match.index > last) beats.push({ kind: 'speech', text: text.slice(last, match.index) });
-    beats.push({ kind: 'stage', text: match[1] ?? '' });
+  for (const match of text.matchAll(STAGE)) {
+    const start = match.index + (match[1]?.length ?? 0);
+    if (start > last) beats.push({ kind: 'speech', text: text.slice(last, start) });
+    beats.push({ kind: 'stage', text: match[2] ?? '' });
     last = match.index + match[0].length;
   }
   if (last < text.length) beats.push({ kind: 'speech', text: text.slice(last) });
   return beats;
-}
-
-/** The line as plain text, stage directions without their asterisks (for tooltips and tests). */
-export function plainText(text: string): string {
-  return parseStage(text)
-    .map((beat) => beat.text)
-    .join('');
 }

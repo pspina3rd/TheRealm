@@ -13,7 +13,6 @@ import { addItem, itemCount, removeItem } from '../src/game/hero';
 import {
   parseStage,
   pickVariant,
-  plainText,
   speak,
   variantsFor,
   variantsOf,
@@ -83,9 +82,19 @@ describe('stage directions', () => {
   it('keeps plain lines and lone asterisks as written', () => {
     expect(parseStage('Just words.')).toEqual([{ kind: 'speech', text: 'Just words.' }]);
     expect(parseStage('5 * 3')).toEqual([{ kind: 'speech', text: '5 * 3' }]);
+    expect(parseStage('5 * 3 * 2')).toEqual([{ kind: 'speech', text: '5 * 3 * 2' }]);
+    expect(parseStage('**bold**')).toEqual([{ kind: 'speech', text: '**bold**' }]);
+    expect(parseStage('a*b*c')).toEqual([{ kind: 'speech', text: 'a*b*c' }]);
     expect(parseStage('**')).toEqual([{ kind: 'speech', text: '**' }]);
     expect(parseStage('')).toEqual([]);
-    expect(plainText('*Rune glows.* "Go."')).toBe('Rune glows. "Go."');
+    expect(parseStage('Say "*bows*", then go.')).toEqual([
+      { kind: 'speech', text: 'Say "*bows*", then go.' },
+    ]);
+    expect(parseStage('He *bows*, then goes.')).toEqual([
+      { kind: 'speech', text: 'He ' },
+      { kind: 'stage', text: 'bows' },
+      { kind: 'speech', text: ', then goes.' },
+    ]);
   });
 });
 
