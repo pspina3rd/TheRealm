@@ -9,11 +9,19 @@ import { CLASSES } from '../src/data/classes';
 import { MENTORS } from '../src/data/mentors';
 import { NPCS } from '../src/data/npcs';
 import { PRELUDES, VESPER_LINES, VISIONS } from '../src/data/story';
-import type { Line, NpcLines } from '../src/data/types';
+import type { Line, NpcLines, Variants } from '../src/data/types';
 import { variantsOf, type Mood } from '../src/game/lines';
-import { bulletText, cellVariants, loadScript, readScript } from './storyScript';
+import { bulletText, cellVariants, loadScript, readScript, type Cell } from './storyScript';
 
 const script = loadScript();
+const WYRM = 'The Moon Wyrm (Visions & Lair Monologues)';
+/** The Wyrm's rows, by the script's own names. */
+const WYRM_ROWS: Readonly<Record<string, Variants>> = {
+  'Vision 1 (Leaving Mossvale)': VISIONS.find((v) => v.id === 'vision1')!.lines,
+  'Vision 2 (Redrock Quarry / Ridge)': VISIONS.find((v) => v.id === 'vision2')!.lines,
+  'Vision 3 (Stormcrown Peaks)': VISIONS.find((v) => v.id === 'vision3')!.lines,
+  'Lair Confrontation (Moon Caves Depths)': PRELUDES.moonWyrm!,
+};
 const MOODS: readonly Mood[] = ['cold', 'plain', 'warm'];
 const MOMENTS: Readonly<Record<string, keyof NpcLines>> = {
   Greeting: 'intro',
@@ -58,11 +66,11 @@ describe('the author’s script is the game’s text', () => {
 
   for (const [name, lines] of Object.entries(people)) {
     it(`${name}: every moment, every mood, every variant`, () => {
-      const table = script.get(name)!;
+      const table = script.get(name);
       expect(table, name).toBeDefined();
       let checked = 0;
       for (const [row, moment] of Object.entries(MOMENTS)) {
-        const cells = table.get(row);
+        const cells = table?.get(row);
         if (!cells) {
           expect(lines[moment], `${name} ${row}`).toBeUndefined();
           continue;
@@ -76,10 +84,16 @@ describe('the author’s script is the game’s text', () => {
     });
   }
 
+  /** A row of a table, failing loudly when the script has no such row. */
+  const rowOf = (section: string, key: string): Cell[] => {
+    const row = script.get(section)?.get(key);
+    expect(row, `${section} › ${key}`).toBeDefined();
+    return row ?? [];
+  };
+
   it('the mentors’ reasons, wins and losses', () => {
-    const table = script.get('The Mentors')!;
     for (const mentor of Object.values(MENTORS)) {
-      const [, , motive, win, lose] = table.get(mentor.name)!;
+      const [, , motive, win, lose] = rowOf('The Mentors', mentor.name);
       expect(variantsOf(mentor.motive), mentor.id).toEqual(motive);
       expect(variantsOf(mentor.winText), mentor.id).toEqual(win);
       expect(variantsOf(mentor.loseText), mentor.id).toEqual(lose);
@@ -87,21 +101,34 @@ describe('the author’s script is the game’s text', () => {
   });
 
   it('the opening: class names, hero names and descriptions', () => {
-    const table = script.get('Opening')!;
     for (const cls of Object.values(CLASSES)) {
-      const [name, , , description] = table.get(cls.name)!;
+      const [name, , , description] = rowOf('Opening', cls.name);
       expect([cls.heroName], cls.id).toEqual(name);
       expect([cls.description], cls.id).toEqual(description);
     }
   });
 
-  it('the Moon Wyrm’s visions and lair', () => {
-    const table = script.get('The Moon Wyrm (Visions & Lair Monologues)')!;
-    const rows = [...table.values()].slice(1).map(([text]) => text);
-    expect(rows).toEqual([
-      ...VISIONS.map((v) => variantsOf(v.lines)),
-      variantsOf(PRELUDES.moonWyrm!),
-    ]);
+  it('the Moon Wyrm’s visions and lair, row by row', () => {
+    for (const [row, lines] of Object.entries(WYRM_ROWS)) {
+      expect(rowOf(WYRM, row)[0], row).toEqual(variantsOf(lines));
+    }
+  });
+
+  it('imports every table the script has: no row or section is left behind', () => {
+    const known: Record<string, readonly string[]> = {
+      ...Object.fromEntries(
+        Object.keys(people).map((name) => [name, ['Moment', ...Object.keys(MOMENTS)]]),
+      ),
+      'The Mentors': ['Mentor', ...Object.values(MENTORS).map((m) => m.name)],
+      Opening: ['Class', ...Object.values(CLASSES).map((c) => c.name)],
+      [WYRM]: ['Sequence / Region', ...Object.keys(WYRM_ROWS)],
+    };
+    const unknown = [...script].flatMap(([section, table]) =>
+      [...table.keys()]
+        .filter((row) => !known[section]?.includes(row))
+        .map((row) => `${section} › ${row}`),
+    );
+    expect(unknown, 'rows in docs/STORY.md the game does not import').toEqual([]);
   });
 
   it('a few lines, character for character', () => {
