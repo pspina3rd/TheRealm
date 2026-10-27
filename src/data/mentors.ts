@@ -1,5 +1,6 @@
 import type { Element } from '../core/elements';
 import type { Location } from '../world/map';
+import type { Variants } from './types';
 
 /** A place on a mentor's route; it joins the route once the hero has `requiresFlag`. */
 export interface MentorStop extends Location {
@@ -20,11 +21,11 @@ export interface MentorDef {
   /** Creature key from `src/ui/art/creatures.ts`. */
   readonly sprite: string;
   /** What they say when you meet them: why they teach. */
-  readonly motive: string;
+  readonly motive: Variants;
   /** Said after a lesson is won. */
-  readonly winText: string;
+  readonly winText: Variants;
   /** Said after a lesson is lost. */
-  readonly loseText: string;
+  readonly loseText: Variants;
   /** The trial foe they summon at home (an id in `ENEMIES`). */
   readonly trialFoe: string;
   /** Home first. Stops with a flag join the route once the hero has it. */
@@ -40,9 +41,9 @@ export const MENTORS: Readonly<Record<string, MentorDef>> = {
     name: 'Torva',
     element: 'fire',
     sprite: 'char.020',
-    motive: 'My hands shake too much for the forge now. Someone has to carry the flame.',
-    winText: 'There. The flame is yours to carry.',
-    loseText: 'It went out. Find me again and we will relight it.',
+    motive: 'My hands shake too much for the anvil now. Someone has to carry the spark.',
+    winText: 'There! The flame is yours to hold.',
+    loseText: "It went cold. Find me again and we'll relight it.",
     trialFoe: 'emberWisp',
     route: [
       { map: 'forge', x: 15, y: 8, landmark: 'old forge' },
@@ -58,9 +59,9 @@ export const MENTORS: Readonly<Record<string, MentorDef>> = {
     name: 'Maren',
     element: 'water',
     sprite: 'char.031',
-    motive: 'The lake is clouding and I cannot watch it alone. Learn the tide with me.',
-    winText: 'The water knows you now.',
-    loseText: 'The tide pulled away. Come find me and we will try again.',
+    motive: 'The lake clouds over as the caves wake below. Learn the tide with me.',
+    winText: 'The water knows your heart now.',
+    loseText: 'The current swept you away. Catch me at the jetty.',
     trialFoe: 'tideWisp',
     route: [
       { map: 'lake', x: 20, y: 10, landmark: 'jetty' },
@@ -76,9 +77,9 @@ export const MENTORS: Readonly<Record<string, MentorDef>> = {
     element: 'lightning',
     sprite: 'char.005',
     motive:
-      'Storms roll off the peaks faster every year. I need someone quick enough to meet them.',
-    winText: 'Quick hands. The storm answers you.',
-    loseText: 'Too slow. I will be chasing the clouds; catch me.',
+      'Storms roll off the peaks faster every winter. I need someone quick enough to catch them.',
+    winText: 'Quick hands! The lightning answers you.',
+    loseText: "Too slow! I'll be chasing the clouds; find me.",
     trialFoe: 'sparkWisp',
     route: [
       { map: 'peaks', x: 17, y: 4, landmark: 'storm beacon' },
@@ -95,9 +96,9 @@ export const MENTORS: Readonly<Record<string, MentorDef>> = {
     name: 'Hazel',
     element: 'nature',
     sprite: 'char.002',
-    motive: 'The spores are choking my meadows. Help me grow them green again.',
-    winText: 'See? It grows back, a little stronger.',
-    loseText: 'Roots take time. Look for me in the meadows.',
+    motive: 'The spores are choking my meadows from below. Help me grow them green again.',
+    winText: 'See? Life springs back, stronger than before.',
+    loseText: 'Roots take time to anchor. Meet me in the meadow.',
     trialFoe: 'mossWisp',
     route: [
       { map: 'grove', x: 24, y: 8, landmark: 'old oak' },
@@ -112,9 +113,9 @@ export const MENTORS: Readonly<Record<string, MentorDef>> = {
     name: 'Dorn',
     element: 'earth',
     sprite: 'char.025',
-    motive: 'The caves took my crew. I teach so nobody digs blind again.',
-    winText: 'Solid. The ground will hold for you.',
-    loseText: 'The rock won that one. I will be down by the stone; come back.',
+    motive: 'The cave-collapse took my mining crew. I teach so nobody digs blind again.',
+    winText: 'Solid as granite! The ground will hold.',
+    loseText: 'The rock won that round. Come back down to the lifts.',
     trialFoe: 'stoneWisp',
     route: [
       { map: 'quarry', x: 8, y: 6, landmark: 'quarry lift' },
@@ -131,9 +132,9 @@ export const MENTORS: Readonly<Record<string, MentorDef>> = {
     name: 'Selene',
     element: 'arcane',
     sprite: 'char.039',
-    motive: 'Something below drinks the moonlight. I need a second mind to hold it.',
-    winText: 'Two minds, one moon. Well held.',
-    loseText: 'It slipped. Follow the moonlight to me and we begin again.',
+    motive: 'Something deep below drinks the moonlight. I need a second mind to hold the dark.',
+    winText: 'Two minds, one moon. Beautifully held.',
+    loseText: 'The focus slipped. Follow the moonlight to my tower.',
     trialFoe: 'moonWisp',
     route: [
       { map: 'ruins', x: 13, y: 6, landmark: 'moon tower' },
@@ -148,9 +149,9 @@ export const MENTORS: Readonly<Record<string, MentorDef>> = {
     name: 'Kestrel',
     element: 'wind',
     sprite: 'char.015',
-    motive: 'My letters must reach every village. Teach you the wind and the roads get shorter.',
-    winText: 'Ha! You flew. Keep it.',
-    loseText: 'Blown off course. I am always on the road; catch me.',
+    motive: 'My letters must reach every village. Learn the winds and your road gets shorter.',
+    winText: 'Ha! You flew! Keep that speed!',
+    loseText: 'Blown off course! Catch me along the cliff path.',
     trialFoe: 'galeWisp',
     route: [
       { map: 'cliffs', x: 16, y: 6, landmark: 'eyrie' },

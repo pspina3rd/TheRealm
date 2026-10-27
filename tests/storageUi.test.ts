@@ -98,14 +98,34 @@ describe('save durability messaging', () => {
     start(store);
     const notice = document.querySelector('.session-notice');
     expect(notice?.getAttribute('role')).toBe('status');
-    expect(notice?.textContent).toContain(
-      'reloading or closing this page will lose your adventure',
-    );
+    expect(notice?.textContent).toContain('Changes from this session will be lost on reload');
     manualSave();
     expect(document.querySelector('#world-banner')?.textContent).toContain(
       'Session only: progress will be lost on reload',
     );
     expect(document.querySelector('.session-notice')).toBe(notice);
+  });
+
+  it('resumes a readable adventure when quota prevents startup writes', () => {
+    const durable = persistentStore();
+    const state = newGame('mage');
+    state.hero.gil = 321;
+    saveGame(durable, state);
+    const selected = createStore(() => ({
+      ...durable,
+      setItem: () => {
+        throw new Error('Quota exceeded');
+      },
+    }));
+    new App(atlas, selected).start();
+    expect(document.querySelector('#hud-name')?.textContent).toBe(state.hero.name);
+    expect(document.querySelector('#hud-gil')?.textContent).toBe('321');
+    expect(document.querySelector('#dialog')?.hasAttribute('open')).toBe(false);
+    expect(document.querySelector('.session-notice')?.textContent).toContain(
+      'Changes from this session will be lost on reload',
+    );
+    manualSave();
+    expect(document.querySelector('#world-banner')?.textContent).toContain('Session only');
   });
 
   it('confirms a durable save without displaying a temporary-session warning', () => {

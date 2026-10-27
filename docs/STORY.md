@@ -1,4 +1,4 @@
-# The Realm — Story Script (Complete & Unabridged)
+# Mana Crystals — Story Script (Complete & Unabridged)
 
 Oct 24, 2026 · @Philip Spina
 

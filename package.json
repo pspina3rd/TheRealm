@@ -12,12 +12,12 @@
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "sim": "SIM=1 vitest run tests/sim/balance.test.ts",
-    "sim:progression": "SIM_PROGRESSION=1 vitest run tests/sim/progression.test.ts",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "check": "npm run format:check && npm run lint && npm run typecheck && npm test"
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm test",
+    "sim:progression": "SIM_PROGRESSION=1 vitest run tests/sim/progression.test.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

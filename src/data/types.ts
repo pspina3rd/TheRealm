@@ -288,26 +288,35 @@ export type Reward =
 // ------------------------------------------------------------------ NPCs ---
 
 /**
+ * One sentence, or several variants of it. A speaker rotates through the
+ * variants so the same character never says the same sentence twice in a
+ * row (see `src/game/lines.ts`). Text wrapped in `*…*` is a stage
+ * direction, shown as italic narration.
+ */
+export type Variants = string | readonly string[];
+
+/**
  * A line that changes with the NPC's attitude: `cold` (Hostile, Wary),
- * `plain` (Neutral) or `warm` (Friendly, Devoted).
+ * `plain` (Neutral) or `warm` (Friendly, Devoted). A missing cell falls
+ * back to the nearest mood: plain first, then the other extreme.
  */
 export interface MoodLine {
-  readonly cold: string;
-  readonly plain: string;
-  readonly warm: string;
+  readonly cold?: Variants;
+  readonly plain?: Variants;
+  readonly warm?: Variants;
 }
 
 /** A line said the same way to everyone, or one that changes with attitude. */
-export type Line = string | MoodLine;
+export type Line = Variants | MoodLine;
 
 /** Everything an NPC says (see "NPC dialogue rules" in docs/GAME_DESIGN.md). */
 export interface NpcLines {
   /** Their need, said before the challenge is offered. */
-  readonly intro: MoodLine;
-  /** Said instead of the warm intro when Devoted: a confidence or a hint. */
-  readonly confide?: string;
-  /** Said when Hostile and they won't deal (NPCs who always deal have none). */
-  readonly refuse?: string;
+  readonly intro: Line;
+  /** Said instead of the intro when Devoted (so its warm cell): a confidence or a hint. */
+  readonly confide?: Line;
+  /** Said when Hostile and they won't deal (so its cold cell; NPCs who always deal have none). */
+  readonly refuse?: Line;
   readonly accept: Line;
   readonly decline: Line;
   readonly win: Line;
@@ -322,6 +331,11 @@ export interface NpcDef {
   readonly id: string;
   readonly name: string;
   readonly sprite: string;
+  /**
+   * Whose voice the lines rotate under (defaults to `id`): one character
+   * met in several places, as several NPCs, shares one.
+   */
+  readonly voice?: string;
   /** Their element: the hero's alignment around it sets their attitude. */
   readonly element: Element;
   readonly lines: NpcLines;

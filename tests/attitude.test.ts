@@ -10,7 +10,8 @@ import { FLAG_ICONS } from '../src/ui/art/icons';
 import { NPCS } from '../src/data/npcs';
 import { SHOPS } from '../src/data/shops';
 import { SPELLS } from '../src/data/spells';
-import type { MoodLine, NpcDef, Reward } from '../src/data/types';
+import type { Line, MoodLine, NpcDef, Reward } from '../src/data/types';
+import { variantsFor, type Mood } from '../src/game/lines';
 import {
   ATTITUDES,
   ATTITUDE_PRICES,
@@ -215,6 +216,9 @@ describe('tier effects', () => {
   });
 });
 
+/** A line's first variant in a mood. */
+const first = (line: Line, mood: Mood): string | undefined => variantsFor(line, mood)[0];
+
 describe('dialogue', () => {
   const line: MoodLine = { cold: 'c', plain: 'p', warm: 'w' };
 
@@ -224,16 +228,19 @@ describe('dialogue', () => {
   });
 
   it('confides when Devoted, if the NPC has a confidence', () => {
-    expect(introFor(NPCS.elder!, 'devoted')).toBe(NPCS.elder!.lines.confide);
-    expect(introFor(NPCS.elder!, 'friendly')).toBe(NPCS.elder!.lines.intro.warm);
-    expect(introFor(NPCS.sealedChest!, 'devoted')).toBe(NPCS.sealedChest!.lines.intro.warm);
+    expect(introFor(NPCS.elder!, 'devoted')).toBe(first(NPCS.elder!.lines.confide!, 'warm'));
+    expect(introFor(NPCS.elder!, 'friendly')).toBe(first(NPCS.elder!.lines.intro, 'warm'));
+    expect(introFor(NPCS.sealedChest!, 'devoted')).toBe(
+      first(NPCS.sealedChest!.lines.intro, 'warm'),
+    );
   });
 
   it('gives every person an element and lines for every tier they can reach', () => {
     for (const npc of people) {
       expect(ELEMENTS, npc.id).toContain(npc.element);
       const { intro, confide, refuse } = npc.lines;
-      expect(new Set([intro.cold, intro.plain, intro.warm]).size, npc.id).toBe(3);
+      const moods = (['cold', 'plain', 'warm'] as const).map((m) => first(intro, m));
+      expect(new Set(moods).size, npc.id).toBe(3);
       expect(confide, npc.id).toBeTruthy();
       // Only NPCs who can refuse need a refusal.
       expect(Boolean(refuse), npc.id).toBe(!npc.essential);
@@ -264,7 +271,8 @@ describe('rewards data', () => {
       const shop = npc.rewards.find((r) => r.kind === 'shop');
       if (shop) expect(SHOPS[shop.shopId]?.secretStock?.length, npc.id).toBeGreaterThan(0);
       else {
-        expect(npc.bonus?.kind, npc.id).toBe('item');
+        // Vesper, an antagonist, has no warm bonus in the author's script.
+        if (npc.voice !== 'vesper') expect(npc.bonus?.kind, npc.id).toBe('item');
         expect(npc.secret, npc.id).toBeDefined();
       }
     }
@@ -297,16 +305,16 @@ describe('encounters on terms', () => {
     expect(plain).toMatchObject({
       kind: 'challenge',
       attitude: 'neutral',
-      text: npc.lines.intro.plain,
+      text: first(npc.lines.intro, 'plain'),
     });
     const wary = describeInteraction(stateFor(npc, 'wary'), entityOf('farmer'));
     expect(wary).toMatchObject({
       attitude: 'wary',
-      text: npc.lines.intro.cold,
+      text: first(npc.lines.intro, 'cold'),
       spec: { wants: { green: 9 } },
     });
     const warm = describeInteraction(stateFor(npc, 'friendly'), entityOf('farmer'));
-    expect(warm).toMatchObject({ text: npc.lines.intro.warm, extras: [npc.bonus] });
+    expect(warm).toMatchObject({ text: first(npc.lines.intro, 'warm'), extras: [npc.bonus] });
   });
 
   it('makes a Devoted NPC confide and add their secret offer', () => {
@@ -315,7 +323,7 @@ describe('encounters on terms', () => {
     expect(result).toMatchObject({
       kind: 'challenge',
       attitude: 'devoted',
-      text: npc.lines.confide,
+      text: first(npc.lines.confide!, 'warm'),
       extras: [npc.bonus, { kind: 'item', itemId: 'sporeCap', count: 1 }],
     });
   });
@@ -327,7 +335,7 @@ describe('encounters on terms', () => {
       title: npc.name,
       sprite: npc.sprite,
       attitude: 'hostile',
-      text: npc.lines.refuse,
+      text: first(npc.lines.refuse!, 'cold'),
     });
   });
 
@@ -352,7 +360,7 @@ describe('encounters on terms', () => {
       expect(result, npc.id).toMatchObject({
         kind: 'challenge',
         attitude: 'hostile',
-        text: npc.lines.intro.cold,
+        text: first(npc.lines.intro, 'cold'),
         spec: challengeOnTerms(npc.challenge, 'wary'),
       });
     }

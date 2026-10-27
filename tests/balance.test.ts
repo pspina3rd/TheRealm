@@ -11,6 +11,7 @@ import { FINALE_FLAG, FINALE_WORDS, mentorsTaught } from '../src/game/ending';
 import { hiddenSlots, wantedBy } from '../src/game/hidden';
 import { createHero, heroTitle, learnSpell } from '../src/game/hero';
 import { feedbackFor } from '../src/ui/art/feedback';
+import { warpStirs } from '../src/world/map';
 import { step } from '../src/world/movement';
 import { newGame, travel } from '../src/world/state';
 
@@ -125,25 +126,15 @@ describe('the ending', () => {
     expect(resolveBattle(state, slime, won, createRng(1)).epilogue).toBeUndefined();
   });
 
-  it('opens the Sunken Ruins after the Moon Wyrm falls and allows a return to the Realm', () => {
-    const map = MAPS.overworld!;
-    const warp = map.warps.find((w) => w.to.map === 'sunkenRuins')!;
+  it('stirs the Sunken Ruins’ seal, which stays shut', () => {
+    const map = Object.values(MAPS).find((m) => m.warps.some((w) => w.stirs))!;
+    const warp = map.warps.find((w) => w.stirs)!;
     const state = newGame();
     travel(state, { map: map.id, x: warp.x, y: warp.y - 1 });
-    expect(warp.requiresFlag).toBe(FINALE_FLAG);
     expect(step(state, 'down')).toEqual({ kind: 'locked', text: warp.lockedText });
-
-    const battle = makeBattle({ kind: 'combat', enemyId: 'moonWyrm' }, state.hero);
-    battle.combat!.enemyHp = 0;
-    resolveBattle(state, wyrmEntity, battle, createRng(1));
-    expect(state.flags.has(FINALE_FLAG)).toBe(true);
-    expect(step(state, 'down')).toEqual({ kind: 'warp', to: warp.to });
-
-    travel(state, warp.to);
-    expect(step(state, 'down')).toEqual({
-      kind: 'warp',
-      to: { map: map.id, x: warp.x, y: warp.y - 1 },
-    });
+    state.flags.add(FINALE_FLAG);
+    expect(warpStirs(warp, state.flags)).toBe(true);
+    expect(step(state, 'down')).toEqual({ kind: 'locked', text: warp.stirs!.text });
   });
 
   it('shows an enraged boss with a banner', () => {

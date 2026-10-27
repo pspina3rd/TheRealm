@@ -1,4 +1,5 @@
-import type { NpcDef } from './types';
+import { VESPER_LINES } from './story';
+import type { ChallengeSpec, NpcDef } from './types';
 
 /**
  * Every NPC in the game. Each has a real need, the challenge is doing that
@@ -18,29 +19,92 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     element: 'earth',
     lines: {
       intro: {
-        cold: "Spores in my well. Clear them if you must; I won't beg.",
-        plain: 'Spores have choked the village well. Clear them out and we drink again.',
-        warm: 'A kind face, thank goodness. The spores have choked our well. Help me clear it?',
+        cold: [
+          "You're blocking my light, stranger. If you're here to stare at a dry well, do it somewhere else.",
+          "Unless you brought a ladder and a long wire brush, I don't have much to say to you.",
+        ],
+        plain: [
+          'Purple scum’s back in the shaft. Tastes like pennies and ruins the tea. I’d climb down myself, but my knees give out past the third rung.',
+          'Ever seen well-water turn violet overnight? Means the deep mold is creeping up again. Nasty stuff.',
+        ],
+        warm: [
+          "Ah, good. A young set of shoulders. Take a look down there—the mold's choking the main pipe again, but seeing you gives me half a mind to think we can fix it.",
+          'Pull up a stool, kid. Well’s acting up, but at least the company’s improved.',
+        ],
       },
-      confide: "I dug this well with Quake when I was young. Clear it and I'll share what I kept.",
-      refuse: "Not from you. I'll scrape the well myself.",
-      accept: "Mind the stones. They're the well's.",
-      decline: "Then I'll fetch my rake.",
+      confide: {
+        cold: "You've got a mean look to you, but you aren't stupid. That mold in the water? It isn't pond rot. It's coming up from the deep caves.",
+        plain: [
+          'Forty years ago I hit granite trying to dig this hole. Had to crack the bed with a rune stone I found in the dirt. Still keep it on the mantle.',
+          "Truth is, the spores aren't just here. Hazel says her meadows are going pale too. Something’s turning underneath us.",
+        ],
+        warm: "I don't hand this out to just anyone, but you've been decent to us. Clear the shaft, and I'll give you the Focus Stone I used to break the bed forty years back.",
+      },
+      refuse: {
+        cold: [
+          'I’ll drink mud before I let you mess around with my timbering.',
+          'Walk off. I’ve dealt with stubborn wells before, and I’ll deal with this one without you.',
+        ],
+        plain: [
+          "Thanks, but no. I know every loose brick in this pit, and I'd rather not have a stranger knocking them loose.",
+          'Appreciate it, but I’ll scrape it myself when my boy gets back from town.',
+        ],
+        warm: "Don't you worry about an old man's bucket, traveler. You've got bigger roads to walk.",
+      },
+      accept: {
+        cold: "Don't touch the iron winch. It's rusted through and it'll snap your wrist.",
+        plain: [
+          'Work from the outside in. If you smash the center clusters first, the whole bloom drops into the drinking supply.',
+          'Watch your eyes. That dust stings like hell if it gets under your eyelids.',
+        ],
+        warm: 'Take your time down there. The stone’s old, but it holds if you treat it right.',
+      },
+      decline: {
+        cold: "Right. Didn't think so.",
+        plain: [
+          "Guess I'm fetching the long rake then.",
+          "No harm done. We've still got a barrel of rain-catch out back.",
+        ],
+        warm: "Catch you later then. Don't be a stranger!",
+      },
       win: {
-        cold: 'It runs. Take this and go.',
-        plain: 'It runs clear. Take what I dug it with.',
-        warm: 'Clear water! Take what I dug it with, and my thanks.',
+        cold: [
+          'Huh. It’s running. Here’s your coin—now get going before something else breaks.',
+          "Look at that. Didn't cave in after all. Take your cut.",
+        ],
+        plain: [
+          'Hear that sloshing? That’s clean water, pure and simple. Here—take the old rune stone like I promised. Better in your hands than gathering dust.',
+          'First bucket’s clean! Tastes like sweet granite. You earned your pay today, kid.',
+        ],
+        warm: [
+          'Listen to that flow! Like mountain runoff! I owe you big for this—take the Focus Stone, and you drink free in Mossvale as long as I’m breathing.',
+          "Ah, you're a miracle worker! The whole street’s gonna be washing their faces tonight!",
+        ],
       },
       winKnown: {
-        cold: 'It runs. You know Quake already; take a stone from the first dig.',
-        plain: 'It runs clear. You already shake the ground, so take a stone from the first dig.',
-        warm: 'Clear water! You know Quake already. Keep a stone from the first dig, for luck.',
+        cold: "Water's clear. You already know how to shake the earth, so take this raw stone from the first dig instead.",
+        plain:
+          "The spring's back! Since you're already familiar with the Quake spell, take a piece of the original quartz vein as a reward.",
+        warm: "Pure water again! You're already a master of the earth magic, so keep this raw well-stone—a little piece of Mossvale history for your journey!",
       },
-      lose: "Still choked. The spores won't wait forever.",
+      lose: {
+        cold: 'Great. Now the water’s purple *and* full of gravel. Get out of the way.',
+        plain: [
+          "Dammit. Crumbled the outer ring, didn't you? Let the sediment settle and we’ll try again.",
+          'No go. That mold’s rooted deeper than I thought.',
+        ],
+        warm: "Ah, don't beat yourself up over it. That stone’s trickier than it looks. Take a breather.",
+      },
       done: {
-        cold: "The well's clean. That's all.",
-        plain: 'Sweet water, every bucket.',
-        warm: 'Sweet water, every bucket. Come drink whenever you pass.',
+        cold: "Water's running. We're square.",
+        plain: [
+          "Cold, clear, and doesn't taste like copper anymore. Can't ask for much else.",
+          'Winch is holding up fine. Thanks again.',
+        ],
+        warm: [
+          "Every time I fill a kettle, I think of you! Stop by anytime you're passing through Mossvale.",
+          'Hearth’s always warm for you here, kid.',
+        ],
       },
     },
     // The spore field over the well: spores (green) and the well's stones.
@@ -68,21 +132,87 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     element: 'nature',
     lines: {
       intro: {
-        cold: "Blight took my herb beds. Plant if you're planting.",
-        plain: "Blight left my herb beds bare. Plant green crystals and we'll share the cut.",
-        warm: 'Blight took my herb beds, love. Help me plant them green again?',
+        cold: [
+          "Watch where you place those boots! The blight took half my crop already; I don't need you tramping on the rest.",
+          "If you're looking for hand-outs, keep walking. My beds are bare.",
+        ],
+        plain: [
+          "Look at these rows—pale as bone. The blight took the sweet-leaf overnight. Help me seed green crystals into the soil and we'll split the yield.",
+          "Ground's went sour. Needs green mana to wake the sprouts up again. Care to do some planting?",
+        ],
+        warm: [
+          "Ah, hello dear! You caught me at a bad time—the blight got into my herb beds. Lend a hand with the seeding and I'll make sure you leave with a full satchel?",
+          "Always a pleasure! Soil's stiff today, but a bit of good green energy will set these sprouts right.",
+        ],
       },
-      confide:
-        "Don't tell Odo: I braid charms from the first sprouts. Replant and you'll have one.",
-      refuse: 'My beds, my seed. Not your hands.',
-      accept: 'Green in the rows, mind.',
-      decline: "Beds won't plant themselves.",
+      confide: {
+        cold: "You've got dirt on your hands, but at least you work. Don't tell Odo: the rot isn't weather. It's coming up through the root lines from the deep caves.",
+        plain: [
+          "Don't tell Odo, but I braid charms from the very first sprouts that take. Help me replant these beds and I'll weave one for your pack.",
+          'Hazel says the grove roots are bleeding sap down south. Something down in the dark is poisoning the soil.',
+        ],
+        warm: "You've got a gentle touch with the sprouts, love. Replant these rows and I'll give you a Grove Charm I braided from the first harvest.",
+      },
+      refuse: {
+        cold: [
+          "I'd rather let the weeds win than have you tramping through my garden.",
+          'Hands off my seed bags. Move along.',
+        ],
+        plain: [
+          "My beds, my seed. I'll tend them myself when the sun dips.",
+          'Thanks, but no. Soil needs patience, not clumsy hands.',
+        ],
+        warm: "Oh, don't worry your head over my little garden, dear. I'll get it sorted.",
+      },
+      accept: {
+        cold: "Green crystals only, and drop them deep into the furrow. Don't waste 'em.",
+        plain: [
+          'Space them evenly in the rows, mind. Give the roots room to breathe.',
+          "Soft touch now—don't smother the shoots before they wake.",
+        ],
+        warm: "Just tuck them gently into the black dirt, love. They'll do the rest.",
+      },
+      decline: {
+        cold: "Right. Weeds won't pull themselves anyway.",
+        plain: [
+          'Suit yourself. The soil waits for no one.',
+          "No matter. I'll go fetch my hand-spade.",
+        ],
+        warm: "Take care out there, dear! Come back when you've a mind to garden.",
+      },
       win: {
-        cold: "They'll grow. Here's your share.",
-        plain: "First cut's yours. Take a bundle.",
-        warm: 'Look at them come up! Take a good bundle.',
+        cold: [
+          "Hmph. They took. Here's your share—now out of my garden.",
+          'Roots caught hold. Take your bundle and go.',
+        ],
+        plain: [
+          "Look at that green come up! First cut's yours—take a good bundle for the road.",
+          "Soil's rich again! Here's your share of the sweet-leaf.",
+        ],
+        warm: [
+          'Oh, look at them bloom! Beautiful! Take a generous bundle, love, and my blessings!',
+          "You've got a farmer's heart! Take these fresh herbs—they'll keep you hale on the road.",
+        ],
       },
-      lose: "Too thin. They'll never take.",
+      lose: {
+        cold: 'Too thin! You drowned the seed. Get out.',
+        plain: [
+          "Planted 'em too shallow. The birds'll have 'em before dusk. We'll have to re-plow.",
+          "No growth. The blight's still holding the dirt.",
+        ],
+        warm: "Ah, don't fret, love. Soil can be stubborn. We'll turn the bed and try again.",
+      },
+      done: {
+        cold: "Beds are green. That's all that matters.",
+        plain: [
+          'Herbs are growing lush again. Smells like spring.',
+          'Rows are holding strong. Thanks for the hand.',
+        ],
+        warm: [
+          "Come by anytime you need fresh herbs, dear! You're always welcome in my garden.",
+          'The first cut is always reserved for you!',
+        ],
+      },
     },
     challenge: { kind: 'barter', wants: { green: 7 }, pieceLimit: 21 },
     rewards: [{ kind: 'item', itemId: 'herb', count: 2 }],
@@ -97,24 +227,80 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     element: 'wind',
     lines: {
       intro: {
-        cold: "Mum says don't talk to strangers. ...But my tower's stuck.",
-        plain: "My crystal tower's jammed and Mum says clear it before supper. Help?",
-        warm: "Hi! My crystal tower's jammed and supper's soon. Will you help? Please?",
+        cold: [
+          "Mum said if I talk to strangers I won't get any pudding... but my crystal tower's all jammed up and I can't reach the top!",
+          "Are you gonna scold me? I didn't break it on purpose! The wind pieces just got stuck!",
+        ],
+        plain: [
+          "Hey! Look at this! I built it all the way up to my shoulder, but then the cyan piece fell sideways and now the whole thing won't spin!",
+          "My crystal tower's jammed and Mum says I have to fix it before supper or no pudding! Help?",
+        ],
+        warm: [
+          "Hi hi! Look! I made a huge one this time! But Mum says if I don't fix the stuck piece before supper I have to eat cabbage. Help me? Please?",
+          "Yay, you're back! Look look look, I tried to make it reach the sky but it got tangled!",
+        ],
       },
-      confide: 'Psst. Clear it and you can have my lucky charm. It makes kites fly higher.',
-      refuse: "Mum says you're trouble. Go away.",
-      accept: 'Two lines! It has to be two!',
-      decline: 'Aw. No pudding, then.',
+      confide: {
+        cold: "If you help me fix it and don't tell Mum I was playing with her blue glass, I'll show you where the shiny rock in the cellar is.",
+        plain: [
+          'Psst. Clear it and you can have my lucky charm! It makes kites fly super high!',
+          "I saw a spooky shadow person near the ruined tower last night... but if you fix my tower I'll give you my best charm!",
+        ],
+        warm: "I found a weird glowing charm under the porch! Mum doesn't know about it. Fix my tower and it's yours!",
+      },
+      refuse: {
+        cold: [
+          "No! Mum says you're mean! Go away or I'll throw a clod of dirt at your boots!",
+          "I'm not talking to you! You look like a goblin!",
+        ],
+        plain: [
+          "Nah, I'll do it myself. You'll just drop the pieces.",
+          "Mum says you're trouble. I'm going inside.",
+        ],
+        warm: "It's okay, I wanna try to figure it out by myself first so I can show Mum!",
+      },
+      accept: {
+        cold: 'Two lines! It has to be two cyan lines or it falls over!',
+        plain: [
+          'Make two lines! Cyan ones! Watch out for the top block!',
+          "Spin the middle part first! That's where it stuck!",
+        ],
+        warm: 'Yay! Two lines, two lines! Make it glow real bright!',
+      },
+      decline: {
+        cold: "Fine! I'll tell Mum you were staring at me!",
+        plain: ['Aw. No pudding for me, then.', "Guess I'll just kick it over..."],
+        warm: "Aw, okay. Don't forget to come back before supper!",
+      },
       win: {
-        cold: 'Oh. Thanks. Have my Ether, I guess.',
-        plain: 'Supper saved! Have my Ether, I found it in the cellar.',
-        warm: "Supper saved! Have my Ether, it's my best thing!",
+        cold: ['Oh. Thanks. Have my Ether stone, I guess.', "You fixed it. Don't tell my Mum."],
+        plain: [
+          'Supper saved! Have my Ether, I found it in the cellar behind the woodpile!',
+          'It spins! Look at it spin! Here, take this shiny stone I saved!',
+        ],
+        warm: [
+          "Supper saved! Pudding time! Have my Ether—it's my absolute best treasure!",
+          "You're the coolest ever! Look how high it goes now!",
+        ],
       },
-      lose: "It's worse now! Mum's going to see!",
+      lose: {
+        cold: "It's worse now! Mum's gonna ground me forever!",
+        plain: [
+          "Oh no, it sags! Mum's gonna see it from the kitchen!",
+          'Aaaah, the pieces are falling!',
+        ],
+        warm: "Uh oh... don't worry, we can build it again before the sun goes down!",
+      },
       done: {
-        cold: 'Thanks for the tower.',
-        plain: "Tower's clean. Mum didn't even notice.",
-        warm: "I'm building a taller one. You can help next time!",
+        cold: "Tower's fine. Go away before Mum sees you.",
+        plain: [
+          "Tower's clean! Mum didn't even notice it was stuck.",
+          "It's still spinning! Watch!",
+        ],
+        warm: [
+          "I'm building a taller one tomorrow! You can help me make it reach the roof!",
+          'Hi friend! Look how stable it is now!',
+        ],
       },
     },
     challenge: {
@@ -135,23 +321,66 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     element: 'nature',
     lines: {
       intro: {
-        cold: 'Prices are what they are. Haggle if you like.',
-        plain: "Herbs, a sword, a charm. A man's got to eat; haggle me for them.",
-        warm: 'A friendly face! Haggle me, just for the fun of it.',
+        cold: [
+          "Prices are on the slate. Don't bother asking for a discount unless you've got real coin.",
+          'Buying something or just leaning on my counter? Time is money, friend.',
+        ],
+        plain: [
+          'Herbs from Bea, iron from the coast, charms from the road. Settle on a price and we both eat tonight.',
+          "Fresh stock in today! Haggle me fair and I'll open the good sacks.",
+        ],
+        warm: [
+          "Ah, my favorite traveler! Step up, step up! For you, I'm feeling generous—let's play a little game for the prices!",
+          "Look who it is! Come inspect the goods—I'll treat you right on the figures today.",
+        ],
       },
-      confide: "For you I'll open the box under the counter. Haggle first, for form.",
-      refuse: 'Stall is shut. For you, anyway.',
-      accept: 'Go on, then.',
-      decline: 'Your loss.',
+      confide: {
+        cold: "Look, you've got a harsh bite, but I respect coin. I keep a lockbox under the counter for people who mean business.",
+        plain: [
+          "For you? I'll slide open the box under the counter. Rare stuff from the ruins. Haggle first, for form's sake.",
+          "Word is the barges aren't coming up-river anymore... something's blocking the lake. What I have on the rack is all that's left.",
+        ],
+        warm: "Between friends? I keep the ancient charms under the floorboards. Haggle me down and I'll let you take your pick.",
+      },
+      refuse: {
+        cold: [
+          "Stall's shut to your kind. Keep moving.",
+          'Not selling to you today. Go bother someone else.',
+        ],
+        plain: [
+          "No deal. Come back when you've got a better tone.",
+          "Stall's closed for the afternoon.",
+        ],
+        warm: 'Ah, not feeling the market today? No worries at all, friend.',
+      },
+      accept: {
+        cold: 'Make your offer. Fast.',
+        plain: ["Name your price, but don't insult me.", "Let's see your silver."],
+        warm: 'Go on then, give me your best offer!',
+      },
+      decline: {
+        cold: 'Your loss. Someone else will buy it.',
+        plain: ['Market waits for no man.', "Come back when you're ready to trade."],
+        warm: "Fair enough! Fire's lit whenever you want to browse!",
+      },
       win: {
-        cold: 'Fine. Have a look.',
-        plain: "Fair's fair. Have a look.",
-        warm: 'You drive a hard bargain, friend. Have a look.',
+        cold: ['Hmph. Fine. Take it and go.', "Drive a hard bargain. Here's your gear."],
+        plain: [
+          'Fair deal! Pleasure doing business with you.',
+          'Done! Take a look at the full selection.',
+        ],
+        warm: [
+          'Ah, you bested me! Take the goods, my friend, and my thanks!',
+          "A master bargainer! Here's the best stock in Mossvale!",
+        ],
       },
       lose: {
-        cold: 'Ha. No sale.',
-        plain: 'Lost your nerve? Come back later.',
-        warm: 'No harm done.',
+        cold: 'Ha! Not a chance. Full price or move along.',
+        plain: [
+          "Lost your nerve? Come back when you've got real silver.",
+          'No sale at that rate, friend.',
+        ],
+        warm: "Ah, close! We'll strike a deal next time.",
       },
     },
     challenge: { kind: 'haggle', pieceLimit: 8, rivalIntervalMs: 2500 },
@@ -294,24 +523,41 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     element: 'earth',
     lines: {
       intro: {
-        cold: 'Cave lamps need blue and violet crystals. Fuel them and you get a pass. Nothing more.',
+        cold: "I don't like your face, traveler, but the cavern lamps are dying. Fuel blue and violet crystals into the ward frames or turning back is your only option.",
         plain:
-          'Our ward lamps at the cave mouth are dying. Fuel them blue and violet; the pass is yours.',
-        warm: "The ward lamps at the caves are dying. Fuel them and I'll write your pass myself.",
+          "The guard lamps at the cave mouth are flickering out. Feed them blue and violet mana; do that, and I'll write your pass myself.",
+        warm: 'Ah, a trustworthy face at last! The ward lamps at the caves are dying and my guards are unnerved. Help me fuel them?',
       },
-      confide: 'The quartermaster keeps a Phoenix Feather for whoever goes below. Light the lamps.',
-      accept: 'Both colours. The lamps need both.',
-      decline: "The lamps won't last long.",
+      confide: {
+        cold: "You've got a sharp glare, but you can fight. The quartermaster keeps a Phoenix Feather in the iron safe for whoever goes below.",
+        plain:
+          "Between us: the quartermaster keeps a Phoenix Feather for whoever goes below. Light the lamps and it's yours.",
+        warm: "You've proven your worth ten times over. Light the cave lamps and I'll hand you the watch's last Phoenix Feather.",
+      },
+      accept: {
+        cold: "Both colors. Don't mess up the ratio.",
+        plain: 'Blue and violet, steady as she goes.',
+        warm: 'Take your time with the blue and violet crystals, friend.',
+      },
+      decline: {
+        cold: 'The pass stays locked.',
+        plain: "The dark below won't wait forever.",
+        warm: 'Stay safe in town, then.',
+      },
       win: {
-        cold: "Lamps lit. Your pass. Don't make me regret it.",
-        plain: "Lamps lit. Here's your pass, and pay for the crystals.",
-        warm: "Lamps lit! Your pass, and the watch's thanks.",
+        cold: "Lamps are lit. Here's your pass. Don't make me regret this.",
+        plain: 'Lamps burn bright! Here is your pass and coin for the crystal fuel.',
+        warm: "Superb work! Your pass, and the watch's sincere gratitude!",
       },
-      lose: 'Too little. The lamps sputter out.',
+      lose: {
+        cold: 'Pathetic effort. The lamps are still dark.',
+        plain: "The crystals didn't take. The flame sputtered out.",
+        warm: "No harm done, friend. Let's try fueling them again.",
+      },
       done: {
         cold: 'Your pass is valid. Move along.',
-        plain: 'The lamps hold. Mind yourself below.',
-        warm: 'The lamps hold. They say a wyrm sleeps below. Come back up.',
+        plain: 'Lamps hold fine. Mind yourself down in those caves.',
+        warm: 'The watch owes you a debt. Stay safe down there!',
       },
     },
     challenge: { kind: 'barter', wants: { blue: 8, violet: 8 }, pieceLimit: 30 },
@@ -359,25 +605,41 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     element: 'water',
     lines: {
       intro: {
-        cold: 'The spring is clouded. Blue and green crystals clear it, if you pour them.',
+        cold: "The sacred spring has clouded with muck. Pour blue and green crystals if you must; I won't plead.",
         plain:
-          'Our shrine spring clouded over with the lake. Pour in blue and green and it may clear.',
-        warm: 'Our spring clouded over with the lake. Will you pour the crystals with me?',
+          'Our shrine spring clouded over when the lake went dark. Pour in blue and green mana and the waters may clear.',
+        warm: "Welcome, friend! Our holy spring has gone murk-gray with the lake's illness. Will you pour the crystals with me?",
       },
-      confide:
-        "The spring left a charm in its basin long ago. Clear it and I'll lift it out for you.",
-      accept: 'Slowly. Let the colours settle.',
-      decline: 'It will keep. Springs are patient.',
+      confide: {
+        cold: "I don't trust you, but the spring remembers ancient days. Clear it and take the charm resting in the basin.",
+        plain:
+          "The spring left a Tide Charm in its basin long ago. Restore the clear water and it's yours.",
+        warm: "The spring hasn't shimmered like this in decades. Clear it, and I will gladly give you the ancient Tide Charm.",
+      },
+      accept: {
+        cold: "Slowly. Don't disturb the silt.",
+        plain: 'Pour blue first, then green. Let them blend.',
+        warm: 'Gentle now, let the colors weave together.',
+      },
+      decline: {
+        cold: 'The spring remains choked.',
+        plain: 'Water is patient; it will wait.',
+        warm: 'Blessings upon your journey until you return.',
+      },
       win: {
-        cold: 'It runs clear. Take an Ether from it. Go.',
-        plain: 'It runs clear! Maren will want to see. Take an Ether from the spring.',
-        warm: 'It runs clear! Maren will weep. Take what the spring gives.',
+        cold: 'It runs clear. Take an Ether and leave.',
+        plain: 'It runs crystal clear! Maren will be overjoyed. Take an Ether from the basin.',
+        warm: 'Miraculous! The spring sings again! Take what the basin offers, with our blessings!',
       },
-      lose: 'Still cloudy. The spring needs both colours.',
+      lose: {
+        cold: 'Still cloudy. You wasted the crystals.',
+        plain: 'The waters remain murky. Both colors are needed in harmony.',
+        warm: 'Do not worry, dear friend. We will cleanse it together.',
+      },
       done: {
-        cold: 'The spring is clear.',
-        plain: 'The spring runs clear. Maren has been by twice.',
-        warm: 'The spring runs clear. Maren asks after you.',
+        cold: "Spring's clear. Move along.",
+        plain: 'The spring runs clear as glass today.',
+        warm: 'Maren was asking after you! The waters shine bright!',
       },
     },
     challenge: { kind: 'barter', wants: { blue: 10, green: 6 }, pieceLimit: 30 },
@@ -576,8 +838,8 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       decline: 'The coals are dying.',
       win: {
         cold: 'Key. The gate is north of Mossvale. Go.',
-        plain: 'A true key! The peak gate stands north of the Realm.',
-        warm: 'A true key, and you swung like a smith! The peak gate is north of the Realm.',
+        plain: 'A true key! The peak gate stands north of Sevenstones.',
+        warm: 'A true key, and you swung like a smith! The peak gate is north of Sevenstones.',
       },
       lose: 'It cracked in the quench. Again.',
       done: {
@@ -774,4 +1036,56 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     secret: { kind: 'item', itemId: 'moonShard', count: 1 },
     repeatable: true,
   },
+
+  // ---------------------------------------------- Vesper, one step ahead ---
+  // One character met in four places (see VESPER_ROUTE): an Offering or a
+  // Puzzle each time, paid in Moon Shards and a piece of lore.
+  vesperRoad: vesper('road', {
+    kind: 'puzzle',
+    rows: ['#..##..###', '#..##..###'],
+    queue: ['O', 'O'],
+    linesToClear: 2,
+  }),
+  vesperRidge: vesper('ridge', {
+    kind: 'offering',
+    itemId: 'herb',
+    targetScore: 600,
+    pieceLimit: 16,
+  }),
+  vesperPeaks: vesper('peaks', {
+    kind: 'puzzle',
+    rows: ['#....#####', '##..######', '##..######'],
+    queue: ['O', 'I'],
+    linesToClear: 3,
+  }),
+  vesperRuins: vesper('ruins', {
+    kind: 'offering',
+    itemId: 'ether',
+    targetScore: 900,
+    pieceLimit: 20,
+  }),
 };
+
+/**
+ * Vesper at one stop of the route: the shared lines and sprite, this
+ * stop's challenge, and its reward: a Moon Shard (two at the last) and the
+ * lore flag `lore:vesper.<stop>`. The Devoted secret is the shard Vesper's
+ * confidence offers; the script gives no warm bonus.
+ */
+function vesper(stop: string, challenge: ChallengeSpec): NpcDef {
+  return {
+    id: `vesper${stop.charAt(0).toUpperCase()}${stop.slice(1)}`,
+    name: 'Vesper, Thrall of the Depths',
+    voice: 'vesper',
+    sprite: 'char.004',
+    element: 'arcane',
+    lines: VESPER_LINES,
+    challenge,
+    rewards: [
+      { kind: 'item', itemId: 'moonShard', count: stop === 'ruins' ? 2 : 1 },
+      { kind: 'flag', flag: `lore:vesper.${stop}` },
+    ],
+    secret: { kind: 'item', itemId: 'moonShard', count: 1 },
+    repeatable: false,
+  };
+}

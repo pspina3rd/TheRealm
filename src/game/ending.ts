@@ -8,7 +8,7 @@ import { NPCS } from '../data/npcs';
 import { SPELLS, STARTING_SPELLS } from '../data/spells';
 import { heroClass, heroTitle, type Hero } from './hero';
 
-/** Set once the finale boss falls; opens the Sunken Ruins' ward. */
+/** Set once the finale boss falls; the Sunken Ruins' seal stirs (see `Warp.stirs`). */
 export const FINALE_FLAG = 'wyrmBeaten';
 
 /** Who speaks last, and what they say: someone who sent the hero below. */

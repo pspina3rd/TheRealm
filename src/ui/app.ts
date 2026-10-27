@@ -6,7 +6,8 @@ import { ENEMIES } from '../data/enemies';
 import type { ChallengeSpec } from '../data/types';
 import type { Attitude } from '../game/attitude';
 import type { Epilogue } from '../game/ending';
-import { describeInteraction, entitySprite, resolveBattle } from '../game/encounter';
+import { describeInteraction, entitySprite, reply, resolveBattle } from '../game/encounter';
+import { arrive, dismissVision, pendingVision, type Interlude } from '../game/story';
 import { bringItems, hiddenSlots, itemsFor } from '../game/hidden';
 import type { Gain } from '../game/rewards';
 import { ITEMS } from '../data/items';
@@ -35,7 +36,7 @@ import { step } from '../world/movement';
 import { pathTo } from '../world/path';
 import { currentMap, newGame, travel, type GameState } from '../world/state';
 import { Dialog } from './dialog';
-import { button, byId, el } from './dom';
+import { button, byId, el, lineNodes } from './dom';
 import { ELEMENT_ICONS, SPELL_KIND_ICONS, STAT_ICONS } from './art/icons';
 import { BattleView } from './battleView';
 import { iconElement } from './iconDraw';
@@ -139,7 +140,7 @@ export class App {
     if (store.persistent === false) {
       const notice = el('p', {
         className: 'session-notice',
-        text: 'Progress is temporary. Saving is unavailable; reloading or closing this page will lose your adventure.',
+        text: 'Saving is unavailable. Changes from this session will be lost on reload.',
       });
       notice.setAttribute('role', 'status');
       document.querySelector('.hud')?.prepend(notice);
@@ -182,6 +183,11 @@ export class App {
     this.renderHud();
     this.say(currentMap(this.state).name);
     if (!this.started) this.chooseClass();
+    else {
+      // A vision the game was closed on shows again.
+      const pending = pendingVision(this.state);
+      if (pending) this.showVision(pending);
+    }
     requestAnimationFrame((t) => this.frame(t));
   }
 
@@ -272,13 +278,17 @@ export class App {
         this.heldDirection = null;
         this.interact(result.entity);
         break;
-      case 'warp':
+      case 'warp': {
+        const from = this.state.mapId;
         travel(this.state, result.to);
         this.heldDirection = null;
         this.say(currentMap(this.state).name);
+        const vision = arrive(this.state, from);
         this.save();
         this.renderHud();
+        if (vision) this.showVision(vision);
         break;
+      }
       case 'locked':
         this.say(result.text, 'lock');
         break;
@@ -332,9 +342,12 @@ export class App {
 
   private talk(entity: EntityDef, given: readonly Gain[] = []): void {
     const interaction = describeInteraction(this.state, entity);
-    // Monsters attack on contact; people talk first.
+    this.save(); // who said what, so lines keep rotating after a reload
+    // Monsters attack on contact (a boss has its say first); people talk first.
     if (entity.kind === 'monster' && interaction.kind === 'challenge') {
-      this.startBattle(entity, interaction.spec);
+      const fight = (): void => this.startBattle(entity, interaction.spec);
+      if (interaction.prelude) this.showInterlude(interaction.title, interaction.prelude, fight);
+      else fight();
       return;
     }
     const body = conversationBody(
@@ -373,7 +386,10 @@ export class App {
           label: 'Leave',
           onClick: () => {
             this.dialog.close();
-            if (interaction.replies) this.say(interaction.replies.decline);
+            if (interaction.replies) {
+              this.say(reply(this.state, interaction.replies, 'decline'));
+              this.save();
+            }
           },
         },
         {
@@ -382,12 +398,41 @@ export class App {
             this.startBattle(
               entity,
               interaction.spec,
-              interaction.replies?.accept,
+              interaction.replies && reply(this.state, interaction.replies, 'accept'),
               interaction.terms,
             ),
         },
       ],
     });
+  }
+
+  /** A vision of the Moon Wyrm; once dismissed it never shows again. */
+  private showVision(vision: Interlude): void {
+    this.showInterlude('A vision', vision.text, () => {
+      dismissVision(this.state, vision.id);
+      this.save();
+      this.dialog.close();
+    });
+  }
+
+  /**
+   * An interlude over everything: the screen goes dark for a vision or a
+   * boss's words. A tap, Enter, Escape or Continue goes on (to `then`, or
+   * back to the map), but not in the first moments, so held keys or taps
+   * can't skip it. Before the Wyrm's fight even Escape goes on to the fight:
+   * once it has spoken there is no backing away.
+   */
+  private showInterlude(title: string, text: string, then?: () => void): void {
+    this.stopRoute();
+    this.dialog.showInterlude(
+      title,
+      [
+        el('p', { className: 'interlude-text' }, ...lineNodes(text)),
+        el('p', { className: 'interlude-hint', text: 'Tap or press Enter' }),
+      ],
+      then ?? (() => this.dialog.close()),
+      RESULT_GUARD_MS,
+    );
   }
 
   // --------------------------------------------------------- battles ---
@@ -776,11 +821,14 @@ export class App {
   /** A short banner over the map: a place name, or a notice with an icon. */
   private say(text: string, icon?: IconId | IconSpec): void {
     const banner = byId('world-banner');
-    banner.replaceChildren(...(icon ? [iconElement(icon, 2)] : []), el('span', { text }));
+    banner.replaceChildren(
+      ...(icon ? [iconElement(icon, 2)] : []),
+      el('span', {}, ...lineNodes(text)),
+    );
     banner.classList.remove('show');
     void banner.offsetWidth; // restart the fade
     banner.classList.add('show');
-    this.messageTimer = BANNER_MS;
+    this.messageTimer = Math.max(BANNER_MS, text.length * 50);
   }
 
   private save(): boolean {

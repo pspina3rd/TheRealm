@@ -8,6 +8,7 @@ import { titleElementFor } from './alignment';
 import { heroAlignment, heroClass, refreshStats, type Hero } from './hero';
 import { newKnownSpell, type KnownSpell } from './spells';
 import type { Feats } from './feats';
+import { migrateStory } from './story';
 import { SKILL_POINTS_PER_LEVEL, statRanks } from './stats';
 import { tileAt, warpAt, type Direction, type Location } from '../world/map';
 import type { GameState } from '../world/state';
@@ -22,10 +23,12 @@ export const SAVE_KEY = 'the-realm/save';
  * - 6 added the count of monster battles won, which moves the mentors, and
  *   replaced locked categories with the lost lesson behind each lock.
  * - 7 added the hero's lifetime board feats, which reveal hidden spells.
+ * - 8 added the story: line rotation (`talk`), the Moon Wyrm's visions and
+ *   the maps reached (as flags), which place Vesper.
  */
-export const SAVE_VERSION = 7;
+export const SAVE_VERSION = 8;
 /** Older versions `deserialize` can still upgrade. */
-const MIGRATABLE_VERSIONS: readonly number[] = [1, 2, 3, 4, 5, 6, SAVE_VERSION];
+const MIGRATABLE_VERSIONS: readonly number[] = [1, 2, 3, 4, 5, 6, 7, SAVE_VERSION];
 
 /** JSON-friendly form of `GameState` (sets become arrays). */
 interface SaveData {
@@ -39,6 +42,8 @@ interface SaveData {
   respawn: Location;
   /** Since version 6. */
   victories?: number;
+  /** Since version 8. */
+  talk?: Record<string, number>;
 }
 
 /** Minimal storage interface so tests can supply an in-memory store. */
@@ -61,6 +66,7 @@ export function serialize(state: GameState): string {
     flags: [...state.flags],
     respawn: state.respawn,
     victories: state.victories,
+    talk: state.talk,
   };
   return JSON.stringify(data);
 }
@@ -71,6 +77,17 @@ export function deserialize(json: string): GameState | null {
     const decoded: unknown = JSON.parse(json);
     if (!record(decoded)) return null;
     const data = decoded as Partial<SaveData>;
+    // The earlier version-7 branch briefly let heroes enter the unfinished
+    // Sunken Ruins. Keep that adventure outside the canonical sealed ward.
+    if (
+      data.mapId === 'sunkenRuins' &&
+      MIGRATABLE_VERSIONS.includes(data.version ?? 0) &&
+      (data.version ?? SAVE_VERSION) <= 7
+    ) {
+      data.mapId = 'overworld';
+      data.x = 15;
+      data.y = 19;
+    }
     if (
       !MIGRATABLE_VERSIONS.includes(data.version ?? 0) ||
       !record(data.hero) ||
@@ -88,6 +105,9 @@ export function deserialize(json: string): GameState | null {
     }
     const hero = migrateHero(data.hero);
     if (!validHero(hero)) return null;
+    const victories = data.victories ?? 0;
+    const flags = migrateFlags(data.flags);
+    if ((data.version ?? 0) < 8) migrateStory(flags, data.mapId, victories);
     const respawn = standable(data.respawn) ? data.respawn : { ...START };
     const here = { map: data.mapId, x: data.x, y: data.y };
     const spot = standable(here) ? here : respawn;
@@ -97,11 +117,13 @@ export function deserialize(json: string): GameState | null {
       x: spot.x,
       y: spot.y,
       facing: data.facing ?? 'down',
-      flags: migrateFlags(data.flags),
+      flags,
       cleared: new Set(),
       respawn,
       // Before version 6 wins were not counted: every mentor starts at home.
-      victories: data.victories ?? 0,
+      victories,
+      // Before version 8 no line had rotated.
+      talk: validTalk(data.talk),
     };
   } catch {
     // Migration may encounter malformed nested data as well as invalid JSON.
@@ -136,6 +158,16 @@ function standable(at: Location): boolean {
     tileAt(map, at.x, at.y).walkable &&
     !warpAt(map, at.x, at.y) &&
     !map.entities.some((e) => e.x === at.x && e.y === at.y)
+  );
+}
+
+/** The saved line memory, keeping only counts that are whole numbers of 0 or more. */
+function validTalk(talk: unknown): Record<string, number> {
+  if (!talk || typeof talk !== 'object') return {};
+  return Object.fromEntries(
+    Object.entries(talk).filter(
+      (entry): entry is [string, number] => Number.isSafeInteger(entry[1]) && entry[1] >= 0,
+    ),
   );
 }
 

@@ -18,6 +18,7 @@ import { effectDuration, effectFrame, type EffectId } from './art/vfx';
 import { drawCount } from './boardView';
 import { drawIcon, drawIconSpec } from './iconDraw';
 import { seesEnemyMove } from '../game/stats';
+import { layOutBanner } from './art/bannerLayout';
 import { PHONE_QUERY, reducedMotion } from './touch';
 
 const FLOAT_MS = 1000;
@@ -561,7 +562,8 @@ export class Stage {
   private drawBanner(dtMs: number): void {
     if (!this.banner) return;
     this.banner.elapsed += dtMs;
-    const t = this.banner.elapsed / BANNER_MS;
+    // Longer lines stay up long enough to read.
+    const t = this.banner.elapsed / Math.max(BANNER_MS, this.banner.value.length * 45);
     if (t >= 1) {
       this.banner = null;
       return;
@@ -569,16 +571,35 @@ export class Stage {
     const { ctx } = this;
     const { width } = ctx.canvas;
     ctx.globalAlpha = t < 0.1 ? t / 0.1 : t > 0.8 ? (1 - t) / 0.2 : 1;
-    const top = this.layout.bannerTop;
-    ctx.font = 'bold 16px system-ui';
-    const box = Math.min(width - 8, Math.max(220, ctx.measureText(this.banner.value).width + 24));
+    // Stage directions (`*…*`) are drawn as italic narration, a shade dimmer.
+    // Long lines wrap onto more rows, in a smaller font if the stage is short.
+    const layout = layOutBanner(
+      this.banner.value,
+      (text, font) => {
+        ctx.font = font;
+        return ctx.measureText(text).width;
+      },
+      width,
+      ctx.canvas.height,
+    );
+    const { rows, step, height } = layout;
+    const top = Math.max(2, Math.min(this.layout.bannerTop, ctx.canvas.height - height - 2));
+    const textWidth = Math.max(0, ...rows.map((row) => row.w));
+    const box = Math.min(width - 8, Math.max(220, textWidth + 24));
     ctx.fillStyle = '#10132ae6';
-    ctx.fillRect(width / 2 - box / 2, top, box, 30);
+    ctx.fillRect(width / 2 - box / 2, top, box, height);
     ctx.strokeStyle = '#f5d77b';
-    ctx.strokeRect(width / 2 - box / 2 + 0.5, top + 0.5, box - 1, 29);
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(this.banner.value, width / 2, top + 21);
+    ctx.strokeRect(width / 2 - box / 2 + 0.5, top + 0.5, box - 1, height - 1);
+    ctx.textAlign = 'left';
+    rows.forEach((row, r) => {
+      let x = width / 2 - row.w / 2;
+      for (const word of row.words) {
+        ctx.font = word.font;
+        ctx.fillStyle = word.kind === 'stage' ? '#c9c3e6' : '#ffffff';
+        ctx.fillText(word.text, x, top + 5 + step * (r + 0.8));
+        x += word.w;
+      }
+    });
     ctx.globalAlpha = 1;
   }
 }

@@ -1020,6 +1020,13 @@ export const FLAG_ICONS: Readonly<Record<string, IconSpec & { readonly label: st
     palette: elementPalette('water'),
     label: 'The spring runs clear',
   },
+  // Vesper's lore: what the thrall lets slip about the Depths.
+  ...Object.fromEntries(
+    ['road', 'ridge', 'peaks', 'ruins'].map((stop) => [
+      `lore:vesper.${stop}`,
+      { icon: 'book', palette: elementPalette('arcane'), label: 'Lore of the Depths' },
+    ]),
+  ),
 };
 
 /** An item's icon, with a plain bag icon for anything unlisted. */

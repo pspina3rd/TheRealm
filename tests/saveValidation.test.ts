@@ -100,4 +100,37 @@ describe('save validation', () => {
     save.respawn = { map: 'constructor', x: 1, y: 1 };
     expect(deserialize(JSON.stringify(save))?.respawn).toEqual(newGame().respawn);
   });
+
+  it('relocates a version-7 Sunken Ruins adventure without losing earned progress or opening the sequel', () => {
+    const state = newGame('mage');
+    state.hero.gil = 347;
+    state.hero.items.moonShard = 2;
+    state.flags = new Set(['wyrmBeaten', 'defeated:c2-wyrm', 'cavePass']);
+    state.victories = 23;
+    const save = JSON.parse(serialize(state));
+    save.version = 7;
+    save.mapId = 'sunkenRuins';
+    save.x = 7;
+    save.y = 10;
+    save.respawn = { map: 'sunkenRuins', x: 7, y: 9 };
+    delete save.talk;
+    const loaded = deserialize(JSON.stringify(save));
+    expect(loaded).not.toBeNull();
+    expect([loaded!.mapId, loaded!.x, loaded!.y]).toEqual(['overworld', 15, 19]);
+    expect(loaded!.hero).toEqual(state.hero);
+    expect(loaded!.victories).toBe(23);
+    for (const flag of state.flags) expect(loaded!.flags.has(flag)).toBe(true);
+    expect(loaded!.flags.has('vision:3')).toBe(true);
+    expect(loaded!.flags.has('ruinsOpen')).toBe(false);
+    expect(loaded!.respawn).toEqual(newGame().respawn);
+    expect(loaded!.talk).toEqual({});
+  });
+
+  it.each([
+    [7, 'unknownMap'],
+    [8, 'sunkenRuins'],
+    [999, 'sunkenRuins'],
+  ])('rejects unsupported map/version combinations %s %s', (version, mapId) => {
+    expect(deserialize(JSON.stringify({ ...data(), version, mapId }))).toBeNull();
+  });
 });

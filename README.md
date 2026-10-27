@@ -5,6 +5,14 @@ and descend into dungeons. **Every interaction is a battle**: monsters fight
 you with magic, merchants haggle, villagers barter and sages set puzzles,
 all played out on a falling-block board.
 
+**The story.** Something vast stirs under the realm: the Moon Wyrm, coiled
+around a moon-crystal deep in the Moon Caves, drinks the moonlight while
+spores choke Mossvale's well and the lake clouds over. You wake in
+Mossvale, mend what you can, and learn magic from seven mentors on the
+road down. The Wyrm speaks to you in visions as you go, and its thrall,
+Vesper, is always one step ahead of you. The words are the author's own,
+from the story script in [docs/STORY.md](docs/STORY.md).
+
 ## Quick start
 
 Requires Node.js 20 or newer.
@@ -16,18 +24,18 @@ npm run check      # format check, lint, typecheck and tests (run before pushing
 npm run build      # static site in dist/
 ```
 
-| Script                    | What it does                         |
-| ------------------------- | ------------------------------------ |
-| `npm run dev`             | Development server with hot reload   |
-| `npm run build`           | Typecheck and build the static site  |
-| `npm run preview`         | Serve the production build locally   |
-| `npm test`                | Run the unit tests once              |
-| `npm run coverage`        | Tests with a coverage report         |
-| `npm run sim`             | Whole-game balance table (bots)      |
-| `npm run sim:progression` | Campaign resources by class and pace |
-| `npm run lint`            | ESLint                               |
-| `npm run format`          | Rewrite files with Prettier          |
-| `npm run check`           | Everything CI runs                   |
+| Script                    | What it does                        |
+| ------------------------- | ----------------------------------- |
+| `npm run dev`             | Development server with hot reload  |
+| `npm run build`           | Typecheck and build the static site |
+| `npm run preview`         | Serve the production build locally  |
+| `npm test`                | Run the unit tests once             |
+| `npm run coverage`        | Tests with a coverage report        |
+| `npm run sim`             | Whole-game balance table (bots)     |
+| `npm run sim:progression` | Resource-conserving campaign report |
+| `npm run lint`            | ESLint                              |
+| `npm run format`          | Rewrite files with Prettier         |
+| `npm run check`           | Everything CI runs                  |
 
 ## How to play
 
@@ -142,7 +150,8 @@ attack the moment you walk into them. Full rules and numbers are in
 ### The adventure so far
 
 1. **Mossvale Village** (start): Elder Rowan, Farmer Bea, Pip and a stall keeper.
-2. **The Realm** (the hub): slimes, Spore Shrooms and goblins guard the roads,
+   Leaving it brings the first of the Moon Wyrm's visions.
+2. **Sevenstones** (the hub, ringed by seven standing mana crystals): slimes, Spore Shrooms and goblins guard the roads,
    which lead on to Brightwater and to the mentors' regions.
 3. **Brightwater Town**: shop, smithy, inn, a sage, a collector, a shrine
    keeper and Captain Vale, who holds the pass to the caves.
@@ -151,12 +160,14 @@ attack the moment you walk into them. Full rules and numbers are in
    Thornwood Grove (Hazel, west), Glasswater Lake (Maren, east), Redrock
    Quarry (Dorn, south), Emberforge past the quarry's buried ridge road
    (Torva), Stormcrown Peaks through the tunnel north-east (Rook), Windward
-   Cliffs (Kestrel) and the Moonfall Ruins (Selene).
+   Cliffs (Kestrel) and the Moonfall Ruins (Selene). Vesper, Thrall of the
+   Depths, waits at each new step of the road: the road out of Mossvale,
+   the quarry's ridge, the peaks and the ruins.
 5. **Moon Caves** (two floors, under the ruins): imps and a Cave Brute, a
    sealed chest, a hermit and the Moon Wyrm boss.
-6. **Sunken Ruins**: beat the Moon Wyrm (it enrages at half HP) to see
-   the chapter's end and open the ward. The ruins can then be explored;
-   further encounters await future content.
+6. **Sunken Ruins**: sealed for now. Beat the Moon Wyrm (it enrages at
+   half HP) to see the chapter's end; the ruins' seal then glows, waiting
+   for the next chapter.
 
 ### Challenge types
 
@@ -183,35 +194,42 @@ with you (within a few levels of their own), so no area turns into a
 farm. Falling in battle wakes you at the last inn with 30% HP and half
 your gil; level-ups add only the new max HP. Walking heals a little while
 you're below half HP (below 80% for a hero under level 4 in Mossvale and
-the Realm), and the inn restores the rest. Every balance number lives in
+Sevenstones), and the inn restores the rest. Every balance number lives in
 `src/data/balance.ts`; `npm run sim` plays the whole game's fights against
 bots and prints one table.
 
-`npm run sim` keeps its isolated combat benchmarks: their heroes receive
-synthetic equipment and spell kits, so those results do not establish that
-a real player can afford the same build. `npm run sim:progression` is a
-separate attainable-resource benchmark. It starts all four classes from a
-new game, runs deterministic seeds at 1500 ms (keyboard) and 2200 ms (touch)
-per piece, and carries HP, items, gil, earned skill points and learned
-spells between encounters. It uses the production regional/charm/alignment
-piece odds, reward and defeat resolution, paid shop purchases, enhancement
-costs, and mentor lesson prerequisites. Closed story gates remain closed;
-failed challenges grant no rewards. The report includes region levels,
-wins/losses, lessons, spending, equipment and spell levels.
+`npm run sim` uses synthetic equipment and spell kits for isolated combat
+benchmarks. `npm run sim:progression` starts fresh heroes and carries earned
+HP, money, items, skill points, and spells through a campaign. It uses the
+production area weights, story arrivals and dialogue memory, paid purchases,
+lesson prerequisites, and reward/defeat resolution. Production balance values
+are unchanged by this benchmark.
 
-This benchmark models a policy rather than a complete world-playing bot:
-it follows the region itinerary through unlocked map crossings, tries each
-placed encounter once, models twenty walking recovery steps between
-encounters, and attempts at most two offered lessons per mentor visit.
-Return trips add no extra road fights, and shops open only after won
-challenges. Mentor healing follows the actual lesson rules. It neither
-proves campaign completion nor replaces keyboard/touch playtests. A battle
-that reaches a three-minute simulated deadline is reported as a timeout
-and ends that seed without inventing a victory or a defeat.
-Use `RUNS=3 npm run sim:progression` for more seeds;
-`SIM_OUT=/tmp/progression.md npm run sim:progression` also writes its table
-to a file. Numerical balance tuning should wait for these results and
-playtest evidence together.
+The campaign bot uses requested-color clears for trades, score goals for
+offerings, safe clears for haggles, and a deterministic puzzle search capped
+at 20,000 nodes. Essential gate trades get at most three attempts, deferred
+until after local encounters. Preparation revisits reachable shops through a
+new haggle and spends actual funds; it never grants flags, equipment, or free
+health. The model still abstracts tile travel, twenty walking-recovery ticks
+between encounters, and road encounters on return trips. It is not a human
+playthrough or a campaign-completion guarantee.
+
+The opt-in report defaults to five deterministic seeds for each of four
+classes at 1500 ms (keyboard) and 2200 ms (touch) per piece. Use
+`RUNS=1 npm run sim:progression` for a shorter run. Set `POLICY=baseline` for
+the earlier single-pass combat-style policy or `COMPARE_BASELINE=1` for comparison.
+`SIM_OUT=/tmp/campaign.md npm run sim:progression` writes the region report
+and adjacent `.summary.json` and `.trace.json` files with individual attempts,
+resources, missing colors, gate outcomes, and declared simulation stops.
+The three-minute battle deadline is a censored observation, not a defeat;
+timeouts after a chapter victory do not erase that victory. The canonical
+sequel ward remains sealed after the Wyrm, as the story specifies.
+The game itself has no such deadline. Use `BATTLE_LIMIT_MS=600000` to allow
+ten simulated minutes per battle when investigating unresolved encounters;
+the selected limit is included in the report.
+
+See [the progression audit](docs/PROGRESSION_AUDIT.md) for observed results and
+[the human playtest record](docs/PLAYTEST.md) for the remaining playthrough work.
 
 See [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md) for the full rules and the
 reasoning behind them.

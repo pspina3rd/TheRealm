@@ -3,14 +3,16 @@
  * time with a simple bot. Not shipped; used by `tests/difficulty.test.ts`
  * (set `SIM=1` to print the full table).
  */
-import { Battle, type BattleOptions } from '../../src/battle/battle';
+import { Battle, type BattleAction, type BattleOptions } from '../../src/battle/battle';
 import { rotationsOf } from '../../src/core/bestFit';
-import type { Board } from '../../src/core/board';
+import { Board, type ActivePiece, type CellTally, type LockResult } from '../../src/core/board';
 import type { Cell, Offset, PieceName } from '../../src/core/pieces';
 import { createRng } from '../../src/core/rng';
 import type { ChallengeSpec } from '../../src/data/types';
 import { SPELLS } from '../../src/data/spells';
 import { dualChance } from '../../src/game/pieceOdds';
+import { BarterChallenge } from '../../src/battle/barter';
+import { lineClearPoints } from '../../src/core/scoring';
 import {
   addItem,
   createHero,
@@ -37,6 +39,136 @@ interface Spot {
   readonly cells: readonly Offset[];
   readonly x: number;
   readonly score: number;
+  readonly actions?: readonly BattleAction[];
+}
+
+export interface SimulationPolicy {
+  readonly challengeAware?: boolean;
+  /** Deterministic search budget; no wall-clock-dependent outcomes. */
+  readonly puzzleNodeBudget?: number;
+}
+
+interface ReachableDrop {
+  readonly board: Board;
+  readonly lock: LockResult;
+  readonly actions: readonly BattleAction[];
+  readonly distance: number;
+}
+
+function copyActive(piece: ActivePiece): ActivePiece {
+  return { ...piece, cells: piece.cells.map(([x, y]) => [x, y]) };
+}
+
+/** Enumerates real left/right/rotation paths at the current height; never teleports a piece. */
+function reachableDrops(board: Board, remaining: readonly PieceName[] = []): ReachableDrop[] {
+  if (!board.active) return [];
+  const queue = [{ piece: copyActive(board.active), actions: [] as BattleAction[] }];
+  const seen = new Set<string>();
+  const drops: ReachableDrop[] = [];
+  for (let node = queue.shift(); node; node = queue.shift()) {
+    const id = JSON.stringify([node.piece.x, node.piece.y, node.piece.cells]);
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const make = (copyGrid: boolean) => {
+      const next = new Board(createRng(1), board.width, board.height);
+      next.grid = copyGrid ? board.grid.map((row) => row.slice()) : board.grid;
+      next.active = copyActive(node.piece);
+      next.seal = board.seal ? { ...board.seal } : null;
+      next.setFixedQueue(remaining);
+      return next;
+    };
+    const dropped = make(true);
+    const { distance, result } = dropped.hardDrop();
+    drops.push({ board: dropped, lock: result, actions: node.actions, distance });
+    for (const action of ['left', 'right', 'rotate'] as const) {
+      const next = make(false);
+      const moved = action === 'rotate' ? next.rotate() : next.move(action === 'left' ? -1 : 1, 0);
+      if (moved && next.active)
+        queue.push({ piece: next.active, actions: [...node.actions, action] });
+    }
+  }
+  return drops;
+}
+
+/** A legal, bounded fixed-queue search. Exhaustion is a solver limitation, not a game loss. */
+export function puzzlePlan(
+  battle: Battle,
+  budget = 20_000,
+): {
+  readonly spot: Spot | null;
+  readonly exhausted: boolean;
+} {
+  if (battle.spec.kind !== 'puzzle') return { spot: null, exhausted: false };
+  let nodes = 0;
+  let exhausted = false;
+  const target = battle.objective.lines!;
+  const memo = new Set<string>();
+  const search = (board: Board, needed: number): readonly BattleAction[] | null => {
+    if (!board.active) return null;
+    const remaining = board.preview(Math.max(0, board.piecesRemaining - 1));
+    const stateKey = JSON.stringify([board.grid, board.active, remaining, needed]);
+    if (memo.has(stateKey)) return null;
+    memo.add(stateKey);
+    for (const drop of reachableDrops(board, remaining)) {
+      if (++nodes > budget) {
+        exhausted = true;
+        return null;
+      }
+      if (drop.lock.linesCleared >= needed) return drop.actions;
+      if (!drop.lock.toppedOut && search(drop.board, needed - drop.lock.linesCleared))
+        return drop.actions;
+      if (exhausted) return null;
+    }
+    return null;
+  };
+  const actions = search(battle.board, target.want - target.have);
+  return {
+    spot:
+      actions && battle.board.active
+        ? { cells: battle.board.active.cells, x: battle.board.active.x, score: 0, actions }
+        : null,
+    exhausted,
+  };
+}
+
+/** Values only unmet barter goals, retaining the actual dual colours in simulated clears. */
+export function barterGain(tally: CellTally, challenge: BarterChallenge): number {
+  return Object.entries(challenge.wants).reduce((sum, [color, wanted]) => {
+    const key = color as keyof CellTally;
+    const missing = Math.max(0, (wanted ?? 0) - (challenge.collected[key] ?? 0));
+    return sum + Math.min(missing, tally[key] ?? 0);
+  }, 0);
+}
+
+function objectiveSpot(battle: Battle): Spot | null {
+  let best: Spot | null = null;
+  for (const drop of reachableDrops(battle.board)) {
+    if (drop.lock.toppedOut) continue;
+    const shape = features(drop.board.grid);
+    const total = shape.heights.reduce((sum, h) => sum + h, 0);
+    const bump = shape.heights
+      .slice(1)
+      .reduce((sum, h, i) => sum + Math.abs(h - shape.heights[i]!), 0);
+    const safety = -8 * shape.holes - 0.5 * total - 0.4 * bump;
+    let reward = 10 * drop.lock.linesCleared;
+    if (battle.challenge instanceof BarterChallenge)
+      reward += 5 * barterGain(drop.lock.clearedCells, battle.challenge);
+    if (battle.spec.kind === 'offering')
+      reward =
+        Math.min(
+          battle.spec.targetScore - battle.score,
+          lineClearPoints(drop.lock.linesCleared) + drop.distance * 2,
+        ) / 20;
+    const score = safety + reward;
+    if (!best || score > best.score)
+      best = {
+        cells: battle.board.active!.cells,
+        x: battle.board.active!.x,
+        actions: drop.actions,
+        score,
+      };
+  }
+  return best;
 }
 
 function fits(grid: Grid, cells: readonly Offset[], x: number, y: number, sealed: number | null) {
@@ -183,6 +315,11 @@ const key = (cells: readonly Offset[]): string => {
 
 /** Turns and slides the falling piece to `spot`, then hard-drops (it may fall short if blocked). */
 function execute(battle: Battle, spot: Spot): void {
+  if (spot.actions) {
+    for (const action of spot.actions) battle.input(action);
+    battle.input('hardDrop');
+    return;
+  }
   const board = battle.board;
   const want = key(spot.cells);
   for (let i = 0; i < 4 && board.active && key(board.active.cells) !== want; i++)
@@ -286,6 +423,7 @@ export interface FightResult {
   readonly hpLeft: number;
   /** Times the board overflowed. */
   readonly overflows: number;
+  readonly stopReason: 'won' | 'lost' | 'timeout' | 'solver-budget' | 'solver-unsolved';
 }
 
 /**
@@ -314,6 +452,7 @@ export function simulateBattle(
   style: Style,
   thinkMs = 1500,
   limitMs = 600_000,
+  policy: SimulationPolicy = {},
 ): FightResult {
   const hero = battle.hero;
   const STEP = 50;
@@ -322,6 +461,7 @@ export function simulateBattle(
   let current = battle.board.active;
   let overflows = 0;
   let seen = 0;
+  let solverStop: FightResult['stopReason'] | null = null;
   while (battle.status === 'ongoing' && ms < limitMs) {
     if (battle.board.active !== current) {
       current = battle.board.active;
@@ -338,7 +478,17 @@ export function simulateBattle(
       if (battle.status !== 'ongoing') break;
       if (style === 'dropper') battle.input('hardDrop');
       else {
-        const spot = choose(battle, style);
+        let spot: Spot | null;
+        if (policy.challengeAware && battle.spec.kind === 'puzzle') {
+          const plan = puzzlePlan(battle, policy.puzzleNodeBudget);
+          spot = plan.spot;
+          if (!spot) {
+            solverStop = plan.exhausted ? 'solver-budget' : 'solver-unsolved';
+            break;
+          }
+        } else
+          spot =
+            policy.challengeAware && !battle.combat ? objectiveSpot(battle) : choose(battle, style);
         if (spot) execute(battle, spot);
         else battle.input('hardDrop');
       }
@@ -359,6 +509,7 @@ export function simulateBattle(
     pieces: battle.board.piecesPlaced,
     hpLeft: hero.hp / hero.maxHp,
     overflows,
+    stopReason: solverStop ?? (battle.status === 'ongoing' ? 'timeout' : battle.status),
   };
 }
 

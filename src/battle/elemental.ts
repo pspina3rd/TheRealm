@@ -19,6 +19,7 @@ import {
   RESIST_MULTIPLIER,
   WEAK_CRYSTAL_BONUS,
   BOSS_WEAKNESS_SHARE,
+  BOSS_SPELL_WEAKNESS_SHARE,
   RESIST_CRYSTAL_PENALTY,
 } from '../data/balance';
 export {
@@ -26,15 +27,16 @@ export {
   RESIST_MULTIPLIER,
   WEAK_CRYSTAL_BONUS,
   BOSS_WEAKNESS_SHARE,
+  BOSS_SPELL_WEAKNESS_SHARE,
   RESIST_CRYSTAL_PENALTY,
 } from '../data/balance';
 
 /** A line needs at least this many crystals of one element to trigger its effect. */
 export const SURGE_THRESHOLD = 3;
 
-/** How hard a weakness hits `enemy`: less for bosses. */
+/** How hard a spell (or an exposed strike) on a weakness hits `enemy`: much less for bosses. */
 export function weakMultiplier(enemy: Pick<EnemyDef, 'boss'>): number {
-  return enemy.boss ? 1 + (WEAK_MULTIPLIER - 1) * BOSS_WEAKNESS_SHARE : WEAK_MULTIPLIER;
+  return enemy.boss ? 1 + (WEAK_MULTIPLIER - 1) * BOSS_SPELL_WEAKNESS_SHARE : WEAK_MULTIPLIER;
 }
 
 /** The strike bonus share for crystals `enemy` is weak to: less for bosses. */
@@ -106,11 +108,13 @@ export function crystalAffinity(
   cells: number,
 ): number {
   if (cells <= 0) return 1;
+  // By the chart, not by the spell multiplier (a boss's weak spells may hit ×1).
+  const weak = weaknessesOf(enemy);
+  const resists = resistancesOf(enemy);
   return ELEMENTS.reduce((sum, element) => {
-    const multiplier = elementMultiplier(enemy, element);
     const share = counts[element] / cells;
-    if (multiplier > 1) return sum + share * weakCrystalBonus(enemy);
-    if (multiplier < 1) return sum - share * RESIST_CRYSTAL_PENALTY;
+    if (weak.includes(element)) return sum + share * weakCrystalBonus(enemy);
+    if (resists.includes(element)) return sum - share * RESIST_CRYSTAL_PENALTY;
     return sum;
   }, 1);
 }

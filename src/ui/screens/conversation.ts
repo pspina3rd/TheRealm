@@ -10,7 +10,7 @@ import type { Epilogue } from '../../game/ending';
 import type { Gain } from '../../game/rewards';
 import type { Atlas } from '../art/atlas';
 import { ATTITUDE_ICONS, ELEMENT_ICONS, itemIcon } from '../art/icons';
-import { button, el } from '../dom';
+import { button, el, lineNodes } from '../dom';
 import { iconElement } from '../iconDraw';
 import {
   challengeCard,
@@ -35,7 +35,7 @@ function speech(atlas: Atlas, sprite: string, text: string, attitude?: Attitude)
       spritePortrait(atlas, sprite, 96),
       ...(attitude ? [iconElement(ATTITUDE_ICONS[attitude], 3, ATTITUDE_NAMES[attitude])] : []),
     ),
-    el('p', { className: 'bubble', text }),
+    el('p', { className: 'bubble' }, ...lineNodes(text)),
   );
 }
 

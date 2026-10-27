@@ -4,21 +4,32 @@ import type { KeyValueStore } from './save';
 export function createStore(
   getPersistentStore: () => KeyValueStore = () => localStorage,
 ): KeyValueStore {
+  let source: KeyValueStore | undefined;
   try {
-    const store = getPersistentStore();
+    source = getPersistentStore();
     const probe = '__the-realm-probe__';
-    const previous = store.getItem(probe);
-    store.setItem(probe, probe);
-    if (previous === null) store.removeItem(probe);
-    else store.setItem(probe, previous);
-    return store;
+    const previous = source.getItem(probe);
+    // Never overwrite an existing value with the probe: a subsequent failure
+    // could otherwise prevent us from restoring it.
+    source.setItem(probe, previous ?? probe);
+    if (previous === null) source.removeItem(probe);
+    return source;
   } catch {
-    const memory = new Map<string, string>();
+    // A full quota can block writes while old saves remain readable. Keep
+    // those reads, with session-only writes and deletion tombstones on top.
+    const memory = new Map<string, string | null>();
     return {
       persistent: false,
-      getItem: (key) => memory.get(key) ?? null,
+      getItem: (key) => {
+        if (memory.has(key)) return memory.get(key) ?? null;
+        try {
+          return source?.getItem(key) ?? null;
+        } catch {
+          return null;
+        }
+      },
       setItem: (key, value) => void memory.set(key, value),
-      removeItem: (key) => void memory.delete(key),
+      removeItem: (key) => void memory.set(key, null),
     };
   }
 }
