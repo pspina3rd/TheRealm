@@ -1,5 +1,11 @@
 # Progression audit on the team's story branch
 
+These results cover the currently implemented first half, ending at the Moon
+Wyrm. They do not measure full-campaign completion. The approved full story
+continues through Boss 2, Vesper, Boss 3, Fennick's rite, and Vesper's final
+form; see [STORY_ARC.md](STORY_ARC.md). Historical report fields named
+`completedChapters` refer only to the Wyrm chapter endpoint.
+
 ## Baseline and decisions
 
 These results use `claude/laughing-brown-7i13lb` at `b3e4b90`, with the

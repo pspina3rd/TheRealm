@@ -1,6 +1,10 @@
-# Mana Crystals — Story Script (Complete & Unabridged)
+# Mana Crystals — Existing First-Half Story Script
 
 Oct 24, 2026 · @Philip Spina
+
+For the approved full-campaign structure and second-half writer brief, see
+[STORY_ARC.md](STORY_ARC.md). The dialogue below covers the existing first
+half; the Moon Wyrm is its midpoint Ordeal, not the full campaign's ending.
 
 ## How to use this script
 
@@ -41,7 +45,7 @@ Arcane · Challenge: Offering / Puzzle · Reward: Lore & Moon Shards
 
 ### The Moon Wyrm (Visions & Lair Monologues)
 
-Arcane · Final Boss · Guardian of the Moon Caves
+Arcane · Midpoint Boss / Ordeal · Guardian of the Moon Caves
 
 | Sequence / Region | Text / Monologue Lines |
 | --- | --- |
