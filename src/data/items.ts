@@ -182,11 +182,12 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
   },
   wellStone: {
     id: 'wellStone',
-    name: 'Well Stone',
+    name: 'Focus Stone',
     kind: 'accessory',
     price: 40,
     pieceBias: { earth: 1 },
-    description: 'From the first dig of the Mossvale well. More earth (orange) pieces fall.',
+    description:
+      'The rune stone Elder Rowan cracked the well’s granite bed with, forty years back. More earth (orange) pieces fall.',
   },
   moonCharm: {
     id: 'moonCharm',

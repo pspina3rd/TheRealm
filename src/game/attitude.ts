@@ -12,6 +12,7 @@ import { relatedTo, weakTo, type Element, type ElementCounts } from '../core/ele
 import type { ChallengeSpec, Line, NpcDef, Reward, ShopDef } from '../data/types';
 import { alignmentOf } from './alignment';
 import type { Hero } from './hero';
+import { speak, type LineMemory, type Mood } from './lines';
 import { knownSpell } from './spells';
 
 export const ATTITUDES = ['hostile', 'wary', 'neutral', 'friendly', 'devoted'] as const;
@@ -148,16 +149,27 @@ export function stockFor(shop: ShopDef, attitude: Attitude): readonly string[] {
   return attitude === 'devoted' ? [...shop.stock, ...(shop.secretStock ?? [])] : shop.stock;
 }
 
-/** The variant of a line for this attitude: cold (Hostile, Wary), plain or warm. */
-export function say(line: Line, attitude: Attitude): string {
-  if (typeof line === 'string') return line;
-  if (attitude === 'hostile' || attitude === 'wary') return line.cold;
-  return attitude === 'neutral' ? line.plain : line.warm;
+/** The mood an attitude speaks in: cold (Hostile, Wary), plain (Neutral) or warm. */
+export function moodFor(attitude: Attitude): Mood {
+  if (attitude === 'hostile' || attitude === 'wary') return 'cold';
+  return attitude === 'neutral' ? 'plain' : 'warm';
+}
+
+/**
+ * A line for this attitude. With a `memory`, the variant rotates under
+ * `key` (see `src/game/lines.ts`); without, the first variant is said.
+ */
+export function say(line: Line, attitude: Attitude, memory?: LineMemory, key?: string): string {
+  return speak(line, moodFor(attitude), memory, key);
+}
+
+/** The key an NPC's moment rotates under: their voice (shared by one character's several NPCs). */
+export function lineKey(npc: NpcDef, moment: keyof NpcDef['lines']): string {
+  return `${npc.voice ?? npc.id}.${moment}`;
 }
 
 /** What the NPC says on meeting the hero: a Devoted NPC confides instead of the warm intro. */
-export function introFor(npc: NpcDef, attitude: Attitude): string {
-  return attitude === 'devoted' && npc.lines.confide
-    ? npc.lines.confide
-    : say(npc.lines.intro, attitude);
+export function introFor(npc: NpcDef, attitude: Attitude, memory?: LineMemory): string {
+  const moment = attitude === 'devoted' && npc.lines.confide ? 'confide' : 'intro';
+  return say(npc.lines[moment] ?? npc.lines.intro, attitude, memory, lineKey(npc, moment));
 }

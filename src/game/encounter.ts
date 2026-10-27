@@ -15,12 +15,15 @@ import {
   challengeOnTerms,
   dealTerms,
   introFor,
+  lineKey,
   rewardsOnTerms,
   say,
   type Attitude,
 } from './attitude';
 import { FINALE_FLAG, epilogueFor, type Epilogue } from './ending';
 import { hiddenSlots, type HiddenSlot } from './hidden';
+import { pickVariant, variantsOf } from './lines';
+import { preludeFor } from './story';
 import { addItem, gainXp, itemCount, removeItem } from './hero';
 import { completeLesson, lessonsFor, type Lesson } from './lessons';
 import { grantRewards, type Gain } from './rewards';
@@ -67,6 +70,8 @@ export type Interaction =
       readonly extras: readonly Reward[];
       /** The attitude an NPC deals on (Hostile essential NPCs deal as Wary). */
       readonly terms?: Attitude;
+      /** What a boss says before its fight, shown as an interlude (the Wyrm's lair). */
+      readonly prelude?: string;
       /** What an NPC says when the hero accepts or declines. */
       readonly replies?: { readonly accept: string; readonly decline: string };
     });
@@ -127,7 +132,10 @@ function mentorFor(entity: EntityDef): MentorDef {
   return mentor;
 }
 
-/** Decides what bumping into `entity` does, given the current state. */
+/**
+ * Decides what bumping into `entity` does, given the current state. What is
+ * said is counted in `state.talk`, so each call rotates the speaker's lines.
+ */
 export function describeInteraction(state: GameState, entity: EntityDef): Interaction {
   if (entity.kind === 'mentor') {
     const mentor = mentorFor(entity);
@@ -135,7 +143,8 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
     const silhouettes = hiddenSlots(state, mentor.element).filter(
       (slot) => slot.state === 'hidden',
     );
-    const speaker = { title: mentor.name, sprite: mentor.sprite, text: mentor.motive };
+    const motive = pickVariant(variantsOf(mentor.motive), state.talk, `${mentor.id}.motive`);
+    const speaker = { title: mentor.name, sprite: mentor.sprite, text: motive };
     return lessons.length + silhouettes.length > 0
       ? {
           kind: 'lessons',
@@ -152,6 +161,7 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
   if (entity.kind === 'monster') {
     const enemy = ENEMIES[entity.enemyId];
     if (!enemy) throw new Error(`Unknown enemy: ${entity.enemyId}`);
+    const prelude = preludeFor(enemy.id, state.talk);
     return {
       kind: 'challenge',
       title: enemy.name,
@@ -160,6 +170,7 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
       spec: { kind: 'combat', enemyId: enemy.id },
       rewards: [],
       extras: [],
+      ...(prelude ? { prelude } : {}),
     };
   }
 
@@ -167,11 +178,18 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
   const attitude = attitudeOf(state.hero, npc);
   const speaker = { title: npc.name, sprite: npc.sprite, ...(npc.inanimate ? {} : { attitude }) };
   if (!npc.repeatable && state.flags.has(npcCompletionFlag(npc))) {
-    return { kind: 'message', ...speaker, text: say(npc.lines.done ?? '...', attitude) };
+    return {
+      kind: 'message',
+      ...speaker,
+      text: say(npc.lines.done ?? '...', attitude, state.talk, lineKey(npc, 'done')),
+    };
   }
   const terms = dealTerms(npc, attitude);
-  if (!terms) return { kind: 'message', ...speaker, text: npc.lines.refuse ?? '...' };
-  const text = introFor(npc, attitude);
+  if (!terms) {
+    const text = say(npc.lines.refuse ?? '...', attitude, state.talk, lineKey(npc, 'refuse'));
+    return { kind: 'message', ...speaker, text };
+  }
+  const text = introFor(npc, attitude, state.talk);
   const spec = challengeOnTerms(npc.challenge, terms);
   if (spec.kind === 'offering' && itemCount(state.hero, spec.itemId) < 1) {
     return { kind: 'needsItem', ...speaker, text, itemId: spec.itemId };
@@ -185,7 +203,10 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
     rewards: base,
     extras,
     terms,
-    replies: { accept: say(npc.lines.accept, terms), decline: say(npc.lines.decline, terms) },
+    replies: {
+      accept: say(npc.lines.accept, terms, state.talk, lineKey(npc, 'accept')),
+      decline: say(npc.lines.decline, terms, state.talk, lineKey(npc, 'decline')),
+    },
   };
 }
 
@@ -218,7 +239,9 @@ function resolveLesson(
   return {
     won,
     gains: completeLesson(state.hero, spec, won),
-    speech: won ? mentor.winText : mentor.loseText,
+    speech: won
+      ? pickVariant(variantsOf(mentor.winText), state.talk, `${mentor.id}.win`)
+      : pickVariant(variantsOf(mentor.loseText), state.talk, `${mentor.id}.lose`),
     fell: false,
     shopId: null,
     priceMultiplier: 1,
@@ -285,7 +308,7 @@ function resolveNpc(
     return {
       ...ended,
       gains: [],
-      speech: say(npc.lines.lose, terms),
+      speech: say(npc.lines.lose, terms, state.talk, lineKey(npc, 'lose')),
       shopId: null,
       priceMultiplier: 1,
     };
@@ -303,7 +326,10 @@ function resolveNpc(
   return {
     ...ended,
     gains: [...given, ...outcome.gains],
-    speech: say((knewSpell && npc.lines.winKnown) || npc.lines.win, terms),
+    speech:
+      knewSpell && npc.lines.winKnown
+        ? say(npc.lines.winKnown, terms, state.talk, lineKey(npc, 'winKnown'))
+        : say(npc.lines.win, terms, state.talk, lineKey(npc, 'win')),
     shopId: outcome.shopId,
     priceMultiplier: (haggle?.multiplier ?? 1) * ATTITUDE_PRICES[terms],
   };

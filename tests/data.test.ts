@@ -233,6 +233,14 @@ const PUZZLE_SOLUTIONS: Record<string, [number, number][]> = {
     [0, 0],
     [1, 4],
   ],
+  vesperRoad: [
+    [0, 1],
+    [0, 5],
+  ],
+  vesperPeaks: [
+    [0, 2],
+    [0, 1],
+  ],
 };
 
 describe('puzzles', () => {

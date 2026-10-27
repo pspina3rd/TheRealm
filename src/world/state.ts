@@ -2,6 +2,8 @@ import { MAPS, START } from '../data/maps';
 import { createHero, type Hero } from '../game/hero';
 import type { Direction, EntityDef, Location, MapDef } from './map';
 import { mentorEntities } from './mentors';
+import { vesperEntities } from '../game/story';
+import type { LineMemory } from '../game/lines';
 
 /** Everything needed to resume a game. */
 export interface GameState {
@@ -18,6 +20,8 @@ export interface GameState {
   respawn: Location;
   /** Monster battles won; mentors move on as it grows (see `src/world/mentors.ts`). */
   victories: number;
+  /** How often each speaker's moments have been said, to rotate their lines (see `src/game/lines.ts`). */
+  talk: LineMemory;
 }
 
 export function newGame(classId?: string, heroName?: string): GameState {
@@ -31,6 +35,7 @@ export function newGame(classId?: string, heroName?: string): GameState {
     cleared: new Set(),
     respawn: { ...START },
     victories: 0,
+    talk: {},
   };
 }
 
@@ -50,7 +55,7 @@ export function activeEntities(state: GameState): EntityDef[] {
     if (e.kind !== 'monster') return true;
     return !state.cleared.has(e.id) && !state.flags.has(defeatedFlag(e.id));
   });
-  return [...placed, ...mentorEntities(state)];
+  return [...placed, ...vesperEntities(state), ...mentorEntities(state)];
 }
 
 /** Records a monster defeat (permanently for bosses) and counts the victory. */
