@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { MAX_PAUSES, QUICKEN_SPEED } from '../src/battle/battle';
 import {
   BOSS_WEAKNESS_SHARE,
+  BOSS_SPELL_WEAKNESS_SHARE,
   WEAK_CRYSTAL_BONUS,
   WEAK_MULTIPLIER,
   crystalAffinity,
@@ -458,7 +459,9 @@ describe('recovery', () => {
 describe('bosses', () => {
   it('take a damped weakness bonus', () => {
     const wyrm = ENEMIES.moonWyrm!;
-    expect(elementMultiplier(wyrm, 'fire')).toBe(1 + (WEAK_MULTIPLIER - 1) * BOSS_WEAKNESS_SHARE);
+    expect(elementMultiplier(wyrm, 'fire')).toBe(
+      1 + (WEAK_MULTIPLIER - 1) * BOSS_SPELL_WEAKNESS_SHARE,
+    );
     expect(elementMultiplier(ENEMIES.moonImp!, 'fire')).toBe(WEAK_MULTIPLIER);
     const cleared = { ...emptyCounts(0), fire: 10 };
     expect(crystalAffinity(wyrm, cleared, 10)).toBe(1 + WEAK_CRYSTAL_BONUS * BOSS_WEAKNESS_SHARE);

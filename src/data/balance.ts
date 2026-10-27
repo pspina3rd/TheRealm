@@ -71,6 +71,14 @@ export const WEAK_CRYSTAL_BONUS = 0.5;
  * (×1.375 instead of ×1.5; a weak crystal adds 37.5% instead of 50%).
  */
 export const BOSS_WEAKNESS_SHARE = 0.75;
+/**
+ * A spell (or an exposed strike) on a boss's weakness gets this share of
+ * the weakness bonus: none, so it hits ×1 instead of ×1.5. The full kit's
+ * Fire found the Moon Wyrm's weakness and won 43% of first tries against a
+ * 20–30% target; now 33% (60 runs, touch pace). Weak crystals keep
+ * `BOSS_WEAKNESS_SHARE`.
+ */
+export const BOSS_SPELL_WEAKNESS_SHARE = 0;
 export const RESIST_CRYSTAL_PENALTY = 0.25;
 
 // ---- Battle pacing (src/battle/battle.ts)

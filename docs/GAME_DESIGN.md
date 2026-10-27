@@ -233,8 +233,10 @@ Fights are real time and reward planning: a sloppy stack loses.
   revive from 25% to 35% and the Herb from 25% to 35%, so preparing
   pays off again under the 2-use cap.)
 - **Bosses damp weaknesses**: a boss takes `BOSS_WEAKNESS_SHARE` (75%) of
-  a weakness bonus: ×1.375 instead of ×1.5 for a weak element's spell,
-  +37.5% instead of +50% for weak crystals, and Fault Line likewise.
+  a weak crystal's bonus (+37.5% instead of +50%, and Fault Line likewise)
+  and `BOSS_SPELL_WEAKNESS_SHARE` (none) of a weak spell's: Fire or Gale
+  hit the Moon Wyrm ×1, not ×1.5. (At 75% the full kit's Fire won 43% of
+  first tries against a 20–30% target; see the story pass below.)
 - **Failure costs**: losing a fight sends you back to the last inn you
   rested at with **30% HP** (50% in Mossvale, the home village, whose
   healer looks after beginners) and half your gil (no free heal). Normal
@@ -242,7 +244,7 @@ Fights are real time and reward planning: a sloppy stack loses.
   broke, battered hero never soft-locks, **walking heals 1 HP per step
   while below half HP**; the inn (10 gil) restores the rest. A
   **beginner** (below level 4) walking in the starter lands (Mossvale
-  and the Realm, `STARTER_MAPS`) heals up to **80%** instead: a playtest
+  and Sevenstones, `STARTER_MAPS`) heals up to **80%** instead: a playtest
   hero who spent his last gil on a sword went 7–14 at the half-HP cap. A lesson
   still starts at full HP (the mentor's setup), and afterwards, won or
   lost, the mentor leaves you at least half.
@@ -340,9 +342,9 @@ Final run at the **touch pace** (2.2 s a piece), which the targets aim at:
 
 | Area                | Fight         | Hero Lv | Good (starter spells) | Good (full kit) | Prepared | Prepared (full kit) | Singles + spells | Sloppy | Good: time / pieces | Good: HP left |
 | ------------------- | ------------- | ------- | --------------------- | --------------- | -------- | ------------------- | ---------------- | ------ | ------------------- | ------------- |
-| The Realm           | Green Slime   | 1       | 90%                   | 73%             | 87%      | 90%                 | 93%              | 0%     | 63 s / 29           | 53%           |
-| The Realm           | Spore Shroom  | 2       | 90%                   | 93%             | 100%     | 100%                | 87%              | 0%     | 72 s / 33           | 63%           |
-| The Realm           | Goblin Scout  | 3       | 80%                   | 67%             | 73%      | 93%                 | 53%              | 0%     | 80 s / 38           | 56%           |
+| Sevenstones         | Green Slime   | 1       | 90%                   | 73%             | 87%      | 90%                 | 93%              | 0%     | 63 s / 29           | 53%           |
+| Sevenstones         | Spore Shroom  | 2       | 90%                   | 93%             | 100%     | 100%                | 87%              | 0%     | 72 s / 33           | 63%           |
+| Sevenstones         | Goblin Scout  | 3       | 80%                   | 67%             | 73%      | 93%                 | 53%              | 0%     | 80 s / 38           | 56%           |
 | Thornwood Grove     | Sproutling    | 2       | 67%                   | 63%             | 70%      | 83%                 | 57%              | 0%     | 77 s / 35           | 64%           |
 | Thornwood Grove     | Leaf Sprite   | 3       | 77%                   | 90%             | 83%      | 100%                | 70%              | 0%     | 73 s / 34           | 49%           |
 | Thornwood Grove     | Thorn Troll   | 4       | 77%                   | 80%             | 80%      | 90%                 | 57%              | 0%     | 96 s / 45           | 55%           |
@@ -386,9 +388,9 @@ and 80% (prepared). At a mix (1.85 s) the Wyrm is 40% good, 30% full kit,
 
 | Area                | Fight         | Hero Lv | Good (starter spells) | Good (full kit) | Prepared | Prepared (full kit) | Singles + spells | Sloppy | Good: time / pieces | Good: HP left |
 | ------------------- | ------------- | ------- | --------------------- | --------------- | -------- | ------------------- | ---------------- | ------ | ------------------- | ------------- |
-| The Realm           | Green Slime   | 1       | 97%                   | 97%             | 97%      | 93%                 | 100%             | 3%     | 39 s / 25           | 71%           |
-| The Realm           | Spore Shroom  | 2       | 90%                   | 100%            | 93%      | 100%                | 90%              | 0%     | 55 s / 37           | 70%           |
-| The Realm           | Goblin Scout  | 3       | 93%                   | 90%             | 97%      | 100%                | 90%              | 0%     | 59 s / 41           | 68%           |
+| Sevenstones         | Green Slime   | 1       | 97%                   | 97%             | 97%      | 93%                 | 100%             | 3%     | 39 s / 25           | 71%           |
+| Sevenstones         | Spore Shroom  | 2       | 90%                   | 100%            | 93%      | 100%                | 90%              | 0%     | 55 s / 37           | 70%           |
+| Sevenstones         | Goblin Scout  | 3       | 93%                   | 90%             | 97%      | 100%                | 90%              | 0%     | 59 s / 41           | 68%           |
 | Thornwood Grove     | Sproutling    | 2       | 83%                   | 90%             | 97%      | 97%                 | 77%              | 0%     | 54 s / 36           | 70%           |
 | Thornwood Grove     | Leaf Sprite   | 3       | 83%                   | 100%            | 90%      | 97%                 | 67%              | 0%     | 58 s / 39           | 63%           |
 | Thornwood Grove     | Thorn Troll   | 4       | 97%                   | 87%             | 100%     | 100%                | 83%              | 0%     | 65 s / 44           | 64%           |
@@ -436,7 +438,7 @@ early grinds a little.
 
 | Area                | Hero Lv entering | XP gained | Gil in | Gil spent | Gil left at exit | Still wanted               |
 | ------------------- | ---------------- | --------- | ------ | --------- | ---------------- | -------------------------- |
-| The Realm           | 1                | 104       | 115    | 52        | 88               | —                          |
+| Sevenstones         | 1                | 104       | 115    | 52        | 88               | —                          |
 | Thornwood Grove     | 2                | 91        | 71     | 30        | 129              | —                          |
 | Glasswater Lake     | 3                | 117       | 87     | 200       | 16               | —                          |
 | Redrock Quarry      | 4                | 168       | 124    | 10        | 130              | knightBlade                |
@@ -462,31 +464,60 @@ the Moon Wyrm was made harder at the user's request (expect several attempts).
 
 | Area                  | Hero level entering | Good (starter spells) | Good (full kit) | Prepared | Singles + spells | Sloppy    | Fight length (good) | Gil in (per fight) / out (main buys)     | Actual, touch pace (final pass)                                           |
 | --------------------- | ------------------- | --------------------- | --------------- | -------- | ---------------- | --------- | ------------------- | ---------------------------------------- | ------------------------------------------------------------------------- |
-| The Realm             | 1                   | 80–90%                | —               | 95%+     | 70–85%           | under 15% | 40–70 s             | 4–10 / Copper Sword 22, inn 10           | G 80–90 · K 67–93 · P 73–100 · S 53–93 · Sl 0 · 63–80 s (keys: G 90–97)   |
+| Sevenstones           | 1                   | 80–90%                | —               | 95%+     | 70–85%           | under 15% | 40–70 s             | 4–10 / Copper Sword 22, inn 10           | G 80–90 · K 67–93 · P 73–100 · S 53–93 · Sl 0 · 63–80 s (keys: G 90–97)   |
 | Thornwood Grove       | 2                   | 75–85%                | —               | 90%+     | 65–80%           | under 10% | 50–80 s             | 6–11 / herbs                             | G 67–77 · K 63–90 · P 70–83 · S 57–70 · Sl 0 · 73–96 s (keys: G 83–97)    |
 | Glasswater Lake       | 3                   | 75–85%                | —               | 90%+     | 65–80%           | under 10% | 50–90 s             | 7–14 / Iron Sword 80, Crystal Mail 90    | G 67–73 · K 70–83 · P 73–93 · S 53–63 · Sl 0 · 71–96 s (keys: G 90–97)    |
 | Redrock Quarry        | 4                   | 70–85%                | 80–90%          | 90%+     | 60–75%           | under 10% | 60–100 s            | 12–17 / Knight Blade 150                 | G 73–90 · K 70–90 · P 70–80 · S 50–73 · Sl 0–3 · 87–114 s (keys: G 87–93) |
-| Emberforge            | 5                   | 70–85%                | 80–90%          | 90%+     | 60–75%           | under 10% | 60–100 s            | 14–22 / Flame Brand 260, Forge Plate 220 | G 57–70 · K 67–90 · P 67–83 · S 43–57 · Sl 0 · 78–103 s (keys: G 80–87)   |
+| Emberforge            | 5                   | 70–85%                | 80–90%          | 90%+     | 60–75%           | under 10% | 60–100 s            | 14–22 / Flame Brand 260, Forge Plate 220 | G 67–73 · K 73–90 · P 73–93 · S 57–73 · Sl 0 · 75–98 s (keys: G 80–87)    |
 | Stormcrown Peaks      | 6                   | 70–80%                | 80–90%          | 85–95%   | 55–70%           | under 5%  | 70–110 s            | 16–26 / inn, Feathers 30                 | G 70–77 · K 77–90 · P 80–93 · S 50–77 · Sl 0 · 98–128 s (keys: G 87–90)   |
 | Windward Cliffs       | 7                   | 70–80%                | 80–90%          | 85–95%   | 55–70%           | under 5%  | 70–110 s            | 20–30 / inn, Feathers 30                 | G 70–90 · K 83–97 · P 83–97 · S 57–90 · Sl 0 · 110–156 s (keys: G 90–97)  |
 | Moonfall Ruins        | 8                   | 70–80%                | 80–90%          | 85–95%   | 55–70%           | under 5%  | 80–120 s            | 25–34 / Ethers                           | G 70–77 · K 70–93 · P 73–90 · S 20–63 · Sl 0 · 128–161 s (keys: G 83–97)  |
-| Moon Wyrm (first try) | 12–13               | 15–20%                | 20–30%          | 35–45%   | 5–15%            | 0%        | 100–140 s           | 90                                       | Lv 12 · G 20 · K 43 · P 40 · S 10 · Sl 0 · 156 s (keys: G 50, P 80)       |
+| Moon Wyrm (first try) | 12–13               | 15–20%                | 20–30%          | 35–45%   | 5–15%            | 0%        | 100–140 s           | 90                                       | Lv 12 · G 20 · K 33 · P 28 · S 0 · Sl 0 · 166 s (keys: G 50, P 80)        |
 | Mentor lessons        | at need             | 85–100%               | —               | —        | 75–100%          | 0–20%     | 30–60 s             | —                                        | G 87–100 · S 93–100 · Sl 0–27 · 47–88 s (keys: G 97–100)                  |
 
 Actual: win rates in % for Good (G), Good with the full kit (K),
 Prepared (P), Singles + spells (S) and Sloppy (Sl) at the touch pace
 (2.2 s a piece), the good bot's fight length, and the good bot at the
-keyboard pace (1.5 s). Misses: Emberforge's good bot (57–70%) and
-singles (43–57%), the ruins' singles (20% against the healing Gloom
+keyboard pace (1.5 s). Misses: Emberforge's good bot (67–73% after the
+story pass, from 57–70%), the ruins' singles (20% against the healing Gloom
 Toad), prepared below 90% in the early regions (the 2-use cap leaves one
 Herb after the Ether), touch fights running 10–40 s longer than the
-length targets (keyboard fights sit inside them), the Wyrm's full kit
-(43%: its fire hits the weakness) and the Ember and Gale Wisps' first
+length targets (keyboard fights sit inside them), the Wyrm's prepared bot
+after the story pass (28%), its full kit still a little high (33%), and the Ember and Gale Wisps' first
 lessons for the sloppy bot (27%).
 
 "Prepared" means 5 Herbs, an Ether and a Feather with the 2-use cap.
 Gil should cover each region's gear by the time the next one opens, with
 no more than ~150 gil unspent (the old playtests left 300–400).
+
+#### Story pass (balance misses)
+
+Two small changes for the last pass's misses, re-simulated at the touch
+pace (2.2 s a piece) with `AREAS=caves2,forge PACE=2200 npm run sim`:
+30 runs a cell for Emberforge, 60 for the Wyrm (30 runs leave about ±9
+points of noise).
+
+- **Moon Wyrm**: a spell on a boss's weakness gets no weakness bonus
+  (`BOSS_SPELL_WEAKNESS_SHARE` 0: Fire and Gale hit the Wyrm ×1); weak
+  crystals keep `BOSS_WEAKNESS_SHARE` (75%). The crystal bonus now follows
+  the element chart rather than the spell multiplier, so it survives.
+- **Emberforge**: Cinder 150 → 140 HP; Forge Imp 165 → 150 HP, attack 12 → 11;
+  Magma Drake 250 → 210 HP, attack 13 → 12.
+
+| Fight       | Good (starter) | Good (full kit) | Prepared | Prepared (kit) | Singles  | Sloppy | Good: time  |
+| ----------- | -------------- | --------------- | -------- | -------------- | -------- | ------ | ----------- |
+| Cinder      | 70% → 73%      | 90% → 90%       | 80 → 83% | 80 → 80%       | 57 → 73% | 0%     | 78 → 75 s   |
+| Forge Imp   | 67% → 73%      | 77% → 80%       | 67 → 73% | 87 → 90%       | 50 → 57% | 0%     | 82 → 77 s   |
+| Magma Drake | 57% → 67%      | 67% → 73%       | 83 → 93% | 80 → 90%       | 43 → 57% | 0%     | 103 → 98 s  |
+| Moon Wyrm   | 20% → 20%      | 43% → 33%       | 40 → 28% | 57 → 38%       | 10 → 0%  | 0%     | 156 → 166 s |
+
+Tried on the way (30 runs each): spell share 0.25 (Wyrm G 20, K 37, P 33)
+and 0.1 (G 27, K 37, P 30); with weak crystals damped too, crystal share
+0.6 (G 13, K 37, P 33) and 0.5 (G 13, K 30, P 37), which push the starter
+row under 15%. The damping alone lands the full kit at 33%, just over the
+20–30% target, and the prepared bot falls to 28% (target 35–45%): the
+next lever is the Wyrm's own numbers, not its weakness. The Magma
+Drake's good bot (67%) is still just under 70%.
 
 ### Hero magic
 
@@ -616,21 +647,21 @@ glow of their element's colour at their feet; a **scroll** floats over a
 mentor who has a lesson for you. Talking to them lists their lessons as
 buttons (spell, level pips, kind, cost, difficulty as swords).
 
-| Mentor  | Element   | Why they teach                                 | Home region, landmark (trial foe)   | Route after home                                                                 | Moves every |
-| ------- | --------- | ---------------------------------------------- | ----------------------------------- | -------------------------------------------------------------------------------- | ----------- |
-| Torva   | Fire      | Her hands shake too much for the forge now     | Emberforge, old forge (Ember Wisp)  | Quarry, ridge road · Brightwater · Mossvale · Moon Caves¹                        | 4 wins      |
-| Maren   | Water     | The lake is clouding; she can't watch it alone | Glasswater Lake, jetty (Tide)       | Brightwater fountain · Grove pond · Mossvale                                     | 5 wins      |
-| Rook    | Lightning | Storms roll off the peaks faster every year    | Stormcrown Peaks, beacon (Spark)    | Cliff road · Realm, north-east · Brightwater · Moon Caves¹ · Depths²             | 3 wins      |
-| Hazel   | Nature    | Spores are choking her meadows                 | Thornwood Grove, old oak (Moss)     | Realm, west meadow · Mossvale · Lake meadow                                      | 6 wins      |
-| Dorn    | Earth     | The caves took his crew                        | Redrock Quarry, quarry lift (Stone) | Realm, tunnel gate · Emberforge ridge · Moon Caves¹ · Depths¹ · Brightwater      | 4 wins      |
-| Selene  | Arcane    | Something below drinks the moonlight           | Moonfall Ruins, moon tower (Moon)   | Cliff path · Brightwater · Depths¹                                               | 5 wins      |
-| Kestrel | Wind      | Her letters must reach every village           | Windward Cliffs, eyrie (Gale)       | Peaks, high pass · Realm, south road · Mossvale · Brightwater · Realm, east road | 3 wins      |
+| Mentor  | Element   | Why they teach                                 | Home region, landmark (trial foe)   | Route after home                                                                             | Moves every |
+| ------- | --------- | ---------------------------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------- | ----------- |
+| Torva   | Fire      | Her hands shake too much for the forge now     | Emberforge, old forge (Ember Wisp)  | Quarry, ridge road · Brightwater · Mossvale · Moon Caves¹                                    | 4 wins      |
+| Maren   | Water     | The lake is clouding; she can't watch it alone | Glasswater Lake, jetty (Tide)       | Brightwater fountain · Grove pond · Mossvale                                                 | 5 wins      |
+| Rook    | Lightning | Storms roll off the peaks faster every year    | Stormcrown Peaks, beacon (Spark)    | Cliff road · Sevenstones, north-east · Brightwater · Moon Caves¹ · Depths²                   | 3 wins      |
+| Hazel   | Nature    | Spores are choking her meadows                 | Thornwood Grove, old oak (Moss)     | Sevenstones, west meadow · Mossvale · Lake meadow                                            | 6 wins      |
+| Dorn    | Earth     | The caves took his crew                        | Redrock Quarry, quarry lift (Stone) | Sevenstones, tunnel gate · Emberforge ridge · Moon Caves¹ · Depths¹ · Brightwater            | 4 wins      |
+| Selene  | Arcane    | Something below drinks the moonlight           | Moonfall Ruins, moon tower (Moon)   | Cliff path · Brightwater · Depths¹                                                           | 5 wins      |
+| Kestrel | Wind      | Her letters must reach every village           | Windward Cliffs, eyrie (Gale)       | Peaks, high pass · Sevenstones, south road · Mossvale · Brightwater · Sevenstones, east road | 3 wins      |
 
 Every mentor lives in their own region (see [World and regions](#world-and-regions))
 and travels to the neighbouring region and the starter towns, so each has
 a stop a brand-new hero can walk to (the tests check it): a class mentor
 whose home is still behind a gate comes through Brightwater, Mossvale or
-the Realm within a few wins. While a mentor is at home behind a gate the
+Sevenstones within a few wins. While a mentor is at home behind a gate the
 hero hasn't opened, the lock hint still names the place; a mentor who
 noticed a feat waits at the nearest stop the hero can actually reach
 (`mapDistance` skips warps still locked to the hero).
@@ -989,7 +1020,7 @@ vision and after the Wyrm falls, and never stands on the hero's tile.
 
 | Stop | Where                                  | After              | Challenge                    | Reward                             |
 | ---- | -------------------------------------- | ------------------ | ---------------------------- | ---------------------------------- |
-| 1    | The Realm, the road out of Mossvale    | Vision 1           | Puzzle: two O pieces, 2 rows | Moon Shard, `lore:vesper.road`     |
+| 1    | Sevenstones, the road out of Mossvale  | Vision 1           | Puzzle: two O pieces, 2 rows | Moon Shard, `lore:vesper.road`     |
 | 2    | Redrock Quarry, by the ridge road      | Vision 2           | Offering: a Herb (600 pts)   | Moon Shard, `lore:vesper.ridge`    |
 | 3    | Stormcrown Peaks, the west road        | Vision 3           | Puzzle: O then I, 3 rows     | Moon Shard, `lore:vesper.peaks`    |
 | 4    | Moonfall Ruins, by the Moon Caves seal | reaching the ruins | Offering: an Ether (900 pts) | 2 Moon Shards, `lore:vesper.ruins` |
@@ -1117,23 +1148,29 @@ level 1 to about 13.
 
 "Why is everyone in the same area?" The realm was five small maps sharing
 every person and monster. Each mentor now has a **home region** with its
-own map, monsters, people and landmark, joined to the Realm (the hub, which
+own map, monsters, people and landmark, joined to Sevenstones (the hub, which
 gained road exits west, east and south) or to the region before it.
+
+**Sevenstones** is the hub's name (it was "The Realm"): seven standing
+mana crystals ring it, one per element. The name is one data field (the
+overworld's `name` in `src/data/maps.ts`), shown on arrival, in the
+mentors' whereabouts ("Sevenstones · west meadow") and wherever a place is
+named.
 Regions keep a level band (`REGIONS` in `src/data/balance.ts`; their
 monsters grow at most 2 levels with the hero) and tilt the bag toward
 their element.
 
-| #   | Region (map)                     | Mentor, landmark   | Monster levels | Monsters                                   | People                                            | Reached from                                      | Gate                      |
-| --- | -------------------------------- | ------------------ | -------------- | ------------------------------------------ | ------------------------------------------------- | ------------------------------------------------- | ------------------------- |
-| 0   | The Realm, Mossvale, Brightwater | (visits)           | 1–3            | Slime, Spore Shroom, Goblin Scout          | the old cast                                      | start                                             | —                         |
-| 1   | Thornwood Grove (`grove`)        | Hazel, old oak     | 2–4            | Sproutling, Leaf Sprite, Thorn Troll       | Forager Wren                                      | Realm, west road                                  | —                         |
-| 2   | Glasswater Lake (`lake`)         | Maren, jetty       | 3–5            | Drip, Lake Lurker, Tide Ogre               | Fisher Tam                                        | Realm, east road                                  | —                         |
-| 3   | Redrock Quarry (`quarry`)        | Dorn, quarry lift  | 4–6            | Goblin Digger, Quarry Hound, Stone Ogre    | Foreman Brann                                     | Realm, south road                                 | —                         |
-| 4   | Emberforge (`forge`)             | Torva, old forge   | 5–7            | Cinder, Forge Imp, Magma Drake             | Apprentice Cinda, Armorer Garrick, Innkeeper Rosa | quarry, ridge road                                | `ridgeCleared` (Brann)    |
-| 5   | Stormcrown Peaks (`peaks`)       | Rook, storm beacon | 6–8            | Spark Pup, Storm Goblin, Thunderhide       | Beacon Keeper Ysolde                              | Realm, the tunnel north-east (once the cave seal) | `peakGate` (Cinda)        |
-| 6   | Windward Cliffs (`cliffs`)       | Kestrel, eyrie     | 7–9            | Puffball, Gale Bat, Sky Ram                | Courier Finch, Warden Ada (inn)                   | peaks, west                                       | —                         |
-| 7   | Moonfall Ruins (`ruins`)         | Selene, moon tower | 8–10           | Watcher, Night Bat, Gloom Toad             | Scholar Ivo                                       | cliffs, south-west                                | —                         |
-| 8   | Moon Caves, Depths               | (visits)           | 10–11, Wyrm 13 | Moon Imp, Shade Imp, Cave Brute, Moon Wyrm | Cave Hermit, Sealed Chest                         | ruins, cave mouth                                 | `cavePass` (Captain Vale) |
+| #   | Region (map)                       | Mentor, landmark   | Monster levels | Monsters                                   | People                                            | Reached from                                            | Gate                      |
+| --- | ---------------------------------- | ------------------ | -------------- | ------------------------------------------ | ------------------------------------------------- | ------------------------------------------------------- | ------------------------- |
+| 0   | Sevenstones, Mossvale, Brightwater | (visits)           | 1–3            | Slime, Spore Shroom, Goblin Scout          | the old cast                                      | start                                                   | —                         |
+| 1   | Thornwood Grove (`grove`)          | Hazel, old oak     | 2–4            | Sproutling, Leaf Sprite, Thorn Troll       | Forager Wren                                      | Sevenstones, west road                                  | —                         |
+| 2   | Glasswater Lake (`lake`)           | Maren, jetty       | 3–5            | Drip, Lake Lurker, Tide Ogre               | Fisher Tam                                        | Sevenstones, east road                                  | —                         |
+| 3   | Redrock Quarry (`quarry`)          | Dorn, quarry lift  | 4–6            | Goblin Digger, Quarry Hound, Stone Ogre    | Foreman Brann                                     | Sevenstones, south road                                 | —                         |
+| 4   | Emberforge (`forge`)               | Torva, old forge   | 5–7            | Cinder, Forge Imp, Magma Drake             | Apprentice Cinda, Armorer Garrick, Innkeeper Rosa | quarry, ridge road                                      | `ridgeCleared` (Brann)    |
+| 5   | Stormcrown Peaks (`peaks`)         | Rook, storm beacon | 6–8            | Spark Pup, Storm Goblin, Thunderhide       | Beacon Keeper Ysolde                              | Sevenstones, the tunnel north-east (once the cave seal) | `peakGate` (Cinda)        |
+| 6   | Windward Cliffs (`cliffs`)         | Kestrel, eyrie     | 7–9            | Puffball, Gale Bat, Sky Ram                | Courier Finch, Warden Ada (inn)                   | peaks, west                                             | —                         |
+| 7   | Moonfall Ruins (`ruins`)           | Selene, moon tower | 8–10           | Watcher, Night Bat, Gloom Toad             | Scholar Ivo                                       | cliffs, south-west                                      | —                         |
+| 8   | Moon Caves, Depths                 | (visits)           | 10–11, Wyrm 13 | Moon Imp, Shade Imp, Cave Brute, Moon Wyrm | Cave Hermit, Sealed Chest                         | ruins, cave mouth                                       | `cavePass` (Captain Vale) |
 
 - **Gates are people, never items**: each flag comes from an `essential`
   NPC (they deal even when Hostile) in a region the hero can already
@@ -1142,7 +1179,7 @@ their element.
   warp says who holds the key.
 - **Inns** in Brightwater, Emberforge and the cliffs' lodge; Emberforge's
   armory sells the next gear tier (Flame Brand, Forge Plate).
-- **Moved**: the Moon Caves' entrance moved from the Realm into the
+- **Moved**: the Moon Caves' entrance moved from Sevenstones into the
   Moonfall Ruins, and the old cave seal is now the tunnel gate to the
   peaks. Old saves load as they were (the caves' way out now leads to the
   ruins); a saved spot that is no longer walkable sends the hero to their
