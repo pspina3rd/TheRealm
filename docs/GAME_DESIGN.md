@@ -482,9 +482,11 @@ keyboard pace (1.5 s). Misses: Emberforge's good bot (67–73% after the
 story pass, from 57–70%), the ruins' singles (20% against the healing Gloom
 Toad), prepared below 90% in the early regions (the 2-use cap leaves one
 Herb after the Ether), touch fights running 10–40 s longer than the
-length targets (keyboard fights sit inside them), the Wyrm's prepared bot
-after the story pass (28%), its full kit still a little high (33%), and the Ember and Gale Wisps' first
-lessons for the sloppy bot (27%).
+length targets (keyboard fights sit inside them), the Wyrm after the
+story pass (prepared 28% against 35–45%, full kit 33% against 20–30%,
+singles 0% (from 10%) against 5–15%; not tuned further, since the Wyrm's
+role changes in the planned second half, which gets its own balance pass),
+and the Ember and Gale Wisps' first lessons for the sloppy bot (27%).
 
 "Prepared" means 5 Herbs, an Ether and a Feather with the 2-use cap.
 Gil should cover each region's gear by the time the next one opens, with
@@ -740,15 +742,15 @@ revealed, its element's mentor teaches it (difficulty one above the usual:
 2, or 3 for Volcano). Code: `hidden` on the spell (`src/data/spells.ts`),
 `src/game/hidden.ts` and `src/game/feats.ts`.
 
-| Spell          | Element   | Kind               | Cost            | Effect                                                       | Unlock    | Condition (for developers)                                    |
-| -------------- | --------- | ------------------ | --------------- | ------------------------------------------------------------ | --------- | ------------------------------------------------------------- |
-| Volcano        | Fire      | Combo (fire+earth) | 6 fire, 6 earth | Clears the bottom 3 rows, 40 fire damage (no level bonus)    | Alignment | Fire 4 and earth 4                                            |
-| Purify         | Water     | Support            | 5 water         | Every stone on the board becomes a water crystal             | Quest     | Shrine Keeper Ilse's barter in Brightwater (`shrineRestored`) |
-| Ball Lightning | Lightning | Support            | 6 lightning     | 2 damage per lightning crystal on the board (no level bonus) | Pattern   | 2 pure lightning lines over the hero's life                   |
-| Bloom          | Nature    | Support            | 7 nature        | Heals 6 after each of the next 8 pieces                      | Item      | Bring a Spore Cap to Hazel                                    |
-| Fault Line     | Earth     | Support            | 5 earth         | For 4 pieces every element strikes as a weakness             | Stat      | Insight 5                                                     |
-| Eclipse        | Arcane    | Support            | 9 arcane        | 36 damage, heals all of it                                   | Item      | Bring a Moon Shard to Selene                                  |
-| Tempest        | Wind      | Support            | 7 wind          | 34 damage, tailwind 8 (cancels haste)                        | Pattern   | A clear of 2+ lines at once under the enemy's haste           |
+| Spell          | Element   | Kind               | Cost            | Effect                                                                                 | Unlock    | Condition (for developers)                                    |
+| -------------- | --------- | ------------------ | --------------- | -------------------------------------------------------------------------------------- | --------- | ------------------------------------------------------------- |
+| Volcano        | Fire      | Combo (fire+earth) | 6 fire, 6 earth | Clears the bottom 3 rows, 40 fire damage (no level bonus)                              | Alignment | Fire 4 and earth 4                                            |
+| Purify         | Water     | Support            | 5 water         | Every stone on the board becomes a water crystal                                       | Quest     | Shrine Keeper Ilse's barter in Brightwater (`shrineRestored`) |
+| Ball Lightning | Lightning | Support            | 6 lightning     | 2 damage per lightning crystal on the board (no level bonus)                           | Pattern   | 2 pure lightning lines over the hero's life                   |
+| Bloom          | Nature    | Support            | 7 nature        | Heals 6 after each of the next 8 pieces                                                | Item      | Bring a Spore Cap to Hazel                                    |
+| Fault Line     | Earth     | Support            | 5 earth         | For 4 pieces every element strikes as a weakness (on a boss: crystals only, spells ×1) | Stat      | Insight 5                                                     |
+| Eclipse        | Arcane    | Support            | 9 arcane        | 36 damage, heals all of it                                                             | Item      | Bring a Moon Shard to Selene                                  |
+| Tempest        | Wind      | Support            | 7 wind          | 34 damage, tailwind 8 (cancels haste)                                                  | Pattern   | A clear of 2+ lines at once under the enemy's haste           |
 
 - **Silhouettes**: until revealed, a hidden spell's slot is a dark
   silhouette of its element with a faint hint of what kind of thing
@@ -962,7 +964,9 @@ win, …) has been said (`GameState.talk`, saved), and the n-th time says
 variant n mod count (`src/game/lines.ts`). So a character with two or more
 variants never says the same sentence twice running, and the order is the
 same in every game (deterministic, no dice). One character met as several
-NPCs (Vesper) shares one count through `NpcDef.voice`.
+NPCs (Vesper) shares one count through `NpcDef.voice`, and the Moon
+Wyrm's visions and lair words share one rotation (the `wyrm` voice), so
+its variants alternate across all of them.
 
 - **Moods**: a line is either one cell for everyone or a cell per mood:
   cold (Hostile, Wary), plain (Neutral), warm (Friendly, Devoted). The
@@ -975,27 +979,38 @@ NPCs (Vesper) shares one count through `NpcDef.voice`.
   a stage direction keeps them, since they part speech from narration.
   "You succeed, already knowing the spell" is the `winKnown` line.
 - **Cells the rules can't reach yet**: confidences are said only when
-  Devoted (so their warm cell) and refusals only when Hostile (their cold
-  cell); the other cells are kept verbatim for the author. Farmer Bea's
-  "Afterwards" row is kept too, though she can be helped again and again,
-  so her done line never shows.
+  Devoted, so only their warm cell is ever shown (the cold and plain
+  "Confides" cells never are), and refusals only when Hostile, so only
+  their cold cell is (the plain and warm "Refuses" cells never are). They
+  are kept verbatim for the author. Farmer Bea's "Afterwards" row is kept
+  too, though she can be helped again and again, so her done line never
+  shows.
+- **Said, not offered**: an NPC's accept and decline lines are both ready
+  when the challenge is offered, but only the one the hero hears is
+  counted, so declining twice in a row hears two different lines.
 
 ### Stage directions
 
 Text wrapped in `*…*` is narration, not speech: `parseStage` splits a line
 into speech and stage runs, and the UI draws stage runs as italic
 narration (`em.stage`) in conversations, the map banner, the battle
-banner (drawn on the canvas, wrapping long lines) and interludes. A lone
-asterisk stays as written. Emphasis in speech (Elder Rowan's "purple
-_and_ full of gravel") reads as italic too.
+banner (drawn on the canvas, wrapping long lines) and interludes. A
+stage direction opens with `*` at the start of the line or after a space
+and closes with `*` before a space, punctuation or the end, with no space
+just inside either asterisk; anything else (`5 * 3 * 2`, `**bold**`, a
+lone asterisk) stays as written. Single-word emphasis in speech (Elder
+Rowan's "purple \*and\* full of gravel") matches the same rule, so it
+renders in italics exactly like narration.
 
 ### The Moon Wyrm's visions
 
 Three visions, each shown once as an **interlude**: the screen goes dark
 and the Wyrm speaks, a stage direction and a line. A tap, Enter or
-Continue dismisses it after a 350 ms guard, so keys or taps still held
-from walking can't skip it. `src/game/story.ts` decides them from the warp
-just taken (pure, tested) and records each as a flag:
+Continue (or Escape) dismisses it after a 350 ms guard, so keys or taps
+still held from walking can't skip it. `src/game/story.ts` decides them
+from the warp just taken (pure, tested) and records each as a flag; a
+shown vision is also `pending:<vision>` until dismissed, so a game closed
+on a vision shows it again on the next load:
 
 | Vision | Shown on the first warp…        | Flag       |
 | ------ | ------------------------------- | ---------- |
@@ -1008,7 +1023,8 @@ voice, visions and lair alike, so its two variants alternate.
 
 **The lair**: bumping the Moon Wyrm shows its lair words as an interlude
 first (`PRELUDES` in `src/data/story.ts`, rotating each time), and the
-fight starts when it is dismissed.
+fight starts when it is dismissed, by tap, Enter, Continue or Escape alike:
+once the Wyrm has spoken there is no backing away.
 
 ### Vesper, Thrall of the Depths
 
@@ -1035,13 +1051,17 @@ and are kept for the story to build on.
 
 ### Saves
 
-Save version 8 adds the line memory (`talk`). An older save starts every
-speaker at their first variant, and marks story beats it is already past:
-the map it stands on counts as reached; Vision 1 counts as seen once the
-hero has left Mossvale or done anything; Visions 2 and 3 and the ruins
-count once the hero stands in or beyond the quarry, the peaks or the ruins
-(all of them once the Wyrm has fallen). So an old save is never shown a
-vision out of order, and Vesper waits where its story stands.
+Save version 8 adds the line memory (`talk`; only whole counts of 0 or
+more are kept). An older save starts every speaker at their first
+variant, and marks the story steps it is already past, by the map it
+stands on or by its progress flags: Vision 1 once the hero has left
+Mossvale or done anything; Vision 2 (and the quarry reached) in the
+quarry or Emberforge, or with the ridge cleared; Vision 3 (and the peaks)
+on the peaks or the cliffs, or with the peak gate's key; the ruins in the
+ruins or the caves, or with the Cave Pass, the Sunken Ruins open or the
+Wyrm beaten. Each step implies every step before it, so an old save made
+on the hub late in the game is never shown a vision out of order, and
+Vesper waits where its story stands.
 
 ## Enemy roster
 

@@ -67,8 +67,9 @@ export const RESIST_MULTIPLIER = 0.5;
  */
 export const WEAK_CRYSTAL_BONUS = 0.5;
 /**
- * Bosses shrug off part of a weakness: they take this share of its bonus
- * (×1.375 instead of ×1.5; a weak crystal adds 37.5% instead of 50%).
+ * Bosses shrug off part of a weak crystal's bonus: they take this share
+ * of it (a weak crystal adds 37.5% instead of 50%). Spells on a boss's
+ * weakness have their own share, `BOSS_SPELL_WEAKNESS_SHARE`.
  */
 export const BOSS_WEAKNESS_SHARE = 0.75;
 /**
