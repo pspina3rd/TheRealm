@@ -49,6 +49,28 @@ describe('bindPress', () => {
     expect(presses()).toBe(3);
   });
 
+  it('acts once however long the press is held before its click', () => {
+    vi.useFakeTimers();
+    try {
+      const { node, presses } = pressable();
+      fire(node, 'pointerdown');
+      vi.advanceTimersByTime(5000);
+      fire(node, 'pointerup');
+      fire(node, 'click', 0);
+      expect(presses()).toBe(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('acts on a keyboard press after a pointer press that never clicked', () => {
+    const { node, presses } = pressable();
+    fire(node, 'pointerdown'); // the finger slid off: no click follows
+    node.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+    fire(node, 'click', 0);
+    expect(presses()).toBe(2);
+  });
+
   it('ignores presses on a disabled button', () => {
     const { node, presses } = pressable();
     node.disabled = true;
