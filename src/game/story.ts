@@ -34,23 +34,45 @@ export function visionOnWarp(
   return due ?? null;
 }
 
-/** An interlude to show over the map: the speaker's words, stage directions and all. */
+/** A vision to show over the map: which one (to dismiss it) and the Wyrm's words. */
 export interface Interlude {
   readonly id: string;
   readonly text: string;
 }
 
+/** Set while a shown vision is still on screen, so a reload shows it again. */
+export function pendingFlag(visionId: string): string {
+  return `pending:${visionId}`;
+}
+
+function interludeOf(state: GameState, vision: VisionDef): Interlude {
+  return { id: vision.id, text: pickVariant(variantsOf(vision.lines), state.talk, WYRM_VOICE) };
+}
+
 /**
  * Records arriving on the current map from `from` (a warp): marks the map
- * reached and any due vision seen, and returns that vision as an
- * interlude, its words rotated under the Wyrm's voice.
+ * reached and any due vision seen (and pending until dismissed), and
+ * returns that vision as an interlude, its words rotated under the Wyrm's
+ * voice.
  */
 export function arrive(state: GameState, from: string): Interlude | null {
   state.flags.add(reachedFlag(state.mapId));
   const vision = visionOnWarp(from, state.mapId, state.flags);
   if (!vision) return null;
   state.flags.add(vision.flag);
-  return { id: vision.id, text: pickVariant(variantsOf(vision.lines), state.talk, WYRM_VOICE) };
+  state.flags.add(pendingFlag(vision.id));
+  return interludeOf(state, vision);
+}
+
+/** The vision shown but never dismissed (the game was closed on it), to show again. */
+export function pendingVision(state: GameState): Interlude | null {
+  const vision = VISIONS.find((v) => state.flags.has(pendingFlag(v.id)));
+  return vision ? interludeOf(state, vision) : null;
+}
+
+/** The hero dismissed the vision. */
+export function dismissVision(state: GameState, visionId: string): void {
+  state.flags.delete(pendingFlag(visionId));
 }
 
 /** What a monster says before its fight (the Wyrm in its lair), rotated; null for most. */
@@ -79,24 +101,44 @@ export function vesperEntities(state: Pick<GameState, 'flags' | 'mapId' | 'x' | 
     : [];
 }
 
-/** Maps a hero is past each vision on, for old saves (see `migrateStory`). */
-const PAST: Readonly<Record<string, readonly string[]>> = {
-  'vision:2': ['quarry', 'forge', 'peaks', 'cliffs', 'ruins', 'caves1', 'caves2'],
-  'vision:3': ['peaks', 'cliffs', 'ruins', 'caves1', 'caves2'],
-  [reachedFlag('ruins')]: ['ruins', 'caves1', 'caves2'],
-};
+/**
+ * The story's steps in order, for old saves (see `migrateStory`): the flags
+ * a step sets, the maps that show the hero is past it and the progress
+ * flags that prove it.
+ */
+const STEPS: readonly {
+  readonly sets: readonly string[];
+  readonly maps: readonly string[];
+  readonly proof: readonly string[];
+}[] = [
+  { sets: ['vision:1'], maps: [], proof: [] },
+  {
+    sets: ['vision:2', reachedFlag('quarry')],
+    maps: ['quarry', 'forge'],
+    proof: ['ridgeCleared'],
+  },
+  { sets: ['vision:3', reachedFlag('peaks')], maps: ['peaks', 'cliffs'], proof: ['peakGate'] },
+  {
+    sets: [reachedFlag('ruins')],
+    maps: ['ruins', 'caves1', 'caves2'],
+    proof: ['cavePass', 'ruinsOpen', FINALE_FLAG, 'defeated:c2-wyrm'],
+  },
+];
 
 /**
- * Story flags for a save from before the story beats (version 8): the
- * map the hero stands on counts as reached, and every vision whose place
- * they are already past counts as seen (the first, once they have left
- * Mossvale or done anything at all), so an old save is never shown a
- * vision out of order and Vesper waits where their story stands.
+ * Story flags for a save from before the story beats (version 8). The
+ * furthest step the hero is past (by the map they stand on or a progress
+ * flag: the ridge cleared, the peak gate's key, the Cave Pass, the Wyrm
+ * beaten) counts as seen, with every step before it; the first counts once
+ * they have left Mossvale or done anything at all. So an old save is never
+ * shown a vision out of order, and Vesper waits where their story stands.
  */
 export function migrateStory(flags: Set<string>, mapId: string, victories: number): void {
   const begun = mapId !== 'mossvale' || victories > 0 || flags.size > 0;
+  const past = (step: (typeof STEPS)[number]): boolean =>
+    step.maps.includes(mapId) || step.proof.some((flag) => flags.has(flag));
+  const furthest = STEPS.reduce((best, step, i) => (past(step) ? i : best), -1);
+  const reached = Math.max(furthest, begun ? 0 : -1);
   if (MAPS[mapId]) flags.add(reachedFlag(mapId));
-  if (begun) flags.add('vision:1');
-  for (const [flag, maps] of Object.entries(PAST)) if (maps.includes(mapId)) flags.add(flag);
-  if (flags.has(FINALE_FLAG)) for (const flag of Object.keys(PAST)) flags.add(flag);
+  for (const step of STEPS.slice(0, reached + 1)) for (const flag of step.sets) flags.add(flag);
 }

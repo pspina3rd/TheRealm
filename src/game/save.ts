@@ -104,7 +104,7 @@ export function deserialize(json: string): GameState | null {
     // Before version 6 wins were not counted: every mentor starts at home.
     victories,
     // Before version 8 no line had rotated: everyone starts at their first variant.
-    talk: data.talk && typeof data.talk === 'object' ? { ...data.talk } : {},
+    talk: validTalk(data.talk),
   };
 }
 
@@ -133,6 +133,16 @@ function standable(at: Location): boolean {
     tileAt(map, at.x, at.y).walkable &&
     !warpAt(map, at.x, at.y) &&
     !map.entities.some((e) => e.x === at.x && e.y === at.y)
+  );
+}
+
+/** The saved line memory, keeping only counts that are whole numbers of 0 or more. */
+function validTalk(talk: unknown): Record<string, number> {
+  if (!talk || typeof talk !== 'object') return {};
+  return Object.fromEntries(
+    Object.entries(talk).filter(
+      (entry): entry is [string, number] => Number.isSafeInteger(entry[1]) && entry[1] >= 0,
+    ),
   );
 }
 

@@ -7,7 +7,7 @@ import type { ChallengeSpec } from '../data/types';
 import type { Attitude } from '../game/attitude';
 import type { Epilogue } from '../game/ending';
 import { describeInteraction, entitySprite, reply, resolveBattle } from '../game/encounter';
-import { arrive } from '../game/story';
+import { arrive, dismissVision, pendingVision, type Interlude } from '../game/story';
 import { bringItems, hiddenSlots, itemsFor } from '../game/hidden';
 import type { Gain } from '../game/rewards';
 import { ITEMS } from '../data/items';
@@ -175,6 +175,11 @@ export class App {
     this.renderHud();
     this.say(currentMap(this.state).name);
     if (!this.started) this.chooseClass();
+    else {
+      // A vision the game was closed on shows again.
+      const pending = pendingVision(this.state);
+      if (pending) this.showVision(pending);
+    }
     requestAnimationFrame((t) => this.frame(t));
   }
 
@@ -273,7 +278,7 @@ export class App {
         const vision = arrive(this.state, from);
         this.save();
         this.renderHud();
-        if (vision) this.showInterlude('A vision', vision.text);
+        if (vision) this.showVision(vision);
         break;
       }
       case 'locked':
@@ -393,10 +398,21 @@ export class App {
     });
   }
 
+  /** A vision of the Moon Wyrm; once dismissed it never shows again. */
+  private showVision(vision: Interlude): void {
+    this.showInterlude('A vision', vision.text, () => {
+      dismissVision(this.state, vision.id);
+      this.save();
+      this.dialog.close();
+    });
+  }
+
   /**
    * An interlude over everything: the screen goes dark for a vision or a
-   * boss's words. A tap, Enter or Continue goes on (to `then`, or back to
-   * the map), but not in the first moments, so held keys or taps can't skip it.
+   * boss's words. A tap, Enter, Escape or Continue goes on (to `then`, or
+   * back to the map), but not in the first moments, so held keys or taps
+   * can't skip it. Before the Wyrm's fight even Escape goes on to the fight:
+   * once it has spoken there is no backing away.
    */
   private showInterlude(title: string, text: string, then?: () => void): void {
     this.stopRoute();

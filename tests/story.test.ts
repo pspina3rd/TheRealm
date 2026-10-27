@@ -22,6 +22,8 @@ import { SAVE_VERSION, deserialize, serialize } from '../src/game/save';
 import { newKnownSpell } from '../src/game/spells';
 import {
   arrive,
+  dismissVision,
+  pendingVision,
   migrateStory,
   preludeFor,
   vesperEntities,
@@ -158,13 +160,21 @@ describe('the Moon Wyrm’s visions', () => {
     travel(state, { map: 'overworld', x: 5, y: 6 });
     const first = arrive(state, 'mossvale');
     expect(first).toEqual({ id: 'vision1', text: variantsOf(VISIONS[0]!.lines)[0] });
+    expect(state.flags).toEqual(new Set([reachedFlag('overworld'), 'vision:1', 'pending:vision1']));
+    // Closed on the vision, the game shows it again (the Wyrm's next words); dismissed, never.
+    expect(pendingVision(state)).toEqual({
+      id: 'vision1',
+      text: variantsOf(VISIONS[0]!.lines)[1],
+    });
+    dismissVision(state, 'vision1');
+    expect(pendingVision(state)).toBeNull();
     expect(state.flags).toEqual(new Set([reachedFlag('overworld'), 'vision:1']));
     travel(state, { map: 'mossvale', x: 9, y: 13 });
     expect(arrive(state, 'overworld')).toBeNull();
     travel(state, { map: 'overworld', x: 5, y: 6 });
     expect(arrive(state, 'mossvale')).toBeNull();
     travel(state, { map: 'quarry', x: 16, y: 1 });
-    expect(arrive(state, 'overworld')?.text).toBe(variantsOf(VISIONS[1]!.lines)[1]);
+    expect(arrive(state, 'overworld')?.text).toBe(variantsOf(VISIONS[1]!.lines)[0]);
   });
 
   it('speaks in the lair before the fight, rotating, and nowhere else', () => {
@@ -295,9 +305,10 @@ describe('save version 8 (story)', () => {
     const loaded = deserialize(serialize(state))!;
     expect(loaded.talk).toEqual({ 'elder.intro': 3 });
     expect(loaded.flags.has('vision:1')).toBe(true);
-    expect(deserialize(JSON.stringify({ ...JSON.parse(serialize(state)), talk: 5 }))!.talk).toEqual(
-      {},
-    );
+    const withTalk = (talk: unknown) =>
+      deserialize(JSON.stringify({ ...JSON.parse(serialize(state)), talk }))!.talk;
+    expect(withTalk(5)).toEqual({});
+    expect(withTalk({ a: 2, b: -1, c: 1.5, d: 'x', e: 1e20, f: 0 })).toEqual({ a: 2, f: 0 });
   });
 
   it('shows a fresh old save every vision, but none an old save is already past', () => {
@@ -317,7 +328,35 @@ describe('save version 8 (story)', () => {
     const flags = new Set([FINALE_FLAG]);
     migrateStory(flags, 'unknownMap', 0);
     expect(flags).toEqual(
-      new Set([FINALE_FLAG, 'vision:1', 'vision:2', 'vision:3', reachedFlag('ruins')]),
+      new Set([
+        FINALE_FLAG,
+        'vision:1',
+        'vision:2',
+        'vision:3',
+        reachedFlag('quarry'),
+        reachedFlag('peaks'),
+        reachedFlag('ruins'),
+      ]),
     );
+  });
+
+  it('reads progress flags, not just the map, so a late save on the hub stays in order', () => {
+    const onHub = (...flags: string[]) => {
+      const state = newGame();
+      travel(state, { map: 'overworld', x: 5, y: 6 });
+      for (const flag of flags) state.flags.add(flag);
+      return old(state).flags;
+    };
+    const gate = onHub('ridgeCleared', 'peakGate');
+    for (const flag of ['vision:1', 'vision:2', 'vision:3', reachedFlag('peaks')]) {
+      expect(gate.has(flag), flag).toBe(true);
+    }
+    expect(gate.has(reachedFlag('ruins'))).toBe(false);
+    expect(vesperStop(gate)?.npcId).toBe('vesperPeaks');
+    // No vision is left to play out of order.
+    expect(visionOnWarp('overworld', 'quarry', gate)).toBeNull();
+    expect(vesperStop(onHub('ridgeCleared'))?.npcId).toBe('vesperRidge');
+    expect(vesperStop(onHub('cavePass'))?.npcId).toBe('vesperRuins');
+    expect(onHub('cavePass').has('vision:3')).toBe(true);
   });
 });
