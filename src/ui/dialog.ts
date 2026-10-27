@@ -77,8 +77,44 @@ export class Dialog {
       this.onCancel();
     });
     this.root.addEventListener('close', () => {
+      this.settle();
       if (this.closingByCode) this.closingByCode = false;
       else this.onCancel();
+    });
+  }
+
+  /**
+   * After closing: no interlude look left behind (a closed interlude must
+   * never cover the map), no tap action, and no focus on a hidden button,
+   * where a later Enter (say, in battle) would press it.
+   */
+  private settle(): void {
+    this.root.classList.remove('interlude');
+    this.tapAction = null;
+    const focused = document.activeElement;
+    if (focused instanceof HTMLElement && this.root.contains(focused)) focused.blur();
+  }
+
+  /**
+   * An interlude: the screen goes dark with `body`, and a tap, Enter,
+   * Escape or Continue calls `onDone`, once only and not within `guardMs`,
+   * so keys or taps still held can't skip it or run it twice.
+   */
+  showInterlude(title: string, body: readonly Node[], onDone: () => void, guardMs: number): void {
+    const shown = performance.now();
+    let done = false;
+    const go = (): void => {
+      if (done || performance.now() - shown < guardMs) return;
+      done = true;
+      onDone();
+    };
+    this.show({
+      title,
+      body,
+      actions: [{ label: 'Continue', onClick: go }],
+      onCancel: go,
+      guardMs,
+      interlude: true,
     });
   }
 
@@ -120,5 +156,6 @@ export class Dialog {
     if (!this.root.open) return;
     this.closingByCode = true;
     this.root.close();
+    this.settle();
   }
 }

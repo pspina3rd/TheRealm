@@ -1491,7 +1491,7 @@ em.stage {
 }
 
 /* An interlude (the Wyrm's visions and lair): the whole screen goes dark. */
-dialog.interlude {
+dialog.interlude[open] {
   width: 100vw;
   max-width: 100vw;
   height: 100vh;

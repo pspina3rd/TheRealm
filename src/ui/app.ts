@@ -416,23 +416,15 @@ export class App {
    */
   private showInterlude(title: string, text: string, then?: () => void): void {
     this.stopRoute();
-    const shown = performance.now();
-    const go = (): void => {
-      if (performance.now() - shown < RESULT_GUARD_MS) return;
-      if (then) then();
-      else this.dialog.close();
-    };
-    this.dialog.show({
+    this.dialog.showInterlude(
       title,
-      body: [
+      [
         el('p', { className: 'interlude-text' }, ...lineNodes(text)),
         el('p', { className: 'interlude-hint', text: 'Tap or press Enter' }),
       ],
-      actions: [{ label: 'Continue', onClick: go }],
-      onCancel: go,
-      guardMs: RESULT_GUARD_MS,
-      interlude: true,
-    });
+      then ?? (() => this.dialog.close()),
+      RESULT_GUARD_MS,
+    );
   }
 
   // --------------------------------------------------------- battles ---
