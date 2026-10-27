@@ -6,7 +6,7 @@ import { ENEMIES } from '../data/enemies';
 import type { ChallengeSpec } from '../data/types';
 import type { Attitude } from '../game/attitude';
 import type { Epilogue } from '../game/ending';
-import { describeInteraction, entitySprite, resolveBattle } from '../game/encounter';
+import { describeInteraction, entitySprite, reply, resolveBattle } from '../game/encounter';
 import { arrive } from '../game/story';
 import { bringItems, hiddenSlots, itemsFor } from '../game/hidden';
 import type { Gain } from '../game/rewards';
@@ -373,7 +373,10 @@ export class App {
           label: 'Leave',
           onClick: () => {
             this.dialog.close();
-            if (interaction.replies) this.say(interaction.replies.decline);
+            if (interaction.replies) {
+              this.say(reply(this.state, interaction.replies, 'decline'));
+              this.save();
+            }
           },
         },
         {
@@ -382,7 +385,7 @@ export class App {
             this.startBattle(
               entity,
               interaction.spec,
-              interaction.replies?.accept,
+              interaction.replies && reply(this.state, interaction.replies, 'accept'),
               interaction.terms,
             ),
         },

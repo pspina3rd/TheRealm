@@ -159,8 +159,14 @@ export function moodFor(attitude: Attitude): Mood {
  * A line for this attitude. With a `memory`, the variant rotates under
  * `key` (see `src/game/lines.ts`); without, the first variant is said.
  */
-export function say(line: Line, attitude: Attitude, memory?: LineMemory, key?: string): string {
-  return speak(line, moodFor(attitude), memory, key);
+export function say(
+  line: Line,
+  attitude: Attitude,
+  memory?: LineMemory,
+  key?: string,
+  commit = true,
+): string {
+  return speak(line, moodFor(attitude), memory, key, commit);
 }
 
 /** The key an NPC's moment rotates under: their voice (shared by one character's several NPCs). */

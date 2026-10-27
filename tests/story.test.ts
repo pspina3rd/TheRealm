@@ -7,7 +7,7 @@ import { NPCS } from '../src/data/npcs';
 import { SPELLS } from '../src/data/spells';
 import { PRELUDES, VESPER_LINES, VESPER_ROUTE, VISIONS, reachedFlag } from '../src/data/story';
 import { attitudeOf } from '../src/game/attitude';
-import { describeInteraction, resolveBattle } from '../src/game/encounter';
+import { describeInteraction, reply, resolveBattle } from '../src/game/encounter';
 import { FINALE_FLAG } from '../src/game/ending';
 import { addItem, itemCount, removeItem } from '../src/game/hero';
 import {
@@ -113,6 +113,24 @@ describe('dialogue rotation in encounters', () => {
     expect(state.talk['elder.intro']).toBe(2);
     const loaded = deserialize(serialize(state))!;
     expect(describeInteraction(loaded, elder).text).toBe(intro[0]);
+  });
+
+  it('counts a reply only when it is said, so declining twice says two lines', () => {
+    const state = newGame();
+    const bea = entityOf('farmer');
+    const decline = variantsFor(NPCS.farmer!.lines.decline, 'plain');
+    const accept = variantsFor(NPCS.farmer!.lines.accept, 'plain');
+    expect(decline.length).toBe(2);
+    const offer = () => {
+      const offered = describeInteraction(state, bea);
+      if (offered.kind !== 'challenge' || !offered.replies) throw new Error('expected an offer');
+      return offered.replies;
+    };
+    expect(reply(state, offer(), 'decline')).toBe(decline[0]);
+    expect(reply(state, offer(), 'accept')).toBe(accept[0]);
+    expect(reply(state, offer(), 'decline')).toBe(decline[1]);
+    expect(reply(state, offer(), 'accept')).toBe(accept[1]);
+    expect(state.talk['farmer.decline']).toBe(2);
   });
 
   it('rotates a mentor’s words', () => {

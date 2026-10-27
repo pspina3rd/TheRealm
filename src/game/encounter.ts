@@ -22,7 +22,7 @@ import {
 } from './attitude';
 import { FINALE_FLAG, epilogueFor, type Epilogue } from './ending';
 import { hiddenSlots, type HiddenSlot } from './hidden';
-import { pickVariant, variantsOf } from './lines';
+import { noteSaid, pickVariant, variantsOf } from './lines';
 import { preludeFor } from './story';
 import { addItem, gainXp, itemCount, removeItem } from './hero';
 import { completeLesson, lessonsFor, type Lesson } from './lessons';
@@ -73,8 +73,25 @@ export type Interaction =
       /** What a boss says before its fight, shown as an interlude (the Wyrm's lair). */
       readonly prelude?: string;
       /** What an NPC says when the hero accepts or declines. */
-      readonly replies?: { readonly accept: string; readonly decline: string };
+      readonly replies?: Replies;
     });
+
+/**
+ * What an NPC says when the hero accepts or declines. Only one is ever
+ * said, so neither is counted until it is (see `reply`).
+ */
+export interface Replies {
+  readonly accept: string;
+  readonly decline: string;
+  /** The rotation keys the two lines count under. */
+  readonly keys: { readonly accept: string; readonly decline: string };
+}
+
+/** Says the accept or decline reply: counts it, so that line rotates, and returns it. */
+export function reply(state: GameState, replies: Replies, which: 'accept' | 'decline'): string {
+  noteSaid(state.talk, replies.keys[which]);
+  return replies[which];
+}
 
 /** The result of a finished battle, after it has been applied to the game state. */
 export interface Resolution {
@@ -204,8 +221,9 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
     extras,
     terms,
     replies: {
-      accept: say(npc.lines.accept, terms, state.talk, lineKey(npc, 'accept')),
-      decline: say(npc.lines.decline, terms, state.talk, lineKey(npc, 'decline')),
+      accept: say(npc.lines.accept, terms, state.talk, lineKey(npc, 'accept'), false),
+      decline: say(npc.lines.decline, terms, state.talk, lineKey(npc, 'decline'), false),
+      keys: { accept: lineKey(npc, 'accept'), decline: lineKey(npc, 'decline') },
     },
   };
 }
