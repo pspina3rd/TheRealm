@@ -77,7 +77,8 @@ export class Dialog {
       this.onCancel();
     });
     this.root.addEventListener('close', () => {
-      this.settle();
+      // Browsers fire this later: if a new dialog opened meanwhile, leave it be.
+      if (!this.root.open) this.settle();
       if (this.closingByCode) this.closingByCode = false;
       else this.onCancel();
     });

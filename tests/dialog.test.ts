@@ -86,6 +86,57 @@ describe('the interlude', () => {
   });
 });
 
+describe('a dialog opened right after another closes', () => {
+  /** Browsers fire `close` later, after the next dialog may have opened. */
+  beforeEach(() => {
+    HTMLDialogElement.prototype.close = function (this: HTMLDialogElement) {
+      this.removeAttribute('open');
+      setTimeout(() => this.dispatchEvent(new Event('close')), 0);
+    };
+  });
+  const later = () => new Promise((resolve) => setTimeout(resolve, 5));
+
+  it('keeps the new dialog’s focus when the old one’s close event arrives late', async () => {
+    const dialog = new Dialog();
+    const next = vi.fn();
+    dialog.show({
+      title: 'Victory!',
+      body: '',
+      actions: [{ label: 'Continue', onClick: () => {} }],
+    });
+    dialog.close();
+    dialog.show({ title: 'Skills', body: '', actions: [{ label: 'Later', onClick: next }] });
+    await later();
+    expect(root().open).toBe(true);
+    expect(document.activeElement).toBe(continueButton());
+    continueButton().click();
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps an interlude dark and tappable when it opens as the last dialog closes', async () => {
+    const dialog = new Dialog();
+    const done = vi.fn();
+    dialog.show({ title: 'Elder', body: '', actions: [] });
+    dialog.close();
+    dialog.showInterlude('A vision', [], done, 350);
+    await later();
+    expect(root().classList.contains('interlude')).toBe(true);
+    expect(document.activeElement).toBe(continueButton());
+    now += 400;
+    root().click();
+    expect(done).toHaveBeenCalledTimes(1);
+  });
+
+  it('still settles a dialog that stays closed', async () => {
+    const dialog = new Dialog();
+    dialog.showInterlude('A vision', [], () => {}, 0);
+    root().removeAttribute('open'); // the browser closed it on its own
+    root().dispatchEvent(new Event('close'));
+    await later();
+    expect(root().classList.contains('interlude')).toBe(false);
+  });
+});
+
 describe('stage directions in the DOM', () => {
   it('renders narration as em.stage, as the map banner and speech bubbles do', () => {
     const span = document.createElement('span');
