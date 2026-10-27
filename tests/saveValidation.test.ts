@@ -192,7 +192,7 @@ describe('loadSave', () => {
     expect(loadSave(memoryStore().store)).toEqual({
       state: null,
       corrupt: false,
-      backedUp: false,
+      backupKey: null,
     });
     const { store } = memoryStore({ [SAVE_KEY]: serialize(newGame()) });
     expect(loadSave(store).state?.mapId).toBe('mossvale');
@@ -200,11 +200,20 @@ describe('loadSave', () => {
 
   it('backs up an unreadable save, and the next autosave leaves the backup alone', () => {
     const { store, map } = memoryStore({ [SAVE_KEY]: '{"version":8,"hero":' });
-    expect(loadSave(store)).toEqual({ state: null, corrupt: true, backedUp: true });
+    expect(loadSave(store)).toEqual({ state: null, corrupt: true, backupKey: CORRUPT_KEY });
     expect(map.get(CORRUPT_KEY)).toBe('{"version":8,"hero":');
     expect(saveGame(store, newGame())).toBe(true);
     expect(map.get(CORRUPT_KEY)).toBe('{"version":8,"hero":');
     expect(loadSave(store).state).not.toBeNull();
+  });
+
+  it('keeps an earlier, different backup and stores the newer one beside it', () => {
+    const { store, map } = memoryStore({ [SAVE_KEY]: 'newer', [CORRUPT_KEY]: 'older' });
+    expect(loadSave(store, 42).backupKey).toBe(`${CORRUPT_KEY}.42`);
+    expect([map.get(CORRUPT_KEY), map.get(`${CORRUPT_KEY}.42`)]).toEqual(['older', 'newer']);
+    // Reloading the same unreadable save again reuses the first backup.
+    map.set(SAVE_KEY, 'older');
+    expect(loadSave(store).backupKey).toBe(CORRUPT_KEY);
   });
 
   it('says so when the backup itself cannot be written', () => {
@@ -215,6 +224,6 @@ describe('loadSave', () => {
       },
       removeItem: () => undefined,
     };
-    expect(loadSave(store)).toEqual({ state: null, corrupt: true, backedUp: false });
+    expect(loadSave(store)).toEqual({ state: null, corrupt: true, backupKey: null });
   });
 });

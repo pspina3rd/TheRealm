@@ -184,22 +184,24 @@ export function saveGame(store: KeyValueStore, state: GameState): boolean {
 
 /**
  * What `loadSave` found. `state` is null when there is no readable save;
- * `corrupt` is set when a save existed but couldn't be read, and `backedUp`
- * when its text was first copied to `CORRUPT_KEY`.
+ * `corrupt` is set when a save existed but couldn't be read, and
+ * `backupKey` names where its text was kept (null if the copy failed).
  */
 export interface LoadResult {
   state: GameState | null;
   corrupt: boolean;
-  backedUp: boolean;
+  backupKey: string | null;
 }
 
 /**
  * Loads the save from `store`. An unreadable save is never silently lost:
  * its raw text is copied to `CORRUPT_KEY` (which saving never touches)
- * before the caller starts afresh, and the result says so.
+ * before the caller starts afresh, and the result says so. An earlier,
+ * different backup is never overwritten: the newer one goes to
+ * `CORRUPT_KEY.<now>` instead (`now` defaults to the current time in ms).
  */
-export function loadSave(store: KeyValueStore): LoadResult {
-  const none = { state: null, corrupt: false, backedUp: false };
+export function loadSave(store: KeyValueStore, now = Date.now()): LoadResult {
+  const none = { state: null, corrupt: false, backupKey: null };
   let json: string | null;
   try {
     json = store.getItem(SAVE_KEY);
@@ -210,10 +212,12 @@ export function loadSave(store: KeyValueStore): LoadResult {
   const state = deserialize(json);
   if (state) return { ...none, state };
   try {
-    store.setItem(CORRUPT_KEY, json);
-    return { state: null, corrupt: true, backedUp: true };
+    const earlier = store.getItem(CORRUPT_KEY);
+    const backupKey = earlier === null || earlier === json ? CORRUPT_KEY : `${CORRUPT_KEY}.${now}`;
+    store.setItem(backupKey, json);
+    return { state: null, corrupt: true, backupKey };
   } catch {
-    return { state: null, corrupt: true, backedUp: false };
+    return { state: null, corrupt: true, backupKey: null };
   }
 }
 

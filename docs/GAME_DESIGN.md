@@ -1082,7 +1082,9 @@ level and stats, and HP and mana clamped to them; an unknown class
 becomes the default; a spot (or inn) that no longer exists sends the hero
 to their inn (or the start). A save that still can't be read is copied
 to `the-realm/save.corrupt` before a new game begins, autosaves never
-touch that copy, and a notice above the HUD tells the player.
+touch that copy, and a notice above the HUD tells the player. An earlier,
+different backup is never overwritten: the newer one is kept beside it as
+`the-realm/save.corrupt.<time>`.
 
 Storage is probed at startup. If the browser refuses it (private mode,
 blocked site data, a full quota), the game keeps running on an in-memory

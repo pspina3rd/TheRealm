@@ -29,7 +29,7 @@ import {
 import { spellLevel, spellName } from '../game/spells';
 import { STATS, STAT_IDS } from '../data/stats';
 import { dualChance, pieceWeights } from '../game/pieceOdds';
-import { CORRUPT_KEY, deleteSave, loadSave, saveGame, type KeyValueStore } from '../game/save';
+import { deleteSave, loadSave, saveGame, type KeyValueStore } from '../game/save';
 import { buy, sell } from '../game/shop';
 import type { Direction, EntityDef } from '../world/map';
 import { step } from '../world/movement';
@@ -137,8 +137,8 @@ export class App {
     }
     if (loaded.corrupt) {
       this.notice(
-        loaded.backedUp
-          ? `Your saved adventure couldn't be read, so a new one begins. The old save was kept as a backup (${CORRUPT_KEY}).`
+        loaded.backupKey
+          ? `Your saved adventure couldn't be read, so a new one begins. The old save was kept as a backup (${loaded.backupKey}).`
           : "Your saved adventure couldn't be read, so a new one begins. It couldn't be backed up either.",
       );
     }

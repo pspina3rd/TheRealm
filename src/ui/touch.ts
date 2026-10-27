@@ -78,10 +78,16 @@ export function bindBoardGestures(
 const HOLD_DELAY_MS = 170;
 const HOLD_EVERY_MS = 55;
 
+/** How long after a pointer press its trailing click is still swallowed. */
+const PRESS_CLICK_MS = 700;
+
 /**
  * Makes `node` act on press rather than release (faster under a thumb),
- * repeating while held when `repeats` is set. Keyboard activation (a click
- * with no pointer press before it) still works, once per press.
+ * repeating while held when `repeats` is set. The click that follows a
+ * pointer press is swallowed, whatever its `detail` or event type (Chromium
+ * touch taps send detail 0; Safari may send a plain MouseEvent), so a tap
+ * acts once. Keyboard activation (a click with no pointer press before it)
+ * still works, once per press.
  */
 export function bindPress(node: HTMLElement, onPress: () => void, repeats = false): void {
   let timer = 0;
@@ -95,10 +101,13 @@ export function bindPress(node: HTMLElement, onPress: () => void, repeats = fals
       repeat(HOLD_EVERY_MS);
     }, delay);
   };
+  // When the last pointer press acted, so its trailing click can be swallowed.
+  let pressedAt: number | null = null;
   node.addEventListener('pointerdown', (event) => {
     if (event.button !== 0 || (node as HTMLButtonElement).disabled) return;
     event.preventDefault(); // no focus ring or text selection from a thumb
     stop();
+    pressedAt = event.timeStamp;
     onPress();
     if (event.pointerType === 'touch') haptic(6);
     if (repeats) repeat(HOLD_DELAY_MS);
@@ -107,7 +116,9 @@ export function bindPress(node: HTMLElement, onPress: () => void, repeats = fals
     node.addEventListener(type, stop);
   }
   node.addEventListener('click', (event) => {
+    const fromPress = pressedAt !== null && event.timeStamp - pressedAt < PRESS_CLICK_MS;
+    pressedAt = null;
     // A pointer press already acted; only a keyboard click (detail 0) remains.
-    if (event.detail === 0) onPress();
+    if (!fromPress && event.detail === 0) onPress();
   });
 }
