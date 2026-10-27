@@ -588,9 +588,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
       '^.............^',
       '^^^^^^^^^^^^^^^',
     ],
-    warps: [
-      { x: 7, y: 11, to: { map: 'overworld', x: 15, y: 19 } },
-    ],
+    warps: [{ x: 7, y: 11, to: { map: 'overworld', x: 15, y: 19 } }],
     entities: [],
   },
   ruins: {
