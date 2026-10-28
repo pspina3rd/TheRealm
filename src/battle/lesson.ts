@@ -33,7 +33,10 @@ export class LessonChallenge extends CombatChallenge {
   readonly mentor: MentorDef;
   readonly spellId: string;
   /** Chance per piece that the mentor tosses one. */
-  readonly helpChance: number;
+  /** Chance per piece that the mentor tosses one (the sims' sensitivity runs may set it). */
+  helpChance: number;
+  /** The share of the foe's HP where the shield goes up (`SHIELD_AT`; the sims may set it). */
+  shieldAt: number = SHIELD_AT;
   shield: ShieldState = 'none';
   /** True while the taught spell's own cast is striking (it alone passes the shield). */
   private casting = false;
@@ -102,7 +105,7 @@ export class LessonChallenge extends CombatChallenge {
     element: Element | null,
     affinity: 'weak' | 'resist' | null,
   ): void {
-    const mark = Math.ceil(this.enemy.hp * SHIELD_AT);
+    const mark = Math.ceil(this.enemy.hp * this.shieldAt);
     if (this.shield === 'up') {
       if (!this.casting) return;
       this.shield = 'broken';

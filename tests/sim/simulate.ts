@@ -211,7 +211,7 @@ function choose(battle: Battle, style: Style): Spot | null {
 }
 
 /** Casts whatever spell is ready, damage first (a good player spends mana as it comes). */
-function castReady(battle: Battle): void {
+export function castReady(battle: Battle): void {
   const combat = battle.combat;
   if (!combat) return;
   // A lesson's shield is up: only the taught spell gets through, so cast it, heal or not.

@@ -26,9 +26,18 @@ import { createHero, gainXp, type Hero } from '../../src/game/hero';
 import { dualChance } from '../../src/game/pieceOdds';
 import { DuelChallenge } from '../../src/battle/verbs/duel';
 import { ENCOUNTER_DEFS } from '../../src/data/encounters';
+import { castReady, heroAt } from './simulate';
 
 /** How much the good bot weighs the challenge's hint against plain stacking. */
 const HINT = Number(process.env.HINT ?? 1);
+/**
+ * Sensitivity knobs (bot realism, for diagnosis; the defaults are the spec's
+ * bots). NOISE scales the casual bot's touch slips (1 = 8% a column off, 5%
+ * a wrong turn). GHOST is the chance a slip is caught before release, as a
+ * touch player sees the landing ghost under their finger and corrects it.
+ */
+const NOISE = Number(process.env.NOISE ?? 1);
+const GHOST = Number(process.env.GHOST ?? 0);
 
 export type Bot = 'good' | 'casual' | 'dropper' | 'idle';
 
@@ -222,14 +231,16 @@ export function execute(
   const want = key(landing.cells);
   for (let i = 0; i < 4 && board.active && key(board.active.cells) !== want; i++)
     battle.input('rotate');
-  if (noise && rng() < 0.05) battle.input('rotate');
+  // A slip happens, unless the ghost shows it and the player corrects it before release.
+  const slip = (rate: number): boolean => noise && rng() < rate * NOISE && !(GHOST > 0 && rng() < GHOST);
+  if (slip(0.05)) battle.input('rotate');
   const piece = board.active;
   if (piece) {
     // The landing's x is its origin with its own offsets; match the piece's left edge to it.
     const edge = (cells: readonly (readonly [number, number])[]): number =>
       Math.min(...cells.map(([cx]) => cx));
     let target = landing.x + edge(landing.cells) - edge(piece.cells);
-    if (noise && rng() < 0.08) target += rng() < 0.5 ? -1 : 1;
+    if (slip(0.08)) target += rng() < 0.5 ? -1 : 1;
     for (let i = 0; i < 12 && piece.x > target; i++) battle.input('left');
     for (let i = 0; i < 12 && piece.x < target; i++) battle.input('right');
   }
@@ -264,20 +275,28 @@ export function simHero(level: number, classId = SIM_CLASS): Hero {
   return hero;
 }
 
-/** Plays one try of an encounter with a bot, on simulated time. */
+/**
+ * Plays one try of an encounter with a bot, on simulated time. Fights and
+ * lessons play too (the hero as the fight sim builds them, casting spells
+ * as the fight sim's good bot does), so lessons get the same four bots.
+ * `tweak` adjusts the battle before play (sensitivity runs).
+ */
 export function playEncounter(
-  spec: Extract<ChallengeSpec, { kind: 'encounter' }>,
+  spec: ChallengeSpec,
   bot: Bot,
   seed: number,
   level = 1,
   options: BattleOptions = {},
   limitMs = 600_000,
+  tweak?: (battle: Battle) => void,
 ): TryResult {
-  const hero = simHero(level);
+  const hero = spec.kind === 'encounter' ? simHero(level) : heroAt(level, SIM_CLASS);
   const battle = new Battle(spec, hero, createRng(seed), {
     dualChance: dualChance(hero),
     ...options,
   });
+  tweak?.(battle);
+  const fight = battle.combat !== null;
   const noise = createRng(seed ^ 0x5eed);
   const think = PACE[bot];
   const STEP = 50;
@@ -295,6 +314,8 @@ export function playEncounter(
     // A touch player drags the piece over its spot at once, then flicks it down after thinking.
     if (!aimed && battle.started && !battle.demo && (bot === 'good' || bot === 'casual')) {
       aimed = true;
+      if (fight) castReady(battle);
+      if (battle.status !== 'ongoing') break;
       const choice = bot === 'good' ? goodChoice(battle) : casualChoice(battle);
       if (choice) execute(battle, choice, bot === 'casual', () => noise.next(), false);
       if (process.env.AIM && choice) {
