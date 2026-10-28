@@ -1,14 +1,22 @@
 import { ELEMENTS, emptyCounts, type Element } from '../core/elements';
 import { CLASSES, DEFAULT_CLASS } from '../data/classes';
 import { ITEMS } from '../data/items';
-import { CAMPAIGN_MAP_IDS } from '../data/campaignFlags';
+import { CAMPAIGN_FLAGS, CAMPAIGN_MAP_IDS } from '../data/campaignFlags';
 import { MAPS, START } from '../data/maps';
 import { ENHANCEMENT_IDS, SPELLS } from '../data/spells';
 import { STATS, STAT_IDS } from '../data/stats';
 import type { FeatId } from '../data/types';
 import { titleElementFor } from './alignment';
 import { heroAlignment, heroClass, refreshStats, type Hero } from './hero';
-import { enhancements, newKnownSpell, type Enhancements, type KnownSpell } from './spells';
+import {
+  enhancements,
+  newKnownSpell,
+  type Enhancements,
+  type KnownSpell,
+  type SpellSeal,
+} from './spells';
+import { DUEL_PRICES, STAKES } from '../data/balance';
+import type { EncounterRecord, PriceChange } from './stakes';
 import type { Feats } from './feats';
 import { migrateScenes, migrateStory } from './story';
 import { SKILL_POINTS_PER_LEVEL, statRanks } from './stats';
@@ -31,12 +39,14 @@ export const CORRUPT_KEY = `${SAVE_KEY}.corrupt`;
  *   the maps reached (as flags), which place Vesper.
  * - 9 added the scenes (the opening, the Refusal, the end of Chapter One),
  *   each a `scene:` flag once seen; an older save has seen every scene due.
- * - 10 opens the second-half campaign. New scene flags remain unearned in
- *   old saves; only version 9's original scenes are migrated as already seen.
+ * - 10 was used independently for the second-half campaign and encounter
+ *   stakes (day, regard, encounter records, haggle prices and spell seals).
+ * - 11 unifies both version-10 formats. Missing stakes start at zero;
+ *   campaign progress and earned scenes remain intact in either format.
  */
-export const SAVE_VERSION = 10;
+export const SAVE_VERSION = 11;
 /** Older versions `deserialize` can still upgrade. */
-const MIGRATABLE_VERSIONS: readonly number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, SAVE_VERSION];
+const MIGRATABLE_VERSIONS: readonly number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, SAVE_VERSION];
 const FACINGS: readonly Direction[] = ['up', 'down', 'left', 'right'];
 
 /** JSON-friendly form of `GameState` (sets become arrays). */
@@ -53,6 +63,12 @@ interface SaveData {
   victories?: number;
   /** Since version 8. */
   talk?: Record<string, number>;
+  /** Since version 10. */
+  day?: number;
+  regard?: Record<string, number>;
+  regardPeak?: Record<string, number>;
+  encounters?: Record<string, EncounterRecord>;
+  prices?: Record<string, PriceChange>;
 }
 
 /** Minimal storage interface so tests can supply an in-memory store. */
@@ -79,6 +95,11 @@ export function serialize(state: GameState): string {
     respawn: state.respawn,
     victories: state.victories,
     talk: state.talk,
+    day: state.day,
+    regard: state.regard,
+    regardPeak: state.regardPeak,
+    encounters: state.encounters,
+    prices: state.prices,
   };
   return JSON.stringify(data);
 }
@@ -128,10 +149,13 @@ export function deserialize(json: string): GameState | null {
     const flags = migrateFlags(data.flags.filter((f): f is string => typeof f === 'string'));
     const mapId = String(data.mapId);
     if ((data.version as number) < 8) migrateStory(flags, mapId, victories);
-    const hero = sanitizeHero(migrateHero(data.hero as StoredHero));
+    const version = data.version as number;
+    const hero = sanitizeHero(migrateHero(data.hero as StoredHero), version);
     if (!hero) return null;
     if ((data.version as number) < 9) migrateScenes(flags, hero);
-    const allowCampaign = (data.version as number) >= 10;
+    // Stakes-only version 10 did not include the campaign. Its location
+    // cannot establish descent; only the earned scene milestone can.
+    const allowCampaign = version >= 10 && flags.has(CAMPAIGN_FLAGS.descent);
     const respawn = standable(data.respawn, flags, allowCampaign) ? data.respawn : { ...START };
     const here = { map: data.mapId, x: data.x, y: data.y };
     const spot = standable(here, flags, allowCampaign) ? here : respawn;
@@ -148,6 +172,8 @@ export function deserialize(json: string): GameState | null {
       victories,
       // Before version 8 no line had rotated: everyone starts at their first variant.
       talk: validTalk(data.talk),
+      // Before version 10 there were no stakes: every one starts at zero.
+      ...(version < 10 ? zeroStakes() : sanitizeStakes(data)),
     };
   } catch {
     // Migration can trip over malformed nested data as well as invalid JSON.
@@ -283,6 +309,62 @@ export function deleteSave(store: KeyValueStore): void {
   }
 }
 
+/** The stakes of a save from before version 10: all at zero. */
+function zeroStakes(): Pick<GameState, 'day' | 'regard' | 'regardPeak' | 'encounters' | 'prices'> {
+  return { day: 0, regard: {}, regardPeak: {}, encounters: {}, prices: {} };
+}
+
+/**
+ * Version 10 or later stakes, made safe: regard whole and within −2 to +2;
+ * each record's counts whole and 0 or more, strain at most 2, retry days
+ * no later than today; prices with a known map (or none) and a multiplier
+ * a haggle can reach. Anything else is dropped.
+ */
+function sanitizeStakes(
+  data: Record<string, unknown>,
+): Pick<GameState, 'day' | 'regard' | 'regardPeak' | 'encounters' | 'prices'> {
+  const day = count(data.day) ? data.day : 0;
+  const regardMap = (value: unknown): Record<string, number> =>
+    Object.fromEntries(
+      Object.entries(record(value) ? value : {}).flatMap(([id, n]) =>
+        finite(n) ? [[id, clampInt(n, STAKES.regardMin, STAKES.regardMax)]] : [],
+      ),
+    );
+  const dayOrNull = (value: unknown): number | null =>
+    count(value) && value <= day ? value : null;
+  const encounters = Object.fromEntries(
+    Object.entries(record(data.encounters) ? data.encounters : {}).flatMap(([id, r]) => {
+      if (!record(r)) return [];
+      const clean: EncounterRecord = {
+        strain: clampInt(r.strain, 0, STAKES.strainMax),
+        fails: clampInt(r.fails, 0),
+        wins: clampInt(r.wins, 0),
+        tries: clampInt(r.tries, 0),
+        waitPast: count(r.waitPast) ? r.waitPast : null,
+        playedDay: dayOrNull(r.playedDay),
+        wonDay: dayOrNull(r.wonDay),
+      };
+      return [[id, clean]];
+    }),
+  );
+  const prices = Object.fromEntries(
+    Object.entries(record(data.prices) ? data.prices : {}).flatMap(([shopId, p]) => {
+      if (!record(p) || !finite(p.multiplier) || !count(p.day)) return [];
+      const map = typeof p.map === 'string' && Object.hasOwn(MAPS, p.map) ? p.map : null;
+      if (p.map !== null && map === null) return [];
+      const multiplier = Math.min(DUEL_PRICES.max, Math.max(DUEL_PRICES.min, p.multiplier));
+      return [[shopId, { multiplier, map, day: Math.min(p.day, day) }]];
+    }),
+  );
+  return {
+    day,
+    regard: regardMap(data.regard),
+    regardPeak: regardMap(data.regardPeak),
+    encounters,
+    prices,
+  };
+}
+
 /** A hero as stored by any save version. */
 type StoredHero = Omit<Partial<Hero>, 'spells'> & {
   mp?: number;
@@ -292,6 +374,8 @@ type StoredHero = Omit<Partial<Hero>, 'spells'> & {
   spells?: string[] | Record<string, KnownSpell>;
   /** Version 5 only; nothing set it then, so it is dropped. */
   lockedCategories?: Element[];
+  /** Versions 6–9 and campaign-only 10 stored category locks, replaced by spell seals. */
+  failedLessons?: unknown;
 };
 
 /**
@@ -308,11 +392,14 @@ type StoredHero = Omit<Partial<Hero>, 'spells'> & {
  * - before version 5 spells were a list of ids: each becomes a level 1
  *   spell with no enhancements;
  * - before version 6 no lesson had been lost, so none locks a category;
- * - before version 7 no feats were counted, so the tally starts empty.
+ * - before version 7 no feats were counted, so the tally starts empty;
+ * - before version 10 lost lessons locked categories: the locks are
+ *   dropped, and nothing is sealed.
  */
 function migrateHero(stored: StoredHero): Hero {
   const { mp, maxMp, attunement, ...rest } = stored;
   delete rest.lockedCategories;
+  delete rest.failedLessons;
   const classId =
     typeof rest.classId === 'string' && Object.hasOwn(CLASSES, rest.classId)
       ? rest.classId
@@ -333,7 +420,7 @@ function migrateHero(stored: StoredHero): Hero {
     titleElement:
       rest.titleElement ?? titleElementFor(attunement ?? cls.element, heroAlignment({ spells })),
     spells,
-    failedLessons: rest.failedLessons ?? {},
+    seal: rest.seal ?? null,
     feats: renamedFeats(record(rest.feats) ? rest.feats : {}),
     accessoryId: rest.accessoryId ?? null,
     manaCap,
@@ -392,6 +479,14 @@ function equipped(id: unknown, kind: string): string | null {
   return typeof id === 'string' && Object.hasOwn(ITEMS, id) && ITEMS[id]?.kind === kind ? id : null;
 }
 
+/** A saved seal on a spell the hero knows, with 1 to `STAKES.sealFights` fights to go; else none. */
+function sanitizeSeal(value: unknown, spells: readonly [string, KnownSpell][]): SpellSeal | null {
+  if (!record(value) || typeof value.spellId !== 'string') return null;
+  const spellId = value.spellId;
+  if (!spells.some(([id]) => id === spellId)) return null;
+  return { spellId, fights: clampInt(value.fights, 1, STAKES.sealFights) };
+}
+
 /** Every feat id: each element's pure lines, plus the hasted clear. */
 const FEAT_IDS: readonly FeatId[] = [...ELEMENTS.map((e) => `pure.${e}` as const), 'hastedClear'];
 
@@ -405,7 +500,7 @@ const FEAT_IDS: readonly FeatId[] = [...ELEMENTS.map((e) => `pure.${e}` as const
  * recomputed from class, level and stats; HP and mana are clamped to their
  * caps; a hero left with no spell relearns their class spell.
  */
-function sanitizeHero(hero: Hero): Hero | null {
+function sanitizeHero(hero: Hero, version = SAVE_VERSION): Hero | null {
   const core: unknown[] = [hero.level, hero.xp, hero.nextXp, hero.hp, hero.gil, hero.skillPoints];
   if (typeof hero.name !== 'string' || !core.every(finite)) return null;
   const cls = heroClass(hero);
@@ -450,15 +545,7 @@ function sanitizeHero(hero: Hero): Hero | null {
       }),
     ),
     spells: Object.fromEntries(spells),
-    failedLessons: Object.fromEntries(
-      Object.entries(field('failedLessons')).flatMap(([element, failed]) => {
-        if (!record(failed) || typeof failed.spellId !== 'string') return [];
-        const def = Object.hasOwn(SPELLS, failed.spellId) ? SPELLS[failed.spellId] : undefined;
-        if (!def || def.category !== element) return [];
-        const level = clampInt(failed.level, 1, def.levels.length);
-        return [[element, { spellId: failed.spellId, level }]];
-      }),
-    ),
+    seal: version < 10 ? null : sanitizeSeal(raw.seal, spells),
     feats: Object.fromEntries(
       FEAT_IDS.flatMap((id) => {
         const n = clampInt(feats[id], 0);

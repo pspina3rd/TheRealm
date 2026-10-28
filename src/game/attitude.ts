@@ -9,7 +9,7 @@
  *       + Charm rank
  */
 import { relatedTo, weakTo, type Element, type ElementCounts } from '../core/elements';
-import type { ChallengeSpec, Line, NpcDef, NpcLines, Reward, ShopDef } from '../data/types';
+import type { Line, NpcDef, NpcLines, Reward, ShopDef } from '../data/types';
 import { alignmentOf } from './alignment';
 import type { Hero } from './hero';
 import { sayable, speak, type LineMemory, type Mood } from './lines';
@@ -48,9 +48,6 @@ export const ATTITUDE_PRICES: Readonly<Record<Attitude, number>> = {
   devoted: 0.8,
 };
 
-/** How much harder a Wary NPC's challenge is (targets up, merchants faster). */
-export const WARY_HARDER = 1.25;
-
 /** The attitude score of an NPC of `element` toward a hero with this alignment and Charm. */
 export function attitudeScore(
   alignment: Readonly<ElementCounts>,
@@ -76,9 +73,21 @@ export function attitudeToward(hero: Pick<Hero, 'spells' | 'stats'>, element: El
   return attitudeForScore(attitudeScore(alignmentOf(hero.spells), hero.stats.charm, element));
 }
 
-/** How `npc` feels about the hero. Things (a chest) are always Neutral. */
-export function attitudeOf(hero: Pick<Hero, 'spells' | 'stats'>, npc: NpcDef): Attitude {
-  return npc.inanimate ? 'neutral' : attitudeToward(hero, npc.element);
+/**
+ * How `npc` feels about the hero, with their `regard` (−2 to +2, see
+ * `src/game/stakes.ts`) added to the score. Regard alone never makes
+ * anyone Hostile: if the hero's alignment and Charm alone don't, the floor
+ * is Wary. Things (a chest) are always Neutral.
+ */
+export function attitudeOf(
+  hero: Pick<Hero, 'spells' | 'stats'>,
+  npc: NpcDef,
+  regard = 0,
+): Attitude {
+  if (npc.inanimate) return 'neutral';
+  const score = attitudeScore(alignmentOf(hero.spells), hero.stats.charm, npc.element);
+  const felt = attitudeForScore(score + regard);
+  return felt === 'hostile' && attitudeForScore(score) !== 'hostile' ? 'wary' : felt;
 }
 
 /**
@@ -88,33 +97,6 @@ export function attitudeOf(hero: Pick<Hero, 'spells' | 'stats'>, npc: NpcDef): A
 export function dealTerms(npc: NpcDef, attitude: Attitude): Attitude | null {
   if (attitude !== 'hostile') return attitude;
   return npc.essential ? 'wary' : null;
-}
-
-/**
- * The challenge on these terms. Wary: offerings need a higher score, barters
- * more crystals, and merchants push prices up faster. A puzzle stays as it
- * is, since it has exactly one recorded solution.
- */
-export function challengeOnTerms(spec: ChallengeSpec, terms: Attitude): ChallengeSpec {
-  if (terms !== 'wary') return spec;
-  switch (spec.kind) {
-    case 'offering':
-      return { ...spec, targetScore: Math.ceil(spec.targetScore * WARY_HARDER) };
-    case 'barter':
-      return {
-        ...spec,
-        wants: Object.fromEntries(
-          Object.entries(spec.wants).map(([color, n]) => [
-            color,
-            Math.ceil((n ?? 0) * WARY_HARDER),
-          ]),
-        ),
-      };
-    case 'haggle':
-      return { ...spec, rivalIntervalMs: Math.round(spec.rivalIntervalMs / WARY_HARDER) };
-    default:
-      return spec;
-  }
 }
 
 /** What an NPC gives: their usual rewards, and the extras their attitude adds. */

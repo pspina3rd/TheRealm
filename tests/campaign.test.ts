@@ -231,7 +231,7 @@ describe('playable second-half progression', () => {
       expect(state.mapId).toBe('overworld');
       cross(state, 'innerWard', 'locked');
       expect(mentorsTaught(state.hero)).toEqual([]);
-      expect(state.hero.failedLessons).toEqual({});
+      expect(state.hero.seal).toBeNull();
       const restored = deserialize(serialize(state));
       expect(restored?.flags.has(C.complete)).toBe(true);
       expect(restored && activeEntities(restored).some((e) => e.id === 'campaign-malificat')).toBe(

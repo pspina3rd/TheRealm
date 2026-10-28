@@ -30,7 +30,14 @@ import {
 import { statRanks } from '../src/game/stats';
 import { mapDistance, mentorEntities, mentorPlace, seekingStop } from '../src/world/mentors';
 import { newGame, type GameState } from '../src/world/state';
-import { forceQueue, knownSpells, makeBattle, rowWithGaps, setUpVerticalIClear } from './helpers';
+import {
+  EMPTY_LOCK,
+  forceQueue,
+  knownSpells,
+  makeBattle,
+  rowWithGaps,
+  setUpVerticalIClear,
+} from './helpers';
 
 const spell = (id: string): SpellDef => SPELLS[id]!;
 const mentor = (id: string) => MENTORS[id]!;
@@ -45,6 +52,7 @@ function seeker(...spells: string[]): { hero: Hero; flags: Set<string> } {
 /** A lock result clearing `lines`. */
 function lock(lines: LockResult['lines']): LockResult {
   return {
+    ...EMPTY_LOCK,
     linesCleared: lines.length,
     clearedCells: {},
     lines,

@@ -1,6 +1,7 @@
 import {
   PIECES,
   PIECE_NAMES,
+  isCrystal,
   rotateClockwise,
   type Cell,
   type CrystalColor,
@@ -37,6 +38,38 @@ export const DUAL_SPLIT: Readonly<Record<PieceName, readonly boolean[]>> = {
   J: [false, false, true, true], // hook / the rest of the bar
   L: [false, true, true, false], // hook / the rest of the bar
 };
+
+/**
+ * A marker on a board cell that moves with the cell: when lines clear and
+ * rows fall, when rows are pushed up from below, and when bottom rows are
+ * removed. Encounters give cells their meaning with them:
+ * - `target`: something to dig out (DIG; Rowan's pipe);
+ * - `hazard`: something that spreads (CONTAIN; Wren's rot);
+ * - `protected`: something to save (CONTAIN; Wren's young caps);
+ * - `ridge`: an inert cell that never scores (PLANT; Bean's soil ridges);
+ * - `spore`: a region rule's spore (the grove), which petrifies in clusters.
+ */
+export const CELL_TAGS = ['target', 'hazard', 'protected', 'ridge', 'spore'] as const;
+export type CellTag = (typeof CELL_TAGS)[number];
+
+/** Tagged cells cleared, by tag, e.g. `{ protected: 1 }`. */
+export type TagTally = Partial<Record<CellTag, number>>;
+
+/** A cleared line as it was: its cells and their tags, column by column. */
+export interface ClearedRow {
+  readonly cells: readonly Cell[];
+  readonly tags: readonly (CellTag | null)[];
+}
+
+/**
+ * A controlled queue (an encounter's guaranteed supply): every `window`
+ * pieces hold each of `pieces` at least once, slotted at random places;
+ * the other slots come from the shuffled bag as usual.
+ */
+export interface Supply {
+  readonly window: number;
+  readonly pieces: readonly PieceName[];
+}
 
 /** A piece waiting in the queue: its shape and, for a dual piece, its second colour. */
 export interface QueuedPiece {
@@ -80,8 +113,13 @@ export interface PieceOptions {
   readonly x?: number;
 }
 
-/** Column where new pieces appear. */
-const SPAWN_X = 3;
+/**
+ * Column where new pieces appear on a board `width` wide: 3 on the usual
+ * 10, centred on a narrow board (1 in Rowan's 6-wide well).
+ */
+export function spawnColumn(width: number): number {
+  return Math.max(0, Math.floor((width - 4) / 2));
+}
 
 /** What happened when the active piece locked into the grid. */
 export interface LockResult {
@@ -96,6 +134,12 @@ export interface LockResult {
   readonly toppedOut: boolean;
   /** New covered holes the placement left (after any clears), never negative. */
   readonly holesMade: number;
+  /** Where the piece's cells locked, as [x, y] before any line cleared (cells above the top left out). */
+  readonly placed: readonly (readonly [number, number])[];
+  /** Tagged cells the cleared lines took, by tag. */
+  readonly clearedTags: TagTally;
+  /** The cleared lines' cells and tags, top to bottom (index-matched to `rows`). */
+  readonly clearedRows: readonly ClearedRow[];
 }
 
 /** Columns a new piece can spawn into; a seal never lands here, so spawning stays possible. */
@@ -107,6 +151,25 @@ export interface Seal {
   pieces: number;
 }
 
+/** The text codes `loadRows` reads: stone and each crystal colour's initial. */
+const CELL_CODES: Readonly<Record<string, Cell>> = {
+  '#': 'stone',
+  c: 'cyan',
+  g: 'gold',
+  v: 'violet',
+  n: 'green',
+  r: 'red',
+  b: 'blue',
+  o: 'orange',
+  x: 'neutral',
+};
+
+/** An encounter's extra `loadRows` code: the cell it makes and the tag it carries. */
+export interface CellCode {
+  readonly cell: Cell;
+  readonly tag?: CellTag;
+}
+
 /**
  * The falling-block playfield: grid state, the active piece and the piece
  * queue. It knows nothing about scoring, enemies or NPCs; challenges in
@@ -116,9 +179,15 @@ export class Board {
   readonly width: number;
   readonly height: number;
   grid: Cell[][];
+  /** Each cell's tag (see `CellTag`), index-matched to `grid`. */
+  tags: (CellTag | null)[][];
   active: ActivePiece | null = null;
   piecesPlaced = 0;
   toppedOut = false;
+  /** False on boards where full lines stay (BUILD): nothing clears. */
+  clearsEnabled = true;
+  /** A controlled queue's guaranteed supply, or null for the plain bag. */
+  supply: Supply | null = null;
   /** A sealed column, if an enemy has sealed one (see `sealColumn`). */
   seal: Seal | null = null;
   /**
@@ -132,6 +201,8 @@ export class Board {
   private bag: PieceName[] = [];
   /** Second colour of each bag piece (null = single colour), index-matched to `bag`. */
   private seconds: (CrystalColor | null)[] = [];
+  /** Shuffled bag pieces waiting to fill a controlled queue's free slots. */
+  private loose: PieceName[] = [];
   /** A fixed piece sequence (used by puzzles); when set, it replaces the random bag. */
   private fixedQueue: PieceName[] | null = null;
 
@@ -150,33 +221,79 @@ export class Board {
     this.width = width;
     this.height = height;
     this.grid = Board.emptyGrid(width, height);
+    this.tags = Board.emptyTags(width, height);
   }
 
   static emptyGrid(width: number, height: number): Cell[][] {
     return Array.from({ length: height }, () => Array<Cell>(width).fill(null));
   }
 
+  static emptyTags(width: number, height: number): (CellTag | null)[][] {
+    return Array.from({ length: height }, () => Array<CellTag | null>(width).fill(null));
+  }
+
+  /** Column where this board's pieces spawn (see `spawnColumn`). */
+  get spawnX(): number {
+    return spawnColumn(this.width);
+  }
+
+  /** The tag on cell (x, y), or null. */
+  tagAt(x: number, y: number): CellTag | null {
+    return this.tags[y]?.[x] ?? null;
+  }
+
+  /** Sets (or with null, removes) the tag on cell (x, y); off the board, nothing. */
+  setTag(x: number, y: number, tag: CellTag | null): void {
+    const row = this.tags[y];
+    if (row && x >= 0 && x < this.width) row[x] = tag;
+  }
+
+  /** Every cell carrying `tag`, as [x, y], top row first. */
+  tagged(tag: CellTag): [number, number][] {
+    const cells: [number, number][] = [];
+    this.tags.forEach((row, y) =>
+      row.forEach((t, x) => {
+        if (t === tag) cells.push([x, y]);
+      }),
+    );
+    return cells;
+  }
+
+  /** How many cells carry `tag`. */
+  countTag(tag: CellTag): number {
+    return this.tagged(tag).length;
+  }
+
+  /** The row of the highest filled cell (the board's height when empty). */
+  stackTop(): number {
+    const y = this.grid.findIndex((row) => row.some((cell) => cell !== null));
+    return y < 0 ? this.height : y;
+  }
+
   /**
    * Fills the bottom of the grid from text rows (top row first). `#` is
-   * stone, a colour initial (c g v n r b o) is a crystal, anything else is
-   * empty. Used for puzzle layouts and tests.
+   * stone, `x` neutral, a colour initial (c g v n r b o) is a crystal, `m` is mold
+   * (violet and green crystals in a checker), anything else is empty.
+   * `legend` adds an encounter's codes: the cell and the tag it carries
+   * (e.g. Rowan's pipe, a tagged stone). Old tags are cleared. Used for
+   * puzzle layouts, encounter boards and tests.
    */
-  loadRows(rows: readonly string[]): void {
-    const codes: Record<string, Cell> = {
-      '#': 'stone',
-      c: 'cyan',
-      g: 'gold',
-      v: 'violet',
-      n: 'green',
-      r: 'red',
-      b: 'blue',
-      o: 'orange',
-    };
+  loadRows(rows: readonly string[], legend: Readonly<Record<string, CellCode>> = {}): void {
     this.grid = Board.emptyGrid(this.width, this.height);
+    this.tags = Board.emptyTags(this.width, this.height);
     const offset = this.height - rows.length;
     rows.forEach((row, i) => {
+      const y = offset + i;
       for (let x = 0; x < this.width; x++) {
-        (this.grid[offset + i] as Cell[])[x] = codes[row[x] ?? '.'] ?? null;
+        const code = row[x] ?? '.';
+        const custom = Object.hasOwn(legend, code) ? legend[code] : undefined;
+        const mold: Cell = (x + y) % 2 === 0 ? 'violet' : 'green';
+        (this.grid[y] as Cell[])[x] = custom
+          ? custom.cell
+          : code === 'm'
+            ? mold
+            : (CELL_CODES[code] ?? null);
+        this.setTag(x, y, custom?.tag ?? null);
       }
     });
   }
@@ -190,7 +307,7 @@ export class Board {
   preview(count: number): PieceName[] {
     if (this.fixedQueue) return this.fixedQueue.slice(0, count);
     while (this.bag.length < count) {
-      const names = this.rng.shuffle(this.fillBag());
+      const names = this.supply ? this.supplyWindow(this.supply) : this.rng.shuffle(this.fillBag());
       this.bag.push(...names);
       this.seconds.push(...names.map((name) => this.rollSecond(name)));
     }
@@ -209,6 +326,18 @@ export class Board {
   private rollSecond(name: PieceName): CrystalColor | null {
     if (this.dualChance <= 0 || this.rng.next() >= this.dualChance) return null;
     return colorOfElement(this.rng.pick(relatedTo(ELEMENT_OF_COLOR[PIECES[name].color])));
+  }
+
+  /**
+   * One window of a controlled queue: each supplied piece once, at a random
+   * slot, and the other slots from the shuffled bag (which may bring more).
+   */
+  private supplyWindow(supply: Supply): PieceName[] {
+    const free = Math.max(0, supply.window - supply.pieces.length);
+    while (this.loose.length < free) this.loose.push(...this.rng.shuffle(this.fillBag()));
+    const window = this.loose.splice(0, free);
+    for (const name of supply.pieces) window.splice(this.rng.int(window.length + 1), 0, name);
+    return window;
   }
 
   /** One bag's worth of pieces before shuffling. */
@@ -242,7 +371,7 @@ export class Board {
       name = this.bag.shift() as PieceName;
       second = this.seconds.shift() ?? null;
     }
-    this.active = makePiece(name, { second });
+    this.active = makePiece(name, { second, x: this.spawnX });
     if (this.collides(0, 0, this.active.cells)) {
       this.toppedOut = true;
       return false;
@@ -258,16 +387,28 @@ export class Board {
    * would not fit.
    */
   replaceActive(name: PieceName, options: PieceOptions = {}): boolean {
-    const piece = makePiece(name, options);
+    const piece = makePiece(name, { x: this.spawnX, ...options });
     if (!this.active || !this.fits(piece)) return false;
     this.active = piece;
     return true;
   }
 
+  /** Puts a piece back at the front of the queue (one a person's demo displaced). */
+  requeue(piece: QueuedPiece): void {
+    if (this.fixedQueue) this.fixedQueue.unshift(piece.name);
+    else {
+      this.preview(1);
+      this.bag.unshift(piece.name);
+      this.seconds.unshift(piece.second);
+    }
+  }
+
   /** True if the falling piece could be swapped for the next one (see `swapWithNext`). */
   canSwapWithNext(): boolean {
     const [next] = this.preview(1);
-    return this.active !== null && next !== undefined && this.fits(makePiece(next));
+    return (
+      this.active !== null && next !== undefined && this.fits(makePiece(next, { x: this.spawnX }))
+    );
   }
 
   /**
@@ -359,7 +500,10 @@ export class Board {
     return this.move(0, 1) ? null : this.lock();
   }
 
-  /** Writes the active piece into the grid, clears full lines and spawns the next piece. */
+  /**
+   * Writes the active piece into the grid (its cells untagged), clears full
+   * lines (unless clears are off) and spawns the next piece.
+   */
   lock(): LockResult {
     const piece = this.active;
     if (!piece) {
@@ -370,29 +514,41 @@ export class Board {
         rows: [],
         toppedOut: this.toppedOut,
         holesMade: 0,
+        placed: [],
+        clearedTags: {},
+        clearedRows: [],
       };
     }
     const holesBefore = this.holes();
 
+    const placed: [number, number][] = [];
     piece.cells.forEach(([cx, cy], i) => {
+      const x = piece.x + cx;
       const y = piece.y + cy;
       if (y < 0) this.toppedOut = true;
-      else (this.grid[y] as Cell[])[piece.x + cx] = piece.colors[i] ?? piece.color;
+      else {
+        (this.grid[y] as Cell[])[x] = piece.colors[i] ?? piece.color;
+        this.setTag(x, y, null);
+        placed.push([x, y]);
+      }
     });
     this.piecesPlaced++;
     this.active = null;
 
-    const { lines, rows, tally } = this.clearFullLines();
+    const cleared = this.clearsEnabled ? this.clearFullLines() : NO_CLEAR;
     if (this.seal && --this.seal.pieces <= 0) this.seal = null;
     const holesMade = Math.max(0, this.holes() - holesBefore);
     if (!this.toppedOut) this.spawn();
     return {
-      linesCleared: lines.length,
-      clearedCells: tally,
-      lines,
-      rows,
+      linesCleared: cleared.lines.length,
+      clearedCells: cleared.tally,
+      lines: cleared.lines,
+      rows: cleared.rows,
       toppedOut: this.toppedOut,
       holesMade,
+      placed,
+      clearedTags: cleared.clearedTags,
+      clearedRows: cleared.clearedRows,
     };
   }
 
@@ -434,7 +590,7 @@ export class Board {
     const crystals: [number, number][] = [];
     this.grid.forEach((row, y) =>
       row.forEach((cell, x) => {
-        if (cell !== null && cell !== 'stone') crystals.push([x, y]);
+        if (isCrystal(cell)) crystals.push([x, y]);
       }),
     );
     const changed: [number, number][] = [];
@@ -452,13 +608,23 @@ export class Board {
    */
   addGarbage(count: number): void {
     for (let i = 0; i < count; i++) {
-      const top = this.grid.shift() as Cell[];
-      if (top.some((cell) => cell !== null)) this.toppedOut = true;
       const row = Array<Cell>(this.width).fill('stone');
       row[this.rng.int(this.width)] = null;
-      this.grid.push(row);
+      this.pushRow(row);
     }
-    // Lift the active piece if the rising floor now overlaps it.
+  }
+
+  /**
+   * Pushes one row up from the bottom (rising mold, a merchant's
+   * counter-offer), with optional tags. Tops out if blocks are pushed off
+   * the top; lifts the falling piece if the rising floor now overlaps it.
+   */
+  pushRow(cells: readonly Cell[], tags: readonly (CellTag | null)[] = []): void {
+    const top = this.grid.shift() as Cell[];
+    this.tags.shift();
+    if (top.some((cell) => cell !== null)) this.toppedOut = true;
+    this.grid.push(Array.from({ length: this.width }, (_, x) => cells[x] ?? null));
+    this.tags.push(Array.from({ length: this.width }, (_, x) => tags[x] ?? null));
     while (this.active && this.collides(0, 0) && this.active.y > -4) this.active.y--;
   }
 
@@ -467,8 +633,10 @@ export class Board {
     const tally: CellTally = {};
     for (let i = 0; i < count; i++) {
       const row = this.grid.pop() as Cell[];
+      this.tags.pop();
       tallyRow(row, tally);
       this.grid.unshift(Array<Cell>(this.width).fill(null));
+      this.tags.unshift(Array<CellTag | null>(this.width).fill(null));
     }
     return tally;
   }
@@ -488,6 +656,7 @@ export class Board {
   /** Empties the grid, clears the top-out state and spawns a fresh piece. */
   reset(): void {
     this.grid = Board.emptyGrid(this.width, this.height);
+    this.tags = Board.emptyTags(this.width, this.height);
     this.toppedOut = false;
     this.seal = null;
     this.active = null;
@@ -499,23 +668,38 @@ export class Board {
     return this.grid.reduce((sum, row) => sum + row.filter((c) => c !== null).length, 0);
   }
 
-  private clearFullLines(): { lines: CellTally[]; rows: number[]; tally: CellTally } {
-    const tally: CellTally = {};
-    const lines: CellTally[] = [];
-    const rows: number[] = [];
-    const kept = this.grid.filter((row, y) => {
-      const full = row.every((cell) => cell !== null);
-      if (full) {
-        tallyRow(row, tally);
-        lines.push(tallyRow(row, {}));
-        rows.push(y);
+  private clearFullLines(): Cleared {
+    const cleared: Cleared = { lines: [], rows: [], tally: {}, clearedTags: {}, clearedRows: [] };
+    const full = this.grid.map((row) => row.every((cell) => cell !== null));
+    this.grid.forEach((row, y) => {
+      if (!full[y]) return;
+      const tags = this.tags[y] as (CellTag | null)[];
+      tallyRow(row, cleared.tally);
+      cleared.lines.push(tallyRow(row, {}));
+      cleared.rows.push(y);
+      cleared.clearedRows.push({ cells: row.slice(), tags: tags.slice() });
+      for (const tag of tags) {
+        if (tag) cleared.clearedTags[tag] = (cleared.clearedTags[tag] ?? 0) + 1;
       }
-      return !full;
     });
-    this.grid = [...Board.emptyGrid(this.width, lines.length), ...kept];
-    return { lines, rows, tally };
+    const count = cleared.lines.length;
+    this.grid = [...Board.emptyGrid(this.width, count), ...this.grid.filter((_, y) => !full[y])];
+    this.tags = [...Board.emptyTags(this.width, count), ...this.tags.filter((_, y) => !full[y])];
+    return cleared;
   }
 }
+
+/** What clearing full lines took. */
+interface Cleared {
+  readonly lines: CellTally[];
+  readonly rows: number[];
+  readonly tally: CellTally;
+  readonly clearedTags: TagTally;
+  readonly clearedRows: ClearedRow[];
+}
+
+/** A lock on a board whose clears are off. */
+const NO_CLEAR: Cleared = { lines: [], rows: [], tally: {}, clearedTags: {}, clearedRows: [] };
 
 /** A piece at the top of the board: the shape's spawn orientation and colour unless overridden. */
 function makePiece(name: PieceName, options: PieceOptions = {}): ActivePiece {
@@ -529,7 +713,7 @@ function makePiece(name: PieceName, options: PieceOptions = {}): ActivePiece {
     second,
     recolored: options.color !== undefined,
     cells: (options.cells ?? def.cells).map((c) => [...c] as Offset),
-    x: options.x ?? SPAWN_X,
+    x: options.x ?? spawnColumn(BOARD_WIDTH),
     y: 0,
   };
 }

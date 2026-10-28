@@ -130,13 +130,19 @@ export const FALL_HP_SHARE = 0.3;
 /** …or in the home village, where the healer looks after a beginner. */
 export const HOME_FALL_HP_SHARE = 0.5;
 
-// ---- Lessons (src/game/lessons.ts)
-/** Help chance per piece before the clamp: base − per point × (alignment − difficulty)… */
-export const HELP_BASE = 0.4;
+// ---- Lessons (src/game/lessons.ts, src/battle/lesson.ts)
+/**
+ * Help chance per piece before the clamp: base − per point × (alignment −
+ * difficulty), clamped to 5–35% (docs/ENCOUNTER_DESIGN.md §6.3; it was
+ * 10–50% around a 40% base, and lessons won 87–100% for the good bot)…
+ */
+export const HELP_BASE = 0.3;
 export const HELP_PER_POINT = 0.05;
 /** …clamped to this range… */
-export const HELP_MIN = 0.1;
-export const HELP_MAX = 0.5;
+export const HELP_MIN = 0.05;
+export const HELP_MAX = 0.35;
+/** The mentor's shield: at this share of HP the foe raises it; only the taught spell breaks it. */
+export const SHIELD_AT = 0.25;
 /** A lesson foe gains this share of its HP per difficulty above 1… */
 export const FOE_HP_PER_DIFFICULTY = 0.6;
 /** …and this much attack. */
@@ -182,3 +188,174 @@ export const REGIONS = {
   caves1: { entryLevel: 10, monsterLevels: [10, 11], band: LEVEL_BAND },
   caves2: { entryLevel: 12, monsterLevels: [11, 13], band: LEVEL_BAND },
 } as const satisfies Record<string, RegionBand>;
+
+// ---- Encounters (src/battle/verbs/*, src/data/encounters.ts; docs/ENCOUNTER_DESIGN.md §6)
+// Every number is the spec's starting value; the balance pass (M6) tunes them here.
+// Time is in milliseconds; "pieces" count locked pieces. Keys are NPC ids.
+export const ENCOUNTERS = {
+  /** Elder Rowan, "The Well": DIG + rising (§6.1). */
+  elder: {
+    /** The shaft is this many columns wide (cols 0–5 inside the masonry). */
+    width: 6,
+    /** A cell locked above this row (row 1 is the bottom) is mold over the lip. */
+    lip: 14,
+    /** A 1-gap mold row pushes up every this many pieces… */
+    risingEvery: 6,
+    /** …and each new buried hole brings it this many pieces sooner. */
+    soonerPerHole: 1,
+    /** Strain: each step adds this many debris rows on top. */
+    strainRows: 1,
+  },
+  /** Pip, "The Crystal Tower": BUILD (§6.1). */
+  kid: {
+    /** The tower fails on the crack after this many… */
+    crackLimit: 3,
+    /** …or the wobble after this many. */
+    wobbleLimit: 1,
+    /** Pieces shown ahead (Pip calls them out). */
+    previews: 3,
+    /** Strain: each step starts with this many pre-cracked cells. */
+    strainCracks: 1,
+  },
+  /** Farmer Bean, "The Herb Beds": PLANT (§6.1). */
+  farmer: {
+    pieceLimit: 26,
+    /** Sprouts to plant… */
+    target: 12,
+    /** …and the Great mark (+1 Herb). */
+    great: 16,
+    /** Controlled queue: one S in every 3 pieces. */
+    supplyWindow: 3,
+    /** What a wrong colour in a furrow scores at Mossvale (−1 from Twitch on). */
+    wrongColour: 0,
+    /** Strain: the target grows this much per step. */
+    strainTarget: 2,
+  },
+  /** Shopkeeper Ordor, "The Stall": DUEL, one-sided (§6.1). */
+  stallKeeper: {
+    /** His stack (crates) starts this many rows high and tops out at `topRows`. */
+    startRows: 4,
+    topRows: 12,
+    /** He grows a row every `growMs`, sends `sendRows` every `sendMs` and clears `clearRows` every `clearMs`. */
+    growMs: 10_000,
+    sendMs: 15_000,
+    sendRows: 1,
+    clearMs: 20_000,
+    clearRows: 2,
+    /** The haggle lasts this long. */
+    durationMs: 60_000,
+    /** Each row you send moves the meter this much in your favour… */
+    meterPerSent: -0.03,
+    /** …and each row you receive this much against you (+3% elsewhere; Ordor never cancels). */
+    meterPerReceived: 0.01,
+    /** Whether your clears cancel his pending rows first (from Lo on). */
+    cancel: false,
+    /** Strain: the meter starts this much worse per step. */
+    strainMeter: 0.05,
+  },
+  /** Forager Wren, "The Mushroom Ring": CONTAIN + protect (§6.4). */
+  forager: {
+    pieceLimit: 30,
+    /** Rot spreads every this many pieces… */
+    spreadEvery: 4,
+    /** …this many cells at a time (one per source). */
+    spreadCells: 2,
+    /** Caps that must be picked or still alive to win… */
+    keepCaps: 2,
+    /** …and the number of dead caps that fails. */
+    deadCapsFail: 2,
+    /** Strain: each step starts with this many more rot cells. */
+    strainHazard: 3,
+  },
+  /** Captain Vale, "The Ward Lamps": CHARGE, twist wind snuffs; a threshold (§6.2). */
+  guard: {
+    pieceLimit: 36,
+    /** A pure line has at least this many of its 10 cells in the lamp's element (≤ 7). */
+    purity: 7,
+    /** Every this many pieces the wind snuffs the oldest lit lamp (unless all are lit). */
+    snuffEvery: 14,
+    /** Controlled queue: one J and one T in every 4 pieces. */
+    supplyWindow: 4,
+    /** Strain: each step adds a lamp (thresholds cap strain at 1). */
+    strainLamps: 1,
+  },
+} as const;
+
+/**
+ * Price bands of a scripted DUEL haggle, as multipliers (§6.1): the meter
+ * is clamped to `min`–`max`; at or below `great` is Great, `win` a Win,
+ * `even` Even (no penalty), anything above a Fail. A rival who tops out
+ * sells at `sold` at most; a hero who tops out walks off at `walkOff` at least.
+ */
+export const DUEL_PRICES = {
+  start: 1,
+  min: 0.7,
+  max: 1.3,
+  great: 0.85,
+  win: 0.94,
+  even: 1.05,
+  sold: 0.8,
+  walkOff: 1.15,
+} as const;
+
+/**
+ * Rows a DUEL sends for clearing 0–4 lines at once (singles send nothing),
+ * plus `backToBack` for a multi-line clear right after another.
+ */
+export const DUEL_SENDS: readonly number[] = [0, 0, 1, 2, 4];
+export const DUEL_BACK_TO_BACK = 1;
+
+/** Placement-relevant board events are telegraphed this many pieces ahead (§2, §7.1). */
+export const TELEGRAPH_LEAD = 1;
+
+/**
+ * What winning and failing cost and give (§3). Regard is per person; strain
+ * per encounter; a day ends at an inn.
+ */
+export const STAKES = {
+  /** Regard range, added to the attitude score (it never changes difficulty). */
+  regardMin: -2,
+  regardMax: 2,
+  /** A first win's regard; a fail's; a repeat win restores this much, up to the first win's level. */
+  regardWin: 1,
+  regardFail: -1,
+  regardRestore: 1,
+  /** Strain steps an encounter can hold; thresholds hold fewer. */
+  strainMax: 2,
+  thresholdStrainMax: 1,
+  /** Strain steps a night at an inn takes off every encounter. */
+  innRelief: 1,
+  /** Repeat wins of a repeatable pay this share (rounded down) and give no regard. */
+  repeatPay: 0.5,
+  /** A haggle markup lasts until a haggle there is won or this many days pass. */
+  markupDays: 2,
+  /** Thresholds offer the mentor's assist after this many fails… */
+  assistAfterFails: 2,
+  /** …in which the mentor tosses a piece with this chance, steered by the challenge's hint. */
+  assistToss: 0.3,
+  /** A sealed spell is freed by winning its lesson or this many monster fights. */
+  sealFights: 3,
+} as const;
+
+/**
+ * The region rules (§6.3, §7.1), counted in pieces and telegraphed one piece
+ * ahead. M1 builds spores (the grove, Hazel) and a dark prototype (Selene).
+ */
+export const REGION_RULES = {
+  /** A spore lands every `landEvery` pieces and spreads every `spreadEvery`; a cluster of `petrifyAt` petrifies. */
+  spores: { landEvery: 5, spreadEvery: 3, petrifyAt: 4 },
+  /** The board is dark beyond `radius` rows of the falling piece; the skyline and ghost always show. */
+  dark: { radius: 3 },
+} as const;
+
+export type RegionRuleId = keyof typeof REGION_RULES;
+
+/** Each map's monster rule (maps not listed have none: Sevenstones, and regions built later). */
+export const MAP_RULES: Readonly<Partial<Record<string, RegionRuleId>>> = {
+  grove: 'spores',
+};
+
+/** The rule each mentor teaches, used in their lessons wherever they are (M1: Hazel; Selene's dark is a test board). */
+export const MENTOR_RULES: Readonly<Partial<Record<string, RegionRuleId>>> = {
+  hazel: 'spores',
+};

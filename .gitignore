@@ -6,3 +6,4 @@ coverage
 
 # Agent worktrees (local only)
 .claude/worktrees/
+tests/sim/tmp/

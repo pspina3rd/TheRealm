@@ -1765,7 +1765,6 @@ dialog.interlude .actions {
   border-color: var(--good);
 }
 
-.spell-row.locked .spell-attributes,
 .spell-row.max .stat-name {
   opacity: 0.6;
 }

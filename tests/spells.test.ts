@@ -37,7 +37,8 @@ import {
   enhancements,
   fitsStep,
   heroSpell,
-  isCategoryLocked,
+  isSealed,
+  sealedElement,
   isReady,
   knownSpell,
   levelStep,
@@ -300,25 +301,18 @@ describe('raiseSpellLevel', () => {
   });
 });
 
-describe('category locks', () => {
-  it('start empty and block enhancing the locked category only', () => {
+describe('spell seals', () => {
+  it('seal one spell, which can still be enhanced, and name its element', () => {
     const hero = heroWith(10, knownSpells('shadow', 'cure'));
-    expect(isCategoryLocked(hero, 'arcane')).toBe(false);
-    hero.failedLessons = { arcane: { spellId: 'shadow', level: 2 } };
-    expect(isCategoryLocked(hero, 'arcane')).toBe(true);
-    expect(canEnhance(hero, EMPTY_PLAN, 'shadow', 'power')).toBe(false);
-    expect(canEnhance(hero, EMPTY_PLAN, 'cure', 'power')).toBe(true);
-    const plan = adjustEnhancement(EMPTY_PLAN, 'shadow', 'power', 1);
-    expect(isValidSkillPlan(hero, plan)).toBe(false);
-    expect(isValidSkillPlan(hero, adjustEnhancement(plan, 'shadow', 'power', -1))).toBe(true);
-  });
-
-  it('lift once the hero knows the lost lesson’s spell at its level, however learned', () => {
-    const hero = heroWith(10, knownSpells('cure'));
-    hero.failedLessons = { fire: { spellId: 'fire', level: 1 } };
-    expect(isCategoryLocked(hero, 'fire')).toBe(true);
-    hero.spells.fire = newKnownSpell(); // e.g. from a tome
-    expect(isCategoryLocked(hero, 'fire')).toBe(false);
+    expect(isSealed(hero, 'shadow')).toBe(false);
+    expect(sealedElement(hero)).toBeNull();
+    hero.seal = { spellId: 'shadow', fights: 3 };
+    expect(isSealed(hero, 'shadow')).toBe(true);
+    expect(isSealed(hero, 'cure')).toBe(false);
+    expect(sealedElement(hero)).toBe('arcane');
+    expect(canEnhance(hero, EMPTY_PLAN, 'shadow', 'power')).toBe(true);
+    hero.seal = { spellId: 'goneSpell', fights: 1 };
+    expect(sealedElement(hero)).toBeNull();
   });
 });
 

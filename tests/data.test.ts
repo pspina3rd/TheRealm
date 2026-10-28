@@ -9,7 +9,6 @@ import { MENTORS } from '../src/data/mentors';
 import { NPCS } from '../src/data/npcs';
 import { dueScenes } from '../src/game/story';
 import { defeatedFlag } from '../src/world/state';
-import { challengeOnTerms } from '../src/game/attitude';
 import { SHOPS } from '../src/data/shops';
 import { SPELLS, STARTING_SPELLS } from '../src/data/spells';
 import { DIRECTION_DELTAS, mapHeight, mapWidth, tileAt, warpAt } from '../src/world/map';
@@ -201,16 +200,14 @@ describe('content references', () => {
     }
   });
 
-  it('asks barters for no more of a colour than full bags surely bring, even when Wary', () => {
+  it('asks barters for no more of a colour than full bags surely bring', () => {
     // Every bag of seven holds one piece (four crystals) of each colour.
     for (const npc of Object.values(NPCS)) {
-      for (const terms of ['neutral', 'wary'] as const) {
-        const spec = challengeOnTerms(npc.challenge, terms);
-        if (spec.kind !== 'barter') continue;
-        const sure = 4 * Math.floor(spec.pieceLimit / 7);
-        for (const [color, wanted] of Object.entries(spec.wants)) {
-          expect(wanted, `${npc.id} ${terms} ${color}`).toBeLessThanOrEqual(sure);
-        }
+      const spec = npc.challenge;
+      if (spec.kind !== 'barter') continue;
+      const sure = 4 * Math.floor(spec.pieceLimit / 7);
+      for (const [color, wanted] of Object.entries(spec.wants)) {
+        expect(wanted, `${npc.id} ${color}`).toBeLessThanOrEqual(sure);
       }
     }
   });

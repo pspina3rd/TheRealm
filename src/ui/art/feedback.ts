@@ -5,7 +5,7 @@
  */
 import type { CellTally } from '../../core/board';
 import { ELEMENTS, dominantElement, elementsOf, type Element } from '../../core/elements';
-import type { BattleEvent } from '../../battle/types';
+import type { BattleEvent, Beat, Face } from '../../battle/types';
 import { CRYSTAL_HEX } from '../crystals';
 import { ELEMENT_ICONS, type IconId } from './icons';
 import { SPELL_EFFECTS, type EffectId } from './vfx';
@@ -49,7 +49,11 @@ export type Feedback =
   /** The enemy's action gauge jumped (a mistake fed it): the gauge flashes. */
   | { readonly kind: 'rush' }
   /** Board cells ([x, y]) flash, e.g. crystals just turned to stone. */
-  | { readonly kind: 'flashCells'; readonly cells: readonly (readonly [number, number])[] };
+  | { readonly kind: 'flashCells'; readonly cells: readonly (readonly [number, number])[] }
+  /** The person in the stage strip pulls a face (wordless). */
+  | { readonly kind: 'face'; readonly face: Face }
+  /** The person says their line for this moment (the screen looks up the words). */
+  | { readonly kind: 'beat'; readonly beat: Beat };
 
 export const COLORS = {
   damage: '#ffffff',
@@ -256,5 +260,36 @@ export function feedbackFor(event: BattleEvent): Feedback[] {
           color: COLORS.price,
         },
       ];
+    case 'begin':
+      return [];
+    case 'demo':
+      return [{ kind: 'icon', target: 'board', icon: 'star' }];
+    case 'face':
+      return [{ kind: 'face', face: event.face }];
+    case 'beat':
+      return [{ kind: 'beat', beat: event.beat }];
+    case 'rise':
+      // A curse already shakes the board (see 'curse').
+      return event.source === 'curse' ? [] : [{ kind: 'shake', target: 'board' }];
+    case 'holes':
+      return [];
+    case 'lamp':
+      return [{ kind: 'icon', target: 'board', icon: event.lit ? 'star' : 'wind' }];
+    case 'spread':
+    case 'spores':
+      return [{ kind: 'flashCells', cells: event.cells }];
+    case 'saved':
+      return [{ kind: 'icon', target: 'board', icon: 'mushroom' }];
+    case 'lost':
+      return [{ kind: 'shake', target: 'board' }];
+    case 'sent':
+      return [{ kind: 'float', target: 'enemy', text: `+${event.rows}`, color: COLORS.combo }];
+    case 'shield':
+      return event.up
+        ? [{ kind: 'icon', target: 'enemy', icon: 'ward' }]
+        : [
+            { kind: 'shake', target: 'enemy' },
+            { kind: 'icon', target: 'enemy', icon: 'burst' },
+          ];
   }
 }

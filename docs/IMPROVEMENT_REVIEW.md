@@ -9,9 +9,10 @@ of features already implemented or a replacement for the team's decisions.
 
 Rechecked `claude/laughing-brown-7i13lb` at
 [`f17985d`](https://github.com/pspina3rd/TheRealm/commit/f17985d91e42f78100e44cf57441518cf597ad17).
-GetPutTaco includes the earlier team head `d14b3c4` through merge `238eff1`,
-but **16 newer team commits are not yet merged**. Therefore this branch is
-aligned with that earlier checkpoint, not fully synchronized with current work.
+The 16 newer team commits after `d14b3c4` have now been reconciled into
+GetPutTaco, preserving the playable campaign. The unified save format is
+version 11 and loads both independently written version-10 formats.
+The encounter foundations are merged; the player-facing M1 wiring is next.
 
 The new work includes board tags, controlled supply, encounter verbs, stakes,
 lesson shields, telegraphs, feasibility checks, and simulator changes. The
@@ -37,11 +38,10 @@ The current priority order is:
 5. **Endless mode and New Game+.** The approved addendum explicitly defers
    these until after the main game.
 
-Two concrete reconciliation issues need handling before further tuning:
-both branches independently use save version 10 for different additions
-(campaign entry versus stakes), and the team fixed a landing-origin defect
-still present in this branch's combat simulator. Reconcile migrations and
-apply the simulator correction before relying on earlier balance samples.
+Two concrete reconciliation issues were addressed before further tuning:
+the independent save-version-10 additions (campaign entry versus stakes)
+now migrate to version 11, and the corrected simulator landing origin is
+retained.
 Those samples remain historical diagnostics, not tuning targets.
 
 The addendum also resolves the rough class examples: Ranger **Breeze**,

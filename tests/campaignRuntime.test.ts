@@ -101,6 +101,7 @@ describe('campaign scene lifecycle', () => {
       to: { map: 'overworld', x: 18, y: 19 },
     };
     const state = newGame();
+    state.flags.add(C.descent);
     state.mapId = 'innerWard';
     state.x = 3;
     state.y = 19;
@@ -180,7 +181,7 @@ describe('campaign save compatibility', () => {
     const loaded = deserialize(JSON.stringify(old))!;
     expect([loaded.mapId, loaded.x, loaded.y]).toEqual(['overworld', 15, 19]);
     expect(loaded.flags.has(C.descent)).toBe(false);
-    expect(SAVE_VERSION).toBe(10);
+    expect(SAVE_VERSION).toBe(11);
   });
 
   it('does not reinterpret a newly recognized campaign destination as an old earned location', () => {

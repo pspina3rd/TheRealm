@@ -624,7 +624,8 @@ describe('combat events', () => {
     const list = events(battle);
     const move = list.findIndex((e) => e.kind === 'enemyMove');
     expect(move).toBeGreaterThanOrEqual(0);
-    expect(list[move + 1]).toEqual({ kind: 'curse', rows: 1 });
+    expect(list[move + 1]).toEqual({ kind: 'rise', rows: 1, source: 'curse' });
+    expect(list[move + 2]).toEqual({ kind: 'curse', rows: 1 });
   });
 
   it('reports the ward absorbing a hit', () => {

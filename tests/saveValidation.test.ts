@@ -112,18 +112,13 @@ describe('save validation: stale entries are repaired, not fatal', () => {
     expect(Object.keys(load(save)!.hero.spells)).toEqual(classSpells.slice(0, 1));
   });
 
-  it('drops impossible failed lessons and unknown or negative feats', () => {
+  it('drops a seal on a spell the hero does not know, and unknown or negative feats', () => {
     const save = data();
-    save.hero.failedLessons = {
-      arcane: { spellId: 'fire', level: 1 },
-      fire: { spellId: 'fire', level: 99 },
-      wind: 'lost',
-    };
+    save.hero.seal = { spellId: 'meteor', fights: 2 };
     save.hero.feats = { hastedClear: -1, 'pure.fire': 2, hastedQuad: 'x', bogus: 4 };
     save.hero.titleElement = 'missingElement';
     const hero = load(save)!.hero;
-    expect(Object.keys(hero.failedLessons)).toEqual(['fire']);
-    expect(hero.failedLessons.fire!.level).toBeLessThan(99);
+    expect(hero.seal).toBeNull();
     expect(hero.feats).toEqual({ 'pure.fire': 2 });
     expect(hero.titleElement).not.toBe('missingElement');
   });

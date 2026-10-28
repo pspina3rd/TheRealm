@@ -327,7 +327,8 @@ function execute(battle: Battle, spot: Spot): void {
   const piece = board.active;
   if (piece) {
     const minX = Math.min(...piece.cells.map(([cx]) => cx));
-    const target = spot.x - minX;
+    // A spot's x is the origin of its own cells (an O's start a column in): match left edges.
+    const target = spot.x + Math.min(...spot.cells.map(([cx]) => cx)) - minX;
     for (let i = 0; i < 12 && piece.x > target; i++) battle.input('left');
     for (let i = 0; i < 12 && piece.x < target; i++) battle.input('right');
   }
@@ -349,7 +350,7 @@ function choose(battle: Battle, style: Style): Spot | null {
 function castReady(battle: Battle): void {
   const combat = battle.combat;
   if (!combat) return;
-  for (const id of Object.keys(battle.hero.spells)) {
+  for (const id of Object.keys(combat.spellBook())) {
     const kind = SPELLS[id]?.levels[0].effect.kind;
     if (kind === 'heal' && battle.hero.hp > battle.hero.maxHp * 0.5) continue;
     if (combat.cannotCastReason(id) === null && combat.status() === 'ongoing') combat.castSpell(id);

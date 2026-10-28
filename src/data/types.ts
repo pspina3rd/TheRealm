@@ -264,6 +264,19 @@ export type ChallengeSpec =
       readonly enemyId: string;
       readonly difficulty: number;
     }
+  /**
+   * An encounter (docs/ENCOUNTER_DESIGN.md): a person's verb on their own
+   * board (`ENCOUNTER_DEFS[id]`), at `strain` (0–2, how much worse after
+   * fails), with their demo on the first try, and the mentor's assist on
+   * an assisted threshold try.
+   */
+  | {
+      readonly kind: 'encounter';
+      readonly id: string;
+      readonly strain: number;
+      readonly demo: boolean;
+      readonly assisted: boolean;
+    }
   /** Solve a preset board with a fixed piece sequence. */
   | {
       readonly kind: 'puzzle';

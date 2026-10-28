@@ -1,6 +1,6 @@
 import { cellColors, type Board, type QueuedPiece } from '../core/board';
 import { ELEMENT_OF_COLOR } from '../core/elements';
-import { PIECES, type Cell } from '../core/pieces';
+import { PIECES, isCrystal, type Cell } from '../core/pieces';
 import type { Feedback } from './art/feedback';
 import { ICON_SIZE, ELEMENT_ICONS, type IconId } from './art/icons';
 import { CRYSTAL_HEX } from './crystals';
@@ -335,7 +335,7 @@ export function drawCrystal(
   ctx.fillRect(x + 1, y + 1, size - 2, size - 2);
   ctx.fillStyle = '#ffffff35';
   ctx.fillRect(x + 3, y + 3, size - 6, 3);
-  if (cell !== 'stone' && size >= 24) {
+  if (isCrystal(cell) && size >= 24) {
     const glyph = ICON_SIZE * GLYPH.scale;
     const scale = size >= 28 ? GLYPH.scale : 1;
     const offset = (size - (scale === 1 ? ICON_SIZE : glyph)) / 2;

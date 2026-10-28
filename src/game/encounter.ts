@@ -12,7 +12,6 @@ import { markDefeated, travel, type GameState } from '../world/state';
 import {
   ATTITUDE_PRICES,
   attitudeOf,
-  challengeOnTerms,
   dealTerms,
   introFor,
   lineKey,
@@ -30,7 +29,8 @@ import { preludeFor } from './story';
 import { addItem, gainXp, itemCount, removeItem } from './hero';
 import { completeLesson, lessonsFor, type Lesson } from './lessons';
 import { grantRewards, type Gain } from './rewards';
-import { isCategoryLocked, type FailedLesson } from './spells';
+import { sealedElement } from './spells';
+import { regardOf } from './stakes';
 import { SKILL_POINTS_PER_LEVEL, dropBonus } from './stats';
 import { FALL_HP_SHARE, HOME_FALL_HP_SHARE } from '../data/balance';
 import { CAMPAIGN_FLAGS } from '../data/campaignFlags';
@@ -58,8 +58,8 @@ export type Interaction =
       readonly kind: 'lessons';
       readonly mentorId: string;
       readonly lessons: readonly Lesson[];
-      /** The lesson the hero lost here and must win to lift the lock, if any. */
-      readonly failed: FailedLesson | null;
+      /** The spell of theirs a lost lesson sealed (win its lesson to lift it), if any. */
+      readonly sealed: string | null;
       /** The mentor's hidden spells still unrevealed, shown as silhouettes. */
       readonly silhouettes: readonly HiddenSlot[];
     })
@@ -143,7 +143,7 @@ export function entitySprite(entity: EntityDef): string | undefined {
 export function entityAttitude(state: GameState, entity: EntityDef): Attitude | null {
   if (entity.kind !== 'npc') return null;
   const npc = NPCS[entity.npcId];
-  return npc && !npc.inanimate ? attitudeOf(state.hero, npc) : null;
+  return npc && !npc.inanimate ? attitudeOf(state.hero, npc, regardOf(state, npc.id)) : null;
 }
 
 function mentorFor(entity: EntityDef): MentorDef {
@@ -175,9 +175,10 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
           ...speaker,
           mentorId: mentor.id,
           lessons,
-          failed: isCategoryLocked(state.hero, mentor.element)
-            ? (state.hero.failedLessons[mentor.element] ?? null)
-            : null,
+          sealed:
+            sealedElement(state.hero) === mentor.element
+              ? (state.hero.seal?.spellId ?? null)
+              : null,
           silhouettes,
         }
       : { kind: 'message', ...speaker };
@@ -199,7 +200,7 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
   }
 
   const npc = npcNow(npcFor(entity), state.flags);
-  const attitude = attitudeOf(state.hero, npc);
+  const attitude = attitudeOf(state.hero, npc, regardOf(state, npc.id));
   const speaker = { title: npc.name, sprite: npc.sprite, ...(npc.inanimate ? {} : { attitude }) };
   if (!npc.repeatable && state.flags.has(npcCompletionFlag(npc))) {
     return {
@@ -214,7 +215,7 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
     return { kind: 'message', ...speaker, text };
   }
   const text = introFor(npc, attitude, state.talk);
-  const spec = challengeOnTerms(npc.challenge, terms);
+  const spec = npc.challenge;
   if (spec.kind === 'offering' && itemCount(state.hero, spec.itemId) < 1) {
     return { kind: 'needsItem', ...speaker, text, itemId: spec.itemId };
   }

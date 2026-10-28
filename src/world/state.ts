@@ -4,6 +4,7 @@ import type { Direction, EntityDef, Location, MapDef } from './map';
 import { mentorEntities } from './mentors';
 import { vesperEntities } from '../game/story';
 import type { LineMemory } from '../game/lines';
+import { leaveTown, type EncounterRecord, type PriceChange } from '../game/stakes';
 
 /** Everything needed to resume a game. */
 export interface GameState {
@@ -22,6 +23,16 @@ export interface GameState {
   victories: number;
   /** How often each speaker's moments have been said, to rotate their lines (see `src/game/lines.ts`). */
   talk: LineMemory;
+  /** Days ended (a day ends at an inn): once-a-day rules and markups count them. */
+  day: number;
+  /** Each person's regard for the hero, −2 to +2 (see `src/game/stakes.ts`)… */
+  regard: Record<string, number>;
+  /** …and the level their first won encounter left it at (repeat wins restore up to it). */
+  regardPeak: Record<string, number>;
+  /** Each encounter's strain, fails, wins and retry state, by encounter id. */
+  encounters: Record<string, EncounterRecord>;
+  /** Haggle discounts and markups, by shop id. */
+  prices: Record<string, PriceChange>;
 }
 
 export function newGame(classId?: string, heroName?: string): GameState {
@@ -36,6 +47,11 @@ export function newGame(classId?: string, heroName?: string): GameState {
     respawn: { ...START },
     victories: 0,
     talk: {},
+    day: 0,
+    regard: {},
+    regardPeak: {},
+    encounters: {},
+    prices: {},
   };
 }
 
@@ -71,7 +87,10 @@ export function markDefeated(state: GameState, entity: EntityDef): void {
 /** Moves to a location, resetting temporary monster clears when the map changes. */
 export function travel(state: GameState, to: Location): void {
   if (!MAPS[to.map]) throw new Error(`Unknown map: ${to.map}`);
-  if (to.map !== state.mapId) state.cleared.clear();
+  if (to.map !== state.mapId) {
+    state.cleared.clear();
+    leaveTown(state, to.map);
+  }
   state.mapId = to.map;
   state.x = to.x;
   state.y = to.y;

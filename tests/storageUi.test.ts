@@ -188,7 +188,8 @@ function endingFixture(store: KeyValueStore): EndingApp {
   state.mapId = 'innerWard';
   state.x = 16;
   state.y = 11;
-  for (const flag of ['scene:opening', 'scene:refusal', C.rite, C.wardReady]) state.flags.add(flag);
+  for (const flag of ['scene:opening', 'scene:refusal', C.descent, C.rite, C.wardReady])
+    state.flags.add(flag);
   saveGame(store, state);
   const app = new App(atlas, store);
   app.start();
