@@ -38,6 +38,8 @@ const HINT = Number(process.env.HINT ?? 1);
  */
 const NOISE = Number(process.env.NOISE ?? 1);
 const GHOST = Number(process.env.GHOST ?? 0);
+/** Diagnosis: the good bot's own touch slips, on the casual bot's scale (0 = none, as specced). */
+const GOOD_NOISE = Number(process.env.GOOD_NOISE ?? 0);
 /** Diagnosis: the casual bot's judgement (`bestFit` by default, or `survival`) and hint weight. */
 const CASUAL_JUDGE = process.env.CASUAL_JUDGE ?? 'bestFit';
 const CASUAL_HINT = Number(process.env.CASUAL_HINT ?? HINT);
@@ -236,7 +238,7 @@ const key = (cells: readonly (readonly [number, number])[]): string => {
 export function execute(
   battle: Battle,
   landing: Landing,
-  noise: boolean,
+  noise: boolean | number,
   rng: () => number,
   drop = true,
 ): void {
@@ -245,8 +247,10 @@ export function execute(
   for (let i = 0; i < 4 && board.active && key(board.active.cells) !== want; i++)
     battle.input('rotate');
   // A slip happens, unless the ghost shows it and the player corrects it before release.
+  // `noise`: true is the casual bot's NOISE scale; a number is its own scale.
+  const scale = noise === true ? NOISE : noise === false ? 0 : noise;
   const slip = (rate: number): boolean =>
-    noise && rng() < rate * NOISE && !(GHOST > 0 && rng() < GHOST);
+    scale > 0 && rng() < rate * scale && !(GHOST > 0 && rng() < GHOST);
   if (slip(0.05)) battle.input('rotate');
   const piece = board.active;
   if (piece) {
@@ -313,6 +317,7 @@ export function playEncounter(
   const fight = battle.combat !== null;
   const noise = createRng(seed ^ 0x5eed);
   const think = PACE[bot];
+  const touchNoise = bot === 'casual' ? NOISE : bot === 'good' ? GOOD_NOISE : 0;
   const STEP = 50;
   let ms = 0;
   let begun = 0;
@@ -331,7 +336,7 @@ export function playEncounter(
       if (fight) castReady(battle);
       if (battle.status !== 'ongoing') break;
       const choice = bot === 'good' ? goodChoice(battle) : casualChoice(battle);
-      if (choice) execute(battle, choice, bot === 'casual', () => noise.next(), false);
+      if (choice) execute(battle, choice, touchNoise, () => noise.next(), false);
       if (process.env.AIM && choice) {
         const a = battle.board.active!;
         process.stderr.write(
@@ -357,7 +362,7 @@ export function playEncounter(
           );
       } else {
         const choice = bot === 'good' ? goodChoice(battle) : casualChoice(battle);
-        if (choice) execute(battle, choice, bot === 'casual', () => noise.next());
+        if (choice) execute(battle, choice, touchNoise, () => noise.next());
         else battle.input('hardDrop');
       }
       current = battle.board.active;
