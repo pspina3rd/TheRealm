@@ -74,10 +74,19 @@ export class LessonChallenge extends CombatChallenge {
     return this.lent ? { ...own, [this.spellId]: newKnownSpell() } : own;
   }
 
+  /**
+   * Casting the taught spell breaks a raised shield, whatever the spell
+   * does (a heal breaks it as surely as a strike), and its own strike
+   * passes the mark.
+   */
   override castSpell(spellId: string): void {
     this.casting = spellId === this.spellId;
     try {
       super.castSpell(spellId);
+      if (this.casting && this.shield === 'up') {
+        this.shield = 'broken';
+        this.ctx.emit({ kind: 'shield', up: false });
+      }
     } finally {
       this.casting = false;
     }

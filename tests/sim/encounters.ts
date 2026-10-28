@@ -25,6 +25,7 @@ import type { ChallengeSpec } from '../../src/data/types';
 import { createHero, gainXp, type Hero } from '../../src/game/hero';
 import { dualChance } from '../../src/game/pieceOdds';
 import { DuelChallenge } from '../../src/battle/verbs/duel';
+import { ENCOUNTER_DEFS } from '../../src/data/encounters';
 
 /** How much the good bot weighs the challenge's hint against plain stacking. */
 const HINT = Number(process.env.HINT ?? 3);
@@ -384,6 +385,16 @@ export interface Cell {
   readonly causes: Readonly<Record<string, number>>;
   /** Mean final price (haggles). */
   readonly price: number;
+}
+
+/**
+ * Layout trials: ROWAN=row,row,… replaces the well's start rows (top
+ * first) for this run, so a re-authored layout can be simmed before it is
+ * written into src/data/encounters.ts.
+ */
+if (process.env.ROWAN) {
+  const spec = ENCOUNTER_DEFS.elder!.spec as { params: { rows: readonly string[] } };
+  spec.params = { ...spec.params, rows: process.env.ROWAN.split(',') };
 }
 
 /** One table cell: `runs` seeds of an encounter with one bot, first try, at a strain. */

@@ -1,5 +1,6 @@
 import type { LockResult } from '../../core/board';
 import type { Landing, TagGrid } from '../../core/landing';
+import { isCrystal } from '../../core/pieces';
 import { TELEGRAPH_LEAD } from '../../data/balance';
 import {
   piecesLeft,
@@ -82,7 +83,7 @@ export class ContainChallenge implements Challenge {
           const ny = y + dy;
           const cell = grid[ny]?.[nx];
           const key = `${nx},${ny}`;
-          if (cell === undefined || cell === null || cell === 'stone' || seen.has(key)) continue;
+          if (!isCrystal(cell ?? null) || seen.has(key)) continue;
           const t = tags[ny]?.[nx] ?? null;
           if (t === 'hazard') continue;
           seen.add(key);

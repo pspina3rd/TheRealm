@@ -49,7 +49,7 @@ export class DigChallenge implements Challenge {
       moldText(board.width, ctx.rng),
     );
     board.loadRows([...extra, ...params.rows], { P: { cell: 'stone', tag: 'target' } });
-    this.untilRise = Number(process.env.RISE ?? params.risingEvery);
+    this.untilRise = params.risingEvery;
     this.start = this.rowsAbove();
   }
 
