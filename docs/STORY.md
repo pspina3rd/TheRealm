@@ -22,6 +22,27 @@ A new game starts by picking a class; the hero wakes in Mossvale Village. Class 
 | Mage | Ares | Arcane | Shadow | Deep mana pools and keen insight, but fragile. |
 | Rogue | Vex | Lightning | Thunder | Hits harder, pays less in shops and starts with a fat purse. |
 
+### Opening: the night the stone dims
+
+Shown once on a new game, after class select and before the hero has control in Mossvale: one interlude a beat. Beat 4 is said by the hero, in their class's words.
+
+| Beat | Stage direction | Line |
+| --- | --- | --- |
+| 1 | *Night over Sevenstones. Seven standing crystals ring the land, each glowing its own colour: red, blue, gold, green, orange, violet, cyan.* | — |
+| 2 | *The violet stone flickers and goes grey. The other six burn a little lower, like candles in a draught.* | — |
+| 3 | *Far beneath the stones, something enormous breathes in. Every lamp in every village dims at once.* | *A voice too deep to be heard, only felt:* "Sleep." |
+| 4 | *Mossvale at dawn. As always, you're first up, lighting the lane lamps. Bean is already in her rows and Ordor is unbarring his stall. But the baker's shutters stay closed, and so do the Millers' and old Tess's. Three houses, and no one stirs.* | *(class line, below)* |
+| 5 | *At the well, Elder Rowan hauls up a bucket. The water inside is violet.* | Rowan: "Three houses still abed, and the well's gone purple. Something's wrong, kid." |
+
+### Opening: class lines (beat 4)
+
+| Class | Line |
+| --- | --- |
+| Ranger **Fern** | • "The baker's never slept through a dawn in his life. And the wind hasn't moved since midnight." |
+| Knight **Lance** | • "The Millers' door is still barred. Old Tom's been up before me every day for ten years." |
+| Mage **Ares** | • "My candle burned all night and gave no light. Now three houses won't wake. Those two things are connected." |
+| Rogue **Vex** | • "Three houses, shutters closed, nobody home who'll answer. I could... no. Something's wrong." |
+
 ## Antagonists & The Depths
 
 ### Vesper, Thrall of the Depths
@@ -112,6 +133,36 @@ Nature · Haggle · Reward: opens their shop
 | You succeed | • "Hmph. Fine. Take it and go."<br>• "Drive a hard bargain. Here's your gear." | • "Fair deal! Pleasure doing business with you."<br>• "Done! Take a look at the full selection." | • "Ah, you bested me! Take the goods, my friend, and my thanks!"<br>• "A master bargainer! Here's the best stock in Mossvale!" |
 | You fail | • "Ha! Not a chance. Full price or move along." | • "Lost your nerve? Come back when you've got real silver."<br>• "No sale at that rate, friend." | • "Ah, close! We'll strike a deal next time." |
 
+## The Refusal
+
+Shown once, the first time the hero leaves Mossvale, just before Vision 1. The rune stone of R4 is Rowan's Focus Stone: the scene grants nothing, and the stone stays his reward for the well.
+
+### The Refusal: beats R1–R4
+
+| Beat | Stage direction | Line |
+| --- | --- | --- |
+| R1 | *The stile at the village edge. Beyond it, the road to Sevenstones runs grey under a dim sky. You stop.* | *(class line, below)* |
+| R2 | *A gust, and a woman drops out of the sky with a satchel full of letters. Kestrel.* | Kestrel: "Two letters. One from Selene at Moonfall, 'to whoever's still awake in Mossvale'. And one for Elder Rowan, from the inn at Brightwater." |
+| R3 | *Rowan reads his, then reads it again. His hands shake.* | Rowan: "My boy, Hareguy. Asleep three weeks at the inn, and they can't wake him. I can't make that road on these knees, kid." |
+| R4 | *He presses the old rune stone into your palm.* | Rowan: "Found this the year I dug the well. Never knew what it was for. Maybe it was for this." |
+
+### The Refusal: class lines (R1)
+
+| Class | Line |
+| --- | --- |
+| **Fern** | • "Never went past the second ridge. Never needed to." |
+| **Lance** | • "My post is here. A knight doesn't leave his post." |
+| **Ares** | • "My books are here. Whatever's out there isn't in them." |
+| **Vex** | • "Not my village. Not my problem. Right?" |
+
+### Innkeeper Pete, on Rowan's son
+
+Brightwater's innkeeper says this among his greetings (Neutral and Friendly).
+
+| Moment | Neutral / Friendly |
+| --- | --- |
+| Greeting | • "Rowan's boy is upstairs. Three weeks asleep. Breathes fine. Just won't wake." |
+
 ## The Realm and Brightwater Town
 
 ### Captain Vale
@@ -156,3 +207,126 @@ Seven mentors, one per element. They teach through team-up lessons and travel a 
 | Selene | Arcane | Moonfall Ruins, moon tower | • "Something deep below drinks the moonlight. I need a second mind to hold the dark." | • "Two minds, one moon. Beautifully held." | • "The focus slipped. Follow the moonlight to my tower." |
 | Kestrel | Wind | Windward Cliffs, eyrie | • "My letters must reach every village. Learn the winds and your road gets shorter." | • "Ha! You flew! Keep that speed!" | • "Blown off course! Catch me along the cliff path." |
 
+## The Mentors: new rows
+
+Said as the hero walks up to a mentor, in the hero's mood with the mentor's element: *If you failed their lesson* while their category is locked; *Seeks you out* while they seek the hero (a board feat they noticed); *Arrives somewhere new* on the first talk since they moved to a new stop away from home; *After the lesson* once one of their lessons is won; otherwise why they teach. *At the Road Back* belongs to the second half and is not said yet.
+
+### Torva
+
+Fire · gruff, proud, ashamed of her hands
+
+| Moment | Hostile / Wary | Neutral | Friendly / Devoted |
+| --- | --- | --- | --- |
+| Arrives somewhere new | • *Torva warms her hands over a stranger's hearth and scowls at it.* "Call this a fire? Hmph." | • "Came for coal. Stayed because the fire here's even sadder than mine."<br>• *She flexes her fingers.* "Road's good for the hands. Some days." | • "There you are, spark! Knew I'd find you somewhere warm." |
+| Seeks you out | • "You. Still carrying my flame? Don't let it go out on me." | • "Didn't walk all this way for the view. Got a lesson burning a hole in me."<br>• "The forge was too quiet without the noise you make." | • *She grips your shoulder. Her hand barely shakes.* "Steadier today. Must be the company. Come on, spark, one more." |
+| After the lesson | • "Flame's yours. Don't make me take it back." | • "You hold heat better than my apprentice. Don't tell Cinda."<br>• "The fire likes you. Took it years to like me." | • "Watching you work the flame... that's the best my hands have felt all year." |
+| If you failed their lesson | • "Cold. Come back when you've got some fire in you." | • "Coals don't relight themselves. Find me again."<br>• "Fire's sulking. So am I. Later." | • "We'll relight it, spark. I've burned more than that in my day." |
+
+### Maren
+
+Water · calm, slow-spoken, motherly, quietly grieving her lake
+
+| Moment | Hostile / Wary | Neutral | Friendly / Devoted |
+| --- | --- | --- | --- |
+| Arrives somewhere new | • *Maren kneels at a puddle and frowns at it.* "Even this water is restless." | • "I follow the water. It's been running toward the caves lately."<br>• "Every spring I pass is a little murkier than the last." | • "Ah, love. I followed the river and it led me to you." |
+| Seeks you out | • "The tide doesn't care whether you like me. Come and learn it anyway." | • "The lake sent me. That's how it feels, anyway. Shall we?"<br>• "You've been near deep water. I can tell. Let me teach you to read it." | • *She tucks a damp strand of hair behind her ear.* "I missed you at the jetty, love. Come, the current's gentle today." |
+| After the lesson | • "The water knows you. That will have to do." | • "Myst says her spring ran clear the day you passed. Water remembers kindness."<br>• "Listen to the lake when you sleep. It's trying to warn us." | • "My lake is clouding, but you aren't. That's comfort enough, love." |
+| If you failed their lesson | • "The water turned you away. Come back calmer." | • "The tide went out on you. It comes back. So should you."<br>• "Rest. Water can't be rushed." | • "Oh, love, everyone gets pulled under once. Find me at the jetty." |
+
+### Rook
+
+Lightning · loud, impatient, laughs at danger
+
+| Moment | Hostile / Wary | Neutral | Friendly / Devoted |
+| --- | --- | --- | --- |
+| Arrives somewhere new | • *Rook squints at the sky, ignoring you.* "No storm here. Waste of a walk." | • "Chased a cloud halfway across Sevenstones. It got away. Rude."<br>• *His hair is standing on end.* "Don't touch me. I'm still charged." | • "Ha! Knew you'd be under the loudest sky!" |
+| Seeks you out | • "Oi. Still slow? Let's fix that." | • "Storm's coming in three minutes. Lesson takes two. Move!"<br>• "Ran down off the peaks for this. You'd better be quick." | • "There's my lightning rod! Come on, the clouds won't wait for either of us." |
+| After the lesson | • "Quick enough. For now." | • "The storms are getting stranger. Shapes in them. You'll want that speed."<br>• "Struck twice and still standing. I like you better already." | • "Watch the next storm with me sometime. We'll name the bolts." |
+| If you failed their lesson | • "Too slow. Come back faster." | • "The bolt beat you. Happens. Not twice, though."<br>• "I'll be chasing clouds. Catch me if you can. Ha!" | • "Bah, the sky cheated. We'll get it next time, friend." |
+
+### Hazel
+
+Nature · gentle, but fierce about growing things
+
+| Moment | Hostile / Wary | Neutral | Friendly / Devoted |
+| --- | --- | --- | --- |
+| Arrives somewhere new | • *Hazel pulls a grey cap out of the ground and crushes it.* "Here too. Of course." | • "Following the spore threads. They all run downward."<br>• "Your road's got good soil under the rot. Nice to see." | • "Oh, look at you, sprout! You've grown since the grove." |
+| Seeks you out | • "Wipe that look off your face and pick up a trowel." | • "The meadows can spare me for an afternoon. Let's grow something."<br>• "I've seeds that want planting and hands that want help." | • *She presses a seed into your palm.* "Kept this one for you. Come plant it with me, sprout." |
+| After the lesson | • "It grew. Don't let it go to your head." | • "Bean sends her thanks. Her rows are green again."<br>• "Life springs back if you give it half a chance." | • "Every green thing I see on the road, I think, 'my sprout did that'." |
+| If you failed their lesson | • "Shallow roots. Come back when you've learned patience." | • "Roots take time. So do you."<br>• "The rot won that bed. Not the meadow." | • "Even oaks start as stubborn little acorns, sprout. Find me in the meadow." |
+
+### Dorn
+
+Earth · grieving, terse, obsessed with safety
+
+| Moment | Hostile / Wary | Neutral | Friendly / Devoted |
+| --- | --- | --- | --- |
+| Arrives somewhere new | • *Dorn taps the ground with his boot and listens.* "Hollow. Don't stand there." | • "Came to check the ground. It's been moving."<br>• *He studies a crack in the wall.* "Fresh. That wasn't here last month." | • "Good. You're on solid rock. Stay there." |
+| Seeks you out | • "Lesson. Now. Before you dig yourself into a hole." | • "Flint says you cleared the ridge. Let's see if you know why it fell."<br>• "Came up from the lifts. Don't make me regret it." | • *He hands you a lamp.* "Never go under without one. Come on. One more lesson." |
+| After the lesson | • "Ground holds. Keep it that way." | • "You read rock better than my last crew did. Better than me, back then."<br>• "If you go down the caves, test every step." | • "My crew would've liked you. Promise me you come back up." |
+| If you failed their lesson | • "Rock won. Come back." | • "Learn the ground before you trust it. I'll be by the lift."<br>• "That's how it starts. One bad step." | • "Rock's patient. So am I. Come back down when you're ready." |
+
+### Kestrel
+
+Wind · fast-talking courier, always mid-journey
+
+| Moment | Hostile / Wary | Neutral | Friendly / Devoted |
+| --- | --- | --- | --- |
+| Arrives somewhere new | • *Kestrel lands from a gust, already reading a letter.* "Not for you. Move." | • "Three villages before lunch. This one's the fourth!"<br>• "Post! Anyone? No? Fine, I'll leave it on the well." | • "Ha! Caught you on my route. Lucky me!" |
+| Seeks you out | • "Got a letter with your name on it. It says 'learn faster'." | • "Took a shortcut off a cliff to find you. Lesson?"<br>• "The wind kept blowing me your way. Took the hint." | • *She drops a letter in your hand. It's blank.* "Didn't have one for you, so I made an excuse. Come fly!" |
+| After the lesson | • "Faster. Good. Keep up." | • "Letters are all bad news lately. Nice to deliver something good: you."<br>• "The road's shorter when you know the wind." | • "If I ever retire, you're taking my route. No arguments!" |
+| If you failed their lesson | • "Blown off course. Typical." | • "Gusts got you. I'll be on the cliff path."<br>• "Wind'll still be there tomorrow. So will I, probably." | • "Ha! I've crashed worse. Catch me on the road and we'll go again!" |
+
+### Selene
+
+Arcane · quiet, precise, watches the sky
+
+| Moment | Hostile / Wary | Neutral | Friendly / Devoted |
+| --- | --- | --- | --- |
+| Arrives somewhere new | • *Selene looks up at the dim moon and makes a note.* "Fainter. You wouldn't notice." | • "I came to measure the moonlight here. There's less of it than there should be."<br>• "The stars over this town are thinner. I'm keeping count." | • "Ah. I hoped our paths would cross under a clear sky." |
+| Seeks you out | • "Your focus is poor. I've come to correct it." | • "I came down from the tower. That should tell you how much it matters."<br>• "Something drinks the moon. I need your mind clear before you meet it." | • *She sets a hand lightly on yours.* "Two minds. Let's hold the moon together once more." |
+| After the lesson | • "Adequate. The dark will test you harder." | • "The violet stone at Sevenstones dimmed first. I don't think that's chance."<br>• "Keep your thoughts quiet below. Something listens." | • "Few people can hold the dark with me. I'm glad it's you." |
+| If you failed their lesson | • "The focus broke. Come back composed." | • "It slipped. Follow the moonlight to my tower."<br>• "Rest your mind. It's tired, and so is the moon." | • "Don't be hard on yourself. The moon is weak tonight. Come back." |
+
+### At the Road Back (second half, relighting their stone at Sevenstones)
+
+One line per mentor. Mood columns are optional here, because by this point the bond is earned.
+
+| Mentor | Line |
+| --- | --- |
+| Torva | • *Her hands are steady on the red stone.* "Look at that. Not a shake. Must be you, spark." |
+| Maren | • "The lake cleared the day you went down. I've been waiting at this stone ever since, love." |
+| Rook | • "Stone's dark, sky's dark, and you're late! Ha! Light it with me." |
+| Hazel | • "Grey moss all the way up the stone. We'll grow it back, sprout. We always do." |
+| Dorn | • "You came back up. I said you would. Hold the lamp while I steady the stone." |
+| Kestrel | • "Every village sent a letter, and they all say the same thing: 'Is the hero back?' Yes. Yes, they are." |
+| Selene | • "The violet stone went first, and it will go last. Hold it with me, one more time." |
+
+## The Moon Wyrm's fall
+
+In the lair, after the Wyrm is beaten (after the results).
+
+| Beat | Text |
+| --- | --- |
+| 1 | *The great serpent's coil slackens around the moon-crystal. Its last word breaks off halfway, as if whatever was speaking simply stopped.* |
+| 2 | *What's left is only an animal: grey, ancient, half-blind. It lowers its head and lets out a long, shaking breath.* |
+| 3 | *Moonlight pours out of the crystal and up through the stone. The Wyrm closes its eye and sleeps, a real sleep this time.* |
+
+## End of Chapter One
+
+Straight after the Wyrm's fall. Then the summary (Chapter One complete) shows what the hero became, and the hero plays on.
+
+| Beat | Text |
+| --- | --- |
+| 1 · Moonrise | *Silver light climbs every well and crack. The violet stone of Sevenstones flickers, then glows. In Brightwater, sleepers stir and yawn.* |
+| 2 · Captain Vale | After the Moon Wyrm falls, Captain Vale has the last word: "You came back, the realm owes you; so do I..." |
+| 3 · The seal | The Sunken Ruins' seal then glows, distracting everyone. *Across Sevenstones, the ancient ward flares silver. The watch turn to stare.* |
+| 4 · The voice | Suddenly a voice is heard rumbling through the breeze. *It's the voice from every vision, but there's no Wyrm now to carry it. The grass flattens and the lamps gutter.* "A good throat. Old, and very obedient. **I have others.**" |
+| 5 · The footprints | *At the cave mouth, Vale's guards find a dark cloak, empty and soaked. Wet footprints lead across Sevenstones to the glowing ward.* |
+| 6 · The hook | *An old man waits by the ward, holding a brass lantern with no flame. He looks at the footprints, then at you.* "Those prints. I'd know them anywhere. I taught the boy who made them to walk." |
+
+### The Sunken Ruins' ward, after the Wyrm (map text)
+
+| Where | Text |
+| --- | --- |
+| The ward | • The ward hums with fresh moonlight. Wet footprints end at its edge.<br>• Below the ward, a bell rings once. It will open in the next chapter. |

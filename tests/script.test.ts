@@ -7,8 +7,18 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { CLASSES } from '../src/data/classes';
 import { MENTORS } from '../src/data/mentors';
-import { NPCS } from '../src/data/npcs';
-import { PRELUDES, VESPER_LINES, VISIONS } from '../src/data/story';
+import { HAREGUY, NPCS } from '../src/data/npcs';
+import {
+  CHAPTER_END,
+  OPENING,
+  PRELUDES,
+  REFUSAL,
+  VESPER_LINES,
+  VISIONS,
+  WARD_AFTER_WYRM,
+  WYRM_FALL,
+  type SceneDef,
+} from '../src/data/story';
 import type { Line, NpcLines, Variants } from '../src/data/types';
 import { variantsOf, type Mood } from '../src/game/lines';
 import { bulletText, cellVariants, loadScript, readScript, type Cell } from './storyScript';
@@ -23,6 +33,37 @@ const WYRM_ROWS: Readonly<Record<string, Variants>> = {
   'Lair Confrontation (Moon Caves Depths)': PRELUDES.moonWyrm!,
 };
 const MOODS: readonly Mood[] = ['cold', 'plain', 'warm'];
+/** The scenes' sections, by the script's own names. */
+const OPENING_BEATS = 'Opening: the night the stone dims';
+const OPENING_CLASS = 'Opening: class lines (beat 4)';
+const REFUSAL_BEATS = 'The Refusal: beats R1–R4';
+const REFUSAL_CLASS = 'The Refusal: class lines (R1)';
+const PETE = "Innkeeper Pete, on Rowan's son";
+const ROAD_BACK = 'At the Road Back (second half, relighting their stone at Sevenstones)';
+const WARD = "The Sunken Ruins' ward, after the Wyrm (map text)";
+/** The scene tables' row names, beat by beat. */
+const BEAT_ROWS: Readonly<Record<string, readonly string[]>> = {
+  [OPENING_BEATS]: ['1', '2', '3', '4', '5'],
+  [REFUSAL_BEATS]: ['R1', 'R2', 'R3', 'R4'],
+  "The Moon Wyrm's fall": ['1', '2', '3'],
+  'End of Chapter One': [
+    '1 · Moonrise',
+    '2 · Captain Vale',
+    '3 · The seal',
+    '4 · The voice',
+    '5 · The footprints',
+    '6 · The hook',
+  ],
+};
+/** How the beats' tables name who speaks. */
+const SHORT_NAMES: Readonly<Record<string, string>> = { elder: 'Rowan', kestrel: 'Kestrel' };
+/** The mentors' new rows, by the script's own names. */
+const MENTOR_ROWS = {
+  'Arrives somewhere new': 'arrives',
+  'Seeks you out': 'seeks',
+  'After the lesson': 'afterLesson',
+  'If you failed their lesson': 'failedLesson',
+} as const;
 const MOMENTS: Readonly<Record<string, keyof NpcLines>> = {
   Greeting: 'intro',
   'Confides (Devoted only)': 'confide',
@@ -114,6 +155,60 @@ describe('the author’s script is the game’s text', () => {
     }
   });
 
+  it('the opening and the Refusal, beat by beat, with each class’s lines', () => {
+    const tables: [string, SceneDef][] = [
+      [OPENING_BEATS, OPENING],
+      [REFUSAL_BEATS, REFUSAL],
+    ];
+    for (const [section, scene] of tables) {
+      scene.beats.forEach((beat, i) => {
+        const [stage, line] = rowOf(section, BEAT_ROWS[section]![i]!);
+        expect([beat.stage], `${section} ${i}`).toEqual(stage);
+        const said = beat.classLines
+          ? '*(class line, below)*'
+          : beat.line === undefined
+            ? '—'
+            : `${beat.who ? `${SHORT_NAMES[beat.who]}: ` : ''}${beat.line}`;
+        expect([said], `${section} ${i}`).toEqual(line);
+      });
+    }
+    for (const cls of Object.values(CLASSES)) {
+      expect(rowOf(OPENING_CLASS, `${cls.name} ${cls.heroName}`)[0]).toEqual([
+        OPENING.beats[3]!.classLines![cls.id],
+      ]);
+      expect(rowOf(REFUSAL_CLASS, cls.heroName)[0]).toEqual([
+        REFUSAL.beats[0]!.classLines![cls.id],
+      ]);
+    }
+    expect(rowOf(PETE, 'Greeting')[0]).toEqual([HAREGUY]);
+  });
+
+  it('the mentors’ new rows, every mood, and their Road Back lines', () => {
+    for (const mentor of Object.values(MENTORS)) {
+      for (const [row, field] of Object.entries(MENTOR_ROWS)) {
+        const cells = rowOf(mentor.name, row);
+        MOODS.forEach((mood, i) => {
+          expect(cell(mentor[field], mood), `${mentor.id} ${row} ${mood}`).toEqual(cells[i]);
+        });
+      }
+      expect(variantsOf(mentor.roadBack), mentor.id).toEqual(rowOf(ROAD_BACK, mentor.name)[0]);
+    }
+  });
+
+  it('the Moon Wyrm’s fall and the end of Chapter One, beat by beat', () => {
+    const tables: [string, SceneDef][] = [
+      ["The Moon Wyrm's fall", WYRM_FALL],
+      ['End of Chapter One', CHAPTER_END],
+    ];
+    for (const [section, scene] of tables) {
+      scene.beats.forEach((beat, i) => {
+        const text = beat.line === undefined ? beat.stage : `${beat.stage} ${beat.line}`;
+        expect([text], `${section} ${i}`).toEqual(rowOf(section, BEAT_ROWS[section]![i]!)[0]);
+      });
+    }
+    expect(rowOf(WARD, 'The ward')[0]).toEqual(variantsOf(WARD_AFTER_WYRM));
+  });
+
   it('imports every table the script has: no row or section is left behind', () => {
     const known: Record<string, readonly string[]> = {
       ...Object.fromEntries(
@@ -122,6 +217,17 @@ describe('the author’s script is the game’s text', () => {
       'The Mentors': ['Mentor', ...Object.values(MENTORS).map((m) => m.name)],
       Opening: ['Class', ...Object.values(CLASSES).map((c) => c.name)],
       [WYRM]: ['Sequence / Region', ...Object.keys(WYRM_ROWS)],
+      ...Object.fromEntries(
+        Object.entries(BEAT_ROWS).map(([section, rows]) => [section, ['Beat', ...rows]]),
+      ),
+      [OPENING_CLASS]: ['Class', ...Object.values(CLASSES).map((c) => `${c.name} ${c.heroName}`)],
+      [REFUSAL_CLASS]: ['Class', ...Object.values(CLASSES).map((c) => c.heroName)],
+      [PETE]: ['Moment', 'Greeting'],
+      ...Object.fromEntries(
+        Object.values(MENTORS).map((m) => [m.name, ['Moment', ...Object.keys(MENTOR_ROWS)]]),
+      ),
+      [ROAD_BACK]: ['Mentor', ...Object.values(MENTORS).map((m) => m.name)],
+      [WARD]: ['Where', 'The ward'],
     };
     const unknown = [...script].flatMap(([section, table]) =>
       [...table.keys()]
@@ -138,6 +244,10 @@ describe('the author’s script is the game’s text', () => {
       cell(VESPER_LINES.intro, 'cold')[0]!,
       variantsOf(VISIONS[2]!.lines)[1]!,
       cell(NPCS.kid!.lines.intro, 'warm')[1]!,
+      // The author's own end-of-half words, exactly.
+      '"You came back, the realm owes you; so do I..."',
+      "The Sunken Ruins' seal then glows, distracting everyone.",
+      'Suddenly a voice is heard rumbling through the breeze.',
     ]) {
       expect(raw).toContain(line);
     }
