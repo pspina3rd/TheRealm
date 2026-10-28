@@ -1,4 +1,5 @@
 import type { MapDef } from '../world/map';
+import { FINALE_FLAG, WARD_AFTER_WYRM } from './story';
 
 /**
  * All maps. Rows are drawn with the legend in `src/world/tiles.ts`.
@@ -48,7 +49,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
         to: { map: 'peaks', x: 13, y: 22 },
         requiresFlag: 'peakGate',
         lockedText:
-          'An iron gate bars the tunnel to the Stormcrown Peaks. The smiths of Emberforge forge its key.',
+          'An iron gate bars the tunnel to the Stormcrown Peaks. The smiths of Forgefyre forge its key.',
       },
       // Roads to the mentor regions: the grove west, the lake east, the quarry south.
       { x: 0, y: 16, to: { map: 'grove', x: 28, y: 10 } },
@@ -60,10 +61,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
         to: { map: 'overworld', x: 15, y: 19 },
         requiresFlag: 'ruinsOpen',
         lockedText: 'The Sunken Ruins are sealed by an ancient ward. (Coming soon)',
-        stirs: {
-          flag: 'wyrmBeaten',
-          text: 'With the wyrm gone, the ward hums and glows. It will open in the next chapter.',
-        },
+        stirs: { flag: FINALE_FLAG, text: WARD_AFTER_WYRM },
       },
     ],
     entities: [
@@ -242,7 +240,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
 
   // ------------------------------------------------- Mentor regions ---
   grove: {
-    // Hazel's home: a mushroom glade west of the Realm (nature, Lv 2–4).
+    // Hazel's home: a mushroom glade west of Sevenstones (nature, Lv 2–4).
     id: 'grove',
     name: 'Thornwood Grove',
     theme: 'grove',
@@ -294,7 +292,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
     ],
   },
   lake: {
-    // Maren's home: the lake shore east of the Realm (water, Lv 3–5).
+    // Maren's home: the lake shore east of Sevenstones (water, Lv 3–5).
     id: 'lake',
     name: 'Glasswater Lake',
     theme: 'lake',
@@ -341,7 +339,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
     decor: [{ object: 'hut', x: 6, y: 4 }],
   },
   quarry: {
-    // Dorn's home: the quarry south of the Realm (earth, Lv 4–6). The ridge road east leads to Emberforge.
+    // Dorn's home: the quarry south of Sevenstones (earth, Lv 4–6). The ridge road east leads to Forgefyre.
     id: 'quarry',
     name: 'Redrock Quarry',
     theme: 'quarry',
@@ -383,7 +381,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
         to: { map: 'forge', x: 1, y: 15 },
         requiresFlag: 'ridgeCleared',
         lockedText:
-          'A rockslide buries the ridge road to Emberforge. Foreman Brann is digging it out.',
+          'A rockslide buries the ridge road to Forgefyre. Foreman Flint is digging it out.',
       },
     ],
     entities: [
@@ -403,7 +401,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
   forge: {
     // Torva's home: the forge town past the quarry's ridge road, over a lava river (fire, Lv 5–7).
     id: 'forge',
-    name: 'Emberforge',
+    name: 'Forgefyre',
     theme: 'forge',
     pieceBias: { fire: 1 },
     music: 'music.town',
@@ -460,7 +458,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
     ],
   },
   peaks: {
-    // Rook's home: the storm peaks through the gate north of the Realm (lightning, Lv 6–8).
+    // Rook's home: the storm peaks through the gate in the north-east of Sevenstones (lightning, Lv 6–8).
     id: 'peaks',
     name: 'Stormcrown Peaks',
     theme: 'peaks',

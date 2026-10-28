@@ -1,6 +1,10 @@
 import { VESPER_LINES } from './story';
 import type { ChallengeSpec, NpcDef } from './types';
 
+/** Innkeeper Pete on Rowan's son (the script's Refusal), among his greetings. */
+export const HAREGUY =
+  "Rowan's boy is upstairs. Three weeks asleep. Breathes fine. Just won't wake.";
+
 /**
  * Every NPC in the game. Each has a real need, the challenge is doing that
  * task, and the reward follows from it (see "NPCs and attitude" in
@@ -35,10 +39,10 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       confide: {
         cold: "You've got a mean look to you, but you aren't stupid. That mold in the water? It isn't pond rot. It's coming up from the deep caves.",
         plain: [
-          'Forty years ago I hit granite trying to dig this hole. Had to crack the bed with a rune stone I found in the dirt. Still keep it on the mantle.',
+          'Forty years ago I hit granite trying to dig this hole. Had to crack the rock with a rune stone I found in the dirt. Still keep it on the mantle.',
           "Truth is, the spores aren't just here. Hazel says her meadows are going pale too. Something’s turning underneath us.",
         ],
-        warm: "I don't hand this out to just anyone, but you've been decent to us. Clear the shaft, and I'll give you the Focus Stone I used to break the bed forty years back.",
+        warm: '*Rowan glances down the shaft and lowers his voice.* "Forty years back I hit rock digging this well and cracked it with that old stone. Something breathed down there. I\'ve wondered ever since if I let it out. Clear the shaft, and take my last Ether for the road."',
       },
       refuse: {
         cold: [
@@ -118,16 +122,35 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       {
         kind: 'spell',
         spellId: 'quake',
-        instead: { kind: 'item', itemId: 'wellStone', count: 1 },
+        // His rune stone, the Focus Stone, is given in the Refusal instead.
+        instead: { kind: 'gil', amount: 40 },
       },
     ],
     bonus: { kind: 'item', itemId: 'ether', count: 1 },
-    secret: { kind: 'item', itemId: 'sporeCap', count: 1 },
+    // His last Ether, as his Devoted confidence says.
+    secret: { kind: 'item', itemId: 'ether', count: 1 },
+    // Said only until he gives his stone away in the Refusal: "Still keep it
+    // on the mantle".
+    saidUntil: {
+      flag: 'scene:refusal',
+      lines: [
+        'Forty years ago I hit granite trying to dig this hole. Had to crack the rock with a rune stone I found in the dirt. Still keep it on the mantle.',
+      ],
+    },
+    // He gives his rune stone in the Refusal now, so the well pays coin:
+    // the lines handing over a stone are no longer said.
+    unsaid: [
+      'Hear that sloshing? That’s clean water, pure and simple. Here—take the old rune stone like I promised. Better in your hands than gathering dust.',
+      'Listen to that flow! Like mountain runoff! I owe you big for this—take the Focus Stone, and you drink free in Mossvale as long as I’m breathing.',
+      "Water's clear. You already know how to shake the earth, so take this raw stone from the first dig instead.",
+      "The spring's back! Since you're already familiar with the Quake spell, take a piece of the original quartz vein as a reward.",
+      "Pure water again! You're already a master of the earth magic, so keep this raw well-stone—a little piece of Mossvale history for your journey!",
+    ],
     repeatable: false,
   },
   farmer: {
     id: 'farmer',
-    name: 'Farmer Bea',
+    name: 'Farmer Bean',
     sprite: 'char.025',
     element: 'nature',
     lines: {
@@ -146,9 +169,9 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
         ],
       },
       confide: {
-        cold: "You've got dirt on your hands, but at least you work. Don't tell Odo: the rot isn't weather. It's coming up through the root lines from the deep caves.",
+        cold: "You've got dirt on your hands, but at least you work. Don't tell Ordor: the rot isn't weather. It's coming up through the root lines from the deep caves.",
         plain: [
-          "Don't tell Odo, but I braid charms from the very first sprouts that take. Help me replant these beds and I'll weave one for your pack.",
+          "Don't tell Ordor, but I braid charms from the very first sprouts that take. Help me replant these beds and I'll weave one for your pack.",
           'Hazel says the grove roots are bleeding sap down south. Something down in the dark is poisoning the soil.',
         ],
         warm: "You've got a gentle touch with the sprouts, love. Replant these rows and I'll give you a Grove Charm I braided from the first harvest.",
@@ -316,7 +339,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   },
   stallKeeper: {
     id: 'stallKeeper',
-    name: 'Stall Keeper Odo',
+    name: 'Shopkeeper Ordor',
     sprite: 'char.002',
     element: 'nature',
     lines: {
@@ -326,7 +349,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
           'Buying something or just leaning on my counter? Time is money, friend.',
         ],
         plain: [
-          'Herbs from Bea, iron from the coast, charms from the road. Settle on a price and we both eat tonight.',
+          'Herbs from Bean, iron from the coast, charms from the road. Settle on a price and we both eat tonight.',
           "Fresh stock in today! Haggle me fair and I'll open the good sacks.",
         ],
         warm: [
@@ -391,7 +414,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   // -------------------------------------------------------- Brightwater ---
   merchant: {
     id: 'merchant',
-    name: 'Merchant Lio',
+    name: 'Merchant Lo',
     sprite: 'char.037',
     element: 'water',
     lines: {
@@ -417,7 +440,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   },
   smith: {
     id: 'smith',
-    name: 'Smith Hilda',
+    name: 'Smith Pyre',
     sprite: 'char.005',
     element: 'fire',
     lines: {
@@ -443,14 +466,17 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   },
   innkeeper: {
     id: 'innkeeper',
-    name: 'Innkeeper Mae',
+    name: 'Innkeeper Pete',
     sprite: 'char.039',
     element: 'fire',
     lines: {
       intro: {
         cold: 'One bed left. Haggle for it if you want it.',
-        plain: 'Half my rooms sit empty since the caves closed. A bed? We settle it with a game.',
-        warm: 'Come in and get warm, dear. A bed? We play a little game for the price.',
+        plain: [
+          'Half my rooms sit empty since the caves closed. A bed? We settle it with a game.',
+          HAREGUY,
+        ],
+        warm: ['Come in and get warm, dear. A bed? We play a little game for the price.', HAREGUY],
       },
       confide: 'I keep a Phoenix Feather for regulars who go below. Play me for it.',
       refuse: 'No rooms. Not for you.',
@@ -600,7 +626,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   },
   shrineKeeper: {
     id: 'shrineKeeper',
-    name: 'Shrine Keeper Ilse',
+    name: 'Shrine Keeper Myst',
     sprite: 'char.032',
     element: 'water',
     lines: {
@@ -687,7 +713,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   },
   hermit: {
     id: 'hermit',
-    name: 'Cave Hermit',
+    name: 'Steve the Cave Hermit',
     sprite: 'char.032',
     element: 'arcane',
     lines: {
@@ -785,14 +811,14 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   // --------------------------------------------------- Redrock Quarry ---
   foreman: {
     id: 'foreman',
-    name: 'Foreman Brann',
+    name: 'Foreman Flint',
     sprite: 'char.027',
     element: 'earth',
     lines: {
       intro: {
         cold: 'A rockslide buried the ridge road. Shift it, and the forge gets its ore. That is all.',
-        plain: 'A rockslide buried the ridge road to Emberforge. Help me shift the rubble?',
-        warm: "The ridge road's buried and Emberforge is starving for ore. Shift it with me?",
+        plain: 'A rockslide buried the ridge road to Forgefyre. Help me shift the rubble?',
+        warm: "The ridge road's buried and Forgefyre is starving for ore. Shift it with me?",
       },
       confide:
         'Dorn worked this face before the caves took his crew. He left a crate; clear the road.',
@@ -801,12 +827,12 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       win: {
         cold: 'Road is open. Wages. Go.',
         plain: 'The road is open! Your wages, and the forge will thank you.',
-        warm: "The road's open! Wages, and a round on me in Emberforge.",
+        warm: "The road's open! Wages, and a round on me in Forgefyre.",
       },
       lose: 'It slid back. Again, before it settles.',
       done: {
         cold: 'Road is open.',
-        plain: 'Carts roll to Emberforge every morning now.',
+        plain: 'Carts roll to Forgefyre every morning now.',
         warm: 'Carts roll every morning. Torva says the forge sings again.',
       },
     },
@@ -816,12 +842,14 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       { kind: 'gil', amount: 40 },
     ],
     bonus: { kind: 'item', itemId: 'ether', count: 1 },
-    secret: { kind: 'item', itemId: 'wellStone', count: 1 },
+    // Dorn's crate: three Ethers (worth 42 gil, near the 40 of the Focus
+    // Stone it replaces; there is one Focus Stone in the game, Rowan's).
+    secret: { kind: 'item', itemId: 'ether', count: 3 },
     essential: true,
     repeatable: false,
   },
 
-  // --------------------------------------------------------- Emberforge ---
+  // --------------------------------------------------------- Forgefyre ---
   apprentice: {
     id: 'apprentice',
     name: 'Apprentice Cinda',
@@ -837,9 +865,9 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       accept: 'Red for the heat, orange for the iron.',
       decline: 'The coals are dying.',
       win: {
-        cold: 'Key. The gate is north of Mossvale. Go.',
-        plain: 'A true key! The peak gate stands north of Sevenstones.',
-        warm: 'A true key, and you swung like a smith! The peak gate is north of Sevenstones.',
+        cold: 'Key. The gate is north-east of Sevenstones. Go.',
+        plain: 'A true key! The peak gate stands in the north-east of Sevenstones.',
+        warm: 'A true key, and you swung like a smith! The peak gate is in the north-east of Sevenstones.',
       },
       lose: 'It cracked in the quench. Again.',
       done: {
@@ -947,7 +975,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   // ------------------------------------------------- Windward Cliffs ---
   courier: {
     id: 'courier',
-    name: 'Courier Finch',
+    name: 'Courier Twitch',
     sprite: 'char.012',
     element: 'wind',
     lines: {

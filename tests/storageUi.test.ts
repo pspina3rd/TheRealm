@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createStore } from '../src/game/storage';
-import { saveGame, type KeyValueStore } from '../src/game/save';
+import { CORRUPT_KEY, SAVE_KEY, saveGame, type KeyValueStore } from '../src/game/save';
 import { newGame } from '../src/world/state';
 import { App } from '../src/ui/app';
 import type { Atlas } from '../src/ui/art/atlas';
@@ -98,7 +98,9 @@ describe('save durability messaging', () => {
     start(store);
     const notice = document.querySelector('.session-notice');
     expect(notice?.getAttribute('role')).toBe('status');
-    expect(notice?.textContent).toContain('Changes from this session will be lost on reload');
+    expect(notice?.textContent).toContain(
+      'reloading or closing this page will lose your adventure',
+    );
     manualSave();
     expect(document.querySelector('#world-banner')?.textContent).toContain(
       'Session only: progress will be lost on reload',
@@ -110,6 +112,7 @@ describe('save durability messaging', () => {
     const durable = persistentStore();
     const state = newGame('mage');
     state.hero.gil = 321;
+    state.flags.add('scene:opening');
     saveGame(durable, state);
     const selected = createStore(() => ({
       ...durable,
@@ -122,7 +125,7 @@ describe('save durability messaging', () => {
     expect(document.querySelector('#hud-gil')?.textContent).toBe('321');
     expect(document.querySelector('#dialog')?.hasAttribute('open')).toBe(false);
     expect(document.querySelector('.session-notice')?.textContent).toContain(
-      'Changes from this session will be lost on reload',
+      'reloading or closing this page will lose your adventure',
     );
     manualSave();
     expect(document.querySelector('#world-banner')?.textContent).toContain('Session only');
@@ -143,5 +146,16 @@ describe('save durability messaging', () => {
     });
     manualSave();
     expect(document.querySelector('#world-banner')?.textContent).toBe('Saving is unavailable');
+  });
+
+  it('tells the player an unreadable save was backed up, and keeps the backup', () => {
+    const store = persistentStore();
+    store.setItem(SAVE_KEY, '{"version":8');
+    new App(atlas, store).start();
+    expect(document.querySelector('.session-notice')?.textContent).toContain('kept as a backup');
+    expect(store.getItem(CORRUPT_KEY)).toBe('{"version":8');
+    manualSave();
+    expect(document.querySelector('#world-banner')?.textContent).toBe('Saved');
+    expect(store.getItem(CORRUPT_KEY)).toBe('{"version":8');
   });
 });

@@ -1,9 +1,10 @@
 /**
- * An attainable-resource campaign benchmark, separate from the synthetic
+ * An attainable-resource Chapter One benchmark, separate from the synthetic
  * combat fixtures. Routes are map-level itineraries, not tile navigation:
  * twenty walking-recovery ticks are modelled between encounters, no road
  * encounters are added on return trips. Gate retries and preparation are
- * explicitly bounded. Failed gates stay closed; this is not a completion proof.
+ * explicitly bounded. Failed gates stay closed; this is not a full-campaign
+ * completion proof. Its endpoint remains the Moon Wyrm, not the final form.
  */
 import { Battle } from '../../src/battle/battle';
 import { createRng } from '../../src/core/rng';
@@ -42,7 +43,7 @@ import { FINALE_FLAG } from '../../src/game/ending';
 import type { NpcEntity } from '../../src/world/map';
 import type { CrystalColor } from '../../src/core/pieces';
 import { bringItems, itemsFor } from '../../src/game/hidden';
-import { arrive, dismissVision } from '../../src/game/story';
+import { arrive, dismissVision, dueScenes, finishScene } from '../../src/game/story';
 
 export const CAMPAIGN_ROUTE = [
   'mossvale',
@@ -134,7 +135,10 @@ export function progressionBattle(state: GameState, spec: ChallengeSpec, seed: n
 /** Finds a route using only currently unlocked map crossings, without granting story flags. */
 function enterMap(state: GameState, target: string): boolean {
   if (!MAPS[target]) throw new Error(`Unknown map: ${target}`);
-  if (state.mapId === target) return true;
+  if (state.mapId === target) {
+    finishDueScenes(state);
+    return true;
+  }
   const seen = new Set([state.mapId]);
   const queue: { map: string; route: Location[] }[] = [{ map: state.mapId, route: [] }];
   for (let next = queue.shift(); next; next = queue.shift()) {
@@ -147,6 +151,7 @@ function enterMap(state: GameState, target: string): boolean {
           const from = state.mapId;
           travel(state, stop);
           const vision = arrive(state, from);
+          finishDueScenes(state);
           if (vision) dismissVision(state, vision.id);
         }
         return true;
@@ -156,6 +161,11 @@ function enterMap(state: GameState, target: string): boolean {
     }
   }
   return false;
+}
+
+/** The benchmark dismisses dialogue, while retaining the production scene rewards. */
+function finishDueScenes(state: GameState): void {
+  for (const scene of dueScenes(state.flags)) finishScene(state, scene);
 }
 
 /** Describes the locked flags on a concrete map route, without opening any of them. */
@@ -204,10 +214,11 @@ export interface CampaignResult {
   readonly trace: readonly EncounterTrace[];
   readonly chapterVictory: boolean;
   readonly sequelSealed: boolean;
+  /** Completion of this Chapter One itinerary, never full-campaign completion. */
   readonly completed: boolean;
 }
 
-/** Chapter victory is earned from the finale; the team's sequel ward deliberately stays shut. */
+/** Chapter One victory is earned from the Wyrm; this is not full-campaign completion. */
 export function campaignEnding(
   state: GameState,
 ): Pick<CampaignResult, 'chapterVictory' | 'sequelSealed' | 'completed'> {
@@ -373,6 +384,7 @@ export function runCampaign(options: CampaignOptions = {}): CampaignResult {
         timeouts++;
       } else {
         const resolution = resolveBattle(state, entity, battle, battle.rng, terms ?? undefined);
+        finishDueScenes(state);
         if (spec.kind === 'lesson') {
           if (result.won) lessonsWon++;
         } else if (result.won) won++;

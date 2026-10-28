@@ -68,15 +68,15 @@ or risks, before a conversation explains their beliefs.
 The updated mentor rows already provide distinct emotional habits. These
 are source observations, not permission to give everyone the same sage's voice:
 
-| Person | What matters to them | Emotion and behavior already on the page |
-| --- | --- | --- |
-| Torva | Passing on a craft her shaking hands make difficult | Pride and shame coexist; she complains about poor fires and seeks the hero's company. |
-| Maren | Her clouding lake and the connected waters | Quiet grief; she follows the water and offers patient, familiar care. |
-| Rook | Keeping up with increasingly strange storms | Impatience and delight; he hurries lessons and invites the hero to watch lightning. |
-| Hazel | Meadows and growth threatened from below | Tenderness with fierce boundaries; she crushes rot and saves a seed for the hero. |
-| Dorn | Preventing another crew's loss | Guilt and vigilance; he tests ground, gives a lamp, and asks the hero to come back. |
-| Kestrel | Reaching villages with their letters | Restless affection; she invents a delivery as an excuse to see the hero. |
-| Selene | Understanding the failing moonlight | Measured concern and selective intimacy; she counts, records, and seeks a second mind. |
+| Person  | What matters to them                                | Emotion and behavior already on the page                                               |
+| ------- | --------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Torva   | Passing on a craft her shaking hands make difficult | Pride and shame coexist; she complains about poor fires and seeks the hero's company.  |
+| Maren   | Her clouding lake and the connected waters          | Quiet grief; she follows the water and offers patient, familiar care.                  |
+| Rook    | Keeping up with increasingly strange storms         | Impatience and delight; he hurries lessons and invites the hero to watch lightning.    |
+| Hazel   | Meadows and growth threatened from below            | Tenderness with fierce boundaries; she crushes rot and saves a seed for the hero.      |
+| Dorn    | Preventing another crew's loss                      | Guilt and vigilance; he tests ground, gives a lamp, and asks the hero to come back.    |
+| Kestrel | Reaching villages with their letters                | Restless affection; she invents a delivery as an excuse to see the hero.               |
+| Selene  | Understanding the failing moonlight                 | Measured concern and selective intimacy; she counts, records, and seeks a second mind. |
 
 For return scenes, build on those relationships. Their presence at the
 stones should cost time, work, or trust, and answer a personal concern.

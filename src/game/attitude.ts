@@ -9,10 +9,10 @@
  *       + Charm rank
  */
 import { relatedTo, weakTo, type Element, type ElementCounts } from '../core/elements';
-import type { ChallengeSpec, Line, NpcDef, Reward, ShopDef } from '../data/types';
+import type { ChallengeSpec, Line, NpcDef, NpcLines, Reward, ShopDef } from '../data/types';
 import { alignmentOf } from './alignment';
 import type { Hero } from './hero';
-import { speak, type LineMemory, type Mood } from './lines';
+import { sayable, speak, type LineMemory, type Mood } from './lines';
 import { knownSpell } from './spells';
 
 export const ATTITUDES = ['hostile', 'wary', 'neutral', 'friendly', 'devoted'] as const;
@@ -71,10 +71,14 @@ export function attitudeForScore(score: number): Attitude {
   return 'hostile';
 }
 
+/** How someone of `element` feels about the hero (a mentor, or an NPC). */
+export function attitudeToward(hero: Pick<Hero, 'spells' | 'stats'>, element: Element): Attitude {
+  return attitudeForScore(attitudeScore(alignmentOf(hero.spells), hero.stats.charm, element));
+}
+
 /** How `npc` feels about the hero. Things (a chest) are always Neutral. */
 export function attitudeOf(hero: Pick<Hero, 'spells' | 'stats'>, npc: NpcDef): Attitude {
-  if (npc.inanimate) return 'neutral';
-  return attitudeForScore(attitudeScore(alignmentOf(hero.spells), hero.stats.charm, npc.element));
+  return npc.inanimate ? 'neutral' : attitudeToward(hero, npc.element);
 }
 
 /**
@@ -172,6 +176,28 @@ export function say(
 /** The key an NPC's moment rotates under: their voice (shared by one character's several NPCs). */
 export function lineKey(npc: NpcDef, moment: keyof NpcDef['lines']): string {
   return `${npc.voice ?? npc.id}.${moment}`;
+}
+
+/**
+ * The NPC's lines as they stand now: without the ones that no longer fit
+ * (`unsaid`), nor those said only until a flag the hero now holds
+ * (`saidUntil`). A cell left empty falls back like a missing one.
+ */
+export function linesNow(npc: NpcDef, flags: ReadonlySet<string>): NpcLines {
+  const gone = [
+    ...(npc.unsaid ?? []),
+    ...(npc.saidUntil && flags.has(npc.saidUntil.flag) ? npc.saidUntil.lines : []),
+  ];
+  if (gone.length === 0) return npc.lines;
+  return Object.fromEntries(
+    Object.entries(npc.lines).map(([moment, line]) => [moment, sayable(line as Line, gone)]),
+  ) as unknown as NpcLines;
+}
+
+/** The NPC, speaking only the lines that fit now (see `linesNow`). */
+export function npcNow(npc: NpcDef, flags: ReadonlySet<string>): NpcDef {
+  const lines = linesNow(npc, flags);
+  return lines === npc.lines ? npc : { ...npc, lines };
 }
 
 /** What the NPC says on meeting the hero: a Devoted NPC confides instead of the warm intro. */

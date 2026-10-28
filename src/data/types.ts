@@ -350,6 +350,15 @@ export interface NpcDef {
    * instead of refusing.
    */
   readonly essential?: boolean;
+  /**
+   * Success lines the author wrote that no longer fit the game (they hand
+   * over a reward the NPC now gives elsewhere): kept word for word for the
+   * script, but never said. A moment with none left says its other lines;
+   * a `winKnown` with none left says `win`.
+   */
+  readonly unsaid?: readonly string[];
+  /** Lines said only until the hero holds `flag`; then the moment's other lines are. */
+  readonly saidUntil?: { readonly flag: string; readonly lines: readonly string[] };
   /** A thing, not a person (a chest): no attitude, always Neutral terms. */
   readonly inanimate?: boolean;
   /** If false, the NPC only challenges once; afterwards `lines.done` is shown. */

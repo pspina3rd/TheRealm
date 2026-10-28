@@ -12,6 +12,7 @@
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "sim": "SIM=1 vitest run tests/sim/balance.test.ts",
+    "sim:progression": "SIM_PROGRESSION=1 vitest run tests/sim/progression.test.ts",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

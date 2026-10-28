@@ -5,9 +5,19 @@ import { CLASSES } from '../data/classes';
 import { ENEMIES } from '../data/enemies';
 import type { ChallengeSpec } from '../data/types';
 import type { Attitude } from '../game/attitude';
-import type { Epilogue } from '../game/ending';
+import { epilogueFor, type Epilogue } from '../game/ending';
 import { describeInteraction, entitySprite, reply, resolveBattle } from '../game/encounter';
-import { arrive, dismissVision, pendingVision, type Interlude } from '../game/story';
+import {
+  arrive,
+  dismissVision,
+  dueScenes,
+  finishScene,
+  pendingVision,
+  scenePages,
+  type Interlude,
+  type ScenePage,
+} from '../game/story';
+import { CHAPTER_END } from '../data/story';
 import { bringItems, hiddenSlots, itemsFor } from '../game/hidden';
 import type { Gain } from '../game/rewards';
 import { ITEMS } from '../data/items';
@@ -29,15 +39,17 @@ import {
 import { spellLevel, spellName } from '../game/spells';
 import { STATS, STAT_IDS } from '../data/stats';
 import { dualChance, pieceWeights } from '../game/pieceOdds';
-import { deleteSave, loadGame, saveGame, type KeyValueStore } from '../game/save';
+import { deleteSave, loadSave, saveGame, type KeyValueStore } from '../game/save';
 import { buy, sell } from '../game/shop';
 import type { Direction, EntityDef } from '../world/map';
 import { step } from '../world/movement';
 import { pathTo } from '../world/path';
 import { currentMap, newGame, travel, type GameState } from '../world/state';
 import { Dialog } from './dialog';
+import { HeldToasts } from './heldToasts';
 import { button, byId, el, lineNodes } from './dom';
 import { ELEMENT_ICONS, SPELL_KIND_ICONS, STAT_ICONS } from './art/icons';
+import { battleKey, normalizeKey } from './battleKeys';
 import { BattleView } from './battleView';
 import { iconElement } from './iconDraw';
 import { conversationBody, epilogueBody, resultsBody } from './screens/conversation';
@@ -69,15 +81,6 @@ const KEY_DIRECTIONS: Readonly<Record<string, Direction>> = {
   s: 'down',
   a: 'left',
   d: 'right',
-};
-
-const KEY_BATTLE: Readonly<Record<string, BattleAction>> = {
-  ArrowLeft: 'left',
-  ArrowRight: 'right',
-  ArrowUp: 'rotate',
-  x: 'rotate',
-  ArrowDown: 'softDrop',
-  ' ': 'hardDrop',
 };
 
 interface ActiveBattle {
@@ -120,11 +123,14 @@ export class App {
   private walkTimer = 0;
   private lastFrame = 0;
   private messageTimer = 0;
+  /** Toasts raised under an interlude, shown once the map is clear (see `HeldToasts`). */
+  private readonly heldToasts = new HeldToasts<{ text: string; icon: IconSpec | IconId }>();
 
   constructor(atlas: Atlas, store: KeyValueStore) {
     this.store = store;
     this.atlas = atlas;
-    const saved = loadGame(store);
+    const loaded = loadSave(store);
+    const saved = loaded.state;
     this.started = saved !== null;
     this.state = saved ?? newGame();
     this.world = new WorldView(byId<HTMLCanvasElement>('world-canvas'), atlas);
@@ -138,13 +144,24 @@ export class App {
     this.bindInput();
     this.applyTouchPrefs();
     if (store.persistent === false) {
-      const notice = el('p', {
-        className: 'session-notice',
-        text: 'Saving is unavailable. Changes from this session will be lost on reload.',
-      });
-      notice.setAttribute('role', 'status');
-      document.querySelector('.hud')?.prepend(notice);
+      this.notice(
+        'Progress is temporary. Saving is unavailable; reloading or closing this page will lose your adventure.',
+      );
     }
+    if (loaded.corrupt) {
+      this.notice(
+        loaded.backupKey
+          ? `Your saved adventure couldn't be read, so a new one begins. The old save was kept as a backup (${loaded.backupKey}).`
+          : "Your saved adventure couldn't be read, so a new one begins. It couldn't be backed up either.",
+      );
+    }
+  }
+
+  /** A lasting notice above the HUD (temporary saves, an unreadable save). */
+  private notice(text: string): void {
+    const notice = el('p', { className: 'session-notice', text });
+    notice.setAttribute('role', 'status');
+    document.querySelector('.hud')?.prepend(notice);
   }
 
   /** Reads a setting; storage may be unavailable, which reads as unset. */
@@ -184,9 +201,12 @@ export class App {
     this.say(currentMap(this.state).name);
     if (!this.started) this.chooseClass();
     else {
-      // A vision the game was closed on shows again.
-      const pending = pendingVision(this.state);
-      if (pending) this.showVision(pending);
+      // A scene or vision the game was closed on shows again.
+      this.playScenes(() => {
+        const pending = pendingVision(this.state);
+        if (pending) this.showVision(pending);
+        else this.dialog.close();
+      });
     }
     requestAnimationFrame((t) => this.frame(t));
   }
@@ -228,6 +248,10 @@ export class App {
       this.messageTimer -= dt;
       if (this.messageTimer <= 0) byId('world-banner').classList.remove('show');
     }
+    const held = this.heldToasts.next(
+      !this.dialog.isOpen && !this.active && this.messageTimer <= 0,
+    );
+    if (held) this.say(held.text, held.icon);
     requestAnimationFrame((t) => this.frame(t));
   }
 
@@ -286,7 +310,8 @@ export class App {
         const vision = arrive(this.state, from);
         this.save();
         this.renderHud();
-        if (vision) this.showVision(vision);
+        // The Refusal comes first, the first time the hero leaves Mossvale.
+        if (vision) this.playScenes(() => this.showVision(vision));
         break;
       }
       case 'locked':
@@ -416,17 +441,68 @@ export class App {
   }
 
   /**
-   * An interlude over everything: the screen goes dark for a vision or a
-   * boss's words. A tap, Enter, Escape or Continue goes on (to `then`, or
-   * back to the map), but not in the first moments, so held keys or taps
-   * can't skip it. Before the Wyrm's fight even Escape goes on to the fight:
-   * once it has spoken there is no backing away.
+   * Plays every scene due now (see `dueScenes`), in order, one interlude a
+   * beat, each marked seen after its last beat; the end of Chapter One is
+   * followed by its summary. Then `then` (or back to the map).
    */
-  private showInterlude(title: string, text: string, then?: () => void): void {
+  private playScenes(then?: () => void): void {
+    const [scene] = dueScenes(this.state.flags);
+    if (!scene) {
+      if (then) then();
+      else this.dialog.close();
+      return;
+    }
+    const pages = scenePages(scene, this.state.hero);
+    const show = (i: number): void => {
+      const page = pages[i];
+      if (page) {
+        this.showInterlude(scene.title, page.text, () => show(i + 1), page.speaker);
+        return;
+      }
+      // Rowan's Focus Stone in the Refusal: its toast waits until Vision 1 has closed.
+      for (const itemId of finishScene(this.state, scene)) {
+        this.heldToasts.hold({
+          text: `${ITEMS[itemId]?.name ?? itemId} received`,
+          icon: itemIcon(itemId),
+        });
+      }
+      this.save();
+      this.renderHud();
+      if (scene.id === CHAPTER_END.id) {
+        this.showEpilogue(epilogueFor(this.state.hero), () => this.playScenes(then));
+      } else this.playScenes(then);
+    };
+    show(0);
+  }
+
+  /**
+   * An interlude over everything: the screen goes dark for a scene, a
+   * vision or a boss's words, with the speaker's face and name if any. A
+   * tap, Enter, Escape or Continue goes on (to `then`, or back to the map),
+   * but not in the first moments, so held keys or taps can't skip it.
+   * Before the Wyrm's fight even Escape goes on to the fight: once it has
+   * spoken there is no backing away.
+   */
+  private showInterlude(
+    title: string,
+    text: string,
+    then?: () => void,
+    speaker: ScenePage['speaker'] = null,
+  ): void {
     this.stopRoute();
     this.dialog.showInterlude(
       title,
       [
+        ...(speaker
+          ? [
+              el(
+                'div',
+                { className: 'interlude-speaker' },
+                spritePortrait(this.atlas, speaker.sprite, 56),
+                el('b', { text: speaker.name }),
+              ),
+            ]
+          : []),
         el('p', { className: 'interlude-text' }, ...lineNodes(text)),
         el('p', { className: 'interlude-hint', text: 'Tap or press Enter' }),
       ],
@@ -493,7 +569,8 @@ export class App {
     // After the results: the skill screen if the hero levelled up, then any shop.
     const next = (): void => {
       if (resolution.epilogue) {
-        this.showEpilogue(resolution.epilogue);
+        // The Wyrm's fall, the end of Chapter One, then its summary.
+        this.playScenes();
       } else if (resolution.shopId) {
         this.openShop(resolution.shopId, resolution.priceMultiplier, speaker, resolution.attitude);
       } else this.dialog.close();
@@ -609,14 +686,14 @@ export class App {
     );
   };
 
-  /** The chapter's end, then back to the world, where the ruins' seal now stirs. */
-  private showEpilogue(epilogue: Epilogue): void {
+  /** Chapter One's summary, then `then`; the hero plays on, the ruins' ward now aglow. */
+  private showEpilogue(epilogue: Epilogue, then: () => void): void {
     const close = (): void => {
-      this.dialog.close();
-      this.say('The Sunken Ruins stir', 'star');
+      then();
+      this.say("The Sunken Ruins' ward glows", 'star');
     };
     this.dialog.show({
-      title: 'The Moon Wyrm falls',
+      title: 'Chapter One complete',
       body: epilogueBody(this.atlas, epilogue),
       actions: [{ label: 'Continue', onClick: close }],
       onCancel: close,
@@ -794,6 +871,8 @@ export class App {
     this.dialog.close();
     this.renderHud();
     this.say(currentMap(this.state).name);
+    // The opening, before the hero has control in Mossvale.
+    this.playScenes();
   }
 
   // ------------------------------------------------------------- HUD ---
@@ -933,18 +1012,16 @@ export class App {
     const key = normalizeKey(event.key);
 
     if (this.active) {
-      const action = KEY_BATTLE[key];
-      if (action) {
+      const command = battleKey(event.key, event.repeat);
+      if (command?.kind === 'input') {
         event.preventDefault();
-        this.active.battle.input(action);
-      } else if (key === 'p') {
-        if (event.repeat) return;
+        this.active.battle.input(command.action);
+      } else if (command?.kind === 'pause') {
         this.togglePause();
-      } else if (/^[1-9]$/.test(key)) {
-        // A category, then a spell in its menu.
-        this.battleView.hero.pick(Number(key));
-      } else if (key === 'Escape') {
-        if (this.battleView.hero.back()) event.preventDefault();
+      } else if (command?.kind === 'pick') {
+        this.battleView.hero.pick(command.slot);
+      } else if (command?.kind === 'back' && this.battleView.hero.back()) {
+        event.preventDefault();
       }
       return;
     }
@@ -966,11 +1043,6 @@ export class App {
     const battle = this.active?.battle;
     if (battle && !this.active?.finished) battle.togglePause();
   }
-}
-
-/** Lower-cases single letters so WASD works with Caps Lock or Shift. */
-function normalizeKey(key: string): string {
-  return key.length === 1 ? key.toLowerCase() : key;
 }
 
 /** A creature id for a sprite key, or null if there is no such creature. */

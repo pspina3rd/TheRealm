@@ -72,3 +72,20 @@ the latest team source before carrying forward names or mechanics. Commit
 each working step and push the checkpoint with an expected-head check;
 never force past someone else's branch update. Agents save to their assigned
 files; the coordinator commits named paths and publishes committed snapshots.
+
+## 2026-10-28 · Playable campaign implementation
+
+### Team reconciliation checkpoint
+
+- Reconciled the team's 15 commits through `d14b3c4`, including the opening,
+  Refusal, author name changes, expanded mentor rows, Chapter One hook,
+  once-ever Focus Stone receipt, v9 saves, held toasts, and input fixes.
+- Preserved this branch's quota-readable saves, old Sunken Ruins recovery,
+  pause/focus regressions, and richer resource-conserving progression harness.
+- Independent agents resolved save, UI, and simulation conflicts and saved
+  their changes before testing. Combined `npm run check` passes: formatting,
+  lint, types, and 843 tests; 3 report/simulation tests intentionally skipped.
+- Next: wire a playable second-half route using existing encounter systems,
+  saved scene gates, distinct boss milestones, and final campaign completion.
+  Tentative phased encounter designs remain separate from this first playable
+  extension. Engineering contract is in [IMPLEMENTATION_NOTES.md](IMPLEMENTATION_NOTES.md).

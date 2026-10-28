@@ -328,13 +328,19 @@ describe('save', () => {
     expect(deserialize('{}')).toBeNull();
     const data = JSON.parse(serialize(newGame()));
     expect(deserialize(JSON.stringify({ ...data, version: 999 }))).toBeNull();
-    expect(deserialize(JSON.stringify({ ...data, mapId: 'nowhere' }))).toBeNull();
+    expect(deserialize(JSON.stringify({ ...data, mapId: 7 }))).toBeNull();
+  });
+
+  it('sends a hero saved on a map that no longer exists to their inn', () => {
+    const data = JSON.parse(serialize(newGame()));
+    const loaded = deserialize(JSON.stringify({ ...data, mapId: 'nowhere' }))!;
+    expect([loaded.mapId, loaded.x, loaded.y]).toEqual([START.map, START.x, START.y]);
   });
 
   it('moves a hero saved where the map no longer lets them stand to their inn', () => {
     const data = JSON.parse(serialize(newGame()));
     const inn = { map: 'brightwater', x: 4, y: 17 };
-    // A tree in the Realm, then a warp tile (the old cave seal now leads to the peaks).
+    // A tree in Sevenstones, then a warp tile (the old cave seal now leads to the peaks).
     for (const spot of [
       { mapId: 'overworld', x: 1, y: 1 },
       { mapId: 'overworld', x: 34, y: 3 },
@@ -607,7 +613,7 @@ describe('save migration to version 7 (feats)', () => {
   it('saves the hero’s board feats', () => {
     const state = newGame();
     state.hero.feats = { 'pure.lightning': 3, hastedClear: 1 };
-    expect(SAVE_VERSION).toBe(8);
+    expect(SAVE_VERSION).toBe(9);
     expect(deserialize(serialize(state))!.hero.feats).toEqual(state.hero.feats);
   });
 

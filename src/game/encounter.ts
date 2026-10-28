@@ -16,13 +16,16 @@ import {
   dealTerms,
   introFor,
   lineKey,
+  moodFor,
+  npcNow,
   rewardsOnTerms,
   say,
   type Attitude,
 } from './attitude';
 import { FINALE_FLAG, epilogueFor, type Epilogue } from './ending';
 import { hiddenSlots, type HiddenSlot } from './hidden';
-import { noteSaid, pickVariant, variantsOf } from './lines';
+import { noteSaid, pickVariant, variantsFor, variantsOf } from './lines';
+import { mentorGreeting } from './mentorLines';
 import { preludeFor } from './story';
 import { addItem, gainXp, itemCount, removeItem } from './hero';
 import { completeLesson, lessonsFor, type Lesson } from './lessons';
@@ -160,8 +163,11 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
     const silhouettes = hiddenSlots(state, mentor.element).filter(
       (slot) => slot.state === 'hidden',
     );
-    const motive = pickVariant(variantsOf(mentor.motive), state.talk, `${mentor.id}.motive`);
-    const speaker = { title: mentor.name, sprite: mentor.sprite, text: motive };
+    const speaker = {
+      title: mentor.name,
+      sprite: mentor.sprite,
+      text: mentorGreeting(state, mentor),
+    };
     return lessons.length + silhouettes.length > 0
       ? {
           kind: 'lessons',
@@ -191,7 +197,7 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
     };
   }
 
-  const npc = npcFor(entity);
+  const npc = npcNow(npcFor(entity), state.flags);
   const attitude = attitudeOf(state.hero, npc);
   const speaker = { title: npc.name, sprite: npc.sprite, ...(npc.inanimate ? {} : { attitude }) };
   if (!npc.repeatable && state.flags.has(npcCompletionFlag(npc))) {
@@ -243,7 +249,7 @@ export function resolveBattle(
   if (entity.kind === 'mentor') return resolveLesson(state, mentorFor(entity), battle, won);
   if (entity.kind === 'monster') return resolveCombat(state, entity, battle, won, rng);
   if (!terms) throw new Error('An NPC battle needs the terms it was offered on');
-  return resolveNpc(state, npcFor(entity), battle, won, terms);
+  return resolveNpc(state, npcNow(npcFor(entity), state.flags), battle, won, terms);
 }
 
 function resolveLesson(
@@ -265,6 +271,17 @@ function resolveLesson(
     priceMultiplier: 1,
     attitude: null,
   };
+}
+
+/**
+ * What an NPC (as it speaks now, see `npcNow`) says on a won challenge: its
+ * "already knowing the spell" line if it has one left, else its win line.
+ */
+function winSpeech(state: GameState, npc: NpcDef, terms: Attitude, knewSpell: boolean): string {
+  const winKnown = npc.lines.winKnown;
+  return knewSpell && winKnown && variantsFor(winKnown, moodFor(terms)).length > 0
+    ? say(winKnown, terms, state.talk, lineKey(npc, 'winKnown'))
+    : say(npc.lines.win, terms, state.talk, lineKey(npc, 'win'));
 }
 
 function resolveCombat(
@@ -344,10 +361,7 @@ function resolveNpc(
   return {
     ...ended,
     gains: [...given, ...outcome.gains],
-    speech:
-      knewSpell && npc.lines.winKnown
-        ? say(npc.lines.winKnown, terms, state.talk, lineKey(npc, 'winKnown'))
-        : say(npc.lines.win, terms, state.talk, lineKey(npc, 'win')),
+    speech: winSpeech(state, npc, terms, knewSpell),
     shopId: outcome.shopId,
     priceMultiplier: (haggle?.multiplier ?? 1) * ATTITUDE_PRICES[terms],
   };

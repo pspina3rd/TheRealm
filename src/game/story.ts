@@ -1,21 +1,27 @@
 /**
- * Story beats: the Moon Wyrm's visions (shown once, on a warp out of
- * Mossvale or into a region), the words before a boss fight, and where
- * Vesper waits. Everything here is derived from saved flags, so it is
- * deterministic and survives a reload.
+ * Story beats: the scenes (the opening, the Refusal, the Wyrm's fall and
+ * the end of Chapter One, each shown once), the Moon Wyrm's visions (shown
+ * once, on a warp out of Mossvale or into a region), the words before a
+ * boss fight, and where Vesper waits. Everything here is derived from
+ * saved flags, so it is deterministic and survives a reload.
  */
 import { MAPS } from '../data/maps';
+import { MENTORS } from '../data/mentors';
+import { NPCS } from '../data/npcs';
 import {
+  FINALE_FLAG,
   PRELUDES,
+  SCENES,
   VESPER_ROUTE,
   VISIONS,
   reachedFlag,
+  type SceneDef,
   type VesperStop,
   type VisionDef,
 } from '../data/story';
 import type { NpcEntity } from '../world/map';
 import type { GameState } from '../world/state';
-import { FINALE_FLAG } from './ending';
+import { addItem, heroClass, itemCount, type Hero } from './hero';
 import { pickVariant, variantsOf, type LineMemory } from './lines';
 
 /** The voice the Moon Wyrm's words rotate under, visions and lair alike. */
@@ -158,4 +164,103 @@ export function migrateStory(flags: Set<string>, mapId: string, victories: numbe
   const reached = Math.max(furthest, begun ? 0 : -1);
   if (MAPS[mapId]) flags.add(reachedFlag(mapId));
   for (const step of STEPS.slice(0, reached + 1)) for (const flag of step.sets) flags.add(flag);
+}
+
+/**
+ * The scenes due now, in story order: each not yet seen whose `dueWith`
+ * flag the hero holds. So the opening is due on a new game, the Refusal
+ * once Vision 1 is (the first warp out of Mossvale, shown before it), and
+ * the Wyrm's fall and the chapter's end once the Wyrm is beaten. A scene is
+ * marked seen only after its last beat, so a game closed on one shows it
+ * again from the start.
+ */
+export function dueScenes(flags: ReadonlySet<string>): SceneDef[] {
+  return SCENES.filter(
+    (scene) => !flags.has(scene.flag) && (!scene.dueWith || flags.has(scene.dueWith)),
+  );
+}
+
+/**
+ * Set once the hero has received a scene's item (`got:<item>`), from the
+ * scene or, in a save from before the scenes, by holding it. It is never
+ * cleared, so selling the item can't earn a second one.
+ */
+export function receivedFlag(itemId: string): string {
+  return `got:${itemId}`;
+}
+
+/** True when the hero holds `itemId`, in the bag or worn. */
+function owns(hero: Hero, itemId: string): boolean {
+  return (
+    itemCount(hero, itemId) > 0 || [hero.weaponId, hero.armorId, hero.accessoryId].includes(itemId)
+  );
+}
+
+/** Marks a scene seen and hands over what its beats give, each item once ever. */
+function completeScene(flags: Set<string>, hero: Hero, scene: SceneDef): string[] {
+  if (flags.has(scene.flag)) return [];
+  flags.add(scene.flag);
+  const given = scene.beats.flatMap((beat) =>
+    beat.gives !== undefined && !flags.has(receivedFlag(beat.gives)) ? [beat.gives] : [],
+  );
+  for (const itemId of given) {
+    addItem(hero, itemId);
+    flags.add(receivedFlag(itemId));
+  }
+  return given;
+}
+
+/**
+ * The hero has seen the whole scene: it is marked seen, and what its beats
+ * give is handed over, each item only to a hero who never received it (so
+ * never a second, even after selling it). Returns the items given.
+ */
+export function finishScene(state: GameState, scene: SceneDef): string[] {
+  return completeScene(state.flags, state.hero, scene);
+}
+
+/** One interlude of a scene: its words and who says them (null for narration alone). */
+export interface ScenePage {
+  readonly text: string;
+  readonly speaker: { readonly name: string; readonly sprite: string } | null;
+}
+
+/** Who a beat's `who` is: the hero, an NPC or a mentor. */
+function speakerOf(who: string | undefined, hero: Hero): ScenePage['speaker'] {
+  if (who === undefined) return null;
+  if (who === 'hero') return { name: hero.name, sprite: heroClass(hero).sprite };
+  const person = NPCS[who] ?? MENTORS[who];
+  if (!person) throw new Error(`Unknown speaker: ${who}`);
+  return { name: person.name, sprite: person.sprite };
+}
+
+/** A scene's beats as interludes for this hero, the class lines in their class's words. */
+export function scenePages(scene: SceneDef, hero: Hero): ScenePage[] {
+  const classId = heroClass(hero).id;
+  return scene.beats.map((beat) => {
+    const classLine = beat.classLines?.[classId];
+    const line = classLine === undefined ? beat.line : `"${classLine}"`;
+    return {
+      text: line === undefined ? beat.stage : `${beat.stage} ${line}`,
+      speaker: speakerOf(beat.who, hero),
+    };
+  });
+}
+
+/**
+ * Scenes for a save from before them (version 9), run on the migrated
+ * hero. An item a scene gives that the hero holds (bag or worn) counts as
+ * received. Every scene already due counts as seen, so an old save never
+ * sees the opening, nor the Refusal once past Vision 1, nor the chapter's
+ * end once the Wyrm has fallen (it saw the old ending); what a skipped
+ * scene gives is still handed to a hero who never received it, so no one
+ * loses Rowan's Focus Stone.
+ */
+export function migrateScenes(flags: Set<string>, hero: Hero): void {
+  for (const scene of SCENES) {
+    for (const beat of scene.beats) {
+      if (beat.gives !== undefined && owns(hero, beat.gives)) flags.add(receivedFlag(beat.gives));
+    }
+  }
+  for (const scene of dueScenes(flags)) completeScene(flags, hero, scene);
 }

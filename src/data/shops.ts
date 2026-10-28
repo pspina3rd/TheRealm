@@ -37,7 +37,7 @@ export const SHOPS: Readonly<Record<string, ShopDef>> = {
   },
   emberforgeArmory: {
     id: 'emberforgeArmory',
-    name: 'Emberforge Armory',
+    name: 'Forgefyre Armory',
     stock: ['herb', 'ether', 'flameBrand', 'forgePlate', 'knightBlade', 'emberCharm'],
     secretStock: ['phoenixFeather'],
   },

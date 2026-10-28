@@ -307,7 +307,7 @@ describe('save version 8 (story)', () => {
     const state = newGame();
     state.talk = { 'elder.intro': 3 };
     state.flags.add('vision:1');
-    expect(SAVE_VERSION).toBe(8);
+    expect(SAVE_VERSION).toBe(9);
     const loaded = deserialize(serialize(state))!;
     expect(loaded.talk).toEqual({ 'elder.intro': 3 });
     expect(loaded.flags.has('vision:1')).toBe(true);
@@ -318,10 +318,19 @@ describe('save version 8 (story)', () => {
   });
 
   it('shows a fresh old save every vision, but none an old save is already past', () => {
-    expect([...old(newGame()).flags]).toEqual([reachedFlag('mossvale')]);
+    expect([...old(newGame()).flags]).toEqual([reachedFlag('mossvale'), 'scene:opening']);
     const quarry = newGame();
     travel(quarry, { map: 'quarry', x: 16, y: 1 });
-    expect(old(quarry).flags).toEqual(new Set([reachedFlag('quarry'), 'vision:1', 'vision:2']));
+    expect(old(quarry).flags).toEqual(
+      new Set([
+        reachedFlag('quarry'),
+        'vision:1',
+        'vision:2',
+        'scene:opening',
+        'scene:refusal',
+        'got:wellStone',
+      ]),
+    );
     const caves = newGame();
     travel(caves, { map: 'caves2', x: 8, y: 9 });
     expect(vesperStop(old(caves).flags)?.npcId).toBe('vesperRuins');

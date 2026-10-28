@@ -80,8 +80,11 @@ const HOLD_EVERY_MS = 55;
 
 /**
  * Makes `node` act on press rather than release (faster under a thumb),
- * repeating while held when `repeats` is set. Keyboard activation (a click
- * with no pointer press before it) still works, once per press.
+ * repeating while held when `repeats` is set. The click that follows a
+ * pointer press is swallowed, however long the press was held and whatever
+ * the click's `detail` or event type (Chromium touch taps send detail 0;
+ * Safari may send a plain MouseEvent), so a tap acts once. Keyboard activation
+ * (a key press, then its click) still works, once per press.
  */
 export function bindPress(node: HTMLElement, onPress: () => void, repeats = false): void {
   let timer = 0;
@@ -95,10 +98,13 @@ export function bindPress(node: HTMLElement, onPress: () => void, repeats = fals
       repeat(HOLD_EVERY_MS);
     }, delay);
   };
+  // Set by a pointer press that acted, so its trailing click is swallowed.
+  let pointerPressed = false;
   node.addEventListener('pointerdown', (event) => {
     if (event.button !== 0 || (node as HTMLButtonElement).disabled) return;
     event.preventDefault(); // no focus ring or text selection from a thumb
     stop();
+    pointerPressed = true;
     onPress();
     if (event.pointerType === 'touch') haptic(6);
     if (repeats) repeat(HOLD_DELAY_MS);
@@ -106,8 +112,15 @@ export function bindPress(node: HTMLElement, onPress: () => void, repeats = fals
   for (const type of ['pointerup', 'pointercancel', 'pointerleave'] as const) {
     node.addEventListener(type, stop);
   }
+  // A key press means the next click is keyboard activation, even after a
+  // pointer press that never produced a click (a finger slid off).
+  node.addEventListener('keydown', () => {
+    pointerPressed = false;
+  });
   node.addEventListener('click', (event) => {
+    const fromPress = pointerPressed;
+    pointerPressed = false;
     // A pointer press already acted; only a keyboard click (detail 0) remains.
-    if (event.detail === 0) onPress();
+    if (!fromPress && event.detail === 0) onPress();
   });
 }

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createStore } from '../src/game/storage';
 import { deleteSave, loadGame, saveGame, type KeyValueStore } from '../src/game/save';
 import { newGame } from '../src/world/state';
@@ -120,5 +120,24 @@ describe('browser storage selection', () => {
     }));
     expect(selected.persistent).not.toBe(false);
     expect(durable.getItem(key)).toBe('existing');
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('uses browser localStorage by default', () => {
+    const browser = memory();
+    vi.stubGlobal('localStorage', browser);
+    expect(createStore()).toBe(browser);
+  });
+
+  it('can delete a session save when localStorage is unavailable', () => {
+    vi.stubGlobal('localStorage', undefined);
+    const selected = createStore();
+    expect(selected.persistent).toBe(false);
+    saveGame(selected, newGame());
+    deleteSave(selected);
+    expect(loadGame(selected)).toBeNull();
   });
 });

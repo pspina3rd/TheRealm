@@ -41,7 +41,7 @@ export const CLASSES: Readonly<Record<string, HeroClass>> = {
   ranger: {
     id: 'ranger',
     name: 'Ranger',
-    heroName: 'Fen',
+    heroName: 'Fern',
     description: 'Quick and lucky: slower pieces and better drops. A good first adventure.',
     sprite: 'char.026',
     element: 'wind',
@@ -54,7 +54,7 @@ export const CLASSES: Readonly<Record<string, HeroClass>> = {
   knight: {
     id: 'knight',
     name: 'Knight',
-    heroName: 'Bram',
+    heroName: 'Lance',
     description: 'Tough and well armoured, with shallow mana pools.',
     sprite: 'char.019',
     element: 'earth',
@@ -67,7 +67,7 @@ export const CLASSES: Readonly<Record<string, HeroClass>> = {
   mage: {
     id: 'mage',
     name: 'Mage',
-    heroName: 'Lyra',
+    heroName: 'Ares',
     description: 'Deep mana pools and keen insight, but fragile.',
     sprite: 'char.016',
     element: 'arcane',

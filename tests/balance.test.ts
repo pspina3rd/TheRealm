@@ -7,7 +7,8 @@ import { makeBattle, setUpVerticalIClear } from './helpers';
 import { createRng } from '../src/core/rng';
 import { MAPS } from '../src/data/maps';
 import { resolveBattle } from '../src/game/encounter';
-import { FINALE_FLAG, FINALE_WORDS, mentorsTaught } from '../src/game/ending';
+import { FINALE_FLAG, mentorsTaught } from '../src/game/ending';
+import { WARD_AFTER_WYRM } from '../src/data/story';
 import { hiddenSlots, wantedBy } from '../src/game/hidden';
 import { createHero, heroTitle, learnSpell } from '../src/game/hero';
 import { feedbackFor } from '../src/ui/art/feedback';
@@ -108,7 +109,6 @@ describe('the ending', () => {
       title: heroTitle(state.hero),
       level: state.hero.level,
       spells: Object.keys(state.hero.spells).length,
-      speaker: { name: 'Captain Vale', text: FINALE_WORDS.text },
     });
     // Maren (water) and Kestrel (wind) taught beyond the Knight's start.
     expect(result.epilogue!.mentors.map((m) => m.id)).toEqual(['maren', 'kestrel']);
@@ -134,7 +134,10 @@ describe('the ending', () => {
     expect(step(state, 'down')).toEqual({ kind: 'locked', text: warp.lockedText });
     state.flags.add(FINALE_FLAG);
     expect(warpStirs(warp, state.flags)).toBe(true);
-    expect(step(state, 'down')).toEqual({ kind: 'locked', text: warp.stirs!.text });
+    // The script's two lines for the ward, in turn.
+    expect(step(state, 'down')).toEqual({ kind: 'locked', text: WARD_AFTER_WYRM[0] });
+    expect(step(state, 'down')).toEqual({ kind: 'locked', text: WARD_AFTER_WYRM[1] });
+    expect(step(state, 'down')).toEqual({ kind: 'locked', text: WARD_AFTER_WYRM[0] });
   });
 
   it('shows an enraged boss with a banner', () => {

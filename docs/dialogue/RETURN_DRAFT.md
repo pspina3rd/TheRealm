@@ -10,9 +10,9 @@ of “Ves, en.” are proposed, without assigning that phrase a translation.
 
 ## 14 · Fennick hears what Vesper chose
 
-*Sevenstones. Fennick has laid the recovered pages across a low workbench.
+_Sevenstones. Fennick has laid the recovered pages across a low workbench.
 The brass lantern sits beside an ordinary oil lamp. The violet stone pulses
-dimly overhead.*
+dimly overhead._
 
 **Fennick:** You saw Vesper?
 
@@ -20,7 +20,7 @@ dimly overhead.*
 
 **Fennick:** Show me.
 
-*The hero traces a passage on the plan.*
+_The hero traces a passage on the plan._
 
 **Hero:** Here. It was clear all the way to the steps.
 
@@ -28,37 +28,37 @@ dimly overhead.*
 
 **Hero:** They looked at it. Then they went back to the voice.
 
-*Fennick's finger remains on the steps.*
+_Fennick's finger remains on the steps._
 
 **Fennick:** And you were close enough to hear them?
 
 **Hero:** Yes.
 
-*For a while Fennick does not move. The hero sets the remaining pages down
-without covering the plan.*
+_For a while Fennick does not move. The hero sets the remaining pages down
+without covering the plan._
 
 **Hero:** I brought the rest of the procedure.
 
 **Fennick:** Leave it there. Please.
 
-*Fennick draws the oil lamp closer and starts to read. When the hero turns
-toward the stones, Fennick catches their sleeve.*
+_Fennick draws the oil lamp closer and starts to read. When the hero turns
+toward the stones, Fennick catches their sleeve._
 
 **Fennick:** Find Vale. We can't do this with two people.
 
-*The account remains on the bench. Later preparations proceed from what
-the hero witnessed, not an assurance that Vesper was compelled.*
+_The account remains on the bench. Later preparations proceed from what
+the hero witnessed, not an assurance that Vesper was compelled._
 
 ## 15 · The places people left
 
 ### Rowan — news before supplies
 
-*Before returning to Mossvale, the hero stops at Pete's inn. Pete leads
+_Before returning to Mossvale, the hero stops at Pete's inn. Pete leads
 them upstairs. Hareguy is still asleep; a watch volunteer sits beside the
 bed. The hero waits long enough to see his breathing and leaves a message
-for Rowan with Pete. Only then do they take the road to Mossvale.*
+for Rowan with Pete. Only then do they take the road to Mossvale._
 
-*Mossvale. Rowan puts down his rasp before the hero has crossed the yard.*
+_Mossvale. Rowan puts down his rasp before the hero has crossed the yard._
 
 **Rowan:** My boy?
 
@@ -68,7 +68,7 @@ for Rowan with Pete. Only then do they take the road to Mossvale.*
 
 **Hero:** Yes. Before I came here.
 
-*Rowan nods once. He picks up the rasp, then puts it down again.*
+_Rowan nods once. He picks up the rasp, then puts it down again._
 
 **Rowan:** Has Pete been charging for the room?
 
@@ -76,7 +76,7 @@ for Rowan with Pete. Only then do they take the road to Mossvale.*
 
 **Rowan:** There's coin in the jar under the nails. Take it to him.
 
-*After the news, the hero shows him a sketch of the rite's station frames.*
+_After the news, the hero shows him a sketch of the rite's station frames._
 
 **Rowan:** Who cut these wedges?
 
@@ -88,19 +88,19 @@ for Rowan with Pete. Only then do they take the road to Mossvale.*
 
 **Rowan:** I'd slow you down. Fetch that offcut instead. The dry one.
 
-*He shifts the spare stool toward the bench. Rowan's contribution can be
-prepared here and carried by others; his knees are not conveniently cured.*
+_He shifts the spare stool toward the bench. Rowan's contribution can be
+prepared here and carried by others; his knees are not conveniently cured._
 
 ### Bean and Ordor — a share, not the whole harvest
 
-*Bean has spread herbs over a sheet. Ordor waits beside a loaded handcart.*
+_Bean has spread herbs over a sheet. Ordor waits beside a loaded handcart._
 
 **Bean:** That bundle's for the inn. Mind you don't mix them.
 
 **Hero:** How much can you spare for Sevenstones?
 
-*Bean counts three bundles, hesitates over the fourth, and leaves it on
-the sheet.*
+_Bean counts three bundles, hesitates over the fourth, and leaves it on
+the sheet._
 
 **Bean:** These. I'll have to cut again tomorrow.
 
@@ -111,42 +111,42 @@ the sheet.*
 **Ordor:** Bring it back with both wheels. We can settle the oil when
 someone's had time to count it.
 
-*The hero reaches for another crate to add to the cart.*
+_The hero reaches for another crate to add to the cart._
 
 **Bean:** And leave him enough room to pull it. You keep stacking things
 like you're the one taking them up the hill.
 
-*Ordor rearranges a crate without answering. The remaining herbs stay in
+_Ordor rearranges a crate without answering. The remaining herbs stay in
 Mossvale. If these visits were skipped, Vale can arrange basic supplies;
-the rite never depends on a particular friendship or optional reward.*
+the rite never depends on a particular friendship or optional reward._
 
 ### The mentors — existing Road Back text
 
-*At each mentor's relighting moment, use the team's existing row verbatim.
+_At each mentor's relighting moment, use the team's existing row verbatim.
 These lines are quoted for continuity, not rewritten dialogue. Where a
 prior bond was not earned, keep the shared action and omit the familiar
-line; trained local helpers cover any absent station.*
+line; trained local helpers cover any absent station._
 
-| Mentor | Existing line and direction |
-| --- | --- |
-| Torva | *Her hands are steady on the red stone.* “Look at that. Not a shake. Must be you, spark.” |
-| Maren | “The lake cleared the day you went down. I've been waiting at this stone ever since, love.” |
-| Rook | “Stone's dark, sky's dark, and you're late! Ha! Light it with me.” |
-| Hazel | “Grey moss all the way up the stone. We'll grow it back, sprout. We always do.” |
-| Dorn | “You came back up. I said you would. Hold the lamp while I steady the stone.” |
+| Mentor  | Existing line and direction                                                                             |
+| ------- | ------------------------------------------------------------------------------------------------------- |
+| Torva   | _Her hands are steady on the red stone._ “Look at that. Not a shake. Must be you, spark.”               |
+| Maren   | “The lake cleared the day you went down. I've been waiting at this stone ever since, love.”             |
+| Rook    | “Stone's dark, sky's dark, and you're late! Ha! Light it with me.”                                      |
+| Hazel   | “Grey moss all the way up the stone. We'll grow it back, sprout. We always do.”                         |
+| Dorn    | “You came back up. I said you would. Hold the lamp while I steady the stone.”                           |
 | Kestrel | “Every village sent a letter, and they all say the same thing: 'Is the hero back?' Yes. Yes, they are.” |
-| Selene | “The violet stone went first, and it will go last. Hold it with me, one more time.” |
+| Selene  | “The violet stone went first, and it will go last. Hold it with me, one more time.”                     |
 
 ## 16 · The lantern answers
 
-*The rite's frames stand around the outer stations. Inside the ward, Vesper
+_The rite's frames stand around the outer stations. Inside the ward, Vesper
 draws a thread of light from the violet stone. The hero places the copied
-procedure beside Fennick's brass lantern.*
+procedure beside Fennick's brass lantern._
 
 **Hero:** There. That's your lantern.
 
-*The drawing shows its open base. Fennick turns the lantern over and
-finds the same three notches beneath the tarnish.*
+_The drawing shows its open base. Fennick turns the lantern over and
+finds the same three notches beneath the tarnish._
 
 **Fennick:** I've been putting it beside the ward. It belongs in the ring.
 
@@ -154,21 +154,21 @@ finds the same three notches beneath the tarnish.*
 
 **Fennick:** Here first. Make a small one.
 
-*The hero sets the lantern inside a chalk circle. Fennick fits the recovered
-sequence to the outer marks. Ketter watches the nearest frame.*
+_The hero sets the lantern inside a chalk circle. Fennick fits the recovered
+sequence to the outer marks. Ketter watches the nearest frame._
 
 **Ketter:** That corner's moved.
 
 **Fennick:** I checked it.
 
-*Ketter presses the corner. It rocks. Fennick crouches beside them.*
+_Ketter presses the corner. It rocks. Fennick crouches beside them._
 
 **Fennick:** Show me.
 
-*They replace a wedge and reseat the frame. When the test sequence closes,
+_They replace a wedge and reseat the frame. When the test sequence closes,
 a pale light gathers inside the wickless lantern. A thread brushes the
 chalk and bends back into the circle. The hero steps across it and out;
-the thread stays within. Fennick ends the test. The light subsides.*
+the thread stays within. Fennick ends the test. The light subsides._
 
 **Fennick:** Ketter, will you check the others?
 
@@ -176,7 +176,7 @@ the thread stays within. Fennick ends the test. The light subsides.*
 
 **Fennick:** Please.
 
-*Before taking their places, the helpers gather where everyone can hear.*
+_Before taking their places, the helpers gather where everyone can hear._
 
 **Hero:** If Vesper falls, the voice will try to leave again.
 
@@ -188,25 +188,25 @@ stayed put when you walked out.
 **Fennick:** Then they're still carrying it. We keep the stations manned
 and give the watch time to get everyone else away.
 
-*Vale assigns the evacuation route to a guard. Nobody stands inside the
+_Vale assigns the evacuation route to a guard. Nobody stands inside the
 inner chamber except the hero and Vesper. Fennick places the lantern in
-its prepared seat at the outer ring, facing the ward.*
+its prepared seat at the outer ring, facing the ward._
 
 **Hero:** What happens to the light in the lantern?
 
 **Fennick:** The old instructions call for it when the ward is under strain.
 You'll see it from inside. Look toward it if the floor goes dark.
 
-*The full sequence begins only after the stations report ready. The hero
-waits at the entrance until Ketter has finished checking the last frame.*
+_The full sequence begins only after the stations report ready. The hero
+waits at the entrance until Ketter has finished checking the last frame._
 
 ## 17 · Vesper, the Malificat
 
 ### Before the final battle
 
-*Inside the ward, light moves beneath Vesper's skin. Their shape stretches
+_Inside the ward, light moves beneath Vesper's skin. Their shape stretches
 as seven streams draw together. They watch their own hand open, then turn
-it toward the hero.*
+it toward the hero._
 
 **Vesper:** You should have stayed to watch.
 
@@ -214,130 +214,130 @@ it toward the hero.*
 
 **Vesper:** I know. I'm drawing on all seven.
 
-*Vesper studies the hero with the same searching tilt of the head as in
-the earlier meetings. A second voice speaks before they can continue.*
+_Vesper studies the hero with the same searching tilt of the head as in
+the earlier meetings. A second voice speaks before they can continue._
 
 **Voice:** The outer ring. Break it.
 
-*Vesper looks past the hero. Fennick is setting a hand against the lantern's
-brass frame.*
+_Vesper looks past the hero. Fennick is setting a hand against the lantern's
+brass frame._
 
 **Vesper:** Fennick?
 
-*Fennick looks up but does not leave the station. Vesper takes a step toward
-the entrance. A loose strand of light strikes the boundary and recoils.*
+_Fennick looks up but does not leave the station. Vesper takes a step toward
+the entrance. A loose strand of light strikes the boundary and recoils._
 
 **Vesper:** What have you done?
 
 **Hero:** The voice can't leave this chamber.
 
-*Vesper looks down at the light inside their hand.*
+_Vesper looks down at the light inside their hand._
 
 **Vesper:** You think you can take it from me.
 
-*They close the hand. The chamber darkens. The evolved form, the Malificat,
+_They close the hand. The chamber darkens. The evolved form, the Malificat,
 unfolds fully; the final battle begins. Their assault is a choice, not the
-voice using an unconscious body. No independent Master boss follows.*
+voice using an unconscious body. No independent Master boss follows._
 
 ### The lantern — the encounter appendix's Resurrection beat
 
-*Late in the battle, colour drains from the chamber and spectral chains
+_Late in the battle, colour drains from the chamber and spectral chains
 flicker across the hero's hands. The hero keeps moving under the Malificat's
 assault. At the outer ring Fennick leans into the brass frame; the light
-tested during preparation swells within it.*
+tested during preparation swells within it._
 
-*Encounter direction: the chains are visual only; controls, the skyline,
+_Encounter direction: the chains are visual only; controls, the skyline,
 and the current piece's landing guide remain clear. Any obscured upcoming
-pieces follow the tentative preview-fog design, not a hidden landing.*
+pieces follow the tentative preview-fog design, not a hidden landing._
 
 **Fennick:** Ves, en.
 
-*Lantern light crosses the chamber and clears space around the hero. The
+_Lantern light crosses the chamber and clears space around the hero. The
 encounter appendix proposes clearing six bottom rows here; that exact
 mechanic remains design work. The hero still has to win the final exchange.
 Use the appendix's mentor or alignment fallback for its final element,
-so the moment works for every class and optional quest history.*
+so the moment works for every class and optional quest history._
 
 **Vesper:** No. I can still—
 
-*Their own voice breaks under the other one. They force their attention
+_Their own voice breaks under the other one. They force their attention
 back onto the hero and attack. The lantern has made the remaining effort
-possible; it has not defeated them.*
+possible; it has not defeated them._
 
 ### After victory
 
-*The final impact breaks the current between the stones and Vesper. Their
+_The final impact breaks the current between the stones and Vesper. Their
 altered shape collapses. A voice strikes the boundary and comes back from
-every wall. Vesper lies within the ring, breathing, without the light.*
+every wall. Vesper lies within the ring, breathing, without the light._
 
 **Voice:** Vesper.
 
-*Vesper tries to lift their hand. Nothing gathers in it. Outside, Fennick
-starts forward. Vale puts an arm across the entrance.*
+_Vesper tries to lift their hand. Nothing gathers in it. Outside, Fennick
+starts forward. Vale puts an arm across the entrance._
 
 **Vale:** Wait. Let us check it.
 
-*Fennick stops. The hero moves Vesper beyond the boundary while the watch
+_Fennick stops. The hero moves Vesper beyond the boundary while the watch
 holds the outer approach. The voice remains behind. The stations hold
-until the people are out and the inner ward is sealed.*
+until the people are out and the inner ward is sealed._
 
 ## 18 · Getting someone home
 
 ### Outside the ward
 
-*Vesper lies on a watch blanket. Fennick kneels beside them only when Vale
+_Vesper lies on a watch blanket. Fennick kneels beside them only when Vale
 has given the all-clear. They reach for Vesper's hand, hesitate, and fold
-the blanket around their shoulder instead.*
+the blanket around their shoulder instead._
 
 **Vesper:** Don't.
 
-*Fennick takes their hand away. After a moment they set a cup within reach.*
+_Fennick takes their hand away. After a moment they set a cup within reach._
 
 **Fennick:** There's water when you want it.
 
 **Vale:** We have a room ready. They'll stay under guard.
 
-*Fennick nods. No one asks the people Vesper harmed to forgive them, and
-the hero makes no promise on their behalf.*
+_Fennick nods. No one asks the people Vesper harmed to forgive them, and
+the hero makes no promise on their behalf._
 
 ### News from Brightwater
 
-*After the ward has been secured, a courier brings Pete's folded note.
+_After the ward has been secured, a courier brings Pete's folded note.
 The unnatural sleep is lifting; waking and recovery take time. Hareguy
-has asked for food and wants to know where his father is.*
+has asked for food and wants to know where his father is._
 
-*In Mossvale the hero finds Rowan at the bench, surrounded by unused
-offcuts. They hand him the note. He reads it twice.*
+_In Mossvale the hero finds Rowan at the bench, surrounded by unused
+offcuts. They hand him the note. He reads it twice._
 
 **Rowan:** He's asked for breakfast.
 
 **Hero:** Pete says he ate it, too.
 
-*Rowan starts to stand. His knee catches; he swears, grips the bench,
-and waits for it to pass.*
+_Rowan starts to stand. His knee catches; he swears, grips the bench,
+and waits for it to pass._
 
 **Hero:** There's a cart going to Brightwater in the morning.
 
 **Rowan:** I'll be ready.
 
-*He puts the note in his coat, takes it out, and reads the last line again.
+_He puts the note in his coat, takes it out, and reads the last line again.
 His reunion with Hareguy follows a safe journey; it is not implied to have
-happened while the ward battle was still underway.*
+happened while the ward battle was still underway._
 
 ### Doors and ordinary work
 
-*Odile opens her bag in the refuge's new lodging and puts her own things
-on a shelf. She takes a blanket back to someone who is only just waking.*
+_Odile opens her bag in the refuge's new lodging and puts her own things
+on a shelf. She takes a blanket back to someone who is only just waking._
 
-*In Ketter's workshop another worker answers the next signal correctly.
+_In Ketter's workshop another worker answers the next signal correctly.
 Ketter stops in the doorway to listen, then goes out without giving a
-correction. Their tool case can wait until tomorrow.*
+correction. Their tool case can wait until tomorrow._
 
-*Pip has added another tier to his tower. His mother calls from the house.*
+_Pip has added another tier to his tower. His mother calls from the house._
 
 **Pip:** It's not stuck! I just wanted you to see it before supper.
 
-*The hero stays to look. Village life resumes around them: doors opening,
+_The hero stays to look. Village life resumes around them: doors opening,
 water drawn, a cart leaving for Brightwater. The remaining sleepers wake
 over the following days. The full campaign ends here, after the Malificat,
-with recovery underway rather than every consequence erased.*
+with recovery underway rather than every consequence erased._

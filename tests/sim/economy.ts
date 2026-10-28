@@ -27,7 +27,7 @@ const BUYS: Record<string, readonly string[]> = {
   caves2: [],
 };
 
-/** NPCs whose gil the hero collects once, per area (towns count with the Realm). */
+/** NPCs whose gil the hero collects once, per area (towns count with Sevenstones). */
 const PEOPLE: Record<string, readonly string[]> = {
   overworld: ['guard', 'collector'],
 };

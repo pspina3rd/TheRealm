@@ -65,6 +65,15 @@ export function noteSaid(memory: LineMemory, key: string): void {
   memory[key] = (memory[key] ?? 0) + 1;
 }
 
+/** A line without the variants in `unsaid` (a cell left empty falls back like a missing one). */
+export function sayable(line: Line, unsaid: readonly string[] = []): Line {
+  const keep = (cell: Variants): string[] => variantsOf(cell).filter((v) => !unsaid.includes(v));
+  if (!isMoodLine(line)) return keep(line as Variants);
+  return Object.fromEntries(
+    Object.entries(line).map(([mood, cell]) => [mood, keep(cell as Variants)]),
+  ) as MoodLine;
+}
+
 /** Speaks a line in a mood, rotating under `key` when a memory is given (see `pickVariant`). */
 export function speak(
   line: Line,

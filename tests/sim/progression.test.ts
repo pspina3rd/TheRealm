@@ -25,7 +25,7 @@ import {
   type CampaignResult,
 } from './progression';
 
-describe('attainable campaign resources', () => {
+describe('attainable Chapter One resources', () => {
   it('starts with only the actual class resources and never invents a spell kit', () => {
     for (const classId of Object.keys(CLASSES)) {
       const { state, rows } = runCampaign({ classId, route: [] });
@@ -127,6 +127,9 @@ describe('attainable campaign resources', () => {
     expect(state.talk[WYRM_VOICE]).toBeGreaterThan(0);
     expect(pendingVision(state)).toBeNull();
     expect(state.flags.has('wyrmBeaten')).toBe(false);
+    expect(state.flags.has('scene:refusal')).toBe(true);
+    expect(state.flags.has('got:wellStone')).toBe(true);
+    expect(state.hero.items.wellStone).toBe(1);
   });
 
   it('plays every recorded puzzle through legal controls, and reports exhausted solver budgets', () => {
@@ -293,13 +296,13 @@ describe.skipIf(!process.env.SIM_PROGRESSION)('attainable progression report', (
         }
       }
     const summaryLines = [
-      '# Campaign policy evidence',
+      '# Chapter One policy evidence',
       '',
       `Simulation limit per battle: ${battleLimitMs} ms. This is a reporting budget, not a game rule.`,
       '',
-      'Instrumentation success does not mean balance acceptance. Counts below use deterministic seeds, not confidence estimates. Chapter completion requires the earned finale victory flag. The canonical sequel ward intentionally remains sealed and is reported separately. Battle seconds exclude walking and menus.',
+      'Instrumentation success does not mean balance acceptance. Counts below use deterministic seeds, not confidence estimates. Chapter One completion requires the earned Moon Wyrm victory flag; it is not full-campaign completion. The canonical sequel ward intentionally remains sealed and is reported separately. Battle seconds exclude walking and menus.',
       '',
-      '| Policy | Class | Pace ms | Reported runs | Uncensored runs | Vale gate | Brann gate | Cinda gate | Chapter victories | Sealed sequels | Completed chapters | Solver stops | Timeouts |',
+      '| Policy | Class | Pace ms | Reported runs | Uncensored runs | Vale gate | Flint gate | Cinda gate | Chapter victories | Sealed sequels | Completed chapters | Solver stops | Timeouts |',
       '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
       ...summaries.map((summary) => {
         const gates = summary.gateSuccesses as Record<string, number>;

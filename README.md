@@ -9,7 +9,8 @@ all played out on a falling-block board.
 around a moon-crystal deep in the Moon Caves, drinks the moonlight while
 spores choke Mossvale's well and the lake clouds over. You wake in
 Mossvale, mend what you can, and learn magic from seven mentors on the
-road down. The Wyrm speaks to you in visions as you go, and its thrall,
+road down, after Elder Rowan's son falls into a sleep no one can wake him
+from. The Wyrm speaks to you in visions as you go, and its thrall,
 Vesper, is always one step ahead of you. The words are the author's own,
 from the story script in [docs/STORY.md](docs/STORY.md).
 
@@ -67,7 +68,10 @@ d-pad hides once you have walked by tapping.
 
 A new game starts by choosing a hero class. The game saves automatically
 after every battle and map change (browser local storage). Start over from
-the menu.
+the menu. If the browser blocks storage, a notice says progress is
+temporary. A save that can't be read is kept as a backup
+(`the-realm/save.corrupt`) and you are told; stale entries in an old save
+(a removed item, an unknown spell) are simply dropped.
 
 | Class  | Strengths                                                            |
 | ------ | -------------------------------------------------------------------- |
@@ -137,7 +141,8 @@ gold lightning, green nature, orange earth, violet arcane and cyan wind.
   Charm, sets their attitude, shown as a face over their head: from a
   scowl (won't deal) through a frown (dearer, harder) to a grin (cheaper,
   extra rewards and a secret offer). Anyone the story needs always deals.
-- Shops also buy what's in your bag at half its list price.
+- Shops also buy what's in your bag at half its list price; no discount
+  sells an item for less than that.
 
 The battle screen shows all of this instead of describing it: every
 crystal carries its element's icon, cleared lines flash and burst their
@@ -149,7 +154,7 @@ attack the moment you walk into them. Full rules and numbers are in
 
 ### The adventure so far
 
-1. **Mossvale Village** (start): Elder Rowan, Farmer Bea, Pip and a stall keeper.
+1. **Mossvale Village** (start): Elder Rowan, Farmer Bean, Pip and Shopkeeper Ordor.
    Leaving it brings the first of the Moon Wyrm's visions.
 2. **Sevenstones** (the hub, ringed by seven standing mana crystals): slimes, Spore Shrooms and goblins guard the roads,
    which lead on to Brightwater and to the mentors' regions.
@@ -158,7 +163,7 @@ attack the moment you walk into them. Full rules and numbers are in
 4. **The mentor regions**, one per element, each with its own monsters,
    people and mentor's home, rising in level along the road:
    Thornwood Grove (Hazel, west), Glasswater Lake (Maren, east), Redrock
-   Quarry (Dorn, south), Emberforge past the quarry's buried ridge road
+   Quarry (Dorn, south), Forgefyre past the quarry's buried ridge road
    (Torva), Stormcrown Peaks through the tunnel north-east (Rook), Windward
    Cliffs (Kestrel) and the Moonfall Ruins (Selene). Vesper, Thrall of the
    Depths, waits at each new step of the road: the road out of Mossvale,
@@ -166,8 +171,8 @@ attack the moment you walk into them. Full rules and numbers are in
 5. **Moon Caves** (two floors, under the ruins): imps and a Cave Brute, a
    sealed chest, a hermit and the Moon Wyrm boss.
 6. **Sunken Ruins**: sealed for now. Beat the Moon Wyrm (it enrages at
-   half HP) to see the chapter's end; the ruins' seal then glows, waiting
-   for the next chapter.
+   half HP) to end Chapter One; the ruins' seal then glows, waiting for
+   the next chapter, and you play on.
 
 ### Challenge types
 

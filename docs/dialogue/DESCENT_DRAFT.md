@@ -12,8 +12,8 @@ explicitly marked otherwise.
 
 ## 02 · Fennick stays at the threshold
 
-*Continue after the existing footprint scene. Vale kneels beside the tracks.
-The old man keeps looking from the ward to the empty cloak.*
+_Continue after the existing footprint scene. Vale kneels beside the tracks.
+The old man keeps looking from the ward to the empty cloak._
 
 **Hero:** Vesper?
 
@@ -21,16 +21,16 @@ The old man keeps looking from the ward to the empty cloak.*
 
 **Vale:** These prints go straight into stone.
 
-*Fennick brushes mud from a shallow groove beside the ward.*
+_Fennick brushes mud from a shallow groove beside the ward._
 
 **Fennick:** There's a service entrance. Help me shift this.
 
-*The hero moves a fallen slab. Behind it, a narrow stair descends beside
-the main barrier. Fennick reaches for the iron handhold.*
+_The hero moves a fallen slab. Behind it, a narrow stair descends beside
+the main barrier. Fennick reaches for the iron handhold._
 
 **Vale:** Who keeps the entrance open if you both go?
 
-*Fennick's hand stays on the iron.*
+_Fennick's hand stays on the iron._
 
 **Hero:** Do you know what's down there?
 
@@ -40,19 +40,19 @@ the main barrier. Fennick reaches for the iron handhold.*
 
 **Fennick:** If you find Vesper—
 
-*He looks at the cloak again, then releases the handhold.*
+_He looks at the cloak again, then releases the handhold._
 
 **Fennick:** Tell them I'm here.
 
 **Vale:** I'll send a guard with rope. Nobody else takes those stairs yet.
 
-*Control returns at the inspection stair. Fennick remains at the entrance;
-the inner ward is not broken or opened by this exchange.*
+_Control returns at the inspection stair. Fennick remains at the entrance;
+the inner ward is not broken or opened by this exchange._
 
 ## 03 · Odile's packed belongings
 
-*In the Archive refuge, Odile tightens a blanket around a sleeping resident.
-A travel bag stands beside her boots. Water covers the lift landing.*
+_In the Archive refuge, Odile tightens a blanket around a sleeping resident.
+A travel bag stands beside her boots. Water covers the lift landing._
 
 **Hero:** Is there a road below this?
 
@@ -62,7 +62,7 @@ A travel bag stands beside her boots. Water covers the lift landing.*
 
 **Odile:** When that lift comes down. I've had the bags ready since yesterday.
 
-*She tests the bell pull. The cable moves, but the lift does not.*
+_She tests the bell pull. The cable moves, but the lift does not._
 
 **Hero:** The water's above the lower catch.
 
@@ -71,12 +71,12 @@ hold of the sluice.
 
 **Hero:** Where do you need me?
 
-*Odile sets her bag on a high shelf and takes up the sluice lever.*
+_Odile sets her bag on a high shelf and takes up the sluice lever._
 
 **Odile:** On the dry side. Lift the near end first.
 
-*Playable repair. After the landing drains, Odile lowers the lift and checks
-that a loaded stretcher clears its gate.*
+_Playable repair. After the landing drains, Odile lowers the lift and checks
+that a loaded stretcher clears its gate._
 
 **Odile:** That's one trip we can make. Thank you.
 
@@ -85,17 +85,17 @@ that a loaded stretcher clears its gate.*
 **Odile:** I'll show you. Bring that ledger off the shelf, will you? It has
 the old channels in it. Irdrath won't let anyone else touch the gates.
 
-*The records become available to inspect. Odile first arranges another
-person to watch the refuge; she does not simply abandon the sleepers.*
+_The records become available to inspect. Odile first arranges another
+person to watch the refuge; she does not simply abandon the sleepers._
 
 ## 04 · Irdrath knows every chamber
 
-*An ash figure stands among the cistern pipes. A red glow pulses beneath
-his ribs. Before Odile can speak, Irdrath presses a smoking hand to a valve.*
+_An ash figure stands among the cistern pipes. A red glow pulses beneath
+his ribs. Before Odile can speak, Irdrath presses a smoking hand to a valve._
 
 **Irdrath:** Back from that joint.
 
-*Steam spits where Odile was standing. He lowers the pressure.*
+_Steam spits where Odile was standing. He lowers the pressure._
 
 **Odile:** The refuge needs water. Two barrels today.
 
@@ -107,20 +107,20 @@ his ribs. Before Odile can speak, Irdrath presses a smoking hand to a valve.*
 
 **Hero:** We can take them up with the others.
 
-*Ash thickens across the lower gate.*
+_Ash thickens across the lower gate._
 
 **Irdrath:** Not through that channel. Open it and the heat goes with you.
 
 **Odile:** The old drain runs outside it. Here. We can test it with the
 chambers shut.
 
-*She unfolds the Archive plan. Irdrath bends close; its edge blackens.
-He lifts his hand away from the paper.*
+_She unfolds the Archive plan. Irdrath bends close; its edge blackens.
+He lifts his hand away from the paper._
 
 **Irdrath:** Show me the lower catch.
 
-*Playable preparation. A small trial flow passes through the independent
-drain. The sleeper chambers stay dry; their heat remains steady.*
+_Playable preparation. A small trial flow passes through the independent
+drain. The sleeper chambers stay dry; their heat remains steady._
 
 **Odile:** No drop. You can feel it yourself.
 
@@ -130,12 +130,12 @@ drain. The sleeper chambers stay dry; their heat remains steady.*
 
 **Irdrath:** Then let them wait.
 
-*He closes the ash across the gate again.*
+_He closes the ash across the gate again._
 
 ## 05 · An order Odile refuses — Irdrath, Boss 2
 
-*After further repairs, the transfer crew brings the first stretcher to the
-tested channel. Odile checks the blanket over its occupant's feet.*
+_After further repairs, the transfer crew brings the first stretcher to the
+tested channel. Odile checks the blanket over its occupant's feet._
 
 **Irdrath:** Put that bed back.
 
@@ -145,40 +145,40 @@ tested channel. Odile checks the blanket over its occupant's feet.*
 
 **Odile:** They've stayed long enough. Take the head end, please.
 
-*She addresses a carrier. Irdrath surges toward the catch; ash hardens
-across the opening. The hero steps between him and the stretcher.*
+_She addresses a carrier. Irdrath surges toward the catch; ash hardens
+across the opening. The hero steps between him and the stretcher._
 
 **Hero:** Let them through.
 
 **Irdrath:** Move.
 
-*Boss battle. The ash body and smoke give way to the buried Firstcoal;
+_Boss battle. The ash body and smoke give way to the buried Firstcoal;
 freeing it disrupts his control. The chamber walls and stretcher route
 remain intact. Exact phases remain tentative, following the team's
-non-binding encounter appendix.*
+non-binding encounter appendix._
 
-*After victory, Irdrath gathers thinly around the coal. The crew keeps
-the transfer moving.*
+_After victory, Irdrath gathers thinly around the coal. The crew keeps
+the transfer moving._
 
 **Irdrath:** The draught. Keep it off their feet.
 
-*Odile turns the blanket under the sleeper's heels.*
+_Odile turns the blanket under the sleeper's heels._
 
 **Odile:** I've got them. Can you hold that door clear?
 
-*His smoke withdraws from the arch. A stretcher passes through.*
+_His smoke withdraws from the arch. A stretcher passes through._
 
 **Irdrath:** Chamber nine next.
 
 **Odile:** We know. Their bed's on the list.
 
-*He remains by the open door as Odile calls the next carriers. The hero can
-now use the maintenance passage; the Firstcoal has not been removed as loot.*
+_He remains by the open door as Odile calls the next carriers. The hero can
+now use the maintenance passage; the Firstcoal has not been removed as loot._
 
 ## 06 · Vesper reads the same page
 
-*The hero studies an Archive plan beside a stopped Rootways tram.
-Vesper approaches quietly and looks over the open page.*
+_The hero studies an Archive plan beside a stopped Rootways tram.
+Vesper approaches quietly and looks over the open page._
 
 **Vesper:** That's a bell tower. The road runs underneath.
 
@@ -186,15 +186,15 @@ Vesper approaches quietly and looks over the open page.*
 
 **Vesper:** I'd hardly send you ahead of me, would I?
 
-*They draw the road's course with one finger. The hero places a second
+_They draw the road's course with one finger. The hero places a second
 record beside the plan: earlier bearers of the voice, their promised
-rewards, death dates, and orders appointing their replacements.*
+rewards, death dates, and orders appointing their replacements._
 
 **Hero:** I found this with it.
 
 **Vesper:** Let me see.
 
-*They read to the bottom, then go back to the first name.*
+_They read to the bottom, then go back to the first name._
 
 **Hero:** The same promise. Both times.
 
@@ -206,28 +206,28 @@ rewards, death dates, and orders appointing their replacements.*
 
 **Hero:** In my pack. Stay and read it.
 
-*Vesper reaches toward the pack, then stops. They look again at the route.*
+_Vesper reaches toward the pack, then stops. They look again at the route._
 
 **Vesper:** Keep it dry. I'll want the rest.
 
-*They leave along the lower road. The hero retains the records. Following
-after tram repairs leads to the Glass Warrens rather than another boss.*
+_They leave along the lower road. The hero retains the records. Following
+after tram repairs leads to the Glass Warrens rather than another boss._
 
 ## 07 · Ketter's lamp
 
-*A call repeats from three passages. Across the lift shaft, a lamp swings
-below a damaged landing. The lift is caught above it.*
+_A call repeats from three passages. Across the lift shaft, a lamp swings
+below a damaged landing. The lift is caught above it._
 
 **Ketter:** Down here! Don't pull that rope—it's frayed through!
 
-*The words repeat from the empty passages. The hero follows the moving
-lamp to the damaged landing and secures the lift before lowering it.*
+_The words repeat from the empty passages. The hero follows the moving
+lamp to the damaged landing and secures the lift before lowering it._
 
 **Hero:** Can you reach now?
 
 **Ketter:** A little lower. There. Hold it.
 
-*Ketter climbs aboard, then reaches back for the lamp.*
+_Ketter climbs aboard, then reaches back for the lamp._
 
 **Ketter:** Nearly left that. Would've heard about it all week.
 
@@ -238,18 +238,18 @@ I'm Ketter. Usually I keep the bells working. Today it's everything else.
 
 **Hero:** I need to stop a signal going through the next chamber.
 
-*Ketter points to the two branches entering the chamber.*
+_Ketter points to the two branches entering the chamber._
 
 **Ketter:** Upper branch carries the voice. Lower one feeds our lamps.
 You'll see the same marks on the handles. Leave the lower one alone.
 
-*Their lamp answers a light across the shaft. The worker on that landing
-starts a loaded lift. The player can see why preserving the lamps matters.*
+_Their lamp answers a light across the shaft. The worker on that landing
+starts a loaded lift. The player can see why preserving the lamps matters._
 
 ## 08 · Vesper keeps their hand on the control — duel
 
-*Vesper rests a hand on the upper relay handle. Below the platform,
-Ketter's lamps mark the occupied landings.*
+_Vesper rests a hand on the upper relay handle. Below the platform,
+Ketter's lamps mark the occupied landings._
 
 **Vesper:** You took your time.
 
@@ -259,33 +259,33 @@ Ketter's lamps mark the occupied landings.*
 
 **Hero:** Upper branch for the voice. Lower for the lamps.
 
-*Vesper checks the two markings. They glance down at a carrier moving
-through the light below, then back at the hero.*
+_Vesper checks the two markings. They glance down at a carrier moving
+through the light below, then back at the hero._
 
 **Vesper:** So you do. Leave it open. I can follow the voice from here.
 
 **Hero:** We can close it and read the rest together.
 
-*Vesper's fingers lift from the handle. For a moment neither moves.*
+_Vesper's fingers lift from the handle. For a moment neither moves._
 
 **Vesper:** You want me to go back with you. Carry a lamp. Wait for orders.
 
 **Hero:** I want you away from that handle.
 
-*The hero steps toward it. Vesper draws their weapon and blocks the way.*
+_The hero steps toward it. Vesper draws their weapon and blocks the way._
 
 **Vesper:** Stop there.
 
-*The hero keeps moving toward the handle.*
+_The hero keeps moving toward the handle._
 
-*Duel in Vesper's own form. Keep Ketter's occupied landings lit; the exact
+_Duel in Vesper's own form. Keep Ketter's occupied landings lit; the exact
 lamp-protection mechanics remain tentative. Victory leaves the hero at
-the upper control while Vesper retreats along the far passage.*
+the upper control while Vesper retreats along the far passage._
 
 **Hero:** Vesper. Wait.
 
-*Vesper looks back, breathing hard. A lamp on the lowest landing flickers.
-The hero turns to secure its feed; Vesper leaves before they turn back.*
+_Vesper looks back, breathing hard. A lamp on the lowest landing flickers.
+The hero turns to secure its feed; Vesper leaves before they turn back._
 
-*The upper branch closes. Ketter's lights remain on. The central relay
-farther below is still active, leaving a route for the voice's later offer.*
+_The upper branch closes. Ketter's lights remain on. The central relay
+farther below is still active, leaving a route for the voice's later offer._

@@ -1,4 +1,5 @@
 import type { Element } from '../core/elements';
+import type { Variants } from '../data/types';
 import { tileFor, type TileDef } from './tiles';
 
 export type Direction = 'up' | 'down' | 'left' | 'right';
@@ -27,9 +28,9 @@ export interface Warp {
   readonly lockedText?: string;
   /**
    * A locked warp that stirs once `flag` is set: its seal glows on the map
-   * and bumping it shows `text` instead of `lockedText`.
+   * and bumping it shows `text` (rotating) instead of `lockedText`.
    */
-  readonly stirs?: { readonly flag: string; readonly text: string };
+  readonly stirs?: { readonly flag: string; readonly text: Variants };
 }
 
 /** True when a locked warp's seal is stirring (see `Warp.stirs`). */

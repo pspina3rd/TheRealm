@@ -177,7 +177,7 @@ describe('tier effects', () => {
   it('gives something else for a spell the hero already knows', () => {
     const knight = createHero('knight'); // knows Quake
     expect(rewardsOnTerms(knight, NPCS.elder!, 'neutral').base).toEqual([
-      { kind: 'item', itemId: 'wellStone', count: 1 },
+      { kind: 'gil', amount: 40 },
     ]);
     const rogue = createHero('rogue'); // knows Thunder
     expect(rewardsOnTerms(rogue, NPCS.sage!, 'neutral').base).toEqual([
@@ -324,7 +324,7 @@ describe('encounters on terms', () => {
       kind: 'challenge',
       attitude: 'devoted',
       text: first(npc.lines.confide!, 'warm'),
-      extras: [npc.bonus, { kind: 'item', itemId: 'sporeCap', count: 1 }],
+      extras: [npc.bonus, { kind: 'item', itemId: 'ether', count: 1 }],
     });
   });
 
@@ -375,10 +375,10 @@ describe('encounters on terms', () => {
     expect(result.speech).toBe(say(NPCS.guard!.lines.win, 'wary'));
   });
 
-  it('teaches the Elder’s Quake, or gives her Well Stone to a hero who knows it', () => {
+  it('teaches the Elder’s Quake, or pays coin to a hero who knows it (never the stone)', () => {
     for (const [classId, gain] of [
       ['ranger', { kind: 'spell', spellId: 'quake' }],
-      ['knight', { kind: 'item', itemId: 'wellStone', count: 1 }],
+      ['knight', { kind: 'gil', amount: 40 }],
     ] as const) {
       const state = newGame(classId);
       const shown = describeInteraction(state, entityOf('elder'));
@@ -387,8 +387,11 @@ describe('encounters on terms', () => {
       Object.defineProperty(battle, 'status', { value: 'won' });
       const result = resolveBattle(state, entityOf('elder'), battle, createRng(1), 'neutral');
       expect(result.gains, classId).toEqual([gain]);
-      const said = classId === 'knight' ? NPCS.elder!.lines.winKnown! : NPCS.elder!.lines.win;
-      expect(result.speech).toBe(say(said, 'neutral'));
+      // His lines handing over a stone are unsaid: both hear his other success line.
+      expect(result.speech).toBe(
+        'First bucket’s clean! Tastes like sweet granite. You earned your pay today, kid.',
+      );
+      expect(state.hero.items.wellStone ?? 0).toBe(0);
       expect(state.flags.has('npc:elder')).toBe(true);
     }
   });

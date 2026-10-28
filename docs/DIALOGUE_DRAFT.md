@@ -13,12 +13,12 @@ The latter's second-half appendix is non-binding. This writing uses its
 Irdrath, seven Lishal singers, and the Malificat in place of earlier placeholders.
 New motives, relationships, locations, and ritual rules remain proposals.
 
-| Scenes | Script |
-| --- | --- |
-| 01 | Preserve the team's existing Wyrm fall and Chapter One ending at the source above. |
-| 02–08 | [Descent: Fennick, Odile, Irdrath, Ketter, and Vesper's duel](dialogue/DESCENT_DRAFT.md) |
-| 09–13 | [Depths: the Lishal, Vesper's choice, and the ascent](dialogue/DEPTHS_DRAFT.md) |
-| 14–18 | [Return: Fennick's rite, the Malificat, and recovery](dialogue/RETURN_DRAFT.md) |
+| Scenes | Script                                                                                   |
+| ------ | ---------------------------------------------------------------------------------------- |
+| 01     | Preserve the team's existing Wyrm fall and Chapter One ending at the source above.       |
+| 02–08  | [Descent: Fennick, Odile, Irdrath, Ketter, and Vesper's duel](dialogue/DESCENT_DRAFT.md) |
+| 09–13  | [Depths: the Lishal, Vesper's choice, and the ascent](dialogue/DEPTHS_DRAFT.md)          |
+| 14–18  | [Return: Fennick's rite, the Malificat, and recovery](dialogue/RETURN_DRAFT.md)          |
 
 Hero lines use a common voice that works for any class. Familiar mentor
 lines are used only for relationships the player actually earned; missing

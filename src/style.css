@@ -1552,6 +1552,15 @@ dialog.interlude #dialog-body {
   opacity: 1;
 }
 
+.interlude-speaker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 12px;
+  color: var(--muted);
+}
+
 .interlude-hint {
   color: var(--muted);
   font-size: 12px;
