@@ -305,6 +305,9 @@ export const DUEL_PRICES = {
 export const DUEL_SENDS: readonly number[] = [0, 0, 1, 2, 4];
 export const DUEL_BACK_TO_BACK = 1;
 
+/** Placement-relevant board events are telegraphed this many pieces ahead (§2, §7.1). */
+export const TELEGRAPH_LEAD = 1;
+
 /**
  * What winning and failing cost and give (§3). Regard is per person; strain
  * per encounter; a day ends at an inn.

@@ -1,7 +1,7 @@
 /** Drawing for the falling-block board's crystals. */
 import type { CrystalColor } from '../core/pieces';
 
-export const CRYSTAL_HEX: Readonly<Record<CrystalColor | 'stone', string>> = {
+export const CRYSTAL_HEX: Readonly<Record<CrystalColor | 'stone' | 'neutral', string>> = {
   cyan: '#61d9e8',
   gold: '#f6d365',
   violet: '#bd91ff',
@@ -10,12 +10,13 @@ export const CRYSTAL_HEX: Readonly<Record<CrystalColor | 'stone', string>> = {
   blue: '#7296ff',
   orange: '#ffad69',
   stone: '#6b6577',
+  neutral: '#8c7356',
 };
 
 /** Draws one board crystal with a highlight. */
 export function drawCrystal(
   ctx: CanvasRenderingContext2D,
-  color: CrystalColor | 'stone',
+  color: CrystalColor | 'stone' | 'neutral',
   x: number,
   y: number,
   size: number,

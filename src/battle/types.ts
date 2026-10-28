@@ -88,8 +88,10 @@ export type BattleEvent =
   | { readonly kind: 'face'; readonly face: Face }
   /** The person speaks one of their three lines. */
   | { readonly kind: 'beat'; readonly beat: Beat }
-  /** Rows pushed up from below (rising mold, a merchant's counter-offer). */
-  | { readonly kind: 'rise'; readonly rows: number }
+  /** Rows pushed up from below (rising mold, a merchant's counter-offer, a curse). */
+  | { readonly kind: 'rise'; readonly rows: number; readonly source: PushSource }
+  /** A placement left `count` new buried holes. */
+  | { readonly kind: 'holes'; readonly count: number }
   /** A lamp lit, or the wind snuffed one. */
   | { readonly kind: 'lamp'; readonly index: number; readonly lit: boolean }
   /** The hazard spread into these cells ([x, y]). */
@@ -104,6 +106,18 @@ export type BattleEvent =
   /** A region rule's spore landed on, or spread into, these cells. */
   | { readonly kind: 'spores'; readonly cells: readonly (readonly [number, number])[] };
 
+/** Where pushed rows come from. */
+export type PushSource = 'curse' | 'rising' | 'send' | 'tug' | 'tide';
+
+/** What kind of push it is: who sends it, and what the rows are made of. */
+export interface RowPush {
+  readonly source: PushSource;
+  /** A boss's move (a boss's curse), as opposed to a region rule or an encounter's script. */
+  readonly boss?: boolean;
+  /** The rows' cells: stone with one gap (default), or mold (violet and green) with one gap. */
+  readonly fill?: 'stone' | 'mold';
+}
+
 /** A person's wordless reaction (§4): a wince at a hole, a cheer at a 3+ clear, alarm at danger. */
 export type Face = 'wince' | 'cheer' | 'alarm';
 
@@ -111,18 +125,20 @@ export type Face = 'wince' | 'cheer' | 'alarm';
 export type Beat = 'start' | 'hazard' | 'nearly';
 
 /**
- * A board event marked one piece ahead (§2, §7.1): the cells it will touch
- * (a spore's landing, the rot's next reach), or a whole-board warning
- * (a rising row, an incoming counter-offer, a lamp about to be snuffed).
+ * A board event marked ahead of time (§2, §7.1), as data: how many pieces
+ * ahead it shows (`leadPieces`, `TELEGRAPH_LEAD`), and what it targets:
+ * the cells it will touch (a spore's landing, the rot's next reach), rows
+ * (a rising row, an incoming counter-offer) or a lamp about to be snuffed.
  */
-export type Telegraph =
+export type Telegraph = { readonly leadPieces: number } & (
   | {
       readonly kind: 'cells';
       readonly what: 'spore' | 'spread';
       readonly cells: readonly (readonly [number, number])[];
     }
   | { readonly kind: 'rows'; readonly what: 'rise' | 'send'; readonly rows: number }
-  | { readonly kind: 'lamp'; readonly index: number };
+  | { readonly kind: 'lamp'; readonly index: number }
+);
 
 /** An event with its position in the battle, so the screen can play each one once. */
 export interface NumberedEvent {
@@ -182,6 +198,13 @@ export interface BattleContext {
   /** Milliseconds remaining of quickened gravity (enemy quicken). */
   quickenMs: number;
   emit(event: BattleEvent): void;
+  /**
+   * Pushes `count` rows up from the bottom of the board: the one way any
+   * row enters (an enemy's curse, rising mold, a merchant's send, later
+   * tugs and the tide), so abilities can see and change every push.
+   * Returns the rows actually pushed.
+   */
+  pushRows(push: RowPush, count: number): number;
 }
 
 /**

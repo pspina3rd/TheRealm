@@ -1,6 +1,6 @@
 import { BOARD_HEIGHT, BOARD_WIDTH, Board, type LockResult, type QueuedPiece } from '../core/board';
 import { PIECES } from '../core/pieces';
-import { ELEMENTS, elementsOf } from '../core/elements';
+import { ELEMENTS, elementsOf, type Element } from '../core/elements';
 import type { PieceName } from '../core/pieces';
 import type { Rng } from '../core/rng';
 import {
@@ -34,6 +34,7 @@ import type {
   Challenge,
   NumberedEvent,
   Objective,
+  RowPush,
 } from './types';
 import {
   MANA_BOOST_MULTIPLIER,
@@ -183,6 +184,27 @@ export class Battle implements BattleContext {
     return this.board.previewPieces(this.fogPieces > 0 ? 0 : shown);
   }
 
+  /** The elements that surged in each of the last two locks, oldest first (a lock with none: []). */
+  readonly recentSurges: Element[][] = [];
+
+  /**
+   * Pushes `count` rows up from the bottom, each with one random gap, in
+   * stone or mold: every pushed row goes through here (see `RowPush`).
+   */
+  pushRows(push: RowPush, count: number): number {
+    const width = this.board.width;
+    for (let i = 0; i < count; i++) {
+      const gap = this.rng.int(width);
+      this.board.pushRow(
+        Array.from({ length: width }, (_, x) =>
+          x === gap ? null : push.fill === 'mold' ? (x % 2 === 0 ? 'violet' : 'green') : 'stone',
+        ),
+      );
+    }
+    if (count > 0) this.emit({ kind: 'rise', rows: count, source: push.source });
+    return count;
+  }
+
   emit(event: BattleEvent): void {
     this.events.push({ seq: this.nextSeq++, event });
     if (this.events.length > MAX_EVENTS) this.events.shift();
@@ -308,7 +330,15 @@ export class Battle implements BattleContext {
       );
       if (addMana(this.hero, gained) > 0) this.emit({ kind: 'mana', gained });
     }
+    if (result.holesMade > 0) this.emit({ kind: 'holes', count: result.holesMade });
+    const first = this.nextSeq;
     this.challenge.onLock(result);
+    this.recentSurges.push(
+      this.eventsSince(first).flatMap(({ event }) =>
+        event.kind === 'surge' ? [event.element] : [],
+      ),
+    );
+    if (this.recentSurges.length > 2) this.recentSurges.shift();
     if (this.spec.kind === 'encounter') this.react(result);
     if (this.assist && this.status === 'ongoing' && this.rng.next() < STAKES.assistToss)
       this.assistToss(this.assist);

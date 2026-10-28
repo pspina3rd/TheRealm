@@ -568,7 +568,7 @@ export class CombatChallenge implements Challenge {
       }
       case 'curse': {
         const rows = this.enraged ? (this.enemy.enrage?.curseRows ?? move.rows) : move.rows;
-        this.ctx.board.addGarbage(rows);
+        this.ctx.pushRows({ source: 'curse', boss: this.enemy.boss === true }, rows);
         this.ctx.emit({ kind: 'curse', rows });
         if (this.ctx.board.toppedOut) this.overflow();
         break;

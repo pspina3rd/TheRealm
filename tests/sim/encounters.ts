@@ -252,9 +252,12 @@ export interface TryResult {
   readonly price: number;
 }
 
-/** A hero at `level` (ranger, no extra gear), as the encounter sims meet people. */
-export function simHero(level: number): Hero {
-  const hero = createHero('ranger');
+/** The hero class the sims play (CLASS=ranger|knight|mage|rogue; ranger by default). */
+export const SIM_CLASS = process.env.CLASS ?? 'ranger';
+
+/** A hero of `classId` at `level` (no extra gear), as the encounter sims meet people. */
+export function simHero(level: number, classId = SIM_CLASS): Hero {
+  const hero = createHero(classId);
   while (hero.level < level) gainXp(hero, hero.nextXp);
   hero.hp = hero.maxHp;
   return hero;
@@ -311,10 +314,12 @@ export function playEncounter(
         battle.input('hardDrop');
         if (process.env.TRACEBOARD)
           process.stderr.write(
-            battle.board.grid.slice(4).map((r) => r.map((c) => (c ? c[0] : '.')).join('')).join('\n') + '\n\n',
+            battle.board.grid
+              .slice(4)
+              .map((r) => r.map((c) => (c ? c[0] : '.')).join(''))
+              .join('\n') + '\n\n',
           );
-      }
-      else {
+      } else {
         const choice = bot === 'good' ? goodChoice(battle) : casualChoice(battle);
         if (choice) execute(battle, choice, bot === 'casual', () => noise.next());
         else battle.input('hardDrop');

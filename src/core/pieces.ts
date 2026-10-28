@@ -10,8 +10,17 @@
 export const CRYSTAL_COLORS = ['cyan', 'gold', 'violet', 'green', 'red', 'blue', 'orange'] as const;
 export type CrystalColor = (typeof CRYSTAL_COLORS)[number];
 
-/** A board cell: a crystal, an inert `stone` block (from enemy magic), or empty. */
-export type Cell = CrystalColor | 'stone' | null;
+/**
+ * A board cell: a crystal, an inert `stone` block (from enemy magic), a
+ * `neutral` cell (inert: it never scores as any element, but clears with
+ * its line like any other; Bean's soil ridges), or empty.
+ */
+export type Cell = CrystalColor | 'stone' | 'neutral' | null;
+
+/** True for a crystal of an element (not stone, not neutral, not empty). */
+export function isCrystal(cell: Cell): cell is CrystalColor {
+  return cell !== null && cell !== 'stone' && cell !== 'neutral';
+}
 
 export type PieceName = 'I' | 'O' | 'T' | 'S' | 'Z' | 'J' | 'L';
 

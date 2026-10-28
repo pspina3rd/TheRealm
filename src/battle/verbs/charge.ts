@@ -1,6 +1,7 @@
 import type { ClearedRow, LockResult, Supply } from '../../core/board';
 import { colorOfElement, type Element } from '../../core/elements';
 import type { Landing } from '../../core/landing';
+import { TELEGRAPH_LEAD } from '../../data/balance';
 import type { Cell } from '../../core/pieces';
 import {
   piecesLeft,
@@ -127,8 +128,10 @@ export class ChargeChallenge implements Challenge {
 
   telegraphs(): readonly Telegraph[] {
     const oldest = this.lit[0];
-    return this.untilSnuff === 1 && oldest !== undefined && this.lit.length < this.lamps.length
-      ? [{ kind: 'lamp', index: oldest }]
+    return this.untilSnuff <= TELEGRAPH_LEAD &&
+      oldest !== undefined &&
+      this.lit.length < this.lamps.length
+      ? [{ kind: 'lamp', index: oldest, leadPieces: TELEGRAPH_LEAD }]
       : [];
   }
 

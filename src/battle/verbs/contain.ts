@@ -1,5 +1,6 @@
 import type { LockResult } from '../../core/board';
 import type { Landing, TagGrid } from '../../core/landing';
+import { TELEGRAPH_LEAD } from '../../data/balance';
 import {
   piecesLeft,
   type BattleContext,
@@ -154,8 +155,8 @@ export class ContainChallenge implements Challenge {
   }
 
   telegraphs(): readonly Telegraph[] {
-    return this.untilSpread === 1
-      ? [{ kind: 'cells', what: 'spread', cells: this.frontier() }]
+    return this.untilSpread <= TELEGRAPH_LEAD
+      ? [{ kind: 'cells', what: 'spread', cells: this.frontier(), leadPieces: TELEGRAPH_LEAD }]
       : [];
   }
 
