@@ -28,7 +28,7 @@ import { DuelChallenge } from '../../src/battle/verbs/duel';
 import { ENCOUNTER_DEFS } from '../../src/data/encounters';
 
 /** How much the good bot weighs the challenge's hint against plain stacking. */
-const HINT = Number(process.env.HINT ?? 3);
+const HINT = Number(process.env.HINT ?? 1);
 
 export type Bot = 'good' | 'casual' | 'dropper' | 'idle';
 
@@ -193,7 +193,7 @@ function casualChoice(battle: Battle): Landing | null {
   const ranked = landingsNow(battle.board)
     .map((landing) => ({
       landing,
-      score: scoreGrid(landing.grid, landing.lines) + (hint?.(landing) ?? 0),
+      score: 10 * scoreGrid(landing.grid, landing.lines) + HINT * (hint?.(landing) ?? 0),
     }))
     .sort((a, b) => b.score - a.score);
   const pick = ranked.length > 1 && battle.rng.next() < 0.15 ? ranked[1] : ranked[0];

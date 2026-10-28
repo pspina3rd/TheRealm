@@ -296,9 +296,9 @@ describe('BUILD (Pip’s tower)', () => {
       ],
       7,
     )!;
-    expect(build.hint(tower)).toBe(12);
+    expect(build.hint(tower)).toBe(36);
     expect(build.hint(box)).toBe(0);
-    expect(build.hint(outside)).toBe(-30);
+    expect(build.hint(outside)).toBe(-90);
     build.wobbles = 1;
     expect(build.hint(outside)).toBe(-1000);
   });
