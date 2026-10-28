@@ -4,6 +4,7 @@
  * (set `SIM=1` to print the full table).
  */
 import { Battle, type BattleOptions } from '../../src/battle/battle';
+import { LessonChallenge } from '../../src/battle/lesson';
 import { rotationsOf } from '../../src/core/bestFit';
 import type { Board } from '../../src/core/board';
 import type { Cell, Offset, PieceName } from '../../src/core/pieces';
@@ -213,9 +214,12 @@ function choose(battle: Battle, style: Style): Spot | null {
 function castReady(battle: Battle): void {
   const combat = battle.combat;
   if (!combat) return;
+  // A lesson's shield is up: only the taught spell gets through, so cast it, heal or not.
+  const lesson = combat instanceof LessonChallenge && combat.shield === 'up' ? combat : null;
   for (const id of Object.keys(combat.spellBook())) {
     const kind = SPELLS[id]?.levels[0].effect.kind;
-    if (kind === 'heal' && battle.hero.hp > battle.hero.maxHp * 0.5) continue;
+    const taught = lesson?.spellId === id;
+    if (kind === 'heal' && !taught && battle.hero.hp > battle.hero.maxHp * 0.5) continue;
     if (combat.cannotCastReason(id) === null && combat.status() === 'ongoing') combat.castSpell(id);
   }
 }

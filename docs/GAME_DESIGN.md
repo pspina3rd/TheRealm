@@ -1037,6 +1037,14 @@ a point. Both sit above the approved 75–85% because fixing the sim bots'
 landing bug (O pieces landed a column off) made the fight sim's bots
 stronger everywhere; the monster numbers were not retuned here.
 
+Lessons (fight sim, touch pace, 200 seeds): Torva's, Maren's and Kestrel's
+d1–d3 read good 100%, full kit 100%, singles 100%, sloppy 0%, 34–59 s.
+Hazel's (spores and the shield) read good 100% / 100% / 100% for d1/d2/d3,
+singles 100%, sloppy 0%, 54 / 74 / 81 s. All sit above the §5.3 lesson
+bands (80–90 / 70–80 / 60–70%); not tuned here. The fight sim's bots now
+cast the taught spell while a lesson's shield is up, heal or not (before
+that, Hazel's Cure waited for half HP and her lessons ran 6–9 minutes).
+
 ## NPCs and attitude
 
 Every NPC who is not a mentor has an element, and an **attitude** toward
