@@ -19,3 +19,14 @@ checkpoint, so unfinished work is preserved without depending on a chat summary.
 - Next checkpoint: aligned character/scene documents and the first saved
   dialogue sections. Then complete the script, resolve review findings, and
   validate links, sequence, and preservation of existing writing.
+
+### Checkpoint 1 · writing saved during work
+
+- Pushed the work log and dialogue entry point as `0e9383f`.
+- Descent writer saved early sections before continuing; depths writer saved
+  scene 09 first, then completed 09–13. Return scenes 14–15 are saved.
+- Review found existing team cast names that can replace new duplicate roles:
+  Odile replaces Neri; Ketter replaces Tams and is the rescued worker in
+  scene 07. Their proposed occupations and motivations remain new writing.
+- Remaining: complete descent and ending, align the planning documents with
+  those names and boss identities, then resolve independent review findings.
