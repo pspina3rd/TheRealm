@@ -53,14 +53,14 @@ describe('DIG + rising (Rowan’s well)', () => {
     expect(board.width).toBe(6);
     expect(board.tagged('target')).toEqual([[2, 19]]);
     const dig = battle.challenge as DigChallenge;
-    expect(dig.rowsAbove()).toBe(5);
-    expect(dig.objective()).toMatchObject({ counter: '5 rows to the pipe', piecesLeft: null });
+    expect(dig.rowsAbove()).toBe(4);
+    expect(dig.objective()).toMatchObject({ counter: '4 rows to the pipe', piecesLeft: null });
     expect(dig.lipY).toBe(20 - ENCOUNTERS.elder.lip);
   });
 
   it('adds a debris row on top per strain step', () => {
     const dig = encounter('elder', 2).challenge as DigChallenge;
-    expect(dig.rowsAbove()).toBe(7);
+    expect(dig.rowsAbove()).toBe(6);
   });
 
   it('wins when the pipe’s row clears', () => {

@@ -106,4 +106,4 @@ async function run(viewport, touch, tag) {
 
 await run({ width: 390, height: 844 }, true, 'phone');
 await run({ width: 1100, height: 900 }, false, 'desktop');
-console.log(errors.length ? `ERRORS:\n${errors.join('\n')}` : 'no console errors');
+process.stdout.write(errors.length ? `ERRORS:\n${errors.join('\n')}\n` : 'no console errors\n');
