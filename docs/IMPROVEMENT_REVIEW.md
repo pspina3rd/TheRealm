@@ -5,6 +5,51 @@ the team's [encounter design](ENCOUNTER_DESIGN.md), and the playable campaign
 checkpoint `3edb994`. The recommendations are useful directions, not a list
 of features already implemented or a replacement for the team's decisions.
 
+## Latest team check — supersedes the earlier scheduling assessment
+
+Rechecked `claude/laughing-brown-7i13lb` at
+[`f17985d`](https://github.com/pspina3rd/TheRealm/commit/f17985d91e42f78100e44cf57441518cf597ad17).
+GetPutTaco includes the earlier team head `d14b3c4` through merge `238eff1`,
+but **16 newer team commits are not yet merged**. Therefore this branch is
+aligned with that earlier checkpoint, not fully synchronized with current work.
+
+The new work includes board tags, controlled supply, encounter verbs, stakes,
+lesson shields, telegraphs, feasibility checks, and simulator changes. The
+[approved Addendum A](https://github.com/pspina3rd/TheRealm/blob/f17985d91e42f78100e44cf57441518cf597ad17/docs/ENCOUNTER_ADDENDUM.md)
+selects **element reactions, class abilities, and mentor synergy** from the
+recommendations. They belong to M2a, after the author's M1 playtest go/no-go.
+The earlier assessment below did not have this approval available.
+
+The current priority order is:
+
+1. **Reconcile and validate the team's encounter foundation and M1 slice.**
+   Encounter variety remains the highest immediate gameplay priority. Extend
+   their implementations rather than build competing verbs or pressure rules.
+2. **Follow approved M2a for reactions, passive class abilities, and synergy.**
+   These are chosen work, not indefinitely deferred ideas. Keep awakening,
+   stat trades, capped effects, protected signature moves, and paired balance
+   checks from the approved addendum.
+3. **Character reactions and optional touch feedback.** Add event-driven
+   expressions/barks to support the motives already written; keep the phone
+   layout readable. Haptics remain optional polish, outside Addendum A.
+4. **Audio foundations, then layered music.** Playback and assets are still
+   prerequisites for dynamic music.
+5. **Endless mode and New Game+.** The approved addendum explicitly defers
+   these until after the main game.
+
+Two concrete reconciliation issues need handling before further tuning:
+both branches independently use save version 10 for different additions
+(campaign entry versus stakes), and the team fixed a landing-origin defect
+still present in this branch's combat simulator. Reconcile migrations and
+apply the simulator correction before relying on earlier balance samples.
+Those samples remain historical diagnostics, not tuning targets.
+
+The addendum also resolves the rough class examples: Ranger **Breeze**,
+Knight **Bulwark**, Mage **Arcane Sight**, and Rogue **Pickpocket**. It rejects
+piece mirroring and duplicating Insight's preview benefit. Pickpocket cancels
+eligible telegraphed events instead of creating off-board mana. Mentor synergy
+keeps the Wyrm solo and uses mentor portraits for eligible joint spells.
+
 ## 1. Encounter variety and board modifiers — highest gameplay priority
 
 The underlying concern is sound: adding regions and HP does not by itself
@@ -25,7 +70,11 @@ A 3×3 visibility penalty must not hide the skyline or current landing cells.
 Preserve those readable cues and telegraph a hazard instead of making an
 input unreliable or a legal placement unknowable.
 
-## 2. Element reactions and class mechanics — design separately
+## 2. Element reactions and class mechanics — original assessment
+
+Scheduling here is superseded by the approved M2a plan above. The mechanical
+concerns below explain why the team refined the original class suggestions;
+they are not grounds to defer the approved implementations.
 
 Rapid elemental reactions could create useful build choices, but they add a
 new scoring/combat layer on top of existing combo damage, elemental affinity,
@@ -64,10 +113,9 @@ the character motives in the reviewed script instead of adding generic
 encouragement to every clear. Reaction portraits require matching art and
 state mapping; the existing static face is not that completed system.
 
-A separate synergy gauge or fusion system is additional combat design.
-Prototype a clearly earned joint action after the existing lesson and boss
-behaviors read well. Do not add another meter merely to restate the mana
-or action gauges already on screen.
+The newer approved addendum specifies the synergy gauge, portrait casting,
+initial three joint spells, and later allied bosses. Implement that design
+after the M1 checkpoint, rather than inventing a competing fusion system.
 
 ## 4. Touch feedback and audio — useful polish after readability
 
@@ -96,7 +144,7 @@ the seed and rules version for comparable results. New Game+ needs explicit
 carryover/reset rules, save compatibility, and a fresh economy check. It
 should not be used to make the unfinished main-route balance feel complete.
 
-## Resulting order of work
+## Earlier order of work — superseded by the latest team check
 
 1. Finish the current route/UI verification and retain the balance findings.
 2. Develop encounter identity through the team's existing vertical-slice plan;

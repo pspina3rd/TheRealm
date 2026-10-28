@@ -145,3 +145,19 @@ files; the coordinator commits named paths and publishes committed snapshots.
   route preparation, implement encounter identity through the team's staged
   plan, and assess story/pacing in human playtests. New class rules, haptics,
   audio, and replay modes were reviewed, not silently implemented.
+
+### Fresh team alignment check
+
+- Rechecked the other branch at `f17985d` after the author asked for explicit
+  confirmation. The earlier `d14b3c4` is an ancestor of this branch through
+  merge `238eff1`, but 16 newer team commits are not yet integrated.
+- Read the new team build log and approved `ENCOUNTER_ADDENDUM.md`. Reactions,
+  passive class abilities, and mentor synergy are approved M2a scope after the
+  M1 playtest checkpoint; the recommendation review now reflects that decision.
+- Identified independent save-version-10 changes on both branches and the
+  team's corrected combat-simulator landing-origin calculation. Both require
+  reconciliation before further balance tuning. Existing balance samples are
+  historical and must not be represented as results from the corrected engine.
+- No claim is made that the latest M0/M1 encounter work is already merged.
+  The immediate engineering priority is to reconcile that work before adding
+  more mechanics, preserving both build logs and both sets of save progress.
