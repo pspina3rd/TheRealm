@@ -65,6 +65,10 @@ fear, how they feel in the scene, and how those pressures shape their choices
 and speech. The working profiles are in [CHARACTERS_DRAFT.md](CHARACTERS_DRAFT.md).
 Existing facts and proposed characterization must stay distinguishable.
 
+The [scene treatment](SCENES_DRAFT.md) develops those profiles into immediate
+wants, actions, choices, and emotional consequences from the Wyrm's fall
+through the ending. Its new details remain proposals for the writing stage.
+
 Draft the expanded outline before adding production encounters:
 
 - Identify the underground regions and the events connecting each major beat.

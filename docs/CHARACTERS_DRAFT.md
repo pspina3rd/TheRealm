@@ -10,6 +10,9 @@ this draft; this document does not merge their implementation into GetPutTaco.
 contains proposals, not additional established history. No dialogue is drafted
 here. Existing lines cited as evidence remain unchanged.
 
+The [scene treatment](SCENES_DRAFT.md) now puts these pressures into actions
+and decisions across the second half. Its selected outcomes remain proposals.
+
 Every new personality detail, relationship, motive, and supernatural mechanism
 below is a proposal. The monomyth organizes the journey; characters must still
 make choices for reasons that would matter to them without an audience.
@@ -286,6 +289,33 @@ objections; the coercion appears in how they answer refusal. Under pressure,
 reassurance becomes correction and then a direct order. Avoid a detached
 philosophy lecture. Every claim should concern someone present, a task under
 way, or a consequence the player has actually encountered.
+
+## Proposed recurring underground residents
+
+**Neri, waterkeeper:** introduced in the Sunken Archive, she wants her refuge
+ready to leave for safer housing, including residents who cannot walk out
+themselves. She needs partners who will finish a job after getting the
+directions they came for. Her packed belongings show a personal wish to be
+gone as well as a responsibility to stay. Initial distrust becomes measured
+cooperation with the hero; resisting the Warden means taking responsibility
+for a transfer herself. At the ascent she directs it, rather than waiting
+to be rescued again. Her voice should concern particular people, loads,
+water, and arrangements; frustration makes her cut a conversation short
+to resume work. No sleeping relative or tragic history is assumed.
+
+**Tams, bellwright:** introduced in the Bell Hollows, they want a relief
+operator so they can leave their workshop without stranding the workers
+who rely on its signals. They need to let a competent person finish a task
+without correcting them. A cold meal and interrupted packing establish
+irritation and tiredness before anyone describes devotion to duty. Working
+with the hero lets them hand over a shift. Later, leaving a recovered tool
+case to help an injured worker shows what they value when possessions and
+people compete. At the ascent they can trust another operator while doing
+their own work. Practical detail and dry impatience fit them; their bells
+are equipment with a civic purpose, not an excuse for constant metaphors.
+
+Both are new proposals. Their work and housing are part of the ending;
+their sole purpose is not to certify the hero's goodness or dispense lore.
 
 ## Before writing a scene
 

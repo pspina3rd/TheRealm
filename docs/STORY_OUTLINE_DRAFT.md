@@ -11,6 +11,8 @@ Character development precedes dialogue. The working profiles in
 [CHARACTERS_DRAFT.md](CHARACTERS_DRAFT.md) distinguish existing script evidence
 from proposed characterization. Earlier dialogue samples have been withdrawn;
 scene dialogue will be drafted from the characters and their immediate stakes.
+The [scene treatment](SCENES_DRAFT.md) develops this outline into specific
+wants, conflicts, choices, and emotional changes before dialogue is written.
 
 Continuity source: the [team's updated story script](https://github.com/pspina3rd/TheRealm/blob/fe5c3e49473297c008b2167f8476c043db735d0f/docs/STORY.md).
 Its opening, Refusal, mentor scenes, Wyrm's survival, and chapter hook take
@@ -201,8 +203,9 @@ speak through them.
 The final fight is the Resurrection test of everything learned: strength
 can matter because the player first protected others, understood the
 mechanism, and accepted help. Defeating this form ends the voice's escape
-cycle. Vesper's precise surviving or dying fate needs review; neither is
-silently made canon here. The immediate outcome is definite: the voice is
+cycle. The scene treatment selects survival without borrowed power as a
+proposed ending to evaluate; Vesper's fate is not approved canon.
+The immediate outcome is definite within this proposal: the voice is
 contained and the unnatural sleep begins to lift.
 
 Return with the elixir is playable aftermath or an epilogue grounded in
