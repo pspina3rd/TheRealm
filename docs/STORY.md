@@ -17,9 +17,9 @@ A new game starts by picking a class; the hero wakes in Mossvale Village. Class 
 
 | Class | Hero's name | Element | First spell | Description |
 | --- | --- | --- | --- | --- |
-| Ranger | Fen | Wind | Gale | Quick and lucky: slower pieces and better drops. A good first adventure. |
+| Ranger | Fern | Wind | Gale | Quick and lucky: slower pieces and better drops. A good first adventure. |
 | Knight | Lance | Earth | Quake | Tough and well armoured, with shallow mana pools. |
-| Mage | Lyra | Arcane | Shadow | Deep mana pools and keen insight, but fragile. |
+| Mage | Ares | Arcane | Shadow | Deep mana pools and keen insight, but fragile. |
 | Rogue | Vex | Lightning | Thunder | Hits harder, pays less in shops and starts with a fat purse. |
 
 ## Antagonists & The Depths
@@ -68,14 +68,14 @@ Earth · Puzzle · Reward: the Quake spell (or 1× Well Stone if known); Friendl
 | You fail | • "Great. Now the water’s purple *and* full of gravel. Get out of the way." | • "Dammit. Crumbled the outer ring, didn't you? Let the sediment settle and we’ll try again."<br>• "No go. That mold’s rooted deeper than I thought." | • "Ah, don't beat yourself up over it. That stone’s trickier than it looks. Take a breather." |
 | Afterwards | • "Water's running. We're square." | • "Cold, clear, and doesn't taste like copper anymore. Can't ask for much else."<br>• "Winch is holding up fine. Thanks again." | • "Every time I fill a kettle, I think of you! Stop by anytime you're passing through Mossvale."<br>• "Hearth’s always warm for you here, kid." |
 
-### Farmer Bea
+### Farmer Bean
 
 Nature · Barter · Reward: 2× Herb; Friendly bonus: 1× Herb; Devoted secret: 1× Grove Charm
 
 | Moment | Hostile / Wary | Neutral | Friendly / Devoted |
 | --- | --- | --- | --- |
 | Greeting | • "Watch where you place those boots! The blight took half my crop already; I don't need you tramping on the rest."<br>• "If you're looking for hand-outs, keep walking. My beds are bare." | • "Look at these rows—pale as bone. The blight took the sweet-leaf overnight. Help me seed green crystals into the soil and we'll split the yield."<br>• "Ground's went sour. Needs green mana to wake the sprouts up again. Care to do some planting?" | • "Ah, hello dear! You caught me at a bad time—the blight got into my herb beds. Lend a hand with the seeding and I'll make sure you leave with a full satchel?"<br>• "Always a pleasure! Soil's stiff today, but a bit of good green energy will set these sprouts right." |
-| Confides (Devoted only) | • "You've got dirt on your hands, but at least you work. Don't tell Odo: the rot isn't weather. It's coming up through the root lines from the deep caves." | • "Don't tell Odo, but I braid charms from the very first sprouts that take. Help me replant these beds and I'll weave one for your pack."<br>• "Hazel says the grove roots are bleeding sap down south. Something down in the dark is poisoning the soil." | • "You've got a gentle touch with the sprouts, love. Replant these rows and I'll give you a Grove Charm I braided from the first harvest." |
+| Confides (Devoted only) | • "You've got dirt on your hands, but at least you work. Don't tell Ordor: the rot isn't weather. It's coming up through the root lines from the deep caves." | • "Don't tell Ordor, but I braid charms from the very first sprouts that take. Help me replant these beds and I'll weave one for your pack."<br>• "Hazel says the grove roots are bleeding sap down south. Something down in the dark is poisoning the soil." | • "You've got a gentle touch with the sprouts, love. Replant these rows and I'll give you a Grove Charm I braided from the first harvest." |
 | Refuses (Hostile only) | • "I'd rather let the weeds win than have you tramping through my garden."<br>• "Hands off my seed bags. Move along." | • "My beds, my seed. I'll tend them myself when the sun dips."<br>• "Thanks, but no. Soil needs patience, not clumsy hands." | • "Oh, don't worry your head over my little garden, dear. I'll get it sorted." |
 | Takes on the task | • "Green crystals only, and drop them deep into the furrow. Don't waste 'em." | • "Space them evenly in the rows, mind. Give the roots room to breathe."<br>• "Soft touch now—don't smother the shoots before they wake." | • "Just tuck them gently into the black dirt, love. They'll do the rest." |
 | You walk away | • "Right. Weeds won't pull themselves anyway." | • "Suit yourself. The soil waits for no one."<br>• "No matter. I'll go fetch my hand-spade." | • "Take care out there, dear! Come back when you've a mind to garden." |
@@ -98,13 +98,13 @@ Wind · Puzzle · Reward: 1× Ether; Friendly bonus: 1× Herb; Devoted secret: 1
 | You fail | • "It's worse now! Mum's gonna ground me forever!" | • "Oh no, it sags! Mum's gonna see it from the kitchen!"<br>• "Aaaah, the pieces are falling!" | • "Uh oh... don't worry, we can build it again before the sun goes down!" |
 | Afterwards | • "Tower's fine. Go away before Mum sees you." | • "Tower's clean! Mum didn't even notice it was stuck."<br>• "It's still spinning! Watch!" | • "I'm building a taller one tomorrow! You can help me make it reach the roof!"<br>• "Hi friend! Look how stable it is now!" |
 
-### Stall Keeper Odo
+### Shopkeeper Ordor
 
 Nature · Haggle · Reward: opens their shop
 
 | Moment | Hostile / Wary | Neutral | Friendly / Devoted |
 | --- | --- | --- | --- |
-| Greeting | • "Prices are on the slate. Don't bother asking for a discount unless you've got real coin."<br>• "Buying something or just leaning on my counter? Time is money, friend." | • "Herbs from Bea, iron from the coast, charms from the road. Settle on a price and we both eat tonight."<br>• "Fresh stock in today! Haggle me fair and I'll open the good sacks." | • "Ah, my favorite traveler! Step up, step up! For you, I'm feeling generous—let's play a little game for the prices!"<br>• "Look who it is! Come inspect the goods—I'll treat you right on the figures today." |
+| Greeting | • "Prices are on the slate. Don't bother asking for a discount unless you've got real coin."<br>• "Buying something or just leaning on my counter? Time is money, friend." | • "Herbs from Bean, iron from the coast, charms from the road. Settle on a price and we both eat tonight."<br>• "Fresh stock in today! Haggle me fair and I'll open the good sacks." | • "Ah, my favorite traveler! Step up, step up! For you, I'm feeling generous—let's play a little game for the prices!"<br>• "Look who it is! Come inspect the goods—I'll treat you right on the figures today." |
 | Confides (Devoted only) | • "Look, you've got a harsh bite, but I respect coin. I keep a lockbox under the counter for people who mean business." | • "For you? I'll slide open the box under the counter. Rare stuff from the ruins. Haggle first, for form's sake."<br>• "Word is the barges aren't coming up-river anymore... something's blocking the lake. What I have on the rack is all that's left." | • "Between friends? I keep the ancient charms under the floorboards. Haggle me down and I'll let you take your pick." |
 | Refuses (Hostile only) | • "Stall's shut to your kind. Keep moving."<br>• "Not selling to you today. Go bother someone else." | • "No deal. Come back when you've got a better tone."<br>• "Stall's closed for the afternoon." | • "Ah, not feeling the market today? No worries at all, friend." |
 | Takes on the task | • "Make your offer. Fast." | • "Name your price, but don't insult me."<br>• "Let's see your silver." | • "Go on then, give me your best offer!" |
@@ -128,7 +128,7 @@ Earth · essential: always deals · Barter · Reward: story flag “cavePass”,
 | You fail | • "Pathetic effort. The lamps are still dark." | • "The crystals didn't take. The flame sputtered out." | • "No harm done, friend. Let's try fueling them again." |
 | Afterwards | • "Your pass is valid. Move along." | • "Lamps hold fine. Mind yourself down in those caves." | • "The watch owes you a debt. Stay safe down there!" |
 
-### Shrine Keeper Ilse
+### Shrine Keeper Myst
 
 Water · essential: always deals · Barter · Reward: story flag “shrineRestored”, 1× Ether; Friendly bonus: 1× Ether; Devoted secret: 1× Tide Charm
 
@@ -148,7 +148,7 @@ Seven mentors, one per element. They teach through team-up lessons and travel a 
 
 | Mentor | Element | Home | Why they teach (on meeting) | After a won lesson | After a lost lesson |
 | --- | --- | --- | --- | --- | --- |
-| Torva | Fire | Emberforge, old forge | • "My hands shake too much for the anvil now. Someone has to carry the spark." | • "There! The flame is yours to hold." | • "It went cold. Find me again and we'll relight it." |
+| Torva | Fire | Forgefyre, old forge | • "My hands shake too much for the anvil now. Someone has to carry the spark." | • "There! The flame is yours to hold." | • "It went cold. Find me again and we'll relight it." |
 | Maren | Water | Glasswater Lake, jetty | • "The lake clouds over as the caves wake below. Learn the tide with me." | • "The water knows your heart now." | • "The current swept you away. Catch me at the jetty." |
 | Rook | Lightning | Stormcrown Peaks, storm beacon | • "Storms roll off the peaks faster every winter. I need someone quick enough to catch them." | • "Quick hands! The lightning answers you." | • "Too slow! I'll be chasing the clouds; find me." |
 | Hazel | Nature | Thornwood Grove, old oak | • "The spores are choking my meadows from below. Help me grow them green again." | • "See? Life springs back, stronger than before." | • "Roots take time to anchor. Meet me in the meadow." |

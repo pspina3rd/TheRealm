@@ -153,7 +153,7 @@ attack the moment you walk into them. Full rules and numbers are in
 
 ### The adventure so far
 
-1. **Mossvale Village** (start): Elder Rowan, Farmer Bea, Pip and a stall keeper.
+1. **Mossvale Village** (start): Elder Rowan, Farmer Bean, Pip and Shopkeeper Ordor.
    Leaving it brings the first of the Moon Wyrm's visions.
 2. **Sevenstones** (the hub, ringed by seven standing mana crystals): slimes, Spore Shrooms and goblins guard the roads,
    which lead on to Brightwater and to the mentors' regions.
@@ -162,7 +162,7 @@ attack the moment you walk into them. Full rules and numbers are in
 4. **The mentor regions**, one per element, each with its own monsters,
    people and mentor's home, rising in level along the road:
    Thornwood Grove (Hazel, west), Glasswater Lake (Maren, east), Redrock
-   Quarry (Dorn, south), Emberforge past the quarry's buried ridge road
+   Quarry (Dorn, south), Forgefyre past the quarry's buried ridge road
    (Torva), Stormcrown Peaks through the tunnel north-east (Rook), Windward
    Cliffs (Kestrel) and the Moonfall Ruins (Selene). Vesper, Thrall of the
    Depths, waits at each new step of the road: the road out of Mossvale,

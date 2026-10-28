@@ -48,7 +48,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
         to: { map: 'peaks', x: 13, y: 22 },
         requiresFlag: 'peakGate',
         lockedText:
-          'An iron gate bars the tunnel to the Stormcrown Peaks. The smiths of Emberforge forge its key.',
+          'An iron gate bars the tunnel to the Stormcrown Peaks. The smiths of Forgefyre forge its key.',
       },
       // Roads to the mentor regions: the grove west, the lake east, the quarry south.
       { x: 0, y: 16, to: { map: 'grove', x: 28, y: 10 } },
@@ -341,7 +341,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
     decor: [{ object: 'hut', x: 6, y: 4 }],
   },
   quarry: {
-    // Dorn's home: the quarry south of Sevenstones (earth, Lv 4–6). The ridge road east leads to Emberforge.
+    // Dorn's home: the quarry south of Sevenstones (earth, Lv 4–6). The ridge road east leads to Forgefyre.
     id: 'quarry',
     name: 'Redrock Quarry',
     theme: 'quarry',
@@ -383,7 +383,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
         to: { map: 'forge', x: 1, y: 15 },
         requiresFlag: 'ridgeCleared',
         lockedText:
-          'A rockslide buries the ridge road to Emberforge. Foreman Flint is digging it out.',
+          'A rockslide buries the ridge road to Forgefyre. Foreman Flint is digging it out.',
       },
     ],
     entities: [
@@ -403,7 +403,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
   forge: {
     // Torva's home: the forge town past the quarry's ridge road, over a lava river (fire, Lv 5–7).
     id: 'forge',
-    name: 'Emberforge',
+    name: 'Forgefyre',
     theme: 'forge',
     pieceBias: { fire: 1 },
     music: 'music.town',

@@ -90,7 +90,7 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
   },
   smithHammer: {
     id: 'smithHammer',
-    name: "Hilda's Hammer",
+    name: "Pyre's Hammer",
     kind: 'weapon',
     price: 75,
     atk: 9,
@@ -110,7 +110,7 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     kind: 'weapon',
     price: 260,
     atk: 17,
-    description: 'Forged in Emberforge. Line clears hit 17 harder.',
+    description: 'Forged in Forgefyre. Line clears hit 17 harder.',
   },
 
   // Armour
@@ -136,7 +136,7 @@ export const ITEMS: Readonly<Record<string, ItemDef>> = {
     kind: 'armor',
     price: 220,
     def: 10,
-    description: 'Emberforge steel. Reduce damage taken by 10.',
+    description: 'Forgefyre steel. Reduce damage taken by 10.',
   },
 
   // Accessories: charms tilt which pieces fall, making their element more common.

@@ -127,7 +127,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   },
   farmer: {
     id: 'farmer',
-    name: 'Farmer Bea',
+    name: 'Farmer Bean',
     sprite: 'char.025',
     element: 'nature',
     lines: {
@@ -146,9 +146,9 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
         ],
       },
       confide: {
-        cold: "You've got dirt on your hands, but at least you work. Don't tell Odo: the rot isn't weather. It's coming up through the root lines from the deep caves.",
+        cold: "You've got dirt on your hands, but at least you work. Don't tell Ordor: the rot isn't weather. It's coming up through the root lines from the deep caves.",
         plain: [
-          "Don't tell Odo, but I braid charms from the very first sprouts that take. Help me replant these beds and I'll weave one for your pack.",
+          "Don't tell Ordor, but I braid charms from the very first sprouts that take. Help me replant these beds and I'll weave one for your pack.",
           'Hazel says the grove roots are bleeding sap down south. Something down in the dark is poisoning the soil.',
         ],
         warm: "You've got a gentle touch with the sprouts, love. Replant these rows and I'll give you a Grove Charm I braided from the first harvest.",
@@ -316,7 +316,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   },
   stallKeeper: {
     id: 'stallKeeper',
-    name: 'Stall Keeper Odo',
+    name: 'Shopkeeper Ordor',
     sprite: 'char.002',
     element: 'nature',
     lines: {
@@ -326,7 +326,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
           'Buying something or just leaning on my counter? Time is money, friend.',
         ],
         plain: [
-          'Herbs from Bea, iron from the coast, charms from the road. Settle on a price and we both eat tonight.',
+          'Herbs from Bean, iron from the coast, charms from the road. Settle on a price and we both eat tonight.',
           "Fresh stock in today! Haggle me fair and I'll open the good sacks.",
         ],
         warm: [
@@ -391,7 +391,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   // -------------------------------------------------------- Brightwater ---
   merchant: {
     id: 'merchant',
-    name: 'Merchant Lio',
+    name: 'Merchant Lo',
     sprite: 'char.037',
     element: 'water',
     lines: {
@@ -417,7 +417,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   },
   smith: {
     id: 'smith',
-    name: 'Smith Hilda',
+    name: 'Smith Pyre',
     sprite: 'char.005',
     element: 'fire',
     lines: {
@@ -443,7 +443,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   },
   innkeeper: {
     id: 'innkeeper',
-    name: 'Innkeeper Mae',
+    name: 'Innkeeper Pete',
     sprite: 'char.039',
     element: 'fire',
     lines: {
@@ -600,7 +600,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   },
   shrineKeeper: {
     id: 'shrineKeeper',
-    name: 'Shrine Keeper Ilse',
+    name: 'Shrine Keeper Myst',
     sprite: 'char.032',
     element: 'water',
     lines: {
@@ -687,7 +687,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   },
   hermit: {
     id: 'hermit',
-    name: 'Cave Hermit',
+    name: 'Steve the Cave Hermit',
     sprite: 'char.032',
     element: 'arcane',
     lines: {
@@ -791,8 +791,8 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     lines: {
       intro: {
         cold: 'A rockslide buried the ridge road. Shift it, and the forge gets its ore. That is all.',
-        plain: 'A rockslide buried the ridge road to Emberforge. Help me shift the rubble?',
-        warm: "The ridge road's buried and Emberforge is starving for ore. Shift it with me?",
+        plain: 'A rockslide buried the ridge road to Forgefyre. Help me shift the rubble?',
+        warm: "The ridge road's buried and Forgefyre is starving for ore. Shift it with me?",
       },
       confide:
         'Dorn worked this face before the caves took his crew. He left a crate; clear the road.',
@@ -801,12 +801,12 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       win: {
         cold: 'Road is open. Wages. Go.',
         plain: 'The road is open! Your wages, and the forge will thank you.',
-        warm: "The road's open! Wages, and a round on me in Emberforge.",
+        warm: "The road's open! Wages, and a round on me in Forgefyre.",
       },
       lose: 'It slid back. Again, before it settles.',
       done: {
         cold: 'Road is open.',
-        plain: 'Carts roll to Emberforge every morning now.',
+        plain: 'Carts roll to Forgefyre every morning now.',
         warm: 'Carts roll every morning. Torva says the forge sings again.',
       },
     },
@@ -821,7 +821,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     repeatable: false,
   },
 
-  // --------------------------------------------------------- Emberforge ---
+  // --------------------------------------------------------- Forgefyre ---
   apprentice: {
     id: 'apprentice',
     name: 'Apprentice Cinda',
@@ -947,7 +947,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   // ------------------------------------------------- Windward Cliffs ---
   courier: {
     id: 'courier',
-    name: 'Courier Finch',
+    name: 'Courier Twitch',
     sprite: 'char.012',
     element: 'wind',
     lines: {

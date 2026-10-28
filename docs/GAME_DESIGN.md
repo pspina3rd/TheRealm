@@ -354,9 +354,9 @@ Final run at the **touch pace** (2.2 s a piece), which the targets aim at:
 | Redrock Quarry      | Goblin Digger | 4       | 73%                   | 70%             | 70%      | 90%                 | 50%              | 3%     | 87 s / 42           | 56%           |
 | Redrock Quarry      | Quarry Hound  | 5       | 73%                   | 90%             | 80%      | 83%                 | 73%              | 0%     | 89 s / 42           | 58%           |
 | Redrock Quarry      | Stone Ogre    | 6       | 90%                   | 90%             | 80%      | 90%                 | 63%              | 0%     | 114 s / 55          | 59%           |
-| Emberforge          | Cinder        | 5       | 70%                   | 90%             | 80%      | 80%                 | 57%              | 0%     | 78 s / 36           | 54%           |
-| Emberforge          | Forge Imp     | 6       | 67%                   | 77%             | 67%      | 87%                 | 50%              | 0%     | 82 s / 40           | 51%           |
-| Emberforge          | Magma Drake   | 7       | 57%                   | 67%             | 83%      | 80%                 | 43%              | 0%     | 103 s / 51          | 54%           |
+| Forgefyre           | Cinder        | 5       | 70%                   | 90%             | 80%      | 80%                 | 57%              | 0%     | 78 s / 36           | 54%           |
+| Forgefyre           | Forge Imp     | 6       | 67%                   | 77%             | 67%      | 87%                 | 50%              | 0%     | 82 s / 40           | 51%           |
+| Forgefyre           | Magma Drake   | 7       | 57%                   | 67%             | 83%      | 80%                 | 43%              | 0%     | 103 s / 51          | 54%           |
 | Stormcrown Peaks    | Spark Pup     | 6       | 77%                   | 77%             | 80%      | 87%                 | 50%              | 0%     | 98 s / 49           | 50%           |
 | Stormcrown Peaks    | Storm Goblin  | 7       | 70%                   | 90%             | 93%      | 90%                 | 77%              | 0%     | 128 s / 64          | 50%           |
 | Stormcrown Peaks    | Thunderhide   | 8       | 73%                   | 83%             | 93%      | 97%                 | 70%              | 0%     | 119 s / 62          | 60%           |
@@ -400,9 +400,9 @@ and 80% (prepared). At a mix (1.85 s) the Wyrm is 40% good, 30% full kit,
 | Redrock Quarry      | Goblin Digger | 4       | 93%                   | 90%             | 93%      | 93%                 | 90%              | 0%     | 63 s / 43           | 65%           |
 | Redrock Quarry      | Quarry Hound  | 5       | 87%                   | 97%             | 97%      | 97%                 | 87%              | 0%     | 73 s / 50           | 57%           |
 | Redrock Quarry      | Stone Ogre    | 6       | 90%                   | 100%            | 100%     | 100%                | 90%              | 0%     | 83 s / 60           | 63%           |
-| Emberforge          | Cinder        | 5       | 87%                   | 90%             | 93%      | 87%                 | 77%              | 0%     | 60 s / 40           | 60%           |
-| Emberforge          | Forge Imp     | 6       | 80%                   | 87%             | 93%      | 97%                 | 63%              | 0%     | 66 s / 45           | 58%           |
-| Emberforge          | Magma Drake   | 7       | 83%                   | 93%             | 93%      | 93%                 | 73%              | 0%     | 82 s / 58           | 56%           |
+| Forgefyre           | Cinder        | 5       | 87%                   | 90%             | 93%      | 87%                 | 77%              | 0%     | 60 s / 40           | 60%           |
+| Forgefyre           | Forge Imp     | 6       | 80%                   | 87%             | 93%      | 97%                 | 63%              | 0%     | 66 s / 45           | 58%           |
+| Forgefyre           | Magma Drake   | 7       | 83%                   | 93%             | 93%      | 93%                 | 73%              | 0%     | 82 s / 58           | 56%           |
 | Stormcrown Peaks    | Spark Pup     | 6       | 87%                   | 97%             | 93%      | 100%                | 97%              | 0%     | 74 s / 53           | 55%           |
 | Stormcrown Peaks    | Storm Goblin  | 7       | 90%                   | 93%             | 97%      | 93%                 | 97%              | 0%     | 84 s / 60           | 59%           |
 | Stormcrown Peaks    | Thunderhide   | 8       | 90%                   | 93%             | 100%     | 100%                | 93%              | 0%     | 94 s / 68           | 62%           |
@@ -442,7 +442,7 @@ early grinds a little.
 | Thornwood Grove     | 2                | 91        | 71     | 30        | 129              | —                          |
 | Glasswater Lake     | 3                | 117       | 87     | 200       | 16               | —                          |
 | Redrock Quarry      | 4                | 168       | 124    | 10        | 130              | knightBlade                |
-| Emberforge          | 5                | 242       | 106    | 160       | 76               | flameBrand, forgePlate     |
+| Forgefyre           | 5                | 242       | 106    | 160       | 76               | flameBrand, forgePlate     |
 | Stormcrown Peaks    | 6                | 348       | 156    | 230       | 2                | flameBrand, phoenixFeather |
 | Windward Cliffs     | 7                | 506       | 198    | 70        | 130              | flameBrand                 |
 | Moonfall Ruins      | 8                | 1140      | 204    | 298       | 36               | —                          |
@@ -468,7 +468,7 @@ the Moon Wyrm was made harder at the user's request (expect several attempts).
 | Thornwood Grove       | 2                   | 75–85%                | —               | 90%+     | 65–80%           | under 10% | 50–80 s             | 6–11 / herbs                             | G 67–77 · K 63–90 · P 70–83 · S 57–70 · Sl 0 · 73–96 s (keys: G 83–97)    |
 | Glasswater Lake       | 3                   | 75–85%                | —               | 90%+     | 65–80%           | under 10% | 50–90 s             | 7–14 / Iron Sword 80, Crystal Mail 90    | G 67–73 · K 70–83 · P 73–93 · S 53–63 · Sl 0 · 71–96 s (keys: G 90–97)    |
 | Redrock Quarry        | 4                   | 70–85%                | 80–90%          | 90%+     | 60–75%           | under 10% | 60–100 s            | 12–17 / Knight Blade 150                 | G 73–90 · K 70–90 · P 70–80 · S 50–73 · Sl 0–3 · 87–114 s (keys: G 87–93) |
-| Emberforge            | 5                   | 70–85%                | 80–90%          | 90%+     | 60–75%           | under 10% | 60–100 s            | 14–22 / Flame Brand 260, Forge Plate 220 | G 67–73 · K 73–90 · P 73–93 · S 57–73 · Sl 0 · 75–98 s (keys: G 80–87)    |
+| Forgefyre             | 5                   | 70–85%                | 80–90%          | 90%+     | 60–75%           | under 10% | 60–100 s            | 14–22 / Flame Brand 260, Forge Plate 220 | G 67–73 · K 73–90 · P 73–93 · S 57–73 · Sl 0 · 75–98 s (keys: G 80–87)    |
 | Stormcrown Peaks      | 6                   | 70–80%                | 80–90%          | 85–95%   | 55–70%           | under 5%  | 70–110 s            | 16–26 / inn, Feathers 30                 | G 70–77 · K 77–90 · P 80–93 · S 50–77 · Sl 0 · 98–128 s (keys: G 87–90)   |
 | Windward Cliffs       | 7                   | 70–80%                | 80–90%          | 85–95%   | 55–70%           | under 5%  | 70–110 s            | 20–30 / inn, Feathers 30                 | G 70–90 · K 83–97 · P 83–97 · S 57–90 · Sl 0 · 110–156 s (keys: G 90–97)  |
 | Moonfall Ruins        | 8                   | 70–80%                | 80–90%          | 85–95%   | 55–70%           | under 5%  | 80–120 s            | 25–34 / Ethers                           | G 70–77 · K 70–93 · P 73–90 · S 20–63 · Sl 0 · 128–161 s (keys: G 83–97)  |
@@ -478,7 +478,7 @@ the Moon Wyrm was made harder at the user's request (expect several attempts).
 Actual: win rates in % for Good (G), Good with the full kit (K),
 Prepared (P), Singles + spells (S) and Sloppy (Sl) at the touch pace
 (2.2 s a piece), the good bot's fight length, and the good bot at the
-keyboard pace (1.5 s). Misses: Emberforge's good bot (67–73% after the
+keyboard pace (1.5 s). Misses: Forgefyre's good bot (67–73% after the
 story pass, from 57–70%), the ruins' singles (20% against the healing Gloom
 Toad), prepared below 90% in the early regions (the 2-use cap leaves one
 Herb after the Ether), touch fights running 10–40 s longer than the
@@ -496,14 +496,14 @@ no more than ~150 gil unspent (the old playtests left 300–400).
 
 Two small changes for the last pass's misses, re-simulated at the touch
 pace (2.2 s a piece) with `AREAS=caves2,forge PACE=2200 npm run sim`:
-30 runs a cell for Emberforge, 60 for the Wyrm (30 runs leave about ±9
+30 runs a cell for Forgefyre, 60 for the Wyrm (30 runs leave about ±9
 points of noise).
 
 - **Moon Wyrm**: a spell on a boss's weakness gets no weakness bonus
   (`BOSS_SPELL_WEAKNESS_SHARE` 0: Fire and Gale hit the Wyrm ×1); weak
   crystals keep `BOSS_WEAKNESS_SHARE` (75%). The crystal bonus now follows
   the element chart rather than the spell multiplier, so it survives.
-- **Emberforge**: Cinder 150 → 140 HP; Forge Imp 165 → 150 HP, attack 12 → 11;
+- **Forgefyre**: Cinder 150 → 140 HP; Forge Imp 165 → 150 HP, attack 12 → 11;
   Magma Drake 250 → 210 HP, attack 13 → 12.
 
 | Fight       | Good (starter) | Good (full kit) | Prepared | Prepared (kit) | Singles  | Sloppy | Good: time  |
@@ -651,11 +651,11 @@ buttons (spell, level pips, kind, cost, difficulty as swords).
 
 | Mentor  | Element   | Why they teach                                 | Home region, landmark (trial foe)   | Route after home                                                                             | Moves every |
 | ------- | --------- | ---------------------------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------- | ----------- |
-| Torva   | Fire      | Her hands shake too much for the forge now     | Emberforge, old forge (Ember Wisp)  | Quarry, ridge road · Brightwater · Mossvale · Moon Caves¹                                    | 4 wins      |
+| Torva   | Fire      | Her hands shake too much for the forge now     | Forgefyre, old forge (Ember Wisp)   | Quarry, ridge road · Brightwater · Mossvale · Moon Caves¹                                    | 4 wins      |
 | Maren   | Water     | The lake is clouding; she can't watch it alone | Glasswater Lake, jetty (Tide)       | Brightwater fountain · Grove pond · Mossvale                                                 | 5 wins      |
 | Rook    | Lightning | Storms roll off the peaks faster every year    | Stormcrown Peaks, beacon (Spark)    | Cliff road · Sevenstones, north-east · Brightwater · Moon Caves¹ · Depths²                   | 3 wins      |
 | Hazel   | Nature    | Spores are choking her meadows                 | Thornwood Grove, old oak (Moss)     | Sevenstones, west meadow · Mossvale · Lake meadow                                            | 6 wins      |
-| Dorn    | Earth     | The caves took his crew                        | Redrock Quarry, quarry lift (Stone) | Sevenstones, tunnel gate · Emberforge ridge · Moon Caves¹ · Depths¹ · Brightwater            | 4 wins      |
+| Dorn    | Earth     | The caves took his crew                        | Redrock Quarry, quarry lift (Stone) | Sevenstones, tunnel gate · Forgefyre ridge · Moon Caves¹ · Depths¹ · Brightwater             | 4 wins      |
 | Selene  | Arcane    | Something below drinks the moonlight           | Moonfall Ruins, moon tower (Moon)   | Cliff path · Brightwater · Depths¹                                                           | 5 wins      |
 | Kestrel | Wind      | Her letters must reach every village           | Windward Cliffs, eyrie (Gale)       | Peaks, high pass · Sevenstones, south road · Mossvale · Brightwater · Sevenstones, east road | 3 wins      |
 
@@ -745,7 +745,7 @@ revealed, its element's mentor teaches it (difficulty one above the usual:
 | Spell          | Element   | Kind               | Cost            | Effect                                                                                 | Unlock    | Condition (for developers)                                    |
 | -------------- | --------- | ------------------ | --------------- | -------------------------------------------------------------------------------------- | --------- | ------------------------------------------------------------- |
 | Volcano        | Fire      | Combo (fire+earth) | 6 fire, 6 earth | Clears the bottom 3 rows, 40 fire damage (no level bonus)                              | Alignment | Fire 4 and earth 4                                            |
-| Purify         | Water     | Support            | 5 water         | Every stone on the board becomes a water crystal                                       | Quest     | Shrine Keeper Ilse's barter in Brightwater (`shrineRestored`) |
+| Purify         | Water     | Support            | 5 water         | Every stone on the board becomes a water crystal                                       | Quest     | Shrine Keeper Myst's barter in Brightwater (`shrineRestored`) |
 | Ball Lightning | Lightning | Support            | 6 lightning     | 2 damage per lightning crystal on the board (no level bonus)                           | Pattern   | 2 pure lightning lines over the hero's life                   |
 | Bloom          | Nature    | Support            | 7 nature        | Heals 6 after each of the next 8 pieces                                                | Item      | Bring a Spore Cap to Hazel                                    |
 | Fault Line     | Earth     | Support            | 5 earth         | For 4 pieces every element strikes as a weakness (on a boss: crystals only, spells ×1) | Stat      | Insight 5                                                     |
@@ -894,7 +894,7 @@ takes real growth. A hero deep in the two elements that beat an NPC's
   out `secretStock`. The Elder's secret is a Spore Cap, which reveals Bloom
   when brought to Hazel; the sage's confidence hints at Ball Lightning.
 - **No soft-locks**: NPCs whose rewards the realm needs (Captain Vale's
-  Cave Pass; Shrine Keeper Ilse's spring, which reveals Purify) are
+  Cave Pass; Shrine Keeper Myst's spring, which reveals Purify) are
   `essential`: when Hostile they still deal, at Wary terms, with their curt
   lines. The tests check every flag a warp or hidden spell needs comes from
   such an NPC. Everyone else may refuse; nothing they give is required.
@@ -920,31 +920,31 @@ have a refusal. The accept line opens the battle as a banner; the decline
 line shows over the map. Any line may hold several variants, which the
 speaker rotates through, and `*stage directions*` (see [Story](#story)).
 
-| NPC                  | Element   | Need                                      | Challenge                      | Reward (bonus / secret)                           |
-| -------------------- | --------- | ----------------------------------------- | ------------------------------ | ------------------------------------------------- |
-| Elder Rowan          | Earth     | Spores choke the village well             | Puzzle: clear the spore field  | Quake, or the Focus Stone (Ether / Spore Cap)     |
-| Farmer Bea           | Nature    | Blight left her herb beds bare            | Barter: plant 7 green          | 2 Herbs (Herb / Grove Charm)                      |
-| Pip                  | Wind      | His crystal tower is jammed before supper | Puzzle: unjam the tower        | Ether (Herb / Wind Charm)                         |
-| Stall Keeper Odo     | Nature    | Makes his living at the stall             | Haggle                         | Mossvale Stall (secret: Iron Sword)               |
-| Merchant Lio         | Water     | Must clear stock before the barges come   | Haggle                         | Brightwater Goods (secret: Crystal Mail)          |
-| Smith Hilda          | Fire      | The forge eats coal faster than she sells | Haggle                         | Ember Forge (secret: Hilda's Hammer)              |
-| Innkeeper Mae        | Fire      | Empty rooms since the caves closed        | Haggle                         | The Sleeping Lantern (secret: Phoenix Feather)    |
-| Sage Orrin           | Lightning | The storm broke his roof lattice          | Puzzle: rebuild the lattice    | Thunder, or a Storm Charm (Ether / 2 Ethers)      |
-| Captain Vale         | Earth     | The cave ward lamps are dying             | Barter: 8 blue, 8 violet       | Cave Pass, 20 gil (Herb / Phoenix Feather)        |
-| Collector Nim        | Wind      | Goblin Charms for his cabinet, but clean  | Offering: clean a Goblin Charm | 45 gil (Ether / Moon Shard)                       |
-| Shrine Keeper Ilse   | Water     | The shrine spring clouded with the lake   | Barter: 10 blue, 6 green       | Spring restored, Ether (Ether / Tide Charm)       |
-| Cave Hermit          | Arcane    | Grinds Moon Shards into salves            | Offering: grind a Moon Shard   | 2 Ethers, 2 Herbs (Herb / Moon Charm)             |
-| Sealed Chest         | Arcane    | (a thing)                                 | Puzzle: break the seal         | Phoenix Feather, 2 Moon Shards (a delver's cache) |
-| Forager Wren         | Nature    | Rot ate her mushroom rings (grove)        | Barter: plant 8 green          | 2 Herbs, 15 gil (Herb / Grove Charm)              |
-| Fisher Tam           | Water     | Lurkers tore his nets (lake)              | Barter: weave 8 blue           | 25 gil, Ether (Herb / Tide Charm)                 |
-| Foreman Flint        | Earth     | A rockslide buried the ridge road         | Barter: 10 orange, 6 violet    | Ridge road open, 40 gil (Ether / Focus Stone)     |
-| Apprentice Cinda     | Fire      | Must forge the peak gate's key for Torva  | Barter: 10 red, 6 orange       | Peak gate key, Ether (2 Herbs / Ember Charm)      |
-| Armorer Garrick      | Fire      | The ore is back and his racks are full    | Haggle                         | Emberforge Armory (secret: Phoenix Feather)       |
-| Innkeeper Rosa       | Fire      | Smiths sleep hard and pay late            | Haggle                         | The Cinder Rest (secret: Ether)                   |
-| Beacon Keeper Ysolde | Lightning | The storm beacon went dark                | Barter: charge 10 gold         | 2 Ethers, 30 gil (2 Herbs / Storm Charm)          |
-| Courier Finch        | Wind      | A gust scattered his letters (cliffs)     | Barter: catch 10 cyan          | 50 gil, Herb (Ether / Phoenix Feather)            |
-| Warden Ada           | Wind      | Climbers rest at her lodge                | Haggle                         | Eyrie Lodge (secret: Wind Charm)                  |
-| Scholar Ivo          | Arcane    | The moon rune over the tower went dark    | Barter: relight with 10 violet | 2 Ethers, 30 gil (2 Herbs / Moon Shard)           |
+| NPC                   | Element   | Need                                      | Challenge                      | Reward (bonus / secret)                           |
+| --------------------- | --------- | ----------------------------------------- | ------------------------------ | ------------------------------------------------- |
+| Elder Rowan           | Earth     | Spores choke the village well             | Puzzle: clear the spore field  | Quake, or the Focus Stone (Ether / Spore Cap)     |
+| Farmer Bean           | Nature    | Blight left her herb beds bare            | Barter: plant 7 green          | 2 Herbs (Herb / Grove Charm)                      |
+| Pip                   | Wind      | His crystal tower is jammed before supper | Puzzle: unjam the tower        | Ether (Herb / Wind Charm)                         |
+| Shopkeeper Ordor      | Nature    | Makes his living at the stall             | Haggle                         | Mossvale Stall (secret: Iron Sword)               |
+| Merchant Lo           | Water     | Must clear stock before the barges come   | Haggle                         | Brightwater Goods (secret: Crystal Mail)          |
+| Smith Pyre            | Fire      | The forge eats coal faster than she sells | Haggle                         | Ember Forge (secret: Pyre's Hammer)               |
+| Innkeeper Pete        | Fire      | Empty rooms since the caves closed        | Haggle                         | The Sleeping Lantern (secret: Phoenix Feather)    |
+| Sage Orrin            | Lightning | The storm broke his roof lattice          | Puzzle: rebuild the lattice    | Thunder, or a Storm Charm (Ether / 2 Ethers)      |
+| Captain Vale          | Earth     | The cave ward lamps are dying             | Barter: 8 blue, 8 violet       | Cave Pass, 20 gil (Herb / Phoenix Feather)        |
+| Collector Nim         | Wind      | Goblin Charms for his cabinet, but clean  | Offering: clean a Goblin Charm | 45 gil (Ether / Moon Shard)                       |
+| Shrine Keeper Myst    | Water     | The shrine spring clouded with the lake   | Barter: 10 blue, 6 green       | Spring restored, Ether (Ether / Tide Charm)       |
+| Steve the Cave Hermit | Arcane    | Grinds Moon Shards into salves            | Offering: grind a Moon Shard   | 2 Ethers, 2 Herbs (Herb / Moon Charm)             |
+| Sealed Chest          | Arcane    | (a thing)                                 | Puzzle: break the seal         | Phoenix Feather, 2 Moon Shards (a delver's cache) |
+| Forager Wren          | Nature    | Rot ate her mushroom rings (grove)        | Barter: plant 8 green          | 2 Herbs, 15 gil (Herb / Grove Charm)              |
+| Fisher Tam            | Water     | Lurkers tore his nets (lake)              | Barter: weave 8 blue           | 25 gil, Ether (Herb / Tide Charm)                 |
+| Foreman Flint         | Earth     | A rockslide buried the ridge road         | Barter: 10 orange, 6 violet    | Ridge road open, 40 gil (Ether / Focus Stone)     |
+| Apprentice Cinda      | Fire      | Must forge the peak gate's key for Torva  | Barter: 10 red, 6 orange       | Peak gate key, Ether (2 Herbs / Ember Charm)      |
+| Armorer Garrick       | Fire      | The ore is back and his racks are full    | Haggle                         | Forgefyre Armory (secret: Phoenix Feather)        |
+| Innkeeper Rosa        | Fire      | Smiths sleep hard and pay late            | Haggle                         | The Cinder Rest (secret: Ether)                   |
+| Beacon Keeper Ysolde  | Lightning | The storm beacon went dark                | Barter: charge 10 gold         | 2 Ethers, 30 gil (2 Herbs / Storm Charm)          |
+| Courier Twitch        | Wind      | A gust scattered his letters (cliffs)     | Barter: catch 10 cyan          | 50 gil, Herb (Ether / Phoenix Feather)            |
+| Warden Ada            | Wind      | Climbers rest at her lodge                | Haggle                         | Eyrie Lodge (secret: Wind Charm)                  |
+| Scholar Ivo           | Arcane    | The moon rune over the tower went dark    | Barter: relight with 10 violet | 2 Ethers, 30 gil (2 Herbs / Moon Shard)           |
 
 Spell tomes left the shops: mentors teach spells. Their items remain, so
 a tome an old save holds can still be read. The sealed chest's Blizzard
@@ -954,8 +954,8 @@ tome became a delver's cache (Maren teaches Blizzard).
 
 The author's script, [docs/STORY.md](STORY.md), is the source of truth for
 the text it covers: the opening (class names, hero names, descriptions),
-Mossvale (Elder Rowan, Farmer Bea, Pip, Stall Keeper Odo), Captain Vale,
-Shrine Keeper Ilse, the mentors' motive / win / lose lines, Vesper and the
+Mossvale (Elder Rowan, Farmer Bean, Pip, Shopkeeper Ordor), Captain Vale,
+Shrine Keeper Myst, the mentors' motive / win / lose lines, Vesper and the
 Moon Wyrm. Their lines are in the game word for word, punctuation and
 stage directions included; `tests/script.test.ts` reads the script's tables
 and checks every imported cell against the data. Everyone else keeps their
@@ -987,7 +987,7 @@ its variants alternate across all of them.
   Devoted, so only their warm cell is ever shown (the cold and plain
   "Confides" cells never are), and refusals only when Hostile, so only
   their cold cell is (the plain and warm "Refuses" cells never are). They
-  are kept verbatim for the author. Farmer Bea's "Afterwards" row is kept
+  are kept verbatim for the author. Farmer Bean's "Afterwards" row is kept
   too, though she can be helped again and again, so her done line never
   shows.
 - **Said, not offered**: an NPC's accept and decline lines are both ready
@@ -1061,7 +1061,7 @@ more are kept). An older save starts every speaker at their first
 variant, and marks the story steps it is already past, by the map it
 stands on or by its progress flags: Vision 1 once the hero has left
 Mossvale or done anything; Vision 2 (and the quarry reached) in the
-quarry or Emberforge, or with the ridge cleared; Vision 3 (and the peaks)
+quarry or Forgefyre, or with the ridge cleared; Vision 3 (and the peaks)
 on the peaks or the cliffs, or with the peak gate's key; the ruins in the
 ruins or the caves, or with the Cave Pass, the Sunken Ruins open or the
 Wyrm beaten. Each step implies every step before it, so an old save made
@@ -1119,9 +1119,9 @@ the bigger beasts are Pixel Battlers.
 | Redrock Quarry      | Goblin Digger | 4   | 110 | 9   | 8.0 s  | Earth     | Water, Nature     | Lightning, Earth, Wind           | Pick 5, Rock Toss 1, Stake 3                                                                                                 | 18 / 12  | goblinCharm 40%     |
 | Redrock Quarry      | Quarry Hound  | 5   | 140 | 9   | 6.5 s  | Earth     | Water, Nature     | Lightning, Earth, Wind           | Maul 5, Pounce 4 s, Grit 4                                                                                                   | 27 / 13  | herb 30%            |
 | Redrock Quarry      | Stone Ogre    | 6   | 165 | 11  | 12.0 s | Earth     | Water, Nature     | Lightning, Earth, Wind           | Boulder Slam 9, Landslide 2, Boulder 3                                                                                       | 38 / 17  | ether 40%           |
-| Emberforge          | Cinder        | 5   | 150 | 10  | 6.5 s  | Fire      | Water, Wind       | Fire, Nature, Arcane             | Flare 6, Kindle 3, Scorch 4                                                                                                  | 27 / 14  | herb 30%            |
-| Emberforge          | Forge Imp     | 6   | 165 | 12  | 7.5 s  | Fire      | Water, Wind       | Fire, Nature, Arcane             | Pitchfork 7, Bellows 4, Stoke 5 s                                                                                            | 38 / 17  | ether 30%           |
-| Emberforge          | Magma Drake   | 7   | 250 | 13  | 9.6 s  | Fire      | Water, Wind       | Fire, Nature, Arcane             | Magma Breath 12, Slag 2, Cinders 5                                                                                           | 56 / 22  | ether 40%           |
+| Forgefyre           | Cinder        | 5   | 150 | 10  | 6.5 s  | Fire      | Water, Wind       | Fire, Nature, Arcane             | Flare 6, Kindle 3, Scorch 4                                                                                                  | 27 / 14  | herb 30%            |
+| Forgefyre           | Forge Imp     | 6   | 165 | 12  | 7.5 s  | Fire      | Water, Wind       | Fire, Nature, Arcane             | Pitchfork 7, Bellows 4, Stoke 5 s                                                                                            | 38 / 17  | ether 30%           |
+| Forgefyre           | Magma Drake   | 7   | 250 | 13  | 9.6 s  | Fire      | Water, Wind       | Fire, Nature, Arcane             | Magma Breath 12, Slag 2, Cinders 5                                                                                           | 56 / 22  | ether 40%           |
 | Stormcrown Peaks    | Spark Pup     | 6   | 150 | 9   | 5.5 s  | Lightning | Earth, Arcane     | Water, Lightning, Wind           | Zap 5, Static 5 s, Jolt 3                                                                                                    | 38 / 16  | herb 30%            |
 | Stormcrown Peaks    | Storm Goblin  | 7   | 165 | 11  | 7.0 s  | Lightning | Earth, Arcane     | Water, Lightning, Wind           | Shock Spear 8, Lightning Rod 2, Thunderhead 3                                                                                | 56 / 21  | ether 30%           |
 | Stormcrown Peaks    | Thunderhide   | 8   | 225 | 11  | 9.5 s  | Lightning | Earth, Arcane     | Water, Lightning, Wind           | Thunder Slam 10, Roar 4, Storm Surge 6 s                                                                                     | 80 / 26  | ether 40%           |
@@ -1175,7 +1175,7 @@ lair around level 8–9: Moon Imp 22 (15), Shade Imp 30 (20), Cave Brute
 40 (28). Gil still piled up (~330 at Brightwater, ~500 at the end), so
 overworld gil fell 30%: Slime 4 (6), Spore Shroom 6 (9), Goblin Scout 10
 (14); Moon Shards drop 30% of the time (50%) and Spore Caps 15% (60%).
-Farmer Bea wants 7 green (8), which failed in all four runs. The Knight starts with 6
+Farmer Bean wants 7 green (8), which failed in all four runs. The Knight starts with 6
 more base HP (42; 54 with Vitality 2) to soften a harsh opening.
 
 ## Progression
@@ -1214,18 +1214,18 @@ their element.
 | 1   | Thornwood Grove (`grove`)          | Hazel, old oak     | 2–4            | Sproutling, Leaf Sprite, Thorn Troll       | Forager Wren                                      | Sevenstones, west road                                  | —                         |
 | 2   | Glasswater Lake (`lake`)           | Maren, jetty       | 3–5            | Drip, Lake Lurker, Tide Ogre               | Fisher Tam                                        | Sevenstones, east road                                  | —                         |
 | 3   | Redrock Quarry (`quarry`)          | Dorn, quarry lift  | 4–6            | Goblin Digger, Quarry Hound, Stone Ogre    | Foreman Flint                                     | Sevenstones, south road                                 | —                         |
-| 4   | Emberforge (`forge`)               | Torva, old forge   | 5–7            | Cinder, Forge Imp, Magma Drake             | Apprentice Cinda, Armorer Garrick, Innkeeper Rosa | quarry, ridge road                                      | `ridgeCleared` (Flint)    |
+| 4   | Forgefyre (`forge`)                | Torva, old forge   | 5–7            | Cinder, Forge Imp, Magma Drake             | Apprentice Cinda, Armorer Garrick, Innkeeper Rosa | quarry, ridge road                                      | `ridgeCleared` (Flint)    |
 | 5   | Stormcrown Peaks (`peaks`)         | Rook, storm beacon | 6–8            | Spark Pup, Storm Goblin, Thunderhide       | Beacon Keeper Ysolde                              | Sevenstones, the tunnel north-east (once the cave seal) | `peakGate` (Cinda)        |
-| 6   | Windward Cliffs (`cliffs`)         | Kestrel, eyrie     | 7–9            | Puffball, Gale Bat, Sky Ram                | Courier Finch, Warden Ada (inn)                   | peaks, west                                             | —                         |
+| 6   | Windward Cliffs (`cliffs`)         | Kestrel, eyrie     | 7–9            | Puffball, Gale Bat, Sky Ram                | Courier Twitch, Warden Ada (inn)                  | peaks, west                                             | —                         |
 | 7   | Moonfall Ruins (`ruins`)           | Selene, moon tower | 8–10           | Watcher, Night Bat, Gloom Toad             | Scholar Ivo                                       | cliffs, south-west                                      | —                         |
-| 8   | Moon Caves, Depths                 | (visits)           | 10–11, Wyrm 13 | Moon Imp, Shade Imp, Cave Brute, Moon Wyrm | Cave Hermit, Sealed Chest                         | ruins, cave mouth                                       | `cavePass` (Captain Vale) |
+| 8   | Moon Caves, Depths                 | (visits)           | 10–11, Wyrm 13 | Moon Imp, Shade Imp, Cave Brute, Moon Wyrm | Steve the Cave Hermit, Sealed Chest               | ruins, cave mouth                                       | `cavePass` (Captain Vale) |
 
 - **Gates are people, never items**: each flag comes from an `essential`
   NPC (they deal even when Hostile) in a region the hero can already
   reach; the tests flood-fill the world flag by flag and check every map
   opens and every gate's flag is earned before it is needed. A locked
   warp says who holds the key.
-- **Inns** in Brightwater, Emberforge and the cliffs' lodge; Emberforge's
+- **Inns** in Brightwater, Forgefyre and the cliffs' lodge; Forgefyre's
   armory sells the next gear tier (Flame Brand, Forge Plate).
 - **Moved**: the Moon Caves' entrance moved from Sevenstones into the
   Moonfall Ruins, and the old cave seal is now the tunnel gate to the

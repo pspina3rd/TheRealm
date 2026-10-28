@@ -56,11 +56,11 @@ describe('reading the script', () => {
 describe('the author’s script is the game’s text', () => {
   const people: Record<string, NpcLines> = {
     'Elder Rowan': NPCS.elder!.lines,
-    'Farmer Bea': NPCS.farmer!.lines,
+    'Farmer Bean': NPCS.farmer!.lines,
     Pip: NPCS.kid!.lines,
-    'Stall Keeper Odo': NPCS.stallKeeper!.lines,
+    'Shopkeeper Ordor': NPCS.stallKeeper!.lines,
     'Captain Vale': NPCS.guard!.lines,
-    'Shrine Keeper Ilse': NPCS.shrineKeeper!.lines,
+    'Shrine Keeper Myst': NPCS.shrineKeeper!.lines,
     'Vesper, Thrall of the Depths': VESPER_LINES,
   };
 
