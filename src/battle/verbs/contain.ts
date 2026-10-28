@@ -98,10 +98,15 @@ export class ContainChallenge implements Challenge {
   private spread(count: number, harm = true): void {
     const board = this.ctx.board;
     const taken: [number, number][] = [];
-    for (let i = 0; i < count; i++) {
-      const options = this.frontier().filter(([x, y]) => harm || board.tagAt(x, y) !== 'protected');
-      if (options.length === 0) break;
+    // One spread is simultaneous: newly infected cells become sources on
+    // the next tick, never a hidden second hop beyond this tick's warning.
+    const options = this.frontier().filter(([x, y]) => harm || board.tagAt(x, y) !== 'protected');
+    for (let i = 0; i < count && options.length > 0; i++) {
       const [x, y] = this.ctx.rng.pick(options);
+      options.splice(
+        options.findIndex(([ox, oy]) => ox === x && oy === y),
+        1,
+      );
       if (board.tagAt(x, y) === 'protected') {
         this.dead++;
         this.ctx.emit({ kind: 'lost' });

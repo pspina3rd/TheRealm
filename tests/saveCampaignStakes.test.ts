@@ -84,7 +84,7 @@ describe('unified campaign and stakes save migration', () => {
     const pages = scenePages(scene, state.hero);
     // Viewing pages does not complete the scene; reload starts it again.
     const loaded = deserialize(serialize(state))!;
-    expect(SAVE_VERSION).toBe(11);
+    expect(SAVE_VERSION).toBe(12);
     expect(loaded).toEqual(state);
     expect(scenePages(dueScenes(loaded.flags, loaded.mapId)[0]!, loaded.hero)).toEqual(pages);
     finishScene(loaded, scene);

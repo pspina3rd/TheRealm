@@ -35,7 +35,7 @@ import { encounterOf } from '../data/encounters';
 import { DuelChallenge } from '../battle/verbs/duel';
 import { PlantChallenge } from '../battle/verbs/plant';
 import { ContainChallenge } from '../battle/verbs/contain';
-import { STAKES } from '../data/balance';
+import { DUEL_PRICES, STAKES } from '../data/balance';
 import {
   stakesCard,
   encounterSpec,
@@ -302,6 +302,7 @@ export function resolveBattle(
           attitude: terms ?? null,
         }
       : applyBattle(state, entity, battle, rng, terms);
+  if (flow && battleTryCommitted(battle)) state.pendingAttempt = null;
   resolutions.set(battle, result);
   return result;
 }
@@ -525,9 +526,10 @@ function resolveEncounter(
           npc.id,
           shop.shopId,
           battle.gaveUp ? 'fail' : duel.grade,
-          battle.gaveUp ? Math.max(1.06, duel.meter) : duel.meter,
+          battle.gaveUp ? DUEL_PRICES.walkOff : duel.meter,
         )
       : settle(state, spec.id, flow.rules, won, spec.assisted);
+  if (duel && !won) gains.push({ kind: 'strain', level: recordOf(state, spec.id).strain });
   let shopId: string | null = shop?.kind === 'shop' ? shop.shopId : null;
   if (won && (!duel || duel.grade !== 'even')) {
     let rewards = [...offered.base, ...(spec.assisted ? [] : offered.extras)];

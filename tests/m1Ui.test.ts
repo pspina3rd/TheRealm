@@ -50,6 +50,8 @@ beforeEach(() => {
     stroke: () => {},
     imageSmoothingEnabled: false,
     globalAlpha: 1,
+    measureText: (text: string) => ({ width: text.length * 7 }),
+    createLinearGradient: () => ({ addColorStop: () => {} }),
   } as unknown as CanvasRenderingContext2D;
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(function (
     this: HTMLCanvasElement,
@@ -99,6 +101,7 @@ function persistentStore(): KeyValueStore {
 }
 
 interface Harness {
+  battleView: BattleView;
   state: GameState;
   active: { battle: Battle; entity: EntityDef; finished: boolean; resultDelay: number } | null;
   talk(entity: EntityDef): void;
@@ -226,6 +229,10 @@ describe('M1 player UI loop', () => {
       app.showInteraction(mentor, lessonInteraction(app.state, 'hazel', lesson));
     open();
     click('Take it on');
+    const hpBefore = app.state.hero.hp;
+    app.active!.battle.update(10_000);
+    expect(app.active!.battle.started).toBe(false);
+    expect(app.state.hero.hp).toBe(hpBefore);
     app.battleInput('left');
     app.leaveBattle();
     click('Retry');
@@ -240,6 +247,50 @@ describe('M1 player UI loop', () => {
         (node) => node.textContent === 'Take it on',
       )?.disabled,
     ).toBe(true);
+  });
+
+  it('starts and saves Hazel’s clock when the first actual action is an item', () => {
+    const { app, store } = setup();
+    const mentor: EntityDef = { id: 'test-hazel', kind: 'mentor', mentorId: 'hazel', x: 1, y: 1 };
+    const lesson = lessonsFor(app.state, MENTORS.hazel!)[0]!;
+    app.showInteraction(mentor, lessonInteraction(app.state, 'hazel', lesson));
+    click('Take it on');
+    const battle = app.active!.battle;
+    expect(battle.started).toBe(false);
+    app.battleView.render(battle, app.state.flags, 16, 0, false);
+    const item = document.querySelector<HTMLButtonElement>('#battle-items [data-action="ether"]');
+    expect(item).not.toBeNull();
+    item!.click();
+    expect(battle.started).toBe(true);
+    expect(battle.combat?.itemsUsed).toBe(1);
+    expect(recordOf(app.state, `lesson:hazel:${lesson.spellId}`).tries).toBe(1);
+    expect(JSON.parse(store.getItem(SAVE_KEY)!).pendingAttempt).toMatchObject({
+      kind: 'lesson',
+      spellId: lesson.spellId,
+      try: 1,
+    });
+    expect(battle.events.filter(({ event }) => event.kind === 'begin')).toHaveLength(1);
+  });
+
+  it('plays each numbered face and bark once across repeated frames', () => {
+    const { app } = setup();
+    const battle = new BattleRunner(
+      { kind: 'encounter', id: 'elder', strain: 0, demo: false, assisted: false },
+      app.state.hero,
+      createRng(24),
+    );
+    const view = new BattleView(atlas);
+    view.start(null, 'char.026');
+    const stage = (
+      view as unknown as { stage: { play(feedback: { kind: string; text?: string }): void } }
+    ).stage;
+    const play = vi.spyOn(stage, 'play');
+    battle.emit({ kind: 'face', face: 'wince' });
+    battle.emit({ kind: 'beat', beat: 'hazard' });
+    view.render(battle, app.state.flags, 16, 0, false);
+    view.render(battle, app.state.flags, 16, 16, false);
+    expect(play.mock.calls.filter(([feedback]) => feedback.kind === 'face')).toHaveLength(1);
+    expect(play.mock.calls.filter(([feedback]) => feedback.kind === 'banner')).toHaveLength(1);
   });
 
   it('renders the isolated dark fixture with a visible skyline and ghost', () => {

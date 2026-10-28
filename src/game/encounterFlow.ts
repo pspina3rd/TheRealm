@@ -8,6 +8,9 @@ import { MENTORS } from '../data/mentors';
 import type { ChallengeSpec, Reward } from '../data/types';
 import type { GameState } from '../world/state';
 import type { Attitude } from './attitude';
+import { completeLesson, lessonDifficulty, lessonSpec } from './lessons';
+import { DUEL_PRICES } from '../data/balance';
+import { settle, settleHaggle } from './stakes';
 import {
   assistOffered,
   beginTry,
@@ -17,6 +20,22 @@ import {
   strainFor,
   type StakesRules,
 } from './stakes';
+
+export type PendingAttempt =
+  | {
+      readonly kind: 'encounter';
+      readonly id: string;
+      readonly assisted: boolean;
+      readonly try: number;
+    }
+  | {
+      readonly kind: 'lesson';
+      readonly spellId: string;
+      readonly difficulty: number;
+      readonly try: number;
+    };
+
+const M1_IDS = new Set(['elder', 'kid', 'farmer', 'stallKeeper', 'forager', 'guard']);
 
 export interface StakesCard {
   readonly win: string;
@@ -47,7 +66,7 @@ export function flowFor(spec: ChallengeSpec): { id: string; rules: StakesRules }
       },
     };
   }
-  if (spec.kind !== 'encounter') return null;
+  if (spec.kind !== 'encounter' || !M1_IDS.has(spec.id)) return null;
   const def = encounterOf(spec.id);
   if (!def) return null;
   return {
@@ -166,6 +185,7 @@ export function commitBattleTry(state: GameState, battle: Battle): boolean {
   if (battle.demoPlaying || battle.paused || battle.status !== 'ongoing') return false;
   const flow = flowFor(battle.spec);
   if (!flow) return true;
+  if (state.pendingAttempt) return false;
   if (blockedReason(state, flow.id, flow.rules)) return false;
   if (
     battle.spec.kind === 'encounter' &&
@@ -177,11 +197,99 @@ export function commitBattleTry(state: GameState, battle: Battle): boolean {
   if (battle.spec.kind === 'encounter' && battle.spec.assisted) {
     recordOf(state, flow.id).strain = 0;
   }
+  state.pendingAttempt =
+    battle.spec.kind === 'encounter'
+      ? {
+          kind: 'encounter',
+          id: battle.spec.id,
+          assisted: battle.spec.assisted,
+          try: recordOf(state, flow.id).tries,
+        }
+      : battle.spec.kind === 'lesson'
+        ? {
+            kind: 'lesson',
+            spellId: battle.spec.spellId,
+            difficulty: battle.spec.difficulty,
+            try: recordOf(state, flow.id).tries,
+          }
+        : null;
   committed.add(battle);
+  battle.startPlay();
   return true;
 }
 
 function spellLabel(id: string): string {
   const spell = SPELLS[id];
   return spell ? spellName(spell) : id;
+}
+
+/** Accept only authored M1 descriptors tied to a recorded committed try. */
+export function validPendingAttempt(value: unknown, state: GameState): PendingAttempt | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const pending = value as Record<string, unknown>;
+  if (!Number.isSafeInteger(pending.try) || Number(pending.try) < 1) return null;
+  let clean: PendingAttempt;
+  let id: string;
+  if (
+    pending.kind === 'encounter' &&
+    typeof pending.id === 'string' &&
+    M1_IDS.has(pending.id) &&
+    typeof pending.assisted === 'boolean'
+  ) {
+    const def = encounterOf(pending.id);
+    if (!def || (pending.assisted && !def.assist)) return null;
+    clean = {
+      kind: 'encounter',
+      id: pending.id,
+      assisted: pending.assisted,
+      try: Number(pending.try),
+    };
+    id = pending.id;
+  } else if (pending.kind === 'lesson' && typeof pending.spellId === 'string') {
+    const spell = SPELLS[pending.spellId];
+    const mentor = MENTORS.hazel;
+    if (
+      !spell ||
+      !mentor ||
+      spell.category !== mentor.element ||
+      pending.difficulty !==
+        lessonDifficulty(spell, (state.hero.spells[pending.spellId]?.level ?? 0) + 1)
+    )
+      return null;
+    clean = {
+      kind: 'lesson',
+      spellId: pending.spellId,
+      difficulty: Number(pending.difficulty),
+      try: Number(pending.try),
+    };
+    id = `lesson:hazel:${pending.spellId}`;
+  } else return null;
+  const attempt = recordOf(state, id);
+  return attempt.tries === clean.try && attempt.playedDay === state.day ? clean : null;
+}
+
+/** A loaded committed try was abandoned: apply its ordinary give-up cost once. */
+export function abandonPendingAttempt(state: GameState): void {
+  const pending = state.pendingAttempt;
+  if (!pending) return;
+  state.pendingAttempt = null;
+  if (pending.kind === 'encounter') {
+    const spec = encounterSpec(state, pending.id, pending.assisted);
+    const flow = flowFor(spec);
+    if (!flow) return;
+    const shop = NPCS[pending.id]?.rewards.find((reward) => reward.kind === 'shop');
+    if (pending.id === 'stallKeeper' && shop?.kind === 'shop') {
+      settleHaggle(state, pending.id, shop.shopId, 'fail', DUEL_PRICES.walkOff);
+    } else settle(state, flow.id, flow.rules, false, pending.assisted);
+    return;
+  }
+  const spec = lessonSpec(state, 'hazel', {
+    spellId: pending.spellId,
+    level: (state.hero.spells[pending.spellId]?.level ?? 0) + 1,
+    difficulty: pending.difficulty,
+  });
+  const flow = flowFor(spec);
+  if (!flow) return;
+  completeLesson(state.hero, spec, false);
+  settle(state, flow.id, flow.rules, false);
 }

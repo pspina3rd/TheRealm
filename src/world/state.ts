@@ -1,3 +1,4 @@
+import type { PendingAttempt } from '../game/encounterFlow';
 import { MAPS, START } from '../data/maps';
 import { createHero, type Hero } from '../game/hero';
 import type { Direction, EntityDef, Location, MapDef } from './map';
@@ -33,6 +34,8 @@ export interface GameState {
   encounters: Record<string, EncounterRecord>;
   /** Haggle discounts and markups, by shop id. */
   prices: Record<string, PriceChange>;
+  /** An actual M1 try awaiting settlement; a reload abandons it as a failure. */
+  pendingAttempt: PendingAttempt | null;
 }
 
 export function newGame(classId?: string, heroName?: string): GameState {
@@ -52,6 +55,7 @@ export function newGame(classId?: string, heroName?: string): GameState {
     regardPeak: {},
     encounters: {},
     prices: {},
+    pendingAttempt: null,
   };
 }
 

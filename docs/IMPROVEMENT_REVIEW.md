@@ -11,8 +11,9 @@ Rechecked `claude/laughing-brown-7i13lb` at
 [`f17985d`](https://github.com/pspina3rd/TheRealm/commit/f17985d91e42f78100e44cf57441518cf597ad17).
 The 16 newer team commits after `d14b3c4` have now been reconciled into
 GetPutTaco, preserving the playable campaign. The unified save format is
-version 11 and loads both independently written version-10 formats.
-The encounter foundations are merged; the player-facing M1 wiring is next.
+version 12 and loads both independently written version-10 formats, plus
+version 11. The player-facing M1 wiring is implemented and checkpointed;
+its automated balance gate still fails. See [M1_PLAYTEST.md](M1_PLAYTEST.md).
 
 The new work includes board tags, controlled supply, encounter verbs, stakes,
 lesson shields, telegraphs, feasibility checks, and simulator changes. The
@@ -40,7 +41,7 @@ The current priority order is:
 
 Two concrete reconciliation issues were addressed before further tuning:
 the independent save-version-10 additions (campaign entry versus stakes)
-now migrate to version 11, and the corrected simulator landing origin is
+now migrate through version 11 to version 12, and the corrected simulator landing origin is
 retained.
 Those samples remain historical diagnostics, not tuning targets.
 

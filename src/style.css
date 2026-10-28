@@ -2161,10 +2161,12 @@ dialog.interlude .actions {
   .battle-tools .leave-battle {
     min-width: 44px;
     width: 100%;
-    min-height: 30px;
+    min-height: 44px;
     padding: 3px;
+    order: -1;
   }
   .lesson-affordance {
+    grid-column: 1 / -1;
     max-width: 70px;
     font-size: 9px;
   }

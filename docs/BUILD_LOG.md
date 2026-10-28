@@ -224,3 +224,18 @@ not a completed encounter slice.
   no new phone screenshot is claimed. DOM integration fixtures pass.
 - Follow-up: persist interrupted-attempt failure costs, prevent Hazel
   uncommitted combat timing, diagnose balance, complete real visual review.
+
+## Interrupted-attempt and hazard correctness checkpoint
+
+- Save v12 persists committed attempts, settles reload abandonment once,
+  and writes recovery immediately. Migrates v1–11, including both v10 forks.
+- Hazel waits for actual piece/spell/item input; assisted failures lose
+  regard. Ordor reload and Give up apply the same markup and strain costs.
+- Wren spreads only within the warned frontier. Recorded real-input wins
+  cover Rowan and Wren, with the real starter dual-piece chance.
+- 1,077 tests pass, 9 skipped; format, lint, typecheck and build pass.
+  Wren 200-seed rerun remains outside balance bands (45% good, 0% casual).
+- New screenshots remain blocked by sandbox socket restrictions. Existing
+  phone integration fixtures do not substitute for a browser layout review.
+- Engineering version sequence: reconciliation v11; committed attempts v12;
+  future M2a needs the next version, without changing the approved design.

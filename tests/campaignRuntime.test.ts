@@ -181,7 +181,7 @@ describe('campaign save compatibility', () => {
     const loaded = deserialize(JSON.stringify(old))!;
     expect([loaded.mapId, loaded.x, loaded.y]).toEqual(['overworld', 15, 19]);
     expect(loaded.flags.has(C.descent)).toBe(false);
-    expect(SAVE_VERSION).toBe(11);
+    expect(SAVE_VERSION).toBe(12);
   });
 
   it('does not reinterpret a newly recognized campaign destination as an old earned location', () => {

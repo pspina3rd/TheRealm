@@ -22,6 +22,7 @@ import { migrateScenes, migrateStory } from './story';
 import { SKILL_POINTS_PER_LEVEL, statRanks } from './stats';
 import { tileAt, warpAt, type Direction, type Location } from '../world/map';
 import type { GameState } from '../world/state';
+import { abandonPendingAttempt, validPendingAttempt, type PendingAttempt } from './encounterFlow';
 
 export const SAVE_KEY = 'the-realm/save';
 /** Where a save that can't be read is kept, so a new adventure never overwrites it. */
@@ -43,10 +44,12 @@ export const CORRUPT_KEY = `${SAVE_KEY}.corrupt`;
  *   stakes (day, regard, encounter records, haggle prices and spell seals).
  * - 11 unifies both version-10 formats. Missing stakes start at zero;
  *   campaign progress and earned scenes remain intact in either format.
+ * - 12 persists committed M1 tries, settling interrupted tries as a failure on load.
  */
-export const SAVE_VERSION = 11;
+export const SAVE_VERSION = 12;
+const recoveredLoads = new WeakSet<GameState>();
 /** Older versions `deserialize` can still upgrade. */
-const MIGRATABLE_VERSIONS: readonly number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, SAVE_VERSION];
+const MIGRATABLE_VERSIONS: readonly number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, SAVE_VERSION];
 const FACINGS: readonly Direction[] = ['up', 'down', 'left', 'right'];
 
 /** JSON-friendly form of `GameState` (sets become arrays). */
@@ -69,6 +72,8 @@ interface SaveData {
   regardPeak?: Record<string, number>;
   encounters?: Record<string, EncounterRecord>;
   prices?: Record<string, PriceChange>;
+  /** Since version 12. */
+  pendingAttempt?: PendingAttempt | null;
 }
 
 /** Minimal storage interface so tests can supply an in-memory store. */
@@ -100,6 +105,7 @@ export function serialize(state: GameState): string {
     regardPeak: state.regardPeak,
     encounters: state.encounters,
     prices: state.prices,
+    pendingAttempt: state.pendingAttempt,
   };
   return JSON.stringify(data);
 }
@@ -159,7 +165,7 @@ export function deserialize(json: string): GameState | null {
     const respawn = standable(data.respawn, flags, allowCampaign) ? data.respawn : { ...START };
     const here = { map: data.mapId, x: data.x, y: data.y };
     const spot = standable(here, flags, allowCampaign) ? here : respawn;
-    return {
+    const state: GameState = {
       hero,
       mapId: spot.map,
       x: spot.x,
@@ -174,7 +180,14 @@ export function deserialize(json: string): GameState | null {
       talk: validTalk(data.talk),
       // Before version 10 there were no stakes: every one starts at zero.
       ...(version < 10 ? zeroStakes() : sanitizeStakes(data)),
+      pendingAttempt: null,
     };
+    state.pendingAttempt = version >= 12 ? validPendingAttempt(data.pendingAttempt, state) : null;
+    if (state.pendingAttempt) {
+      abandonPendingAttempt(state);
+      recoveredLoads.add(state);
+    }
+    return state;
   } catch {
     // Migration can trip over malformed nested data as well as invalid JSON.
     return null;
@@ -275,7 +288,11 @@ export function loadSave(store: KeyValueStore, now = Date.now()): LoadResult {
   }
   if (!json) return none;
   const state = deserialize(json);
-  if (state) return { ...none, state };
+  if (state) {
+    // Commit recovery immediately so repeated reloads cannot repeat a settlement.
+    if (recoveredLoads.has(state)) saveGame(store, state);
+    return { ...none, state };
+  }
   try {
     const earlier = store.getItem(CORRUPT_KEY);
     let backupKey = CORRUPT_KEY;

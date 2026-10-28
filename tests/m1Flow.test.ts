@@ -14,6 +14,7 @@ import {
 import { encounterSpec } from '../src/game/encounterFlow';
 import { learnSpell } from '../src/game/hero';
 import { newRecord, recordOf, innNight, priceChange } from '../src/game/stakes';
+import { deserialize, loadSave, SAVE_KEY, serialize } from '../src/game/save';
 import { newGame, type GameState } from '../src/world/state';
 import type { EntityDef } from '../src/world/map';
 
@@ -166,8 +167,8 @@ describe('Ordor saved prices', () => {
 describe('lessons and free browsing', () => {
   it('offers Hazel Now-once, then Wait, with a seal that three monster wins release', () => {
     const state = newGame();
-    learnSpell(state.hero, 'heal');
-    const lesson = { spellId: 'heal', difficulty: 2, level: 2 };
+    learnSpell(state.hero, 'cure');
+    const lesson = { spellId: 'cure', difficulty: 2, level: 2 };
     const card = lessonInteraction(state, 'hazel', lesson);
     expect(card.stakes?.retry).toContain('One retry');
     for (let i = 0; i < 2; i++) {
@@ -182,7 +183,7 @@ describe('lessons and free browsing', () => {
       );
     }
     expect(lessonInteraction(state, 'hazel', lesson).canAccept).toBe(false);
-    expect(state.hero.seal).toMatchObject({ spellId: 'heal', fights: 3 });
+    expect(state.hero.seal).toMatchObject({ spellId: 'cure', fights: 3 });
     for (let i = 0; i < 3; i++) {
       const fight = new Battle({ kind: 'combat', enemyId: 'slime' }, state.hero, rng());
       expect(fight.challenge).toBeInstanceOf(CombatChallenge);
@@ -214,5 +215,130 @@ describe('lessons and free browsing', () => {
       expect(priceChange(state, shop.shopId)).toBe(1.1);
     }
     expect(state.encounters).toEqual({});
+  });
+});
+
+describe('durable committed attempts', () => {
+  it('reload settles a committed Wait encounter once and writes the recovered save immediately', () => {
+    const state = newGame();
+    const battle = attempt(state, 'forager');
+    expect(commitBattleTry(state, battle)).toBe(true);
+    const saved = new Map([[SAVE_KEY, serialize(state)]]);
+    const store = {
+      getItem: (key: string) => saved.get(key) ?? null,
+      setItem: (key: string, value: string) => {
+        saved.set(key, value);
+      },
+      removeItem: (key: string) => {
+        saved.delete(key);
+      },
+    };
+    const recovered = loadSave(store).state;
+    expect(recovered).not.toBeNull();
+    expect(recovered?.pendingAttempt).toBeNull();
+    expect(recovered?.encounters.forager).toMatchObject({
+      tries: 1,
+      fails: 1,
+      strain: 1,
+      waitPast: 0,
+    });
+    expect(recovered?.regard.forager).toBe(-1);
+    expect(JSON.parse(saved.get(SAVE_KEY) ?? '{}').pendingAttempt).toBeNull();
+    expect(loadSave(store).state?.encounters.forager).toEqual(recovered?.encounters.forager);
+  });
+
+  it('a free pre-roll reload stays free, and a completed win never becomes an abandoned loss', () => {
+    const state = newGame();
+    const preview = deserialize(serialize(state));
+    expect(preview?.encounters).toEqual({});
+    const battle = attempt(state, 'elder');
+    commitBattleTry(state, battle);
+    finish(battle, true);
+    resolveBattle(state, npc('elder'), battle, rng(), 'neutral');
+    const recovered = deserialize(serialize(state));
+    expect(recovered?.pendingAttempt).toBeNull();
+    expect(recovered?.encounters.elder).toMatchObject({ tries: 1, wins: 1, fails: 0, strain: 0 });
+    expect(recovered?.hero.gil).toBe(state.hero.gil);
+    expect(recovered?.regard.elder).toBe(1);
+  });
+
+  it('interrupted Hazel lessons apply Now-once, bounded spell seal and subsequent Wait', () => {
+    let state = newGame();
+    learnSpell(state.hero, 'cure');
+    const lesson = { spellId: 'cure', difficulty: 2, level: 2 };
+    for (let i = 0; i < 2; i++) {
+      const card = lessonInteraction(state, 'hazel', lesson);
+      const battle = new Battle(card.spec, state.hero, rng());
+      const hp = state.hero.hp;
+      battle.update(30_000);
+      expect(battle.started).toBe(false);
+      expect(state.hero.hp).toBe(hp);
+      expect(commitBattleTry(state, battle)).toBe(true);
+      expect(battle.started).toBe(true); // A spell/item action also starts the clock.
+      const recovered = deserialize(serialize(state));
+      if (!recovered) throw new Error('Expected recoverable lesson');
+      state = recovered;
+      expect(state.hero.seal).toEqual({ spellId: 'cure', fights: 3 });
+    }
+    expect(lessonInteraction(state, 'hazel', lesson).canAccept).toBe(false);
+    expect(state.encounters['lesson:hazel:cure']).toMatchObject({
+      tries: 2,
+      fails: 2,
+      waitPast: 0,
+    });
+  });
+
+  it('interrupted assisted Vale pays the ordinary failure cost and keeps the threshold locked', () => {
+    const state = newGame();
+    state.encounters.guard = { ...newRecord(), fails: 2, tries: 2, strain: 1 };
+    const battle = attempt(state, 'guard', true);
+    commitBattleTry(state, battle);
+    const recovered = deserialize(serialize(state));
+    expect(recovered?.encounters.guard).toMatchObject({
+      fails: 3,
+      strain: 1,
+      tries: 3,
+      waitPast: 0,
+    });
+    expect(recovered?.regard.guard).toBe(-1);
+    expect(recovered?.flags.has('cavePass')).toBe(false);
+    expect(recovered?.hero.gil).toBe(state.hero.gil);
+  });
+
+  it('interrupted Ordor applies the same markup, strain and day lock as Give up', () => {
+    const state = newGame();
+    const battle = attempt(state, 'stallKeeper');
+    commitBattleTry(state, battle);
+    const recovered = deserialize(serialize(state));
+    battle.giveUp();
+    resolveBattle(state, npc('stallKeeper'), battle, rng(), 'neutral');
+    expect(recovered?.prices).toEqual(state.prices);
+    expect(recovered?.encounters).toEqual(state.encounters);
+    expect(recovered?.regard).toEqual(state.regard);
+    expect(recovered && describeInteraction(recovered, npc('stallKeeper'))).toMatchObject({
+      canAccept: false,
+    });
+  });
+
+  it('migrates v11 with no pending try and rejects unknown or forged pending descriptors', () => {
+    const state = newGame();
+    const battle = attempt(state, 'elder');
+    commitBattleTry(state, battle);
+    const data = JSON.parse(serialize(state));
+    const legacy = deserialize(JSON.stringify({ ...data, version: 11 }));
+    expect(legacy?.pendingAttempt).toBeNull();
+    expect(legacy?.encounters.elder).toMatchObject({ tries: 1, fails: 0 });
+    for (const pendingAttempt of [
+      { kind: 'encounter', id: 'ridgeGuard', assisted: false, try: 1 },
+      { kind: 'encounter', id: 'elder', assisted: true, try: 1 },
+      { kind: 'encounter', id: 'elder', assisted: false, try: 99 },
+      { kind: 'lesson', spellId: 'cure', difficulty: 999, try: 1 },
+      { kind: 'lesson', spellId: 'unknown', difficulty: 1, try: 1 },
+    ]) {
+      const recovered = deserialize(JSON.stringify({ ...data, pendingAttempt }));
+      expect(recovered?.pendingAttempt).toBeNull();
+      expect(recovered?.regard).toEqual({});
+      expect(recovered?.encounters.elder).toMatchObject({ tries: 1, fails: 0 });
+    }
   });
 });

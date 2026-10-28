@@ -160,7 +160,7 @@ export function settle(
 ): Gain[] {
   const record = stored(state, id);
   const gains: Gain[] = [];
-  const person = assisted ? null : rules.personId;
+  const person = assisted && won ? null : rules.personId;
   if (won) {
     const first = record.wins === 0;
     record.wins++;

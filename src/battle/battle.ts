@@ -129,7 +129,8 @@ export class Battle implements BattleContext {
     this.board = new Board(rng, def?.width ?? BOARD_WIDTH, BOARD_HEIGHT, options.weights);
     this.board.dualChance = options.dualChance ?? 0;
     this.challenge = createChallenge(this, spec);
-    this.started = !this.challenge.preroll;
+    this.started =
+      !this.challenge.preroll && !(spec.kind === 'lesson' && spec.mentorId === 'hazel');
     const ruleId = spec.kind === 'lesson' ? MENTOR_RULES[spec.mentorId] : options.rule;
     this.rule = ruleId && spec.kind !== 'encounter' ? createRule(this, ruleId) : null;
     this.assist = spec.kind === 'encounter' && spec.assisted ? (def?.assist ?? null) : null;
@@ -253,15 +254,18 @@ export class Battle implements BattleContext {
     return true;
   }
 
+  /** Starts the clock for the first real piece, spell or item action. */
+  startPlay(): void {
+    if (this.started || !this.accepting() || this.demoPlaying) return;
+    this.started = true;
+    this.emit({ kind: 'begin' });
+    this.emit({ kind: 'beat', beat: 'start' });
+  }
+
   /** Applies a player input. Ignored when paused or finished. */
   input(action: BattleAction): void {
     if (!this.accepting() || this.demoPlaying) return;
-    if (!this.started) {
-      // The first touch ends the pre-roll: the hero is committed and the clock starts.
-      this.started = true;
-      this.emit({ kind: 'begin' });
-      this.emit({ kind: 'beat', beat: 'start' });
-    }
+    this.startPlay();
     const board = this.board;
     switch (action) {
       case 'left':

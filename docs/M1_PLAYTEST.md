@@ -160,3 +160,25 @@ and whether the verbs/stakes/demos are clear and challenging. Bot completion
 cannot provide this go/no-go. Author log: **not yet played**.
 
 Phone and desktop visual evidence is tracked by the integration owner.
+
+## Correctness follow-up
+
+Save version 12 records a committed M1 attempt. Reloading it applies the
+ordinary give-up consequence once and immediately saves the cleared pending
+record. Version 11 and both version-10 schemas still migrate. Hazel now
+waits for real input before combat begins; assisted losses lower regard
+consistently with the card.
+
+CONTAIN spread now snapshots the warned frontier, preventing a second hop
+through a newly infected crystal during the same tick. Fixed real-input
+replays prove legal Rowan and Wren wins with the starter dual-piece chance.
+After this fix, Wren was rerun with 200 seeds per cell: good 45%
+[38.3, 51.9], casual/dropper/idle 0% [0, 1.9]; strain-two good 40%
+[33.0, 46.4], casual 0% [0, 1.9]. Mean good duration: 57 seconds /
+27 pieces; 110 good failures exhausted the budget. These results still
+fail the approved bands. No difficulty values were changed.
+
+Current integration checks: 1,077 tests pass, 9 skipped; formatting, lint,
+type checks and production build pass. Phone/desktop DOM fixtures verify
+interactions, but new browser screenshots remain unverified: local socket
+operations are denied by this execution sandbox.

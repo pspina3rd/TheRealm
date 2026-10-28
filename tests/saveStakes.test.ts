@@ -33,9 +33,9 @@ function saveAt(version: number): Record<string, unknown> {
   return { ...data, version };
 }
 
-describe('save version 11 (unified campaign and stakes)', () => {
+describe('save version 12 (committed tries and unified campaign stakes)', () => {
   it('is the current version', () => {
-    expect(SAVE_VERSION).toBe(11);
+    expect(SAVE_VERSION).toBe(12);
   });
 
   for (let version = 1; version < 10; version++) {
@@ -48,7 +48,7 @@ describe('save version 11 (unified campaign and stakes)', () => {
     });
   }
 
-  it.each([10, SAVE_VERSION])('keeps version %i stakes and seal when upgraded', (version) => {
+  it.each([10, 11, SAVE_VERSION])('keeps version %i stakes and seal when upgraded', (version) => {
     const data = saveAt(version);
     const loaded = deserialize(JSON.stringify(data))!;
     expect(loaded.day).toBe(3);
@@ -59,45 +59,48 @@ describe('save version 11 (unified campaign and stakes)', () => {
     expect(JSON.parse(serialize(loaded))).toEqual({ ...data, version: SAVE_VERSION });
   });
 
-  it.each([10, SAVE_VERSION])('sanitizes version %i stakes instead of refusing them', (version) => {
-    const data = saveAt(version);
-    data.day = -4;
-    data.regard = { elder: 9, farmer: -9, pip: 'x', wren: 0.6 };
-    data.regardPeak = 'nope';
-    data.encounters = {
-      elder: { strain: 7, fails: -1, wins: 2.4, tries: 'x', waitPast: 3, playedDay: 99 },
-      bad: 'record',
-    };
-    data.prices = {
-      a: { multiplier: 9, map: 'mossvale', day: 0 },
-      b: { multiplier: 0.9, map: 'atlantis', day: 0 },
-      c: { multiplier: 'x', map: null, day: 0 },
-      d: 'nope',
-    };
-    (data.hero as Record<string, unknown>).seal = { spellId: 'shadow', fights: 99 };
-    const loaded = deserialize(JSON.stringify(data))!;
-    expect(loaded.day).toBe(0);
-    expect(loaded.regard).toEqual({ elder: 2, farmer: -2, wren: 1 });
-    expect(loaded.regardPeak).toEqual({});
-    expect(loaded.encounters).toEqual({
-      elder: {
-        strain: 2,
-        fails: 0,
-        wins: 2,
-        tries: 0,
-        waitPast: 3,
-        playedDay: null,
-        wonDay: null,
-      },
-    });
-    expect(loaded.prices).toEqual({ a: { multiplier: 1.3, map: 'mossvale', day: 0 } });
-    expect(loaded.hero.seal).toEqual({ spellId: 'shadow', fights: 3 });
-    (data.hero as Record<string, unknown>).seal = 'sealed';
-    data.encounters = 'none';
-    data.prices = null;
-    const bare = deserialize(JSON.stringify(data))!;
-    expect(bare.hero.seal).toBeNull();
-    expect(bare.encounters).toEqual({});
-    expect(bare.prices).toEqual({});
-  });
+  it.each([10, 11, SAVE_VERSION])(
+    'sanitizes version %i stakes instead of refusing them',
+    (version) => {
+      const data = saveAt(version);
+      data.day = -4;
+      data.regard = { elder: 9, farmer: -9, pip: 'x', wren: 0.6 };
+      data.regardPeak = 'nope';
+      data.encounters = {
+        elder: { strain: 7, fails: -1, wins: 2.4, tries: 'x', waitPast: 3, playedDay: 99 },
+        bad: 'record',
+      };
+      data.prices = {
+        a: { multiplier: 9, map: 'mossvale', day: 0 },
+        b: { multiplier: 0.9, map: 'atlantis', day: 0 },
+        c: { multiplier: 'x', map: null, day: 0 },
+        d: 'nope',
+      };
+      (data.hero as Record<string, unknown>).seal = { spellId: 'shadow', fights: 99 };
+      const loaded = deserialize(JSON.stringify(data))!;
+      expect(loaded.day).toBe(0);
+      expect(loaded.regard).toEqual({ elder: 2, farmer: -2, wren: 1 });
+      expect(loaded.regardPeak).toEqual({});
+      expect(loaded.encounters).toEqual({
+        elder: {
+          strain: 2,
+          fails: 0,
+          wins: 2,
+          tries: 0,
+          waitPast: 3,
+          playedDay: null,
+          wonDay: null,
+        },
+      });
+      expect(loaded.prices).toEqual({ a: { multiplier: 1.3, map: 'mossvale', day: 0 } });
+      expect(loaded.hero.seal).toEqual({ spellId: 'shadow', fights: 3 });
+      (data.hero as Record<string, unknown>).seal = 'sealed';
+      data.encounters = 'none';
+      data.prices = null;
+      const bare = deserialize(JSON.stringify(data))!;
+      expect(bare.hero.seal).toBeNull();
+      expect(bare.encounters).toEqual({});
+      expect(bare.prices).toEqual({});
+    },
+  );
 });
