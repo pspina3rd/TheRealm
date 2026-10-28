@@ -93,7 +93,10 @@ export class HeroPanel {
 
   /** Draws the panel; `flags` (the story flags) reveal some hidden spells. */
   render(battle: Battle, flags: ReadonlySet<string>): void {
-    const hero = battle.hero;
+    // A lesson lends its spell: the panel shows the fight's spell book.
+    const hero = battle.combat
+      ? { ...battle.hero, spells: battle.combat.spellBook() }
+      : battle.hero;
     this.hpFill.style.width = `${(100 * hero.hp) / hero.maxHp}%`;
     this.hpText.textContent = `${hero.hp}/${hero.maxHp}`;
     this.mana.update(hero);

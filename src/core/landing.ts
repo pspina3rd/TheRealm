@@ -5,7 +5,7 @@
  * solver for authored queues. Pieces drop straight down (no slides or
  * spins under an overhang), as a player's drag-and-drop does.
  */
-import type { Board, CellTag, ClearedRow } from './board';
+import { cellColors, type Board, type CellTag, type ClearedRow } from './board';
 import { rotationsOf } from './bestFit';
 import type { Cell, Offset, PieceName } from './pieces';
 
@@ -27,6 +27,8 @@ export interface Landing {
   readonly tags: (CellTag | null)[][];
   readonly lines: number;
   readonly clearedRows: readonly ClearedRow[];
+  /** The board rows that cleared, before rows above fell. */
+  readonly fullRows: readonly number[];
   /** Where the piece's cells locked, as [x, y], before clears. */
   readonly placed: readonly (readonly [number, number])[];
 }
@@ -76,11 +78,15 @@ export function landingOf(
     (tags[y + cy] as (CellTag | null)[])[x + cx] = null;
     placed.push([x + cx, y + cy]);
   });
-  if (!board.clearsEnabled) return { name, cells, x, y, grid, tags, lines: 0, clearedRows: [], placed };
+  if (!board.clearsEnabled)
+    return { name, cells, x, y, grid, tags, lines: 0, clearedRows: [], fullRows: [], placed };
   const full = grid.map((row) => row.every((cell) => cell !== null));
   const clearedRows: ClearedRow[] = [];
+  const fullRows: number[] = [];
   full.forEach((isFull, i) => {
-    if (isFull) clearedRows.push({ cells: grid[i] as Cell[], tags: tags[i] as (CellTag | null)[] });
+    if (!isFull) return;
+    fullRows.push(i);
+    clearedRows.push({ cells: grid[i] as Cell[], tags: tags[i] as (CellTag | null)[] });
   });
   const lines = clearedRows.length;
   const width = board.width;
@@ -99,21 +105,25 @@ export function landingOf(
     ],
     lines,
     clearedRows,
+    fullRows,
     placed,
   };
 }
 
-/** Every drop-only landing of `name` on the board, each rotation in each column. */
+/**
+ * Every drop-only landing of `name` on the board, each rotation in each
+ * column, in `colors` cell by cell (the shape's own colours by default).
+ */
 export function landingsOf(
   board: LandingBoard,
   name: PieceName,
-  colorsOf: (cells: readonly Offset[]) => readonly Cell[] = (cells) => cells.map(() => 'stone'),
+  colors: readonly Cell[] = cellColors({ name, second: null }),
 ): Landing[] {
   const out: Landing[] = [];
   for (const cells of rotationsOf(name)) {
     const span = Math.max(...cells.map(([cx]) => cx)) + 1;
     for (let x = 0; x + span <= board.width; x++) {
-      const landing = landingOf(board, name, cells, x, colorsOf(cells));
+      const landing = landingOf(board, name, cells, x, colors);
       if (landing) out.push(landing);
     }
   }

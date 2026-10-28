@@ -1,7 +1,7 @@
-import type { Cell } from '../../core/pieces';
 import type { LockResult } from '../../core/board';
 import type { Landing } from '../../core/landing';
 import type { Rng } from '../../core/rng';
+import { TELEGRAPH_LEAD } from '../../data/balance';
 import type { BattleContext, BattleStatus, Challenge, Objective, Telegraph } from '../types';
 
 /** A DIG board (docs/ENCOUNTER_DESIGN.md §2): debris over a tagged target, and rising rows. */
@@ -16,14 +16,6 @@ export interface DigParams {
   readonly soonerPerHole: number;
   /** Debris rows added on top per strain step. */
   readonly strainRows: number;
-}
-
-/** A row of mold (violet and green crystals) with one gap. */
-export function moldRow(width: number, rng: Rng): Cell[] {
-  const gap = rng.int(width);
-  return Array.from({ length: width }, (_, x) =>
-    x === gap ? null : x % 2 === 0 ? 'violet' : 'green',
-  );
 }
 
 /** A mold row as `loadRows` text, with one gap. */
@@ -87,8 +79,7 @@ export class DigChallenge implements Challenge {
     this.untilRise -= 1 + this.params.soonerPerHole * result.holesMade;
     if (this.untilRise <= 0) {
       this.untilRise = this.params.risingEvery;
-      board.pushRow(moldRow(board.width, this.ctx.rng));
-      this.ctx.emit({ kind: 'rise', rows: 1 });
+      this.ctx.pushRows({ source: 'rising', fill: 'mold' }, 1);
       this.ctx.emit({ kind: 'beat', beat: 'hazard' });
       if (board.stackTop() < this.lipY) this.overLip = true;
     }
@@ -113,7 +104,9 @@ export class DigChallenge implements Challenge {
   }
 
   telegraphs(): readonly Telegraph[] {
-    return this.untilRise <= 1 ? [{ kind: 'rows', what: 'rise', rows: 1 }] : [];
+    return this.untilRise <= TELEGRAPH_LEAD
+      ? [{ kind: 'rows', what: 'rise', rows: 1, leadPieces: TELEGRAPH_LEAD }]
+      : [];
   }
 
   /**
@@ -123,10 +116,23 @@ export class DigChallenge implements Challenge {
   hint(landing: Landing): number {
     if (landing.clearedRows.some((row) => row.tags.includes('target'))) return 1000;
     if (landing.placed.some(([, y]) => y < this.lipY)) return -1000;
-    const target = landing.tags.findIndex((row) => row.includes('target'));
-    const above = landing.grid
-      .slice(0, Math.max(0, target))
-      .filter((row) => row.some((c) => c !== null)).length;
-    return -2 * above;
+    const target = Math.max(
+      0,
+      landing.tags.findIndex((row) => row.includes('target')),
+    );
+    const rows = landing.grid.slice(0, target + 1);
+    const cells = rows
+      .slice(0, target)
+      .reduce((sum, row) => sum + row.filter((c) => c !== null).length, 0);
+    // Buried gaps down to the target's row: each one brings the mold sooner and must be dug out.
+    let buried = 0;
+    for (let x = 0; x < this.ctx.board.width; x++) {
+      let covered = false;
+      for (const row of rows) {
+        if (row[x] !== null) covered = true;
+        else if (covered) buried++;
+      }
+    }
+    return 3 * landing.lines - 1.5 * cells - 8 * buried;
   }
 }

@@ -49,7 +49,7 @@ export class PlantChallenge implements Challenge {
     board.supply = params.supply;
     board.loadRows([]);
     for (const x of params.ridges) {
-      (board.grid[board.height - 1] as Cell[])[x] = 'stone';
+      (board.grid[board.height - 1] as Cell[])[x] = 'neutral';
       board.setTag(x, board.height - 1, 'ridge');
     }
   }

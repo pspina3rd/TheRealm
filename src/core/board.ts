@@ -1,6 +1,7 @@
 import {
   PIECES,
   PIECE_NAMES,
+  isCrystal,
   rotateClockwise,
   type Cell,
   type CrystalColor,
@@ -160,6 +161,7 @@ const CELL_CODES: Readonly<Record<string, Cell>> = {
   r: 'red',
   b: 'blue',
   o: 'orange',
+  x: 'neutral',
 };
 
 /** An encounter's extra `loadRows` code: the cell it makes and the tag it carries. */
@@ -270,7 +272,7 @@ export class Board {
 
   /**
    * Fills the bottom of the grid from text rows (top row first). `#` is
-   * stone, a colour initial (c g v n r b o) is a crystal, `m` is mold
+   * stone, `x` neutral, a colour initial (c g v n r b o) is a crystal, `m` is mold
    * (violet and green crystals in a checker), anything else is empty.
    * `legend` adds an encounter's codes: the cell and the tag it carries
    * (e.g. Rowan's pipe, a tagged stone). Old tags are cleared. Used for
@@ -389,6 +391,16 @@ export class Board {
     if (!this.active || !this.fits(piece)) return false;
     this.active = piece;
     return true;
+  }
+
+  /** Puts a piece back at the front of the queue (one a person's demo displaced). */
+  requeue(piece: QueuedPiece): void {
+    if (this.fixedQueue) this.fixedQueue.unshift(piece.name);
+    else {
+      this.preview(1);
+      this.bag.unshift(piece.name);
+      this.seconds.unshift(piece.second);
+    }
   }
 
   /** True if the falling piece could be swapped for the next one (see `swapWithNext`). */
@@ -578,7 +590,7 @@ export class Board {
     const crystals: [number, number][] = [];
     this.grid.forEach((row, y) =>
       row.forEach((cell, x) => {
-        if (cell !== null && cell !== 'stone') crystals.push([x, y]);
+        if (isCrystal(cell)) crystals.push([x, y]);
       }),
     );
     const changed: [number, number][] = [];

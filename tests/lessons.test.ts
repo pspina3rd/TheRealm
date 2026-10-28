@@ -465,6 +465,7 @@ describe('LessonChallenge', () => {
     const { battle, challenge } = lesson();
     (challenge as { helpChance: number }).helpChance = 1;
     challenge.enemyHp = 1;
+    challenge.shield = 'broken';
     setUpVerticalIClear(battle.board, 1);
     battle.input('hardDrop');
     expect(battle.status).toBe('won');

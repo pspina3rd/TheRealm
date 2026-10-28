@@ -89,7 +89,12 @@ export interface EncounterDef {
   /** Said after their win line: what to do next, and what it taught. */
   readonly winAdd?: string;
   /** The world props by the person: one for a win, one for a fail (§4). */
-  readonly world: { readonly x: number; readonly y: number; readonly win: WorldProp; readonly fail: WorldProp };
+  readonly world: {
+    readonly x: number;
+    readonly y: number;
+    readonly win: WorldProp;
+    readonly fail: WorldProp;
+  };
   /** Elements the person's board pays out in: a rough guide for the Stakes card. */
   readonly element?: Element;
 }
@@ -304,4 +309,53 @@ export const ENCOUNTER_DEFS: Readonly<Record<string, EncounterDef>> = {
 /** The encounter a person runs, if they have one built. */
 export function encounterOf(npcId: string): EncounterDef | undefined {
   return Object.hasOwn(ENCOUNTER_DEFS, npcId) ? ENCOUNTER_DEFS[npcId] : undefined;
+}
+
+/**
+ * What a board draws over its cells (§2, "overlay budget"): at most one
+ * hazard or visibility family (hazard tags, or the dark) and one
+ * objective family (targets, zones, or an outline). Frame lamps and
+ * meters are not overlays.
+ */
+export interface Overlays {
+  readonly hazard: 'tags' | 'dark' | null;
+  readonly objective: 'targets' | 'zones' | 'outline' | null;
+}
+
+/** The overlays a verb's board draws. */
+export function overlaysOf(spec: VerbSpec): Overlays {
+  switch (spec.verb) {
+    case 'dig':
+      return { hazard: null, objective: 'targets' };
+    case 'build':
+      return { hazard: null, objective: 'outline' };
+    case 'plant':
+      return { hazard: null, objective: 'zones' };
+    case 'contain':
+      return { hazard: 'tags', objective: 'targets' };
+    case 'duel':
+    case 'charge':
+      return { hazard: null, objective: null };
+  }
+}
+
+/**
+ * The supply rule (§2): a colour encounter asks for at most half the
+ * wanted cells its controlled queue guarantees,
+ * `required ≤ 0.5 × (pieces ÷ window) × 4 × supplied shapes`, at every
+ * strain, and purity is never above 7 of 10. Other verbs pass.
+ */
+export function supplyRuleHolds(spec: VerbSpec, strain = 0): boolean {
+  const guaranteed = (pieces: number, supply: { window: number; pieces: readonly string[] }) =>
+    0.5 * (pieces / supply.window) * 4 * supply.pieces.length;
+  if (spec.verb === 'plant') {
+    const p = spec.params;
+    return p.target + strain * p.strainTarget <= guaranteed(p.pieceLimit, p.supply);
+  }
+  if (spec.verb === 'charge') {
+    const p = spec.params;
+    const lamps = p.lamps.length + strain * p.strainLamps;
+    return p.purity <= 7 && lamps * p.purity <= guaranteed(p.pieceLimit, p.supply);
+  }
+  return true;
 }

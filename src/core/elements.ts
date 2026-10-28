@@ -4,7 +4,7 @@
  * line triggers the effect of its strongest element.
  */
 import type { CellTally } from './board';
-import { PIECES, type CrystalColor, type PieceName } from './pieces';
+import { PIECES, isCrystal, type Cell, type CrystalColor, type PieceName } from './pieces';
 
 export const ELEMENTS = [
   'fire',
@@ -52,11 +52,11 @@ export function emptyCounts(value = 0): ElementCounts {
   return Object.fromEntries(ELEMENTS.map((e) => [e, value])) as ElementCounts;
 }
 
-/** Converts a colour tally (from cleared cells) into element counts. Stone counts as nothing. */
+/** Converts a colour tally (from cleared cells) into element counts. Stone and neutral cells count as nothing. */
 export function elementsOf(tally: CellTally): ElementCounts {
   const counts = emptyCounts();
   for (const [color, count] of Object.entries(tally)) {
-    if (color !== 'stone') counts[ELEMENT_OF_COLOR[color as CrystalColor]] += count ?? 0;
+    if (isCrystal(color as Cell)) counts[ELEMENT_OF_COLOR[color as CrystalColor]] += count ?? 0;
   }
   return counts;
 }

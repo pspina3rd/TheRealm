@@ -1,6 +1,5 @@
 import type { LockResult } from '../../core/board';
-import type { Cell } from '../../core/pieces';
-import { DUEL_BACK_TO_BACK, DUEL_PRICES, DUEL_SENDS } from '../../data/balance';
+import { DUEL_BACK_TO_BACK, DUEL_PRICES, DUEL_SENDS, TELEGRAPH_LEAD } from '../../data/balance';
 import type { HaggleGrade } from '../../game/stakes';
 import type { BattleContext, BattleStatus, Challenge, Objective, Telegraph } from '../types';
 
@@ -153,10 +152,9 @@ export class DuelChallenge implements Challenge {
     }
     const landing = this.pending.filter((p) => p.armed).reduce((sum, p) => sum + p.rows, 0);
     this.pending = this.pending.filter((p) => !p.armed).map((p) => ({ ...p, armed: true }));
-    for (let i = 0; i < landing; i++) board.pushRow(this.garbageRow());
     if (landing > 0) {
-      this.shift(landing * this.params.meterPerReceived);
-      this.ctx.emit({ kind: 'rise', rows: landing });
+      const pushed = this.ctx.pushRows({ source: 'send' }, landing);
+      this.shift(pushed * this.params.meterPerReceived);
       if (board.toppedOut) {
         this.ended = 'walkOff';
         this.meter = Math.max(this.meter, DUEL_PRICES.walkOff);
@@ -174,12 +172,6 @@ export class DuelChallenge implements Challenge {
     }
     this.pending = this.pending.filter((p) => p.rows > 0);
     return left;
-  }
-
-  private garbageRow(): Cell[] {
-    const width = this.ctx.board.width;
-    const gap = this.ctx.rng.int(width);
-    return Array.from({ length: width }, (_, x) => (x === gap ? null : 'stone'));
   }
 
   private shift(delta: number): void {
@@ -211,7 +203,9 @@ export class DuelChallenge implements Challenge {
 
   telegraphs(): readonly Telegraph[] {
     const armed = this.pending.filter((p) => p.armed).reduce((sum, p) => sum + p.rows, 0);
-    return armed > 0 ? [{ kind: 'rows', what: 'send', rows: armed }] : [];
+    return armed > 0
+      ? [{ kind: 'rows', what: 'send', rows: armed, leadPieces: TELEGRAPH_LEAD }]
+      : [];
   }
 }
 

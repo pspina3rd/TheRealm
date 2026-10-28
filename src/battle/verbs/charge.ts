@@ -1,6 +1,7 @@
 import type { ClearedRow, LockResult, Supply } from '../../core/board';
 import { colorOfElement, type Element } from '../../core/elements';
 import type { Landing } from '../../core/landing';
+import { TELEGRAPH_LEAD } from '../../data/balance';
 import type { Cell } from '../../core/pieces';
 import {
   piecesLeft,
@@ -127,8 +128,10 @@ export class ChargeChallenge implements Challenge {
 
   telegraphs(): readonly Telegraph[] {
     const oldest = this.lit[0];
-    return this.untilSnuff === 1 && oldest !== undefined && this.lit.length < this.lamps.length
-      ? [{ kind: 'lamp', index: oldest }]
+    return this.untilSnuff <= TELEGRAPH_LEAD &&
+      oldest !== undefined &&
+      this.lit.length < this.lamps.length
+      ? [{ kind: 'lamp', index: oldest, leadPieces: TELEGRAPH_LEAD }]
       : [];
   }
 
@@ -139,15 +142,26 @@ export class ChargeChallenge implements Challenge {
   hint(landing: Landing): number {
     const lit = this.lights(landing.clearedRows, this.lit).length;
     const wanted = this.elements().map(colorOfElement);
+    const spare = this.ctx.board.width - this.params.purity;
     let worth = 0;
     for (const row of landing.grid) {
       const counts = wanted.map((color) => row.filter((cell) => cell === color).length);
       const best = Math.max(...counts);
-      const others = row.filter((cell) => cell !== null).length - best;
-      if (best > 0) worth += 0.08 * best * best - 0.6 * others;
+      if (best === 0) continue;
+      const mixed = counts.reduce((sum, n) => sum + n, 0) - best;
+      const impure = row.filter((cell) => cell !== null).length - best;
+      // A row can still light while its off-colour cells fit in the spare (3 of 10 at P 7).
+      worth += impure <= spare ? 0.6 * best : -1.5 * (impure - spare);
+      worth -= 1.5 * mixed;
     }
-    // A wanted line cleared impure wastes its cells.
-    const wasted = landing.clearedRows.length - lit;
-    return 40 * lit + worth - 3 * wasted;
+    // Clearing a row that was building toward a lamp, but impure, throws that work away.
+    const wasted = landing.clearedRows
+      .filter((row) => !pureElement(row.cells, this.elements(), this.params.purity))
+      .reduce(
+        (sum, row) =>
+          sum + Math.max(...wanted.map((color) => row.cells.filter((c) => c === color).length)),
+        0,
+      );
+    return 40 * lit + worth - 0.8 * wasted;
   }
 }

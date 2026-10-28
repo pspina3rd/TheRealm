@@ -269,7 +269,10 @@ export function feedbackFor(event: BattleEvent): Feedback[] {
     case 'beat':
       return [{ kind: 'beat', beat: event.beat }];
     case 'rise':
-      return [{ kind: 'shake', target: 'board' }];
+      // A curse already shakes the board (see 'curse').
+      return event.source === 'curse' ? [] : [{ kind: 'shake', target: 'board' }];
+    case 'holes':
+      return [];
     case 'lamp':
       return [{ kind: 'icon', target: 'board', icon: event.lit ? 'star' : 'wind' }];
     case 'spread':

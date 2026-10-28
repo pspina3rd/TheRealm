@@ -145,6 +145,13 @@ export function challengeCard(spec: ChallengeSpec): HTMLElement {
         ),
         pieces(spec.queue.length),
       );
+    case 'encounter':
+      return el(
+        'div',
+        { className: 'challenge-card' },
+        iconElement('puzzle', 3, 'Challenge'),
+        ...(spec.strain > 0 ? [chip('hourglass', spec.strain, 'Harder after a fail')] : []),
+      );
   }
 }
 

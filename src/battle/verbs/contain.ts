@@ -1,5 +1,7 @@
 import type { LockResult } from '../../core/board';
 import type { Landing, TagGrid } from '../../core/landing';
+import { isCrystal } from '../../core/pieces';
+import { TELEGRAPH_LEAD } from '../../data/balance';
 import {
   piecesLeft,
   type BattleContext,
@@ -81,7 +83,7 @@ export class ContainChallenge implements Challenge {
           const ny = y + dy;
           const cell = grid[ny]?.[nx];
           const key = `${nx},${ny}`;
-          if (cell === undefined || cell === null || cell === 'stone' || seen.has(key)) continue;
+          if (!isCrystal(cell ?? null) || seen.has(key)) continue;
           const t = tags[ny]?.[nx] ?? null;
           if (t === 'hazard') continue;
           seen.add(key);
@@ -97,9 +99,7 @@ export class ContainChallenge implements Challenge {
     const board = this.ctx.board;
     const taken: [number, number][] = [];
     for (let i = 0; i < count; i++) {
-      const options = this.frontier().filter(
-        ([x, y]) => harm || board.tagAt(x, y) !== 'protected',
-      );
+      const options = this.frontier().filter(([x, y]) => harm || board.tagAt(x, y) !== 'protected');
       if (options.length === 0) break;
       const [x, y] = this.ctx.rng.pick(options);
       if (board.tagAt(x, y) === 'protected') {
@@ -156,7 +156,9 @@ export class ContainChallenge implements Challenge {
   }
 
   telegraphs(): readonly Telegraph[] {
-    return this.untilSpread === 1 ? [{ kind: 'cells', what: 'spread', cells: this.frontier() }] : [];
+    return this.untilSpread <= TELEGRAPH_LEAD
+      ? [{ kind: 'cells', what: 'spread', cells: this.frontier(), leadPieces: TELEGRAPH_LEAD }]
+      : [];
   }
 
   /**

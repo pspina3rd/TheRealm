@@ -116,7 +116,8 @@ export class BuildChallenge implements Challenge {
 
   status(): BattleStatus {
     const board = this.ctx.board;
-    if (this.cracks > this.params.crackLimit || this.wobbles > this.params.wobbleLimit) return 'lost';
+    if (this.cracks > this.params.crackLimit || this.wobbles > this.params.wobbleLimit)
+      return 'lost';
     if (this.filled(board.grid) === this.outline.size) return 'won';
     if (board.toppedOut || !board.active) return 'lost';
     return 'ongoing';
@@ -136,8 +137,7 @@ export class BuildChallenge implements Challenge {
   hint(landing: Landing): number {
     const wobble = this.wobbly(landing.placed) ? 1 : 0;
     const cracks = this.cracksOn(landing.grid);
-    const over =
-      cracks > this.params.crackLimit || this.wobbles + wobble > this.params.wobbleLimit;
+    const over = cracks > this.params.crackLimit || this.wobbles + wobble > this.params.wobbleLimit;
     return over ? -1000 : 3 * this.filled(landing.grid) - 12 * cracks - 30 * wobble;
   }
 }
