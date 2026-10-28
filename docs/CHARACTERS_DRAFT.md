@@ -9,6 +9,14 @@ this draft; this document does not merge their implementation into GetPutTaco.
 [STORY_ARC.md](STORY_ARC.md) fixes the major beats. [STORY_OUTLINE_DRAFT.md](STORY_OUTLINE_DRAFT.md)
 contains proposals, not additional established history. No dialogue is drafted
 here. Existing lines cited as evidence remain unchanged.
+New scene dialogue is now collected in [DIALOGUE_DRAFT.md](DIALOGUE_DRAFT.md).
+
+The team's [encounter appendix at d14b3c4](https://github.com/pspina3rd/TheRealm/blob/d14b3c4f6bb173986e05af4ce89e9895c437a34b/docs/ENCOUNTER_DESIGN.md)
+provides Irdrath, the seven singers of the Lishal, the Malificat, Odile,
+and Ketter. The Malificat name is described there as decided; the second-half
+encounter mechanics are explicitly non-binding. These profiles replace the
+earlier invented Sluice Warden and Cantor identities. Their new roles and
+motives remain proposed rather than established by that appendix.
 
 The [scene treatment](SCENES_DRAFT.md) now puts these pressures into actions
 and decisions across the second half. Its selected outcomes remain proposals.
@@ -115,7 +123,9 @@ These are individual pressures, not fixed moral traits of a class.
 the serpent's whisper, and bowed. They insult and test the hero, offer lore,
 remember life in the sun, and can find the hero's ability interesting. Their
 language treats the Wyrm as Master. The approved later duel and final form do
-not establish why Vesper transforms or whether they survive.
+not establish why Vesper transforms or whether they survive. The team's
+encounter document names the evolved final form the Malificat. Vesper must
+remain recognizable within it; the form is not a new unrelated antagonist.
 
 **Proposed person and motivation:** a capable observer who values nerve and
 intelligence even in an enemy. They want their allegiance to have been a
@@ -188,7 +198,7 @@ working without its permission. Do not invent a human grief to excuse it.
 **Choices and progression:** after 50%, it offers information and power in
 exchange for specific concessions. It exploits Vesper's ambitions rather than
 creating them. Its proposed acceptance of Vesper's offer must occur before
-the Cantor's relay closes. At the final confrontation, containment removes an
+the Lishal's relay closes. At the final confrontation, containment removes an
 escape option, not its responsibility for the choices it still makes. The
 hero threatens both its plans and its claim to be necessary.
 
@@ -233,6 +243,11 @@ If the connection is adopted, affection can make them delay acknowledging
 Vesper's deliberate harm; growth means protecting the gathered people even
 when that limits their chance of rescuing Vesper. Relief at the hero's return,
 anger at Vesper's choice, and hope for them can coexist without a tidy speech.
+The [dialogue draft](DIALOGUE_DRAFT.md) proposes that Fennick stays at the
+wickless lantern when Vesper recognizes them during the final battle.
+Maintaining that station makes their care for everyone present a costly
+action. The team's Resurrection phrase is used without an invented
+translation; making Fennick its speaker remains a proposal.
 
 **Voice:** practical, attentive, and capable of ordinary warmth. Explain a step
 because someone needs to perform it; answer the question actually asked.
@@ -241,69 +256,78 @@ Avoid priestly slogans, detached commands to finish a fight, and metaphors
 standing in for an explanation of the rite. These are proposed constraints,
 not evidence that the existing Fennick already speaks this way.
 
-## Boss 2 — proposed Sluice Warden
+## Boss 2 — Irdrath
 
-**Established:** only Boss 2's placement near 62%. Name, occupation, and setting
-remain proposals. The outline makes them responsible for inhabited reservoirs.
+**Source and proposal:** the approved arc places Boss 2 near 62%; the team's
+non-binding appendix describes Irdrath as ash, smoke, and a buried Firstcoal.
+His role heating the cistern works and caring for sleeping residents is
+proposed here. No human occupation, former family, or origin is assumed.
 
-**Proposed person and motivation:** an experienced keeper who knows water
-levels, individual chambers, and daily supply needs. They want sleeping
-residents protected and the reservoir under their control. They need an
-independent drainage route and other competent people, but fear any opened
-channel will carry the threat inward. They can recognize awake residents'
-thirst while still denying a request. That contradiction has victims and
-requires choices; it is not solved by announcing good intentions.
+**Want and need:** keep the sleeping chambers beside his heat and retain
+control of the Firstcoal's warmth. He knows which chambers are cold and
+reacts immediately to a dangerous joint. He needs other people to carry
+residents beyond a place he can tend himself. Fear of the cold outside his
+reach makes him deny water and seal routes in hardening ash. His protection
+has become possession; its bodily expression is part of the character.
 
-**Choices and progression:** initially show competent protection alongside
-harmful rationing. Let them examine the hero's alternative before rejecting
-it. They choose force when they cannot retain sole authority at 62%. If they
-survive defeat, they must help repair the consequences rather than receive
-instant forgiveness. The hero challenges their decisions, not their right to care.
+**Choices and progression:** examine the safe trial drain, then reject the
+transfer despite its success. Force follows that decision. Freeing the
+Firstcoal disrupts his control without removing it as loot or destroying
+the chambers. Proposed aftermath: diminished smoke clears the arch for the
+carriers, while Irdrath still worries about cold feet and chamber nine.
+He yields a task to Odile rather than receiving automatic absolution.
 
-**Voice:** quantities, names, routes, permission, consequences. Knowledge
-should make arguments specific. Fear makes them repeat requirements and
-interrupt reports they dislike. Avoid mystical riddles or generalized threats;
-they must be able to tell the player exactly what they believe will happen.
+**Voice:** spare, exact observations about pressure, heat, draughts, and
+particular sleepers. Alarm cuts his sentences short. His knowledge should
+sound lived in his material surroundings; avoid human bureaucracy, generic
+fire threats, or an invented sorrow explaining why an elemental can care.
 
-## Boss 3 — proposed Cantor
+## Boss 3 — the Lishal
 
-**Established:** only Boss 3's placement near 82%. The name, architecture role,
-and commitment to enforced sleep are proposals requiring review.
+**Source and proposal:** the approved arc places Boss 3 near 82%; the team's
+non-binding appendix identifies seven singers, one per colour and column.
+Their communal care, sounding frame, and commitment to imposed sleep are
+proposed dramatic roles. They are not one human architect with seven mouths.
 
-**Proposed person and motivation:** a skilled organizer who values orderly
-work and can provide genuine comfort, but insists on deciding what others
-should want. They want the relay completed and permanent sleep accepted as
-the realm's answer to suffering. They need collaborators yet treat disagreement
-as a problem to correct. Their fear is watching a person understand the offer
-and refuse it; that refusal makes coercion impossible to describe as consent.
-No invented personal tragedy is required to explain their conviction.
+**Want and need:** together, complete the relay and make lasting sleep the
+realm's answer to suffering. Individual singers tend meals, hands, bedding,
+doors, and machinery. Their useful work requires trust and coordination;
+they need to accept that someone can understand their offer and refuse it.
+Collective certainty lets each evade responsibility for overruling that person.
+Neither a shared childhood nor seven invented tragedies is needed.
 
-**Choices and progression:** at 77–82%, show both the useful infrastructure
-and the cost of its imposed purpose. The hero can preserve those uses while
-refusing the Cantor's authority. The Cantor knowingly chooses enforcement,
-unlike the Warden's defensive rationing. Defeat closes the relay; it does
-not transfer responsibility to the Master or provide a repentant speech by default.
+**Choices and progression:** one singer argues that a worker should be
+allowed to leave, then consciously rejoins the frame when the doors are
+forced open. Another reaches toward an injured worker but returns to the
+crystals. At the manual override all seven choose to begin again, even after
+their rooms are empty. Unlike Irdrath's defensive hoarding, their coercion
+deliberately reaches new people. Defeat breaks the relay; it neither transfers
+blame to the Master nor supplies a repentant speech.
 
-**Voice:** composed, persuasive, attentive to discomfort and practical
-objections; the coercion appears in how they answer refusal. Under pressure,
-reassurance becomes correction and then a direct order. Avoid a detached
-philosophy lecture. Every claim should concern someone present, a task under
-way, or a consequence the player has actually encountered.
+**Voice:** individual practical answers before a collective command. Their
+unison should mark a decision, not replace conversation throughout. Disagreement
+must be audible and consequential even when the group ultimately enforces
+its will. Keep their claims about a person present or work underway rather
+than staging a detached debate about the value of suffering.
 
 ## Proposed recurring underground residents
 
-**Neri, waterkeeper:** introduced in the Sunken Archive, she wants her refuge
+**Odile, proposed waterkeeper:** the team names Odile in its second-half
+appendix; this draft introduces her in the Sunken Archive. She wants her refuge
 ready to leave for safer housing, including residents who cannot walk out
 themselves. She needs partners who will finish a job after getting the
 directions they came for. Her packed belongings show a personal wish to be
 gone as well as a responsibility to stay. Initial distrust becomes measured
-cooperation with the hero; resisting the Warden means taking responsibility
+cooperation with the hero; resisting Irdrath means taking responsibility
 for a transfer herself. At the ascent she directs it, rather than waiting
 to be rescued again. Her voice should concern particular people, loads,
 water, and arrangements; frustration makes her cut a conversation short
 to resume work. No sleeping relative or tragic history is assumed.
 
-**Tams, bellwright:** introduced in the Bell Hollows, they want a relief
+**Ketter, proposed bellwright and lampkeeper:** the team's appendix associates
+Ketter with lamps in the Vesper duel. This draft first meets them stranded
+in the Glass Warrens, then develops their workshop in the Bell Hollows.
+They want a relief
 operator so they can leave their workshop without stranding the workers
 who rely on its signals. They need to let a competent person finish a task
 without correcting them. A cold meal and interrupted packing establish
@@ -314,7 +338,8 @@ people compete. At the ascent they can trust another operator while doing
 their own work. Practical detail and dry impatience fit them; their bells
 are equipment with a civic purpose, not an excuse for constant metaphors.
 
-Both are new proposals. Their work and housing are part of the ending;
+Their names come from the team; these roles and personal pressures are new
+proposals. Their work and housing are part of the ending;
 their sole purpose is not to certify the hero's goodness or dispense lore.
 
 ## Before writing a scene

@@ -2,8 +2,9 @@
 
 This records Philip Spina's approved story structure. It governs the full
 campaign; [STORY.md](STORY.md) contains the existing first-half dialogue.
-The expanded second-half scenes and dialogue still need to be written and
-implemented. The monomyth is the underlying narrative framework.
+The expanded second-half scenes and dialogue now have working drafts;
+they have not been implemented or approved as final script. The monomyth
+is the underlying narrative framework.
 
 A proposed [second-half outline](STORY_OUTLINE_DRAFT.md) is available for
 review. Its new names, lore, and mechanisms are draft proposals;
@@ -58,6 +59,11 @@ characters. Its Wyrm survives and sleeps, some sleepers stir, and the voice
 speaks again at Sevenstones. Preserve those details in the continuation.
 
 ## Next writing deliverable
+
+The [complete first dialogue draft](DIALOGUE_DRAFT.md) now covers the
+continuation through the final form and recovery, with independent
+[voice and continuity review](dialogue/REVIEW_NOTES.md). New story details
+remain proposals. Checkpoint history is in [BUILD_LOG.md](BUILD_LOG.md).
 
 Develop the characters before writing dialogue. Consult the existing script,
 then establish who each person is, what they want, what they need, what they

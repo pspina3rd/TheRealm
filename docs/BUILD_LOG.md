@@ -42,3 +42,33 @@ checkpoint, so unfinished work is preserved without depending on a chat summary.
   “Ves, en.” is quoted from the encounter appendix without a translation.
 - In progress: final return/rite review and alignment of the planning docs.
   Nothing from the proposed second half has been added to production code.
+
+### Final writing checkpoint · review resolved
+
+- Pushed the complete dialogue sequence before final review as `6e456f5`.
+- Completed scenes 02–18 across three script files, indexed by
+  [DIALOGUE_DRAFT.md](DIALOGUE_DRAFT.md). Scene 01 retains the team's existing
+  Wyrm fall and Chapter One ending.
+- Aligned character foundations, regional outline, and scene treatment with
+  Irdrath, the seven Lishal singers, the Malificat, Odile, and Ketter. Removed
+  the competing invented boss/resident names from active planning.
+- Independent final review found no remaining blocking voice or continuity
+  issues after revisions. Findings and resolutions are saved in
+  [REVIEW_NOTES.md](dialogue/REVIEW_NOTES.md). This is a writing-draft verdict,
+  not a claim that proposed mechanics or story choices are approved.
+- Validation: scenes 02–18 occur once in order; local document links resolve;
+  all seven mentor speeches match the team source verbatim; whitespace checks
+  pass. First-half STORY.md, production code, and tests remain unchanged.
+- No runtime tests were needed for these documentation-only changes.
+- The writing pass is complete. Gameplay implementation of the proposed
+  second half, encounter tuning, rotating NPC barks, and playtesting are
+  separate remaining work; this checkpoint does not claim those are done.
+
+## Resuming safely after a limit or restart
+
+Start with this log, `git status --short`, and the remote GetPutTaco head.
+Read the dialogue index and final review before changing the script. Confirm
+the latest team source before carrying forward names or mechanics. Commit
+each working step and push the checkpoint with an expected-head check;
+never force past someone else's branch update. Agents save to their assigned
+files; the coordinator commits named paths and publishes committed snapshots.

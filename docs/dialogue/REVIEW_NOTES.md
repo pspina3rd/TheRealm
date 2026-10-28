@@ -137,3 +137,83 @@ staged or required, or the line must be conditional on an actual visit.
 The script should not supply unseen eyewitness knowledge merely to reassure
 Rowan. A crate-stacking action before Bean's rebuke would also give that
 otherwise natural exchange a clearer physical target.
+
+## Dialogue review — full return draft, scenes 14–18
+
+The emotional actions are sound: Fennick searches the account for room to
+hope, accepts a helper's correction, stays at the station, and respects
+Vesper's refusal of touch afterward. Rowan's worry becomes work, then a
+practical plan to visit his son. No unintended sexual phrasing was found.
+Vesper remains accountable and recognizable after the final-form battle;
+survival is neither automatic redemption nor a promise made for the victims.
+
+Requested revisions before closing review:
+
+1. The small test holds generated pale light, not demonstrably the live
+   voice. Fennick's “The test held it” overstates what was established.
+   Distinguish the successful test from the recovered instructions' claim
+   that the rite contains the voice. The first live recoil can then provide
+   confirmation instead of an unearned guarantee during preparation.
+2. The Resurrection staging says the hero cannot make out a safe landing.
+   The team's encounter design explicitly preserves the skyline and ghost
+   landing through darkness, and Malificat pressure is visual rather than
+   changed controls. Keep pressure, desaturation, chains, and preview fog
+   compatible with that readability; do not introduce blind placement.
+3. The final form removes Vesper's “former tremor,” but no earlier tremor
+   has been established. Remove that phrase rather than invent an ailment
+   or borrow Torva's bodily concern as Vesper's motivation.
+4. A settled refuge bag should be able to be unpacked, not “stay unpacked”
+   when it has remained packed throughout the journey.
+
+The prepared lantern and visible matching diagram seed the later assistance.
+The exact source phrase is not translated or assigned an invented etymology.
+The proposed Fennick speaker and tentative six-row effect remain clearly
+labelled. The hero still wins the fight; the lantern does not end it remotely.
+The separated voice stays within the inner ward while people leave, and
+the ward is then sealed. There is no extra Master encounter.
+
+## Follow-up — depths and shared planning documents
+
+The requested discoveries are now staged before Boss 3: the correspondence
+has the incomplete lower return and the inspection diagram completes it;
+the hero copies the connections. The bridge release triggers a loading-door
+hazard, so holding the brake protects the workers during Vesper's decision.
+Those two substantive scene-logic issues are resolved.
+
+The shared character foundations, regional outline, and treatment now use
+Irdrath, the Lishal, the Malificat, Odile, and Ketter with source/proposal
+boundaries intact. Old placeholder names appear only in historical notices.
+The revised profiles give Irdrath elemental habits and the Lishal collective
+choices rather than relabeling the old human villains. Final lantern-test
+and return-scene revisions remain with root for the closing check.
+
+## Closing review — revised draft
+
+Re-read the complete return draft after revisions. The eyewitness visit at
+Pete's inn is explicit, the crate rebuke has a visible action, and the
+unestablished tremor and packed-bag contradiction are removed. Fennick now
+distinguishes the instructions' claim about the voice from the light test
+they actually observed. The live boundary recoil and eventual containment
+provide later confirmation. The Resurrection direction preserves controls,
+skyline, and current-piece landing visibility while retaining the tentative
+chains, desaturation, and preview-fog effect.
+
+No blocking continuity or voice issue remains in the saved scenes 02–18.
+The exchanges have concrete immediate concerns; the main cast does not
+share one detached explanatory voice. No unintended sexual phrasing was
+found. The hero's worker-rescue choice explains Vesper's head start, the
+relay procedure is discovered on screen, and acceptance precedes relay
+closure. Boss order, the rite, the Malificat finale, and staged recovery
+follow the approved arc. Optional mentor relationships and all-class
+fallbacks are explicit; the hero does not promise forgiveness for others.
+
+Validation: dialogue scene IDs are sequential from 02 through 18 (01 uses
+the existing team scene), all relative links in the dialogue folder resolve,
+and all seven quoted Road Back rows match the team's source text, with only
+quotation-mark typography normalized for comparison.
+
+This is a reviewed writing draft, not a production-readiness verdict.
+Fennick's identification and relationship, resident roles, Irdrath's regional
+motives, the Lishal's social role, the rite and lantern interpretation,
+renewed stone drain, and Vesper's surviving fate remain proposed. Exact
+encounter behavior still requires its implementation and playtesting stage.

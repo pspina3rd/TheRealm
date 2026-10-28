@@ -180,7 +180,8 @@ the thread stays within. Fennick ends the test. The light subsides.*
 
 **Hero:** If Vesper falls, the voice will try to leave again.
 
-**Fennick:** It'll stay inside the ward. The test held it. You walked out.
+**Fennick:** The records say the voice can't cross the ring. That light
+stayed put when you walked out.
 
 **Vale:** And if Vesper doesn't fall?
 
@@ -204,8 +205,8 @@ waits at the entrance until Ketter has finished checking the last frame.*
 ### Before the final battle
 
 *Inside the ward, light moves beneath Vesper's skin. Their shape stretches
-as seven streams draw together. They watch their own hand open without
-its former tremor, then turn it toward the hero.*
+as seven streams draw together. They watch their own hand open, then turn
+it toward the hero.*
 
 **Vesper:** You should have stayed to watch.
 
@@ -240,9 +241,14 @@ voice using an unconscious body. No independent Master boss follows.*
 
 ### The lantern — the encounter appendix's Resurrection beat
 
-*Late in the battle, the Malificat's pressure blots out the floor. The hero
-cannot make out a safe landing. At the outer ring Fennick leans into the
-brass frame; the light tested during preparation swells within it.*
+*Late in the battle, colour drains from the chamber and spectral chains
+flicker across the hero's hands. The hero keeps moving under the Malificat's
+assault. At the outer ring Fennick leans into the brass frame; the light
+tested during preparation swells within it.*
+
+*Encounter direction: the chains are visual only; controls, the skyline,
+and the current piece's landing guide remain clear. Any obscured upcoming
+pieces follow the tentative preview-fog design, not a hidden landing.*
 
 **Fennick:** Ves, en.
 
