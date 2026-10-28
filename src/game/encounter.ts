@@ -16,13 +16,14 @@ import {
   dealTerms,
   introFor,
   lineKey,
+  moodFor,
   rewardsOnTerms,
   say,
   type Attitude,
 } from './attitude';
 import { FINALE_FLAG, epilogueFor, type Epilogue } from './ending';
 import { hiddenSlots, type HiddenSlot } from './hidden';
-import { noteSaid, pickVariant, variantsOf } from './lines';
+import { noteSaid, pickVariant, sayable, variantsFor, variantsOf } from './lines';
 import { mentorGreeting } from './mentorLines';
 import { preludeFor } from './story';
 import { addItem, gainXp, itemCount, removeItem } from './hero';
@@ -271,6 +272,14 @@ function resolveLesson(
   };
 }
 
+/** What an NPC says on a won challenge, never a line of theirs that no longer fits (`unsaid`). */
+function winSpeech(state: GameState, npc: NpcDef, terms: Attitude, knewSpell: boolean): string {
+  const winKnown = npc.lines.winKnown && sayable(npc.lines.winKnown, npc.unsaid);
+  return knewSpell && winKnown && variantsFor(winKnown, moodFor(terms)).length > 0
+    ? say(winKnown, terms, state.talk, lineKey(npc, 'winKnown'))
+    : say(sayable(npc.lines.win, npc.unsaid), terms, state.talk, lineKey(npc, 'win'));
+}
+
 function resolveCombat(
   state: GameState,
   entity: EntityDef,
@@ -348,10 +357,7 @@ function resolveNpc(
   return {
     ...ended,
     gains: [...given, ...outcome.gains],
-    speech:
-      knewSpell && npc.lines.winKnown
-        ? say(npc.lines.winKnown, terms, state.talk, lineKey(npc, 'winKnown'))
-        : say(npc.lines.win, terms, state.talk, lineKey(npc, 'win')),
+    speech: winSpeech(state, npc, terms, knewSpell),
     shopId: outcome.shopId,
     priceMultiplier: (haggle?.multiplier ?? 1) * ATTITUDE_PRICES[terms],
   };

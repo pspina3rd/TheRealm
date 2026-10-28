@@ -162,6 +162,8 @@ export interface SceneBeat {
   readonly who?: string;
   /** The hero's own line here, by class id. */
   readonly classLines?: Readonly<Record<string, string>>;
+  /** An item handed to the hero here (once ever: never to a hero who has one). */
+  readonly gives?: string;
 }
 
 /**
@@ -224,8 +226,9 @@ export const OPENING: SceneDef = {
 
 /**
  * The Refusal: the first time the hero leaves Mossvale, just before Vision
- * 1. Rowan's rune stone is the Focus Stone (`wellStone`), but the scene
- * grants nothing: the stone stays the reward for his well.
+ * 1. In R4 Rowan gives the hero his rune stone, the Focus Stone
+ * (`wellStone`), unless they already have one (an old save that had it
+ * from his well): never a second stone.
  */
 export const REFUSAL: SceneDef = {
   id: 'refusal',
@@ -258,6 +261,7 @@ export const REFUSAL: SceneDef = {
       stage: '*He presses the old rune stone into your palm.*',
       line: '"Found this the year I dug the well. Never knew what it was for. Maybe it was for this."',
       who: ROWAN,
+      gives: 'wellStone',
     },
   ],
 };

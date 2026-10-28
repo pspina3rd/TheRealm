@@ -452,8 +452,12 @@ export class App {
         this.showInterlude(scene.title, page.text, () => show(i + 1), page.speaker);
         return;
       }
-      finishScene(this.state, scene);
+      // Rowan's Focus Stone in the Refusal, unless the hero has one.
+      for (const itemId of finishScene(this.state, scene)) {
+        this.say(`${ITEMS[itemId]?.name ?? itemId} received`, itemIcon(itemId));
+      }
       this.save();
+      this.renderHud();
       if (scene.id === CHAPTER_END.id) {
         this.showEpilogue(epilogueFor(this.state.hero), () => this.playScenes(then));
       } else this.playScenes(then);

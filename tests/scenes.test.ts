@@ -18,8 +18,8 @@ import {
 } from '../src/data/story';
 import { attitudeToward, moodFor } from '../src/game/attitude';
 import { resolveBattle } from '../src/game/encounter';
-import { learnSpell } from '../src/game/hero';
-import { speak, variantsOf, type Mood } from '../src/game/lines';
+import { addItem, equip, itemCount, learnSpell } from '../src/game/hero';
+import { sayable, speak, variantsOf, type Mood } from '../src/game/lines';
 import { mentorGreeting, mentorMoment, metFlag } from '../src/game/mentorLines';
 import { deserialize, serialize } from '../src/game/save';
 import { arrive, dueScenes, finishScene, migrateScenes, scenePages } from '../src/game/story';
@@ -101,16 +101,38 @@ describe('the Refusal', () => {
     expect(dueScenes(state.flags)).toEqual([]);
   });
 
-  it('grants no Focus Stone: the stone stays Rowan’s reward for the well', () => {
+  it('gives the Focus Stone in R4, once', () => {
     const state = newGame('ranger');
     leaveMossvale(state);
-    const items = structuredClone(state.hero.items);
-    finishScene(state, REFUSAL);
-    expect(state.hero.items).toEqual(items);
-    expect(NPCS.elder!.rewards).toContainEqual(
-      expect.objectContaining({ instead: { kind: 'item', itemId: 'wellStone', count: 1 } }),
-    );
-    expect(REFUSAL.beats[3]!.line).toContain('Found this the year I dug the well.');
+    expect(REFUSAL.beats[3]).toMatchObject({ gives: 'wellStone' });
+    expect(finishScene(state, REFUSAL)).toEqual(['wellStone']);
+    expect(itemCount(state.hero, 'wellStone')).toBe(1);
+    expect(finishScene(state, REFUSAL)).toEqual([]);
+    expect(itemCount(state.hero, 'wellStone')).toBe(1);
+  });
+
+  it('never gives a second stone: R4 still plays, but grants nothing to a hero with one', () => {
+    for (const worn of [false, true]) {
+      // An old save that had the stone from Rowan's well, in the bag or worn.
+      const state = asVersion(newGame('knight'), 8);
+      addItem(state.hero, 'wellStone');
+      if (worn) equip(state.hero, 'wellStone');
+      leaveMossvale(state);
+      expect(dueScenes(state.flags)).toEqual([REFUSAL]);
+      expect(scenePages(REFUSAL, state.hero)).toHaveLength(4);
+      expect(finishScene(state, REFUSAL)).toEqual([]);
+      expect(itemCount(state.hero, 'wellStone')).toBe(worn ? 0 : 1);
+    }
+  });
+
+  it('the well no longer pays with the stone', () => {
+    const rewards = JSON.stringify([NPCS.elder!.rewards, NPCS.elder!.bonus, NPCS.elder!.secret]);
+    expect(rewards).not.toContain('wellStone');
+    // Every unsaid line is one of his own, kept word for word.
+    const all = JSON.stringify(NPCS.elder!.lines);
+    for (const line of NPCS.elder!.unsaid!)
+      expect(all).toContain(JSON.stringify(line).slice(1, -1));
+    expect(sayable('a', ['a'])).toEqual([]);
   });
 
   it('has Innkeeper Pete speak of Rowan’s boy among his Neutral and Friendly greetings', () => {

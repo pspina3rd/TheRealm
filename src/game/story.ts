@@ -21,7 +21,7 @@ import {
 } from '../data/story';
 import type { NpcEntity } from '../world/map';
 import type { GameState } from '../world/state';
-import { heroClass, type Hero } from './hero';
+import { addItem, heroClass, itemCount, type Hero } from './hero';
 import { pickVariant, variantsOf, type LineMemory } from './lines';
 
 /** The voice the Moon Wyrm's words rotate under, visions and lair alike. */
@@ -180,9 +180,26 @@ export function dueScenes(flags: ReadonlySet<string>): SceneDef[] {
   );
 }
 
-/** The hero has seen the whole scene. It grants nothing: a scene only tells. */
-export function finishScene(state: GameState, scene: SceneDef): void {
+/** True when the hero holds `itemId`, in the bag or worn. */
+function owns(hero: Hero, itemId: string): boolean {
+  return (
+    itemCount(hero, itemId) > 0 || [hero.weaponId, hero.armorId, hero.accessoryId].includes(itemId)
+  );
+}
+
+/**
+ * The hero has seen the whole scene: it is marked seen, and what its beats
+ * give is handed over, each item only to a hero without one (so never a
+ * second). Returns the items given.
+ */
+export function finishScene(state: GameState, scene: SceneDef): string[] {
+  if (state.flags.has(scene.flag)) return [];
   state.flags.add(scene.flag);
+  const given = scene.beats.flatMap((beat) =>
+    beat.gives !== undefined && !owns(state.hero, beat.gives) ? [beat.gives] : [],
+  );
+  for (const itemId of given) addItem(state.hero, itemId);
+  return given;
 }
 
 /** One interlude of a scene: its words and who says them (null for narration alone). */

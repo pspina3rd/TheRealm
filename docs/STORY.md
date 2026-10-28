@@ -75,7 +75,7 @@ Arcane · Final Boss · Guardian of the Moon Caves
 
 ### Elder Rowan
 
-Earth · Puzzle · Reward: the Quake spell (or 1× Well Stone if known); Friendly bonus: 1× Ether; Devoted secret: 1× Spore Cap
+Earth · Puzzle · Reward: the Quake spell (or 40 gil if known); Friendly bonus: 1× Ether; Devoted secret: 1× Spore Cap
 
 | Moment | Hostile / Wary | Neutral | Friendly / Devoted |
 | --- | --- | --- | --- |
@@ -135,7 +135,7 @@ Nature · Haggle · Reward: opens their shop
 
 ## The Refusal
 
-Shown once, the first time the hero leaves Mossvale, just before Vision 1. The rune stone of R4 is Rowan's Focus Stone: the scene grants nothing, and the stone stays his reward for the well.
+Shown once, the first time the hero leaves Mossvale, just before Vision 1. The rune stone of R4 is Rowan's Focus Stone: the hero receives it here (unless they already have one), and his well pays coin instead.
 
 ### The Refusal: beats R1–R4
 

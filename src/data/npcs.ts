@@ -122,11 +122,21 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       {
         kind: 'spell',
         spellId: 'quake',
-        instead: { kind: 'item', itemId: 'wellStone', count: 1 },
+        // His rune stone, the Focus Stone, is given in the Refusal instead.
+        instead: { kind: 'gil', amount: 40 },
       },
     ],
     bonus: { kind: 'item', itemId: 'ether', count: 1 },
     secret: { kind: 'item', itemId: 'sporeCap', count: 1 },
+    // He gives his rune stone in the Refusal now, so the well pays coin:
+    // the lines handing over a stone are no longer said.
+    unsaid: [
+      'Hear that sloshing? That’s clean water, pure and simple. Here—take the old rune stone like I promised. Better in your hands than gathering dust.',
+      'Listen to that flow! Like mountain runoff! I owe you big for this—take the Focus Stone, and you drink free in Mossvale as long as I’m breathing.',
+      "Water's clear. You already know how to shake the earth, so take this raw stone from the first dig instead.",
+      "The spring's back! Since you're already familiar with the Quake spell, take a piece of the original quartz vein as a reward.",
+      "Pure water again! You're already a master of the earth magic, so keep this raw well-stone—a little piece of Mossvale history for your journey!",
+    ],
     repeatable: false,
   },
   farmer: {

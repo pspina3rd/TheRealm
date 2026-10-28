@@ -748,7 +748,7 @@ every bag. Ember (fire) sells in Mossvale; Ember, Tide (water), Storm
 (lightning) and Wind sell at the Brightwater smithy. The Storm Charm undoes
 the Moon Caves' lightning penalty, which matters against the
 lightning-weak Shade Imp and Moon Wyrm. The rest come from people: the
-Focus Stone (earth) from Elder Rowan, for a hero who already knows Quake;
+Focus Stone (earth) from Elder Rowan in the Refusal;
 the Grove Charm (nature), the Moon Charm (arcane) and Pip's Wind Charm as
 Devoted secrets (see [NPCs and attitude](#npcs-and-attitude)).
 
@@ -917,7 +917,7 @@ takes real growth. A hero deep in the two elements that beat an NPC's
   lines. The tests check every flag a warp or hidden spell needs comes from
   such an NPC. Everyone else may refuse; nothing they give is required.
 - **Known spells**: a spell reward names an `instead`, given to a hero who
-  already knows the spell (the Knight gets the Elder's Focus Stone, the
+  already knows the spell (the Knight gets 40 gil from the Elder, the
   Rogue the sage's Storm Charm). A deed is never repaid with nothing.
 - **Things** (the sealed chest) have no face and always deal at Neutral.
 
@@ -1036,7 +1036,7 @@ class lines are said by the hero in their class's own words.
 `dueScenes` (`src/game/story.ts`) lists the scenes due, in order: each not
 yet seen whose `dueWith` flag the hero holds. A scene is marked seen
 (`scene:<id>`) only after its last beat, so a game closed on one shows it
-again from its first beat on the next load. Scenes grant nothing.
+again from its first beat on the next load. A scene grants only what a beat `gives`, when it ends (the Focus Stone in R4).
 
 | Scene                      | Due               | Shown                                                         |
 | -------------------------- | ----------------- | ------------------------------------------------------------- |
@@ -1045,11 +1045,16 @@ again from its first beat on the next load. Scenes grant nothing.
 | The Moon Wyrm's fall (1–3) | with `wyrmBeaten` | after the Wyrm's results (and the skill screen on a level-up) |
 | End of Chapter One (1–6)   | with `wyrmBeaten` | straight after the fall, then the Chapter One summary         |
 
-**The Focus Stone rule**: Rowan's rune stone in R4 is his Focus Stone
-(`wellStone`), which is also his well's reward (instead of Quake when
-the hero knows it). The Refusal grants nothing: R4's words and stage
-direction are said as written, and the stone stays his errand's reward,
-so there is never a second stone and his reward is unchanged.
+**The Focus Stone rule**: in R4 Rowan gives the hero his rune stone, the
+Focus Stone (`wellStone`, a beat's `gives`), handed over when the scene
+ends, and only to a hero who has none in the bag or worn: an old save that
+had it from his well (the old reward) still sees R4 but gets no second
+stone. His well now pays the Quake spell, or 40 gil to a hero who knows it.
+His success lines that hand over a stone (one plain and one warm "You
+succeed" variant, and all three "already knowing the spell" cells) are
+kept word for word but never said (`NpcDef.unsaid`): he says his other
+success line instead, and a hero who knows Quake hears his usual success
+lines.
 
 Innkeeper Pete's line on Rowan's son (Hareguy) is one more of his
 Neutral and Friendly greetings, rotating with the others.
