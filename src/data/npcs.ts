@@ -128,6 +128,16 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     ],
     bonus: { kind: 'item', itemId: 'ether', count: 1 },
     secret: { kind: 'item', itemId: 'sporeCap', count: 1 },
+    // Said only until he gives his stone away in the Refusal: "Still keep it
+    // on the mantle", and (until the author approves its replacement) his
+    // Devoted promise of the stone.
+    saidUntil: {
+      flag: 'scene:refusal',
+      lines: [
+        "I don't hand this out to just anyone, but you've been decent to us. Clear the shaft, and I'll give you the Focus Stone I used to break the bed forty years back.",
+        'Forty years ago I hit granite trying to dig this hole. Had to crack the bed with a rune stone I found in the dirt. Still keep it on the mantle.',
+      ],
+    },
     // He gives his rune stone in the Refusal now, so the well pays coin:
     // the lines handing over a stone are no longer said.
     unsaid: [
@@ -833,7 +843,9 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       { kind: 'gil', amount: 40 },
     ],
     bonus: { kind: 'item', itemId: 'ether', count: 1 },
-    secret: { kind: 'item', itemId: 'wellStone', count: 1 },
+    // Dorn's crate: three Ethers (worth 42 gil, near the 40 of the Focus
+    // Stone it replaces; there is one Focus Stone in the game, Rowan's).
+    secret: { kind: 'item', itemId: 'ether', count: 3 },
     essential: true,
     repeatable: false,
   },

@@ -178,7 +178,8 @@ describe('save validation: stale entries are repaired, not fatal', () => {
     delete old.talk;
     const loaded = load(old)!;
     expect(loaded.hero.mana.fire).toBe(5);
-    expect(loaded.hero.items).toEqual({ herb: 1 });
+    // Past the Refusal it never saw, it still gets Rowan's Focus Stone.
+    expect(loaded.hero.items).toEqual({ herb: 1, wellStone: 1 });
     // migrateFlags (the Cave Pass opens the new road) and migrateStory (visions seen).
     expect(
       ['ridgeCleared', 'peakGate', 'vision:1', 'vision:3'].every((f) => loaded.flags.has(f)),

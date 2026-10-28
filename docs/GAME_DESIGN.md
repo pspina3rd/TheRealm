@@ -955,7 +955,7 @@ speaker rotates through, and `*stage directions*` (see [Story](#story)).
 | Sealed Chest          | Arcane    | (a thing)                                 | Puzzle: break the seal         | Phoenix Feather, 2 Moon Shards (a delver's cache) |
 | Forager Wren          | Nature    | Rot ate her mushroom rings (grove)        | Barter: plant 8 green          | 2 Herbs, 15 gil (Herb / Grove Charm)              |
 | Fisher Tam            | Water     | Lurkers tore his nets (lake)              | Barter: weave 8 blue           | 25 gil, Ether (Herb / Tide Charm)                 |
-| Foreman Flint         | Earth     | A rockslide buried the ridge road         | Barter: 10 orange, 6 violet    | Ridge road open, 40 gil (Ether / Focus Stone)     |
+| Foreman Flint         | Earth     | A rockslide buried the ridge road         | Barter: 10 orange, 6 violet    | Ridge road open, 40 gil (Ether / 3 Ethers)        |
 | Apprentice Cinda      | Fire      | Must forge the peak gate's key for Torva  | Barter: 10 red, 6 orange       | Peak gate key, Ether (2 Herbs / Ember Charm)      |
 | Armorer Garrick       | Fire      | The ore is back and his racks are full    | Haggle                         | Forgefyre Armory (secret: Phoenix Feather)        |
 | Innkeeper Rosa        | Fire      | Smiths sleep hard and pay late            | Haggle                         | The Cinder Rest (secret: Ether)                   |
@@ -1045,16 +1045,30 @@ again from its first beat on the next load. A scene grants only what a beat `giv
 | The Moon Wyrm's fall (1–3) | with `wyrmBeaten` | after the Wyrm's results (and the skill screen on a level-up) |
 | End of Chapter One (1–6)   | with `wyrmBeaten` | straight after the fall, then the Chapter One summary         |
 
-**The Focus Stone rule**: in R4 Rowan gives the hero his rune stone, the
-Focus Stone (`wellStone`, a beat's `gives`), handed over when the scene
-ends, and only to a hero who has none in the bag or worn: an old save that
-had it from his well (the old reward) still sees R4 but gets no second
-stone. His well now pays the Quake spell, or 40 gil to a hero who knows it.
-His success lines that hand over a stone (one plain and one warm "You
-succeed" variant, and all three "already knowing the spell" cells) are
-kept word for word but never said (`NpcDef.unsaid`): he says his other
-success line instead, and a hero who knows Quake hears his usual success
-lines.
+**The Focus Stone rule**: there is one Focus Stone (`wellStone`) in the
+game, Rowan's rune stone, and he gives it in R4 (a beat's `gives`, handed
+over when the scene ends). Receiving it sets `got:wellStone`, which is
+never cleared, so it is given once ever: selling it can't earn a second.
+His well now pays the Quake spell, or 40 gil to a hero who knows it, and
+Foreman Flint's Devoted secret, once a Focus Stone, is Dorn's crate of 3
+Ethers (42 gil of value against the stone's 40). An old save (before
+version 9) that holds the stone, in the bag or worn, counts as having
+received it, so it still sees R4 but gets no second; one that is already
+past the Refusal and never had it is handed the stone as it loads, so no
+one loses it.
+
+**Lines that no longer fit** stay in the data word for word, for the
+author, but are not said (`linesNow`): a moment with none left says its
+other lines, falling back like a missing cell, and an "already knowing
+the spell" line with none left says the win line.
+
+- `NpcDef.unsaid`, never said: Rowan's success lines handing over a stone
+  (one plain and one warm "You succeed" variant, and all three "already
+  knowing the spell" cells). He says his other success line instead.
+- `NpcDef.saidUntil`, said only until a flag: Rowan's Neutral confidence
+  "…Still keep it on the mantle." and his Devoted promise "…I'll give you
+  the Focus Stone…" (pending the author's replacement) are said only
+  before the Refusal; afterwards he confides "Truth is, the spores…".
 
 Innkeeper Pete's line on Rowan's son (Hareguy) is one more of his
 Neutral and Friendly greetings, rotating with the others.

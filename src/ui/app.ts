@@ -467,9 +467,9 @@ export class App {
 
   /**
    * An interlude over everything: the screen goes dark for a scene, a
-   * vision or a boss's words, with the speaker's face and name if any. A tap, Enter, Escape or Continue goes on (to `then`, or
-   * back to the map), but not in the first moments, so held keys or taps
-   * can't skip it. Before the Wyrm's fight even Escape goes on to the fight:
+   * vision or a boss's words, with the speaker's face and name if any. A
+   * tap, Enter, Escape or Continue goes on (to `then`, or back to the map),
+   * but not in the first moments, so held keys or taps can't skip it. Before the Wyrm's fight even Escape goes on to the fight:
    * once it has spoken there is no backing away.
    */
   private showInterlude(
@@ -686,7 +686,7 @@ export class App {
       body: epilogueBody(this.atlas, epilogue),
       actions: [{ label: 'Continue', onClick: close }],
       onCancel: close,
-      guardMs: 600,
+      guardMs: RESULT_GUARD_MS,
     });
   }
 

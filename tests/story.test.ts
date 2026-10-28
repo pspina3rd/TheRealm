@@ -322,7 +322,14 @@ describe('save version 8 (story)', () => {
     const quarry = newGame();
     travel(quarry, { map: 'quarry', x: 16, y: 1 });
     expect(old(quarry).flags).toEqual(
-      new Set([reachedFlag('quarry'), 'vision:1', 'vision:2', 'scene:opening', 'scene:refusal']),
+      new Set([
+        reachedFlag('quarry'),
+        'vision:1',
+        'vision:2',
+        'scene:opening',
+        'scene:refusal',
+        'got:wellStone',
+      ]),
     );
     const caves = newGame();
     travel(caves, { map: 'caves2', x: 8, y: 9 });

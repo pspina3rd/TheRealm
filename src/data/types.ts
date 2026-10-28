@@ -357,6 +357,8 @@ export interface NpcDef {
    * a `winKnown` with none left says `win`.
    */
   readonly unsaid?: readonly string[];
+  /** Lines said only until the hero holds `flag`; then the moment's other lines are. */
+  readonly saidUntil?: { readonly flag: string; readonly lines: readonly string[] };
   /** A thing, not a person (a chest): no attitude, always Neutral terms. */
   readonly inanimate?: boolean;
   /** If false, the NPC only challenges once; afterwards `lines.done` is shown. */

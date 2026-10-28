@@ -16,13 +16,21 @@ import {
   WYRM_FALL,
   type SceneDef,
 } from '../src/data/story';
-import { attitudeToward, moodFor } from '../src/game/attitude';
+import { attitudeToward, introFor, linesNow, moodFor, npcNow } from '../src/game/attitude';
+import { SHOPS } from '../src/data/shops';
 import { resolveBattle } from '../src/game/encounter';
-import { addItem, equip, itemCount, learnSpell } from '../src/game/hero';
-import { sayable, speak, variantsOf, type Mood } from '../src/game/lines';
+import { addItem, equip, itemCount, learnSpell, removeItem } from '../src/game/hero';
+import { sayable, speak, variantsFor, variantsOf, type Mood } from '../src/game/lines';
 import { mentorGreeting, mentorMoment, metFlag } from '../src/game/mentorLines';
 import { deserialize, serialize } from '../src/game/save';
-import { arrive, dueScenes, finishScene, migrateScenes, scenePages } from '../src/game/story';
+import {
+  arrive,
+  dueScenes,
+  finishScene,
+  migrateScenes,
+  receivedFlag,
+  scenePages,
+} from '../src/game/story';
 import { newGame, travel, type GameState } from '../src/world/state';
 import { makeBattle } from './helpers';
 
@@ -114,15 +122,43 @@ describe('the Refusal', () => {
   it('never gives a second stone: R4 still plays, but grants nothing to a hero with one', () => {
     for (const worn of [false, true]) {
       // An old save that had the stone from Rowan's well, in the bag or worn.
-      const state = asVersion(newGame('knight'), 8);
-      addItem(state.hero, 'wellStone');
-      if (worn) equip(state.hero, 'wellStone');
+      const before = newGame('knight');
+      addItem(before.hero, 'wellStone');
+      if (worn) equip(before.hero, 'wellStone');
+      const state = asVersion(before, 8);
+      expect(state.flags.has(receivedFlag('wellStone'))).toBe(true);
       leaveMossvale(state);
       expect(dueScenes(state.flags)).toEqual([REFUSAL]);
       expect(scenePages(REFUSAL, state.hero)).toHaveLength(4);
       expect(finishScene(state, REFUSAL)).toEqual([]);
       expect(itemCount(state.hero, 'wellStone')).toBe(worn ? 0 : 1);
     }
+  });
+
+  it('never gives a second stone after the first is sold', () => {
+    const state = newGame('ranger');
+    finishScene(state, OPENING);
+    leaveMossvale(state);
+    expect(finishScene(state, REFUSAL)).toEqual(['wellStone']);
+    removeItem(state.hero, 'wellStone'); // sold
+    const reloaded = deserialize(serialize(state))!;
+    expect(reloaded.flags.has(receivedFlag('wellStone'))).toBe(true);
+    reloaded.flags.delete(REFUSAL.flag); // even were R4 to play again
+    expect(finishScene(reloaded, REFUSAL)).toEqual([]);
+    expect(itemCount(reloaded.hero, 'wellStone')).toBe(0);
+  });
+
+  it('gives an old save past the Refusal that never had the stone one, once', () => {
+    const old = newGame('knight'); // knows Quake: his well would have paid the stone
+    leaveMossvale(old);
+    const loaded = asVersion(old, 8);
+    expect(dueScenes(loaded.flags)).toEqual([]);
+    expect(itemCount(loaded.hero, 'wellStone')).toBe(1);
+    expect(loaded.flags.has(receivedFlag('wellStone'))).toBe(true);
+    const again = deserialize(serialize(loaded))!;
+    expect(itemCount(again.hero, 'wellStone')).toBe(1);
+    // Not yet past it: the Refusal gives it later, as for anyone.
+    expect(itemCount(asVersion(newGame('knight'), 8).hero, 'wellStone')).toBe(0);
   });
 
   it('the well no longer pays with the stone', () => {
@@ -133,6 +169,38 @@ describe('the Refusal', () => {
     for (const line of NPCS.elder!.unsaid!)
       expect(all).toContain(JSON.stringify(line).slice(1, -1));
     expect(sayable('a', ['a'])).toEqual([]);
+  });
+
+  it('there is one Focus Stone in the game: no one else gives or sells one', () => {
+    const elsewhere = JSON.stringify([
+      Object.values(NPCS).map((npc) => [npc.rewards, npc.bonus, npc.secret]),
+      Object.values(SHOPS),
+    ]);
+    expect(elsewhere).not.toContain('wellStone');
+    // Foreman Flint's Devoted secret is Dorn's crate: three Ethers.
+    expect(NPCS.foreman!.secret).toEqual({ kind: 'item', itemId: 'ether', count: 3 });
+  });
+
+  it('Rowan speaks of the stone on his mantle, and promises it, only until he gives it', () => {
+    const mantle = NPCS.elder!.saidUntil!.lines.find((l) => l.includes('on the mantle'))!;
+    const promise = NPCS.elder!.saidUntil!.lines.find((l) =>
+      l.includes('give you the Focus Stone'),
+    )!;
+    const confide = (flags: string[]) => linesNow(NPCS.elder!, new Set(flags)).confide!;
+    const before = confide([]);
+    expect(variantsFor(before, 'plain')).toContain(mantle);
+    expect(variantsFor(before, 'warm')).toEqual([promise]);
+    const after = confide([REFUSAL.flag]);
+    expect(variantsFor(after, 'plain')).not.toContain(mantle);
+    expect(variantsFor(after, 'plain')).toHaveLength(1);
+    // The promise gone, a Devoted hero hears his other confidence.
+    expect(variantsFor(after, 'warm')).toEqual(variantsFor(after, 'plain'));
+    // The text stays as the author wrote it.
+    expect(variantsFor(NPCS.elder!.lines.confide!, 'warm')).toEqual([promise]);
+    // Through an encounter: a Devoted hero after the Refusal.
+    const npc = npcNow(NPCS.elder!, new Set([REFUSAL.flag]));
+    expect(introFor(npc, 'devoted')).toBe(variantsFor(after, 'plain')[0]);
+    expect(npcNow(NPCS.foreman!, new Set())).toBe(NPCS.foreman);
   });
 
   it('has Innkeeper Pete speak of Rowan’s boy among his Neutral and Friendly greetings', () => {
@@ -193,7 +261,7 @@ describe('save version 9 (scenes)', () => {
 
   it('marks every due scene seen', () => {
     const flags = new Set(['vision:1', FINALE_FLAG]);
-    migrateScenes(flags);
+    migrateScenes(flags, newGame().hero);
     expect([...flags].filter((f) => f.startsWith('scene:'))).toEqual([
       OPENING.flag,
       REFUSAL.flag,

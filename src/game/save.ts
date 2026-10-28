@@ -82,9 +82,9 @@ export function serialize(state: GameState): string {
 
 /**
  * Parses a save string in three steps: parse, migrate (flags, the version 8
- * story, the version 9 scenes, the hero), then sanitise. Only structural garbage returns null: not
- * JSON, not an object, an unknown version, or a missing or mistyped core
- * field (map, position, flag list; the hero's name, level, XP, HP, gil and
+ * story, the hero), then sanitise, and last the version 9 scenes (on the
+ * sanitised hero). Only structural garbage returns null: not JSON, not an
+ * object, an unknown version, or a missing or mistyped core field (map, position, flag list; the hero's name, level, XP, HP, gil and
  * skill points). Stale entries are dropped or clamped instead (see
  * `sanitizeHero`), so one removed item never costs the whole adventure.
  */
@@ -105,9 +105,9 @@ export function deserialize(json: string): GameState | null {
     const victories = count(data.victories) ? data.victories : 0;
     const flags = migrateFlags(data.flags.filter((f): f is string => typeof f === 'string'));
     if ((data.version as number) < 8) migrateStory(flags, data.mapId, victories);
-    if ((data.version as number) < 9) migrateScenes(flags);
     const hero = sanitizeHero(migrateHero(data.hero as StoredHero));
     if (!hero) return null;
+    if ((data.version as number) < 9) migrateScenes(flags, hero);
     const respawn = standable(data.respawn) ? data.respawn : { ...START };
     const here = { map: data.mapId, x: data.x, y: data.y };
     const spot = standable(here) ? here : respawn;

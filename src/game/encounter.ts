@@ -17,13 +17,14 @@ import {
   introFor,
   lineKey,
   moodFor,
+  npcNow,
   rewardsOnTerms,
   say,
   type Attitude,
 } from './attitude';
 import { FINALE_FLAG, epilogueFor, type Epilogue } from './ending';
 import { hiddenSlots, type HiddenSlot } from './hidden';
-import { noteSaid, pickVariant, sayable, variantsFor, variantsOf } from './lines';
+import { noteSaid, pickVariant, variantsFor, variantsOf } from './lines';
 import { mentorGreeting } from './mentorLines';
 import { preludeFor } from './story';
 import { addItem, gainXp, itemCount, removeItem } from './hero';
@@ -196,7 +197,7 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
     };
   }
 
-  const npc = npcFor(entity);
+  const npc = npcNow(npcFor(entity), state.flags);
   const attitude = attitudeOf(state.hero, npc);
   const speaker = { title: npc.name, sprite: npc.sprite, ...(npc.inanimate ? {} : { attitude }) };
   if (!npc.repeatable && state.flags.has(npcCompletionFlag(npc))) {
@@ -248,7 +249,7 @@ export function resolveBattle(
   if (entity.kind === 'mentor') return resolveLesson(state, mentorFor(entity), battle, won);
   if (entity.kind === 'monster') return resolveCombat(state, entity, battle, won, rng);
   if (!terms) throw new Error('An NPC battle needs the terms it was offered on');
-  return resolveNpc(state, npcFor(entity), battle, won, terms);
+  return resolveNpc(state, npcNow(npcFor(entity), state.flags), battle, won, terms);
 }
 
 function resolveLesson(
@@ -272,12 +273,15 @@ function resolveLesson(
   };
 }
 
-/** What an NPC says on a won challenge, never a line of theirs that no longer fits (`unsaid`). */
+/**
+ * What an NPC (as it speaks now, see `npcNow`) says on a won challenge: its
+ * "already knowing the spell" line if it has one left, else its win line.
+ */
 function winSpeech(state: GameState, npc: NpcDef, terms: Attitude, knewSpell: boolean): string {
-  const winKnown = npc.lines.winKnown && sayable(npc.lines.winKnown, npc.unsaid);
+  const winKnown = npc.lines.winKnown;
   return knewSpell && winKnown && variantsFor(winKnown, moodFor(terms)).length > 0
     ? say(winKnown, terms, state.talk, lineKey(npc, 'winKnown'))
-    : say(sayable(npc.lines.win, npc.unsaid), terms, state.talk, lineKey(npc, 'win'));
+    : say(npc.lines.win, terms, state.talk, lineKey(npc, 'win'));
 }
 
 function resolveCombat(
