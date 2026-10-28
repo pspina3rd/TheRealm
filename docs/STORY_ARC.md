@@ -5,6 +5,10 @@ campaign; [STORY.md](STORY.md) contains the existing first-half dialogue.
 The expanded second-half scenes and dialogue still need to be written and
 implemented. The monomyth is the underlying narrative framework.
 
+A proposed [second-half outline](STORY_OUTLINE_DRAFT.md) is available for
+review. Its new names, lore, dialogue, and mechanisms are draft proposals;
+they are not approved canon or implemented game content.
+
 ## Preserve the first half
 
 Keep Mossvale, Brightwater, the seven mentor regions, and the Moon Caves,
