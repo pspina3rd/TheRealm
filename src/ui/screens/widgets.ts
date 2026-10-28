@@ -118,14 +118,6 @@ export function challengeCard(spec: ChallengeSpec): HTMLElement {
         }),
         pieces(spec.pieceLimit),
       );
-    case 'haggle':
-      return el(
-        'div',
-        { className: 'challenge-card' },
-        iconElement('coin', 3, 'Haggle'),
-        el('span', { className: 'price-gauge', title: 'Clear lines to lower the price' }),
-        pieces(spec.pieceLimit),
-      );
     case 'lesson':
       return el(
         'div',
@@ -169,8 +161,6 @@ export function rewardIcons(rewards: readonly Reward[]): HTMLElement[] {
         const name = spellName(spell);
         return [chip(ELEMENT_ICONS[spell.category], name, `Learn ${name}`)];
       }
-      case 'shop':
-        return [chip('bag', '', 'Opens the shop')];
       case 'flag': {
         const flag = FLAG_ICONS[reward.flag];
         return [

@@ -5,7 +5,7 @@ import { MANA_BOOST_MULTIPLIER, MANA_PER_LINES } from '../src/battle/battle';
 import { addItem, createHero } from '../src/game/hero';
 import { forceQueue, makeBattle, setUpVerticalIClear } from './helpers';
 
-const haggle = { kind: 'haggle', pieceLimit: 50, rivalIntervalMs: 100000 } as const;
+const haggle = { kind: 'barter', wants: { gold: 999 }, pieceLimit: 50 } as const;
 
 describe('Battle', () => {
   it('spawns a piece and starts ongoing', () => {
@@ -87,9 +87,9 @@ describe('Battle', () => {
   });
 
   it('ignores input once the battle is over', () => {
-    const battle = makeBattle({ kind: 'haggle', pieceLimit: 1, rivalIntervalMs: 1000 });
+    const battle = makeBattle({ kind: 'barter', wants: { gold: 999 }, pieceLimit: 1 });
     battle.input('hardDrop');
-    expect(battle.status).toBe('won');
+    expect(battle.status).toBe('lost');
     battle.input('hardDrop');
     expect(battle.board.piecesPlaced).toBe(1);
   });

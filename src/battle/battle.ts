@@ -17,7 +17,6 @@ import { scaledEnemy } from '../game/scaling';
 import { fallMultiplier, previewCount } from '../game/stats';
 import { BarterChallenge } from './barter';
 import { CombatChallenge } from './combat';
-import { HaggleChallenge } from './haggle';
 import { LessonChallenge } from './lesson';
 import { OfferingChallenge } from './offering';
 import { PuzzleChallenge } from './puzzle';
@@ -404,8 +403,6 @@ function createChallenge(ctx: BattleContext, spec: ChallengeSpec): Challenge {
       return new OfferingChallenge(ctx, spec.itemId, spec.targetScore, spec.pieceLimit);
     case 'barter':
       return new BarterChallenge(ctx, spec.wants, spec.pieceLimit);
-    case 'haggle':
-      return new HaggleChallenge(ctx, spec.pieceLimit, spec.rivalIntervalMs);
     case 'puzzle':
       return new PuzzleChallenge(ctx, spec.rows, spec.queue, spec.linesToClear);
     case 'lesson':

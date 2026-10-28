@@ -66,7 +66,7 @@ describe('battle controls in the DOM', () => {
     { kind: 'combat', enemyId: 'slime' },
     { kind: 'offering', itemId: 'herb', targetScore: 100, pieceLimit: 20 },
     { kind: 'barter', wants: { red: 5 }, pieceLimit: 20 },
-    { kind: 'haggle', pieceLimit: 20, rivalIntervalMs: 1000 },
+    { kind: 'barter', wants: { gold: 999 }, pieceLimit: 20 },
     { kind: 'puzzle', rows: [], queue: ['I'], linesToClear: 1 },
     {
       kind: 'lesson',

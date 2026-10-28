@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import type { BarterChallenge } from '../src/battle/barter';
-import type { HaggleChallenge } from '../src/battle/haggle';
-import { HAGGLE } from '../src/battle/haggle';
 import { OfferingChallenge } from '../src/battle/offering';
 import type { PuzzleChallenge } from '../src/battle/puzzle';
 import { addItem, createHero } from '../src/game/hero';
@@ -78,51 +76,6 @@ describe('BarterChallenge', () => {
   });
 
   it('loses on top-out', () => {
-    const battle = makeBattle(spec);
-    battle.board.toppedOut = true;
-    expect(battle.challenge.status()).toBe('lost');
-  });
-});
-
-describe('HaggleChallenge', () => {
-  const spec = { kind: 'haggle', pieceLimit: 3, rivalIntervalMs: 1000 } as const;
-
-  it('lowers the price when lines are cleared', () => {
-    const battle = makeBattle(spec);
-    setUpVerticalIClear(battle.board, 2);
-    battle.input('hardDrop');
-    expect((battle.challenge as HaggleChallenge).multiplier).toBe(
-      HAGGLE.start - HAGGLE.dropPerClear[2]!,
-    );
-  });
-
-  it('raises the price over time', () => {
-    const battle = makeBattle(spec);
-    battle.challenge.update(2500);
-    expect((battle.challenge as HaggleChallenge).multiplier).toBeCloseTo(
-      1 + 2 * HAGGLE.risePerTick,
-    );
-  });
-
-  it('clamps the price between the minimum and maximum', () => {
-    const battle = makeBattle(spec);
-    const haggle = battle.challenge as HaggleChallenge;
-    haggle.update(1000 * 100);
-    expect(haggle.multiplier).toBe(HAGGLE.max);
-    expect(battle.objective.progress).toBe(0);
-    haggle.multiplier = HAGGLE.min;
-    setUpVerticalIClear(battle.board, 4);
-    battle.input('hardDrop');
-    expect(haggle.multiplier).toBe(HAGGLE.min);
-  });
-
-  it('strikes the deal after the piece limit', () => {
-    const battle = makeBattle(spec);
-    for (let i = 0; i < 3; i++) battle.input('hardDrop');
-    expect(battle.status).toBe('won');
-  });
-
-  it('fails if the board overflows', () => {
     const battle = makeBattle(spec);
     battle.board.toppedOut = true;
     expect(battle.challenge.status()).toBe('lost');

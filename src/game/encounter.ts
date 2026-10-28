@@ -1,5 +1,4 @@
 import { CombatChallenge, rollSpoils } from '../battle/combat';
-import { HaggleChallenge } from '../battle/haggle';
 import type { Battle } from '../battle/battle';
 import type { Rng } from '../core/rng';
 import { ENEMIES } from '../data/enemies';
@@ -7,6 +6,7 @@ import { START } from '../data/maps';
 import { MENTORS, type MentorDef } from '../data/mentors';
 import { NPCS } from '../data/npcs';
 import type { ChallengeSpec, NpcDef, Reward } from '../data/types';
+import type { EncounterDef } from '../data/encounters';
 import type { EntityDef } from '../world/map';
 import { markDefeated, travel, type GameState } from '../world/state';
 import {
@@ -27,10 +27,19 @@ import { noteSaid, pickVariant, variantsFor, variantsOf } from './lines';
 import { mentorGreeting } from './mentorLines';
 import { preludeFor } from './story';
 import { addItem, gainXp, itemCount, removeItem } from './hero';
-import { completeLesson, lessonsFor, type Lesson } from './lessons';
+import { completeLesson, easeSeal, lessonsFor, type Lesson } from './lessons';
 import { grantRewards, type Gain } from './rewards';
 import { sealedElement } from './spells';
-import { regardOf } from './stakes';
+import { blockedReason, priceChange, regardOf, settle, type Blocked } from './stakes';
+import { encounterOf } from '../data/encounters';
+import {
+  encounterSpec,
+  lessonKey,
+  lessonRules,
+  settleEncounter,
+  stakesCard,
+  type StakesCard,
+} from './encounterFlow';
 import { SKILL_POINTS_PER_LEVEL, dropBonus } from './stats';
 import { FALL_HP_SHARE, HOME_FALL_HP_SHARE } from '../data/balance';
 export { FALL_HP_SHARE, HOME_FALL_HP_SHARE } from '../data/balance';
@@ -61,6 +70,19 @@ export type Interaction =
       readonly sealed: string | null;
       /** The mentor's hidden spells still unrevealed, shown as silhouettes. */
       readonly silhouettes: readonly HiddenSlot[];
+      /** Lessons that can't be retried yet (Now once, then Wait), by spell id. */
+      readonly blocked: Readonly<Record<string, Blocked>>;
+    })
+  /** A shopkeeper: browse at list price × attitude (× a haggle's price), or haggle. */
+  | (Speaker & {
+      readonly kind: 'shop';
+      readonly shopId: string;
+      /** The price multiplier browsing now. */
+      readonly multiplier: number;
+      readonly terms: Attitude;
+      /** A keeper who haggles (once a day): the duel and its Stakes card. */
+      readonly haggle: { readonly spec: ChallengeSpec; readonly card: StakesCard } | null;
+      readonly replies?: Replies;
     })
   /** Offer a battle the player can accept or decline. */
   | (Speaker & {
@@ -75,6 +97,10 @@ export type Interaction =
       readonly terms?: Attitude;
       /** What a boss says before its fight, shown as an interlude (the Wyrm's lair). */
       readonly prelude?: string;
+      /** An encounter's Stakes card (§3.1). */
+      readonly card?: StakesCard;
+      /** The same encounter with the mentor's help, when a threshold offers it. */
+      readonly assistSpec?: ChallengeSpec;
       /** What an NPC says when the hero accepts or declines. */
       readonly replies?: Replies;
     });
@@ -174,6 +200,12 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
           ...speaker,
           mentorId: mentor.id,
           lessons,
+          blocked: Object.fromEntries(
+            lessons.map((lesson) => [
+              lesson.spellId,
+              blockedReason(state, lessonKey(lesson.spellId), lessonRules(null)),
+            ]),
+          ),
           sealed:
             sealedElement(state.hero) === mentor.element
               ? (state.hero.seal?.spellId ?? null)
@@ -214,24 +246,44 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
     return { kind: 'message', ...speaker, text };
   }
   const text = introFor(npc, attitude, state.talk);
+  const rewards = rewardsOnTerms(state.hero, npc, terms);
+  const def = npc.challenge?.kind === 'encounter' ? encounterOf(npc.challenge.id) : undefined;
+  const replies: Replies = {
+    accept: say(npc.lines.accept, terms, state.talk, lineKey(npc, 'accept'), false),
+    decline: say(npc.lines.decline, terms, state.talk, lineKey(npc, 'decline'), false),
+    keys: { accept: lineKey(npc, 'accept'), decline: lineKey(npc, 'decline') },
+  };
+  if (npc.shop) {
+    return {
+      kind: 'shop',
+      ...speaker,
+      text,
+      shopId: npc.shop,
+      multiplier: ATTITUDE_PRICES[terms] * priceChange(state, npc.shop),
+      terms,
+      haggle: def
+        ? { spec: encounterSpec(state, def), card: stakesCard(state, npc, def, terms, rewards) }
+        : null,
+      ...(def ? { replies } : {}),
+    };
+  }
   const spec = npc.challenge;
+  if (!spec) return { kind: 'message', ...speaker, text };
   if (spec.kind === 'offering' && itemCount(state.hero, spec.itemId) < 1) {
     return { kind: 'needsItem', ...speaker, text, itemId: spec.itemId };
   }
-  const { base, extras } = rewardsOnTerms(state.hero, npc, terms);
+  const card = def ? stakesCard(state, npc, def, terms, rewards) : undefined;
   return {
     kind: 'challenge',
     ...speaker,
     text,
-    spec,
-    rewards: base,
-    extras,
+    spec: def ? encounterSpec(state, def) : spec,
+    rewards: card ? card.win.rewards : rewards.base,
+    extras: card ? card.win.extras : rewards.extras,
     terms,
-    replies: {
-      accept: say(npc.lines.accept, terms, state.talk, lineKey(npc, 'accept'), false),
-      decline: say(npc.lines.decline, terms, state.talk, lineKey(npc, 'decline'), false),
-      keys: { accept: lineKey(npc, 'accept'), decline: lineKey(npc, 'decline') },
-    },
+    ...(card ? { card } : {}),
+    ...(def && card?.assist ? { assistSpec: encounterSpec(state, def, true) } : {}),
+    replies,
   };
 }
 
@@ -261,9 +313,13 @@ function resolveLesson(
 ): Resolution {
   const spec = battle.spec;
   if (spec.kind !== 'lesson') throw new Error('Expected a lesson');
+  const lent = !state.hero.spells[spec.spellId];
+  const gains = completeLesson(state.hero, spec, won);
+  // Now once, then Wait; a lent spell has nothing to seal, so its tooth is the mentor's regard.
+  settle(state, lessonKey(spec.spellId), lessonRules(lent ? mentor.id : null), won);
   return {
     won,
-    gains: completeLesson(state.hero, spec, won),
+    gains,
     speech: won
       ? pickVariant(variantsOf(mentor.winText), state.talk, `${mentor.id}.win`)
       : pickVariant(variantsOf(mentor.loseText), state.talk, `${mentor.id}.lose`),
@@ -310,6 +366,7 @@ function resolveCombat(
       gains.push({ kind: 'level', level: hero.level, points: levels * SKILL_POINTS_PER_LEVEL });
     }
     markDefeated(state, entity);
+    gains.push(...easeSeal(hero));
     if (combat.enemy.finale) state.flags.add(FINALE_FLAG);
   } else {
     const lost = Math.floor(hero.gil / 2);
@@ -339,6 +396,8 @@ function resolveNpc(
   won: boolean,
   terms: Attitude,
 ): Resolution {
+  const def = battle.spec.kind === 'encounter' ? encounterOf(battle.spec.id) : undefined;
+  if (def) return resolveEncounter(state, npc, def, battle, terms);
   const ended = { won, fell: false, attitude: terms };
   if (!won) {
     return {
@@ -350,7 +409,7 @@ function resolveNpc(
     };
   }
 
-  const spec = npc.challenge;
+  const spec = battle.spec;
   const given: Gain[] = [];
   if (spec.kind === 'offering' && removeItem(state.hero, spec.itemId)) {
     given.push({ kind: 'item', itemId: spec.itemId, count: -1 });
@@ -358,12 +417,44 @@ function resolveNpc(
   const { base, extras, knewSpell } = rewardsOnTerms(state.hero, npc, terms);
   const outcome = grantRewards(state.hero, state.flags, [...base, ...extras]);
   if (!npc.repeatable) state.flags.add(npcCompletionFlag(npc));
-  const haggle = battle.challenge instanceof HaggleChallenge ? battle.challenge : null;
   return {
     ...ended,
     gains: [...given, ...outcome.gains],
     speech: winSpeech(state, npc, terms, knewSpell),
+    shopId: null,
+    priceMultiplier: 1,
+  };
+}
+
+/**
+ * Settles an encounter (a committed try): its stakes, then its rewards on
+ * a win; the person's win line (with their next-step line after a first
+ * win) or lose line. A haggle opens the shop at its new price.
+ */
+function resolveEncounter(
+  state: GameState,
+  npc: NpcDef,
+  def: EncounterDef,
+  battle: Battle,
+  terms: Attitude,
+): Resolution {
+  const rewards = rewardsOnTerms(state.hero, npc, terms);
+  const outcome = settleEncounter(state, npc, def, battle, terms, rewards);
+  const granted = grantRewards(state.hero, state.flags, outcome.rewards);
+  if (outcome.won && !npc.repeatable) state.flags.add(npcCompletionFlag(npc));
+  const speech = outcome.won
+    ? [
+        winSpeech(state, npc, terms, rewards.knewSpell),
+        ...(outcome.firstWin && def.winAdd ? [def.winAdd] : []),
+      ].join(' ')
+    : say(npc.lines.lose, terms, state.talk, lineKey(npc, 'lose'));
+  return {
+    won: outcome.won,
+    fell: false,
+    attitude: terms,
+    gains: [...granted.gains, ...outcome.gains],
+    speech,
     shopId: outcome.shopId,
-    priceMultiplier: (haggle?.multiplier ?? 1) * ATTITUDE_PRICES[terms],
+    priceMultiplier: outcome.priceMultiplier,
   };
 }

@@ -135,7 +135,7 @@ describe('line surges', () => {
 
 describe('mana from crystals', () => {
   it('fills each element from cleared crystals in any kind of battle', () => {
-    const battle = makeBattle({ kind: 'haggle', pieceLimit: 5, rivalIntervalMs: 99999 });
+    const battle = makeBattle({ kind: 'barter', wants: { gold: 999 }, pieceLimit: 5 });
     battle.hero.mana = emptyCounts(0);
     setUpVerticalIClear(battle.board, 1, 'red');
     battle.input('hardDrop');
@@ -144,7 +144,7 @@ describe('mana from crystals', () => {
   });
 
   it('never fills a pool past its capacity', () => {
-    const battle = makeBattle({ kind: 'haggle', pieceLimit: 5, rivalIntervalMs: 99999 });
+    const battle = makeBattle({ kind: 'barter', wants: { gold: 999 }, pieceLimit: 5 });
     battle.hero.mana = emptyCounts(0);
     setUpVerticalIClear(battle.board, 2, 'red');
     battle.input('hardDrop');
@@ -193,7 +193,7 @@ describe('piece odds', () => {
   });
 
   it('is applied to battles', () => {
-    const battle = makeBattle({ kind: 'haggle', pieceLimit: 5, rivalIntervalMs: 1 });
+    const battle = makeBattle({ kind: 'barter', wants: { gold: 999 }, pieceLimit: 5 });
     expect(battle.board.preview(7)).toHaveLength(7);
   });
 });

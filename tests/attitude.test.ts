@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { HaggleChallenge } from '../src/battle/haggle';
+import { settleHaggle } from '../src/game/stakes';
 import { ELEMENTS, emptyCounts, relatedTo, weakTo } from '../src/core/elements';
 import { createRng } from '../src/core/rng';
 import { CLASSES } from '../src/data/classes';
@@ -78,7 +78,7 @@ function entityOf(npcId: string): EntityDef {
 }
 
 const people = Object.values(NPCS).filter((npc) => !npc.inanimate);
-const isShop = (npc: NpcDef): boolean => npc.rewards.some((r) => r.kind === 'shop');
+const isShop = (npc: NpcDef): boolean => npc.shop !== undefined;
 
 describe('attitude score', () => {
   it('adds the element, half the related, minus half the opposed, plus Charm', () => {
@@ -265,8 +265,7 @@ describe('rewards data', () => {
 
   it('gives every person a warm bonus (or prices) and a secret offer', () => {
     for (const npc of people) {
-      const shop = npc.rewards.find((r) => r.kind === 'shop');
-      if (shop) expect(SHOPS[shop.shopId]?.secretStock?.length, npc.id).toBeGreaterThan(0);
+      if (npc.shop) expect(SHOPS[npc.shop]?.secretStock?.length, npc.id).toBeGreaterThan(0);
       else {
         // Vesper, an antagonist, has no warm bonus in the author's script.
         if (npc.voice !== 'vesper') expect(npc.bonus?.kind, npc.id).toBe('item');
@@ -308,7 +307,7 @@ describe('encounters on terms', () => {
     expect(wary).toMatchObject({
       attitude: 'wary',
       text: first(npc.lines.intro, 'cold'),
-      spec: { wants: { green: 7 } },
+      spec: { kind: 'encounter', id: 'farmer' },
     });
     const warm = describeInteraction(stateFor(npc, 'friendly'), entityOf('farmer'));
     expect(warm).toMatchObject({ text: first(npc.lines.intro, 'warm'), extras: [npc.bonus] });
@@ -358,14 +357,14 @@ describe('encounters on terms', () => {
         kind: 'challenge',
         attitude: 'hostile',
         text: first(npc.lines.intro, 'cold'),
-        spec: npc.challenge,
+        spec: { kind: npc.challenge!.kind },
       });
     }
   });
 
   it('grants the cave pass to a Hostile hero who wins', () => {
     const state = stateFor(NPCS.guard!, 'hostile');
-    const battle = makeBattle(NPCS.guard!.challenge, state.hero);
+    const battle = makeBattle(NPCS.guard!.challenge!, state.hero);
     Object.defineProperty(battle, 'status', { value: 'won' });
     const result = resolveBattle(state, entityOf('guard'), battle, createRng(1), 'wary');
     expect(state.flags.has('cavePass')).toBe(true);
@@ -379,30 +378,47 @@ describe('encounters on terms', () => {
     ] as const) {
       const state = newGame(classId);
       const shown = describeInteraction(state, entityOf('elder'));
-      expect(shown).toMatchObject({ kind: 'challenge', spec: NPCS.elder!.challenge });
-      const battle = makeBattle(NPCS.elder!.challenge, state.hero);
+      expect(shown).toMatchObject({
+        kind: 'challenge',
+        spec: { kind: 'encounter', id: 'elder', strain: 0, demo: true, assisted: false },
+      });
+      const battle = makeBattle(NPCS.elder!.challenge!, state.hero);
       Object.defineProperty(battle, 'status', { value: 'won' });
       const result = resolveBattle(state, entityOf('elder'), battle, createRng(1), 'neutral');
-      expect(result.gains, classId).toEqual([gain]);
-      // His lines handing over a stone are unsaid: both hear his other success line.
+      expect(result.gains, classId).toEqual([gain, { kind: 'regard', delta: 1, level: 1 }]);
+      // His lines handing over a stone are unsaid: both hear his other success line, then
+      // where to go next.
       expect(result.speech).toBe(
-        'First bucket’s clean! Tastes like sweet granite. You earned your pay today, kid.',
+        'First bucket’s clean! Tastes like sweet granite. You earned your pay today, kid. Pip’s been wailing about his tower since dawn.'.replace(
+          'Pip’s',
+          "Pip's",
+        ),
       );
       expect(state.hero.items.wellStone ?? 0).toBe(0);
       expect(state.flags.has('npc:elder')).toBe(true);
     }
   });
 
-  it('prices a shop by haggle times attitude', () => {
+  it('prices a shop by attitude, and by a haggle won there', () => {
     for (const tier of ['wary', 'neutral', 'friendly', 'devoted'] as const) {
       const state = stateFor(NPCS.merchant!, tier);
-      const battle = makeBattle(NPCS.merchant!.challenge, state.hero);
-      (battle.challenge as HaggleChallenge).multiplier = 0.5;
-      Object.defineProperty(battle, 'status', { value: 'won' });
-      const result = resolveBattle(state, entityOf('merchant'), battle, createRng(1), tier);
-      expect(result.priceMultiplier, tier).toBeCloseTo(0.5 * ATTITUDE_PRICES[tier]);
-      expect(result.attitude).toBe(tier);
+      expect(describeInteraction(state, entityOf('merchant')), tier).toMatchObject({
+        kind: 'shop',
+        shopId: 'brightwaterGeneral',
+        multiplier: ATTITUDE_PRICES[tier],
+        terms: tier,
+        haggle: null,
+      });
     }
+    const state = stateFor(NPCS.stallKeeper!, 'neutral');
+    state.mapId = 'mossvale';
+    settleHaggle(state, 'stallKeeper', 'mossvaleStall', 'win', 0.9);
+    const stall = describeInteraction(state, entityOf('stallKeeper'));
+    expect(stall).toMatchObject({ kind: 'shop', shopId: 'mossvaleStall' });
+    if (stall.kind !== 'shop') throw new Error('a shop');
+    // Regard +1 from the win: still Neutral at this score, so 0.9 × 1.
+    expect(stall.multiplier).toBeCloseTo(0.9);
+    expect(stall.haggle?.spec).toMatchObject({ kind: 'encounter', id: 'stallKeeper' });
   });
 
   it('shows faces only on people', () => {

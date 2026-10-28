@@ -26,14 +26,11 @@ export type Gain =
 
 export interface RewardOutcome {
   readonly gains: Gain[];
-  /** Shop to open after the rewards, if any. */
-  readonly shopId: string | null;
 }
 
 /**
- * Grants rewards to the hero and records flags. Shop rewards are returned
- * rather than applied, since opening a shop is a UI concern. Hidden flags
- * and already-known spells produce no gain.
+ * Grants rewards to the hero and records flags. Hidden flags and
+ * already-known spells produce no gain.
  */
 export function grantRewards(
   hero: Hero,
@@ -41,7 +38,6 @@ export function grantRewards(
   rewards: readonly Reward[],
 ): RewardOutcome {
   const gains: Gain[] = [];
-  let shopId: string | null = null;
   for (const reward of rewards) {
     switch (reward.kind) {
       case 'gil':
@@ -59,10 +55,7 @@ export function grantRewards(
       case 'flag':
         flags.add(reward.flag);
         break;
-      case 'shop':
-        shopId = reward.shopId;
-        break;
     }
   }
-  return { gains, shopId };
+  return { gains };
 }
