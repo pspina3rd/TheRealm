@@ -6,7 +6,7 @@ The expanded second-half scenes and dialogue still need to be written and
 implemented. The monomyth is the underlying narrative framework.
 
 A proposed [second-half outline](STORY_OUTLINE_DRAFT.md) is available for
-review. Its new names, lore, dialogue, and mechanisms are draft proposals;
+review. Its new names, lore, and mechanisms are draft proposals;
 they are not approved canon or implemented game content.
 
 ## Preserve the first half
@@ -50,7 +50,20 @@ That is an implementation boundary, not the intended end of the full story.
    If the writer cannot make those scenes consistent, choose a different
    motivation for the hero to leave. Do not silently contradict Pip's dialogue.
 
+The [team's updated script](https://github.com/pspina3rd/TheRealm/blob/fe5c3e49473297c008b2167f8476c043db735d0f/docs/STORY.md)
+already limits the sleeping households and supplies Rowan's sleeping son as
+the Refusal's personal stake. It uses Bean and Ordor for Bea and Odo. Consult
+that script alongside GetPutTaco's older first-half text when developing
+characters. Its Wyrm survives and sleeps, some sleepers stir, and the voice
+speaks again at Sevenstones. Preserve those details in the continuation.
+
 ## Next writing deliverable
+
+Develop the characters before writing dialogue. Consult the existing script,
+then establish who each person is, what they want, what they need, what they
+fear, how they feel in the scene, and how those pressures shape their choices
+and speech. The working profiles are in [CHARACTERS_DRAFT.md](CHARACTERS_DRAFT.md).
+Existing facts and proposed characterization must stay distinguishable.
 
 Draft the expanded outline before adding production encounters:
 

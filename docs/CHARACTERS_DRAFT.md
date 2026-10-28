@@ -1,0 +1,306 @@
+# Character foundations — draft for review
+
+Read this before revising scenes or writing new dialogue. Consult both
+[STORY.md](STORY.md) on GetPutTaco and the
+[team's updated script](https://github.com/pspina3rd/TheRealm/blob/fe5c3e49473297c008b2167f8476c043db735d0f/docs/STORY.md).
+The latter supplies the opening, Refusal, expanded mentor rows, Wyrm's fall,
+and Chapter One hook discussed below. These updates have been consulted for
+this draft; this document does not merge their implementation into GetPutTaco.
+[STORY_ARC.md](STORY_ARC.md) fixes the major beats. [STORY_OUTLINE_DRAFT.md](STORY_OUTLINE_DRAFT.md)
+contains proposals, not additional established history. No dialogue is drafted
+here. Existing lines cited as evidence remain unchanged.
+
+Every new personality detail, relationship, motive, and supernatural mechanism
+below is a proposal. The monomyth organizes the journey; characters must still
+make choices for reasons that would matter to them without an audience.
+
+Use the team's current names: Fern (formerly Fen), Lance (Bram), Ares (Lyra),
+Bean (Bea), Ordor (Odo), Myst (Ilse), and Forgefyre (Emberforge). Vex and the
+seven mentors retain their names. Older names remain in GetPutTaco's script.
+
+## The first half's human scale
+
+- **Rowan:** the well matters because it supplies drinking water and tea, and
+  his knees prevent him doing the work himself. His warning about the rusted
+  winch shows knowledge and concern expressed as instructions. The updated
+  Refusal gives him a specific worry: his son Hareguy has slept three weeks
+  at Pete's inn, beyond the road Rowan's knees can manage. His Devoted
+  confidence admits fear that his work forty years ago released something;
+  the [team's design document](https://github.com/pspina3rd/TheRealm/blob/fe5c3e49473297c008b2167f8476c043db735d0f/docs/GAME_DESIGN.md)
+  confirms he broke an ancient seal. His desire
+  is to get his son home; his need is to trust another person with a task he
+  cannot do himself. Guilt must not become certainty that he caused every
+  subsequent harm. He gives the hero his old stone and, at Devoted, his last
+  Ether: worry becomes practical help. Coldness guards
+  his competence; warmth makes room for company. He is not a dispenser of wise
+  riddles. His granite, pipe, bucket, and timber vocabulary belongs to his work.
+- **Bean:** blight threatens her beds and livelihood. She offers to split the
+  yield, teaches spacing and planting depth, and braids charms from the first
+  sprouts. Her generosity has something tangible behind it. Anger makes her
+  protective of seed and soil; affection broadens who gets a share.
+- **Ordor:** stock comes from Bean, the coast, barges, and the road. His need to
+  make a living survives every attitude tier. Familiarity changes the terms,
+  not his identity into either a greedy joke or an unconditional benefactor.
+- **Pip:** the tower matters through pudding, cabbage, supper, getting caught,
+  and wanting to build higher tomorrow. His excitement is particular, not
+  generalized innocence. Present-tense kitchen and punishment lines require
+  his mother to be awake. The recommended continuity proposal keeps her awake.
+- **The mentors:** motives are equally concrete. Torva's shaking hands threaten
+  the craft she wants carried on; Dorn names the mining crew lost in a collapse;
+  Kestrel needs letters to reach villages. Do not distribute invented bereavements
+  to other characters merely because Dorn has an established loss.
+
+The new cast should have comparable lives and responsibilities. Emotional
+stakes should be visible in what a person protects, spends, withholds, repairs,
+or risks, before a conversation explains their beliefs.
+
+The updated mentor rows already provide distinct emotional habits. These
+are source observations, not permission to give everyone the same sage's voice:
+
+| Person | What matters to them | Emotion and behavior already on the page |
+| --- | --- | --- |
+| Torva | Passing on a craft her shaking hands make difficult | Pride and shame coexist; she complains about poor fires and seeks the hero's company. |
+| Maren | Her clouding lake and the connected waters | Quiet grief; she follows the water and offers patient, familiar care. |
+| Rook | Keeping up with increasingly strange storms | Impatience and delight; he hurries lessons and invites the hero to watch lightning. |
+| Hazel | Meadows and growth threatened from below | Tenderness with fierce boundaries; she crushes rot and saves a seed for the hero. |
+| Dorn | Preventing another crew's loss | Guilt and vigilance; he tests ground, gives a lamp, and asks the hero to come back. |
+| Kestrel | Reaching villages with their letters | Restless affection; she invents a delivery as an excuse to see the hero. |
+| Selene | Understanding the failing moonlight | Measured concern and selective intimacy; she counts, records, and seeks a second mind. |
+
+For return scenes, build on those relationships. Their presence at the
+stones should cost time, work, or trust, and answer a personal concern.
+The team's Road Back rows are existing second-half writing to consult,
+even though those scenes are not yet spoken in the current build.
+
+## The hero
+
+**Established:** a chosen class starts in Mossvale, helps with local problems,
+learns from mentors, and descends to the Wyrm. The approved arc requires a
+false victory, further descent, return, rite, and final confrontation. It does
+not establish a family history or chosen-one status. The team's Refusal
+already differentiates the heroes: Fern hesitates at unfamiliar country;
+Lance feels bound to a post; Ares depends on books; Vex tries to disclaim
+belonging. Rowan's news makes the cost of staying concrete for each.
+
+**Proposed person and motivation:** someone who finds an achievable task when
+the larger problem is frightening. They want the sleeping households to wake
+and the repairs to last. Their practical need is information and cooperation
+they cannot acquire by winning fights alone. They are tempted to treat being
+useful as proof that they understand the situation. The Wyrm's defeat should
+bring earned relief before the escaped voice produces confusion and anger.
+
+**Choices and progression:** accept that evidence contradicts the apparent
+victory; listen to underground residents before destroying their infrastructure;
+oppose Vesper without pretending to know their whole life; return to ask for
+help. At the rite, accept responsibility without claiming control over everyone
+else's risk. Their relationship to the cast grows through reciprocal work.
+
+**Voice:** concrete questions, named people, observed consequences. No automatic
+philosophical rebuttal to every antagonist. Fear can produce impatience and
+overconfident instructions; learning shows in checking rather than declaiming.
+Class texture is proposed, not destiny: Ranger notices routes; Knight notices
+who is exposed to danger; Mage asks how something works; Rogue notices terms
+and leverage. Every class can be kind, mistaken, frightened, or brave.
+Build from each hero's existing hesitation: Fern risks leaving familiar
+ground; Lance must reconsider where duty takes them; Ares acts without a
+book's assurance; Vex chooses involvement despite their claim of detachment.
+These are individual pressures, not fixed moral traits of a class.
+
+## Vesper
+
+**Established:** a thrall of the Depths who says they once sought glory, heard
+the serpent's whisper, and bowed. They insult and test the hero, offer lore,
+remember life in the sun, and can find the hero's ability interesting. Their
+language treats the Wyrm as Master. The approved later duel and final form do
+not establish why Vesper transforms or whether they survive.
+
+**Proposed person and motivation:** a capable observer who values nerve and
+intelligence even in an enemy. They want their allegiance to have been a
+clear-eyed choice that made them stronger. Their practical aim after the Wyrm
+falls is to retain access to the power and knowledge they served. They need
+to acknowledge contrary evidence without mistaking that admission for surrender.
+Pride competes with curiosity. Fear of being discarded may develop, but must
+not replace their earlier pursuit of glory with a simple desire for approval.
+
+**Choices and progression:** the escaped voice unsettles their certainty.
+They investigate and reinterpret rather than immediately confess doubt. At
+72%, they choose to prevent the hero taking control of the route. Losing the
+duel wounds their claim to superiority, not merely their body. They can stop;
+accepting the voice before the relay closes is a further proposed choice made
+to recover power and prove their understanding was right. In the final form,
+recognition of the cost competes with refusal to let the hero witness regret.
+The hero is a rival, a troubling alternative, and someone Vesper sometimes respects.
+
+**Voice:** educated but direct; cutting observation, contempt, amused questions.
+Use the existing surface/depth imagery where it has a target. Warmth means
+interest or a rare admission, not instant friendliness. Under humiliation,
+proposed speech becomes less playful and more specific about what the hero
+has done. Do not make every line a threat about darkness, or let the new
+voice erase Vesper's recognizable habits before the final encounter is over.
+
+## The Moon Wyrm
+
+**Established:** an ancient serpent coiled around the moon-crystal; its speaker claims
+to drink moonlight, scorns surface lives, intrudes through visions, and grows
+more dangerous when wounded. The approved midpoint defeat releases the
+Master's voice. Existing text does not explain the exact division between
+the creature, the voice, and the title Master. The updated fall leaves the
+Wyrm alive: an ancient, half-blind animal that closes its eye and sleeps.
+The chapter hook identifies the escaped speaker as the voice from the visions
+and describes the Wyrm as an obedient throat. Do not write a corpse or assign
+every utterance to the animal's independent personality.
+
+**Proposed creature and motivation:** defend the crystal and its place around
+it; react to injury and intrusion. Whether feeding is its own appetite or
+the voice's compulsion remains unresolved. Its physical needs and the
+speaker's claims of supremacy must not be treated as interchangeable facts.
+The established last breath makes release and exhaustion available emotional
+readings; neither is proof that the creature was innocent or freely complicit.
+
+**Agency and progression:** the speaking antagonist intimidates through visions;
+the animal fights, is defeated, and survives the speaker's departure. Preserve
+the relief of moonlight returning and some sleepers stirring. The hero has
+won something real, even though the speaker can act elsewhere. Decide the
+creature's degree of agency before writing any later recollection of this fight.
+
+**Voice:** expansive claims, bodily and territorial imagery, certainty of age
+and scale. Stress should shorten its patience and expose appetite. Avoid
+adding modern banter, a lecture on the monomyth, or unexplained knowledge of
+every villager. Any separation of Wyrm and speaker needs explicit scene evidence.
+
+## The Master / escaping voice
+
+**Established:** the voice continues without the Wyrm, calls it an obedient
+throat, and claims to have others. This supports a speaker using a vessel;
+it does not establish its age, origin, limits, or relationship to every
+other antagonist. An older separate will predating the Wyrm remains a proposal.
+
+**Proposed character under that interpretation:** an intelligence that enjoys
+making dependence feel like a bargain. It wants durable embodiment and
+servants who regard obedience as their own superior judgment. It requires
+living cooperation it cannot simply manufacture. Its emotional pressure point
+is loss of authority: Vesper doubting, a servant refusing, or a community
+working without its permission. Do not invent a human grief to excuse it.
+
+**Choices and progression:** after 50%, it offers information and power in
+exchange for specific concessions. It exploits Vesper's ambitions rather than
+creating them. Its proposed acceptance of Vesper's offer must occur before
+the Cantor's relay closes. At the final confrontation, containment removes an
+escape option, not its responsibility for the choices it still makes. The
+hero threatens both its plans and its claim to be necessary.
+
+**Voice:** precise offers, selective truths, attention to what the listener
+wants. When control fails, persuasion gives way to demands. Establish audible
+differences from Vesper and explain any similarities to the Wyrm; do not use
+obscurity to conceal an undecided identity.
+
+## Fennick
+
+**Established:** the approved arc places Fennick's rite in Sevenstones at
+85–95%. The team's chapter hook places an unnamed old man beside the ward
+with an unlit brass lantern. He recognizes the wet footprints and says he
+taught their maker to walk. It does not name him Fennick or name that boy.
+Those identities must remain distinct from confirmed facts.
+
+**Proposed connection:** make this man Fennick and the boy Vesper. If adopted,
+Fennick has a personal reason to intervene beyond expertise: someone he
+helped care for is walking toward further harm. This implies neither biological
+parenthood nor a previously established friendship with the hero. The empty
+cloak suggests Vesper's passage but does not by itself prove the identification.
+
+**Proposed person and motivation:** a practitioner who teaches others and is
+accustomed to coordinating work, not a recluse waiting with the answer. They
+want the rite completed with its participants alive and able to choose their
+part. They need the missing procedure and reliable help. Wanting to protect
+people conflicts with wanting to control every preparation personally. Under
+the proposed connection, they also want Vesper back and need to accept that
+care gives them no authority over Vesper's choices. Their
+fear is concrete: someone may follow an instruction they are not certain is safe.
+No earlier failed rite or dead family is assumed.
+
+**Choices and progression:** the ward scene introduces a worried person before
+their technical role. Underground correspondence can develop their work.
+On the hero's return, they check the evidence, name
+what remains uncertain, and change a preparation when a helper spots a problem.
+During the rite they delegate an important task rather than doing everything.
+They can halt unsafe preparations even when the hero wants to hurry. Their
+connection to the hero comes from shared responsibility, not automatic wisdom
+or an unestablished old friendship.
+If the connection is adopted, affection can make them delay acknowledging
+Vesper's deliberate harm; growth means protecting the gathered people even
+when that limits their chance of rescuing Vesper. Relief at the hero's return,
+anger at Vesper's choice, and hope for them can coexist without a tidy speech.
+
+**Voice:** practical, attentive, and capable of ordinary warmth. Explain a step
+because someone needs to perform it; answer the question actually asked.
+Pressure makes instructions more exact, then reveals where they need help.
+Avoid priestly slogans, detached commands to finish a fight, and metaphors
+standing in for an explanation of the rite. These are proposed constraints,
+not evidence that the existing Fennick already speaks this way.
+
+## Boss 2 — proposed Sluice Warden
+
+**Established:** only Boss 2's placement near 62%. Name, occupation, and setting
+remain proposals. The outline makes them responsible for inhabited reservoirs.
+
+**Proposed person and motivation:** an experienced keeper who knows water
+levels, individual chambers, and daily supply needs. They want sleeping
+residents protected and the reservoir under their control. They need an
+independent drainage route and other competent people, but fear any opened
+channel will carry the threat inward. They can recognize awake residents'
+thirst while still denying a request. That contradiction has victims and
+requires choices; it is not solved by announcing good intentions.
+
+**Choices and progression:** initially show competent protection alongside
+harmful rationing. Let them examine the hero's alternative before rejecting
+it. They choose force when they cannot retain sole authority at 62%. If they
+survive defeat, they must help repair the consequences rather than receive
+instant forgiveness. The hero challenges their decisions, not their right to care.
+
+**Voice:** quantities, names, routes, permission, consequences. Knowledge
+should make arguments specific. Fear makes them repeat requirements and
+interrupt reports they dislike. Avoid mystical riddles or generalized threats;
+they must be able to tell the player exactly what they believe will happen.
+
+## Boss 3 — proposed Cantor
+
+**Established:** only Boss 3's placement near 82%. The name, architecture role,
+and commitment to enforced sleep are proposals requiring review.
+
+**Proposed person and motivation:** a skilled organizer who values orderly
+work and can provide genuine comfort, but insists on deciding what others
+should want. They want the relay completed and permanent sleep accepted as
+the realm's answer to suffering. They need collaborators yet treat disagreement
+as a problem to correct. Their fear is watching a person understand the offer
+and refuse it; that refusal makes coercion impossible to describe as consent.
+No invented personal tragedy is required to explain their conviction.
+
+**Choices and progression:** at 77–82%, show both the useful infrastructure
+and the cost of its imposed purpose. The hero can preserve those uses while
+refusing the Cantor's authority. The Cantor knowingly chooses enforcement,
+unlike the Warden's defensive rationing. Defeat closes the relay; it does
+not transfer responsibility to the Master or provide a repentant speech by default.
+
+**Voice:** composed, persuasive, attentive to discomfort and practical
+objections; the coercion appears in how they answer refusal. Under pressure,
+reassurance becomes correction and then a direct order. Avoid a detached
+philosophy lecture. Every claim should concern someone present, a task under
+way, or a consequence the player has actually encountered.
+
+## Before writing a scene
+
+Specify each speaker's immediate objective, what they know, what they are
+withholding, their feeling on arrival, and the decision that changes that
+feeling. Give the conversation a reason to happen now. A character's need
+is not necessarily something they understand or can state aloud.
+
+For example, the proposed rite preparation puts two wants in conflict:
+the hero wants to act before Vesper changes further; Fennick wants one more
+check before placing helpers at risk. Someone must make a consequential
+choice. Their established relationship and the evidence in the room should
+determine how they handle it. Neither needs to explain the plot to the player.
+
+Resolve the proposed Fennick identification and the Wyrm's agency before
+depending on either in dialogue. Keep Boss 2 and Boss 3's personal details
+open to review. Draft dialogue only after those foundations and each scene's
+emotional change are coherent with the consulted story.

@@ -2,10 +2,20 @@
 
 **Status: writer proposal for review, not approved canon or implemented content.**
 The order and rough pacing come from [STORY_ARC.md](STORY_ARC.md). Every new
-region name, boss identity, motive, supernatural mechanism, and line below
+region name, boss identity, motive, and supernatural mechanism below
 is proposed. Fennick's role and the Master's identity are not established
 by that brief; this draft offers one coherent interpretation of each without
 claiming either was present in the existing script.
+
+Character development precedes dialogue. The working profiles in
+[CHARACTERS_DRAFT.md](CHARACTERS_DRAFT.md) distinguish existing script evidence
+from proposed characterization. Earlier dialogue samples have been withdrawn;
+scene dialogue will be drafted from the characters and their immediate stakes.
+
+Continuity source: the [team's updated story script](https://github.com/pspina3rd/TheRealm/blob/fe5c3e49473297c008b2167f8476c043db735d0f/docs/STORY.md).
+Its opening, Refusal, mentor scenes, Wyrm's survival, and chapter hook take
+precedence over this draft's earlier assumptions. They are consulted here;
+their gameplay implementation has not been merged by this document change.
 
 ## The dramatic spine
 
@@ -17,19 +27,19 @@ what they are breaking before striking again, while continuing to help
 people with immediate needs.
 
 Proposed interpretation: the Master is an older, disembodied will that used
-the Wyrm as its mouth. The Wyrm remains responsible for its own cruelty; this
-does not turn the first-half antagonist into an innocent puppet. Vesper's
+the Wyrm as its mouth. The updated script establishes an obedient vessel,
+but not the voice's age or the animal's degree of agency. Vesper's
 belief in the Wyrm and the voice was sincere, but incomplete. Their later
 choices remain theirs, including the final choice to accept the voice.
 
 ## Continuity before the descent
 
-Keep all existing first-half dialogue. Proposed opening narration:
-“In Mossvale, some doors stay shut long after morning. The people behind
-them are breathing. They will not wake.” Rowan, Bea, Odo, Pip, and Pip's
-mother remain awake. Repairing the well and learning that the blight comes
-from below gives the hero an existing, practical reason to leave: local
-repairs cannot last while the source remains active.
+Keep the team's existing first-half dialogue. Its updated opening already
+limits the sleeping households; Rowan, Bean (formerly Bea), Ordor (Odo),
+Pip, and Pip's mother remain awake. The Refusal supplies the personal push:
+Rowan learns that his son Hareguy has slept three weeks at the Brightwater
+inn, and gives the hero his old stone because he cannot make the road himself.
+The blight rising from below makes lasting repairs another reason to continue.
 
 This chooses the permitted alternative to making Pip's mother the personal
 inciting loss. His pudding, cabbage, kitchen, and impending-punishment lines
@@ -38,22 +48,17 @@ tense speech as memories or add a sleeping-relative subplot to compensate.
 
 ## 50% — the Moon Wyrm: Ordeal and false victory
 
-Preserve the battle and all preceding material. Add the aftermath after the
-beast falls: its breath stops, the moon-crystal brightens, and the hero hears
-the same voice continue from somewhere beyond the corpse. A fissure through
-the chamber carries it down. The hero receives evidence of progress—the
-Wyrm can no longer feed—but sees the spreading sleep has not ended.
+Preserve the team's aftermath: the animal survives and sleeps, moonlight
+returns, the violet stone glows, and Brightwater sleepers stir. At Sevenstones,
+the voice speaks without the Wyrm, an empty cloak and wet footprints mark
+a passage toward the ward, and an old man recognizes their maker. The
+false victory preserves those real gains while revealing a threat that survived.
 
-**Proposed dialogue:**
-
-> _The serpent's jaws hang still. Its voice comes from the dark below._
-> “You have silenced a mouth.”
-
-The fissure exposes a service stair into the Sunken Archive outside the
-ward's inner containment chamber; that chamber remains intact for the ending.
-The reward is knowledge and a route onward, not an unexplained new key.
-The current victory celebration becomes a chapter break with relief and
-doubt. It must not promise that the realm is healed or show a full-game ending.
+Proposed continuation: investigate the ward with the old man's help and
+restore a controlled passage into the Sunken Archive. Do not invent a fissure
+that bypasses the ward scene. The inner containment chamber remains intact
+for the ending. The current next-chapter seal is an implementation boundary;
+its opening needs a future playable transition, not an unexplained new key.
 
 ## 50–56% — proposed region: the Sunken Archive
 
@@ -98,7 +103,7 @@ surface blight to the deep system, giving the player visible consequences
 of helping underground settlements rather than a sequence of locked doors.
 
 Vesper is encountered at a distance and then in conversation. They insist
-the Wyrm's death proves the Master's strength can outlive flesh, but their
+the voice's departure proves the Master's strength is not confined to one body, but their
 certainty slips when the hero cites the older records. The hero can learn
 why Vesper surrendered to that promise without earning an automatic
 redemption through attitude points. A repaired tram reaches the Glass Warrens.
@@ -111,17 +116,12 @@ whose voices are being repeated through the stone. The player must tell a
 living speaker's request from an echo, using witnessed facts rather than
 a new truth-detection power.
 
-Vesper seeks confirmation that their years of obedience meant something.
-They have discovered the voice can choose another servant and fear being
-discarded. At roughly 72%, they duel the hero to prove they are indispensable.
+Vesper wants their pursuit of power and knowledge vindicated. The older
+records challenge their claim to understand what they serve; curiosity
+competes with pride. Fear of being replaced can add pressure, but does not
+replace their established ambition with a simple wish for approval.
+At roughly 72%, they choose to keep control of the route by force.
 This is Vesper in their own body and skills, not the final transformation.
-
-**Proposed dialogue:**
-
-> Vesper: “You broke its body and called that courage. I stayed when it
-> had nothing left to offer me.”
->
-> Hero: “Then why does it keep asking you for more?”
 
 Defeat costs Vesper control of the route. They retreat alive, refusing the
 hero's offer to stop. The player's reward is the chance to close the voice's
@@ -136,10 +136,12 @@ they guide travelers and support their settlements; destroying them all
 would repeat the Warden's mistake. The player repairs safe relays, rescues
 stranded workers, and separates a useful network from the voice abusing it.
 
-Here the draft introduces Fennick through a surviving correspondence about
-an unfinished rite. Proposed role: a living practitioner in Sevenstones who
-knows its communal portion, but lacked the deep evidence needed to finish
-it. This is a proposed introduction, not a claim of earlier acquaintance.
+Develop the ward's old man through correspondence about an unfinished rite.
+Proposed identification: he is Fennick, and the boy he taught to walk is
+Vesper. Neither name is confirmed by the existing hook. This gives his work
+a personal stake without inventing a new encounter to introduce him late.
+Proposed role: he knows the rite's communal portion, but lacks deep evidence
+needed to finish it. His relationship to the hero begins at the ward.
 The letters identify the person controlling the central relay and its location.
 
 ## 77–82% — proposed region: the Quiet Foundry; Boss 3
@@ -169,7 +171,7 @@ directions, and transport. A collapsed ascent requires one final group
 repair, giving the return journey playable substance without another boss.
 
 Vesper's changed voice reaches the hero once. Its language still carries
-Vesper's fear of abandonment, now made threatening by the power they sought.
+Vesper's wounded pride and determination, now made threatening by the power they sought.
 The hero returns with a way to act and people who have reasons to help.
 
 ## 85–95% — Sevenstones and Fennick's rite
@@ -184,10 +186,6 @@ Draw on relationships the hero actually formed, with fallback contributions
 for optional quests. Do not require every mentor spell or a particular class.
 Mossvale's awake residents still have ordinary responsibilities and voices.
 
-**Proposed dialogue:**
-
-> Fennick: “I can close the way behind it. I cannot strike the blow for you.”
-
 The rite is the road back made communal: the hero accepts help rather than
 returning as a solitary cure. Its successful conclusion contains the threat
 long enough for the final approach. It does not restore every sleeper yet.
@@ -199,12 +197,6 @@ provisionally the ward's inner chamber. Vesper now embodies the power they
 chose, while recognizable gestures and language preserve continuity with
 the earlier duel. Their grievance is personal even as the voice tries to
 speak through them.
-
-**Proposed dialogue:**
-
-> Vesper: “It will not leave me.”
->
-> Fennick: “The way is shut. Finish what you came to do.”
 
 The final fight is the Resurrection test of everything learned: strength
 can matter because the player first protected others, understood the
