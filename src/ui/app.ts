@@ -46,6 +46,7 @@ import { step } from '../world/movement';
 import { pathTo } from '../world/path';
 import { currentMap, newGame, travel, type GameState } from '../world/state';
 import { Dialog } from './dialog';
+import { HeldToasts } from './heldToasts';
 import { button, byId, el, lineNodes } from './dom';
 import { ELEMENT_ICONS, SPELL_KIND_ICONS, STAT_ICONS } from './art/icons';
 import { battleKey, normalizeKey } from './battleKeys';
@@ -122,6 +123,8 @@ export class App {
   private walkTimer = 0;
   private lastFrame = 0;
   private messageTimer = 0;
+  /** Toasts raised under an interlude, shown once the map is clear (see `HeldToasts`). */
+  private readonly heldToasts = new HeldToasts<{ text: string; icon: IconSpec | IconId }>();
 
   constructor(atlas: Atlas, store: KeyValueStore) {
     this.store = store;
@@ -245,6 +248,10 @@ export class App {
       this.messageTimer -= dt;
       if (this.messageTimer <= 0) byId('world-banner').classList.remove('show');
     }
+    const held = this.heldToasts.next(
+      !this.dialog.isOpen && !this.active && this.messageTimer <= 0,
+    );
+    if (held) this.say(held.text, held.icon);
     requestAnimationFrame((t) => this.frame(t));
   }
 
@@ -452,9 +459,12 @@ export class App {
         this.showInterlude(scene.title, page.text, () => show(i + 1), page.speaker);
         return;
       }
-      // Rowan's Focus Stone in the Refusal, unless the hero has one.
+      // Rowan's Focus Stone in the Refusal: its toast waits until Vision 1 has closed.
       for (const itemId of finishScene(this.state, scene)) {
-        this.say(`${ITEMS[itemId]?.name ?? itemId} received`, itemIcon(itemId));
+        this.heldToasts.hold({
+          text: `${ITEMS[itemId]?.name ?? itemId} received`,
+          icon: itemIcon(itemId),
+        });
       }
       this.save();
       this.renderHud();
@@ -469,8 +479,9 @@ export class App {
    * An interlude over everything: the screen goes dark for a scene, a
    * vision or a boss's words, with the speaker's face and name if any. A
    * tap, Enter, Escape or Continue goes on (to `then`, or back to the map),
-   * but not in the first moments, so held keys or taps can't skip it. Before the Wyrm's fight even Escape goes on to the fight:
-   * once it has spoken there is no backing away.
+   * but not in the first moments, so held keys or taps can't skip it.
+   * Before the Wyrm's fight even Escape goes on to the fight: once it has
+   * spoken there is no backing away.
    */
   private showInterlude(
     title: string,
@@ -686,7 +697,7 @@ export class App {
       body: epilogueBody(this.atlas, epilogue),
       actions: [{ label: 'Continue', onClick: close }],
       onCancel: close,
-      guardMs: RESULT_GUARD_MS,
+      guardMs: 600,
     });
   }
 

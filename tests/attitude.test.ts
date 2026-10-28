@@ -324,7 +324,7 @@ describe('encounters on terms', () => {
       kind: 'challenge',
       attitude: 'devoted',
       text: first(npc.lines.confide!, 'warm'),
-      extras: [npc.bonus, { kind: 'item', itemId: 'sporeCap', count: 1 }],
+      extras: [npc.bonus, { kind: 'item', itemId: 'ether', count: 1 }],
     });
   });
 

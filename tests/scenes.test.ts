@@ -181,26 +181,26 @@ describe('the Refusal', () => {
     expect(NPCS.foreman!.secret).toEqual({ kind: 'item', itemId: 'ether', count: 3 });
   });
 
-  it('Rowan speaks of the stone on his mantle, and promises it, only until he gives it', () => {
-    const mantle = NPCS.elder!.saidUntil!.lines.find((l) => l.includes('on the mantle'))!;
-    const promise = NPCS.elder!.saidUntil!.lines.find((l) =>
-      l.includes('give you the Focus Stone'),
-    )!;
+  it('Rowan speaks of the stone on his mantle only until he gives it', () => {
+    const mantle =
+      'Forty years ago I hit granite trying to dig this hole. Had to crack the rock with a rune stone I found in the dirt. Still keep it on the mantle.';
+    expect(NPCS.elder!.saidUntil).toEqual({ flag: REFUSAL.flag, lines: [mantle] });
     const confide = (flags: string[]) => linesNow(NPCS.elder!, new Set(flags)).confide!;
-    const before = confide([]);
-    expect(variantsFor(before, 'plain')).toContain(mantle);
-    expect(variantsFor(before, 'warm')).toEqual([promise]);
+    expect(variantsFor(confide([]), 'plain')).toContain(mantle);
     const after = confide([REFUSAL.flag]);
     expect(variantsFor(after, 'plain')).not.toContain(mantle);
     expect(variantsFor(after, 'plain')).toHaveLength(1);
-    // The promise gone, a Devoted hero hears his other confidence.
-    expect(variantsFor(after, 'warm')).toEqual(variantsFor(after, 'plain'));
-    // The text stays as the author wrote it.
-    expect(variantsFor(NPCS.elder!.lines.confide!, 'warm')).toEqual([promise]);
-    // Through an encounter: a Devoted hero after the Refusal.
-    const npc = npcNow(NPCS.elder!, new Set([REFUSAL.flag]));
-    expect(introFor(npc, 'devoted')).toBe(variantsFor(after, 'plain')[0]);
     expect(npcNow(NPCS.foreman!, new Set())).toBe(NPCS.foreman);
+  });
+
+  it('Rowan’s Devoted confidence (the broken seal) is true at any time, with his last Ether', () => {
+    const promise =
+      '*Rowan glances down the shaft and lowers his voice.* "Forty years back I hit rock digging this well and cracked it with that old stone. Something breathed down there. I\'ve wondered ever since if I let it out. Clear the shaft, and take my last Ether for the road."';
+    expect(variantsFor(NPCS.elder!.lines.confide!, 'warm')).toEqual([promise]);
+    for (const flags of [[], [REFUSAL.flag]]) {
+      expect(introFor(npcNow(NPCS.elder!, new Set(flags)), 'devoted')).toBe(promise);
+    }
+    expect(NPCS.elder!.secret).toEqual({ kind: 'item', itemId: 'ether', count: 1 });
   });
 
   it('has Innkeeper Pete speak of Rowan’s boy among his Neutral and Friendly greetings', () => {

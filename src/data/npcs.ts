@@ -39,10 +39,10 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       confide: {
         cold: "You've got a mean look to you, but you aren't stupid. That mold in the water? It isn't pond rot. It's coming up from the deep caves.",
         plain: [
-          'Forty years ago I hit granite trying to dig this hole. Had to crack the bed with a rune stone I found in the dirt. Still keep it on the mantle.',
+          'Forty years ago I hit granite trying to dig this hole. Had to crack the rock with a rune stone I found in the dirt. Still keep it on the mantle.',
           "Truth is, the spores aren't just here. Hazel says her meadows are going pale too. Something’s turning underneath us.",
         ],
-        warm: "I don't hand this out to just anyone, but you've been decent to us. Clear the shaft, and I'll give you the Focus Stone I used to break the bed forty years back.",
+        warm: '*Rowan glances down the shaft and lowers his voice.* "Forty years back I hit rock digging this well and cracked it with that old stone. Something breathed down there. I\'ve wondered ever since if I let it out. Clear the shaft, and take my last Ether for the road."',
       },
       refuse: {
         cold: [
@@ -127,15 +127,14 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       },
     ],
     bonus: { kind: 'item', itemId: 'ether', count: 1 },
-    secret: { kind: 'item', itemId: 'sporeCap', count: 1 },
+    // His last Ether, as his Devoted confidence says.
+    secret: { kind: 'item', itemId: 'ether', count: 1 },
     // Said only until he gives his stone away in the Refusal: "Still keep it
-    // on the mantle", and (until the author approves its replacement) his
-    // Devoted promise of the stone.
+    // on the mantle".
     saidUntil: {
       flag: 'scene:refusal',
       lines: [
-        "I don't hand this out to just anyone, but you've been decent to us. Clear the shaft, and I'll give you the Focus Stone I used to break the bed forty years back.",
-        'Forty years ago I hit granite trying to dig this hole. Had to crack the bed with a rune stone I found in the dirt. Still keep it on the mantle.',
+        'Forty years ago I hit granite trying to dig this hole. Had to crack the rock with a rune stone I found in the dirt. Still keep it on the mantle.',
       ],
     },
     // He gives his rune stone in the Refusal now, so the well pays coin:

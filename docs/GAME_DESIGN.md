@@ -909,8 +909,8 @@ takes real growth. A hero deep in the two elements that beat an NPC's
   crystals (rounded up), and merchants push prices up 25% faster. Puzzles
   are unchanged, since each has exactly one recorded solution.
 - **Devoted secrets**: quest NPCs add a `secret` item; shopkeepers bring
-  out `secretStock`. The Elder's secret is a Spore Cap, which reveals Bloom
-  when brought to Hazel; the sage's confidence hints at Ball Lightning.
+  out `secretStock`. The Elder's secret is his last Ether, as his
+  confidence says; the sage's confidence hints at Ball Lightning.
 - **No soft-locks**: NPCs whose rewards the realm needs (Captain Vale's
   Cave Pass; Shrine Keeper Myst's spring, which reveals Purify) are
   `essential`: when Hostile they still deal, at Wary terms, with their curt
@@ -940,7 +940,7 @@ speaker rotates through, and `*stage directions*` (see [Story](#story)).
 
 | NPC                   | Element   | Need                                      | Challenge                      | Reward (bonus / secret)                           |
 | --------------------- | --------- | ----------------------------------------- | ------------------------------ | ------------------------------------------------- |
-| Elder Rowan           | Earth     | Spores choke the village well             | Puzzle: clear the spore field  | Quake, or the Focus Stone (Ether / Spore Cap)     |
+| Elder Rowan           | Earth     | Spores choke the village well             | Puzzle: clear the spore field  | Quake, or 40 gil (Ether / Ether)                  |
 | Farmer Bean           | Nature    | Blight left her herb beds bare            | Barter: plant 7 green          | 2 Herbs (Herb / Grove Charm)                      |
 | Pip                   | Wind      | His crystal tower is jammed before supper | Puzzle: unjam the tower        | Ether (Herb / Wind Charm)                         |
 | Shopkeeper Ordor      | Nature    | Makes his living at the stall             | Haggle                         | Mossvale Stall (secret: Iron Sword)               |
@@ -1066,9 +1066,14 @@ the spell" line with none left says the win line.
   (one plain and one warm "You succeed" variant, and all three "already
   knowing the spell" cells). He says his other success line instead.
 - `NpcDef.saidUntil`, said only until a flag: Rowan's Neutral confidence
-  "…Still keep it on the mantle." and his Devoted promise "…I'll give you
-  the Focus Stone…" (pending the author's replacement) are said only
-  before the Refusal; afterwards he confides "Truth is, the spores…".
+  "…Still keep it on the mantle." is said only before the Refusal;
+  afterwards he confides "Truth is, the spores…".
+
+**The rune stone's story**: it was a seal left by the ancient cutters.
+Rowan cracked the rock with it forty years ago, digging the well, and
+broke the seal, opening a crack to the Depths. His Devoted confidence
+hints at it ("Something breathed down there. I've wondered ever since if
+I let it out."), and it is true at any time, so it is never gated.
 
 Innkeeper Pete's line on Rowan's son (Hareguy) is one more of his
 Neutral and Friendly greetings, rotating with the others.

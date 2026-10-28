@@ -84,8 +84,9 @@ export function serialize(state: GameState): string {
  * Parses a save string in three steps: parse, migrate (flags, the version 8
  * story, the hero), then sanitise, and last the version 9 scenes (on the
  * sanitised hero). Only structural garbage returns null: not JSON, not an
- * object, an unknown version, or a missing or mistyped core field (map, position, flag list; the hero's name, level, XP, HP, gil and
- * skill points). Stale entries are dropped or clamped instead (see
+ * object, an unknown version, or a missing or mistyped core field (map,
+ * position, flag list; the hero's name, level, XP, HP, gil and skill
+ * points). Stale entries are dropped or clamped instead (see
  * `sanitizeHero`), so one removed item never costs the whole adventure.
  */
 export function deserialize(json: string): GameState | null {

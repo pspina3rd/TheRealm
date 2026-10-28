@@ -227,8 +227,8 @@ export const OPENING: SceneDef = {
 /**
  * The Refusal: the first time the hero leaves Mossvale, just before Vision
  * 1. In R4 Rowan gives the hero his rune stone, the Focus Stone
- * (`wellStone`), unless they already have one (an old save that had it
- * from his well): never a second stone.
+ * (`wellStone`), unless they ever received it (`got:wellStone`; an old
+ * save that had it from his well): never a second stone.
  */
 export const REFUSAL: SceneDef = {
   id: 'refusal',
