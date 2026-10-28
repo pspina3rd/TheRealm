@@ -16,11 +16,9 @@ import {
   ATTITUDES,
   ATTITUDE_PRICES,
   ATTITUDE_THRESHOLDS,
-  WARY_HARDER,
   attitudeForScore,
   attitudeOf,
   attitudeScore,
-  challengeOnTerms,
   dealTerms,
   introFor,
   rewardsOnTerms,
@@ -147,18 +145,17 @@ describe('tier effects', () => {
     expect(dealTerms(NPCS.farmer!, 'devoted')).toBe('devoted');
   });
 
-  it('makes a Wary challenge harder, except puzzles', () => {
-    expect(challengeOnTerms(NPCS.collector!.challenge, 'wary')).toMatchObject({
-      targetScore: 1000,
-    });
-    expect(challengeOnTerms(NPCS.guard!.challenge, 'wary')).toMatchObject({
-      wants: { blue: 10, violet: 10 },
-    });
-    expect(challengeOnTerms(NPCS.merchant!.challenge, 'wary')).toMatchObject({
-      rivalIntervalMs: 2000 / WARY_HARDER,
-    });
-    expect(challengeOnTerms(NPCS.kid!.challenge, 'wary')).toBe(NPCS.kid!.challenge);
-    expect(challengeOnTerms(NPCS.guard!.challenge, 'neutral')).toBe(NPCS.guard!.challenge);
+  it('adds regard to the score, but regard alone never makes anyone Hostile', () => {
+    const npc = NPCS.farmer!;
+    expect(attitudeOf(heroWith({}, 2), npc, 0)).toBe('neutral');
+    expect(attitudeOf(heroWith({}, 2), npc, 2)).toBe('friendly');
+    expect(attitudeOf(heroWith({}, 0), npc, -2)).toBe('wary');
+    // Neutral at −0.5 or more: −2 regard would reach Hostile, so the floor holds at Wary.
+    expect(attitudeOf(heroWith({}, 0), npc, -2)).not.toBe('hostile');
+    const hostile = heroWith({ fire: 3, kindle: 3, wildfire: 3 });
+    expect(attitudeOf(hostile, NPCS.farmer!)).toBe('hostile');
+    expect(attitudeOf(hostile, NPCS.farmer!, 2)).not.toBe('hostile');
+    expect(attitudeOf(heroWith({}, 0), NPCS.sealedChest!, -2)).toBe('neutral');
   });
 
   it('adds the bonus when Friendly and the secret too when Devoted', () => {
@@ -311,7 +308,7 @@ describe('encounters on terms', () => {
     expect(wary).toMatchObject({
       attitude: 'wary',
       text: first(npc.lines.intro, 'cold'),
-      spec: { wants: { green: 9 } },
+      spec: { wants: { green: 7 } },
     });
     const warm = describeInteraction(stateFor(npc, 'friendly'), entityOf('farmer'));
     expect(warm).toMatchObject({ text: first(npc.lines.intro, 'warm'), extras: [npc.bonus] });
@@ -361,14 +358,14 @@ describe('encounters on terms', () => {
         kind: 'challenge',
         attitude: 'hostile',
         text: first(npc.lines.intro, 'cold'),
-        spec: challengeOnTerms(npc.challenge, 'wary'),
+        spec: npc.challenge,
       });
     }
   });
 
   it('grants the cave pass to a Hostile hero who wins', () => {
     const state = stateFor(NPCS.guard!, 'hostile');
-    const battle = makeBattle(challengeOnTerms(NPCS.guard!.challenge, 'wary'), state.hero);
+    const battle = makeBattle(NPCS.guard!.challenge, state.hero);
     Object.defineProperty(battle, 'status', { value: 'won' });
     const result = resolveBattle(state, entityOf('guard'), battle, createRng(1), 'wary');
     expect(state.flags.has('cavePass')).toBe(true);

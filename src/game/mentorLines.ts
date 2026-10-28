@@ -11,7 +11,7 @@ import { attitudeToward, moodFor } from './attitude';
 import { mentorsTaught } from './ending';
 import { seeksHero } from './hidden';
 import { pickVariant, speak, variantsOf } from './lines';
-import { isCategoryLocked } from './spells';
+import { sealedElement } from './spells';
 
 /** Which of the mentor's rows is said. */
 export type MentorMoment = 'failedLesson' | 'seeks' | 'arrives' | 'afterLesson' | 'motive';
@@ -28,7 +28,7 @@ function lastMet(flags: ReadonlySet<string>, mentor: MentorDef): string | undefi
 
 /**
  * The row said now, first that applies:
- * - *If you failed their lesson* while their category is locked;
+ * - *If you failed their lesson* while a spell of theirs is sealed;
  * - *Seeks you out* while they seek the hero (a board feat they noticed);
  * - *Arrives somewhere new* on the first talk since they moved to a new
  *   stop away from home (once the hero has met them somewhere else);
@@ -36,7 +36,7 @@ function lastMet(flags: ReadonlySet<string>, mentor: MentorDef): string | undefi
  * - otherwise why they teach (the motive, said on meeting).
  */
 export function mentorMoment(state: GameState, mentor: MentorDef): MentorMoment {
-  if (isCategoryLocked(state.hero, mentor.element)) return 'failedLesson';
+  if (sealedElement(state.hero) === mentor.element) return 'failedLesson';
   if (seeksHero(mentor, state)) return 'seeks';
   const stop = mentor.route.indexOf(mentorPlace(mentor, state));
   const met = lastMet(state.flags, mentor);

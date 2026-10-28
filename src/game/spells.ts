@@ -352,24 +352,25 @@ export function heroSpell(hero: Pick<Hero, 'spells'>, spellId: string): CastSpel
   return spell && known ? castSpellFor(spell, known) : null;
 }
 
-/** A mentor lesson the hero lost: the spell and the level it was to teach (1 = new). */
-export interface FailedLesson {
+/**
+ * A spell sealed by a lost lesson (docs/ENCOUNTER_DESIGN.md §6.3): the
+ * hero knows it but can't cast it until they win that lesson back, or win
+ * `fights` more monster fights, whichever comes first. One seal at a time.
+ */
+export interface SpellSeal {
   readonly spellId: string;
-  readonly level: number;
+  /** Monster fights still to win before the seal lifts on its own. */
+  fights: number;
 }
 
-/**
- * True while the hero may not enhance spells in `category`: they lost a
- * mentor lesson in it that is still to be won. The lock lifts once the
- * hero knows that spell at that level, by winning the lesson or any other
- * way, so it can never outlive the lesson.
- */
-export function isCategoryLocked(
-  hero: Pick<Hero, 'failedLessons' | 'spells'>,
-  category: Element,
-): boolean {
-  const failed = hero.failedLessons[category];
-  return failed !== undefined && (knownSpell(hero, failed.spellId)?.level ?? 0) < failed.level;
+/** True while `spellId` is sealed: it can't be cast. */
+export function isSealed(hero: Pick<Hero, 'seal'>, spellId: string): boolean {
+  return hero.seal?.spellId === spellId;
+}
+
+/** The element of the sealed spell, if any (its mentor speaks of the lost lesson). */
+export function sealedElement(hero: Pick<Hero, 'seal'>): Element | null {
+  return hero.seal ? (SPELLS[hero.seal.spellId]?.category ?? null) : null;
 }
 
 /** A category the hero knows spells in, for the battle menu. */

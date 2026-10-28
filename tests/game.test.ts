@@ -435,9 +435,7 @@ const V4_FIELDS = ['stats', 'skillPoints'];
  * version 5, spells were a list of ids and nothing was locked.
  */
 const without = (hero: Record<string, unknown>, fields: readonly string[]) => ({
-  ...Object.fromEntries(
-    Object.entries(hero).filter(([key]) => ![...fields, 'failedLessons'].includes(key)),
-  ),
+  ...Object.fromEntries(Object.entries(hero).filter(([key]) => ![...fields, 'seal'].includes(key))),
   spells: Object.keys(hero.spells as object),
 });
 
@@ -567,7 +565,7 @@ describe('save migration from version 4 (spell levels)', () => {
     const hero = deserialize(JSON.stringify(v4(['shadow', 'cure', 'fire'])))!.hero;
     expect(hero.spells).toEqual(knownSpells('shadow', 'cure', 'fire'));
     expect(Object.keys(hero.spells)).toEqual(['shadow', 'cure', 'fire']);
-    expect(hero.failedLessons).toEqual({});
+    expect(hero.seal).toBeNull();
   });
 
   it('keeps version 5 levels and enhancements as saved', () => {
@@ -590,21 +588,21 @@ describe('save migration to version 6 (mentors)', () => {
     expect(deserialize(serialize(state))!.victories).toBe(7);
   });
 
-  it('saves the lost lesson behind each lock', () => {
+  it('saves the spell seal', () => {
     const state = newGame('mage');
-    state.hero.failedLessons = { arcane: { spellId: 'manaTap', level: 1 } };
-    expect(deserialize(serialize(state))!.hero.failedLessons).toEqual(state.hero.failedLessons);
+    state.hero.seal = { spellId: 'shadow', fights: 2 };
+    expect(deserialize(serialize(state))!.hero.seal).toEqual(state.hero.seal);
   });
 
   it('starts version 5 saves with no victories (every mentor at home) and no lost lessons', () => {
     const data = JSON.parse(serialize(newGame('mage')));
     const hero = { ...data.hero, lockedCategories: ['arcane'] };
-    delete hero.failedLessons;
+    delete hero.seal;
     const v5 = { ...data, version: 5, hero };
     delete v5.victories;
     const loaded = deserialize(JSON.stringify(v5))!;
     expect(loaded.victories).toBe(0);
-    expect(loaded.hero.failedLessons).toEqual({});
+    expect(loaded.hero.seal).toBeNull();
     expect(loaded.hero).not.toHaveProperty('lockedCategories');
   });
 });
@@ -613,7 +611,7 @@ describe('save migration to version 7 (feats)', () => {
   it('saves the hero’s board feats', () => {
     const state = newGame();
     state.hero.feats = { 'pure.lightning': 3, hastedClear: 1 };
-    expect(SAVE_VERSION).toBe(9);
+    expect(SAVE_VERSION).toBe(10);
     expect(deserialize(serialize(state))!.hero.feats).toEqual(state.hero.feats);
   });
 

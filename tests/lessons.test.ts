@@ -12,6 +12,7 @@ import {
   FOE_ATK_PER_DIFFICULTY,
   FOE_HP_PER_DIFFICULTY,
   completeLesson,
+  easeSeal,
   helpChance,
   heroHelpChance,
   lessonFoeId,
@@ -21,7 +22,8 @@ import {
   type LessonSpec,
 } from '../src/game/lessons';
 import { createRng } from '../src/core/rng';
-import { enhancements, isCategoryLocked, knownSpell } from '../src/game/spells';
+import { enhancements, isSealed, knownSpell } from '../src/game/spells';
+import { STAKES } from '../src/data/balance';
 import {
   isAtHome,
   mentorEntities,
@@ -99,29 +101,29 @@ describe('lessonsFor', () => {
 });
 
 describe('helpChance', () => {
-  it('is 40% less 5% per alignment point above the difficulty', () => {
-    expect(helpChance(1, 1, 'fire', 'fire')).toBeCloseTo(0.4);
-    expect(helpChance(3, 1, 'fire', 'fire')).toBeCloseTo(0.3);
-    expect(helpChance(1, 2, 'fire', 'fire')).toBeCloseTo(0.45);
+  it('is 30% less 5% per alignment point above the difficulty', () => {
+    expect(helpChance(1, 1, 'fire', 'fire')).toBeCloseTo(0.3);
+    expect(helpChance(3, 1, 'fire', 'fire')).toBeCloseTo(0.2);
+    expect(helpChance(1, 2, 'fire', 'fire')).toBeCloseTo(0.35);
   });
 
-  it('is clamped to 10–50% before the relation factor', () => {
-    expect(helpChance(0, 4, 'fire', 'fire')).toBeCloseTo(0.5);
-    expect(helpChance(12, 1, 'fire', 'fire')).toBeCloseTo(0.1);
-    expect(helpChance(12, 1, 'fire', 'nature')).toBeCloseTo(0.06);
+  it('is clamped to 5–35% before the relation factor', () => {
+    expect(helpChance(0, 4, 'fire', 'fire')).toBeCloseTo(0.35);
+    expect(helpChance(12, 1, 'fire', 'fire')).toBeCloseTo(0.05);
+    expect(helpChance(12, 1, 'fire', 'nature')).toBeCloseTo(0.03);
   });
 
   it('scales by how the mentor stands to the hero’s title element', () => {
-    expect(helpChance(1, 1, 'fire', 'earth')).toBeCloseTo(0.32); // related
-    expect(helpChance(1, 1, 'fire', 'nature')).toBeCloseTo(0.24); // fire beats nature
-    expect(helpChance(1, 1, 'fire', 'water')).toBeCloseTo(0.32); // water beats fire
+    expect(helpChance(1, 1, 'fire', 'earth')).toBeCloseTo(0.24); // related
+    expect(helpChance(1, 1, 'fire', 'nature')).toBeCloseTo(0.18); // fire beats nature
+    expect(helpChance(1, 1, 'fire', 'water')).toBeCloseTo(0.24); // water beats fire
   });
 
   it('uses the hero’s alignment and title', () => {
     const hero = heroKnowing('gale', 'cure');
-    expect(heroHelpChance(hero, mentor('kestrel'), 1)).toBeCloseTo(0.4);
+    expect(heroHelpChance(hero, mentor('kestrel'), 1)).toBeCloseTo(0.3);
     // A ranger's title is wind, which beats fire.
-    expect(heroHelpChance(hero, mentor('torva'), 1)).toBeCloseTo(0.45 * 0.8);
+    expect(heroHelpChance(hero, mentor('torva'), 1)).toBeCloseTo(0.35 * 0.8);
   });
 });
 
@@ -189,66 +191,58 @@ describe('completeLesson', () => {
     expect(knownSpell(hero, 'gust')?.level).toBe(1);
   });
 
-  it('raises a ready spell, lifting the lock it set', () => {
+  it('raises a ready spell, lifting its seal', () => {
     const hero = heroKnowing('gale');
     hero.spells.gale!.step = enhancements(ready);
-    hero.failedLessons = { wind: { spellId: 'gale', level: 2 } };
+    hero.seal = { spellId: 'gale', fights: 2 };
     expect(completeLesson(hero, spec('gale'), true)).toEqual([
       { kind: 'spellLevel', spellId: 'gale', level: 2 },
-      { kind: 'unlock', element: 'wind' },
+      { kind: 'unseal', spellId: 'gale' },
     ]);
     expect(hero.spells.gale?.level).toBe(2);
-    expect(hero.failedLessons).toEqual({});
+    expect(hero.seal).toBeNull();
   });
 
-  it('records the lost lesson, locks the category and patches the hero up to half HP', () => {
+  it('seals a known spell whose lesson is lost, and patches the hero up to half HP', () => {
     const hero = heroKnowing('gale');
+    hero.spells.gale!.step = enhancements(ready);
     hero.hp = 0;
-    expect(completeLesson(hero, spec('gust'), false)).toEqual([{ kind: 'lock', element: 'wind' }]);
-    expect(hero.failedLessons).toEqual({ wind: { spellId: 'gust', level: 1 } });
-    expect(isCategoryLocked(hero, 'wind')).toBe(true);
+    expect(completeLesson(hero, spec('gale'), false)).toEqual([{ kind: 'seal', spellId: 'gale' }]);
+    expect(hero.seal).toEqual({ spellId: 'gale', fights: STAKES.sealFights });
+    expect(isSealed(hero, 'gale')).toBe(true);
     expect(hero.hp).toBe(Math.ceil(hero.maxHp / 2));
     hero.hp = hero.maxHp;
-    completeLesson(hero, spec('gust'), false);
+    completeLesson(hero, spec('gale'), false);
     expect(hero.hp).toBe(hero.maxHp);
+  });
+
+  it('has nothing to seal for a lent spell (a lesson for a new one)', () => {
+    const hero = heroKnowing('gale');
+    expect(completeLesson(hero, spec('gust'), false)).toEqual([]);
+    expect(hero.seal).toBeNull();
     expect(knownSpell(hero, 'gust')).toBeUndefined();
   });
 
-  it('keeps the first lost lesson as the one to win', () => {
-    const hero = heroKnowing('gale', 'shadow');
-    completeLesson(hero, spec('moonwind'), false);
+  it('keeps one seal at a time: the first stays', () => {
+    const hero = heroKnowing('gale', 'gust');
+    completeLesson(hero, spec('gale'), false);
     completeLesson(hero, spec('gust'), false);
-    expect(hero.failedLessons.wind).toEqual({ spellId: 'moonwind', level: 1 });
-  });
-
-  it('does not unlock for an easier lesson, only for the lost one', () => {
-    const hero = heroKnowing('gale', 'shadow');
-    completeLesson(hero, spec('moonwind'), false);
-    expect(lessonsFor(seek(hero), mentor('kestrel')).map((l) => l.spellId)).toEqual([
-      'gust',
-      'moonwind',
-    ]);
-    expect(completeLesson(hero, spec('gust'), true)).toEqual([{ kind: 'spell', spellId: 'gust' }]);
-    expect(isCategoryLocked(hero, 'wind')).toBe(true);
+    expect(hero.seal?.spellId).toBe('gale');
+    // Winning a different lesson teaches it but leaves the seal.
     expect(completeLesson(hero, spec('moonwind'), true)).toEqual([
       { kind: 'spell', spellId: 'moonwind' },
-      { kind: 'unlock', element: 'wind' },
     ]);
-    expect(isCategoryLocked(hero, 'wind')).toBe(false);
-    expect(hero.failedLessons).toEqual({});
+    expect(hero.seal?.spellId).toBe('gale');
   });
 
-  it('clears a lock whose lesson can no longer be offered', () => {
-    const hero = heroKnowing('cure');
-    hero.failedLessons = { fire: { spellId: 'fire', level: 1 } };
-    learnSpell(hero, 'fire'); // from a tome, say
-    expect(isCategoryLocked(hero, 'fire')).toBe(false);
-    expect(lessonsFor(seek(hero), mentor('torva')).map((l) => l.spellId)).not.toContain('fire');
-    // The stale record is tidied away by the next lesson won, with no unlock to show.
-    expect(completeLesson(hero, spec('kindle', 'torva'), true)).toEqual([
-      { kind: 'spell', spellId: 'kindle' },
-    ]);
-    expect(hero.failedLessons).toEqual({});
+  it('lifts a seal after enough won monster fights', () => {
+    const hero = heroKnowing('gale');
+    expect(easeSeal(hero)).toEqual([]);
+    hero.seal = { spellId: 'gale', fights: 2 };
+    expect(easeSeal(hero)).toEqual([]);
+    expect(hero.seal).toEqual({ spellId: 'gale', fights: 1 });
+    expect(easeSeal(hero)).toEqual([{ kind: 'unseal', spellId: 'gale' }]);
+    expect(hero.seal).toBeNull();
   });
 
   it('rejects unknown mentors', () => {
@@ -337,13 +331,12 @@ describe('mentor encounters', () => {
       sprite: 'char.020',
       mentorId: 'torva',
       lessons: [{ spellId: 'fire' }, { spellId: 'wildfire' }],
-      failed: null,
+      sealed: null,
       silhouettes: [{ spell: SPELLS.volcano, state: 'hidden' }],
     });
-    state.hero.failedLessons = { fire: { spellId: 'wildfire', level: 1 } };
-    expect(describeInteraction(state, torva)).toMatchObject({
-      failed: { spellId: 'wildfire', level: 1 },
-    });
+    state.hero.seal = { spellId: 'fire', fights: 3 };
+    expect(describeInteraction(state, torva)).toMatchObject({ sealed: 'fire' });
+    state.hero.seal = null;
     // Nothing to teach but the hidden spell's silhouette…
     state.hero.spells = knownSpells('fire', 'kindle', 'wildfire');
     expect(describeInteraction(state, torva)).toMatchObject({
@@ -382,15 +375,16 @@ describe('mentor encounters', () => {
     expect(state.victories).toBe(0);
   });
 
-  it('resolves a lost lesson into a lock, without falling', () => {
+  it('resolves a lost lesson into a seal, without falling', () => {
     const state = newGame('ranger');
-    const spec = lessonSpec(state, 'torva', { spellId: 'fire', level: 1, difficulty: 1 });
+    learnSpell(state.hero, 'fire');
+    const spec = lessonSpec(state, 'torva', { spellId: 'fire', level: 2, difficulty: 2 });
     const battle = makeBattle(spec, state.hero);
     state.hero.hp = 0;
     const result = resolveBattle(state, torva, battle, createRng(1));
     expect(result).toMatchObject({ won: false, speech: MENTORS.torva!.loseText, fell: false });
     expect(state.mapId).toBe('mossvale');
-    expect(state.hero.failedLessons).toEqual({ fire: { spellId: 'fire', level: 1 } });
+    expect(state.hero.seal).toEqual({ spellId: 'fire', fights: STAKES.sealFights });
   });
 
   it('rejects a mentor battle that is not a lesson', () => {
@@ -423,7 +417,7 @@ describe('LessonChallenge', () => {
     expect(challenge.enemy.hp).toBe(Math.round(50 * (1 + FOE_HP_PER_DIFFICULTY)));
     expect(battle.level).toBe(3);
     expect(challenge.objective().label).toBe('Lesson: Fire');
-    expect(challenge.helpChance).toBeCloseTo(0.5 * 0.8);
+    expect(challenge.helpChance).toBeCloseTo(0.35 * 0.8);
   });
 
   it('tosses the best-fitting shape in the mentor’s colour, entering as usual', () => {

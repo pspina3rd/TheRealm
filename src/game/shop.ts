@@ -3,6 +3,7 @@ import type { ItemDef } from '../data/types';
 import type { GameState } from '../world/state';
 import { addItem, applyItemEffect, equip, removeItem, slotFor, type Hero } from './hero';
 import { knownSpell } from './spells';
+import { innNight } from './stakes';
 
 /**
  * What the hero pays: the list price times `multiplier` (the haggle's
@@ -67,7 +68,7 @@ export function cannotBuyReason(
 
 /**
  * Buys an item. Services (like an inn's rest) take effect immediately and a
- * rest also sets the respawn point; weapons and armour are equipped straight
+ * rest also sets the respawn point and ends the day (see `innNight`); weapons and armour are equipped straight
  * away if better than what the hero wears, and a charm is put on if no
  * charm is worn. Returns a message; throws if the purchase isn't allowed.
  */
@@ -82,7 +83,11 @@ export function buy(state: GameState, itemId: string, multiplier: number): strin
   hero.gil -= price;
 
   if (item.kind === 'service') {
-    if (item.use?.rest) state.respawn = { map: state.mapId, x: state.x, y: state.y };
+    if (item.use?.rest) {
+      state.respawn = { map: state.mapId, x: state.x, y: state.y };
+      // A night's sleep ends the day: strain eases and old markups lapse.
+      innNight(state);
+    }
     return `${applyItemEffect(hero, item)} (−${price} gil)`;
   }
 

@@ -13,7 +13,7 @@ import {
   castEffect,
   castPower,
   castSpellFor,
-  isCategoryLocked,
+  isSealed,
   isReady,
   knownSpell,
   levelStep,
@@ -174,9 +174,9 @@ function attributeValue(
  * A row per known spell: its element, name, level pips and, while it can
  * still level, the skill points one enhancement costs, the step's progress
  * pips and each attribute's pips, value and −/+ buttons. A spell whose
- * step is complete glows and shows a scroll (ready for a mentor); a locked
- * category shows a lock, where its mentor is (`lockHint`), and its buttons
- * stay off.
+ * step is complete glows and shows a scroll (ready for a mentor); a sealed
+ * spell shows a lock and where its mentor is (`lockHint`); it can still
+ * be enhanced.
  */
 function spellRows(
   hero: Hero,
@@ -192,7 +192,7 @@ function spellRows(
       const staged = plan.spells[spellId] ?? {};
       const cast = castSpellFor(spell, known, staged);
       const step = levelStep(spell, known.level);
-      const locked = isCategoryLocked(hero, spell.category);
+      const locked = isSealed(hero, spellId);
       const ready = isReady(spell, known, staged);
       const anyStaged = ENHANCEMENT_IDS.some((id) => (staged[id] ?? 0) > 0);
       const header = el(
@@ -228,7 +228,7 @@ function spellRows(
       if (ready)
         header.append(iconElement('scroll', 2, 'Ready: a mentor can teach the next level'));
       if (locked) {
-        header.append(iconElement('lock', 2, 'Locked until the lesson is won'));
+        header.append(iconElement('lock', 2, 'Sealed: win the lesson back, or win monster fights'));
         if (lockHint) header.append(lockHint(spell.category));
       }
       const attributes = step
@@ -269,7 +269,7 @@ function spellRows(
         : null;
       const classes = ['spell-row'];
       if (ready) classes.push('ready');
-      if (locked) classes.push('locked');
+      if (locked) classes.push('sealed');
       if (anyStaged) classes.push('staged');
       if (!step) classes.push('max');
       return [

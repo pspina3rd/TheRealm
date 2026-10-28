@@ -19,6 +19,8 @@ Branch `encounters-m1`, based on `claude/laughing-brown-7i13lb`.
 
 ## Log
 
-| Date   | Commit | Done                                   | Next   |
-| ------ | ------ | -------------------------------------- | ------ |
-| Oct 28 | —      | Read the spec and code; wrote the plan | Step 1 |
+| Date   | Commit  | Done                                                                                                                                                                                                        | Next          |
+| ------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| Oct 28 | —       | Read the spec and code; wrote the plan                                                                                                                                                                      | Step 1        |
+| Oct 28 | 18302af | Step 1: board tags, narrow spawn, clears off, controlled supply, pushed rows                                                                                                                                | Step 2        |
+| Oct 28 | (this)  | Step 2: `ENCOUNTERS`/`STAKES`/`REGION_RULES` data; stakes rules (regard, strain, retry, day, prices); spell seal replaces category locks; help clamp 5–35%; save v10 with zeroed-stakes migration from v1–9 | Step 3: verbs |

@@ -59,7 +59,7 @@ function lessonButton(
     iconElement(ELEMENT_ICONS[spell.category], 3, ELEMENT_NAMES[spell.category]),
     el('span', {}, el('b', { text: cast.name }), levelPips(spell, lesson.level), spellMeta(cast)),
     failed
-      ? iconElement('lock', 2, 'Win this lesson to unlock')
+      ? iconElement('lock', 2, 'Win this lesson to lift the seal')
       : lesson.level > 1
         ? iconElement('scroll', 2, 'Next level')
         : el('span'),
@@ -89,12 +89,7 @@ export function conversationBody(
         'div',
         { className: 'lessons' },
         ...interaction.lessons.map((lesson) =>
-          lessonButton(
-            lesson,
-            interaction.failed?.spellId === lesson.spellId &&
-              interaction.failed.level === lesson.level,
-            onLesson,
-          ),
+          lessonButton(lesson, interaction.sealed === lesson.spellId, onLesson),
         ),
         ...interaction.silhouettes.map((slot) => hiddenSpellSlot(atlas, slot)),
       ),

@@ -665,20 +665,23 @@ export class App {
     }
   }
 
-  /** Where the mentor of a locked category is now: their face and the place's name. */
+  /**
+   * Where the mentor of a sealed spell is now, their face and the place's
+   * name, and how many monster fights still lift the seal.
+   */
   private readonly lockHint = (category: Element): HTMLElement => {
     const mentor = mentorOf(category);
     if (!mentor) return el('span');
     const stop = mentorPlace(mentor, this.state);
     const place = `${MAPS[stop.map]?.name ?? stop.map} · ${stop.landmark}`;
-    const failed = this.state.hero.failedLessons[category];
-    const spell = failed && SPELLS[failed.spellId];
-    const lesson = spell ? spellLevel(spell, failed.level) : null;
+    const seal = this.state.hero.seal;
+    const spell = seal && SPELLS[seal.spellId];
+    const lesson = spell ? spellLevel(spell, 1) : null;
     return el(
       'span',
       {
         className: 'lock-hint',
-        title: `${lesson ? `${lesson.name} · ` : ''}${mentor.name} · ${place}`,
+        title: `${spell ? `${spellName(spell)} · ` : ''}${mentor.name} · ${place}${seal ? ` · or win ${seal.fights} more fights` : ''}`,
       },
       ...(lesson ? [iconElement(SPELL_KIND_ICONS[lesson.effect.kind], 2, lesson.name)] : []),
       spritePortrait(this.atlas, mentor.sprite, 24),

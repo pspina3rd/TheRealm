@@ -15,7 +15,7 @@ import {
 import {
   castSpellFor,
   castSummary,
-  isCategoryLocked,
+  isSealed,
   isReady,
   knownSpell,
   spellCategories,
@@ -38,7 +38,7 @@ import {
 export interface MenuHandlers {
   readonly onUse: (itemId: string) => void;
   readonly onEquip: (itemId: string) => void;
-  /** Where to find the mentor who can unlock a locked category. */
+  /** Where to find the mentor whose lesson would lift a seal. */
   readonly lockHint?: (category: Element) => HTMLElement;
 }
 
@@ -161,7 +161,7 @@ export function menuBody(
         if (!spell || !known) return [];
         const cast = castSpellFor(spell, known);
         const ready = isReady(spell, known);
-        const locked = isCategoryLocked(hero, spell.category);
+        const locked = isSealed(hero, id);
         return [
           el(
             'div',
@@ -182,7 +182,7 @@ export function menuBody(
               : []),
             ...(locked
               ? [
-                  iconElement('lock', 2, 'Locked until the lesson is won'),
+                  iconElement('lock', 2, 'Sealed: win the lesson back, or win monster fights'),
                   ...(handlers.lockHint ? [handlers.lockHint(spell.category)] : []),
                 ]
               : []),

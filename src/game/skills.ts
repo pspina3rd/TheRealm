@@ -10,7 +10,6 @@ import type { Hero } from './hero';
 import {
   canAddEnhancement,
   fitsStep,
-  isCategoryLocked,
   knownSpell,
   levelStep,
   enhancements,
@@ -28,7 +27,7 @@ export interface SkillPlan {
 /** Nothing chosen yet. */
 export const EMPTY_PLAN: SkillPlan = { stats: {}, spells: {} };
 
-type PlanHero = Pick<Hero, 'stats' | 'skillPoints' | 'spells' | 'failedLessons'>;
+type PlanHero = Pick<Hero, 'stats' | 'skillPoints' | 'spells'>;
 
 /** A known spell with a level still to gain, and the step toward it; null otherwise. */
 function enhanceable(hero: Pick<Hero, 'spells'>, spellId: string) {
@@ -60,7 +59,7 @@ export function canRaiseStat(hero: PlanHero, plan: SkillPlan, stat: StatId): boo
 
 /**
  * True if the plan has room for one more `attribute` on `spellId`: the
- * hero knows it, its category isn't locked, the step allows it and the
+ * hero knows it, the step allows it and the
  * points cover its price.
  */
 export function canEnhance(
@@ -72,7 +71,6 @@ export function canEnhance(
   const target = enhanceable(hero, spellId);
   return (
     !!target &&
-    !isCategoryLocked(hero, target.spell.category) &&
     canAddEnhancement(target.spell, target.known, plan.spells[spellId] ?? {}, attribute) &&
     skillPlanCost(hero, plan) + target.step.cost <= hero.skillPoints
   );
@@ -80,22 +78,20 @@ export function canEnhance(
 
 /**
  * True if every part of the plan is allowed and the hero can pay for all
- * of it: valid stat ranks, and enhancements only on known, unlocked spells
+ * of it: valid stat ranks, and enhancements only on known spells
  * that stay within their step.
  */
 export function isValidSkillPlan(hero: PlanHero, plan: SkillPlan): boolean {
   const spellsOk = Object.entries(plan.spells).every(([spellId, staged]) => {
     const target = enhanceable(hero, spellId);
     if (!target) return Object.values(staged).every((count) => count === 0);
-    const { spell, known, step } = target;
+    const { known, step } = target;
     const counts = enhancements(
       Object.fromEntries(ENHANCEMENT_IDS.map((id) => [id, known.step[id] + (staged[id] ?? 0)])),
     );
     const staging = ENHANCEMENT_IDS.every((id) => (staged[id] ?? 0) >= 0);
-    const touched = ENHANCEMENT_IDS.some((id) => (staged[id] ?? 0) > 0);
-    return (
-      staging && fitsStep(step, counts) && !(touched && isCategoryLocked(hero, spell.category))
-    );
+
+    return staging && fitsStep(step, counts);
   });
   return (
     spellsOk &&

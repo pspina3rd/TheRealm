@@ -10,10 +10,11 @@
  * - Difficulty is the level taught (a new spell is level 1); a combo's is
  *   the number of its elements (2, or 3 for Meteor). A hidden spell is
  *   one harder (2, or 3 for Volcano).
- * - Losing records the lesson and locks the category's enhancements until
- *   that lesson is won (or the hero comes to know that spell at that
- *   level some other way). Winning another of the mentor's lessons
- *   teaches it but does not lift the lock.
+ * - Losing a lesson for a spell the hero already knows seals that spell
+ *   (it can't be cast) until the lesson is won back or the hero wins
+ *   `STAKES.sealFights` monster fights; one seal at a time. A lesson for a
+ *   new (lent) spell has nothing to seal: its cost is regard and the wait
+ *   (see `src/game/stakes.ts`).
  */
 import { relationOf, type Element, type ElementRelation } from '../core/elements';
 import { ENEMIES } from '../data/enemies';
@@ -26,7 +27,7 @@ import type { GameState } from '../world/state';
 import { heroAlignment, learnSpell, raiseSpellLevel, type Hero } from './hero';
 import { isRevealed, type Seeker } from './hidden';
 import type { Gain } from './rewards';
-import { ROLE_ORDER, isCategoryLocked, isReady, knownSpell, spellElements } from './spells';
+import { ROLE_ORDER, isReady, isSealed, knownSpell, spellElements } from './spells';
 import {
   HELP_BASE,
   HELP_PER_POINT,
@@ -37,6 +38,7 @@ import {
   HIDDEN_DIFFICULTY,
   NOVICE_LEVEL,
   NOVICE_FOE_HP,
+  STAKES,
 } from '../data/balance';
 export {
   HELP_BASE,
@@ -184,26 +186,21 @@ export function lessonSpec(state: GameState, mentorId: string, lesson: Lesson): 
 
 /**
  * Applies a finished lesson to the hero. A win teaches the spell (or
- * raises it a level), lifting the category's lock if this was the lesson
- * that set it. A loss records the lesson and locks the category (an
- * earlier lost lesson that still locks it stays the one to win), and the
- * mentor patches the hero up to at least half HP (after a win too). Returns what changed,
- * for the results screen.
+ * raises it a level) and lifts its seal if it was sealed. A loss seals the
+ * spell if the hero already knew it and nothing is sealed yet. Either way
+ * the mentor patches the hero up to at least half HP. Returns what
+ * changed, for the results screen.
  */
 export function completeLesson(hero: Hero, spec: LessonSpec, won: boolean): Gain[] {
   const mentor = MENTORS[spec.mentorId];
   if (!mentor) throw new Error(`Unknown mentor: ${spec.mentorId}`);
-  const element = mentor.element;
-  const locked = isCategoryLocked(hero, element);
   const known = knownSpell(hero, spec.spellId);
-  if (!won) {
-    if (!locked)
-      hero.failedLessons[element] = { spellId: spec.spellId, level: (known?.level ?? 0) + 1 };
-    hero.hp = Math.max(hero.hp, Math.ceil(hero.maxHp / 2));
-    return [{ kind: 'lock', element }];
-  }
-  // The mentor patches a winner up too, to at least half HP.
   hero.hp = Math.max(hero.hp, Math.ceil(hero.maxHp / 2));
+  if (!won) {
+    if (!known || hero.seal) return [];
+    hero.seal = { spellId: spec.spellId, fights: STAKES.sealFights };
+    return [{ kind: 'seal', spellId: spec.spellId }];
+  }
   const gains: Gain[] = [];
   if (known) {
     raiseSpellLevel(hero, spec.spellId);
@@ -211,11 +208,22 @@ export function completeLesson(hero: Hero, spec: LessonSpec, won: boolean): Gain
   } else if (learnSpell(hero, spec.spellId)) {
     gains.push({ kind: 'spell', spellId: spec.spellId });
   }
-  if (!isCategoryLocked(hero, element)) {
-    hero.failedLessons = Object.fromEntries(
-      Object.entries(hero.failedLessons).filter(([category]) => category !== element),
-    );
-    if (locked) gains.push({ kind: 'unlock', element });
+  if (isSealed(hero, spec.spellId)) {
+    hero.seal = null;
+    gains.push({ kind: 'unseal', spellId: spec.spellId });
   }
   return gains;
+}
+
+/**
+ * A won monster fight eases the seal: one fight fewer to go, and the seal
+ * lifts when none are left. Returns the gain to show when it lifts.
+ */
+export function easeSeal(hero: Hero): Gain[] {
+  const seal = hero.seal;
+  if (!seal) return [];
+  seal.fights--;
+  if (seal.fights > 0) return [];
+  hero.seal = null;
+  return [{ kind: 'unseal', spellId: seal.spellId }];
 }

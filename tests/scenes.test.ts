@@ -299,12 +299,12 @@ describe('the mentors’ new rows', () => {
     expect(mentorMoment(state, torva)).toBe('motive');
   });
 
-  it('says After the lesson once one is won, and If you failed while locked', () => {
+  it('says After the lesson once one is won, and If you failed while a spell is sealed', () => {
     const state = newGame('ranger');
     learnSpell(state.hero, 'wildfire');
     expect(mentorMoment(state, torva)).toBe('afterLesson');
     expect(mentorGreeting(state, torva)).toBe(first(state, 'afterLesson'));
-    state.hero.failedLessons = { fire: { spellId: 'wildfire', level: 2 } };
+    state.hero.seal = { spellId: 'wildfire', fights: 3 };
     expect(mentorMoment(state, torva)).toBe('failedLesson');
     expect(mentorGreeting(state, torva)).toBe(first(state, 'failedLesson'));
   });

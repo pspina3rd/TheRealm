@@ -219,22 +219,59 @@ export function gainRows(gains: readonly Gain[]): HTMLElement[] {
           ...(spell ? [levelPips(spell, level)] : []),
         );
       }
-      case 'lock':
-      case 'unlock': {
-        const open = gain.kind === 'unlock';
+      case 'seal':
+      case 'unseal': {
+        const open = gain.kind === 'unseal';
+        const spell = SPELLS[gain.spellId];
         return el(
           'div',
           { className: `gain${open ? ' level-up' : ' loss'}` },
           iconElement(
             open ? { icon: 'lock', palette: PALETTES.open } : 'lock',
             2,
-            open ? 'Enhancements unlocked' : 'Enhancements locked until the lesson is won',
+            open ? 'Seal lifted' : 'Sealed until you win the lesson back, or win monster fights',
           ),
-          iconElement(ELEMENT_ICONS[gain.element], 2, ELEMENT_NAMES[gain.element]),
+          chip(
+            spell ? ELEMENT_ICONS[spell.category] : 'book',
+            spell ? spellName(spell) : gain.spellId,
+            spell ? ELEMENT_NAMES[spell.category] : '',
+          ),
         );
       }
+      case 'regard':
+        return el(
+          'div',
+          { className: `gain${gain.delta >= 0 ? ' level-up' : ' loss'}` },
+          regardPips(gain.level),
+          el('span', { text: gain.delta > 0 ? '+1' : gain.delta < 0 ? '−1' : '±0' }),
+        );
+      case 'strain':
+        return el(
+          'div',
+          { className: `gain${gain.level > 0 ? ' loss' : ''}` },
+          chip('hourglass', gain.level, `Next try is harder by ${gain.level}`),
+        );
+      case 'price':
+        return el(
+          'div',
+          { className: `gain${gain.multiplier <= 1 ? ' level-up' : ' loss'}` },
+          chip('coin', `${Math.round(gain.multiplier * 100)}%`, 'Prices here'),
+        );
     }
   });
+}
+
+/** Someone's regard, −2 to +2, as five pips around a centre (filled toward the side it leans). */
+export function regardPips(level: number): HTMLElement {
+  return el(
+    'span',
+    { className: 'rank-pips regard-pips', title: `Regard ${level > 0 ? '+' : ''}${level}` },
+    ...[-2, -1, 0, 1, 2].map((step) =>
+      el('span', {
+        className: `pip${step === 0 ? ' mid' : ''}${(step > 0 && step <= level) || (step < 0 && step >= level) ? (step > 0 ? ' on' : ' low') : ''}`,
+      }),
+    ),
+  );
 }
 
 /** A lesson's difficulty as swords, one per point. */
