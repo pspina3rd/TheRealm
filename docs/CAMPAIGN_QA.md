@@ -50,6 +50,34 @@ mechanics are outside the existing-challenge implementation.
   sustain an appropriate build. Keyboard/touch playtesting and attainable
   progression balance remain distinct checks.
 
-Runtime-specific migration and scene lifecycle tests belong to the runtime
-owner. Browser playthrough and full checks will be run by the coordinator
-after the files have landed together.
+## Combined and UI verification
+
+- `npm run check` passed formatting, ESLint, TypeScript, and 904 tests at
+  the playable checkpoint; five optional diagnostics/report tests were skipped.
+  Production build passed.
+- Chromium fixtures at 1280×900, 390×844, and 360×640 rendered every new map
+  without page errors or horizontal overflow, replayed the interrupted threshold
+  scene, and retained the version-10 adventure through reload. These fixtures
+  injected a Chapter One starting state and map arrivals; they are not a human
+  playthrough or evidence of campaign affordability.
+- The later final-battle browser rerun was blocked by sandbox socket access.
+  Two production-App DOM integration tests were added to `storageUi.test.ts`:
+  victory results lead through recovery before exactly one campaign summary;
+  the hero returns outside the sealed ward; a reload at the victory result
+  resumes the ending; a later reload does not repeat its summary. Both pass.
+  Canvas drawing and time are mocked in those tests, and combat uses prepared
+  clears with no enemy elapsed time. They do not replace a touch playtest.
+- Runtime migration/lifecycle tests cover old-save entry, interrupted scenes,
+  reward idempotence, earned mentor conditions, and guarded final completion.
+- After adding the two ending UI tests, the combined suite passes **906 tests**
+  with five optional diagnostics/report tests skipped. Production build passes.
+  Coverage passes the existing measured-logic line gate at **100%**; branch
+  coverage is 95.71%. Rendering/controller exclusions remain explicit in the
+  existing Vitest configuration, so this is not 100% UI or behavior coverage.
+
+## Review follow-through
+
+The original recommendation file is preserved. Its implementation review is
+in [IMPROVEMENT_REVIEW.md](IMPROVEMENT_REVIEW.md). It prioritizes the team's
+encounter identity and narrative feedback work without adopting conflicting
+control-swapping or unreadable placement suggestions.

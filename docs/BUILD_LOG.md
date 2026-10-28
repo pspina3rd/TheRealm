@@ -120,3 +120,28 @@ files; the coordinator commits named paths and publishes committed snapshots.
   tasks preserve attitude dialogue and optional gifts without gating progress.
   New task reward icons are present; original first-half entity ordering and
   author-written scenes remain intact.
+
+### Ending verification and recommendations review
+
+- The playable continuation was pushed as `3edb994`. The original
+  `Improvement Recommendations` file remains unchanged.
+- Reviewed every recommendation against current code and the team's encounter
+  plan; saved priorities and conflicts in [IMPROVEMENT_REVIEW.md](IMPROVEMENT_REVIEW.md).
+  Corrected the file's old postgame premise in the assessment: the Wyrm is
+  Chapter One, while the Malificat earns full-campaign completion.
+- Added production-App DOM integration coverage for the final victory result,
+  recovery, the single campaign summary, saved-result reload, and the sealed
+  ward. These tests use mocked canvas/time and prepared combat clears; the
+  later browser end-to-ending rerun remained blocked by sandbox socket access.
+  Earlier desktop/phone render and reload fixtures passed as recorded above.
+- Final `npm run check`: formatting, lint, types, and **906 tests passed**;
+  five optional diagnostics/report tests skipped. `npm run build` passed.
+  `npm run coverage` passed the configured **100% line coverage** requirement
+  for measured logic layers (UI rendering/controller files are excluded by
+  the existing coverage configuration). Branch coverage was 95.71%.
+- Updated README and writing/design status links to distinguish the playable
+  adaptation from the full treatment and tentative bespoke battle mechanics.
+- Remaining gameplay work is explicit: investigate slow-pace combat and real
+  route preparation, implement encounter identity through the team's staged
+  plan, and assess story/pacing in human playtests. New class rules, haptics,
+  audio, and replay modes were reviewed, not silently implemented.

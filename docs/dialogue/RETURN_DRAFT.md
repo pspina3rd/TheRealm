@@ -1,6 +1,9 @@
 # Return, rite, and ending — dialogue draft
 
-**Proposed new writing, not implemented or approved canon.** Scenes 14–18
+**Working source draft; new interpretations remain proposed.** Scene dialogue
+has a playable adaptation in [campaignStory.ts](../../src/data/campaignStory.ts).
+The lantern-assisted battle effect below is still tentative design, not an
+implemented mechanic. Scenes 14–18
 follow [the treatment](../SCENES_DRAFT.md). Existing mentor Road Back lines
 are preserved below. This version proposes Fennick as the ward's old man
 and Vesper's former carer; neither identity was confirmed by the chapter hook.

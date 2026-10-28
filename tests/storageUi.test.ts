@@ -4,7 +4,12 @@ import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createStore } from '../src/game/storage';
 import { CORRUPT_KEY, SAVE_KEY, saveGame, type KeyValueStore } from '../src/game/save';
-import { newGame } from '../src/world/state';
+import { newGame, type GameState } from '../src/world/state';
+import { MAPS } from '../src/data/maps';
+import { CAMPAIGN_FLAGS as C } from '../src/data/campaignFlags';
+import type { Battle } from '../src/battle/battle';
+import type { EntityDef } from '../src/world/map';
+import { setUpVerticalIClear } from './helpers';
 import { App } from '../src/ui/app';
 import type { Atlas } from '../src/ui/art/atlas';
 
@@ -12,12 +17,20 @@ const html = readFileSync(resolve('index.html'), 'utf8');
 const atlas = { draw: () => {} } as unknown as Atlas;
 let removeListeners: (() => void)[] = [];
 
-beforeEach(() => {
+function mountDocument(): void {
   document.body.innerHTML = html.slice(html.indexOf('<body>') + 6, html.indexOf('</body>'));
   const dialog = document.querySelector<HTMLDialogElement>('#dialog')!;
   dialog.showModal = () => {
     dialog.open = true;
   };
+  dialog.close = () => {
+    dialog.open = false;
+    dialog.dispatchEvent(new Event('close'));
+  };
+}
+
+beforeEach(() => {
+  mountDocument();
   const context = {
     save: () => {},
     restore: () => {},
@@ -65,6 +78,7 @@ afterEach(() => {
   removeListeners = [];
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
+  vi.useRealTimers();
 });
 
 function persistentStore(): KeyValueStore {
@@ -157,5 +171,101 @@ describe('save durability messaging', () => {
     manualSave();
     expect(document.querySelector('#world-banner')?.textContent).toBe('Saved');
     expect(store.getItem(CORRUPT_KEY)).toBe('{"version":8');
+  });
+});
+
+/** The real App controller, with rendering/timing mocked, not combat attainability. */
+interface EndingApp {
+  readonly state: GameState;
+  readonly active: { readonly battle: Battle } | null;
+  talk(entity: EntityDef): void;
+  finishBattle(): void;
+  walk(direction: 'down'): void;
+}
+
+function endingFixture(store: KeyValueStore): EndingApp {
+  const state = newGame('ranger');
+  state.mapId = 'innerWard';
+  state.x = 16;
+  state.y = 11;
+  for (const flag of ['scene:opening', 'scene:refusal', C.rite, C.wardReady]) state.flags.add(flag);
+  saveGame(store, state);
+  const app = new App(atlas, store);
+  app.start();
+  const fixture = app as unknown as EndingApp;
+  dismissEndingDialogs(fixture);
+  const entity = MAPS.innerWard!.entities.find((e) => e.id === 'campaign-malificat')!;
+  fixture.talk(entity);
+  const battle = fixture.active!.battle;
+  // Prepared legal clears with no elapsed enemy time isolate the result/scene UI.
+  for (let clears = 0; clears < 100 && battle.status === 'ongoing'; clears++) {
+    setUpVerticalIClear(battle.board, 4);
+    battle.input('hardDrop');
+  }
+  expect(battle.status).toBe('won');
+  fixture.finishBattle();
+  expect(document.querySelector('#dialog-title')?.textContent).toBe('Victory!');
+  return fixture;
+}
+
+function dismissEndingDialogs(app: EndingApp): string[] {
+  const titles: string[] = [];
+  for (
+    let page = 0;
+    page < 100 && document.querySelector<HTMLDialogElement>('#dialog')!.open;
+    page++
+  ) {
+    vi.advanceTimersByTime(1000);
+    const title = document.querySelector('#dialog-title')!.textContent!;
+    titles.push(title);
+    if (title === 'Campaign complete') {
+      expect(app.state.flags.has('scene:campaignRecovery')).toBe(true);
+      expect(app.state.mapId).toBe('overworld');
+    }
+    const buttons = [...document.querySelectorAll<HTMLButtonElement>('#dialog-actions button')];
+    const action =
+      buttons.find((b) => b.textContent === 'Later') ??
+      buttons.find((b) => b.textContent === 'Continue');
+    expect(action, title).toBeDefined();
+    action!.click();
+  }
+  expect(document.querySelector<HTMLDialogElement>('#dialog')!.open).toBe(false);
+  return titles;
+}
+
+describe('campaign ending UI integration', () => {
+  it('shows recovery before the final summary and locks the sealed ward afterward', () => {
+    vi.useFakeTimers({ toFake: ['Date', 'performance'] });
+    const store = persistentStore();
+    const app = endingFixture(store);
+    const titles = dismissEndingDialogs(app);
+    expect(titles.filter((title) => title === 'Campaign complete')).toHaveLength(1);
+    expect(titles).not.toContain('Chapter One complete');
+    expect(app.state.flags.has(C.complete)).toBe(true);
+    expect(app.state.flags.has('scene:campaignSummary')).toBe(true);
+    app.walk('down');
+    expect(app.state.mapId).toBe('overworld');
+    expect(document.querySelector('#world-banner')?.textContent).toContain('sealed');
+  });
+
+  it('resumes a save made at the victory result through recovery without repeating the summary', () => {
+    vi.useFakeTimers({ toFake: ['Date', 'performance'] });
+    const store = persistentStore();
+    endingFixture(store);
+    // Reload before dismissing Victory: the saved completion must resume its scenes.
+    removeListeners.forEach((remove) => remove());
+    removeListeners = [];
+    mountDocument();
+    const reloaded = new App(atlas, store);
+    reloaded.start();
+    const app = reloaded as unknown as EndingApp;
+    const titles = dismissEndingDialogs(app);
+    expect(titles.filter((title) => title === 'Campaign complete')).toHaveLength(1);
+    expect(app.state.mapId).toBe('overworld');
+    removeListeners.forEach((remove) => remove());
+    removeListeners = [];
+    mountDocument();
+    new App(atlas, store).start();
+    expect(document.querySelector<HTMLDialogElement>('#dialog')!.open).toBe(false);
   });
 });

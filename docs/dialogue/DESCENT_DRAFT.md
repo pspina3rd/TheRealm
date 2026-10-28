@@ -1,6 +1,8 @@
 # Second-half dialogue — descent
 
-**Draft for review; new writing is proposed, not production dialogue.**
+**Working source draft; new interpretations remain proposed.** Scene dialogue
+has a playable adaptation in [campaignStory.ts](../../src/data/campaignStory.ts);
+not every stage direction or tentative mechanic is implemented there.
 Scenes 02–08 follow [the scene treatment](../SCENES_DRAFT.md). Scene 01
 uses the team's existing Wyrm fall and Chapter One ending unchanged.
 The working Fennick–Vesper connection remains a proposal, not established

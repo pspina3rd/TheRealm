@@ -1,6 +1,9 @@
 # Mana Crystals — second-half dialogue draft
 
-**Complete first draft; proposed writing, not approved canon or implemented scenes.**
+**Complete first draft; new story details remain proposed.** A first playable
+adaptation now lives in [campaignStory.ts](../src/data/campaignStory.ts), with
+earned task and boss gates. The full stage treatment, bespoke phases, and
+lantern-assisted battle mechanic are not all implemented by that adaptation.
 Based on the [character foundations](CHARACTERS_DRAFT.md) and
 [scene treatment](SCENES_DRAFT.md). Preserve the team's existing first-half
 script and mentor Road Back lines. Scene 01 is the existing Wyrm fall and

@@ -1,8 +1,9 @@
 # Second-half implementation notes
 
-Working engineering notes, saved before code work. Root is first reconciling
-the team's `d14b3c4` changes, including its version-9 scene system. The
-dialogue draft is a working script, not evidence that gameplay exists yet.
+Engineering contract saved before code work. The team's `d14b3c4` changes
+were reconciled at `238eff1`; a first playable continuation and version-10
+saves were checkpointed at `3edb994`. The notes below record the implementation
+boundaries. [Campaign QA](CAMPAIGN_QA.md) records verification and limitations.
 
 ## Keep and extend the existing engine
 

@@ -1,5 +1,12 @@
 # Game design
 
+The first playable underground continuation was checkpointed at `3edb994`.
+Its route, saved scene gates, resident tasks, and final campaign milestone
+are implemented with the existing challenge systems described here. See
+[campaign QA](CAMPAIGN_QA.md) for verification and remaining balance/pacing
+limits. The proposed bespoke second-half boss mechanics in
+[ENCOUNTER_DESIGN.md](ENCOUNTER_DESIGN.md) remain separate work.
+
 ## Core idea
 
 Every interaction in the realm is played on the same falling-block board.

@@ -1,6 +1,8 @@
 # Dialogue draft — Bell Hollows to the ascent
 
-**Proposed new writing; not implemented or approved canon.** These scenes
+**Working source draft; new interpretations remain proposed.** Scene dialogue
+has a playable adaptation in [campaignStory.ts](../../src/data/campaignStory.ts);
+not every stage direction or tentative mechanic is implemented there. These scenes
 follow [SCENES_DRAFT.md](../SCENES_DRAFT.md), using the team's Irdrath,
 seven-member Lishal, and Malificat names from the
 [encounter-design appendix](https://github.com/pspina3rd/TheRealm/blob/d14b3c4f6bb173986e05af4ce89e9895c437a34b/docs/ENCOUNTER_DESIGN.md).

@@ -2,9 +2,10 @@
 
 This records Philip Spina's approved story structure. It governs the full
 campaign; [STORY.md](STORY.md) contains the existing first-half dialogue.
-The expanded second-half scenes and dialogue now have working drafts;
-they have not been implemented or approved as final script. The monomyth
-is the underlying narrative framework.
+The expanded second half has working drafts and a first playable adaptation;
+new interpretations are not approved final script. The monomyth is the
+underlying narrative framework. [Campaign QA](CAMPAIGN_QA.md) distinguishes
+implemented progression from unverified pacing and tentative mechanics.
 
 A proposed [second-half outline](STORY_OUTLINE_DRAFT.md) is available for
 review. Its new names, lore, and mechanisms are draft proposals;
@@ -40,8 +41,9 @@ Bosses 2 and 3 remain unnamed in this brief. The Vesper duel and final form
 are separate major encounters. Do not collapse them into the Wyrm encounter
 or move the duel after Boss 3.
 
-The current build ends at the Wyrm and leaves its sequel ward sealed.
-That is an implementation boundary, not the intended end of the full story.
+The earlier build ended at the Wyrm and left its sequel ward sealed. The
+first playable continuation now opens after the chapter hook. Full-campaign
+completion is distinct from the Wyrm milestone.
 
 ## Two continuity fixes
 

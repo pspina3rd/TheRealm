@@ -11,8 +11,10 @@ spores choke Mossvale's well and the lake clouds over. You wake in
 Mossvale, mend what you can, and learn magic from seven mentors on the
 road down, after Elder Rowan's son falls into a sleep no one can wake him
 from. The Wyrm speaks to you in visions as you go, and its thrall,
-Vesper, is always one step ahead of you. The words are the author's own,
-from the story script in [docs/STORY.md](docs/STORY.md).
+Vesper, is always one step ahead of you. The first-half words are the author's
+own, from [docs/STORY.md](docs/STORY.md). A first playable continuation now
+follows the [working second-half script](docs/DIALOGUE_DRAFT.md); its new
+story interpretations remain proposals and its combat still needs tuning.
 
 ## Quick start
 
@@ -170,9 +172,16 @@ attack the moment you walk into them. Full rules and numbers are in
    the quarry's ridge, the peaks and the ruins.
 5. **Moon Caves** (two floors, under the ruins): imps and a Cave Brute, a
    sealed chest, a hermit and the Moon Wyrm boss.
-6. **Sunken Ruins**: sealed for now. Beat the Moon Wyrm (it enrages at
-   half HP) to end Chapter One; the ruins' seal then glows, waiting for
-   the next chapter, and you play on.
+6. **The underground continuation**: the Wyrm ends Chapter One at the
+   campaign's intended midpoint. Meet Fennick at Sevenstones, then explore
+   the Sunken Archive, Cistern Marches, Rootways, Glass Warrens, Bell Hollows,
+   Quiet Foundry, and Upward Road. Resident tasks and separate victories over
+   Irdrath, Vesper, and the Lishal earn the route back.
+7. **The return and inner ward**: prepare Fennick's rite at Sevenstones,
+   then confront Vesper's evolved form, the Malificat. Full campaign completion
+   belongs to this victory and recovery. This first playable version reuses
+   existing challenges; proposed bespoke phases and equal-half pacing are
+   not claimed as implemented or verified. See [campaign QA](docs/CAMPAIGN_QA.md).
 
 ### Challenge types
 
@@ -227,8 +236,10 @@ the earlier single-pass combat-style policy or `COMPARE_BASELINE=1` for comparis
 and adjacent `.summary.json` and `.trace.json` files with individual attempts,
 resources, missing colors, gate outcomes, and declared simulation stops.
 The three-minute battle deadline is a censored observation, not a defeat;
-timeouts after a chapter victory do not erase that victory. The canonical
-sequel ward remains sealed after the Wyrm, as the story specifies.
+timeouts after a chapter victory do not erase that victory. This report still
+measures the Chapter One endpoint; it does not evaluate the new continuation.
+Separate preliminary results and their limits are in
+[CAMPAIGN_BALANCE.md](docs/CAMPAIGN_BALANCE.md).
 The game itself has no such deadline. Use `BATTLE_LIMIT_MS=600000` to allow
 ten simulated minutes per battle when investigating unresolved encounters;
 the selected limit is included in the report.

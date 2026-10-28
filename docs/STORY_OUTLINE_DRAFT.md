@@ -1,6 +1,8 @@
 # Mana Crystals — second-half outline draft
 
-**Status: writer proposal for review, not approved canon or implemented content.**
+**Status: writer proposal with a first playable adaptation; not approved final canon.**
+See [campaign QA](CAMPAIGN_QA.md) for what is implemented and what remains
+unverified, including pacing and bespoke encounter mechanics.
 The order and rough pacing come from [STORY_ARC.md](STORY_ARC.md). Every new
 region name, boss identity, motive, and supernatural mechanism below
 is proposed. Fennick's role and the Master's identity are not established
@@ -17,8 +19,8 @@ wants, conflicts, choices, and emotional changes that guide the dialogue.
 
 Continuity source: the [team's updated story script](https://github.com/pspina3rd/TheRealm/blob/fe5c3e49473297c008b2167f8476c043db735d0f/docs/STORY.md).
 Its opening, Refusal, mentor scenes, Wyrm's survival, and chapter hook take
-precedence over this draft's earlier assumptions. They are consulted here;
-their gameplay implementation has not been merged by this document change.
+precedence over this draft's earlier assumptions. Their first-half gameplay
+implementation was subsequently reconciled into GetPutTaco at `238eff1`.
 The [team's encounter appendix](https://github.com/pspina3rd/TheRealm/blob/d14b3c4f6bb173986e05af4ce89e9895c437a34b/docs/ENCOUNTER_DESIGN.md)
 provides Irdrath, the Lishal's seven singers, Odile, and Ketter. It treats
 the Malificat name as decided and the second-half mechanics as non-binding.

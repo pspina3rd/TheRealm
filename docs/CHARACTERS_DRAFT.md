@@ -4,8 +4,9 @@ Read this before revising scenes or writing new dialogue. Consult both
 [STORY.md](STORY.md) on GetPutTaco and the
 [team's updated script](https://github.com/pspina3rd/TheRealm/blob/fe5c3e49473297c008b2167f8476c043db735d0f/docs/STORY.md).
 The latter supplies the opening, Refusal, expanded mentor rows, Wyrm's fall,
-and Chapter One hook discussed below. These updates have been consulted for
-this draft; this document does not merge their implementation into GetPutTaco.
+and Chapter One hook discussed below. Their implementation was subsequently
+reconciled into GetPutTaco at `238eff1`; new characterization below remains
+working material for the first playable continuation.
 [STORY_ARC.md](STORY_ARC.md) fixes the major beats. [STORY_OUTLINE_DRAFT.md](STORY_OUTLINE_DRAFT.md)
 contains proposals, not additional established history. No dialogue is drafted
 here. Existing lines cited as evidence remain unchanged.

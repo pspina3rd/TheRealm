@@ -1,6 +1,8 @@
 # Mana Crystals — second-half scene treatment
 
-**Working story proposal; dialogue is drafted separately, not implemented.**
+**Working story proposal, adapted into a first playable continuation.**
+The adaptation gates scenes on earned tasks and boss victories; it does not
+implement every stage action or tentative boss mechanic in this treatment.
 Read with [the approved structure](STORY_ARC.md),
 [character foundations](CHARACTERS_DRAFT.md), and
 [the regional outline](STORY_OUTLINE_DRAFT.md). The team's
