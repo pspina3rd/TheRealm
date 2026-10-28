@@ -5,7 +5,8 @@ Scenes 02–08 follow [the scene treatment](../SCENES_DRAFT.md). Scene 01
 uses the team's existing Wyrm fall and Chapter One ending unchanged.
 The working Fennick–Vesper connection remains a proposal, not established
 parenthood. Irdrath replaces the earlier Sluice Warden placeholder; the
-team's ash, smoke, and Firstcoal identity is retained, while his role in
+team's [ash, smoke, and Firstcoal identity](https://github.com/pspina3rd/TheRealm/blob/d14b3c4f6bb173986e05af4ce89e9895c437a34b/docs/ENCOUNTER_DESIGN.md)
+is retained, while his role in
 the cistern works is proposed here. Hero lines are class-neutral unless
 explicitly marked otherwise.
 
@@ -153,7 +154,8 @@ across the opening. The hero steps between him and the stretcher.*
 
 *Boss battle. The ash body and smoke give way to the buried Firstcoal;
 freeing it disrupts his control. The chamber walls and stretcher route
-remain intact. Exact phases follow the team's later encounter design.*
+remain intact. Exact phases remain tentative, following the team's
+non-binding encounter appendix.*
 
 *After victory, Irdrath gathers thinly around the coal. The crew keeps
 the transfer moving.*
@@ -186,7 +188,7 @@ Vesper approaches quietly and looks over the open page.*
 
 *They draw the road's course with one finger. The hero places a second
 record beside the plan: earlier bearers of the voice, their promised
-rewards, and the orders appointing their replacements.*
+rewards, death dates, and orders appointing their replacements.*
 
 **Hero:** I found this with it.
 
@@ -272,7 +274,9 @@ through the light below, then back at the hero.*
 
 *The hero steps toward it. Vesper draws their weapon and blocks the way.*
 
-**Vesper:** Then make me.
+**Vesper:** Stop there.
+
+*The hero keeps moving toward the handle.*
 
 *Duel in Vesper's own form. Keep Ketter's occupied landings lit; the exact
 lamp-protection mechanics remain tentative. Victory leaves the hero at

@@ -30,3 +30,15 @@ checkpoint, so unfinished work is preserved without depending on a chat summary.
   scene 07. Their proposed occupations and motivations remain new writing.
 - Remaining: complete descent and ending, align the planning documents with
   those names and boss identities, then resolve independent review findings.
+
+### Checkpoint 2 · full dialogue sequence saved
+
+- Pushed the first dialogue batches and initial review as `2a1e3f9`.
+- All new scenes 02–18 are now drafted. Scene 01 preserves the team's Wyrm
+  fall and chapter hook. The return includes the existing mentor lines.
+- Independent descent/depths review resolved the procedure-discovery timing,
+  Vesper's available retreat, Ketter's introduction, and Irdrath/Lishal voices.
+- The ending prepares the brass lantern before its Resurrection moment;
+  “Ves, en.” is quoted from the encounter appendix without a translation.
+- In progress: final return/rite review and alignment of the planning docs.
+  Nothing from the proposed second half has been added to production code.

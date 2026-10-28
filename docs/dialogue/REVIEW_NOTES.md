@@ -79,3 +79,61 @@ Two nonblocking polish suggestions sent to the writer:
 
 Full pass pending the remaining saved sections. Existing first-half and mentor
 dialogue is not to be rewritten by this review.
+
+## Dialogue review — scenes 09–13, first saved pass
+
+Ketter's interrupted supper and relief operator establish fatigue, care, and
+the difficulty of delegating without a speech about duty. All seven Lishal
+act; the sixth questions the coercion and then deliberately rejoins it.
+Vesper's acknowledgment of the previous vessels makes acceptance informed.
+The ascent repays earlier aid without converting the residents into followers.
+
+Sent one substantive revision request to the writer: show reconstruction of
+the rite procedure before Boss 3. The current aftermath stage note alone
+asserts that records, letters, and inspection yielded it. A missing return
+path on the correspondence, matching marks in the inspection gallery, and
+the hero copying them during control work can establish the discovery through
+action without a lore lecture.
+
+Also clarify bridge geometry: once the outside footbridge is open, delaying
+pursuit is the hero's choice to protect workers, not a claim that the moving
+frame still makes crossing impossible. Put that competing urgency alongside
+Vesper's acceptance so the hero does not merely stand watching.
+
+For the return section, source Road Back lines belong to earned mentor
+relationships. Optional-history fallback must not imply an unknown mentor
+has formed an intimate bond with the hero off screen.
+
+## Dialogue review — completed descent, scenes 02–08
+
+The first two polish suggestions have been applied. No blocking voice or
+continuity issue remains in this section.
+
+Irdrath's steam-pressure response, ash across the gate, care for a particular
+cold chamber, and final attention to a sleeper's feet make his protection
+material. Defeat ends control without removing Firstcoal as loot, inventing
+a human biography, or requiring a repentance speech. Ketter is rescued,
+continues signalling, and has occupied landings whose lamps must survive the
+duel. Vesper's useful correction and rereading of the vessel record carry
+curiosity and self-justification into their choice. The closed upper branch
+and still-active central relay are explicitly distinguished.
+
+The short ultimatum “Then make me” is familiar but credible at a physical
+standoff. It need not be replaced with an ornamental threat. A small source
+wording fix was suggested: describe Irdrath's exact phases as tentative
+appendix material, rather than implying a settled later encounter design.
+
+## Dialogue review — return scenes 14–15, partial save
+
+Fennick's repeated checks of the clear route express a search for an excuse
+without stating that motivation aloud. Rowan asks about room charges and
+reaches for work before discussing the rite: his concern remains his son's
+care, not the protagonist's quest. The source mentor lines are retained with
+an explicit earned-relationship condition and local-helper fallback.
+
+Requested one small continuity action before Rowan: the hero claims to have
+personally checked Hareguy immediately before coming. That visit must be
+staged or required, or the line must be conditional on an actual visit.
+The script should not supply unseen eyewitness knowledge merely to reassure
+Rowan. A crate-stacking action before Bean's rebuke would also give that
+otherwise natural exchange a clearer physical target.

@@ -46,6 +46,9 @@ A worker takes the bell while Ketter tests the signal from the landing.*
 **Ketter:** These came from Fennick. Take them too. They wanted measurements
 we couldn't get while the lower bells were running.
 
+*One letter shows the surface stations of the ward. The line marked
+"lower return" ends at a blank space. Ketter lays it beside the relay plan.*
+
 **Hero:** And now?
 
 **Ketter:** Now someone's got to go down and look.
@@ -107,7 +110,9 @@ others. The sounding frame begins to turn faster.*
 
 *From the inspection gallery, the hero can see Vesper on the far platform.
 The moving frame crosses the gap between them. Its passage leaves no room
-to follow. The footbridge release is beside the hero's hand.*
+to follow. The footbridge release is beside the hero's hand. A diagram on
+the inspection rail completes the missing lower return in Fennick's letter;
+the hero copies its connections before approaching the release.*
 
 **Vesper:** Listen to it. Seven voices, and they can barely carry a whisper.
 
@@ -122,7 +127,9 @@ to follow. The footbridge release is beside the hero's hand.*
 **Hero:** Vesper. I've got the bridge.
 
 *The hero releases it. The footbridge lowers along the outside of the
-moving frame, opening a retreat into the inspection gallery.*
+moving frame, opening a retreat into the inspection gallery. Before the
+hero can cross, a warning bell sounds below. The loading shutter begins
+to fall across the workers' exit. The hero catches its brake and holds it.*
 
 **Vesper:** You found a way across.
 
@@ -154,9 +161,9 @@ hero from the stone overhead as well as the far platform.*
 
 **Vesper:** I can hear the surface.
 
-*They leave by the service ascent marked on Ketter's plan. The hero starts
-across the footbridge, then stops as a warning bell sounds in the gallery.
-Below, workers are still passing through the loading door.*
+*They leave by the service ascent marked on Ketter's plan. The hero keeps
+hold of the shutter brake while the last workers pass through the loading
+door. Ketter signals when they are clear. The hero can release it at last.*
 
 ## 12 · The work continues without permission
 
