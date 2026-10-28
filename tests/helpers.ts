@@ -1,6 +1,6 @@
 import { emptyCounts } from '../src/core/elements';
 import { Battle } from '../src/battle/battle';
-import { Board } from '../src/core/board';
+import { Board, type LockResult } from '../src/core/board';
 import type { Cell, PieceName } from '../src/core/pieces';
 import { createRng } from '../src/core/rng';
 import type { ChallengeSpec } from '../src/data/types';
@@ -67,3 +67,16 @@ export function forceQueue(battle: Battle, names: readonly PieceName[]): void {
 export function charge(hero: Hero): void {
   hero.mana = emptyCounts(hero.manaCap);
 }
+
+/** A lock that cleared and changed nothing, to spread over in rule tests. */
+export const EMPTY_LOCK: LockResult = {
+  linesCleared: 0,
+  clearedCells: {},
+  lines: [],
+  rows: [],
+  toppedOut: false,
+  holesMade: 0,
+  placed: [],
+  clearedTags: {},
+  clearedRows: [],
+};

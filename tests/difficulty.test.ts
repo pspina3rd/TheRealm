@@ -56,7 +56,7 @@ import {
 import { feedbackFor } from '../src/ui/art/feedback';
 import { step } from '../src/world/movement';
 import { newGame } from '../src/world/state';
-import { forceQueue, makeBattle, place, setUpVerticalIClear } from './helpers';
+import { EMPTY_LOCK, forceQueue, makeBattle, place, setUpVerticalIClear } from './helpers';
 import { heroAt, measure, simulate } from './sim/simulate';
 
 const ORDINARY = ['slime', 'shroom', 'goblin', 'moonImp', 'shadeImp', 'brute'];
@@ -129,7 +129,7 @@ describe('the action gauge', () => {
   it('caps the rush and acts at once when the rush fills the gauge', () => {
     const { battle, combat, hero } = fight();
     only(combat, { kind: 'attack', name: 'Bounce', power: 3 });
-    const quiet = { linesCleared: 0, clearedCells: {}, lines: [], rows: [], toppedOut: false };
+    const quiet = { ...EMPTY_LOCK, toppedOut: false };
     combat.onLock({ ...quiet, holesMade: 9 });
     expect(combat.gauge).toBe(MAX_HOLE_RUSH * combat.actMs);
     combat.gauge = combat.actMs - 1;

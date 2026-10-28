@@ -147,6 +147,9 @@ describe('Board', () => {
       rows: [],
       toppedOut: false,
       holesMade: 0,
+      placed: [],
+      clearedTags: {},
+      clearedRows: [],
     });
     expect(board.piecesPlaced).toBe(0);
   });
