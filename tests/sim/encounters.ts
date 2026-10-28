@@ -232,7 +232,8 @@ export function execute(
   for (let i = 0; i < 4 && board.active && key(board.active.cells) !== want; i++)
     battle.input('rotate');
   // A slip happens, unless the ghost shows it and the player corrects it before release.
-  const slip = (rate: number): boolean => noise && rng() < rate * NOISE && !(GHOST > 0 && rng() < GHOST);
+  const slip = (rate: number): boolean =>
+    noise && rng() < rate * NOISE && !(GHOST > 0 && rng() < GHOST);
   if (slip(0.05)) battle.input('rotate');
   const piece = board.active;
   if (piece) {
