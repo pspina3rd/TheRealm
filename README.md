@@ -2,8 +2,9 @@
 
 A falling-block fantasy RPG. Walk an overworld, visit villages and towns,
 and descend into dungeons. **Every interaction is a battle**: monsters fight
-you with magic, merchants haggle, villagers barter and sages set puzzles,
-all played out on a falling-block board.
+you with magic, villagers bring you their trouble (a choked well, a jammed
+tower, grey herb beds), a shopkeeper haggles and sages set puzzles, all
+played out on a falling-block board.
 
 **The story.** Something vast stirs under the realm: the Moon Wyrm, coiled
 around a moon-crystal deep in the Moon Caves, drinks the moonlight while
@@ -25,18 +26,19 @@ npm run check      # format check, lint, typecheck and tests (run before pushing
 npm run build      # static site in dist/
 ```
 
-| Script                    | What it does                         |
-| ------------------------- | ------------------------------------ |
-| `npm run dev`             | Development server with hot reload   |
-| `npm run build`           | Typecheck and build the static site  |
-| `npm run preview`         | Serve the production build locally   |
-| `npm test`                | Run the unit tests once              |
-| `npm run coverage`        | Tests with a coverage report         |
-| `npm run sim`             | Whole-game balance table (bots)      |
-| `npm run sim:progression` | Campaign resources by class and pace |
-| `npm run lint`            | ESLint                               |
-| `npm run format`          | Rewrite files with Prettier          |
-| `npm run check`           | Everything CI runs                   |
+| Script                       | What it does                         |
+| ---------------------------- | ------------------------------------ |
+| `npm run dev`                | Development server with hot reload   |
+| `npm run build`              | Typecheck and build the static site  |
+| `npm run preview`            | Serve the production build locally   |
+| `npm test`                   | Run the unit tests once              |
+| `npm run coverage`           | Tests with a coverage report         |
+| `npm run sim`                | Whole-game balance table (bots)      |
+| `npm run sim ENCOUNTERS=all` | Encounter table (4 bots, 200 seeds)  |
+| `npm run sim:progression`    | Campaign resources by class and pace |
+| `npm run lint`               | ESLint                               |
+| `npm run format`             | Rewrite files with Prettier          |
+| `npm run check`              | Everything CI runs                   |
 
 ## How to play
 
@@ -176,14 +178,14 @@ attack the moment you walk into them. Full rules and numbers are in
 
 ### Challenge types
 
-| Type     | Who           | Win condition                                                       |
-| -------- | ------------- | ------------------------------------------------------------------- |
-| Combat   | Monsters      | Reduce the enemy to 0 HP before its real-time gauge wears you down. |
-| Offering | Quest NPCs    | Hold the item and score N points within P pieces.                   |
-| Barter   | Traders       | Clear N crystals of the requested colours within P pieces.          |
-| Haggle   | Shopkeepers   | Survive P pieces; your clears lower the price, time raises it.      |
-| Puzzle   | Sages, chests | Clear N lines from a preset board using a fixed set of pieces.      |
-| Lesson   | Mentors       | Defeat the foe with the mentor's help; win to learn the spell.      |
+| Type      | Who                                 | Win condition                                                                |
+| --------- | ----------------------------------- | ---------------------------------------------------------------------------- |
+| Combat    | Monsters                            | Reduce the enemy to 0 HP before its real-time gauge wears you down.          |
+| Offering  | Quest NPCs                          | Hold the item and score N points within P pieces.                            |
+| Barter    | Traders                             | Clear N crystals of the requested colours within P pieces.                   |
+| Encounter | Rowan, Pip, Bean, Ordor, Wren, Vale | A board shaped like their trouble: DIG, BUILD, PLANT, DUEL, CONTAIN, CHARGE. |
+| Puzzle    | Sages, chests                       | Clear N lines from a preset board using a fixed set of pieces.               |
+| Lesson    | Mentors                             | Defeat the foe with the mentor's help; win to learn the spell.               |
 
 Fights are real time: the enemy's gauge (under its HP bar) fills and it
 moves when full, hitting you or your board (stone rows, a sealed column,
@@ -202,6 +204,13 @@ you're below half HP (below 80% for a hero under level 4 in Mossvale and
 Sevenstones), and the inn restores the rest. Every balance number lives in
 `src/data/balance.ts`; `npm run sim` plays the whole game's fights against
 bots and prints one table.
+
+Encounters show a **Stakes card** before each try (the reward, what a fail
+costs, the retry rule). Shops open to browse at list price; Ordor's stall
+can also be haggled once a day (a one-sided duel against his crates).
+`npm run sim ENCOUNTERS=all` (or `ENCOUNTERS=elder,kid`; `RUNS`,
+`SIM_OUT`) plays every encounter with good, casual, dropper and idle bots
+and prints win rates with 95% intervals (docs/GAME_DESIGN.md, _Encounters_).
 
 `npm run sim` keeps its isolated combat benchmarks: their heroes receive
 synthetic equipment and spell kits, so those results do not establish that
@@ -237,7 +246,8 @@ reasoning behind them.
 ```
 src/
   core/      Falling-block engine: board, pieces, seeded RNG, scoring (no DOM)
-  battle/    Battle runner plus one rules module per challenge type
+  battle/    Battle runner plus one rules module per challenge type;
+             verbs/ holds the encounter boards, rules.ts the region rules
   game/      Hero, stats, alignment, rewards, encounters, shops, save/load
   world/     Map model, tile legend, game state, movement
   data/      All content: enemies, spells, items, NPCs, shops, maps
