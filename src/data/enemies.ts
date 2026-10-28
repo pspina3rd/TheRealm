@@ -1,9 +1,11 @@
 import type { Element } from '../core/elements';
 import { REGIONS } from './balance';
 import type { EnemyDef, EnemyMove } from './types';
+import { CAMPAIGN_ENEMIES } from './campaignEnemies';
 
 /** Every enemy in the game, keyed by id. */
 export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
+  ...CAMPAIGN_ENEMIES,
   slime: {
     id: 'slime',
     name: 'Green Slime',

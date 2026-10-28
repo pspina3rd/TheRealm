@@ -1,4 +1,6 @@
 import type { MapDef } from '../world/map';
+import { CAMPAIGN_MAPS } from './campaignMaps';
+import { CAMPAIGN_FLAGS as C } from './campaignFlags';
 import { FINALE_FLAG, WARD_AFTER_WYRM } from './story';
 
 /**
@@ -6,6 +8,7 @@ import { FINALE_FLAG, WARD_AFTER_WYRM } from './story';
  * Coordinates are `(x, y)` tile positions with `(0, 0)` at the top left.
  */
 export const MAPS: Readonly<Record<string, MapDef>> = {
+  ...CAMPAIGN_MAPS,
   overworld: {
     id: 'overworld',
     // The hub's place name: seven standing mana crystals ring it, one per element.
@@ -58,10 +61,28 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
       {
         x: 15,
         y: 20,
-        to: { map: 'overworld', x: 15, y: 19 },
-        requiresFlag: 'ruinsOpen',
-        lockedText: 'The Sunken Ruins are sealed by an ancient ward. (Coming soon)',
+        to: { map: 'sunkenArchive', x: 3, y: 19 },
+        requiresFlag: C.descent,
+        lockedText: 'The Sunken Ruins are sealed by an ancient ward.',
         stirs: { flag: FINALE_FLAG, text: WARD_AFTER_WYRM },
+      },
+      {
+        x: 19,
+        y: 18,
+        to: { map: 'upwardRoad', x: 29, y: 3 },
+        requiresFlag: C.ascent,
+        lockedText: 'The upper service landing is blocked from below.',
+      },
+      {
+        x: 18,
+        y: 20,
+        to: { map: 'innerWard', x: 3, y: 19 },
+        requiresFlag: C.wardReady,
+        lockedText: 'The inner ward must be prepared at Fennick’s outer stations.',
+        closesWith: {
+          flag: C.complete,
+          text: 'The inner ward is sealed. The voice remains contained within.',
+        },
       },
     ],
     entities: [
@@ -73,6 +94,15 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
       { id: 'ow-shroom-3', kind: 'monster', enemyId: 'shroom', x: 28, y: 16 },
       { id: 'ow-goblin-1', kind: 'monster', enemyId: 'goblin', x: 30, y: 8 },
       { id: 'ow-goblin-2', kind: 'monster', enemyId: 'goblin', x: 34, y: 7 },
+      {
+        id: 'ow-fennick-rite',
+        kind: 'npc',
+        npcId: 'fennickRite',
+        x: 17,
+        y: 20,
+        requiresFlag: C.returned,
+        untilFlag: C.rite,
+      },
     ],
   },
   mossvale: {

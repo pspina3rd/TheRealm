@@ -26,6 +26,8 @@ export interface Warp {
   readonly requiresFlag?: string;
   /** Shown when a locked warp is bumped. */
   readonly lockedText?: string;
+  /** A completed story can close a former route while retaining its earned keys. */
+  readonly closesWith?: { readonly flag: string; readonly text: string };
   /**
    * A locked warp that stirs once `flag` is set: its seal glows on the map
    * and bumping it shows `text` (rotating) instead of `lockedText`.
@@ -43,6 +45,10 @@ interface EntityBase {
   readonly id: string;
   readonly x: number;
   readonly y: number;
+  /** A story entity is present only after this milestone. */
+  readonly requiresFlag?: string;
+  /** A story entity leaves once this milestone is reached. */
+  readonly untilFlag?: string;
 }
 
 export interface NpcEntity extends EntityBase {

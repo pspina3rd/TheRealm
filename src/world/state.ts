@@ -52,6 +52,8 @@ export function defeatedFlag(entityId: string): string {
 /** Entities on the current map that are still present, mentors included. */
 export function activeEntities(state: GameState): EntityDef[] {
   const placed = currentMap(state).entities.filter((e) => {
+    if (e.requiresFlag && !state.flags.has(e.requiresFlag)) return false;
+    if (e.untilFlag && state.flags.has(e.untilFlag)) return false;
     if (e.kind !== 'monster') return true;
     return !state.cleared.has(e.id) && !state.flags.has(defeatedFlag(e.id));
   });

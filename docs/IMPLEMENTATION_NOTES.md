@@ -96,3 +96,27 @@ Validation must distinguish story reachability, battle viability, and pacing.
 Reaching the final map with flags injected tests neither gameplay nor the
 claim of an equally substantial second half. Record limitations and new
 mechanics still pending in the build log, and checkpoint each working step.
+
+## Runtime step saved
+
+The agreed runtime is now implemented: scene map/all-flag/obsolete conditions,
+atomic scene completion flags, earned-mentor filtering, gated map entities,
+version-10 compatibility, post-result and map-entry scene playback, and
+guarded Malificat victory. `campaignComplete` is refused as a scene reward.
+The final summary waits for `scene:campaignRecovery` and appears once.
+
+Focused verification passes 70 tests across `campaignRuntime.test.ts`,
+`scenes.test.ts`, and `saveValidation.test.ts`, including 14 new runtime
+tests. Independent campaign traversal, battle viability, full-suite checks,
+and browser checks belong to the integrating/QA work, not this test count.
+The new fight-specific mechanics listed above remain separate work.
+
+### Postgame integration finding resolved
+
+QA found that the final recovery says the inner chamber is sealed while the
+state still stood inside it and its entry remained open. An authored scene
+destination now applies once on final-page completion and returns the hero
+to Sevenstones at the existing ward return point. A generic warp `closesWith`
+milestone prevents re-entering the contained voice's chamber after victory.
+The earned `rite` and `wardReady` history remains intact. Focused lifecycle
+and independently earned-route tests cover the return and postgame gate.

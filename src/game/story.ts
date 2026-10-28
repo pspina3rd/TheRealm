@@ -8,7 +8,11 @@
 import { MAPS } from '../data/maps';
 import { MENTORS } from '../data/mentors';
 import { NPCS } from '../data/npcs';
+import { ENEMIES } from '../data/enemies';
+import { CAMPAIGN_SPEAKERS } from '../data/campaignNpcs';
+import { CAMPAIGN_FLAGS } from '../data/campaignFlags';
 import {
+  CHAPTER_ONE_SCENES,
   FINALE_FLAG,
   PRELUDES,
   SCENES,
@@ -20,9 +24,10 @@ import {
   type VisionDef,
 } from '../data/story';
 import type { NpcEntity } from '../world/map';
-import type { GameState } from '../world/state';
+import { travel, type GameState } from '../world/state';
 import { addItem, heroClass, itemCount, type Hero } from './hero';
 import { pickVariant, variantsOf, type LineMemory } from './lines';
+import { mentorsTaught } from './ending';
 
 /** The voice the Moon Wyrm's words rotate under, visions and lair alike. */
 export const WYRM_VOICE = 'wyrm';
@@ -174,9 +179,14 @@ export function migrateStory(flags: Set<string>, mapId: string, victories: numbe
  * marked seen only after its last beat, so a game closed on one shows it
  * again from the start.
  */
-export function dueScenes(flags: ReadonlySet<string>): SceneDef[] {
+export function dueScenes(flags: ReadonlySet<string>, mapId?: string): SceneDef[] {
   return SCENES.filter(
-    (scene) => !flags.has(scene.flag) && (!scene.dueWith || flags.has(scene.dueWith)),
+    (scene) =>
+      !flags.has(scene.flag) &&
+      (!scene.dueWith || flags.has(scene.dueWith)) &&
+      (!scene.map || scene.map === mapId) &&
+      (!scene.requiresFlags || scene.requiresFlags.every((flag) => flags.has(flag))) &&
+      (!scene.untilFlag || !flags.has(scene.untilFlag)),
   );
 }
 
@@ -207,6 +217,10 @@ function completeScene(flags: Set<string>, hero: Hero, scene: SceneDef): string[
     addItem(hero, itemId);
     flags.add(receivedFlag(itemId));
   }
+  for (const flag of scene.sets ?? []) {
+    // Full completion is a battle result, never an authored scene reward.
+    if (flag !== CAMPAIGN_FLAGS.complete) flags.add(flag);
+  }
   return given;
 }
 
@@ -216,7 +230,13 @@ function completeScene(flags: Set<string>, hero: Hero, scene: SceneDef): string[
  * never a second, even after selling it). Returns the items given.
  */
 export function finishScene(state: GameState, scene: SceneDef): string[] {
-  return completeScene(state.flags, state.hero, scene);
+  if (state.flags.has(scene.flag)) return [];
+  const given = completeScene(state.flags, state.hero, scene);
+  if (scene.to) {
+    travel(state, scene.to);
+    state.flags.add(reachedFlag(scene.to.map));
+  }
+  return given;
 }
 
 /** One interlude of a scene: its words and who says them (null for narration alone). */
@@ -229,7 +249,7 @@ export interface ScenePage {
 function speakerOf(who: string | undefined, hero: Hero): ScenePage['speaker'] {
   if (who === undefined) return null;
   if (who === 'hero') return { name: hero.name, sprite: heroClass(hero).sprite };
-  const person = NPCS[who] ?? MENTORS[who];
+  const person = CAMPAIGN_SPEAKERS[who] ?? NPCS[who] ?? MENTORS[who] ?? ENEMIES[who];
   if (!person) throw new Error(`Unknown speaker: ${who}`);
   return { name: person.name, sprite: person.sprite };
 }
@@ -237,14 +257,17 @@ function speakerOf(who: string | undefined, hero: Hero): ScenePage['speaker'] {
 /** A scene's beats as interludes for this hero, the class lines in their class's words. */
 export function scenePages(scene: SceneDef, hero: Hero): ScenePage[] {
   const classId = heroClass(hero).id;
-  return scene.beats.map((beat) => {
-    const classLine = beat.classLines?.[classId];
-    const line = classLine === undefined ? beat.line : `"${classLine}"`;
-    return {
-      text: line === undefined ? beat.stage : `${beat.stage} ${line}`,
-      speaker: speakerOf(beat.who, hero),
-    };
-  });
+  const taught = new Set(mentorsTaught(hero).map((mentor) => mentor.id));
+  return scene.beats
+    .filter((beat) => !beat.requiresMentor || taught.has(beat.requiresMentor))
+    .map((beat) => {
+      const classLine = beat.classLines?.[classId];
+      const line = classLine === undefined ? beat.line : `"${classLine}"`;
+      return {
+        text: line === undefined ? beat.stage : `${beat.stage} ${line}`,
+        speaker: speakerOf(beat.who, hero),
+      };
+    });
 }
 
 /**
@@ -257,10 +280,16 @@ export function scenePages(scene: SceneDef, hero: Hero): ScenePage[] {
  * loses Rowan's Focus Stone.
  */
 export function migrateScenes(flags: Set<string>, hero: Hero): void {
-  for (const scene of SCENES) {
+  // This migration belongs to version 9's four first-half scenes. New
+  // campaign scenes must remain available to an old Wyrm-complete save.
+  for (const scene of CHAPTER_ONE_SCENES) {
     for (const beat of scene.beats) {
       if (beat.gives !== undefined && owns(hero, beat.gives)) flags.add(receivedFlag(beat.gives));
     }
   }
-  for (const scene of dueScenes(flags)) completeScene(flags, hero, scene);
+  for (const scene of CHAPTER_ONE_SCENES) {
+    if (!flags.has(scene.flag) && (!scene.dueWith || flags.has(scene.dueWith))) {
+      completeScene(flags, hero, scene);
+    }
+  }
 }

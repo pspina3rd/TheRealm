@@ -5,6 +5,7 @@
  */
 import type { NpcLines, Variants } from './types';
 import type { Location } from '../world/map';
+import { CAMPAIGN_SCENES } from './campaignStory';
 
 /** A vision of the Moon Wyrm, shown once as an interlude (see `src/game/story.ts`). */
 export interface VisionDef {
@@ -164,6 +165,8 @@ export interface SceneBeat {
   readonly classLines?: Readonly<Record<string, string>>;
   /** An item handed to the hero here (once ever: never to a hero who has one). */
   readonly gives?: string;
+  /** Familiar mentor dialogue is included only for an earned lesson bond. */
+  readonly requiresMentor?: string;
 }
 
 /**
@@ -177,6 +180,16 @@ export interface SceneDef {
   readonly title: string;
   readonly flag: string;
   readonly dueWith?: string;
+  /** A scene tied to a place waits until the hero is on that map. */
+  readonly map?: string;
+  /** Additional milestones, all required before the scene is due. */
+  readonly requiresFlags?: readonly string[];
+  /** An obsolete scene does not interrupt a later stage of the journey. */
+  readonly untilFlag?: string;
+  /** Milestones committed with the seen flag after the final page. */
+  readonly sets?: readonly string[];
+  /** An authored return after the last page, never on an interrupted scene. */
+  readonly to?: Location;
   readonly beats: readonly SceneBeat[];
 }
 
@@ -327,7 +340,10 @@ export const CHAPTER_END: SceneDef = {
 };
 
 /** Every scene, in story order. */
-export const SCENES: readonly SceneDef[] = [OPENING, REFUSAL, WYRM_FALL, CHAPTER_END];
+export const CHAPTER_ONE_SCENES: readonly SceneDef[] = [OPENING, REFUSAL, WYRM_FALL, CHAPTER_END];
+
+/** Every scene in order; campaign data imports these definitions as types only. */
+export const SCENES: readonly SceneDef[] = [...CHAPTER_ONE_SCENES, ...CAMPAIGN_SCENES];
 
 /** The Sunken Ruins' ward after the Wyrm: its map text, rotating. */
 export const WARD_AFTER_WYRM: Variants = [

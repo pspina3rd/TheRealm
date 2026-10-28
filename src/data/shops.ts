@@ -1,7 +1,9 @@
 import type { ShopDef } from './types';
+import { CAMPAIGN_SHOPS } from './campaignShops';
 
 /** Every shop. Spell tomes are not sold: mentors teach spells. */
 export const SHOPS: Readonly<Record<string, ShopDef>> = {
+  ...CAMPAIGN_SHOPS,
   brightwaterGeneral: {
     id: 'brightwaterGeneral',
     name: 'Brightwater Goods',

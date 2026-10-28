@@ -7,6 +7,8 @@ import { ELEMENTS } from '../src/core/elements';
 import { MAPS, START } from '../src/data/maps';
 import { MENTORS } from '../src/data/mentors';
 import { NPCS } from '../src/data/npcs';
+import { dueScenes } from '../src/game/story';
+import { defeatedFlag } from '../src/world/state';
 import { challengeOnTerms } from '../src/game/attitude';
 import { SHOPS } from '../src/data/shops';
 import { SPELLS, STARTING_SPELLS } from '../src/data/spells';
@@ -241,6 +243,25 @@ const PUZZLE_SOLUTIONS: Record<string, [number, number][]> = {
     [0, 2],
     [0, 1],
   ],
+  archiveDrain: [
+    [0, 1],
+    [0, 5],
+  ],
+  rootTram: [[0, 4]],
+  ketterRescue: [
+    [0, 0],
+    [0, 4],
+    [0, 8],
+  ],
+  bellCircuit: [
+    [0, 2],
+    [0, 6],
+  ],
+  foundryProcedure: [[1, 4]],
+  fennickRite: [
+    [0, 3],
+    [1, 1],
+  ],
 };
 
 describe('puzzles', () => {
@@ -296,15 +317,30 @@ function openMaps(flags: ReadonlySet<string>): Set<string> {
   return seen;
 }
 
-/** Story flags the NPCs on `maps` can grant. */
-function flagsOn(maps: ReadonlySet<string>): string[] {
-  return [...maps].flatMap((id) =>
-    MAPS[id]!.entities.flatMap((e) =>
-      e.kind === 'npc'
-        ? (NPCS[e.npcId]?.rewards ?? []).flatMap((r) => (r.kind === 'flag' ? [r.flag] : []))
-        : [],
-    ),
-  );
+/**
+ * Abstract content reachability, not a playthrough: flags obtainable from
+ * currently reachable tasks, bosses, and completed scenes. Actual battle
+ * resolution and walking are exercised separately in campaign.test.ts.
+ */
+function flagsOn(maps: ReadonlySet<string>, flags: ReadonlySet<string>): string[] {
+  return [...maps].flatMap((id) => [
+    ...MAPS[id]!.entities.flatMap((entity) => {
+      if (
+        (entity.requiresFlag && !flags.has(entity.requiresFlag)) ||
+        (entity.untilFlag && flags.has(entity.untilFlag))
+      )
+        return [];
+      if (entity.kind === 'npc') {
+        return (NPCS[entity.npcId]?.rewards ?? []).flatMap((r) =>
+          r.kind === 'flag' ? [r.flag] : [],
+        );
+      }
+      return entity.boss
+        ? [defeatedFlag(entity.id), ...(ENEMIES[entity.enemyId]?.finale ? ['wyrmBeaten'] : [])]
+        : [];
+    }),
+    ...dueScenes(flags, id).flatMap((scene) => [scene.flag, ...(scene.sets ?? [])]),
+  ]);
 }
 
 describe('the world and its regions', () => {
@@ -324,7 +360,7 @@ describe('the world and its regions', () => {
     for (;;) {
       const open = openMaps(flags);
       order.push([...open].filter((id) => !order.flat().includes(id)));
-      const fresh = flagsOn(open).filter((f) => !flags.has(f));
+      const fresh = flagsOn(open, flags).filter((f) => !flags.has(f));
       if (fresh.length === 0) break;
       for (const f of fresh) flags.add(f);
     }

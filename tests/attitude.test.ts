@@ -10,6 +10,7 @@ import { FLAG_ICONS } from '../src/ui/art/icons';
 import { NPCS } from '../src/data/npcs';
 import { SHOPS } from '../src/data/shops';
 import { SPELLS } from '../src/data/spells';
+import { SCENES } from '../src/data/story';
 import type { Line, MoodLine, NpcDef, Reward } from '../src/data/types';
 import { variantsFor, type Mood } from '../src/game/lines';
 import {
@@ -281,7 +282,17 @@ describe('rewards data', () => {
         .filter(isShop)
         .map((n) => n.id)
         .sort(),
-    ).toEqual(['armorer', 'eyrieInn', 'forgeInn', 'innkeeper', 'merchant', 'smith', 'stallKeeper']);
+    ).toEqual([
+      'archiveMerchant',
+      'armorer',
+      'bellMerchant',
+      'eyrieInn',
+      'forgeInn',
+      'innkeeper',
+      'merchant',
+      'smith',
+      'stallKeeper',
+    ]);
   });
 
   it('sells no spell tomes (mentors teach spells)', () => {
@@ -342,6 +353,11 @@ describe('encounters on terms', () => {
   it('never locks progress: every NPC whose flag the realm needs deals even when Hostile', () => {
     const needed = new Set([
       ...Object.values(MAPS).flatMap((m) => m.warps.flatMap((w) => w.requiresFlag ?? [])),
+      ...Object.values(MAPS).flatMap((m) => m.entities.flatMap((e) => e.requiresFlag ?? [])),
+      ...SCENES.flatMap((scene) => [
+        ...(scene.requiresFlags ?? []),
+        ...(scene.dueWith ? [scene.dueWith] : []),
+      ]),
       ...Object.values(MENTORS).flatMap((m) => m.route.flatMap((stop) => stop.requiresFlag ?? [])),
       ...Object.values(SPELLS).flatMap((s) => (s.hidden?.kind === 'quest' ? [s.hidden.flag] : [])),
     ]);
@@ -350,13 +366,28 @@ describe('encounters on terms', () => {
     );
     expect(story.map((n) => n.id).sort()).toEqual([
       'apprentice',
+      'archiveDrain',
+      'ascentRepair',
+      'bellCircuit',
+      'cisternTrial',
+      'fennickRite',
       'foreman',
+      'foundryProcedure',
       'guard',
+      'ketterRescue',
+      'rootTram',
       'shrineKeeper',
     ]);
     for (const npc of story) {
       expect(npc.essential, npc.id).toBe(true);
-      const result = describeInteraction(stateFor(npc, 'hostile'), entityOf(npc.id));
+      const result = describeInteraction(
+        npc.inanimate ? newGame() : stateFor(npc, 'hostile'),
+        entityOf(npc.id),
+      );
+      if (npc.inanimate) {
+        expect(result, npc.id).toMatchObject({ kind: 'challenge', spec: npc.challenge });
+        continue;
+      }
       expect(result, npc.id).toMatchObject({
         kind: 'challenge',
         attitude: 'hostile',

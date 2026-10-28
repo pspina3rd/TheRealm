@@ -33,6 +33,7 @@ import { grantRewards, type Gain } from './rewards';
 import { isCategoryLocked, type FailedLesson } from './spells';
 import { SKILL_POINTS_PER_LEVEL, dropBonus } from './stats';
 import { FALL_HP_SHARE, HOME_FALL_HP_SHARE } from '../data/balance';
+import { CAMPAIGN_FLAGS } from '../data/campaignFlags';
 export { FALL_HP_SHARE, HOME_FALL_HP_SHARE } from '../data/balance';
 
 /** Who is speaking in an interaction, for the conversation screen. */
@@ -310,6 +311,14 @@ function resolveCombat(
     }
     markDefeated(state, entity);
     if (combat.enemy.finale) state.flags.add(FINALE_FLAG);
+    if (
+      combat.enemy.id === 'malificat' &&
+      entity.id === 'campaign-malificat' &&
+      state.flags.has(CAMPAIGN_FLAGS.rite) &&
+      state.flags.has(CAMPAIGN_FLAGS.wardReady)
+    ) {
+      state.flags.add(CAMPAIGN_FLAGS.complete);
+    }
   } else {
     const lost = Math.floor(hero.gil / 2);
     hero.gil -= lost;

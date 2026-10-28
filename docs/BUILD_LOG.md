@@ -89,3 +89,34 @@ files; the coordinator commits named paths and publishes committed snapshots.
   saved scene gates, distinct boss milestones, and final campaign completion.
   Tentative phased encounter designs remain separate from this first playable
   extension. Engineering contract is in [IMPLEMENTATION_NOTES.md](IMPLEMENTATION_NOTES.md).
+
+### Playable continuation checkpoint
+
+- Team reconciliation was pushed as `238eff1`. Preserved the subsequently
+  added `Improvement Recommendations` file from remote head `d4e8d7d`.
+- Added eight explorable maps, 30 ordinary encounters, four distinct boss
+  encounters, eight mandatory resident/rite tasks, two supply/rest points,
+  and the saved scene sequence through recovery. This is a first playable
+  extension using existing challenge systems, not the proposed bespoke phases.
+- The Wyrm still completes Chapter One. Irdrath, Vesper's duel, the Lishal,
+  Fennick's rite, and the Malificat remain separate milestones. Only the
+  earned Malificat victory after the rite awards `campaignComplete`.
+- Version 10 saves preserve old adventures and once-ever rewards. Old
+  Wyrm-complete saves can start the continuation; interrupted scenes replay.
+  Final recovery returns the hero outside the sealed inner ward.
+- Route fixtures earn gates through production task/battle resolution for
+  all four classes, using legal authored puzzle inputs. Combat fixtures use
+  prepared clears and are explicitly not a balance or human-playtime proof.
+- `npm run check` passed formatting, lint, typecheck, and **904 tests**;
+  five diagnostic/report tests were intentionally skipped. Production build
+  also passed. Browser fixtures rendered all eight maps without errors at
+  1280×900, 390×844, and 360×640, and verified threshold replay and durable
+  version-10 reload. Final battle-to-ending UI check follows this checkpoint.
+- Combat diagnostics are saved in [CAMPAIGN_BALANCE.md](CAMPAIGN_BALANCE.md)
+  and [CAMPAIGN_BALANCE_FOLLOWUP.md](CAMPAIGN_BALANCE_FOLLOWUP.md). They expose
+  slow-pace difficulty and casting-policy confounders; no balance targets,
+  equal-half playtime, or full-route affordability are claimed as verified.
+- NPC speaker metadata is separate from actual challenges. Real person
+  tasks preserve attitude dialogue and optional gifts without gating progress.
+  New task reward icons are present; original first-half entity ordering and
+  author-written scenes remain intact.

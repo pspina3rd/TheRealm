@@ -5,7 +5,13 @@ import { CLASSES } from '../data/classes';
 import { ENEMIES } from '../data/enemies';
 import type { ChallengeSpec } from '../data/types';
 import type { Attitude } from '../game/attitude';
-import { epilogueFor, type Epilogue } from '../game/ending';
+import {
+  campaignEpilogueFor,
+  campaignSummaryDue,
+  epilogueFor,
+  type Epilogue,
+} from '../game/ending';
+import { CAMPAIGN_SUMMARY_FLAG } from '../data/campaignFlags';
 import { describeInteraction, entitySprite, reply, resolveBattle } from '../game/encounter';
 import {
   arrive,
@@ -312,6 +318,7 @@ export class App {
         this.renderHud();
         // The Refusal comes first, the first time the hero leaves Mossvale.
         if (vision) this.playScenes(() => this.showVision(vision));
+        else this.playScenes();
         break;
       }
       case 'locked':
@@ -446,8 +453,17 @@ export class App {
    * followed by its summary. Then `then` (or back to the map).
    */
   private playScenes(then?: () => void): void {
-    const [scene] = dueScenes(this.state.flags);
+    const [scene] = dueScenes(this.state.flags, this.state.mapId);
     if (!scene) {
+      if (campaignSummaryDue(this.state.flags)) {
+        this.state.flags.add(CAMPAIGN_SUMMARY_FLAG);
+        this.save();
+        this.showEpilogue(
+          campaignEpilogueFor(this.state.hero),
+          then ?? (() => this.dialog.close()),
+        );
+        return;
+      }
       if (then) then();
       else this.dialog.close();
       return;
@@ -573,7 +589,7 @@ export class App {
         this.playScenes();
       } else if (resolution.shopId) {
         this.openShop(resolution.shopId, resolution.priceMultiplier, speaker, resolution.attitude);
-      } else this.dialog.close();
+      } else this.playScenes();
     };
     const proceed = (): void => {
       this.endBattle();
@@ -686,14 +702,14 @@ export class App {
     );
   };
 
-  /** Chapter One's summary, then `then`; the hero plays on, the ruins' ward now aglow. */
+  /** A chapter or campaign summary after its scenes, then `then`. */
   private showEpilogue(epilogue: Epilogue, then: () => void): void {
     const close = (): void => {
       then();
-      this.say("The Sunken Ruins' ward glows", 'star');
+      this.say(epilogue.campaign ? 'The realm is waking' : "The Sunken Ruins' ward glows", 'star');
     };
     this.dialog.show({
-      title: 'Chapter One complete',
+      title: epilogue.campaign ? 'Campaign complete' : 'Chapter One complete',
       body: epilogueBody(this.atlas, epilogue),
       actions: [{ label: 'Continue', onClick: close }],
       onCancel: close,

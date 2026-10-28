@@ -1,4 +1,5 @@
 import { VESPER_LINES } from './story';
+import { CAMPAIGN_NPCS } from './campaignNpcs';
 import type { ChallengeSpec, NpcDef } from './types';
 
 /** Innkeeper Pete on Rowan's son (the script's Refusal), among his greetings. */
@@ -15,6 +16,7 @@ export const HAREGUY =
  * - puzzle:   a preset board with a fixed set of pieces
  */
 export const NPCS: Readonly<Record<string, NpcDef>> = {
+  ...CAMPAIGN_NPCS,
   // ---------------------------------------------------------- Mossvale ---
   elder: {
     id: 'elder',

@@ -613,7 +613,7 @@ describe('save migration to version 7 (feats)', () => {
   it('saves the hero’s board feats', () => {
     const state = newGame();
     state.hero.feats = { 'pure.lightning': 3, hastedClear: 1 };
-    expect(SAVE_VERSION).toBe(9);
+    expect(SAVE_VERSION).toBe(10);
     expect(deserialize(serialize(state))!.hero.feats).toEqual(state.hero.feats);
   });
 

@@ -8,12 +8,31 @@ import { MENTORS, type MentorDef } from '../data/mentors';
 import { NPCS } from '../data/npcs';
 import { SPELLS, STARTING_SPELLS } from '../data/spells';
 import { heroClass, heroTitle, type Hero } from './hero';
+import {
+  CAMPAIGN_FLAGS,
+  CAMPAIGN_RECOVERY_FLAG,
+  CAMPAIGN_SUMMARY_FLAG,
+} from '../data/campaignFlags';
 
 /** Set once the finale boss falls; the Sunken Ruins' seal stirs (see `Warp.stirs`). */
 export { FINALE_FLAG } from '../data/story';
 
+/** Full campaign victory, distinct from the Moon Wyrm's Chapter One ending. */
+export const CAMPAIGN_COMPLETE_FLAG = CAMPAIGN_FLAGS.complete;
+
+/** Victory is summarized only after the final recovery sequence is finished. */
+export function campaignSummaryDue(flags: ReadonlySet<string>): boolean {
+  return (
+    flags.has(CAMPAIGN_COMPLETE_FLAG) &&
+    flags.has(CAMPAIGN_RECOVERY_FLAG) &&
+    !flags.has(CAMPAIGN_SUMMARY_FLAG)
+  );
+}
+
 /** What the Chapter One summary shows. */
 export interface Epilogue {
+  /** Campaign completion uses the same earned-hero summary, with a different heading. */
+  readonly campaign?: boolean;
   /** e.g. "Gale Ranger". */
   readonly title: string;
   readonly titleElement: Element;
@@ -58,4 +77,9 @@ export function epilogueFor(hero: Hero): Epilogue {
     spells: Object.keys(hero.spells).length,
     mentors: mentorsTaught(hero),
   };
+}
+
+/** The final-form victory summary, shown after the recovery scenes. */
+export function campaignEpilogueFor(hero: Hero): Epilogue {
+  return { ...epilogueFor(hero), campaign: true };
 }

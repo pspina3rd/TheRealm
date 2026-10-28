@@ -41,6 +41,9 @@ export function step(state: GameState, direction: Direction): StepResult {
 
   const warp = warpAt(map, x, y);
   if (warp) {
+    if (warp.closesWith && state.flags.has(warp.closesWith.flag)) {
+      return { kind: 'locked', text: warp.closesWith.text };
+    }
     if (warp.requiresFlag && !state.flags.has(warp.requiresFlag)) {
       const stirs = warpStirs(warp, state.flags) ? warp.stirs : undefined;
       const text = stirs

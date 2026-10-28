@@ -1008,6 +1008,34 @@ export const ITEM_ICONS: Readonly<Record<string, IconSpec>> = {
 
 /** Story flags an NPC can grant, as reward icons: what opens, not a padlock. */
 export const FLAG_ICONS: Readonly<Record<string, IconSpec & { readonly label: string }>> = {
+  'campaign:drain': {
+    icon: 'drop',
+    palette: elementPalette('water'),
+    label: 'Archive landing drained',
+  },
+  'campaign:trial': {
+    icon: 'piece',
+    palette: elementPalette('earth'),
+    label: 'Safe channel tested',
+  },
+  'campaign:tram': {
+    icon: 'piece',
+    palette: elementPalette('nature'),
+    label: 'Rootways tram repaired',
+  },
+  'campaign:rescue': { icon: 'amulet', palette: PALETTES.gold, label: 'Ketter rescued' },
+  'campaign:bells': {
+    icon: 'piece',
+    palette: elementPalette('wind'),
+    label: 'Bell circuit restored',
+  },
+  'campaign:procedure': {
+    icon: 'book',
+    palette: elementPalette('arcane'),
+    label: 'Rite procedure recovered',
+  },
+  'campaign:ascent': { icon: 'piece', palette: elementPalette('earth'), label: 'Ascent reopened' },
+  'campaign:rite': { icon: 'amulet', palette: elementPalette('arcane'), label: 'Rite prepared' },
   cavePass: { icon: 'scroll', palette: PALETTES.gold, badge: 'arcane', label: 'Cave Pass' },
   ridgeCleared: {
     icon: 'piece',

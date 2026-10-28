@@ -1,6 +1,7 @@
 import { ELEMENTS, emptyCounts, type Element } from '../core/elements';
 import { CLASSES, DEFAULT_CLASS } from '../data/classes';
 import { ITEMS } from '../data/items';
+import { CAMPAIGN_MAP_IDS } from '../data/campaignFlags';
 import { MAPS, START } from '../data/maps';
 import { ENHANCEMENT_IDS, SPELLS } from '../data/spells';
 import { STATS, STAT_IDS } from '../data/stats';
@@ -30,10 +31,12 @@ export const CORRUPT_KEY = `${SAVE_KEY}.corrupt`;
  *   the maps reached (as flags), which place Vesper.
  * - 9 added the scenes (the opening, the Refusal, the end of Chapter One),
  *   each a `scene:` flag once seen; an older save has seen every scene due.
+ * - 10 opens the second-half campaign. New scene flags remain unearned in
+ *   old saves; only version 9's original scenes are migrated as already seen.
  */
-export const SAVE_VERSION = 9;
+export const SAVE_VERSION = 10;
 /** Older versions `deserialize` can still upgrade. */
-const MIGRATABLE_VERSIONS: readonly number[] = [1, 2, 3, 4, 5, 6, 7, 8, SAVE_VERSION];
+const MIGRATABLE_VERSIONS: readonly number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, SAVE_VERSION];
 const FACINGS: readonly Direction[] = ['up', 'down', 'left', 'right'];
 
 /** JSON-friendly form of `GameState` (sets become arrays). */
@@ -110,6 +113,17 @@ export function deserialize(json: string): GameState | null {
       data.x = 15;
       data.y = 19;
     }
+    // None of these destinations existed in version 9. An edited/stale
+    // old location must not silently bypass the newly earned descent.
+    if (
+      (data.version as number) < 10 &&
+      typeof data.mapId === 'string' &&
+      CAMPAIGN_MAP_IDS.has(data.mapId)
+    ) {
+      data.mapId = 'overworld';
+      data.x = 15;
+      data.y = 19;
+    }
     const victories = count(data.victories) ? data.victories : 0;
     const flags = migrateFlags(data.flags.filter((f): f is string => typeof f === 'string'));
     const mapId = String(data.mapId);
@@ -117,9 +131,10 @@ export function deserialize(json: string): GameState | null {
     const hero = sanitizeHero(migrateHero(data.hero as StoredHero));
     if (!hero) return null;
     if ((data.version as number) < 9) migrateScenes(flags, hero);
-    const respawn = standable(data.respawn) ? data.respawn : { ...START };
+    const allowCampaign = (data.version as number) >= 10;
+    const respawn = standable(data.respawn, flags, allowCampaign) ? data.respawn : { ...START };
     const here = { map: data.mapId, x: data.x, y: data.y };
-    const spot = standable(here) ? here : respawn;
+    const spot = standable(here, flags, allowCampaign) ? here : respawn;
     return {
       hero,
       mapId: spot.map,
@@ -158,8 +173,13 @@ export function migrateFlags(flags: readonly string[]): Set<string> {
  * reshaped Sevenstones), so a saved spot that no longer is one sends the hero
  * to their inn, and a lost inn to the start.
  */
-function standable(at: unknown): at is Location {
+function standable(
+  at: unknown,
+  flags: ReadonlySet<string>,
+  allowCampaign: boolean,
+): at is Location {
   if (!record(at) || typeof at.map !== 'string' || !Object.hasOwn(MAPS, at.map)) return false;
+  if (!allowCampaign && CAMPAIGN_MAP_IDS.has(at.map)) return false;
   const map = MAPS[at.map];
   const { x, y } = at;
   return (
@@ -168,7 +188,14 @@ function standable(at: unknown): at is Location {
     integer(y) &&
     tileAt(map, x, y).walkable &&
     !warpAt(map, x, y) &&
-    !map.entities.some((e) => e.x === x && e.y === y)
+    !map.entities.some(
+      (e) =>
+        e.x === x &&
+        e.y === y &&
+        (!e.requiresFlag || flags.has(e.requiresFlag)) &&
+        (!e.untilFlag || !flags.has(e.untilFlag)) &&
+        !(e.kind === 'monster' && flags.has(`defeated:${e.id}`)),
+    )
   );
 }
 
