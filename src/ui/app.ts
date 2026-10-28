@@ -1,4 +1,8 @@
 import { Battle, type BattleAction } from '../battle/battle';
+import { DuelChallenge } from '../battle/verbs/duel';
+import { MAP_RULES, type RegionRuleId } from '../data/balance';
+import { encounterOf } from '../data/encounters';
+import { objectiveText } from '../game/encounterFlow';
 import { createRng, type Rng } from '../core/rng';
 import { SHOPS } from '../data/shops';
 import { CLASSES } from '../data/classes';
@@ -6,7 +10,13 @@ import { ENEMIES } from '../data/enemies';
 import type { ChallengeSpec } from '../data/types';
 import type { Attitude } from '../game/attitude';
 import { epilogueFor, type Epilogue } from '../game/ending';
-import { describeInteraction, entitySprite, reply, resolveBattle } from '../game/encounter';
+import {
+  describeInteraction,
+  entitySprite,
+  reply,
+  resolveBattle,
+  type Replies,
+} from '../game/encounter';
 import {
   arrive,
   dismissVision,
@@ -51,6 +61,7 @@ import { button, byId, el, lineNodes } from './dom';
 import { ELEMENT_ICONS, SPELL_KIND_ICONS, STAT_ICONS } from './art/icons';
 import { battleKey, normalizeKey } from './battleKeys';
 import { BattleView } from './battleView';
+import { CANVAS_COLUMNS } from './boardView';
 import { iconElement } from './iconDraw';
 import { conversationBody, epilogueBody, resultsBody } from './screens/conversation';
 import { menuBody } from './screens/menu';
@@ -199,6 +210,28 @@ export class App {
     this.showView('world');
     this.renderHud();
     this.say(currentMap(this.state).name);
+    requestAnimationFrame((t) => this.frame(t));
+    // A test board (?board=selene-dark): the dark prototype on a Selene lesson (§7.1, M1).
+    if (new URLSearchParams(location.search).get('board') === 'selene-dark') {
+      if (!this.started) {
+        this.state = newGame();
+        this.started = true;
+      }
+      this.startBattle(
+        { id: 'mentor:selene', kind: 'mentor', mentorId: 'selene', x: 0, y: 0 },
+        {
+          kind: 'lesson',
+          mentorId: 'selene',
+          spellId: 'shadow',
+          enemyId: 'moonWisp',
+          difficulty: 1,
+        },
+        undefined,
+        undefined,
+        'dark',
+      );
+      return;
+    }
     if (!this.started) this.chooseClass();
     else {
       // A scene or vision the game was closed on shows again.
@@ -208,7 +241,6 @@ export class App {
         else this.dialog.close();
       });
     }
-    requestAnimationFrame((t) => this.frame(t));
   }
 
   // ------------------------------------------------------------ loop ---
@@ -395,6 +427,49 @@ export class App {
       byId('dialog-body').querySelector<HTMLButtonElement>('.lesson')?.focus();
       return;
     }
+    const decline = (replies?: Replies): void => {
+      this.dialog.close();
+      if (replies) {
+        this.say(reply(this.state, replies, 'decline'));
+        this.save();
+      }
+    };
+    if (interaction.kind === 'shop') {
+      const { haggle, replies } = interaction;
+      this.dialog.show({
+        title: interaction.title,
+        body,
+        actions: [
+          { label: 'Leave', onClick: () => decline(replies) },
+          {
+            label: 'Browse',
+            onClick: () =>
+              this.openShop(
+                interaction.shopId,
+                interaction.multiplier,
+                portraitFor(entity),
+                interaction.terms,
+              ),
+          },
+          ...(haggle
+            ? [
+                {
+                  label: 'Haggle',
+                  disabled: haggle.card.blocked !== null,
+                  onClick: () =>
+                    this.startBattle(
+                      entity,
+                      haggle.spec,
+                      replies && reply(this.state, replies, 'accept'),
+                      interaction.terms,
+                    ),
+                },
+              ]
+            : []),
+        ],
+      });
+      return;
+    }
     if (interaction.kind !== 'challenge') {
       this.dialog.show({
         title: interaction.title,
@@ -403,30 +478,41 @@ export class App {
       });
       return;
     }
+    const start = (spec: ChallengeSpec): void =>
+      this.startBattle(
+        entity,
+        spec,
+        interaction.replies && reply(this.state, interaction.replies, 'accept'),
+        interaction.terms,
+      );
+    const card = interaction.card;
+    const blocked = card?.blocked !== null && card?.blocked !== undefined;
+    const assistSpec = interaction.assistSpec;
     this.dialog.show({
       title: interaction.title,
       body,
       actions: [
-        {
-          label: 'Leave',
-          onClick: () => {
-            this.dialog.close();
-            if (interaction.replies) {
-              this.say(reply(this.state, interaction.replies, 'decline'));
-              this.save();
-            }
-          },
-        },
-        {
-          label: 'Accept',
-          onClick: () =>
-            this.startBattle(
-              entity,
-              interaction.spec,
-              interaction.replies && reply(this.state, interaction.replies, 'accept'),
-              interaction.terms,
-            ),
-        },
+        { label: card ? 'Not now' : 'Leave', onClick: () => decline(interaction.replies) },
+        ...(card?.assist && assistSpec
+          ? [
+              {
+                label: `Let ${card.assist} steady it`,
+                disabled: blocked,
+                onClick: () => start(assistSpec),
+              },
+              {
+                label: "I'll do it myself",
+                disabled: blocked,
+                onClick: () => start(interaction.spec),
+              },
+            ]
+          : [
+              {
+                label: card ? 'Take it on' : 'Accept',
+                disabled: blocked,
+                onClick: () => start(interaction.spec),
+              },
+            ]),
       ],
     });
   }
@@ -522,12 +608,18 @@ export class App {
     spec: ChallengeSpec,
     line?: string,
     terms?: Attitude,
+    testRule?: RegionRuleId,
   ): void {
     this.dialog.close();
     if (spec.kind === 'lesson') prepareLesson(this.state.hero);
     const weights = pieceWeights(currentMap(this.state), this.state.hero);
     const dual = dualChance(this.state.hero);
-    const battle = new Battle(spec, this.state.hero, this.rng, { weights, dualChance: dual });
+    const rule = testRule ?? (spec.kind === 'combat' ? MAP_RULES[this.state.mapId] : undefined);
+    const battle = new Battle(spec, this.state.hero, this.rng, {
+      weights,
+      dualChance: dual,
+      ...(rule ? { rule } : {}),
+    });
     this.active = {
       battle,
       entity,
@@ -545,15 +637,37 @@ export class App {
         ...(mentor ? { ally: creature(mentor.sprite), allyElement: mentor.element } : {}),
       });
     } else {
-      this.battleView.start(portraitFor(entity), hero, line ? { line } : {});
+      const def = spec.kind === 'encounter' ? encounterOf(spec.id) : undefined;
+      this.battleView.start(portraitFor(entity), hero, {
+        ...(line ? { line } : {}),
+        ...(def && spec.kind === 'encounter'
+          ? { encounter: { def, objective: objectiveText(def, spec.strain) } }
+          : {}),
+      });
     }
+    byId('giveup-button').hidden = spec.kind !== 'encounter';
     this.showView('battle');
+  }
+
+  /**
+   * Leaves an encounter: free before the first touch (the pre-roll), a fail
+   * after it (the hero committed).
+   */
+  private giveUp(): void {
+    const active = this.active;
+    if (!active || active.finished) return;
+    if (!active.battle.started) {
+      this.endBattle();
+      return;
+    }
+    active.battle.giveUp();
   }
 
   private finishBattle(): void {
     const active = this.active;
     if (!active) return;
     const titleBefore = this.state.hero.titleElement;
+    const duel = active.battle.challenge instanceof DuelChallenge ? active.battle.challenge : null;
     const resolution = resolveBattle(
       this.state,
       active.entity,
@@ -584,13 +698,20 @@ export class App {
       if (levelled) this.openSkills(next);
       else next();
     };
-    // A lost lesson can be fought again straight away.
+    // A lost lesson or encounter is offered again (its retry rule decides when it can be played).
     const retry =
-      !resolution.won && active.entity.kind === 'mentor'
-        ? [{ label: 'Retry', onClick: () => this.startBattle(active.entity, active.battle.spec) }]
+      !resolution.won && active.entity.kind !== 'monster'
+        ? [{ label: 'Try again', onClick: () => this.talk(active.entity) }]
         : [];
+    const title = duel
+      ? DUEL_TITLES[duel.grade]
+      : resolution.won
+        ? 'Victory!'
+        : active.battle.spec.kind === 'encounter'
+          ? 'Not this time'
+          : 'Defeat';
     this.dialog.show({
-      title: resolution.won ? 'Victory!' : 'Defeat',
+      title,
       body: resultsBody(this.atlas, resolution, speaker),
       actions: [...retry, { label: 'Continue', onClick: proceed }],
       onCancel: proceed,
@@ -953,6 +1074,7 @@ export class App {
       if (!this.active) this.openMenu();
     });
     bindPress(byId('pause-button'), () => this.togglePause());
+    bindPress(byId('giveup-button'), () => this.giveUp());
     // Thumb buttons act on press; moves and soft drop repeat while held.
     document.querySelectorAll<HTMLButtonElement>('[data-battle]').forEach((node) => {
       const action = node.dataset.battle as BattleAction;
@@ -966,7 +1088,8 @@ export class App {
     byId('board-canvas').addEventListener('pointerdown', () => this.battleView.hero.back());
     this.gestures = bindBoardGestures(
       byId('board-canvas'),
-      () => this.active?.battle.board.width ?? 10,
+      // A narrow board is drawn centred on the usual 10 columns: a drag moves by the drawn cell.
+      () => CANVAS_COLUMNS,
       (action) => {
         if (!this.dialog.isOpen) this.active?.battle.input(action);
       },
@@ -1047,6 +1170,14 @@ export class App {
     if (battle && !this.active?.finished) battle.togglePause();
   }
 }
+
+/** A haggle's result, by band. */
+const DUEL_TITLES = {
+  great: 'Great deal!',
+  win: 'Deal!',
+  even: 'Even',
+  fail: 'No deal',
+} as const;
 
 /** A creature id for a sprite key, or null if there is no such creature. */
 function creature(key: string | undefined): CreatureId | null {

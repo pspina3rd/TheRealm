@@ -28,6 +28,7 @@ import { lessonSpec } from '../src/game/lessons';
 import { innNight, recordOf, regardOf } from '../src/game/stakes';
 import type { EntityDef } from '../src/world/map';
 import { newGame, type GameState } from '../src/world/state';
+import { isIconId } from '../src/ui/art/icons';
 import { makeBattle } from './helpers';
 
 function entityOf(npcId: string): EntityDef {
@@ -285,5 +286,14 @@ describe('every encounter person', () => {
     for (const id of Object.keys(ENCOUNTER_DEFS)) {
       expect(NPCS[id]?.challenge).toMatchObject({ kind: 'encounter', id });
     }
+  });
+
+  it('draws its world props with real icons, and the person stands on a map', () => {
+    for (const def of Object.values(ENCOUNTER_DEFS)) {
+      expect(isIconId(def.world.win.icon), def.id).toBe(true);
+      expect(isIconId(def.world.fail.icon), def.id).toBe(true);
+      expect(() => entityOf(def.id)).not.toThrow();
+    }
+    expect(isIconId('nope')).toBe(false);
   });
 });

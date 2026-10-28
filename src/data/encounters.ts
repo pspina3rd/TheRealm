@@ -110,7 +110,7 @@ export const ENCOUNTER_DEFS: Readonly<Record<string, EncounterDef>> = {
     spec: {
       verb: 'dig',
       params: {
-        rows: ['mm..mm', 'mmmm.m', 'm.mmmm', 'mmm.mm', 'm.mmmm', 'mmPm.m'],
+        rows: ['mm..mm', 'mmmm.m', 'm.mmmm', 'm.mmmm', 'mmPm.m'],
         lip: E.elder.lip,
         risingEvery: E.elder.risingEvery,
         soonerPerHole: E.elder.soonerPerHole,

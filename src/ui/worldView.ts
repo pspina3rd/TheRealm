@@ -3,16 +3,38 @@ import { entityAttitude, entitySprite } from '../game/encounter';
 import { heroClass } from '../game/hero';
 import { seeksHero } from '../game/hidden';
 import { lessonsFor } from '../game/lessons';
+import { encounterOf } from '../data/encounters';
+import { regionFixed, worldState } from '../game/encounterFlow';
+import type { Element } from '../core/elements';
 import type { EntityDef, MapDef, MentorEntity } from '../world/map';
 import { mapHeight, mapWidth, warpStirs } from '../world/map';
 import { activeEntities, currentMap, type GameState } from '../world/state';
 import type { Atlas } from './art/atlas';
 import { ELEMENT_COLOR_OF } from './art/feedback';
-import { ATTITUDE_ICONS, ICON_SIZE, elementPalette } from './art/icons';
+import { ATTITUDE_ICONS, ICON_SIZE, elementPalette, isIconId, type IconId } from './art/icons';
 import { drawIcon } from './iconDraw';
 import { isCreatureId, isStripSprite, mapFrame } from './art/creatures';
 import type { Region } from './art/images';
 import { TILE, backgroundFor, planGround, planObjects, type PlacedObject } from './art/themes';
+
+/**
+ * The Sevenstones' ring of standing crystals on the hub map, one per
+ * element, and the region whose mending brightens each.
+ */
+const STANDING_STONES: readonly {
+  readonly element: Element;
+  readonly region: string | null;
+  readonly x: number;
+  readonly y: number;
+}[] = [
+  { element: 'nature', region: 'grove', x: 31, y: 16 },
+  { element: 'water', region: 'lake', x: 33, y: 15 },
+  { element: 'earth', region: 'quarry', x: 35, y: 16 },
+  { element: 'fire', region: 'forge', x: 36, y: 18 },
+  { element: 'lightning', region: 'peaks', x: 35, y: 20 },
+  { element: 'wind', region: 'cliffs', x: 31, y: 20 },
+  { element: 'arcane', region: 'ruins', x: 30, y: 18 },
+];
 
 /** Tiles per second the hero glides between grid positions. */
 const GLIDE_SPEED = 8;
@@ -95,6 +117,8 @@ export class WorldView {
       };
     });
     this.drawStirringSeals(map, state.flags, camX, camY, timeMs);
+    this.drawWorldProps(state, map, camX, camY, timeMs);
+    if (map.id === 'overworld') this.drawStandingStones(state, camX, camY, timeMs);
     for (const entity of activeEntities(state)) {
       drawables.push(this.entityDrawable(entity, camX, camY, timeMs));
       if (entity.kind === 'mentor') this.drawMentorMark(state, entity, camX, camY, timeMs);
@@ -220,6 +244,79 @@ export class WorldView {
         drawIcon(ctx, 'scroll', cx - ICON_SIZE, entity.y * TILE - camY - 30 + bob, { scale: 2 });
       });
     }
+  }
+
+  /**
+   * The world remembers (§4): beside each person, their encounter's win
+   * prop or fail prop, once they have one: a glow in its colour and its icon.
+   */
+  private drawWorldProps(
+    state: GameState,
+    map: MapDef,
+    camX: number,
+    camY: number,
+    timeMs: number,
+  ): void {
+    const { ctx } = this;
+    for (const entity of map.entities) {
+      if (entity.kind !== 'npc') continue;
+      const def = encounterOf(entity.npcId);
+      const shown = def ? worldState(state, def.id) : null;
+      if (!def || !shown) continue;
+      const prop = def.world[shown];
+      const cx = (def.world.x + 0.5) * TILE - camX;
+      const cy = (def.world.y + 0.5) * TILE - camY;
+      ctx.save();
+      ctx.globalAlpha = 0.45 + 0.15 * Math.sin(timeMs / 350);
+      ctx.fillStyle = prop.color;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + TILE * 0.3, TILE * 0.5, TILE * 0.2, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      if (isIconId(prop.icon)) {
+        this.overlays.push(() =>
+          drawIcon(ctx, prop.icon as IconId, cx - ICON_SIZE, cy - ICON_SIZE - 4, {
+            scale: 2,
+            ...(shown === 'fail' ? { alpha: 0.75 } : {}),
+          }),
+        );
+      }
+    }
+  }
+
+  /**
+   * The Sevenstones (§4): seven standing mana crystals in a ring, one per
+   * element, dim while the Moon Wyrm drains them; a region set right
+   * brightens its stone (M1: the grove's green stone, once Wren's ring is saved).
+   */
+  private drawStandingStones(state: GameState, camX: number, camY: number, timeMs: number): void {
+    const { ctx } = this;
+    STANDING_STONES.forEach(({ element, region, x, y }) => {
+      const bright = region !== null && regionFixed(state, region);
+      const px = x * TILE - camX + TILE / 2;
+      const py = y * TILE - camY + TILE;
+      ctx.save();
+      if (bright) {
+        ctx.globalAlpha = 0.5 + 0.25 * Math.sin(timeMs / 300);
+        ctx.fillStyle = ELEMENT_COLOR_OF[element];
+        ctx.beginPath();
+        ctx.ellipse(px, py - 4, TILE * 0.6, TILE * 0.25, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = bright ? 1 : 0.45;
+      ctx.fillStyle = ELEMENT_COLOR_OF[element];
+      ctx.beginPath();
+      ctx.moveTo(px - 7, py - 2);
+      ctx.lineTo(px - 5, py - 30);
+      ctx.lineTo(px, py - 38);
+      ctx.lineTo(px + 5, py - 30);
+      ctx.lineTo(px + 7, py - 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#1a1a26';
+      ctx.stroke();
+      ctx.restore();
+    });
   }
 
   /** A sealed way that stirs (see `Warp.stirs`) glows violet and pulses, over its arch. */

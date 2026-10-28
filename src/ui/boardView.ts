@@ -1,4 +1,7 @@
 import { cellColors, type Board, type QueuedPiece } from '../core/board';
+import type { Telegraph } from '../battle/types';
+import type { SkinId } from '../data/encounters';
+import type { CrystalColor } from '../core/pieces';
 import { ELEMENT_OF_COLOR } from '../core/elements';
 import { PIECES, isCrystal, type Cell } from '../core/pieces';
 import type { Feedback } from './art/feedback';
@@ -21,6 +24,43 @@ interface Flash {
   readonly color: string;
   elapsed: number;
 }
+
+/** Columns the board canvas is drawn for; a narrow board is centred in it. */
+export const CANVAS_COLUMNS = 10;
+
+/**
+ * An encounter's place drawn on the board (§4): its skin, its objective
+ * overlay (an outline and spare area, zones, the lip), what's telegraphed,
+ * and the dark's lit cells. Fights have none of it but the dark.
+ */
+export interface BoardScene {
+  readonly skin: SkinId | null;
+  readonly outline?: (x: number, y: number) => boolean;
+  readonly spare?: (x: number, y: number) => boolean;
+  /** Each column's wanted colour (PLANT's furrows), or null for a path. */
+  readonly zones?: readonly (CrystalColor | null)[];
+  /** The board row of the lip (DIG): cells above it fail. */
+  readonly lipY?: number;
+  readonly telegraphs: readonly Telegraph[];
+  /** The dark's lit cells (null: no dark). */
+  readonly lit: boolean[][] | null;
+  /** Before the first touch: the board waits, with a hint. */
+  readonly preroll: boolean;
+  /** How far the day has gone (PLANT's sun), 0–1. */
+  readonly dayGone?: number;
+}
+
+const NO_SCENE: BoardScene = { skin: null, telegraphs: [], lit: null, preroll: false };
+
+/** Each skin's backdrop colours: the board's floor and its frame material. */
+const SKINS: Readonly<Record<SkinId, { readonly floor: string; readonly wall: string }>> = {
+  well: { floor: '#0b1220', wall: '#5a3a2e' },
+  tower: { floor: '#13221a', wall: '#3e5a3a' },
+  beds: { floor: '#1b1408', wall: '#4a3a1e' },
+  stall: { floor: '#1e140c', wall: '#6a4a2a' },
+  ring: { floor: '#0f1a10', wall: '#2e4a2a' },
+  lamps: { floor: '#0d0d14', wall: '#3a3a4e' },
+};
 
 /** What the board shows besides the grid: timed effects and the visible preview. */
 export interface BoardStatus {
@@ -97,25 +137,44 @@ export class BoardView {
     this.shake = 0;
   }
 
-  render(board: Board, status: BoardStatus, dtMs: number, timeMs: number, dimmed: boolean): void {
+  render(
+    board: Board,
+    status: BoardStatus,
+    dtMs: number,
+    timeMs: number,
+    dimmed: boolean,
+    scene: BoardScene = NO_SCENE,
+  ): void {
     const { ctx } = this;
+    const full = CANVAS_COLUMNS * CELL;
     const w = board.width * CELL;
     const h = board.height * CELL;
+    const ox = ((CANVAS_COLUMNS - board.width) * CELL) / 2;
     this.shake = Math.max(0, this.shake - dtMs);
     const dx = this.shake > 0 ? Math.sin(timeMs / 18) * 5 * (this.shake / SHAKE_MS) : 0;
 
     ctx.save();
     ctx.translate(dx, 0);
-    ctx.fillStyle = '#0a0c17';
-    ctx.fillRect(-10, 0, w + 20, h);
+    const skin = scene.skin ? SKINS[scene.skin] : null;
+    ctx.fillStyle = skin?.wall ?? '#0a0c17';
+    ctx.fillRect(-10, 0, full + 20, h);
+    if (ox > 0) drawBricks(ctx, ox, full, h);
+    ctx.translate(ox, 0);
+    ctx.fillStyle = skin?.floor ?? '#0a0c17';
+    ctx.fillRect(0, 0, w, h);
+    this.drawSceneUnder(board, scene, timeMs);
     ctx.strokeStyle = '#1d2238';
     for (let y = 0; y < board.height; y++) {
       for (let x = 0; x < board.width; x++) {
         ctx.strokeRect(x * CELL + 0.5, y * CELL + 0.5, CELL, CELL);
         const cell = board.grid[y]?.[x];
         if (cell) drawCrystal(ctx, cell, x * CELL, y * CELL, CELL);
+        const tag = board.tagAt(x, y);
+        if (tag && cell) drawTag(ctx, tag, x * CELL, y * CELL, timeMs);
       }
     }
+    this.drawTelegraphs(board, scene.telegraphs, timeMs);
+    if (scene.lit) this.drawDark(board, scene.lit);
 
     this.drawSeal(board, timeMs);
     const piece = board.active;
@@ -149,6 +208,17 @@ export class BoardView {
     this.drawCellFlashes(dtMs);
     this.drawPops(w, dtMs);
     this.drawBadges(status, this.badgeRight(board), timeMs);
+    if (scene.preroll && !status.paused && !dimmed) {
+      ctx.fillStyle = '#10132ad0';
+      ctx.fillRect(0, h * 0.42, w, 56);
+      ctx.fillStyle = '#f5d77b';
+      ctx.font = 'bold 18px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText('Touch the board', w / 2, h * 0.42 + 24);
+      ctx.font = '13px system-ui';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('to begin: then it counts', w / 2, h * 0.42 + 44);
+    }
     if (status.paused) {
       ctx.fillStyle = '#080a12';
       ctx.fillRect(-10, 0, w + 20, h);
@@ -163,6 +233,98 @@ export class BoardView {
     ctx.restore();
 
     this.drawNext(status.paused ? [] : status.upcomingPieces, status.fogPieces);
+  }
+
+  /**
+   * The encounter's place under the cells: furrows and paths, the tower's
+   * ghost outline and the toy box, the lip, and the sun crossing the beds.
+   */
+  private drawSceneUnder(board: Board, scene: BoardScene, timeMs: number): void {
+    const { ctx } = this;
+    const h = board.height * CELL;
+    scene.zones?.forEach((want, x) => {
+      ctx.fillStyle = want ? '#3a2814' : '#1f3a1a';
+      ctx.fillRect(x * CELL, 0, CELL, h);
+    });
+    for (let y = 0; y < board.height; y++) {
+      for (let x = 0; x < board.width; x++) {
+        if (scene.spare?.(x, y)) {
+          ctx.fillStyle = '#4a3420';
+          ctx.fillRect(x * CELL + 1, y * CELL + 1, CELL - 2, CELL - 2);
+        }
+        if (scene.outline?.(x, y)) {
+          ctx.globalAlpha = 0.5 + 0.2 * Math.sin(timeMs / 400);
+          ctx.strokeStyle = '#61d9e8';
+          ctx.setLineDash([4, 3]);
+          ctx.strokeRect(x * CELL + 2.5, y * CELL + 2.5, CELL - 5, CELL - 5);
+          ctx.setLineDash([]);
+          ctx.globalAlpha = 1;
+        }
+      }
+    }
+    if (scene.lipY !== undefined) {
+      ctx.fillStyle = '#c9a26b';
+      ctx.fillRect(0, scene.lipY * CELL - 2, board.width * CELL, 4);
+    }
+    if (scene.dayGone !== undefined) {
+      const sx = scene.dayGone * board.width * CELL;
+      ctx.fillStyle = scene.dayGone > 0.85 ? '#ff9a3c' : '#f5d77b';
+      ctx.beginPath();
+      ctx.arc(sx, 14, 9, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  /** What's coming next piece: marked cells pulse; incoming rows show a red bar under the board. */
+  private drawTelegraphs(board: Board, telegraphs: readonly Telegraph[], timeMs: number): void {
+    const { ctx } = this;
+    const pulse = 0.5 + 0.5 * Math.sin(timeMs / 120);
+    for (const mark of telegraphs) {
+      if (mark.kind === 'cells') {
+        ctx.strokeStyle =
+          mark.what === 'spore' ? 'rgba(220, 255, 200, 0.9)' : 'rgba(255, 140, 60, 0.9)';
+        ctx.globalAlpha = 0.4 + 0.6 * pulse;
+        ctx.lineWidth = 3;
+        for (const [x, y] of mark.cells)
+          ctx.strokeRect(x * CELL + 2, y * CELL + 2, CELL - 4, CELL - 4);
+        ctx.lineWidth = 1;
+        ctx.globalAlpha = 1;
+      } else if (mark.kind === 'rows') {
+        const h = board.height * CELL;
+        ctx.globalAlpha = 0.4 + 0.4 * pulse;
+        ctx.fillStyle = '#ff465a';
+        ctx.fillRect(0, h - 6 * mark.rows, board.width * CELL, 6 * mark.rows);
+        ctx.globalAlpha = 1;
+      }
+    }
+  }
+
+  /**
+   * The dark (§7.1): unlit cells are covered; the skyline (each column's
+   * top cell) shows as a lit outline, and the ghost's landing stays lit.
+   */
+  private drawDark(board: Board, lit: boolean[][]): void {
+    const { ctx } = this;
+    for (let y = 0; y < board.height; y++) {
+      for (let x = 0; x < board.width; x++) {
+        if (!lit[y]?.[x]) {
+          ctx.fillStyle = '#04050b';
+          ctx.fillRect(x * CELL, y * CELL, CELL, CELL);
+        }
+      }
+    }
+    ctx.strokeStyle = '#d9e2ff';
+    ctx.lineWidth = 2;
+    for (let x = 0; x < board.width; x++) {
+      const y = board.grid.findIndex((row) => row[x] !== null);
+      if (y >= 0) {
+        ctx.beginPath();
+        ctx.moveTo(x * CELL, y * CELL + 1);
+        ctx.lineTo((x + 1) * CELL, y * CELL + 1);
+        ctx.stroke();
+      }
+    }
+    ctx.lineWidth = 1;
   }
 
   /** An enemy's sealed column: hatched stone with a lock and the pieces it lasts. */
@@ -319,6 +481,59 @@ function drawPiece(
     const color = colors[i] ?? def.color;
     drawCrystal(ctx, color, ox + (cx - minX) * size, oy + (cy - minY) * size, size);
   });
+}
+
+/** The masonry beside a narrow board (Rowan's well shaft). */
+function drawBricks(ctx: CanvasRenderingContext2D, width: number, full: number, h: number): void {
+  ctx.strokeStyle = '#3a2418';
+  for (const left of [0, full - width]) {
+    for (let row = 0; row * 15 < h; row++) {
+      const shift = row % 2 === 0 ? 0 : 15;
+      for (let x = left - shift; x < left + width; x += 30) {
+        ctx.strokeRect(Math.max(left, x) + 0.5, row * 15 + 0.5, 30, 15);
+      }
+    }
+  }
+}
+
+/** A tag's mark over its cell: the pipe, the rot, a young cap, a spore (a ridge is its soil). */
+function drawTag(
+  ctx: CanvasRenderingContext2D,
+  tag: string,
+  x: number,
+  y: number,
+  timeMs: number,
+): void {
+  const middle = (CELL - ICON_SIZE * 2) / 2;
+  switch (tag) {
+    case 'target':
+      ctx.globalAlpha = 0.6 + 0.4 * Math.sin(timeMs / 200);
+      ctx.strokeStyle = '#f5d77b';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(x + 2, y + 2, CELL - 4, CELL - 4);
+      ctx.lineWidth = 1;
+      ctx.globalAlpha = 1;
+      drawIcon(ctx, 'drop', x + middle, y + middle, { scale: 2 });
+      break;
+    case 'hazard':
+      ctx.fillStyle = 'rgba(70, 40, 20, 0.75)';
+      ctx.fillRect(x + 1, y + 1, CELL - 2, CELL - 2);
+      ctx.fillStyle = '#7a5a3a';
+      ctx.fillRect(x + 6, y + 8, 5, 5);
+      ctx.fillRect(x + 17, y + 16, 6, 5);
+      break;
+    case 'protected':
+      drawIcon(ctx, 'mushroom', x + middle, y + middle, { scale: 2 });
+      break;
+    case 'spore':
+      ctx.fillStyle = '#eaffd8';
+      ctx.fillRect(x + 7, y + 7, 3, 3);
+      ctx.fillRect(x + 20, y + 10, 3, 3);
+      ctx.fillRect(x + 12, y + 20, 3, 3);
+      break;
+    default:
+      break;
+  }
 }
 
 /** A crystal with a highlight and, for elemental crystals, its element glyph. */
