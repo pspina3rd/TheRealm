@@ -562,7 +562,7 @@ describe('CONTAIN + protect (Wren’s mushroom ring)', () => {
     return { battle, contain: battle.challenge as ContainChallenge };
   };
 
-  it('lays seven rows of litter, two rot sources and three young caps', () => {
+  it('lays five rows of litter, two rot sources and three young caps', () => {
     const { battle, contain } = wren();
     expect(battle.board.countTag('hazard')).toBe(2);
     expect(contain.alive).toBe(3);
