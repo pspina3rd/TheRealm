@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { HaggleChallenge } from '../src/battle/haggle';
+import type { DuelChallenge } from '../src/battle/verbs/duel';
 import { createRng } from '../src/core/rng';
 import { CLASSES } from '../src/data/classes';
 import { ENEMIES } from '../src/data/enemies';
@@ -142,7 +142,7 @@ describe('resolveBattle', () => {
 
   it('rejects a non-combat battle against a monster', () => {
     const state = newGame();
-    const battle = makeBattle({ kind: 'haggle', pieceLimit: 1, rivalIntervalMs: 1 });
+    const battle = makeBattle({ kind: 'barter', wants: { gold: 999 }, pieceLimit: 1 });
     expect(() =>
       resolveBattle(state, entity('overworld', 'ow-slime-1'), battle, createRng(1)),
     ).toThrow();
@@ -178,7 +178,7 @@ describe('resolveBattle', () => {
   it('keeps the item and gives no reward on failure', () => {
     const state = newGame();
     addItem(state.hero, 'goblinCharm');
-    const battle = makeBattle(NPCS.collector!.challenge, state.hero);
+    const battle = makeBattle(NPCS.collector!.challenge!, state.hero);
     battle.board.toppedOut = true;
     const result = resolveBattle(
       state,
@@ -201,26 +201,33 @@ describe('resolveBattle', () => {
 
   it('needs the terms an NPC battle was offered on', () => {
     const state = newGame();
-    const battle = makeBattle(NPCS.merchant!.challenge, state.hero);
+    addItem(state.hero, 'goblinCharm');
+    const battle = makeBattle(NPCS.collector!.challenge!, state.hero);
     expect(() =>
-      resolveBattle(state, entity('brightwater', 'bw-merchant'), battle, createRng(1)),
+      resolveBattle(state, entity('brightwater', 'bw-collector'), battle, createRng(1)),
     ).toThrow();
   });
 
-  it('opens a shop at the haggled price', () => {
+  it('opens Ordor’s shop at the haggled price, discounted until the hero leaves town', () => {
     const state = newGame();
-    const battle = makeBattle(NPCS.merchant!.challenge, state.hero);
-    (battle.challenge as HaggleChallenge).multiplier = 0.8;
-    while (battle.status === 'ongoing') battle.input('hardDrop');
+    const battle = makeBattle(NPCS.stallKeeper!.challenge!, state.hero);
+    const duel = battle.challenge as DuelChallenge;
+    duel.meter = 0.8;
+    duel.update(60_000);
     const result = resolveBattle(
       state,
-      entity('brightwater', 'bw-merchant'),
+      entity('mossvale', 'mv-stall'),
       battle,
       createRng(1),
       'neutral',
     );
-    expect(result).toMatchObject({ won: true, shopId: 'brightwaterGeneral' });
-    expect(result.priceMultiplier).toBeLessThanOrEqual(0.8);
+    expect(result).toMatchObject({ won: true, shopId: 'mossvaleStall', priceMultiplier: 0.8 });
+    // A Great: Ordor's Herb, and regard +1.
+    expect(result.gains).toEqual([
+      { kind: 'item', itemId: 'herb', count: 1 },
+      { kind: 'price', multiplier: 0.8 },
+      { kind: 'regard', delta: 1, level: 1 },
+    ]);
     expect(state.flags.size).toBe(0); // repeatable: no completion flag
   });
 });
@@ -234,13 +241,11 @@ describe('grantRewards', () => {
       { kind: 'spell', spellId: 'meteor' },
       { kind: 'spell', spellId: 'cure' },
       { kind: 'flag', flag: 'test' },
-      { kind: 'shop', shopId: 'brightwaterInn' },
     ]);
     expect(state.hero.gil).toBe(30);
     expect(itemCount(state.hero, 'ether')).toBe(3);
     expect(Object.keys(state.hero.spells)).toContain('meteor');
     expect(state.flags.has('test')).toBe(true);
-    expect(out.shopId).toBe('brightwaterInn');
     // Already-known spells and hidden flags produce no gain.
     expect(out.gains).toEqual([
       { kind: 'gil', amount: 5 },

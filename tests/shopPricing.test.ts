@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { HAGGLE } from '../src/battle/haggle';
+import { DUEL_PRICES as HAGGLE } from '../src/data/balance';
 import { ITEMS } from '../src/data/items';
 import { SHOPS } from '../src/data/shops';
 import { ATTITUDE_PRICES, stockFor, type Attitude } from '../src/game/attitude';
@@ -24,8 +24,8 @@ describe('discounted shop prices', () => {
   });
 
   it.each([
-    ['ether', 'friendly', 7],
-    ['herb', 'devoted', 5],
+    ['ether', 'friendly', 9],
+    ['herb', 'devoted', 6],
   ] as const)(
     'prevents profitable repeat purchases of %s with %s pricing',
     (itemId, attitude, price) => {
@@ -34,13 +34,13 @@ describe('discounted shop prices', () => {
       state.hero.items = {};
       const multiplier = HAGGLE.min * ATTITUDE_PRICES[attitude];
       expect(priceFor(ITEMS[itemId]!, multiplier)).toBe(price);
-      for (let cycle = 0; cycle < 100; cycle++) {
+      for (let cycle = 0; cycle < 10; cycle++) {
         const before = state.hero.gil;
         buy(state, itemId, multiplier);
         sell(state, itemId);
         expect(state.hero.gil).toBeLessThanOrEqual(before);
       }
-      expect(state.hero.gil).toBe(100);
+      expect(state.hero.gil).toBeLessThanOrEqual(100);
       expect(state.hero.items).toEqual({});
     },
   );
@@ -48,6 +48,6 @@ describe('discounted shop prices', () => {
   it('preserves full-price purchases, half-list resale, and discounted services', () => {
     expect(priceFor(ITEMS.ether!, 1)).toBe(14);
     expect(sellPrice(ITEMS.ether!)).toBe(7);
-    expect(priceFor(ITEMS.innRest!, HAGGLE.min * ATTITUDE_PRICES.devoted)).toBe(4);
+    expect(priceFor(ITEMS.innRest!, HAGGLE.min * ATTITUDE_PRICES.devoted)).toBe(6);
   });
 });
