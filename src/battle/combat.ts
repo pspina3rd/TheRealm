@@ -20,8 +20,9 @@ import {
   totalAttack,
   totalDefense,
   useItem,
+  type Hero,
 } from '../game/hero';
-import { heroSpell } from '../game/spells';
+import { heroSpell, isSealed, type CastSpell } from '../game/spells';
 import { CRIT_MULTIPLIER, critChance } from '../game/stats';
 import { PIECE_MS } from '../core/scoring';
 import {
@@ -308,11 +309,29 @@ export class CombatChallenge implements Challenge {
     };
   }
 
+  /** A spell as the hero would cast it in this fight (a lesson also lends its spell). */
+  protected spellFor(spellId: string): CastSpell | null {
+    return heroSpell(this.ctx.hero, spellId);
+  }
+
+  /** True when a sealed spell may still be cast here (its own lesson). */
+  protected unsealed(spellId: string): boolean {
+    void spellId;
+    return false;
+  }
+
+  /** The spells the hero can reach for in this fight: their own, and a lesson's lent one. */
+  spellBook(): Hero['spells'] {
+    return this.ctx.hero.spells;
+  }
+
   /** Why a spell can't be cast right now, or null if it can. */
   cannotCastReason(spellId: string): string | null {
     const hero = this.ctx.hero;
-    const cast = heroSpell(hero, spellId);
+    const cast = this.spellFor(spellId);
     if (!cast) return "You don't know that spell.";
+    if (isSealed(hero, spellId) && !this.unsealed(spellId))
+      return 'Sealed: win its lesson back, or win more fights.';
     if (!canAfford(hero, cast.cost)) return 'Not enough mana!';
     const effect = cast.effect;
     if ((effect.kind === 'heal' || effect.kind === 'regen') && hero.hp >= hero.maxHp) {
@@ -343,7 +362,7 @@ export class CombatChallenge implements Challenge {
     const reason = this.cannotCastReason(spellId);
     const spell = SPELLS[spellId];
     const hero = this.ctx.hero;
-    const cast = heroSpell(hero, spellId);
+    const cast = this.spellFor(spellId);
     if (reason || !spell || !cast) throw new Error(reason ?? "You don't know that spell.");
     spendMana(hero, cast.cost);
     this.ctx.emit({ kind: 'spell', spellId });
@@ -513,7 +532,7 @@ export class CombatChallenge implements Challenge {
     this.ctx.emit({ kind: 'tailwind', pieces: this.ctx.slowPieces });
   }
 
-  private hitEnemy(
+  protected hitEnemy(
     amount: number,
     element: Element | null,
     affinity: 'weak' | 'resist' | null,

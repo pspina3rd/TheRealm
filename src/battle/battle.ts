@@ -35,7 +35,9 @@ import type {
   NumberedEvent,
   Objective,
   RowPush,
+  Telegraph,
 } from './types';
+import { createRule, type RegionRule } from './rules';
 import {
   MANA_BOOST_MULTIPLIER,
   MANA_PER_LINES,
@@ -43,6 +45,8 @@ import {
   MAX_PAUSES,
   QUICKEN_SPEED,
   STAKES,
+  MENTOR_RULES,
+  type RegionRuleId,
 } from '../data/balance';
 export {
   MANA_BOOST_MULTIPLIER,
@@ -69,6 +73,8 @@ export interface BattleOptions {
   readonly weights?: Readonly<Record<PieceName, number>>;
   /** Chance each random piece arrives dual (see `dualChance` in `src/game/pieceOdds.ts`). */
   readonly dualChance?: number;
+  /** The region's rule for a monster fight (a lesson brings its mentor's own). */
+  readonly rule?: RegionRuleId;
 }
 
 /**
@@ -104,6 +110,8 @@ export class Battle implements BattleContext {
   gaveUp = false;
   /** The mentor's assist on an assisted threshold try. */
   readonly assist: Assist | null;
+  /** The region's rule in a fight or lesson (spores, the dark), if any. */
+  readonly rule: RegionRule | null;
   private saidNearly = false;
   /** Oldest first, numbered so the screen can play each event once. */
   readonly events: NumberedEvent[] = [];
@@ -121,6 +129,8 @@ export class Battle implements BattleContext {
     this.board.dualChance = options.dualChance ?? 0;
     this.challenge = createChallenge(this, spec);
     this.started = !this.challenge.preroll;
+    const ruleId = spec.kind === 'lesson' ? MENTOR_RULES[spec.mentorId] : options.rule;
+    this.rule = ruleId && spec.kind !== 'encounter' ? createRule(this, ruleId) : null;
     this.assist = spec.kind === 'encounter' && spec.assisted ? (def?.assist ?? null) : null;
     // Gravity follows the foe's own level: growing with the hero makes it
     // tougher (see `scaledEnemy`), not faster-falling.
@@ -208,6 +218,11 @@ export class Battle implements BattleContext {
   emit(event: BattleEvent): void {
     this.events.push({ seq: this.nextSeq++, event });
     if (this.events.length > MAX_EVENTS) this.events.shift();
+  }
+
+  /** Everything marked on the board ahead of time: the challenge's and the region rule's. */
+  telegraphs(): readonly Telegraph[] {
+    return [...(this.challenge.telegraphs?.() ?? []), ...(this.rule?.telegraphs() ?? [])];
   }
 
   /** Events numbered `afterSeq` or later. */
@@ -333,6 +348,7 @@ export class Battle implements BattleContext {
     if (result.holesMade > 0) this.emit({ kind: 'holes', count: result.holesMade });
     const first = this.nextSeq;
     this.challenge.onLock(result);
+    if (this.rule && this.status === 'ongoing') this.rule.onLock(result);
     this.recentSurges.push(
       this.eventsSince(first).flatMap(({ event }) =>
         event.kind === 'surge' ? [event.element] : [],
