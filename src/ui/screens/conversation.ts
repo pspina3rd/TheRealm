@@ -183,6 +183,5 @@ export function epilogueBody(atlas: Atlas, epilogue: Epilogue): HTMLElement[] {
         return portrait;
       }),
     ),
-    speech(atlas, epilogue.speaker.sprite, epilogue.speaker.text, 'devoted'),
   ];
 }

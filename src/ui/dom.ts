@@ -38,9 +38,16 @@ export function button(
 
 /** A line as nodes: its `*stage directions*` become italic narration (`em.stage`). */
 export function lineNodes(text: string): Node[] {
-  return parseStage(text).map((beat) =>
+  return parseStage(text).flatMap((beat) =>
     beat.kind === 'stage'
-      ? el('em', { className: 'stage', text: beat.text })
-      : document.createTextNode(beat.text),
+      ? [el('em', { className: 'stage', text: beat.text })]
+      : strongNodes(beat.text),
   );
+}
+
+/** Speech with the script's `**strong**` words in bold (the voice's "I have others."). */
+function strongNodes(text: string): Node[] {
+  return text
+    .split(/\*\*([^*]+)\*\*/)
+    .map((part, i) => (i % 2 === 1 ? el('strong', { text: part }) : document.createTextNode(part)));
 }

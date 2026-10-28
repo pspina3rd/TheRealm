@@ -8,6 +8,7 @@ import {
   type Location,
 } from './map';
 import { walkRegen } from '../game/hero';
+import { pickVariant, variantsOf } from '../game/lines';
 import { STARTER_MAPS } from '../data/maps';
 import { activeEntities, currentMap, type GameState } from './state';
 
@@ -41,7 +42,10 @@ export function step(state: GameState, direction: Direction): StepResult {
   const warp = warpAt(map, x, y);
   if (warp) {
     if (warp.requiresFlag && !state.flags.has(warp.requiresFlag)) {
-      const text = warpStirs(warp, state.flags) ? warp.stirs?.text : warp.lockedText;
+      const stirs = warpStirs(warp, state.flags) ? warp.stirs : undefined;
+      const text = stirs
+        ? pickVariant(variantsOf(stirs.text), state.talk, `ward:${warp.to.map}`)
+        : warp.lockedText;
       return { kind: 'locked', text: text ?? 'The way is sealed.' };
     }
     return { kind: 'warp', to: warp.to };

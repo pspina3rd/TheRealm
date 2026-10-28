@@ -71,10 +71,14 @@ export function attitudeForScore(score: number): Attitude {
   return 'hostile';
 }
 
+/** How someone of `element` feels about the hero (a mentor, or an NPC). */
+export function attitudeToward(hero: Pick<Hero, 'spells' | 'stats'>, element: Element): Attitude {
+  return attitudeForScore(attitudeScore(alignmentOf(hero.spells), hero.stats.charm, element));
+}
+
 /** How `npc` feels about the hero. Things (a chest) are always Neutral. */
 export function attitudeOf(hero: Pick<Hero, 'spells' | 'stats'>, npc: NpcDef): Attitude {
-  if (npc.inanimate) return 'neutral';
-  return attitudeForScore(attitudeScore(alignmentOf(hero.spells), hero.stats.charm, npc.element));
+  return npc.inanimate ? 'neutral' : attitudeToward(hero, npc.element);
 }
 
 /**

@@ -356,7 +356,8 @@ describe('mentor encounters', () => {
       kind: 'message',
       title: 'Torva',
       sprite: 'char.020',
-      text: MENTORS.torva!.motive,
+      // She has taught: her After the lesson row (warm, toward a fire hero).
+      text: MENTORS.torva!.afterLesson.warm,
     });
     expect(entitySprite(torva)).toBe('char.020');
     expect(entitySprite(MAPS.overworld!.entities[0]!)).toBe('enemy.slime');

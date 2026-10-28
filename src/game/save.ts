@@ -9,7 +9,7 @@ import { titleElementFor } from './alignment';
 import { heroAlignment, heroClass, refreshStats, type Hero } from './hero';
 import { enhancements, newKnownSpell, type Enhancements, type KnownSpell } from './spells';
 import type { Feats } from './feats';
-import { migrateStory } from './story';
+import { migrateScenes, migrateStory } from './story';
 import { SKILL_POINTS_PER_LEVEL, statRanks } from './stats';
 import { tileAt, warpAt, type Direction, type Location } from '../world/map';
 import type { GameState } from '../world/state';
@@ -28,10 +28,12 @@ export const CORRUPT_KEY = `${SAVE_KEY}.corrupt`;
  * - 7 added the hero's lifetime board feats, which reveal hidden spells.
  * - 8 added the story: line rotation (`talk`), the Moon Wyrm's visions and
  *   the maps reached (as flags), which place Vesper.
+ * - 9 added the scenes (the opening, the Refusal, the end of Chapter One),
+ *   each a `scene:` flag once seen; an older save has seen every scene due.
  */
-export const SAVE_VERSION = 8;
+export const SAVE_VERSION = 9;
 /** Older versions `deserialize` can still upgrade. */
-const MIGRATABLE_VERSIONS: readonly number[] = [1, 2, 3, 4, 5, 6, 7, SAVE_VERSION];
+const MIGRATABLE_VERSIONS: readonly number[] = [1, 2, 3, 4, 5, 6, 7, 8, SAVE_VERSION];
 const FACINGS: readonly Direction[] = ['up', 'down', 'left', 'right'];
 
 /** JSON-friendly form of `GameState` (sets become arrays). */
@@ -80,7 +82,7 @@ export function serialize(state: GameState): string {
 
 /**
  * Parses a save string in three steps: parse, migrate (flags, the version 8
- * story, the hero), then sanitise. Only structural garbage returns null: not
+ * story, the version 9 scenes, the hero), then sanitise. Only structural garbage returns null: not
  * JSON, not an object, an unknown version, or a missing or mistyped core
  * field (map, position, flag list; the hero's name, level, XP, HP, gil and
  * skill points). Stale entries are dropped or clamped instead (see
@@ -103,6 +105,7 @@ export function deserialize(json: string): GameState | null {
     const victories = count(data.victories) ? data.victories : 0;
     const flags = migrateFlags(data.flags.filter((f): f is string => typeof f === 'string'));
     if ((data.version as number) < 8) migrateStory(flags, data.mapId, victories);
+    if ((data.version as number) < 9) migrateScenes(flags);
     const hero = sanitizeHero(migrateHero(data.hero as StoredHero));
     if (!hero) return null;
     const respawn = standable(data.respawn) ? data.respawn : { ...START };

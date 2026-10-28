@@ -5,9 +5,19 @@ import { CLASSES } from '../data/classes';
 import { ENEMIES } from '../data/enemies';
 import type { ChallengeSpec } from '../data/types';
 import type { Attitude } from '../game/attitude';
-import type { Epilogue } from '../game/ending';
+import { epilogueFor, type Epilogue } from '../game/ending';
 import { describeInteraction, entitySprite, reply, resolveBattle } from '../game/encounter';
-import { arrive, dismissVision, pendingVision, type Interlude } from '../game/story';
+import {
+  arrive,
+  dismissVision,
+  dueScenes,
+  finishScene,
+  pendingVision,
+  scenePages,
+  type Interlude,
+  type ScenePage,
+} from '../game/story';
+import { CHAPTER_END } from '../data/story';
 import { bringItems, hiddenSlots, itemsFor } from '../game/hidden';
 import type { Gain } from '../game/rewards';
 import { ITEMS } from '../data/items';
@@ -188,9 +198,12 @@ export class App {
     this.say(currentMap(this.state).name);
     if (!this.started) this.chooseClass();
     else {
-      // A vision the game was closed on shows again.
-      const pending = pendingVision(this.state);
-      if (pending) this.showVision(pending);
+      // A scene or vision the game was closed on shows again.
+      this.playScenes(() => {
+        const pending = pendingVision(this.state);
+        if (pending) this.showVision(pending);
+        else this.dialog.close();
+      });
     }
     requestAnimationFrame((t) => this.frame(t));
   }
@@ -290,7 +303,8 @@ export class App {
         const vision = arrive(this.state, from);
         this.save();
         this.renderHud();
-        if (vision) this.showVision(vision);
+        // The Refusal comes first, the first time the hero leaves Mossvale.
+        if (vision) this.playScenes(() => this.showVision(vision));
         break;
       }
       case 'locked':
@@ -420,17 +434,60 @@ export class App {
   }
 
   /**
-   * An interlude over everything: the screen goes dark for a vision or a
-   * boss's words. A tap, Enter, Escape or Continue goes on (to `then`, or
+   * Plays every scene due now (see `dueScenes`), in order, one interlude a
+   * beat, each marked seen after its last beat; the end of Chapter One is
+   * followed by its summary. Then `then` (or back to the map).
+   */
+  private playScenes(then?: () => void): void {
+    const [scene] = dueScenes(this.state.flags);
+    if (!scene) {
+      if (then) then();
+      else this.dialog.close();
+      return;
+    }
+    const pages = scenePages(scene, this.state.hero);
+    const show = (i: number): void => {
+      const page = pages[i];
+      if (page) {
+        this.showInterlude(scene.title, page.text, () => show(i + 1), page.speaker);
+        return;
+      }
+      finishScene(this.state, scene);
+      this.save();
+      if (scene.id === CHAPTER_END.id) {
+        this.showEpilogue(epilogueFor(this.state.hero), () => this.playScenes(then));
+      } else this.playScenes(then);
+    };
+    show(0);
+  }
+
+  /**
+   * An interlude over everything: the screen goes dark for a scene, a
+   * vision or a boss's words, with the speaker's face and name if any. A tap, Enter, Escape or Continue goes on (to `then`, or
    * back to the map), but not in the first moments, so held keys or taps
    * can't skip it. Before the Wyrm's fight even Escape goes on to the fight:
    * once it has spoken there is no backing away.
    */
-  private showInterlude(title: string, text: string, then?: () => void): void {
+  private showInterlude(
+    title: string,
+    text: string,
+    then?: () => void,
+    speaker: ScenePage['speaker'] = null,
+  ): void {
     this.stopRoute();
     this.dialog.showInterlude(
       title,
       [
+        ...(speaker
+          ? [
+              el(
+                'div',
+                { className: 'interlude-speaker' },
+                spritePortrait(this.atlas, speaker.sprite, 56),
+                el('b', { text: speaker.name }),
+              ),
+            ]
+          : []),
         el('p', { className: 'interlude-text' }, ...lineNodes(text)),
         el('p', { className: 'interlude-hint', text: 'Tap or press Enter' }),
       ],
@@ -497,7 +554,8 @@ export class App {
     // After the results: the skill screen if the hero levelled up, then any shop.
     const next = (): void => {
       if (resolution.epilogue) {
-        this.showEpilogue(resolution.epilogue);
+        // The Wyrm's fall, the end of Chapter One, then its summary.
+        this.playScenes();
       } else if (resolution.shopId) {
         this.openShop(resolution.shopId, resolution.priceMultiplier, speaker, resolution.attitude);
       } else this.dialog.close();
@@ -613,14 +671,14 @@ export class App {
     );
   };
 
-  /** The chapter's end, then back to the world, where the ruins' seal now stirs. */
-  private showEpilogue(epilogue: Epilogue): void {
+  /** Chapter One's summary, then `then`; the hero plays on, the ruins' ward now aglow. */
+  private showEpilogue(epilogue: Epilogue, then: () => void): void {
     const close = (): void => {
-      this.dialog.close();
-      this.say('The Sunken Ruins stir', 'star');
+      then();
+      this.say("The Sunken Ruins' ward glows", 'star');
     };
     this.dialog.show({
-      title: 'The Moon Wyrm falls',
+      title: 'Chapter One complete',
       body: epilogueBody(this.atlas, epilogue),
       actions: [{ label: 'Continue', onClick: close }],
       onCancel: close,
@@ -798,6 +856,8 @@ export class App {
     this.dialog.close();
     this.renderHud();
     this.say(currentMap(this.state).name);
+    // The opening, before the hero has control in Mossvale.
+    this.playScenes();
   }
 
   // ------------------------------------------------------------- HUD ---

@@ -1,6 +1,7 @@
 /**
- * The end of the chapter: beating the finale boss (the Moon Wyrm) sets
- * `FINALE_FLAG` and shows an epilogue of what the hero became.
+ * The end of Chapter One: beating the finale boss (the Moon Wyrm) sets
+ * `FINALE_FLAG`; after the Wyrm's fall and the chapter's end (scenes in
+ * `src/data/story.ts`), a summary shows what the hero became.
  */
 import type { Element } from '../core/elements';
 import { MENTORS, type MentorDef } from '../data/mentors';
@@ -9,15 +10,9 @@ import { SPELLS, STARTING_SPELLS } from '../data/spells';
 import { heroClass, heroTitle, type Hero } from './hero';
 
 /** Set once the finale boss falls; the Sunken Ruins' seal stirs (see `Warp.stirs`). */
-export const FINALE_FLAG = 'wyrmBeaten';
+export { FINALE_FLAG } from '../data/story';
 
-/** Who speaks last, and what they say: someone who sent the hero below. */
-export const FINALE_WORDS = {
-  npcId: 'guard',
-  text: 'You came back up! The watch lit every lamp for you. The realm owes you; so do I.',
-} as const;
-
-/** What the epilogue shows. */
+/** What the Chapter One summary shows. */
 export interface Epilogue {
   /** e.g. "Gale Ranger". */
   readonly title: string;
@@ -28,7 +23,6 @@ export interface Epilogue {
   readonly spells: number;
   /** The mentors whose lessons the hero won (see `mentorsTaught`). */
   readonly mentors: readonly MentorDef[];
-  readonly speaker: { readonly name: string; readonly sprite: string; readonly text: string };
 }
 
 /**
@@ -54,9 +48,8 @@ export function mentorsTaught(hero: Hero): MentorDef[] {
   return Object.values(MENTORS).filter((mentor) => taught.has(mentor.element));
 }
 
-/** The epilogue for this hero. */
+/** The Chapter One summary for this hero. */
 export function epilogueFor(hero: Hero): Epilogue {
-  const speaker = NPCS[FINALE_WORDS.npcId];
   return {
     title: heroTitle(hero),
     titleElement: hero.titleElement,
@@ -64,10 +57,5 @@ export function epilogueFor(hero: Hero): Epilogue {
     level: hero.level,
     spells: Object.keys(hero.spells).length,
     mentors: mentorsTaught(hero),
-    speaker: {
-      name: speaker?.name ?? '',
-      sprite: speaker?.sprite ?? '',
-      text: FINALE_WORDS.text,
-    },
   };
 }

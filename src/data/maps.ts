@@ -1,4 +1,5 @@
 import type { MapDef } from '../world/map';
+import { FINALE_FLAG, WARD_AFTER_WYRM } from './story';
 
 /**
  * All maps. Rows are drawn with the legend in `src/world/tiles.ts`.
@@ -60,10 +61,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
         to: { map: 'overworld', x: 15, y: 19 },
         requiresFlag: 'ruinsOpen',
         lockedText: 'The Sunken Ruins are sealed by an ancient ward. (Coming soon)',
-        stirs: {
-          flag: 'wyrmBeaten',
-          text: 'With the wyrm gone, the ward hums and glows. It will open in the next chapter.',
-        },
+        stirs: { flag: FINALE_FLAG, text: WARD_AFTER_WYRM },
       },
     ],
     entities: [

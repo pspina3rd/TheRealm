@@ -147,3 +147,186 @@ export const VESPER_LINES: NpcLines = {
     warm: 'We shall meet again in the deep, traveler.',
   },
 };
+
+/**
+ * One beat of a scene, as the script's table has it: the narration (stage
+ * directions, or the author's narrated text), then what is said, if
+ * anything, with who says it (shown with their face).
+ */
+export interface SceneBeat {
+  /** Narration: `*stage directions*` and the author's narrated words. */
+  readonly stage: string;
+  /** What is said, quotes and any stage direction included. */
+  readonly line?: string;
+  /** Who says it: an NPC id, a mentor id, or `hero` (the class lines). */
+  readonly who?: string;
+  /** The hero's own line here, by class id. */
+  readonly classLines?: Readonly<Record<string, string>>;
+}
+
+/**
+ * A scene: a run of interludes shown once, in order (see `dueScenes` in
+ * `src/game/story.ts`). It is due once the hero holds `dueWith` (always,
+ * if none), and seen once `flag` is set, after its last beat.
+ */
+export interface SceneDef {
+  readonly id: string;
+  /** The interludes' title. */
+  readonly title: string;
+  readonly flag: string;
+  readonly dueWith?: string;
+  readonly beats: readonly SceneBeat[];
+}
+
+/** Elder Rowan, in the scenes. */
+const ROWAN = 'elder';
+
+/** The opening (the Call): after class select, before the hero has control. */
+export const OPENING: SceneDef = {
+  id: 'opening',
+  title: 'Sevenstones',
+  flag: 'scene:opening',
+  beats: [
+    {
+      stage:
+        '*Night over Sevenstones. Seven standing crystals ring the land, each glowing its own colour: red, blue, gold, green, orange, violet, cyan.*',
+    },
+    {
+      stage:
+        '*The violet stone flickers and goes grey. The other six burn a little lower, like candles in a draught.*',
+    },
+    {
+      stage:
+        '*Far beneath the stones, something enormous breathes in. Every lamp in every village dims at once.*',
+      line: '*A voice too deep to be heard, only felt:* "Sleep."',
+    },
+    {
+      stage:
+        "*Mossvale at dawn. As always, you're first up, lighting the lane lamps. Bean is already in her rows and Ordor is unbarring his stall. But the baker's shutters stay closed, and so do the Millers' and old Tess's. Three houses, and no one stirs.*",
+      who: 'hero',
+      classLines: {
+        ranger:
+          "The baker's never slept through a dawn in his life. And the wind hasn't moved since midnight.",
+        knight:
+          "The Millers' door is still barred. Old Tom's been up before me every day for ten years.",
+        mage: "My candle burned all night and gave no light. Now three houses won't wake. Those two things are connected.",
+        rogue:
+          "Three houses, shutters closed, nobody home who'll answer. I could... no. Something's wrong.",
+      },
+    },
+    {
+      stage: '*At the well, Elder Rowan hauls up a bucket. The water inside is violet.*',
+      line: '"Three houses still abed, and the well\'s gone purple. Something\'s wrong, kid."',
+      who: ROWAN,
+    },
+  ],
+};
+
+/**
+ * The Refusal: the first time the hero leaves Mossvale, just before Vision
+ * 1. Rowan's rune stone is the Focus Stone (`wellStone`), but the scene
+ * grants nothing: the stone stays the reward for his well.
+ */
+export const REFUSAL: SceneDef = {
+  id: 'refusal',
+  title: 'The Mossvale stile',
+  flag: 'scene:refusal',
+  dueWith: 'vision:1',
+  beats: [
+    {
+      stage:
+        '*The stile at the village edge. Beyond it, the road to Sevenstones runs grey under a dim sky. You stop.*',
+      who: 'hero',
+      classLines: {
+        ranger: 'Never went past the second ridge. Never needed to.',
+        knight: "My post is here. A knight doesn't leave his post.",
+        mage: "My books are here. Whatever's out there isn't in them.",
+        rogue: 'Not my village. Not my problem. Right?',
+      },
+    },
+    {
+      stage: '*A gust, and a woman drops out of the sky with a satchel full of letters. Kestrel.*',
+      line: "\"Two letters. One from Selene at Moonfall, 'to whoever's still awake in Mossvale'. And one for Elder Rowan, from the inn at Brightwater.\"",
+      who: 'kestrel',
+    },
+    {
+      stage: '*Rowan reads his, then reads it again. His hands shake.*',
+      line: '"My boy, Hareguy. Asleep three weeks at the inn, and they can\'t wake him. I can\'t make that road on these knees, kid."',
+      who: ROWAN,
+    },
+    {
+      stage: '*He presses the old rune stone into your palm.*',
+      line: '"Found this the year I dug the well. Never knew what it was for. Maybe it was for this."',
+      who: ROWAN,
+    },
+  ],
+};
+
+/** Set once the finale boss (the Moon Wyrm) falls: Chapter One ends. */
+export const FINALE_FLAG = 'wyrmBeaten';
+
+/** In the lair, when the Wyrm falls (after the results). */
+export const WYRM_FALL: SceneDef = {
+  id: 'wyrmFall',
+  title: 'The Moon Wyrm falls',
+  flag: 'scene:wyrmFall',
+  dueWith: FINALE_FLAG,
+  beats: [
+    {
+      stage:
+        "*The great serpent's coil slackens around the moon-crystal. Its last word breaks off halfway, as if whatever was speaking simply stopped.*",
+    },
+    {
+      stage:
+        "*What's left is only an animal: grey, ancient, half-blind. It lowers its head and lets out a long, shaking breath.*",
+    },
+    {
+      stage:
+        '*Moonlight pours out of the crystal and up through the stone. The Wyrm closes its eye and sleeps, a real sleep this time.*',
+    },
+  ],
+};
+
+/** The end of Chapter One, after the Wyrm's fall; the stats summary follows. */
+export const CHAPTER_END: SceneDef = {
+  id: 'chapterEnd',
+  title: 'End of Chapter One',
+  flag: 'scene:chapterEnd',
+  dueWith: FINALE_FLAG,
+  beats: [
+    {
+      stage:
+        '*Silver light climbs every well and crack. The violet stone of Sevenstones flickers, then glows. In Brightwater, sleepers stir and yawn.*',
+    },
+    {
+      stage: 'After the Moon Wyrm falls, Captain Vale has the last word:',
+      line: '"You came back, the realm owes you; so do I..."',
+      who: 'guard',
+    },
+    {
+      stage:
+        "The Sunken Ruins' seal then glows, distracting everyone. *Across Sevenstones, the ancient ward flares silver. The watch turn to stare.*",
+    },
+    {
+      stage:
+        'Suddenly a voice is heard rumbling through the breeze. *It\'s the voice from every vision, but there\'s no Wyrm now to carry it. The grass flattens and the lamps gutter.* "A good throat. Old, and very obedient. **I have others.**"',
+    },
+    {
+      stage:
+        "*At the cave mouth, Vale's guards find a dark cloak, empty and soaked. Wet footprints lead across Sevenstones to the glowing ward.*",
+    },
+    {
+      stage:
+        '*An old man waits by the ward, holding a brass lantern with no flame. He looks at the footprints, then at you.* "Those prints. I\'d know them anywhere. I taught the boy who made them to walk."',
+    },
+  ],
+};
+
+/** Every scene, in story order. */
+export const SCENES: readonly SceneDef[] = [OPENING, REFUSAL, WYRM_FALL, CHAPTER_END];
+
+/** The Sunken Ruins' ward after the Wyrm: its map text, rotating. */
+export const WARD_AFTER_WYRM: Variants = [
+  'The ward hums with fresh moonlight. Wet footprints end at its edge.',
+  'Below the ward, a bell rings once. It will open in the next chapter.',
+];

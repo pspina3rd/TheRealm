@@ -1,6 +1,10 @@
 import { VESPER_LINES } from './story';
 import type { ChallengeSpec, NpcDef } from './types';
 
+/** Innkeeper Pete on Rowan's son (the script's Refusal), among his greetings. */
+export const HAREGUY =
+  "Rowan's boy is upstairs. Three weeks asleep. Breathes fine. Just won't wake.";
+
 /**
  * Every NPC in the game. Each has a real need, the challenge is doing that
  * task, and the reward follows from it (see "NPCs and attitude" in
@@ -449,8 +453,11 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     lines: {
       intro: {
         cold: 'One bed left. Haggle for it if you want it.',
-        plain: 'Half my rooms sit empty since the caves closed. A bed? We settle it with a game.',
-        warm: 'Come in and get warm, dear. A bed? We play a little game for the price.',
+        plain: [
+          'Half my rooms sit empty since the caves closed. A bed? We settle it with a game.',
+          HAREGUY,
+        ],
+        warm: ['Come in and get warm, dear. A bed? We play a little game for the price.', HAREGUY],
       },
       confide: 'I keep a Phoenix Feather for regulars who go below. Play me for it.',
       refuse: 'No rooms. Not for you.',

@@ -23,6 +23,7 @@ import {
 import { FINALE_FLAG, epilogueFor, type Epilogue } from './ending';
 import { hiddenSlots, type HiddenSlot } from './hidden';
 import { noteSaid, pickVariant, variantsOf } from './lines';
+import { mentorGreeting } from './mentorLines';
 import { preludeFor } from './story';
 import { addItem, gainXp, itemCount, removeItem } from './hero';
 import { completeLesson, lessonsFor, type Lesson } from './lessons';
@@ -160,8 +161,11 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
     const silhouettes = hiddenSlots(state, mentor.element).filter(
       (slot) => slot.state === 'hidden',
     );
-    const motive = pickVariant(variantsOf(mentor.motive), state.talk, `${mentor.id}.motive`);
-    const speaker = { title: mentor.name, sprite: mentor.sprite, text: motive };
+    const speaker = {
+      title: mentor.name,
+      sprite: mentor.sprite,
+      text: mentorGreeting(state, mentor),
+    };
     return lessons.length + silhouettes.length > 0
       ? {
           kind: 'lessons',
