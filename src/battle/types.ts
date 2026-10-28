@@ -1,4 +1,5 @@
 import type { Board, CellTally, LockResult } from '../core/board';
+import type { Landing } from '../core/landing';
 import type { Element } from '../core/elements';
 import type { PieceName } from '../core/pieces';
 import type { EnemyMove, ElementAmounts } from '../data/types';
@@ -78,7 +79,50 @@ export type BattleEvent =
   | { readonly kind: 'quicken'; readonly ms: number }
   | { readonly kind: 'revive' }
   /** A haggle price moved. */
-  | { readonly kind: 'price'; readonly multiplier: number };
+  | { readonly kind: 'price'; readonly multiplier: number }
+  /** The hero's first touch: the pre-roll is over, the clock starts. */
+  | { readonly kind: 'begin' }
+  /** The person showed how: their demo piece locked. */
+  | { readonly kind: 'demo' }
+  /** The person's face reacts (wordless): a hole, a big clear, danger. */
+  | { readonly kind: 'face'; readonly face: Face }
+  /** The person speaks one of their three lines. */
+  | { readonly kind: 'beat'; readonly beat: Beat }
+  /** Rows pushed up from below (rising mold, a merchant's counter-offer). */
+  | { readonly kind: 'rise'; readonly rows: number }
+  /** A lamp lit, or the wind snuffed one. */
+  | { readonly kind: 'lamp'; readonly index: number; readonly lit: boolean }
+  /** The hazard spread into these cells ([x, y]). */
+  | { readonly kind: 'spread'; readonly cells: readonly (readonly [number, number])[] }
+  /** A protected cell was saved (picked), or lost. */
+  | { readonly kind: 'saved' }
+  | { readonly kind: 'lost' }
+  /** Rows sent to a duel rival, or the rival topped out. */
+  | { readonly kind: 'sent'; readonly rows: number }
+  /** The foe raised the mentor's shield, or the taught spell broke it. */
+  | { readonly kind: 'shield'; readonly up: boolean }
+  /** A region rule's spore landed on, or spread into, these cells. */
+  | { readonly kind: 'spores'; readonly cells: readonly (readonly [number, number])[] };
+
+/** A person's wordless reaction (§4): a wince at a hole, a cheer at a 3+ clear, alarm at danger. */
+export type Face = 'wince' | 'cheer' | 'alarm';
+
+/** The three moments a person speaks in a challenge (§4). */
+export type Beat = 'start' | 'hazard' | 'nearly';
+
+/**
+ * A board event marked one piece ahead (§2, §7.1): the cells it will touch
+ * (a spore's landing, the rot's next reach), or a whole-board warning
+ * (a rising row, an incoming counter-offer, a lamp about to be snuffed).
+ */
+export type Telegraph =
+  | {
+      readonly kind: 'cells';
+      readonly what: 'spore' | 'spread';
+      readonly cells: readonly (readonly [number, number])[];
+    }
+  | { readonly kind: 'rows'; readonly what: 'rise' | 'send'; readonly rows: number }
+  | { readonly kind: 'lamp'; readonly index: number };
 
 /** An event with its position in the battle, so the screen can play each one once. */
 export interface NumberedEvent {
@@ -108,6 +152,17 @@ export interface Objective {
   readonly lines?: Tally;
   /** Current price multiplier and its bounds (haggle). */
   readonly price?: { readonly value: number; readonly min: number; readonly max: number };
+  /** The counter beside the objective on the board's frame, e.g. "Sprouts 4/12". */
+  readonly counter?: string;
+  /** Lamps on the frame (CHARGE): each one's element and whether it's lit. */
+  readonly lamps?: readonly { readonly element: Element; readonly lit: boolean }[];
+  /** A scripted rival's stack, drawn as a mini board (DUEL). */
+  readonly rival?: {
+    readonly rows: number;
+    readonly top: number;
+    readonly pending: number;
+    readonly secondsLeft: number;
+  };
 }
 
 /** The parts of a running battle that challenge rules may read or change. */
@@ -136,10 +191,24 @@ export interface BattleContext {
 export interface Challenge {
   /** Called after every piece locks. */
   onLock(result: LockResult): void;
-  /** Called every frame while the battle is ongoing. */
+  /** Called every frame while the battle is ongoing (after the pre-roll). */
   update(dtMs: number): void;
   status(): BattleStatus;
   objective(): Objective;
+  /** Pieces always shown ahead, whatever the hero's Insight (BUILD shows 3). */
+  readonly previews?: number;
+  /** True when the pre-roll waits for the hero's first touch before the clock runs. */
+  readonly preroll?: boolean;
+  /**
+   * A placement's worth under this challenge's rules, added to a plain
+   * stacker's judgement: the shared hint that steers the sim's good and
+   * casual bots alike, and the threshold assist's tosses.
+   */
+  hint?(landing: Landing): number;
+  /** Runs during the pre-roll, before the first touch (a scripted demo). */
+  prerollUpdate?(dtMs: number): void;
+  /** What's marked on the board one piece ahead. */
+  telegraphs?(): readonly Telegraph[];
 }
 
 /** Pieces remaining before a piece-limited challenge runs out. */
