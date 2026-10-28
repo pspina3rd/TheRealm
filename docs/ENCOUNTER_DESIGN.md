@@ -11,10 +11,7 @@ Every number is a **starting value**. Each one lives in `src/data/balance.ts` (n
 The seven open questions in section 10 are answered with the recommended answers, except where noted:
 
 - **Vesper (Q5), changed:** losing to Vesper carries more weight, but it is not game over. On a loss, Vesper **withdraws back along his route**, and you must retrace your steps to reach him again before you can challenge him a second time. The consumable or gil cost stays, and his lore is told either way. Exact retreat rules are specified when Vesper is built (M4).
-- **Consistent save states, enforced (new requirement):**
-  - The game saves at once when an encounter is committed (first touch), so closing the game mid-challenge counts as a fail.
-  - Every load is checked against save invariants (regard, strain, retry timers, seals, markups, scene flags and story flags agree), and a save that breaks one is repaired or backed up and reported.
-  - Every save-format change ships with migration tests from every older version.
+- **Build work saved consistently (author's process requirement):** the build commits after every working step, keeps a running build log (`docs/BUILD_LOG.md`), and checkpoints are pushed regularly, so no work is lost to limits or restarts. Game saves follow the normal rule: a version bump with migration tests.
 
 ## Changes from review (rev 1 → rev 2)
 
