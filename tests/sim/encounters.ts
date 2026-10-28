@@ -38,6 +38,9 @@ const HINT = Number(process.env.HINT ?? 1);
  */
 const NOISE = Number(process.env.NOISE ?? 1);
 const GHOST = Number(process.env.GHOST ?? 0);
+/** Diagnosis: the casual bot's judgement (`bestFit` by default, or `survival`) and hint weight. */
+const CASUAL_JUDGE = process.env.CASUAL_JUDGE ?? 'bestFit';
+const CASUAL_HINT = Number(process.env.CASUAL_HINT ?? HINT);
 
 export type Bot = 'good' | 'casual' | 'dropper' | 'idle';
 
@@ -199,10 +202,20 @@ export function goodRanked(battle: Battle): Choice[] {
 /** The casual bot: one piece, tidy, plus the hint; sometimes the second-best spot. */
 function casualChoice(battle: Battle): Landing | null {
   const hint = battle.challenge.hint?.bind(battle.challenge);
-  const ranked = landingsNow(battle.board)
+  const board = battle.board;
+  const duel = battle.challenge instanceof DuelChallenge;
+  const tall = Math.max(...heights(board.grid).heights) > 9;
+  // CASUAL_JUDGE=survival (diagnosis): the good bot's judgement, one piece deep.
+  const judge = (landing: Landing): number =>
+    CASUAL_JUDGE !== 'survival'
+      ? 10 * scoreGrid(landing.grid, landing.lines)
+      : duel
+        ? stackValue(landing.grid, true) + clearReward(landing.lines, tall)
+        : survivalValue(landing, board.height);
+  const ranked = landingsNow(board)
     .map((landing) => ({
       landing,
-      score: 10 * scoreGrid(landing.grid, landing.lines) + HINT * (hint?.(landing) ?? 0),
+      score: judge(landing) + CASUAL_HINT * (hint?.(landing) ?? 0),
     }))
     .sort((a, b) => b.score - a.score);
   const pick = ranked.length > 1 && battle.rng.next() < 0.15 ? ranked[1] : ranked[0];
