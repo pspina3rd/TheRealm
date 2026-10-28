@@ -43,6 +43,9 @@
       </section>
 
       <section id="battle-view" class="view battle" aria-label="Battle" hidden>
+        <div id="board-frame" class="board-frame" role="status" hidden>
+          <span id="frame-objective"></span><b id="frame-counter"></b>
+        </div>
         <div class="battle-board">
           <canvas
             id="board-canvas"
@@ -69,6 +72,9 @@
           <div class="battle-tools">
             <div id="battle-items" class="items"></div>
             <button type="button" id="pause-button" aria-label="Pause" title="P">❚❚</button>
+            <button type="button" id="giveup-button" aria-label="Give up" title="Give up" hidden>
+              ✕
+            </button>
           </div>
           <button
             type="button"

@@ -5,6 +5,8 @@ import { ATTITUDE_NAMES, type Attitude } from '../../game/attitude';
 import type { Lesson } from '../../game/lessons';
 import { castSpellFor, castSummary, newKnownSpell } from '../../game/spells';
 import type { Interaction } from '../../game/encounter';
+import type { StakesCard } from '../../game/encounterFlow';
+import type { RetryRule } from '../../game/stakes';
 import type { Resolution } from '../../game/encounter';
 import type { Epilogue } from '../../game/ending';
 import type { Gain } from '../../game/rewards';
@@ -19,6 +21,7 @@ import {
   gainRows,
   hiddenSpellSlot,
   levelPips,
+  regardPips,
   rewardIcons,
   spellMeta,
   spritePortrait,
@@ -48,13 +51,17 @@ function lessonButton(
   lesson: Lesson,
   failed: boolean,
   onPick: (lesson: Lesson) => void,
+  blocked = false,
 ): HTMLButtonElement {
   const spell = SPELLS[lesson.spellId];
   const node = button('', () => onPick(lesson));
   node.className = 'lesson';
+  node.disabled = blocked;
   if (!spell) return node;
   const cast = castSpellFor(spell, { ...newKnownSpell(), level: lesson.level });
-  node.title = castSummary(cast);
+  node.title = blocked
+    ? `${castSummary(cast)} · Try again after your next won monster fight`
+    : castSummary(cast);
   node.append(
     iconElement(ELEMENT_ICONS[spell.category], 3, ELEMENT_NAMES[spell.category]),
     el('span', {}, el('b', { text: cast.name }), levelPips(spell, lesson.level), spellMeta(cast)),
@@ -89,7 +96,12 @@ export function conversationBody(
         'div',
         { className: 'lessons' },
         ...interaction.lessons.map((lesson) =>
-          lessonButton(lesson, interaction.sealed === lesson.spellId, onLesson),
+          lessonButton(
+            lesson,
+            interaction.sealed === lesson.spellId,
+            onLesson,
+            Boolean(interaction.blocked[lesson.spellId]),
+          ),
         ),
         ...interaction.silhouettes.map((slot) => hiddenSpellSlot(atlas, slot)),
       ),
@@ -108,7 +120,12 @@ export function conversationBody(
       ),
     );
   }
-  if (interaction.kind === 'challenge') {
+  if (interaction.kind === 'shop' && interaction.haggle) {
+    body.push(stakesCardBody(interaction.haggle.card));
+  }
+  if (interaction.kind === 'challenge' && interaction.card) {
+    body.push(stakesCardBody(interaction.card));
+  } else if (interaction.kind === 'challenge') {
     const extras = rewardIcons(interaction.extras);
     const rewards = [
       ...rewardIcons(interaction.rewards),
@@ -129,6 +146,74 @@ export function conversationBody(
     );
   }
   return body;
+}
+
+/** How each retry rule reads on the Stakes card. */
+const RETRY_TEXT: Readonly<Record<RetryRule, string>> = {
+  now: 'Right away',
+  nowOnce: 'Once right away, then after your next won monster fight',
+  wait: 'After your next won monster fight',
+  day: 'Once a day (a day ends at an inn)',
+};
+
+/** Why a try is blocked, in words. */
+const BLOCKED_TEXT = {
+  wait: 'Not yet: win a monster fight first.',
+  day: 'Not today: come back after a night at an inn.',
+} as const;
+
+/**
+ * The Stakes card (docs/ENCOUNTER_DESIGN.md §3.1): the win first (rewards,
+ * a Great, regard now → after, and the warmer attitude one more good turn
+ * brings), then the ask in the person's words, the cost of failing, and
+ * the retry rule; a blocked try says why.
+ */
+export function stakesCardBody(card: StakesCard): HTMLElement {
+  const row = (label: string, ...content: (HTMLElement | string)[]): HTMLElement =>
+    el(
+      'div',
+      { className: 'stakes-row' },
+      el('b', { text: label }),
+      el('span', {}, ...content.map((c) => (typeof c === 'string' ? el('span', { text: c }) : c))),
+    );
+  const { win, fail } = card;
+  const regardMoves = win.regardAfter !== win.regard;
+  const winRow = row(
+    'Win',
+    ...rewardIcons(win.rewards),
+    ...(win.extras.length ? [el('span', { className: 'extras' }, ...rewardIcons(win.extras))] : []),
+    ...(win.great
+      ? [el('span', { className: 'great' }, 'Great: ', ...rewardIcons([win.great]))]
+      : []),
+    ...(regardMoves ? [regardPips(win.regard), '→', regardPips(win.regardAfter)] : []),
+    ...(win.warmer
+      ? [
+          iconElement(ATTITUDE_ICONS[win.warmer], 2, ATTITUDE_NAMES[win.warmer]),
+          `one more good turn: ${ATTITUDE_NAMES[win.warmer]}`,
+        ]
+      : []),
+  );
+  const failText = [
+    fail.text,
+    ...(fail.strainText ? [`(${fail.strainText})`] : []),
+    ...(fail.cools ? ['· they cool'] : []),
+  ].join(' ');
+  return el(
+    'div',
+    { className: 'stakes-card' },
+    el('h3', { text: card.title }),
+    winRow,
+    row('The ask', el('i', { text: card.objective })),
+    row('Fail', failText),
+    row(
+      'Retry',
+      RETRY_TEXT[card.retry] + (card.repeatable ? '; replays once a day at half pay' : ''),
+    ),
+    ...(card.strain > 0 ? [row('Harder', `Strain ${card.strain}: ${fail.strainText ?? ''}`)] : []),
+    ...(card.blocked
+      ? [el('p', { className: 'stakes-blocked', text: BLOCKED_TEXT[card.blocked] })]
+      : []),
+  );
 }
 
 /** The results after a battle: the winner, what was gained or lost, and any parting words. */

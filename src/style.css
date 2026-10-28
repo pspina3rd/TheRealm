@@ -236,6 +236,91 @@ canvas {
   height: 600px;
 }
 
+/* An encounter's objective on the board's frame, with its counter beside it (§4). */
+.board-frame {
+  grid-column: 1;
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  justify-content: space-between;
+  max-width: 312px;
+  padding: 4px 8px;
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  background: #10132a;
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.board-frame span {
+  font-style: italic;
+}
+
+.board-frame b {
+  flex: none;
+  color: var(--gold);
+}
+
+.board-frame[hidden],
+#giveup-button[hidden] {
+  display: none;
+}
+
+.battle.has-frame .battle-side {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+}
+
+#giveup-button {
+  margin-top: 6px;
+  flex: none;
+}
+
+/* The Stakes card (§3.1): the win first, then the ask, the cost and the retry rule. */
+.stakes-card {
+  display: grid;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  background: #10132a;
+}
+
+.stakes-card h3 {
+  margin: 0;
+  font-size: 14px;
+  color: var(--gold);
+}
+
+.stakes-row {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.stakes-row > span {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+.stakes-blocked {
+  margin: 2px 0 0;
+  color: #ff9a3c;
+  font-size: 13px;
+}
+
+.regard-pips .pip.mid {
+  opacity: 0.5;
+}
+
+.regard-pips .pip.low {
+  background: #ff5c7a;
+}
+
 .battle-side {
   display: flex;
   flex-direction: column;
@@ -781,7 +866,8 @@ dialog h2 {
     --board-h: min(
       calc(
         100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 2 * var(--pad) -
-          var(--strip-h) - var(--spells-h) - var(--controls-h) - 3 * var(--gap) - 6px
+          var(--strip-h) - var(--frame-h) - var(--spells-h) - var(--controls-h) - 4 * var(--gap) -
+          6px
       ),
       calc(2 * (100vw - 2 * var(--pad) - var(--gap) - 6px - var(--side)))
     );
@@ -790,9 +876,13 @@ dialog h2 {
     min-height: 0;
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
-    grid-template-rows: var(--strip-h) auto minmax(0, 1fr) auto var(--spells-h) var(--controls-h);
+    --frame-h: 0px;
+    grid-template-rows:
+      var(--strip-h) var(--frame-h) auto minmax(0, 1fr) auto var(--spells-h)
+      var(--controls-h);
     grid-template-areas:
       'stage stage'
+      'frame frame'
       'board hero'
       'board .'
       'board rotate'
@@ -823,6 +913,28 @@ dialog h2 {
     height: var(--strip-h);
     object-fit: contain;
     background: none;
+  }
+
+  .battle.has-frame {
+    --frame-h: 32px;
+  }
+
+  .board-frame {
+    grid-area: frame;
+    max-width: none;
+    padding: 2px 6px;
+    font-size: 11px;
+    overflow: hidden;
+  }
+
+  .battle.has-frame .battle-side {
+    grid-row: auto;
+    grid-column: auto;
+  }
+
+  #giveup-button {
+    margin: 0;
+    padding: 0 4px;
   }
 
   .battle-board {

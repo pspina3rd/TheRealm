@@ -128,7 +128,8 @@ export class Battle implements BattleContext {
     this.board.dualChance = options.dualChance ?? 0;
     this.challenge = createChallenge(this, spec);
     this.started = !this.challenge.preroll;
-    const ruleId = spec.kind === 'lesson' ? MENTOR_RULES[spec.mentorId] : options.rule;
+    const ruleId =
+      options.rule ?? (spec.kind === 'lesson' ? MENTOR_RULES[spec.mentorId] : undefined);
     this.rule = ruleId && spec.kind !== 'encounter' ? createRule(this, ruleId) : null;
     this.assist = spec.kind === 'encounter' && spec.assisted ? (def?.assist ?? null) : null;
     // Gravity follows the foe's own level: growing with the hero makes it

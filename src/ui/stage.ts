@@ -1,6 +1,7 @@
 import type { Battle } from '../battle/battle';
 import type { CombatChallenge } from '../battle/combat';
-import type { Objective } from '../battle/types';
+import type { Face, Objective } from '../battle/types';
+import type { EncounterDef } from '../data/encounters';
 import type { Atlas } from './art/atlas';
 import { CREATURES, battleFrame, mapFrame, type CreatureId } from './art/creatures';
 import { ELEMENT_COLOR_OF, type Feedback, type Target } from './art/feedback';
@@ -37,7 +38,19 @@ export interface StageOptions {
   readonly allyElement?: Element;
   /** What the opponent says as the battle starts, shown as a banner. */
   readonly line?: string;
+  /** An encounter: the person's three lines, and the objective in their words. */
+  readonly encounter?: { readonly def: EncounterDef; readonly objective: string };
 }
+
+/** How long a reaction face shows. */
+const FACE_MS = 1200;
+
+/** The person's wordless faces (§4): a cheer, a wince, alarm. */
+const FACE_ICONS: Readonly<Record<Face, IconId>> = {
+  cheer: 'faceDevoted',
+  wince: 'faceWary',
+  alarm: 'faceHostile',
+};
 
 /** Where things are drawn on the stage. */
 interface Layout {
@@ -132,6 +145,8 @@ export class Stage {
   /** Time left of the gauge's flash after a mistake fed it. */
   private rushFlash = 0;
   private layout: Layout = WIDE;
+  /** The person's reaction face now showing, and for how much longer. */
+  private face: Timed<Face> | null = null;
 
   constructor(canvas: HTMLCanvasElement, atlas: Atlas) {
     const ctx = canvas.getContext('2d');
@@ -166,6 +181,7 @@ export class Stage {
     this.shakes = {};
     this.defeat = null;
     this.rushFlash = 0;
+    this.face = null;
   }
 
   play(feedback: Feedback): void {
@@ -199,6 +215,14 @@ export class Stage {
       case 'rush':
         this.rushFlash = RUSH_MS;
         break;
+      case 'face':
+        this.face = { value: feedback.face, elapsed: 0 };
+        break;
+      case 'beat': {
+        const line = this.options.encounter?.def.lines[feedback.beat];
+        if (line) this.banner = { value: line, elapsed: 0 };
+        break;
+      }
       default:
         break;
     }
@@ -219,6 +243,7 @@ export class Stage {
     this.rushFlash = Math.max(0, this.rushFlash - dtMs);
     if (combat) this.drawEnemyStatus(combat, seesEnemyMove(battle.hero.stats.insight), timeMs);
     else this.drawObjective(battle.objective);
+    this.drawFace(dtMs);
     this.drawEffects(dtMs);
     this.drawPops(dtMs);
     this.drawFloats(dtMs);
@@ -491,6 +516,38 @@ export class Stage {
       ctx.textAlign = 'center';
       ctx.fillText(`${Math.round(value * 100)}%`, marker, y + 36);
     }
+    // Lamps on the frame (CHARGE): lit in their element's colour, dark otherwise.
+    objective.lamps?.forEach((lamp, i) => {
+      const lx = x + 12 + i * 34;
+      const ly = y + 14;
+      ctx.fillStyle = '#090b15';
+      ctx.beginPath();
+      ctx.arc(lx, ly, 12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = lamp.lit ? ELEMENT_COLOR_OF[lamp.element] : '#2a2f4d';
+      ctx.beginPath();
+      ctx.arc(lx, ly, 9, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = ELEMENT_COLOR_OF[lamp.element];
+      ctx.stroke();
+    });
+    // The rival's stack (DUEL): a mini board of crates up to his top, with his pending offer.
+    if (objective.rival) {
+      const { rows, top, pending, secondsLeft } = objective.rival;
+      const bx = x + w - 30;
+      const cell = 6;
+      ctx.fillStyle = '#090b15';
+      ctx.fillRect(bx - 2, y - 2, 28, top * cell + 4);
+      ctx.fillStyle = '#c98a4a';
+      for (let r = 0; r < Math.min(rows, top); r++)
+        ctx.fillRect(bx, y + (top - 1 - r) * cell, 24, cell - 1);
+      ctx.fillStyle = '#ff5c7a';
+      ctx.fillRect(bx - 8, y + top * cell - pending * cell, 4, pending * cell);
+      ctx.font = 'bold 12px system-ui';
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(`${secondsLeft}s`, bx - 12, y + top * cell);
+    }
     // Pieces left, as small pips along the bottom of the goal area.
     if (objective.piecesLeft !== null && Number.isFinite(objective.piecesLeft)) {
       const rows = objective.crystals?.length ?? 1;
@@ -500,6 +557,21 @@ export class Stage {
         ctx.fillRect(x + (i % 20) * 10, top + Math.floor(i / 20) * 10, 7, 7);
       }
     }
+  }
+
+  /** The person's reaction face, beside their head, for a moment. */
+  private drawFace(dtMs: number): void {
+    if (!this.face) return;
+    this.face.elapsed += dtMs;
+    if (this.face.elapsed >= FACE_MS) {
+      this.face = null;
+      return;
+    }
+    const { x, y } = this.anchor('enemy');
+    const bob = Math.round(Math.sin(this.face.elapsed / 90) * 2);
+    this.ctx.fillStyle = '#10132acc';
+    this.ctx.fillRect(x - 64, y - 66 + bob, 40, 40);
+    drawIcon(this.ctx, FACE_ICONS[this.face.value], x - 60, y - 62 + bob, { scale: 2 });
   }
 
   private drawEffects(dtMs: number): void {
