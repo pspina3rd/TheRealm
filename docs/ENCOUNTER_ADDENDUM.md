@@ -1,5 +1,7 @@
 # Encounter Design — Addendum A, rev 3: reactions, class abilities, mentor synergy
 
+> **Approved by the author (Oct 28).** Built as M2a after the author's go/no-go on the M1 slice.
+
 Status: **design for author approval**. It extends `docs/ENCOUNTER_DESIGN.md` (rev 3, approved).
 
 The author chose three items from "Improvement Recommendations" (§2, element reaction chaining and class-specific board mechanics; §3, the mentor synergy meter). Endless mode and New Game+ are deferred (Appendix).
