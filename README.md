@@ -9,7 +9,8 @@ all played out on a falling-block board.
 around a moon-crystal deep in the Moon Caves, drinks the moonlight while
 spores choke Mossvale's well and the lake clouds over. You wake in
 Mossvale, mend what you can, and learn magic from seven mentors on the
-road down. The Wyrm speaks to you in visions as you go, and its thrall,
+road down, after Elder Rowan's son falls into a sleep no one can wake him
+from. The Wyrm speaks to you in visions as you go, and its thrall,
 Vesper, is always one step ahead of you. The words are the author's own,
 from the story script in [docs/STORY.md](docs/STORY.md).
 
@@ -170,8 +171,8 @@ attack the moment you walk into them. Full rules and numbers are in
 5. **Moon Caves** (two floors, under the ruins): imps and a Cave Brute, a
    sealed chest, a hermit and the Moon Wyrm boss.
 6. **Sunken Ruins**: sealed for now. Beat the Moon Wyrm (it enrages at
-   half HP) to see the chapter's end; the ruins' seal then glows, waiting
-   for the next chapter.
+   half HP) to end Chapter One; the ruins' seal then glows, waiting for
+   the next chapter, and you play on.
 
 ### Challenge types
 

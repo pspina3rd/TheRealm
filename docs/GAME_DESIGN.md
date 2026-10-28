@@ -649,6 +649,24 @@ glow of their element's colour at their feet; a **scroll** floats over a
 mentor who has a lesson for you. Talking to them lists their lessons as
 buttons (spell, level pips, kind, cost, difficulty as swords).
 
+**What a mentor says** as the hero walks up is one of the script's rows,
+in the hero's mood with the mentor's element (their attitude score, as for
+an NPC of that element), rotating like any line. The first that applies
+(`mentorMoment`, `src/game/mentorLines.ts`):
+
+1. _If you failed their lesson_: while a lost lesson locks their category.
+2. _Seeks you out_: while they seek the hero (a board feat they noticed,
+   see Hidden spells).
+3. _Arrives somewhere new_: the first talk since they moved to a new stop
+   away from home, once the hero has met them somewhere else. Where the
+   hero last talked with each mentor is kept as a flag
+   (`met:<mentor>:<stop>`), so it is said once per new stop.
+4. _After the lesson_: once one of their lessons is won (derived like the
+   chapter's summary, see `mentorsTaught`).
+5. Otherwise why they teach (said on meeting).
+
+The _At the Road Back_ row is stored for the second half and not said yet.
+
 | Mentor  | Element   | Why they teach                                 | Home region, landmark (trial foe)   | Route after home                                                                             | Moves every |
 | ------- | --------- | ---------------------------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------- | ----------- |
 | Torva   | Fire      | Her hands shake too much for the forge now     | Forgefyre, old forge (Ember Wisp)   | Quarry, ridge road · Brightwater · Mossvale · Moon Caves¹                                    | 4 wins      |
@@ -955,8 +973,10 @@ tome became a delver's cache (Maren teaches Blizzard).
 The author's script, [docs/STORY.md](STORY.md), is the source of truth for
 the text it covers: the opening (class names, hero names, descriptions),
 Mossvale (Elder Rowan, Farmer Bean, Pip, Shopkeeper Ordor), Captain Vale,
-Shrine Keeper Myst, the mentors' motive / win / lose lines, Vesper and the
-Moon Wyrm. Their lines are in the game word for word, punctuation and
+Shrine Keeper Myst, the mentors' motive / win / lose lines and their new
+rows, Vesper, the Moon Wyrm, and the scenes (the opening, the Refusal with
+Innkeeper Pete's line on Rowan's son, the Moon Wyrm's fall and the end of
+Chapter One). Their lines are in the game word for word, punctuation and
 stage directions included; `tests/script.test.ts` reads the script's tables
 and checks every imported cell against the data. Everyone else keeps their
 lines until the script covers them.
@@ -1007,6 +1027,33 @@ lone asterisk) stays as written. Single-word emphasis in speech (Elder
 Rowan's "purple \*and\* full of gravel") matches the same rule, so it
 renders in italics exactly like narration.
 
+### Scenes
+
+A **scene** is a run of interludes shown once, one beat each, in the same
+dark interlude as a vision (350 ms guard; tap, Enter, Continue or Escape
+goes on). A beat with a speaker shows their face and name above the words;
+class lines are said by the hero in their class's own words.
+`dueScenes` (`src/game/story.ts`) lists the scenes due, in order: each not
+yet seen whose `dueWith` flag the hero holds. A scene is marked seen
+(`scene:<id>`) only after its last beat, so a game closed on one shows it
+again from its first beat on the next load. Scenes grant nothing.
+
+| Scene                      | Due               | Shown                                                         |
+| -------------------------- | ----------------- | ------------------------------------------------------------- |
+| Opening (beats 1–5)        | on a new game     | after class select, before the hero has control in Mossvale   |
+| The Refusal (R1–R4)        | with `vision:1`   | the first warp out of Mossvale, just before Vision 1          |
+| The Moon Wyrm's fall (1–3) | with `wyrmBeaten` | after the Wyrm's results (and the skill screen on a level-up) |
+| End of Chapter One (1–6)   | with `wyrmBeaten` | straight after the fall, then the Chapter One summary         |
+
+**The Focus Stone rule**: Rowan's rune stone in R4 is his Focus Stone
+(`wellStone`), which is also his well's reward (instead of Quake when
+the hero knows it). The Refusal grants nothing: R4's words and stage
+direction are said as written, and the stone stays his errand's reward,
+so there is never a second stone and his reward is unchanged.
+
+Innkeeper Pete's line on Rowan's son (Hareguy) is one more of his
+Neutral and Friendly greetings, rotating with the others.
+
 ### The Moon Wyrm's visions
 
 Three visions, each shown once as an **interlude**: the screen goes dark
@@ -1055,6 +1102,12 @@ script gives Vesper no warm bonus. The lore flags show as an arcane book
 and are kept for the story to build on.
 
 ### Saves
+
+Save version 9 adds the scenes: an older save has seen every scene already
+due (the opening always; the Refusal once Vision 1 is seen; the Wyrm's fall
+and the chapter's end once the Wyrm is beaten), so it is never shown a
+scene it is past. A version 8 save still in Mossvale sees the Refusal when
+it first leaves.
 
 Save version 8 adds the line memory (`talk`; only whole counts of 0 or
 more are kept). An older save starts every speaker at their first
@@ -1242,16 +1295,18 @@ their element.
   Blacksmith, Castle, Dungeon, Enchanted Forest, Forest, Mountains and
   Desert packs, cropped and packed into one sheet by `tools/import_art.py`.
 
-**The ending**: beating the Moon Wyrm sets `wyrmBeaten` and, after the
-results (and the skill screen on a level-up), shows the chapter's end:
-the hero's portrait, title element, level and spell count, portraits of
-the mentors whose lessons the hero won, and Captain Vale's last word.
+**The end of Chapter One**: beating the Moon Wyrm sets `wyrmBeaten` and,
+after the results (and the skill screen on a level-up), plays the Wyrm's
+fall and the end of Chapter One (see Scenes), then a **Chapter One
+complete** summary: the hero's portrait, title element, level and spell
+count, and portraits of the mentors whose lessons the hero won.
 Lessons aren't recorded, so this is derived: only a lesson raises a spell
 past level 1, and only a lesson teaches a spell that is neither a
 starting spell nor an NPC's reward (an old save's tome is the one
-exception). Back on the map the Sunken Ruins'
-seal glows violet and, bumped, says it will open in the next chapter
-(`Warp.stirs`); it stays shut. Routes gated on the wyrm
+exception). The hero plays on: back on the map the Sunken Ruins' seal
+glows violet and, bumped, says the script's two ward lines in turn (the
+footprints at its edge; it will open in the next chapter; `Warp.stirs`);
+it stays shut. Routes gated on the wyrm
 (`defeated:c2-wyrm`) still open as before.
 
 ## Planned: progression redesign
