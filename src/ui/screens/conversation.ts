@@ -108,7 +108,27 @@ export function conversationBody(
       ),
     );
   }
-  if (interaction.kind === 'challenge') {
+  if (interaction.kind === 'challenge' && interaction.stakes) {
+    const stakes = interaction.stakes;
+    body.push(
+      el(
+        'section',
+        { className: 'stakes-card' },
+        ...[
+          ['Win', stakes.win],
+          ['Ask', stakes.objective],
+          ['Fail', `${stakes.fail} · Strain ${stakes.strain}`],
+          ['Retry', stakes.retry],
+        ].map(([label, text]) =>
+          el('div', { className: 'stakes-row' }, el('b', { text: label }), el('span', { text })),
+        ),
+        ...(stakes.blockedReason
+          ? [el('p', { className: 'stakes-blocked', text: stakes.blockedReason })]
+          : []),
+      ),
+    );
+  }
+  if (interaction.kind === 'challenge' && !interaction.stakes) {
     const extras = rewardIcons(interaction.extras);
     const rewards = [
       ...rewardIcons(interaction.rewards),

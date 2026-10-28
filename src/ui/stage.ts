@@ -1,5 +1,7 @@
 import type { Battle } from '../battle/battle';
 import type { CombatChallenge } from '../battle/combat';
+import { LessonChallenge } from '../battle/lesson';
+import type { Face } from '../battle/types';
 import type { Objective } from '../battle/types';
 import type { Atlas } from './art/atlas';
 import { CREATURES, battleFrame, mapFrame, type CreatureId } from './art/creatures';
@@ -132,6 +134,7 @@ export class Stage {
   /** Time left of the gauge's flash after a mistake fed it. */
   private rushFlash = 0;
   private layout: Layout = WIDE;
+  private face: Timed<Face> | null = null;
 
   constructor(canvas: HTMLCanvasElement, atlas: Atlas) {
     const ctx = canvas.getContext('2d');
@@ -158,6 +161,7 @@ export class Stage {
     this.opponent = opponent;
     this.hero = hero;
     this.options = options;
+    this.face = null;
     this.hop = null;
     this.floats = [];
     this.effects = [];
@@ -170,6 +174,9 @@ export class Stage {
 
   play(feedback: Feedback): void {
     switch (feedback.kind) {
+      case 'face':
+        this.face = { value: feedback.face, elapsed: 0 };
+        break;
       case 'float': {
         const stacked = this.floats.filter(
           (f) => f.target === feedback.target && f.elapsed < 250,
@@ -217,8 +224,32 @@ export class Stage {
     this.drawOpponent(dtMs, timeMs, battle.combat?.enraged ?? false);
     const combat = battle.combat;
     this.rushFlash = Math.max(0, this.rushFlash - dtMs);
+    if (combat instanceof LessonChallenge && combat.shield === 'up') {
+      ctx.save();
+      ctx.strokeStyle = ELEMENT_COLOR_OF[combat.shieldElement];
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.ellipse(this.layout.enemy.x, this.layout.enemy.baseline - 50, 45, 55, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
     if (combat) this.drawEnemyStatus(combat, seesEnemyMove(battle.hero.stats.insight), timeMs);
     else this.drawObjective(battle.objective);
+    if (this.face) {
+      this.face.elapsed += dtMs;
+      if (this.face.elapsed > 1000) this.face = null;
+      else {
+        const face = this.face.value;
+        ctx.font = 'bold 24px system-ui';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#fff1bb';
+        ctx.fillText(
+          face === 'cheer' ? '⌒ᴗ⌒' : face === 'wince' ? '›﹏‹' : '！',
+          this.layout.enemy.x,
+          70,
+        );
+      }
+    }
     this.drawEffects(dtMs);
     this.drawPops(dtMs);
     this.drawFloats(dtMs);
@@ -452,6 +483,27 @@ export class Stage {
       ctx.fillText(label, x + w - 4, top + 16);
     };
 
+    if (objective.rival) {
+      const rival = objective.rival;
+      const miniX = x - 55;
+      const miniH = 58;
+      const miniW = 42;
+      ctx.fillStyle = '#090b15';
+      ctx.fillRect(miniX, y, miniW, miniH);
+      for (let row = 0; row < rival.top; row++) {
+        ctx.fillStyle = row < rival.rows ? '#c6a2ef' : '#303650';
+        ctx.fillRect(
+          miniX + 3,
+          y + miniH - 4 - row * (miniH / rival.top),
+          miniW - 6,
+          Math.max(2, miniH / rival.top - 2),
+        );
+      }
+      ctx.fillStyle = '#ffe5ad';
+      ctx.font = 'bold 12px system-ui';
+      ctx.textAlign = 'left';
+      ctx.fillText(`↓ ${rival.pending}`, x, y + 57);
+    }
     objective.crystals?.forEach((goal, row) => {
       drawIcon(ctx, ELEMENT_ICONS[goal.element], x, y + row * 30, { scale: 2 });
       meter(
@@ -461,6 +513,14 @@ export class Stage {
         `${goal.have}/${goal.want}`,
       );
     });
+    if (
+      !objective.score &&
+      !objective.price &&
+      !objective.lines &&
+      !objective.crystals &&
+      !objective.lamps
+    )
+      meter(0, objective.progress, '#61d9e8', `${Math.round(objective.progress * 100)}%`);
     if (objective.score) {
       meter(
         0,

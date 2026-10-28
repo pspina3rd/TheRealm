@@ -319,7 +319,7 @@ describe('encounters on terms', () => {
     expect(wary).toMatchObject({
       attitude: 'wary',
       text: first(npc.lines.intro, 'cold'),
-      spec: { wants: { green: 7 } },
+      spec: { kind: 'encounter', id: 'farmer' },
     });
     const warm = describeInteraction(stateFor(npc, 'friendly'), entityOf('farmer'));
     expect(warm).toMatchObject({ text: first(npc.lines.intro, 'warm'), extras: [npc.bonus] });
@@ -389,7 +389,9 @@ describe('encounters on terms', () => {
         kind: 'challenge',
         attitude: 'hostile',
         text: first(npc.lines.intro, 'cold'),
-        spec: npc.challenge,
+        spec: ['elder', 'kid', 'farmer', 'stallKeeper', 'forager', 'guard'].includes(npc.id)
+          ? { kind: 'encounter', id: npc.id }
+          : npc.challenge,
       });
     }
   });
@@ -410,7 +412,7 @@ describe('encounters on terms', () => {
     ] as const) {
       const state = newGame(classId);
       const shown = describeInteraction(state, entityOf('elder'));
-      expect(shown).toMatchObject({ kind: 'challenge', spec: NPCS.elder!.challenge });
+      expect(shown).toMatchObject({ kind: 'challenge', spec: { kind: 'encounter', id: 'elder' } });
       const battle = makeBattle(NPCS.elder!.challenge, state.hero);
       Object.defineProperty(battle, 'status', { value: 'won' });
       const result = resolveBattle(state, entityOf('elder'), battle, createRng(1), 'neutral');

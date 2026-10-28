@@ -75,6 +75,11 @@ export class DuelChallenge implements Challenge {
     ctx.board.loadRows([]);
   }
 
+  /** The first-try counter-offer must arrive before the hero takes control. */
+  get demoPlaying(): boolean {
+    return this.demoPending;
+  }
+
   /** Rows waiting to land on the hero's board. */
   get pendingRows(): number {
     return this.pending.reduce((sum, p) => sum + p.rows, 0);

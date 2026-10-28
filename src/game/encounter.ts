@@ -27,10 +27,25 @@ import { noteSaid, pickVariant, variantsFor, variantsOf } from './lines';
 import { mentorGreeting } from './mentorLines';
 import { preludeFor } from './story';
 import { addItem, gainXp, itemCount, removeItem } from './hero';
-import { completeLesson, lessonsFor, type Lesson } from './lessons';
+import { completeLesson, easeSeal, lessonSpec, lessonsFor, type Lesson } from './lessons';
 import { grantRewards, type Gain } from './rewards';
 import { sealedElement } from './spells';
-import { regardOf } from './stakes';
+import { regardOf, recordOf, settle, settleHaggle, priceChange } from './stakes';
+import { encounterOf } from '../data/encounters';
+import { DuelChallenge } from '../battle/verbs/duel';
+import { PlantChallenge } from '../battle/verbs/plant';
+import { ContainChallenge } from '../battle/verbs/contain';
+import { STAKES } from '../data/balance';
+import {
+  stakesCard,
+  encounterSpec,
+  flowFor,
+  type StakesCard,
+  type BrowseOffer,
+} from './encounterFlow';
+export { commitBattleTry, battleTryCommitted } from './encounterFlow';
+export type { StakesCard } from './encounterFlow';
+import { battleTryCommitted } from './encounterFlow';
 import { SKILL_POINTS_PER_LEVEL, dropBonus } from './stats';
 import { FALL_HP_SHARE, HOME_FALL_HP_SHARE } from '../data/balance';
 import { CAMPAIGN_FLAGS } from '../data/campaignFlags';
@@ -68,6 +83,10 @@ export type Interaction =
       readonly kind: 'challenge';
       /** The challenge on the NPC's terms (harder when Wary). */
       readonly spec: ChallengeSpec;
+      readonly stakes?: StakesCard;
+      readonly canAccept?: boolean;
+      readonly assistedSpec?: ChallengeSpec;
+      readonly browse?: BrowseOffer;
       /** What winning earns (empty for monsters, whose spoils vary). */
       readonly rewards: readonly Reward[];
       /** What the NPC's warmth adds to the rewards. */
@@ -202,6 +221,24 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
   const npc = npcNow(npcFor(entity), state.flags);
   const attitude = attitudeOf(state.hero, npc, regardOf(state, npc.id));
   const speaker = { title: npc.name, sprite: npc.sprite, ...(npc.inanimate ? {} : { attitude }) };
+  const shop = npc.rewards.find((reward) => reward.kind === 'shop');
+  if (shop && shop.kind === 'shop' && npc.id !== 'stallKeeper') {
+    return {
+      kind: 'challenge',
+      ...speaker,
+      text: introFor(npc, attitude, state.talk),
+      spec: npc.challenge,
+      rewards: [],
+      extras: [],
+      terms: dealTerms(npc, attitude) ?? 'wary',
+      canAccept: false,
+      browse: {
+        shopId: shop.shopId,
+        priceMultiplier: priceChange(state, shop.shopId) * ATTITUDE_PRICES[attitude],
+        attitude,
+      },
+    };
+  }
   if (!npc.repeatable && state.flags.has(npcCompletionFlag(npc))) {
     return {
       kind: 'message',
@@ -215,7 +252,7 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
     return { kind: 'message', ...speaker, text };
   }
   const text = introFor(npc, attitude, state.talk);
-  const spec = npc.challenge;
+  const spec = encounterOf(npc.id) ? encounterSpec(state, npc.id) : npc.challenge;
   if (spec.kind === 'offering' && itemCount(state.hero, spec.itemId) < 1) {
     return { kind: 'needsItem', ...speaker, text, itemId: spec.itemId };
   }
@@ -228,6 +265,7 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
     rewards: base,
     extras,
     terms,
+    ...interactionOptions(state, npc, spec, terms, [...base, ...extras]),
     replies: {
       accept: say(npc.lines.accept, terms, state.talk, lineKey(npc, 'accept'), false),
       decline: say(npc.lines.decline, terms, state.talk, lineKey(npc, 'decline'), false),
@@ -240,7 +278,35 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
  * Applies a finished battle to the game state: spoils and level-ups for
  * fights, item hand-overs and rewards for NPCs, and respawning on defeat.
  */
+const resolutions = new WeakMap<Battle, Resolution>();
+
 export function resolveBattle(
+  state: GameState,
+  entity: EntityDef,
+  battle: Battle,
+  rng: Rng,
+  terms?: Attitude,
+): Resolution {
+  const previous = resolutions.get(battle);
+  if (previous) return previous;
+  const flow = flowFor(battle.spec);
+  const result =
+    flow && !battleTryCommitted(battle)
+      ? {
+          won: false,
+          gains: [],
+          speech: null,
+          fell: false,
+          shopId: null,
+          priceMultiplier: 1,
+          attitude: terms ?? null,
+        }
+      : applyBattle(state, entity, battle, rng, terms);
+  resolutions.set(battle, result);
+  return result;
+}
+
+function applyBattle(
   state: GameState,
   entity: EntityDef,
   battle: Battle,
@@ -251,7 +317,10 @@ export function resolveBattle(
   if (entity.kind === 'mentor') return resolveLesson(state, mentorFor(entity), battle, won);
   if (entity.kind === 'monster') return resolveCombat(state, entity, battle, won, rng);
   if (!terms) throw new Error('An NPC battle needs the terms it was offered on');
-  return resolveNpc(state, npcNow(npcFor(entity), state.flags), battle, won, terms);
+  const npc = npcNow(npcFor(entity), state.flags);
+  return battle.spec.kind === 'encounter'
+    ? resolveEncounter(state, npc, battle, won, terms)
+    : resolveNpc(state, npc, battle, won, terms);
 }
 
 function resolveLesson(
@@ -262,9 +331,13 @@ function resolveLesson(
 ): Resolution {
   const spec = battle.spec;
   if (spec.kind !== 'lesson') throw new Error('Expected a lesson');
+  const flow = flowFor(spec);
   return {
     won,
-    gains: completeLesson(state.hero, spec, won),
+    gains: [
+      ...completeLesson(state.hero, spec, won),
+      ...(flow ? settle(state, flow.id, flow.rules, won) : []),
+    ],
     speech: won
       ? pickVariant(variantsOf(mentor.winText), state.talk, `${mentor.id}.win`)
       : pickVariant(variantsOf(mentor.loseText), state.talk, `${mentor.id}.lose`),
@@ -311,6 +384,7 @@ function resolveCombat(
       gains.push({ kind: 'level', level: hero.level, points: levels * SKILL_POINTS_PER_LEVEL });
     }
     markDefeated(state, entity);
+    gains.push(...easeSeal(hero));
     if (combat.enemy.finale) state.flags.add(FINALE_FLAG);
     if (
       combat.enemy.id === 'malificat' &&
@@ -374,5 +448,115 @@ function resolveNpc(
     speech: winSpeech(state, npc, terms, knewSpell),
     shopId: outcome.shopId,
     priceMultiplier: (haggle?.multiplier ?? 1) * ATTITUDE_PRICES[terms],
+  };
+}
+
+function interactionOptions(
+  state: GameState,
+  npc: NpcDef,
+  spec: ChallengeSpec,
+  terms: Attitude,
+  rewards: readonly Reward[],
+) {
+  const flow = flowFor(spec);
+  if (!flow) return {};
+  const stakes = stakesCard(state, spec, rewards);
+  const shop = npc.rewards.find((reward) => reward.kind === 'shop');
+  return {
+    stakes,
+    canAccept: stakes.blockedReason === null,
+    ...(spec.kind === 'encounter' && stakes.assist
+      ? { assistedSpec: encounterSpec(state, npc.id, true) }
+      : {}),
+    ...(shop?.kind === 'shop'
+      ? {
+          browse: {
+            shopId: shop.shopId,
+            priceMultiplier: priceChange(state, shop.shopId) * ATTITUDE_PRICES[terms],
+            attitude: terms,
+          },
+        }
+      : {}),
+  };
+}
+
+/** Preparing a lesson is free; accepting its card does not commit a try. */
+export function lessonInteraction(
+  state: GameState,
+  mentorId: string,
+  lesson: Lesson,
+): Extract<Interaction, { kind: 'challenge' }> {
+  const mentor = MENTORS[mentorId];
+  if (!mentor) throw new Error(`Unknown mentor: ${mentorId}`);
+  const spec = lessonSpec(state, mentorId, lesson);
+  const stakes = flowFor(spec) ? stakesCard(state, spec, []) : undefined;
+  return {
+    kind: 'challenge',
+    title: mentor.name,
+    sprite: mentor.sprite,
+    text: mentorGreeting(state, mentor),
+    spec,
+    rewards: [],
+    extras: [],
+    ...(stakes ? { stakes, canAccept: stakes.blockedReason === null } : {}),
+  };
+}
+
+function resolveEncounter(
+  state: GameState,
+  npc: NpcDef,
+  battle: Battle,
+  won: boolean,
+  terms: Attitude,
+): Resolution {
+  const spec = battle.spec;
+  if (spec.kind !== 'encounter') throw new Error('Expected encounter');
+  const def = encounterOf(spec.id);
+  const flow = flowFor(spec);
+  if (!def || !flow) throw new Error(`Unknown encounter: ${spec.id}`);
+  const priorWins = recordOf(state, spec.id).wins;
+  const offered = rewardsOnTerms(state.hero, npc, terms);
+  const shop = npc.rewards.find((reward) => reward.kind === 'shop');
+  const duel = battle.challenge instanceof DuelChallenge ? battle.challenge : null;
+  const gains =
+    duel && shop?.kind === 'shop'
+      ? settleHaggle(
+          state,
+          npc.id,
+          shop.shopId,
+          battle.gaveUp ? 'fail' : duel.grade,
+          battle.gaveUp ? Math.max(1.06, duel.meter) : duel.meter,
+        )
+      : settle(state, spec.id, flow.rules, won, spec.assisted);
+  let shopId: string | null = shop?.kind === 'shop' ? shop.shopId : null;
+  if (won && (!duel || duel.grade !== 'even')) {
+    let rewards = [...offered.base, ...(spec.assisted ? [] : offered.extras)];
+    if (priorWins > 0)
+      rewards = rewards.map((reward) =>
+        reward.kind === 'gil'
+          ? { ...reward, amount: Math.floor(reward.amount * STAKES.repeatPay) }
+          : reward,
+      );
+    const great =
+      duel?.grade === 'great' ||
+      ((battle.challenge instanceof PlantChallenge ||
+        battle.challenge instanceof ContainChallenge) &&
+        battle.challenge.great);
+    if (great && def.great && !spec.assisted) rewards.push(def.great);
+    const outcome = grantRewards(state.hero, state.flags, rewards);
+    gains.push(...outcome.gains);
+    shopId = outcome.shopId ?? shopId;
+    if (!npc.repeatable) state.flags.add(npcCompletionFlag(npc));
+  }
+  return {
+    won,
+    gains,
+    speech: won
+      ? [winSpeech(state, npc, terms, offered.knewSpell), def.winAdd].filter(Boolean).join(' ')
+      : say(npc.lines.lose, terms, state.talk, lineKey(npc, 'lose')),
+    fell: false,
+    shopId,
+    priceMultiplier: shopId ? priceChange(state, shopId) * ATTITUDE_PRICES[terms] : 1,
+    attitude: terms,
   };
 }

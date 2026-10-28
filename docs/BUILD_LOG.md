@@ -207,3 +207,20 @@ typecheck passed. Production build passed. Save migration fixtures cover both
 version-10 origins, campaign gates, interrupted scenes, and bounded seals.
 The player-facing M1 wiring is still pending; the merged hooks alone are
 not a completed encounter slice.
+
+## Player-facing M1 functional checkpoint
+
+- Connected six NPC verbs, Win/Ask/Fail/Retry cards, free Browse, committed
+  first-input saving, one-time settlement, retry gates, Vale assistance, and
+  Hazel lessons. Preserved campaign/finale routes.
+- Added board skins, zones and tags, lamps, Ordor price/pending display,
+  numbered face/bark events, isolated dark rendering, saved map props, and
+  Sevenstones grove feedback.
+- Verification: 1,063 tests pass, 9 skipped; format, lint and typecheck pass.
+- The 200-seed balance report in M1_PLAYTEST.md fails multiple approved
+  bands. This checkpoint is functional work, not M1 acceptance.
+- Browser capture unavailable: Vite localhost listen and Chromium setsockopt
+  denied by sandbox. Extra-network execution stalled, then was cancelled;
+  no new phone screenshot is claimed. DOM integration fixtures pass.
+- Follow-up: persist interrupted-attempt failure costs, prevent Hazel
+  uncommitted combat timing, diagnose balance, complete real visual review.

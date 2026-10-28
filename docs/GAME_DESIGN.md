@@ -1444,3 +1444,14 @@ Each stage ships with tests and keeps the game playable.
   full-line clears. Dual pieces would make it a real placement game. Not
   built: it would change damage, mana and the board's pacing at once, so
   it needs its own balance pass.
+
+## M1 integration status
+
+The opening six encounter verbs now use saved stakes and retry rules. Shops
+can be browsed freely; Ordor alone offers the M1 scripted haggle. Vale
+offers explicit Maren assistance after repeated failures, and Hazel lessons
+use a bounded spell seal. Outcome props and the grove marker reflect saved
+progress. These changes preserve the authored story and later campaign.
+
+Automated balance acceptance is not complete: see [M1_PLAYTEST.md](M1_PLAYTEST.md)
+for measured failures and the pending author playtest. M2a remains off.

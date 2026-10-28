@@ -18,6 +18,7 @@ import { fallMultiplier, previewCount } from '../game/stats';
 import { BarterChallenge } from './barter';
 import { CombatChallenge } from './combat';
 import { HaggleChallenge } from './haggle';
+import { DuelChallenge } from './verbs/duel';
 import { LessonChallenge } from './lesson';
 import { OfferingChallenge } from './offering';
 import { PuzzleChallenge } from './puzzle';
@@ -156,6 +157,13 @@ export class Battle implements BattleContext {
     this.demo = { def: demo, wait: DEMO_DELAY_MS };
   }
 
+  /** Any authored first-try demonstration is still playing. */
+  get demoPlaying(): boolean {
+    return (
+      this.demo !== null || (this.challenge instanceof DuelChallenge && this.challenge.demoPlaying)
+    );
+  }
+
   get status(): BattleStatus {
     if (this.gaveUp) return 'lost';
     return this.challenge.status();
@@ -247,7 +255,7 @@ export class Battle implements BattleContext {
 
   /** Applies a player input. Ignored when paused or finished. */
   input(action: BattleAction): void {
-    if (!this.accepting() || this.demo) return;
+    if (!this.accepting() || this.demoPlaying) return;
     if (!this.started) {
       // The first touch ends the pre-roll: the hero is committed and the clock starts.
       this.started = true;

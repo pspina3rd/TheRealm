@@ -2000,3 +2000,172 @@ dialog.interlude .actions {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* M1 cards and the board's objective frame. */
+#board-canvas {
+  width: calc(600px * var(--board-ratio, 0.5));
+}
+.stakes-card {
+  display: grid;
+  gap: 9px;
+  padding: 12px;
+  background: #10182b;
+  border: 1px solid #748ca8;
+  border-radius: 10px;
+  overflow-wrap: anywhere;
+}
+.stakes-row {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 10px;
+  line-height: 1.4;
+}
+.stakes-row b {
+  color: #f5d77b;
+}
+.stakes-blocked {
+  margin: 0;
+  padding: 8px;
+  border-left: 3px solid #eab4a8;
+  color: #ffe0d6;
+}
+.battle-board {
+  --board-ratio: 0.5;
+  position: relative;
+  background: #31394e;
+  border: 4px solid #6d7c91;
+}
+.board-objective {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 300px;
+  height: 55px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 3px 5px;
+  background: #101725;
+  color: #edf3ff;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.2;
+}
+.board-objective b {
+  font-size: 13px;
+}
+.objective-counter {
+  font-size: 10px;
+  color: #d1e3e8;
+}
+.frame-lamps {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+}
+.frame-lamps:empty {
+  display: none;
+}
+.frame-lamp {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid var(--lamp);
+  background: #212737;
+}
+.frame-lamp.lit {
+  background: var(--lamp);
+  box-shadow: 0 0 5px var(--lamp);
+}
+.frame-lamp.threatened {
+  outline: 2px dashed #fff1bb;
+  outline-offset: 2px;
+}
+.battle-board[data-skin='well'] {
+  border-color: #a394a1;
+  border-width: 6px 12px;
+  background: repeating-linear-gradient(0deg, #554a5a 0 26px, #887685 27px 29px);
+}
+.battle-board[data-skin='tower'] {
+  border-color: #b8a17d;
+  background: #7a5d49;
+  border-bottom-width: 12px;
+}
+.battle-board[data-skin='beds'] {
+  border-color: #8d6948;
+  background: repeating-linear-gradient(90deg, #493825 0 8px, #698651 8px 12px);
+}
+.battle-board[data-skin='stall'] {
+  border-color: #cb9869;
+  background: repeating-linear-gradient(90deg, #bf5560 0 20px, #edcd90 20px 40px);
+  border-top-width: 10px;
+}
+.battle-board[data-skin='ring'] {
+  border-color: #a7b599;
+  border-radius: 14px;
+  background: #536747;
+}
+.battle-board[data-skin='lamps'] {
+  border-color: #768faf;
+  box-shadow: 0 0 9px #b4d6eb55;
+  background: #354b64;
+}
+.battle-board[data-skin='grove'] {
+  border-color: #7d956b;
+  background: #314e3f;
+}
+.battle-board[data-skin='dark'] {
+  border-color: #8a7baf;
+}
+.leave-battle {
+  min-width: 64px;
+  min-height: 44px;
+  font-size: 12px;
+}
+.lesson-affordance {
+  font-size: 11px;
+  color: #e3d6ff;
+  max-width: 150px;
+}
+.lesson-affordance[hidden] {
+  display: none;
+}
+.lent-spell {
+  outline: 2px solid #d6beff;
+  outline-offset: -2px;
+}
+@media (max-width: 760px) {
+  .battle-board {
+    border-width: 3px;
+    padding: 3px;
+  }
+  .battle-board[data-skin='well'] {
+    border-width: 3px 6px;
+  }
+  .battle-board[data-skin='tower'] {
+    border-bottom-width: 6px;
+  }
+  .battle-board[data-skin='stall'] {
+    border-top-width: 6px;
+  }
+  #board-canvas {
+    height: calc(var(--board-h) - 61px);
+    width: calc((var(--board-h) - 61px) * var(--board-ratio));
+  }
+  .board-objective {
+    width: calc((var(--board-h) - 61px) * var(--board-ratio));
+  }
+  .board-objective b {
+    font-size: 12px;
+  }
+  .battle-tools .leave-battle {
+    min-width: 44px;
+    width: 100%;
+    min-height: 30px;
+    padding: 3px;
+  }
+  .lesson-affordance {
+    max-width: 70px;
+    font-size: 9px;
+  }
+}

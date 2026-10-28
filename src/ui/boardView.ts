@@ -1,3 +1,7 @@
+import { ENCOUNTER_DEFS } from '../data/encounters';
+import type { ChallengeSpec } from '../data/types';
+import type { Telegraph } from '../battle/types';
+import { visibleCells } from '../battle/rules';
 import { cellColors, type Board, type QueuedPiece } from '../core/board';
 import { ELEMENT_OF_COLOR } from '../core/elements';
 import { PIECES, isCrystal, type Cell } from '../core/pieces';
@@ -31,6 +35,9 @@ export interface BoardStatus {
   readonly upcomingPieces: readonly QueuedPiece[];
   /** While paused the stack and preview are hidden, so a pause can't be used to plan. */
   readonly paused: boolean;
+  readonly spec?: ChallengeSpec;
+  readonly rule?: { readonly id: string } | null;
+  telegraphs?(): readonly Telegraph[];
 }
 
 interface CellFlash {
@@ -101,6 +108,10 @@ export class BoardView {
     const { ctx } = this;
     const w = board.width * CELL;
     const h = board.height * CELL;
+    if (ctx.canvas.width !== w) {
+      ctx.canvas.width = w;
+      ctx.imageSmoothingEnabled = false;
+    }
     this.shake = Math.max(0, this.shake - dtMs);
     const dx = this.shake > 0 ? Math.sin(timeMs / 18) * 5 * (this.shake / SHAKE_MS) : 0;
 
@@ -108,15 +119,25 @@ export class BoardView {
     ctx.translate(dx, 0);
     ctx.fillStyle = '#0a0c17';
     ctx.fillRect(-10, 0, w + 20, h);
+    this.drawZones(board, status);
+    const visible = status.rule?.id === 'dark' ? visibleCells(board) : null;
     ctx.strokeStyle = '#1d2238';
     for (let y = 0; y < board.height; y++) {
       for (let x = 0; x < board.width; x++) {
         ctx.strokeRect(x * CELL + 0.5, y * CELL + 0.5, CELL, CELL);
         const cell = board.grid[y]?.[x];
-        if (cell) drawCrystal(ctx, cell, x * CELL, y * CELL, CELL);
+        if (cell && (!visible || visible[y]?.[x])) drawCrystal(ctx, cell, x * CELL, y * CELL, CELL);
+        if (cell && visible && board.grid.findIndex((row) => row[x] !== null) === y) {
+          ctx.strokeStyle = '#d8dff5';
+          ctx.strokeRect(x * CELL + 2, y * CELL + 2, CELL - 4, CELL - 4);
+          ctx.strokeStyle = '#1d2238';
+        }
+        const tag = board.tagAt(x, y);
+        if (tag && (!visible || visible[y]?.[x])) this.drawTag(tag, x * CELL, y * CELL);
       }
     }
 
+    this.drawTelegraphs(status, w, timeMs);
     this.drawSeal(board, timeMs);
     const piece = board.active;
     if (piece && !dimmed) {
@@ -163,6 +184,111 @@ export class BoardView {
     ctx.restore();
 
     this.drawNext(status.paused ? [] : status.upcomingPieces, status.fogPieces);
+  }
+
+  /** Objective outlines and planting furrows are one quiet layer behind crystals. */
+  private drawZones(board: Board, status: BoardStatus): void {
+    const spec = status.spec;
+    const def = spec?.kind === 'encounter' ? ENCOUNTER_DEFS[spec.id] : undefined;
+    const verb = def?.spec;
+    const ctx = this.ctx;
+    ctx.save();
+    if (verb?.verb === 'plant') {
+      verb.params.zones.forEach((color, x) => {
+        if (!color) return;
+        ctx.fillStyle = `${CRYSTAL_HEX[color]}25`;
+        ctx.fillRect(x * CELL, 0, CELL, board.height * CELL);
+        ctx.fillStyle = CRYSTAL_HEX[color];
+        ctx.fillRect(x * CELL + 8, board.height * CELL - 5, CELL - 16, 3);
+      });
+    } else if (verb?.verb === 'build') {
+      for (const area of verb.params.outline) {
+        const x = area.cols[0] * CELL;
+        const y = (board.height - area.rows[1]) * CELL;
+        const w = (area.cols[1] - area.cols[0] + 1) * CELL;
+        const h = (area.rows[1] - area.rows[0] + 1) * CELL;
+        ctx.fillStyle = '#61d9e81a';
+        ctx.fillRect(x, y, w, h);
+        ctx.strokeStyle = '#a6edfa';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 4]);
+        ctx.strokeRect(x + 1, y + 1, w - 2, h - 2);
+      }
+      const spare = verb.params.spare;
+      ctx.setLineDash([]);
+      ctx.strokeStyle = '#b89b75';
+      ctx.strokeRect(
+        spare.cols[0] * CELL + 1,
+        (board.height - spare.rows[1]) * CELL + 1,
+        (spare.cols[1] - spare.cols[0] + 1) * CELL - 2,
+        (spare.rows[1] - spare.rows[0] + 1) * CELL - 2,
+      );
+    } else if (verb?.verb === 'dig') {
+      ctx.strokeStyle = '#e6bb8d';
+      ctx.lineWidth = 3;
+      const y = (board.height - verb.params.lip) * CELL;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(board.width * CELL, y);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  private drawTag(tag: string, x: number, y: number): void {
+    const ctx = this.ctx;
+    ctx.save();
+    if (tag === 'target') {
+      ctx.strokeStyle = '#7fd4ff';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(x + 5, y + 5, 20, 20);
+      ctx.fillStyle = '#c2efff';
+      ctx.fillRect(x + 11, y + 2, 8, 26);
+    } else if (tag === 'protected') {
+      ctx.fillStyle = '#fff1bb';
+      ctx.beginPath();
+      ctx.arc(x + 15, y + 12, 9, Math.PI, 0);
+      ctx.fill();
+      ctx.fillRect(x + 13, y + 12, 4, 12);
+    } else if (tag === 'hazard' || tag === 'spore') {
+      ctx.fillStyle = tag === 'spore' ? '#d3ff9c' : '#d095ff';
+      for (const [dx, dy] of [
+        [8, 9],
+        [20, 12],
+        [13, 22],
+      ] as const) {
+        ctx.beginPath();
+        ctx.arc(x + dx, y + dy, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else if (tag === 'ridge') {
+      ctx.strokeStyle = '#bd9260';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(x + 3, y + 24);
+      ctx.lineTo(x + 15, y + 7);
+      ctx.lineTo(x + 27, y + 24);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  private drawTelegraphs(status: BoardStatus, width: number, timeMs: number): void {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.strokeStyle = '#fff1bb';
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.65 + 0.25 * Math.sin(timeMs / 180);
+    for (const mark of status.telegraphs?.() ?? []) {
+      if (mark.kind === 'cells')
+        for (const [x, y] of mark.cells)
+          ctx.strokeRect(x * CELL + 3, y * CELL + 3, CELL - 6, CELL - 6);
+      if (mark.kind === 'rows') {
+        ctx.fillStyle = '#e9b673';
+        ctx.fillRect(0, ctx.canvas.height - 4, width, 4);
+      }
+    }
+    ctx.restore();
   }
 
   /** An enemy's sealed column: hatched stone with a lock and the pieces it lasts. */

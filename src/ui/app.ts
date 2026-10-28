@@ -12,7 +12,17 @@ import {
   type Epilogue,
 } from '../game/ending';
 import { CAMPAIGN_SUMMARY_FLAG } from '../data/campaignFlags';
-import { describeInteraction, entitySprite, reply, resolveBattle } from '../game/encounter';
+import {
+  describeInteraction,
+  entitySprite,
+  reply,
+  resolveBattle,
+  lessonInteraction,
+  commitBattleTry,
+  battleTryCommitted,
+  type Interaction,
+} from '../game/encounter';
+import { MAP_RULES } from '../data/balance';
 import {
   arrive,
   dismissVision,
@@ -28,7 +38,7 @@ import { bringItems, hiddenSlots, itemsFor } from '../game/hidden';
 import type { Gain } from '../game/rewards';
 import { ITEMS } from '../data/items';
 import { itemIcon } from './art/icons';
-import { lessonSpec, prepareLesson } from '../game/lessons';
+import { prepareLesson, lessonsFor } from '../game/lessons';
 import { MENTORS, type MentorDef } from '../data/mentors';
 import { mentorOf, mentorPlace } from '../world/mentors';
 import { MAPS } from '../data/maps';
@@ -119,6 +129,7 @@ export class App {
   /** False until a save is loaded or a class is chosen. */
   private started: boolean;
   private readonly dialog = new Dialog();
+  private readonly leaveBattleButton = button('Leave', () => this.leaveBattle());
   private active: ActiveBattle | null = null;
   private heldDirection: Direction | null = null;
   /** Steps left of a tap-to-walk, taken one per `WALK_REPEAT_MS`. */
@@ -147,6 +158,8 @@ export class App {
     byId('menu-button').replaceChildren(iconElement('bag', 3));
     this.battleView.hero.onCast = (id) => this.tryCombat(id, (c) => c.castSpell(id));
     this.battleView.hero.onItem = (id) => this.tryCombat(id, (c) => c.useItem(id));
+    this.leaveBattleButton.className = 'leave-battle';
+    byId('pause-button').after(this.leaveBattleButton);
     this.bindInput();
     this.applyTouchPrefs();
     if (store.persistent === false) {
@@ -243,6 +256,13 @@ export class App {
         active.resultDelay -= dt;
         if (active.resultDelay <= 0) this.finishBattle();
       }
+      this.leaveBattleButton.textContent =
+        battleTryCommitted(battle) ||
+        (battle.spec.kind !== 'encounter' &&
+          !(battle.spec.kind === 'lesson' && battle.spec.mentorId === 'hazel'))
+          ? 'Give up'
+          : 'Leave';
+      this.leaveBattleButton.disabled = active.finished;
       this.battleView.render(battle, this.state.flags, dt, timeMs, active.finished);
       this.renderHud();
     } else {
@@ -382,12 +402,20 @@ export class App {
       else fight();
       return;
     }
+    this.showInteraction(entity, interaction, given);
+  }
+
+  private showInteraction(
+    entity: EntityDef,
+    interaction: Interaction,
+    given: readonly Gain[] = [],
+  ): void {
     const body = conversationBody(
       this.atlas,
       interaction,
       (lesson) => {
         if (interaction.kind === 'lessons') {
-          this.startBattle(entity, lessonSpec(this.state, interaction.mentorId, lesson));
+          this.showInteraction(entity, lessonInteraction(this.state, interaction.mentorId, lesson));
         }
       },
       given,
@@ -410,31 +438,66 @@ export class App {
       });
       return;
     }
+    const leave = (): void => {
+      this.dialog.close();
+      if (interaction.replies) {
+        this.say(reply(this.state, interaction.replies, 'decline'));
+        this.save();
+      }
+    };
+    const accept = (spec: ChallengeSpec): void =>
+      this.startBattle(
+        entity,
+        spec,
+        interaction.replies && reply(this.state, interaction.replies, 'accept'),
+        interaction.terms,
+      );
+    const browse = interaction.browse;
+    const assistedSpec = interaction.assistedSpec;
     this.dialog.show({
       title: interaction.title,
       body,
       actions: [
-        {
-          label: 'Leave',
-          onClick: () => {
-            this.dialog.close();
-            if (interaction.replies) {
-              this.say(reply(this.state, interaction.replies, 'decline'));
-              this.save();
-            }
-          },
-        },
-        {
-          label: 'Accept',
-          onClick: () =>
-            this.startBattle(
-              entity,
-              interaction.spec,
-              interaction.replies && reply(this.state, interaction.replies, 'accept'),
-              interaction.terms,
-            ),
-        },
+        { label: interaction.stakes ? 'Not now' : 'Leave', onClick: leave },
+        ...(browse
+          ? [
+              {
+                label: 'Browse',
+                onClick: () => {
+                  this.openShop(
+                    browse.shopId,
+                    browse.priceMultiplier,
+                    interaction.sprite,
+                    browse.attitude,
+                  );
+                },
+              },
+            ]
+          : []),
+        ...(assistedSpec
+          ? [
+              {
+                label: interaction.stakes?.assist?.label ?? 'With help',
+                disabled: interaction.canAccept === false,
+                onClick: () => accept(assistedSpec),
+              },
+            ]
+          : []),
+        ...(interaction.canAccept === false && !interaction.stakes
+          ? []
+          : [
+              {
+                label: interaction.assistedSpec
+                  ? 'Try solo'
+                  : interaction.stakes
+                    ? 'Take it on'
+                    : 'Accept',
+                disabled: interaction.canAccept === false,
+                onClick: () => accept(interaction.spec),
+              },
+            ]),
       ],
+      onCancel: leave,
     });
   }
 
@@ -543,7 +606,12 @@ export class App {
     if (spec.kind === 'lesson') prepareLesson(this.state.hero);
     const weights = pieceWeights(currentMap(this.state), this.state.hero);
     const dual = dualChance(this.state.hero);
-    const battle = new Battle(spec, this.state.hero, this.rng, { weights, dualChance: dual });
+    const rule = spec.kind === 'combat' ? MAP_RULES[this.state.mapId] : undefined;
+    const battle = new Battle(spec, this.state.hero, this.rng, {
+      weights,
+      dualChance: dual,
+      ...(rule ? { rule } : {}),
+    });
     this.active = {
       battle,
       entity,
@@ -561,7 +629,11 @@ export class App {
         ...(mentor ? { ally: creature(mentor.sprite), allyElement: mentor.element } : {}),
       });
     } else {
-      this.battleView.start(portraitFor(entity), hero, line ? { line } : {});
+      const mentor = battle.assist && MENTORS[battle.assist.mentorId];
+      this.battleView.start(portraitFor(entity), hero, {
+        ...(line ? { line } : {}),
+        ...(mentor ? { ally: creature(mentor.sprite), allyElement: mentor.element } : {}),
+      });
     }
     this.showView('battle');
   }
@@ -602,8 +674,18 @@ export class App {
     };
     // A lost lesson can be fought again straight away.
     const retry =
-      !resolution.won && active.entity.kind === 'mentor'
-        ? [{ label: 'Retry', onClick: () => this.startBattle(active.entity, active.battle.spec) }]
+      !resolution.won &&
+      (active.entity.kind === 'mentor' || active.battle.spec.kind === 'encounter')
+        ? [
+            {
+              label: 'Retry',
+              onClick: () => {
+                const spec = active.battle.spec;
+                this.endBattle();
+                this.reopenBattleCard(active.entity, spec);
+              },
+            },
+          ]
         : [];
     this.dialog.show({
       title: resolution.won ? 'Victory!' : 'Defeat',
@@ -623,10 +705,69 @@ export class App {
     this.showView('world');
   }
 
+  /** Rebuild terms after settlement or a stale retry; never reuse the old specification. */
+  private reopenBattleCard(entity: EntityDef, spec: ChallengeSpec): void {
+    const mentor = spec.kind === 'lesson' ? MENTORS[spec.mentorId] : undefined;
+    if (spec.kind === 'lesson' && mentor) {
+      const lesson = lessonsFor(this.state, mentor).find(
+        (lesson) => lesson.spellId === spec.spellId,
+      );
+      if (lesson) {
+        this.showInteraction(entity, lessonInteraction(this.state, spec.mentorId, lesson));
+        return;
+      }
+    }
+    this.talk(entity);
+  }
+
+  /** The first actual action commits a try before changing the board or combat. */
+  private commitInput(): boolean {
+    const active = this.active;
+    if (
+      !active ||
+      active.finished ||
+      this.dialog.isOpen ||
+      active.battle.paused ||
+      active.battle.demoPlaying ||
+      active.battle.status !== 'ongoing'
+    )
+      return false;
+    const committed = battleTryCommitted(active.battle);
+    if (!commitBattleTry(this.state, active.battle)) {
+      const { entity, battle } = active;
+      this.endBattle();
+      const spec = battle.spec;
+      this.reopenBattleCard(entity, spec);
+      return false;
+    }
+    if (!committed && battleTryCommitted(active.battle)) this.save();
+    return true;
+  }
+
+  private battleInput(action: BattleAction): void {
+    if (this.commitInput()) this.active?.battle.input(action);
+  }
+
+  private leaveBattle(): void {
+    const active = this.active;
+    if (!active || active.finished) return;
+    const stakesBattle =
+      active.battle.spec.kind === 'encounter' ||
+      (active.battle.spec.kind === 'lesson' && active.battle.spec.mentorId === 'hazel');
+    if (stakesBattle && !battleTryCommitted(active.battle)) {
+      this.endBattle();
+      return;
+    }
+    active.battle.giveUp();
+    active.finished = true;
+    active.resultDelay = 0;
+    this.finishBattle();
+  }
+
   /** Runs a spell or item; if it can't be used, its button shakes. */
   private tryCombat(id: string, action: (combat: NonNullable<Battle['combat']>) => void): void {
     const combat = this.active?.battle.combat;
-    if (!combat || this.active?.battle.paused || this.active?.finished) return;
+    if (!combat || !this.commitInput()) return;
     try {
       action(combat);
     } catch {
@@ -974,7 +1115,7 @@ export class App {
       const action = node.dataset.battle as BattleAction;
       bindPress(
         node,
-        () => this.active?.battle.input(action),
+        () => this.battleInput(action),
         action === 'left' || action === 'right' || action === 'softDrop',
       );
     });
@@ -984,7 +1125,7 @@ export class App {
       byId('board-canvas'),
       () => this.active?.battle.board.width ?? 10,
       (action) => {
-        if (!this.dialog.isOpen) this.active?.battle.input(action);
+        if (!this.dialog.isOpen) this.battleInput(action);
       },
     );
 
@@ -1034,7 +1175,7 @@ export class App {
       const command = battleKey(event.key, event.repeat);
       if (command?.kind === 'input') {
         event.preventDefault();
-        this.active.battle.input(command.action);
+        this.battleInput(command.action);
       } else if (command?.kind === 'pause') {
         this.togglePause();
       } else if (command?.kind === 'pick') {

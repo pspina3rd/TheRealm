@@ -225,12 +225,14 @@ export function settleHaggle(
   if (grade === 'even') return [];
   if (grade === 'fail') {
     record.fails++;
+    record.strain = Math.min(STAKES.strainMax, record.strain + 1);
     state.prices[shopId] = { multiplier, map: null, day: state.day };
     const moved = shiftRegard(state, personId, STAKES.regardFail);
     return [{ kind: 'price', multiplier }, regardGain(state, personId, moved)];
   }
   record.wins++;
   record.fails = 0;
+  record.strain = 0;
   record.wonDay = state.day;
   state.prices[shopId] = { multiplier, map: state.mapId, day: state.day };
   const moved = shiftRegard(state, personId, STAKES.regardWin);

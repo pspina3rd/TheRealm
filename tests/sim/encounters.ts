@@ -26,6 +26,9 @@ import { createHero, gainXp, type Hero } from '../../src/game/hero';
 import { dualChance } from '../../src/game/pieceOdds';
 import { DuelChallenge } from '../../src/battle/verbs/duel';
 import { ENCOUNTER_DEFS } from '../../src/data/encounters';
+import { SPELLS } from '../../src/data/spells';
+import { LessonChallenge } from '../../src/battle/lesson';
+import { newKnownSpell } from '../../src/game/spells';
 
 /** How much the good bot weighs the challenge's hint against plain stacking. */
 const HINT = Number(process.env.HINT ?? 3);
@@ -266,7 +269,7 @@ export function simHero(level: number, classId = SIM_CLASS): Hero {
 
 /** Plays one try of an encounter with a bot, on simulated time. */
 export function playEncounter(
-  spec: Extract<ChallengeSpec, { kind: 'encounter' }>,
+  spec: ChallengeSpec,
   bot: Bot,
   seed: number,
   level = 1,
@@ -274,6 +277,10 @@ export function playEncounter(
   limitMs = 600_000,
 ): TryResult {
   const hero = simHero(level);
+  // Primary lesson d2/d3 follows the previously learned rank. A levelled
+  // starter hero alone is not a legal d3 lesson fixture.
+  if (spec.kind === 'lesson' && SPELLS[spec.spellId]?.role === 'primary' && spec.difficulty > 1)
+    hero.spells[spec.spellId] = { ...newKnownSpell(), level: spec.difficulty - 1 };
   const battle = new Battle(spec, hero, createRng(seed), {
     dualChance: dualChance(hero),
     ...options,
@@ -293,7 +300,7 @@ export function playEncounter(
       aimed = false;
     }
     // A touch player drags the piece over its spot at once, then flicks it down after thinking.
-    if (!aimed && battle.started && !battle.demo && (bot === 'good' || bot === 'casual')) {
+    if (!aimed && battle.started && !battle.demoPlaying && (bot === 'good' || bot === 'casual')) {
       aimed = true;
       const choice = bot === 'good' ? goodChoice(battle) : casualChoice(battle);
       if (choice) execute(battle, choice, bot === 'casual', () => noise.next(), false);
@@ -306,7 +313,8 @@ export function playEncounter(
     }
     const piece = battle.board.active;
     const landing = piece ? battle.board.ghostY() - piece.y : Infinity;
-    const ready = !battle.demo && (waited >= think || (landing <= 2 && waited >= think * 0.4));
+    const ready =
+      !battle.demoPlaying && (waited >= think || (landing <= 2 && waited >= think * 0.4));
     if (ready && !(bot === 'idle' && battle.started)) {
       if (!battle.started) begun = ms;
       if (bot === 'idle') battle.input('rotate');
@@ -324,6 +332,19 @@ export function playEncounter(
         const choice = bot === 'good' ? goodChoice(battle) : casualChoice(battle);
         if (choice) execute(battle, choice, bot === 'casual', () => noise.next());
         else battle.input('hardDrop');
+      }
+      // Good and casual share the same spell policy. Spend taught healing
+      // at a raised lesson shield even at full HP; otherwise conserve heals.
+      if ((bot === 'good' || bot === 'casual') && battle.started) {
+        const combat = battle.combat;
+        for (const id of Object.keys(combat?.spellBook() ?? {})) {
+          const shieldCast =
+            combat instanceof LessonChallenge && combat.shield === 'up' && combat.spellId === id;
+          const kind = SPELLS[id]?.levels[0].effect.kind;
+          if (kind === 'heal' && !shieldCast && hero.hp > hero.maxHp * 0.5) continue;
+          if (combat?.cannotCastReason(id) === null && combat.status() === 'ongoing')
+            combat.castSpell(id);
+        }
       }
       current = battle.board.active;
       waited = 0;
@@ -359,6 +380,7 @@ export function playEncounter(
 function causeOf(battle: Battle): string {
   if (battle.status === 'ongoing') return 'timeout';
   if (battle.board.toppedOut) return 'topout';
+  if (battle.hero.hp <= 0) return 'hp';
   const o = battle.objective;
   if (o.piecesLeft === 0) return 'pieces';
   const duel = battle.challenge;
@@ -366,10 +388,18 @@ function causeOf(battle: Battle): string {
   return 'rule';
 }
 
-/** A mean and its 95% interval half-width (normal approximation). */
-export function interval(wins: number, runs: number): { mean: number; half: number } {
+/** A mean and Wilson 95% confidence bounds (defined even at zero/all wins). */
+export function interval(
+  wins: number,
+  runs: number,
+): { mean: number; half: number; lower: number; upper: number } {
+  if (runs <= 0) throw new Error('A confidence interval needs at least one run');
   const p = wins / runs;
-  return { mean: p, half: 1.96 * Math.sqrt((p * (1 - p)) / runs) };
+  const z2 = 1.96 ** 2;
+  const divisor = 1 + z2 / runs;
+  const center = (p + z2 / (2 * runs)) / divisor;
+  const half = (1.96 * Math.sqrt((p * (1 - p) + z2 / (4 * runs)) / runs)) / divisor;
+  return { mean: p, half, lower: Math.max(0, center - half), upper: Math.min(1, center + half) };
 }
 
 export interface Cell {
@@ -379,6 +409,8 @@ export interface Cell {
   readonly runs: number;
   readonly winRate: number;
   readonly half: number;
+  readonly lower: number;
+  readonly upper: number;
   readonly greatRate: number;
   readonly seconds: number;
   readonly pieces: number;
@@ -431,7 +463,7 @@ export function measureEncounter(
     const cause = result.cause.startsWith('price') ? 'price' : result.cause;
     causes[cause] = (causes[cause] ?? 0) + 1;
   }
-  const { mean, half } = interval(wins, runs);
+  const { mean, half, lower, upper } = interval(wins, runs);
   return {
     id,
     bot,
@@ -439,10 +471,55 @@ export function measureEncounter(
     runs,
     winRate: mean,
     half,
+    lower,
+    upper,
     greatRate: greats / runs,
     seconds: seconds / runs,
     pieces: pieces / runs,
     causes,
     price: price / runs,
+  };
+}
+
+/** General battle cell: same touch/noise policy for lessons and regional monsters. */
+export function measureBattle(
+  id: string,
+  spec: ChallengeSpec,
+  bot: Bot,
+  runs: number,
+  level: number,
+  options: BattleOptions = {},
+): Cell {
+  const results = Array.from({ length: runs }, (_, seed) =>
+    playEncounter(spec, bot, (seed + 1) * 7919 + 13, level, options),
+  );
+  return summarize(id, bot, 0, results);
+}
+
+/** Summarize actual outcomes with Wilson bounds, retaining every fail cause. */
+export function summarize(
+  id: string,
+  bot: Bot,
+  strain: number,
+  results: readonly TryResult[],
+): Cell {
+  const runs = results.length;
+  const { mean, half, lower, upper } = interval(results.filter((r) => r.won).length, runs);
+  const causes: Record<string, number> = {};
+  for (const result of results) causes[result.cause] = (causes[result.cause] ?? 0) + 1;
+  return {
+    id,
+    bot,
+    strain,
+    runs,
+    winRate: mean,
+    half,
+    lower,
+    upper,
+    greatRate: results.filter((r) => r.great).length / runs,
+    seconds: results.reduce((sum, r) => sum + r.seconds, 0) / runs,
+    pieces: results.reduce((sum, r) => sum + r.pieces, 0) / runs,
+    causes,
+    price: results.reduce((sum, r) => sum + r.price, 0) / runs,
   };
 }

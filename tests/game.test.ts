@@ -136,7 +136,8 @@ describe('resolveBattle', () => {
     // Anywhere else, 30%.
     state.respawn = { map: 'brightwater', x: 5, y: 5 };
     state.hero.hp = 0;
-    resolveBattle(state, entity('overworld', 'ow-slime-1'), battle, createRng(1));
+    const secondBattle = makeBattle({ kind: 'combat', enemyId: 'slime' }, state.hero);
+    resolveBattle(state, entity('overworld', 'ow-slime-1'), secondBattle, createRng(1));
     expect(state.hero.hp).toBe(Math.ceil(state.hero.maxHp * FALL_HP_SHARE));
   });
 
