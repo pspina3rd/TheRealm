@@ -6,6 +6,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { CLASSES } from '../src/data/classes';
+import { ENCOUNTER_DEFS, type EncounterDef } from '../src/data/encounters';
 import { MENTORS } from '../src/data/mentors';
 import { HAREGUY, NPCS } from '../src/data/npcs';
 import {
@@ -75,6 +76,19 @@ const MOMENTS: Readonly<Record<string, keyof NpcLines>> = {
   'You fail': 'lose',
   Afterwards: 'done',
 };
+
+/** The encounters' draft rows, by the script's own names. */
+const ENCOUNTER_ROWS: Readonly<Record<string, (def: EncounterDef) => string | undefined>> = {
+  'On the frame': (def) => def.objective,
+  'Stakes card: if you fail': (def) => def.failText,
+  'Stakes card: each strain step': (def) => def.strainText,
+  'As the try starts': (def) => def.lines.start,
+  'At the hazard': (def) => def.lines.hazard,
+  'Nearly done': (def) => def.lines.nearly,
+  'After the win line': (def) => def.winAdd,
+};
+/** An encounter's section: its title and the person's name. */
+const encounterSection = (def: EncounterDef): string => `${def.title} (${NPCS[def.id]!.name})`;
 
 /** A line's own cell for a mood (no fallback), as a list. */
 function cell(line: Line | undefined, mood: Mood): readonly string[] {
@@ -209,6 +223,19 @@ describe('the author’s script is the game’s text', () => {
     expect(rowOf(WARD, 'The ward')[0]).toEqual(variantsOf(WARD_AFTER_WYRM));
   });
 
+  it('the encounters’ draft lines: objective, Stakes card, their three lines, after a win', () => {
+    for (const def of Object.values(ENCOUNTER_DEFS)) {
+      const table = script.get(encounterSection(def));
+      expect(table, def.id).toBeDefined();
+      for (const [row, field] of Object.entries(ENCOUNTER_ROWS)) {
+        const text = field(def);
+        const cells = table?.get(row);
+        if (text === undefined) expect(cells, `${def.id} ${row}`).toBeUndefined();
+        else expect(cells?.[0], `${def.id} ${row}`).toEqual([text]);
+      }
+    }
+  });
+
   it('imports every table the script has: no row or section is left behind', () => {
     const known: Record<string, readonly string[]> = {
       ...Object.fromEntries(
@@ -228,6 +255,12 @@ describe('the author’s script is the game’s text', () => {
       ),
       [ROAD_BACK]: ['Mentor', ...Object.values(MENTORS).map((m) => m.name)],
       [WARD]: ['Where', 'The ward'],
+      ...Object.fromEntries(
+        Object.values(ENCOUNTER_DEFS).map((def) => [
+          encounterSection(def),
+          ['Moment', ...Object.keys(ENCOUNTER_ROWS)],
+        ]),
+      ),
     };
     const unknown = [...script].flatMap(([section, table]) =>
       [...table.keys()]

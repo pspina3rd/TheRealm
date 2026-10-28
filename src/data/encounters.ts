@@ -238,15 +238,7 @@ export const ENCOUNTER_DEFS: Readonly<Record<string, EncounterDef>> = {
     spec: {
       verb: 'contain',
       params: {
-        rows: [
-          'on.nononon',
-          'nononon.no',
-          'onon.nonCn',
-          'n.noConono',
-          'oCononon.n',
-          'nonon.nono',
-          'Rno.ononoR',
-        ],
+        rows: ['onon.nonCn', 'n.noConono', 'oCononon.n', 'nonon.nono', 'Rnon.onnoR'],
         pieceLimit: E.forager.pieceLimit,
         spreadEvery: E.forager.spreadEvery,
         spreadCells: E.forager.spreadCells,

@@ -372,6 +372,7 @@ export function measure(
   classId = 'ranger',
   kit: readonly string[] = [],
   thinkMs = 1500,
+  options: BattleOptions = {},
 ): { winRate: number; seconds: number; pieces: number; hpLeft: number; overflows: number } {
   let wins = 0;
   let ms = 0;
@@ -381,7 +382,7 @@ export function measure(
   for (let seed = 1; seed <= runs; seed++) {
     const hero = heroAt(level, classId, kit);
     if (style === 'prepared') hero.items = { herb: 5, ether: 1, phoenixFeather: 1 };
-    const result = simulate(spec, hero, style, seed * 7919, thinkMs);
+    const result = simulate(spec, hero, style, seed * 7919, thinkMs, 600_000, options);
     if (result.won) wins++;
     overflows += result.overflows;
     ms += result.ms;

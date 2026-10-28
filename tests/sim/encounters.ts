@@ -388,13 +388,18 @@ export interface Cell {
 }
 
 /**
- * Layout trials: ROWAN=row,row,… replaces the well's start rows (top
- * first) for this run, so a re-authored layout can be simmed before it is
+ * Layout trials: ROWAN=row,row,… (or WREN=…) replaces the well's (or the
+ * ring's) start rows (top first) for this run, so a re-authored layout can be simmed before it is
  * written into src/data/encounters.ts.
  */
-if (process.env.ROWAN) {
-  const spec = ENCOUNTER_DEFS.elder!.spec as { params: { rows: readonly string[] } };
-  spec.params = { ...spec.params, rows: process.env.ROWAN.split(',') };
+for (const [env, id] of [
+  ['ROWAN', 'elder'],
+  ['WREN', 'forager'],
+] as const) {
+  const rows = process.env[env];
+  if (!rows) continue;
+  const spec = ENCOUNTER_DEFS[id]!.spec as { params: { rows: readonly string[] } };
+  spec.params = { ...spec.params, rows: rows.split(',') };
 }
 
 /** One table cell: `runs` seeds of an encounter with one bot, first try, at a strain. */

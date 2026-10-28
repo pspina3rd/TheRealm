@@ -75,7 +75,7 @@ Arcane · Final Boss · Guardian of the Moon Caves
 
 ### Elder Rowan
 
-Earth · Puzzle · Reward: the Quake spell (or 40 gil if known); Friendly bonus: 1× Ether; Devoted secret: 1× Ether
+Earth · Dig (the well) · Reward: the Quake spell (or 40 gil if known); Friendly bonus: 1× Ether; Devoted secret: 1× Ether
 
 | Moment | Hostile / Wary | Neutral | Friendly / Devoted |
 | --- | --- | --- | --- |
@@ -91,7 +91,7 @@ Earth · Puzzle · Reward: the Quake spell (or 40 gil if known); Friendly bonus:
 
 ### Farmer Bean
 
-Nature · Barter · Reward: 2× Herb; Friendly bonus: 1× Herb; Devoted secret: 1× Grove Charm
+Nature · Plant (the herb beds) · Reward: 2× Herb; Friendly bonus: 1× Herb; Devoted secret: 1× Grove Charm
 
 | Moment | Hostile / Wary | Neutral | Friendly / Devoted |
 | --- | --- | --- | --- |
@@ -106,7 +106,7 @@ Nature · Barter · Reward: 2× Herb; Friendly bonus: 1× Herb; Devoted secret: 
 
 ### Pip
 
-Wind · Puzzle · Reward: 1× Ether; Friendly bonus: 1× Herb; Devoted secret: 1× Wind Charm
+Wind · Build (the crystal tower) · Reward: 1× Ether; Friendly bonus: 1× Herb; Devoted secret: 1× Wind Charm
 
 | Moment | Hostile / Wary | Neutral | Friendly / Devoted |
 | --- | --- | --- | --- |
@@ -121,7 +121,7 @@ Wind · Puzzle · Reward: 1× Ether; Friendly bonus: 1× Herb; Devoted secret: 1
 
 ### Shopkeeper Ordor
 
-Nature · Haggle · Reward: opens their shop
+Nature · Shop: browse at list price; Haggle (once a day) for a discount
 
 | Moment | Hostile / Wary | Neutral | Friendly / Devoted |
 | --- | --- | --- | --- |
@@ -167,7 +167,7 @@ Brightwater's innkeeper says this among his greetings (Neutral and Friendly).
 
 ### Captain Vale
 
-Earth · essential: always deals · Barter · Reward: story flag “cavePass”, 20 gil; Friendly bonus: 1× Herb; Devoted secret: 1× Phoenix Feather
+Earth · essential: always deals · Charge (the ward lamps) · Reward: story flag “cavePass”, 20 gil; Friendly bonus: 1× Herb; Devoted secret: 1× Phoenix Feather
 
 | Moment | Hostile / Wary | Neutral | Friendly / Devoted |
 | --- | --- | --- | --- |
@@ -192,6 +192,79 @@ Water · essential: always deals · Barter · Reward: story flag “shrineRestor
 | You succeed | • "It runs clear. Take an Ether and leave." | • "It runs crystal clear! Maren will be overjoyed. Take an Ether from the basin." | • "Miraculous! The spring sings again! Take what the basin offers, with our blessings!" |
 | You fail | • "Still cloudy. You wasted the crystals." | • "The waters remain murky. Both colors are needed in harmony." | • "Do not worry, dear friend. We will cleanse it together." |
 | Afterwards | • "Spring's clear. Move along." | • "The spring runs clear as glass today." | • "Maren was asking after you! The waters shine bright!" |
+
+## Encounters (draft lines)
+
+New with the encounter boards (docs/ENCOUNTER_DESIGN.md). These are drafts for the author to rewrite: change any cell and the game follows. *On the frame* is the objective printed on the board's frame (`{target}` becomes the number). The two *Stakes card* rows finish "If you fail: …" and "Each try after a fail: …" on the card shown before a try. The person says *As the try starts* when the board starts, *At the hazard* when their board's own event happens (the mold rises, the tower wobbles, a counter-offer, the rot spreads, the wind snuffs a lamp), and *Nearly done* once the objective is most of the way there. *After the win line* follows their usual "You succeed" line.
+
+### The Well (Elder Rowan)
+
+| Moment | Line |
+| --- | --- |
+| On the frame | • Scrape down to the pipe before the mold climbs over the lip. |
+| Stakes card: if you fail | • The mold spreads |
+| Stakes card: each strain step | • one row worse next time |
+| As the try starts | • "Lip's your limit, kid. Mold over the lip and it's in the tea." |
+| At the hazard | • *The shaft groans.* There it comes again. |
+| Nearly done | • "There's the pipe!" |
+| After the win line | • "Pip's been wailing about his tower since dawn." |
+
+### The Crystal Tower (Pip)
+
+| Moment | Line |
+| --- | --- |
+| On the frame | • Build my tower up to the spinner. Ugly ones go in the toy box! |
+| Stakes card: if you fail | • The tower leans |
+| Stakes card: each strain step | • a cracked block next time |
+| As the try starts | • "Next is a square! Then a squiggly one, ew!" |
+| At the hazard | • "It's wobbling!" |
+| Nearly done | • "Spinner time! The long one, flat!" |
+| After the win line | • "Farmer Bean's been waiting on seed all morning. Go see her!" |
+
+### The Herb Beds (Farmer Bean)
+
+| Moment | Line |
+| --- | --- |
+| On the frame | • Plant {target} sprouts in the furrows before sundown. |
+| Stakes card: if you fail | • The beds stay grey |
+| Stakes card: each strain step | • two more sprouts next time |
+| As the try starts | • "The seed's the green S, love. The red one only looks like it." |
+| At the hazard | • "Upright, it fits the furrow." |
+| Nearly done | • "Last row before dark!" |
+| After the win line | • "Green you clear goes to your own green magic, too. Now go haggle Ordor, he's been crowing all week." |
+
+### The Stall (Shopkeeper Ordor)
+
+| Moment | Line |
+| --- | --- |
+| On the frame | • Big clears push his price down. Singles won’t move him. |
+| Stakes card: if you fail | • Red prices on the slate |
+| Stakes card: each strain step | • he starts higher next time |
+| As the try starts | • "A single? I didn't feel it." |
+| At the hazard | • "Counter-offer!" |
+| Nearly done | • "Careful, you'll tip the scales!" |
+
+### The Mushroom Ring (Forager Wren)
+
+| Moment | Line |
+| --- | --- |
+| On the frame | • Clear the rot before it reaches the young caps. |
+| Stakes card: if you fail | • A brown patch where the ring was |
+| Stakes card: each strain step | • three more rot next time |
+| As the try starts | • "That pale one, guard it." |
+| At the hazard | • "Rot's moving." |
+| Nearly done | • "Nearly clean!" |
+
+### The Ward Lamps (Captain Vale)
+
+| Moment | Line |
+| --- | --- |
+| On the frame | • Light all four ward lamps: two blue, two violet. A lamp only takes a pure line. |
+| Stakes card: if you fail | • The lamps gutter |
+| Stakes card: each strain step | • one more lamp next time |
+| As the try starts | • "Both colours. Don't mess up the ratio." |
+| At the hazard | • "Wind! Hold that one!" |
+| Nearly done | • "Last lamp!" |
 
 ## The Mentors
 

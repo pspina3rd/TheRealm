@@ -179,6 +179,6 @@ export class ContainChallenge implements Challenge {
       (sum, row) => sum + row.filter((t) => t === 'hazard').length,
       0,
     );
-    return worth - 1.5 * reach.length - 15 * caps - 3 * hazard;
+    return 3 * (worth - 1.5 * reach.length - 15 * caps - 3 * hazard);
   }
 }
