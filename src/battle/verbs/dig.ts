@@ -57,7 +57,7 @@ export class DigChallenge implements Challenge {
       moldText(board.width, ctx.rng),
     );
     board.loadRows([...extra, ...params.rows], { P: { cell: 'stone', tag: 'target' } });
-    this.untilRise = params.risingEvery;
+    this.untilRise = Number(process.env.RISE ?? params.risingEvery);
     this.start = this.rowsAbove();
   }
 
@@ -123,10 +123,20 @@ export class DigChallenge implements Challenge {
   hint(landing: Landing): number {
     if (landing.clearedRows.some((row) => row.tags.includes('target'))) return 1000;
     if (landing.placed.some(([, y]) => y < this.lipY)) return -1000;
-    const target = landing.tags.findIndex((row) => row.includes('target'));
-    const above = landing.grid
-      .slice(0, Math.max(0, target))
-      .filter((row) => row.some((c) => c !== null)).length;
-    return -2 * above;
+    const target = Math.max(0, landing.tags.findIndex((row) => row.includes('target')));
+    const rows = landing.grid.slice(0, target + 1);
+    const cells = rows
+      .slice(0, target)
+      .reduce((sum, row) => sum + row.filter((c) => c !== null).length, 0);
+    // Buried gaps down to the target's row: each one brings the mold sooner and must be dug out.
+    let buried = 0;
+    for (let x = 0; x < landing.grid[0]!.length; x++) {
+      let covered = false;
+      for (const row of rows) {
+        if (row[x] !== null) covered = true;
+        else if (covered) buried++;
+      }
+    }
+    return 3 * landing.lines - 1.5 * cells - 8 * buried;
   }
 }

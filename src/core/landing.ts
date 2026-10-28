@@ -27,6 +27,8 @@ export interface Landing {
   readonly tags: (CellTag | null)[][];
   readonly lines: number;
   readonly clearedRows: readonly ClearedRow[];
+  /** The board rows that cleared, before rows above fell. */
+  readonly fullRows: readonly number[];
   /** Where the piece's cells locked, as [x, y], before clears. */
   readonly placed: readonly (readonly [number, number])[];
 }
@@ -77,11 +79,14 @@ export function landingOf(
     placed.push([x + cx, y + cy]);
   });
   if (!board.clearsEnabled)
-    return { name, cells, x, y, grid, tags, lines: 0, clearedRows: [], placed };
+    return { name, cells, x, y, grid, tags, lines: 0, clearedRows: [], fullRows: [], placed };
   const full = grid.map((row) => row.every((cell) => cell !== null));
   const clearedRows: ClearedRow[] = [];
+  const fullRows: number[] = [];
   full.forEach((isFull, i) => {
-    if (isFull) clearedRows.push({ cells: grid[i] as Cell[], tags: tags[i] as (CellTag | null)[] });
+    if (!isFull) return;
+    fullRows.push(i);
+    clearedRows.push({ cells: grid[i] as Cell[], tags: tags[i] as (CellTag | null)[] });
   });
   const lines = clearedRows.length;
   const width = board.width;
@@ -100,6 +105,7 @@ export function landingOf(
     ],
     lines,
     clearedRows,
+    fullRows,
     placed,
   };
 }

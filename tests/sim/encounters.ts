@@ -26,6 +26,9 @@ import { createHero, gainXp, type Hero } from '../../src/game/hero';
 import { dualChance } from '../../src/game/pieceOdds';
 import { DuelChallenge } from '../../src/battle/verbs/duel';
 
+/** How much the good bot weighs the challenge's hint against plain stacking. */
+const HINT = Number(process.env.HINT ?? 3);
+
 export type Bot = 'good' | 'casual' | 'dropper' | 'idle';
 
 /** Seconds a bot takes per piece (§5.3: touch pace 2.2 s; casual 2.6 s). */
@@ -66,11 +69,69 @@ function stackValue(grid: Grid, well: boolean): number {
   const total = stack.reduce((s, v) => s + v, 0);
   const danger = max > 9;
   return (
-    -7 * holes -
+    (well ? -7 : -12) * holes -
     0.35 * bump -
     (danger ? 0.5 : 0.1) * total -
     (well && !danger ? 2.5 * (h[wellColumn] ?? 0) : 0) -
     Math.max(0, max - 12) * 4
+  );
+}
+
+/**
+ * A landing judged by El-Tetris' features (Pierre Dellacherie's, tuned):
+ * landing height, eroded piece cells, row and column transitions, holes
+ * and well depths. A strong survival player, used by the good bot on
+ * every encounter but the duel (which builds for big clears).
+ */
+export function survivalValue(landing: Landing, height: number): number {
+  const grid = landing.grid;
+  const width = grid[0]?.length ?? 0;
+  const landingHeight =
+    height - landing.placed.reduce((sum, [, y]) => sum + y, 0) / Math.max(1, landing.placed.length);
+  const eroded = landing.placed.filter(([, y]) => landing.fullRows.includes(y)).length;
+  let rowTransitions = 0;
+  let colTransitions = 0;
+  let holes = 0;
+  let wells = 0;
+  for (const row of grid) {
+    let prev = true;
+    for (const cell of row) {
+      const filled = cell !== null;
+      if (filled !== prev) rowTransitions++;
+      prev = filled;
+    }
+    if (!prev) rowTransitions++;
+  }
+  for (let x = 0; x < width; x++) {
+    let prev = false;
+    let covered = false;
+    for (let y = 0; y < grid.length; y++) {
+      const filled = grid[y]?.[x] !== null;
+      if (filled !== prev) colTransitions++;
+      prev = filled;
+      if (filled) covered = true;
+      else if (covered) holes++;
+    }
+    if (!prev) colTransitions++;
+    // Well cells: empty cells with both neighbours filled (walls count), counted cumulatively.
+    let depth = 0;
+    for (let y = 0; y < grid.length; y++) {
+      const here = grid[y]?.[x] !== null;
+      const left = x === 0 || grid[y]?.[x - 1] !== null;
+      const right = x === width - 1 || grid[y]?.[x + 1] !== null;
+      if (!here && left && right) {
+        depth++;
+        wells += depth;
+      } else depth = 0;
+    }
+  }
+  return (
+    -4.5 * landingHeight +
+    3.42 * landing.lines * eroded -
+    3.22 * rowTransitions -
+    9.35 * colTransitions -
+    7.9 * holes -
+    3.39 * wells
   );
 }
 
@@ -92,31 +153,37 @@ function landingsNow(board: Board): Landing[] {
 }
 
 /** The good bot: two pieces deep, the stacker's view plus the hint. */
-function goodChoice(battle: Battle): Landing | null {
+export function goodChoice(battle: Battle): Landing | null {
+  return goodRanked(battle)[0]?.landing ?? null;
+}
+
+/** Every landing of the falling piece with the good bot's score, best first. */
+export function goodRanked(battle: Battle): Choice[] {
   const board = battle.board;
   const hint = battle.challenge.hint?.bind(battle.challenge);
   const duel = battle.challenge instanceof DuelChallenge;
+  const height = board.height;
   const [next] = battle.upcomingPieces;
-  let best: Choice | null = null;
+  const tall = Math.max(...heights(board.grid).heights) > 9;
+  // The duel builds for big clears (the fight sim's stacker); everything else plays to survive.
+  const judge = (landing: Landing): number =>
+    duel
+      ? stackValue(landing.grid, true) + clearReward(landing.lines, tall)
+      : survivalValue(landing, height);
+  const ranked: Choice[] = [];
   for (const first of landingsNow(board)) {
-    const tall = Math.max(...heights(board.grid).heights) > 9;
-    const now = (hint?.(first) ?? 0) + (duel ? clearReward(first.lines, tall) : 0);
+    const now = HINT * (hint?.(first) ?? 0) + judge(first);
     let ahead = -Infinity;
     if (next) {
       const after = afterLanding(board, first);
       for (const second of landingsOf(after, next.name, cellColors(next))) {
-        const value =
-          stackValue(second.grid, duel) +
-          (duel ? clearReward(second.lines, tall) : 0) +
-          0.9 * (hint?.(second) ?? 0);
-        ahead = Math.max(ahead, value);
+        ahead = Math.max(ahead, judge(second) + 0.9 * HINT * (hint?.(second) ?? 0));
       }
     }
-    const score =
-      now + (ahead === -Infinity ? (next ? -1000 : stackValue(first.grid, duel)) : ahead);
-    if (!best || score > best.score) best = { landing: first, score };
+    const score = now + (ahead === -Infinity ? (next ? -1000 : 0) : ahead);
+    ranked.push({ landing: first, score });
   }
-  return best?.landing ?? null;
+  return ranked.sort((a, b) => b.score - a.score);
 }
 
 /** The casual bot: one piece, tidy, plus the hint; sometimes the second-best spot. */
@@ -143,7 +210,13 @@ const key = (cells: readonly (readonly [number, number])[]): string => {
  * `noise`, the casual bot's touch slips: one column off (8%) or one turn
  * too many (5%).
  */
-function execute(battle: Battle, landing: Landing, noise: boolean, rng: () => number): void {
+export function execute(
+  battle: Battle,
+  landing: Landing,
+  noise: boolean,
+  rng: () => number,
+  drop = true,
+): void {
   const board = battle.board;
   const want = key(landing.cells);
   for (let i = 0; i < 4 && board.active && key(board.active.cells) !== want; i++)
@@ -151,13 +224,15 @@ function execute(battle: Battle, landing: Landing, noise: boolean, rng: () => nu
   if (noise && rng() < 0.05) battle.input('rotate');
   const piece = board.active;
   if (piece) {
-    const minX = Math.min(...piece.cells.map(([cx]) => cx));
-    let target = landing.x - minX;
+    // The landing's x is its origin with its own offsets; match the piece's left edge to it.
+    const edge = (cells: readonly (readonly [number, number])[]): number =>
+      Math.min(...cells.map(([cx]) => cx));
+    let target = landing.x + edge(landing.cells) - edge(piece.cells);
     if (noise && rng() < 0.08) target += rng() < 0.5 ? -1 : 1;
     for (let i = 0; i < 12 && piece.x > target; i++) battle.input('left');
     for (let i = 0; i < 12 && piece.x < target; i++) battle.input('right');
   }
-  battle.input('hardDrop');
+  if (drop) battle.input('hardDrop');
 }
 
 /** Why a try ended (for the fail-cause mix). */
@@ -206,10 +281,24 @@ export function playEncounter(
   let begun = 0;
   let waited = 0;
   let current = battle.board.active;
+  let aimed = false;
   while (battle.status === 'ongoing' && ms < limitMs) {
     if (battle.board.active !== current) {
       current = battle.board.active;
       waited = 0;
+      aimed = false;
+    }
+    // A touch player drags the piece over its spot at once, then flicks it down after thinking.
+    if (!aimed && battle.started && !battle.demo && (bot === 'good' || bot === 'casual')) {
+      aimed = true;
+      const choice = bot === 'good' ? goodChoice(battle) : casualChoice(battle);
+      if (choice) execute(battle, choice, bot === 'casual', () => noise.next(), false);
+      if (process.env.AIM && choice) {
+        const a = battle.board.active!;
+        process.stderr.write(
+          `plan x=${choice.x} ${JSON.stringify(choice.cells)} now x=${a.x} y=${a.y} ${JSON.stringify(a.cells)} name=${a.name}\n`,
+        );
+      }
     }
     const piece = battle.board.active;
     const landing = piece ? battle.board.ghostY() - piece.y : Infinity;
@@ -218,6 +307,13 @@ export function playEncounter(
       if (!battle.started) begun = ms;
       if (bot === 'idle') battle.input('rotate');
       else if (bot === 'dropper') battle.input('hardDrop');
+      else if (aimed) {
+        battle.input('hardDrop');
+        if (process.env.TRACEBOARD)
+          process.stderr.write(
+            battle.board.grid.slice(4).map((r) => r.map((c) => (c ? c[0] : '.')).join('')).join('\n') + '\n\n',
+          );
+      }
       else {
         const choice = bot === 'good' ? goodChoice(battle) : casualChoice(battle);
         if (choice) execute(battle, choice, bot === 'casual', () => noise.next());
@@ -225,12 +321,17 @@ export function playEncounter(
       }
       current = battle.board.active;
       waited = 0;
+      aimed = false;
       continue;
     }
     battle.update(STEP);
     ms += STEP;
     waited += STEP;
   }
+  if (process.env.RISES)
+    process.stderr.write(
+      `rises=${battle.events.filter((e) => e.event.kind === 'rise').length} pieces=${battle.board.piecesPlaced} ${battle.status}\n`,
+    );
   const challenge = battle.challenge as { great?: boolean; grade?: string };
   const duel = battle.challenge instanceof DuelChallenge ? battle.challenge : null;
   // A haggle "wins" at a Win or better (≤ 94%); Even is a draw (§5.3 "Haggle: ≤ 94% finish").
