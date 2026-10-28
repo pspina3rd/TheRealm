@@ -1000,6 +1000,43 @@ picks, touch noise: 8% one column off, 5% wrong rotation, 2.6 s a piece),
 **dropper** and **idle**. Both good and casual aim at the spawn and drop
 after thinking, as a touch player does.
 
+Results at 200 seeds (Oct 28; first try, strain 0 unless marked; mean ±
+95% interval; band from ENCOUNTER_DESIGN §5.3):
+
+| Encounter                 | Band      | Good            | Casual          | Dropper | Idle           | Good, strain 2      | Casual, strain 2 | Length (good) |
+| ------------------------- | --------- | --------------- | --------------- | ------- | -------------- | ------------------- | ---------------- | ------------- |
+| Rowan                     | Mossvale  | 95% ±3.2 ✓      | 5% ±2.9 ✗       | 0% ✓    | 0% ✓           | 49% ±6.9 ✗          | 0% ✗             | 40 s ✓        |
+| Pip                       | Mossvale  | 100% ✗ (97 max) | 1% ±1.0 ✗       | 0% ✓    | 0% ✓           | 100% ✓              | 2% ✗             | 20 s ✗        |
+| Bean                      | Mossvale  | 100% ✗ (97 max) | 55% ±6.9 ✗ (60) | 0% ✓    | 0% ✓           | 94% ✓               | 29% ✓            | 53 s ✓        |
+| Ordor                     | Haggle    | 80% ±5.5 ✓      | 1% ±1.0 ✗       | 0% ✓    | 0% ✓           | 29% ✗               | 0% ✗             | 58 s ✓        |
+| Ordor, price              | Haggle    | 88% ✓           | 103% ✓          | 115% ✓  | 111% ✗ (≥ 112) |                     |                  |               |
+| Wren                      | Grove     | 82% ±5.3 ✓      | 3% ±2.4 ✗       | 0% ✓    | 0% ✓           | 77% ✓               | 2% ✗             | 41 s ✗ (55)   |
+| Vale                      | Threshold | 14% ±4.9 ✗      | 0% ✗            | 0% ✓    | 0% ✓           | 0% ✗ (strain 1 cap) | 0% ✗             | 75 s          |
+| Vale, assisted (strain 1) | ≥ 97%     | 29% ±6.3 ✗      | 0% ✗ (≥ 90)     | —       | 0% ✓           |                     |                  |               |
+
+Misses, reported rather than tuned (the numbers are the spec's):
+
+- **Casual** misses almost everywhere. Its touch noise (8% a column off, 5%
+  a wrong rotation, no undo) wrecks the narrow and authored boards: a
+  single misplaced piece in Rowan's 6-wide well or Pip's queue is usually
+  fatal. Pip's casual 1% is by the spec's own rule (the greedy bot must
+  fail an authored queue), which the casual band contradicts.
+- **Vale's CHARGE** is far off: purity 7 of 10 over 36 pieces with the wind
+  snuffing every 14 asks for four near-pure rows; the bots build them too
+  slowly. The placement hint was reworked twice (0–3% → 14%).
+- **Strain 2** floors miss for Rowan (two debris rows on top) and Ordor
+  (meter starts 10% worse).
+- **Pip** is short (20 s, 11 pieces) and the good bot never fails it.
+- Ordor's idle price is 111% against ≥ 112%: his timers alone don't push
+  the meter far enough in 60 s.
+
+Grove monsters with spores (fight sim, touch pace, 200 seeds): good
+99–100%, singles 94–99%, sloppy 0–2%, 53–61 s. Without spores the same
+fights read 99–100% / 94–100% / 0–1%, so spores cost the good bot about
+a point. Both sit above the approved 75–85% because fixing the sim bots'
+landing bug (O pieces landed a column off) made the fight sim's bots
+stronger everywhere; the monster numbers were not retuned here.
+
 ## NPCs and attitude
 
 Every NPC who is not a mentor has an element, and an **attitude** toward
