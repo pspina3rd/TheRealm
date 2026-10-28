@@ -89,7 +89,12 @@ export interface EncounterDef {
   /** Said after their win line: what to do next, and what it taught. */
   readonly winAdd?: string;
   /** The world props by the person: one for a win, one for a fail (§4). */
-  readonly world: { readonly x: number; readonly y: number; readonly win: WorldProp; readonly fail: WorldProp };
+  readonly world: {
+    readonly x: number;
+    readonly y: number;
+    readonly win: WorldProp;
+    readonly fail: WorldProp;
+  };
   /** Elements the person's board pays out in: a rough guide for the Stakes card. */
   readonly element?: Element;
 }

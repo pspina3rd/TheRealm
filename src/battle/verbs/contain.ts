@@ -97,9 +97,7 @@ export class ContainChallenge implements Challenge {
     const board = this.ctx.board;
     const taken: [number, number][] = [];
     for (let i = 0; i < count; i++) {
-      const options = this.frontier().filter(
-        ([x, y]) => harm || board.tagAt(x, y) !== 'protected',
-      );
+      const options = this.frontier().filter(([x, y]) => harm || board.tagAt(x, y) !== 'protected');
       if (options.length === 0) break;
       const [x, y] = this.ctx.rng.pick(options);
       if (board.tagAt(x, y) === 'protected') {
@@ -156,7 +154,9 @@ export class ContainChallenge implements Challenge {
   }
 
   telegraphs(): readonly Telegraph[] {
-    return this.untilSpread === 1 ? [{ kind: 'cells', what: 'spread', cells: this.frontier() }] : [];
+    return this.untilSpread === 1
+      ? [{ kind: 'cells', what: 'spread', cells: this.frontier() }]
+      : [];
   }
 
   /**

@@ -16,6 +16,11 @@ export default tseslint.config(
     },
   },
   {
+    // Node scripts (the sim runner).
+    files: ['tools/**/*.mjs'],
+    languageOptions: { globals: { ...globals.node } },
+  },
+  {
     // Tests look up fixtures that are known to exist; `!` keeps them readable.
     files: ['tests/**/*.ts'],
     rules: { '@typescript-eslint/no-non-null-assertion': 'off' },

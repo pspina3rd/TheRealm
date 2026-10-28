@@ -391,6 +391,16 @@ export class Board {
     return true;
   }
 
+  /** Puts a piece back at the front of the queue (one a person's demo displaced). */
+  requeue(piece: QueuedPiece): void {
+    if (this.fixedQueue) this.fixedQueue.unshift(piece.name);
+    else {
+      this.preview(1);
+      this.bag.unshift(piece.name);
+      this.seconds.unshift(piece.second);
+    }
+  }
+
   /** True if the falling piece could be swapped for the next one (see `swapWithNext`). */
   canSwapWithNext(): boolean {
     const [next] = this.preview(1);
