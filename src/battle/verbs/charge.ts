@@ -142,18 +142,28 @@ export class ChargeChallenge implements Challenge {
   hint(landing: Landing): number {
     const lit = this.lights(landing.clearedRows, this.lit).length;
     const wanted = this.elements().map(colorOfElement);
-    const spare = this.ctx.board.width - this.params.purity;
+    const width = this.ctx.board.width;
+    const spare = width - this.params.purity;
     let worth = 0;
-    for (const row of landing.grid) {
+    landing.grid.forEach((row) => {
       const counts = wanted.map((color) => row.filter((cell) => cell === color).length);
       const best = Math.max(...counts);
-      if (best === 0) continue;
+      const filled = row.filter((cell) => cell !== null).length;
+      if (filled === 0) return;
       const mixed = counts.reduce((sum, n) => sum + n, 0) - best;
-      const impure = row.filter((cell) => cell !== null).length - best;
-      // A row can still light while its off-colour cells fit in the spare (3 of 10 at P 7).
-      worth += impure <= spare ? 0.6 * best : -1.5 * (impure - spare);
-      worth -= 1.5 * mixed;
-    }
+      const impure = filled - best;
+      // A row can still light while its off-colour cells fit the spare (3 of 10 at P 7):
+      // the purer and fuller, the better; past the spare it is junk to clear.
+      worth += impure <= spare ? 0.4 * best * best : -2 * (impure - spare);
+      worth -= 3 * mixed;
+      // Off-colour cells keep to the spare columns at the right; wanted ones to the left.
+      row.forEach((cell, x) => {
+        if (cell === null) return;
+        const dump = x >= width - spare;
+        const want = wanted.includes(cell as (typeof wanted)[number]);
+        if (dump === want) worth -= 1.5;
+      });
+    });
     // Clearing a row that was building toward a lamp, but impure, throws that work away.
     const wasted = landing.clearedRows
       .filter((row) => !pureElement(row.cells, this.elements(), this.params.purity))
@@ -162,6 +172,6 @@ export class ChargeChallenge implements Challenge {
           sum + Math.max(...wanted.map((color) => row.cells.filter((c) => c === color).length)),
         0,
       );
-    return 40 * lit + worth - 0.8 * wasted;
+    return 3 * (40 * lit + worth - 2 * wasted);
   }
 }
