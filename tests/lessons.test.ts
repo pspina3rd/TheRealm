@@ -101,29 +101,26 @@ describe('lessonsFor', () => {
 });
 
 describe('helpChance', () => {
-  it('is 30% less 5% per alignment point above the difficulty', () => {
-    expect(helpChance(1, 1, 'fire', 'fire')).toBeCloseTo(0.3);
-    expect(helpChance(3, 1, 'fire', 'fire')).toBeCloseTo(0.2);
-    expect(helpChance(1, 2, 'fire', 'fire')).toBeCloseTo(0.35);
-  });
-
-  it('is clamped to 5–35% before the relation factor', () => {
-    expect(helpChance(0, 4, 'fire', 'fire')).toBeCloseTo(0.35);
+  it('is 30% less 5% per alignment point above the difficulty, clamped to 5–10%', () => {
+    expect(helpChance(5, 1, 'fire', 'fire')).toBeCloseTo(0.1);
+    expect(helpChance(6, 1, 'fire', 'fire')).toBeCloseTo(0.05);
+    expect(helpChance(1, 1, 'fire', 'fire')).toBeCloseTo(0.1); // 30% before the clamp
+    expect(helpChance(0, 4, 'fire', 'fire')).toBeCloseTo(0.1);
     expect(helpChance(12, 1, 'fire', 'fire')).toBeCloseTo(0.05);
     expect(helpChance(12, 1, 'fire', 'nature')).toBeCloseTo(0.03);
   });
 
   it('scales by how the mentor stands to the hero’s title element', () => {
-    expect(helpChance(1, 1, 'fire', 'earth')).toBeCloseTo(0.24); // related
-    expect(helpChance(1, 1, 'fire', 'nature')).toBeCloseTo(0.18); // fire beats nature
-    expect(helpChance(1, 1, 'fire', 'water')).toBeCloseTo(0.24); // water beats fire
+    expect(helpChance(1, 1, 'fire', 'earth')).toBeCloseTo(0.08); // related
+    expect(helpChance(1, 1, 'fire', 'nature')).toBeCloseTo(0.06); // fire beats nature
+    expect(helpChance(1, 1, 'fire', 'water')).toBeCloseTo(0.08); // water beats fire
   });
 
   it('uses the hero’s alignment and title', () => {
     const hero = heroKnowing('gale', 'cure');
-    expect(heroHelpChance(hero, mentor('kestrel'), 1)).toBeCloseTo(0.3);
+    expect(heroHelpChance(hero, mentor('kestrel'), 1)).toBeCloseTo(0.1);
     // A ranger's title is wind, which beats fire.
-    expect(heroHelpChance(hero, mentor('torva'), 1)).toBeCloseTo(0.35 * 0.8);
+    expect(heroHelpChance(hero, mentor('torva'), 1)).toBeCloseTo(0.1 * 0.8);
   });
 });
 
@@ -417,7 +414,7 @@ describe('LessonChallenge', () => {
     expect(challenge.enemy.hp).toBe(Math.round(50 * (1 + FOE_HP_PER_DIFFICULTY)));
     expect(battle.level).toBe(3);
     expect(challenge.objective().label).toBe('Lesson: Fire');
-    expect(challenge.helpChance).toBeCloseTo(0.35 * 0.8);
+    expect(challenge.helpChance).toBeCloseTo(0.1 * 0.8);
   });
 
   it('tosses the best-fitting shape in the mentor’s colour, entering as usual', () => {

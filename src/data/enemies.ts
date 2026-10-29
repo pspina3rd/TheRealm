@@ -610,7 +610,8 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
  * A wisp: the trial foe a mentor summons at home for a lesson, one of each
  * element, sharing the slime's sprite washed in the element's colour. These
  * are their difficulty 1 numbers; `lessonFoe` scales them up. They give no
- * spoils: the lesson is the reward.
+ * spoils: the lesson is the reward. Quick and sharp since the M1 tuning
+ * pass (Oct 29: 8 attack every 5.9 s, was 5 every 9 s), so a lesson can be lost.
  */
 function wisp(id: string, name: string, element: Element, special: EnemyMove): EnemyDef {
   return {

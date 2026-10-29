@@ -9,6 +9,7 @@ import type { Battle } from '../src/battle/battle';
 import type { ContainChallenge } from '../src/battle/verbs/contain';
 import type { DuelChallenge } from '../src/battle/verbs/duel';
 import type { PlantChallenge } from '../src/battle/verbs/plant';
+import { ENCOUNTERS } from '../src/data/balance';
 import { createRng } from '../src/core/rng';
 import { MAPS } from '../src/data/maps';
 import { NPCS } from '../src/data/npcs';
@@ -95,8 +96,11 @@ describe('the Stakes card', () => {
 
   it('fills the target in at the try’s strain', () => {
     const bean = ENCOUNTER_DEFS.farmer!;
-    expect(objectiveText(bean, 0)).toBe('Plant 12 sprouts in the furrows before sundown.');
-    expect(objectiveText(bean, 2)).toBe('Plant 16 sprouts in the furrows before sundown.');
+    const { target, strainTarget } = ENCOUNTERS.farmer;
+    expect(objectiveText(bean, 0)).toBe(`Plant ${target} sprouts in the furrows before sundown.`);
+    expect(objectiveText(bean, 2)).toBe(
+      `Plant ${target + 2 * strainTarget} sprouts in the furrows before sundown.`,
+    );
   });
 });
 
@@ -141,8 +145,8 @@ describe('settled tries', () => {
     const offer = describeInteraction(state, entityOf('farmer'));
     if (offer.kind !== 'challenge') throw new Error('Bean');
     const battle = makeBattle(offer.spec, state.hero);
-    (battle.challenge as PlantChallenge).score = 16;
-    battle.board.piecesPlaced = 26;
+    (battle.challenge as PlantChallenge).score = ENCOUNTERS.farmer.great;
+    battle.board.piecesPlaced = ENCOUNTERS.farmer.pieceLimit;
     const result = resolveBattle(state, entityOf('farmer'), battle, createRng(1), offer.terms);
     expect(result.gains).toEqual([
       { kind: 'item', itemId: 'herb', count: 2 },

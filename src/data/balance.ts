@@ -133,8 +133,8 @@ export const HOME_FALL_HP_SHARE = 0.5;
 // ---- Lessons (src/game/lessons.ts, src/battle/lesson.ts)
 /**
  * Help chance per piece before the clamp: base − per point × (alignment −
- * difficulty), clamped to 5–35% (docs/ENCOUNTER_DESIGN.md §6.3; it was
- * 10–50% around a 40% base, and lessons won 87–100% for the good bot)…
+ * difficulty), clamped to 5–10% (the M1 tuning pass, Oct 29: 35% let
+ * every lesson's bots win 98–100%; before that 10–50% around a 40% base)…
  */
 export const HELP_BASE = 0.3;
 export const HELP_PER_POINT = 0.05;
@@ -224,7 +224,7 @@ export const ENCOUNTERS = {
     target: 19,
     /** …and the Great mark (+1 Herb). */
     great: 22,
-    /** Controlled queue: one S in every 3 pieces. */
+    /** Controlled queue: one S in every 2 pieces. */
     supplyWindow: 2,
     /** What a wrong colour in a furrow scores at Mossvale (−1 from Twitch on). */
     wrongColour: 0,
@@ -270,11 +270,11 @@ export const ENCOUNTERS = {
   /** Captain Vale, "The Ward Lamps": CHARGE, twist wind snuffs; a threshold (§6.2). */
   guard: {
     pieceLimit: 32,
-    /** A pure line has at least this many of its 10 cells in the lamp's element (≤ 7). */
+    /** A pure line has at least this many of its 10 cells in the lamp's element (≤ 7; P 6 by the author, Oct 29). */
     purity: 6,
     /** Every this many pieces the wind snuffs the oldest lit lamp (unless all are lit). */
     snuffEvery: 14,
-    /** Controlled queue: one J and one T in every 4 pieces. */
+    /** Controlled queue: one J and one T in every 3 pieces (author, Oct 29). */
     supplyWindow: 3,
     /** Strain: each step adds a lamp (thresholds cap strain at 1). */
     strainLamps: 1,

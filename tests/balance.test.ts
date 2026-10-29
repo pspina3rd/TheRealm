@@ -65,9 +65,9 @@ describe('lessons', () => {
     expect(hero.mana.wind).toBe(0);
   });
 
-  it('use gentle difficulty-1 wisps', () => {
+  it('use quick difficulty-1 wisps', () => {
     const wisp = ENEMIES.galeWisp!;
-    expect([wisp.hp, wisp.atk, wisp.actMs]).toEqual([50, 5, 9000]);
+    expect([wisp.hp, wisp.atk, wisp.actMs]).toEqual([50, 8, 5900]);
     expect(wisp.moves).toContainEqual({ kind: 'quicken', name: 'Gust', ms: 4000 });
   });
 });
