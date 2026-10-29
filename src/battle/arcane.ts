@@ -89,6 +89,7 @@ export class ArcaneInterference {
   }
   /** A whole authored piece/batch is ONE owner placement, even if it has several cells. */
   place(owner: string, cells: readonly ObstructionPlacement[]): MagicResolution {
+    const before = this.checkpoint();
     const e = this.effect(owner),
       state = this.board.magicState();
     const fresh: [number, number][] = [];
@@ -135,6 +136,25 @@ export class ArcaneInterference {
     }
     this.sync();
     const result = resolveMagic(state, { ...this.board.magicOwners, fresh });
+    if (
+      this.board.active?.cells.some(([dx, dy]) => {
+        const x = required(this.board.active).x + dx,
+          y = required(this.board.active).y + dy;
+        return (
+          y >= 0 && result.state.grid[y]?.[x] !== null && result.state.grid[y]?.[x] !== undefined
+        );
+      })
+    ) {
+      this.restore(before);
+      return {
+        state: this.board.magicState(),
+        completed: [],
+        rows: [],
+        collapsedRows: [],
+        removed: [],
+        changed: false,
+      };
+    }
     this.board.adoptMagic(result.state);
     if (fresh.length === 0) return result;
     this.placements[owner] = (this.placements[owner] ?? 0) + 1;

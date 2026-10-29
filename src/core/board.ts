@@ -198,6 +198,7 @@ export class Board {
   magicEnabled = false;
   obstructions: Record<string, Obstruction> = {};
   magicLatchedRows: string[] = [];
+  magicPendingRows: number[] = [];
   magicOwners: { settleOwners: string[]; redOwners: string[] } = {
     settleOwners: [],
     redOwners: [],
@@ -306,6 +307,7 @@ export class Board {
     this.tags = Board.emptyTags(this.width, this.height);
     this.obstructions = {};
     this.magicLatchedRows = [];
+    this.magicPendingRows = [];
     const offset = this.height - rows.length;
     rows.forEach((row, i) => {
       const y = offset + i;
@@ -705,8 +707,14 @@ export class Board {
 
   /** Turns every locked `from` cell into `to`. Returns how many changed. */
   transmute(from: Exclude<Cell, null>, to: Exclude<Cell, null>): number {
-    const changed = this.count(from);
-    this.grid = this.grid.map((row) => row.map((c) => (c === from ? to : c)));
+    let changed = 0;
+    this.grid = this.grid.map((row, y) =>
+      row.map((cell, x) => {
+        if (cell !== from || this.obstructions[`${x},${y}`]) return cell;
+        changed++;
+        return to;
+      }),
+    );
     return changed;
   }
 
@@ -716,6 +724,7 @@ export class Board {
     this.tags = Board.emptyTags(this.width, this.height);
     this.obstructions = {};
     this.magicLatchedRows = [];
+    this.magicPendingRows = [];
     this.toppedOut = false;
     this.seal = null;
     this.active = null;
@@ -733,6 +742,7 @@ export class Board {
       tags: this.tags,
       obstructions: this.obstructions,
       latchedRows: this.magicLatchedRows,
+      pendingRows: this.magicPendingRows,
     });
   }
 
@@ -742,6 +752,7 @@ export class Board {
     this.tags = copy.tags;
     this.obstructions = copy.obstructions;
     this.magicLatchedRows = copy.latchedRows;
+    this.magicPendingRows = copy.pendingRows;
   }
 
   resolveBoardMagic(options: Parameters<typeof resolveMagic>[1] = {}): MagicResolution {
@@ -776,6 +787,9 @@ export class Board {
   }
 
   private shiftMagic(dy: number, removedRow = -1): void {
+    this.magicPendingRows = this.magicPendingRows
+      .filter((y) => y !== removedRow && y + dy >= 0 && y + dy < this.height)
+      .map((y) => y + dy);
     this.obstructions = Object.fromEntries(
       Object.entries(this.obstructions).flatMap(([key, value]) => {
         const [x, y] = key.split(',').map(Number) as [number, number];

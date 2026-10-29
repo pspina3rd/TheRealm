@@ -1,3 +1,4 @@
+import { pulsingColor } from './obstructionVisuals';
 import type { Obstruction } from '../core/boardMagic';
 import { ENCOUNTER_DEFS } from '../data/encounters';
 import type { ChallengeSpec } from '../data/types';
@@ -527,7 +528,11 @@ function drawObstruction(
       typeof window !== 'undefined' &&
       window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     ctx.globalAlpha = reduced ? 1 : 0.75 + 0.25 * Math.sin((timeMs * Math.PI) / 1000);
-    ctx.fillStyle = CRYSTAL_HEX[step.color];
+    ctx.fillStyle = pulsingColor(
+      obstruction.sequence.slice(obstruction.step),
+      timeMs,
+      Boolean(reduced),
+    );
     for (const side of step.sides) {
       if (side === 'top') ctx.fillRect(x + 1, y + 1, CELL - 2, 3);
       if (side === 'bottom') ctx.fillRect(x + 1, y + CELL - 4, CELL - 2, 3);

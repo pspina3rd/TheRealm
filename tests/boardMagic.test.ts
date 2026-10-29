@@ -147,3 +147,28 @@ it('actual board locks preserve obstruction state and correction restores streng
   board.removeBottomRows(1);
   expect(board.obstructions['1,7']?.strength).toBe(3);
 });
+
+it('collapses a previously cleared pinned row when a spell removes its final obstruction, without rewarding it twice', () => {
+  const state = emptyMagic(3, 5);
+  state.grid[4] = ['red', 'stone', 'blue'];
+  state.grid[3]![0] = 'green';
+  put(state, 1, 4);
+  const first = resolveMagic(state);
+  expect(first.state.pendingRows).toEqual([4]);
+  const second = resolveMagic(first.state, {
+    spell: { element: 'lightning', rank: 1, bottomRow: 4 },
+  });
+  expect(second.collapsedRows).toEqual([4]);
+  expect(second.completed).toEqual([]);
+  expect(second.state.grid[4]![0]).toBe('green');
+  expect(second.state.pendingRows).toEqual([]);
+});
+it('conversion removes obstruction hazards and preserves neutral mana semantics', () => {
+  const state = emptyMagic(3, 4);
+  put(state, 1, 3, obstruction(1));
+  state.tags[3]![1] = 'hazard';
+  const result = resolveMagic(state, { spell: { element: 'nature', rank: 1, bottomRow: 3 } });
+  expect(result.state.grid[3]![1]).toBe('neutral');
+  expect(result.state.tags[3]![1]).toBeNull();
+  expect(result.removed).toContainEqual({ cell: 'stone', tag: 'hazard', cause: 'spell' });
+});

@@ -291,6 +291,8 @@ export class Battle implements BattleContext {
   }
 
   castBoardSpell(id: string, target: MagicTarget): void {
+    if (this.status !== 'ongoing' || this.demoPlaying)
+      throw new Error('This encounter is not accepting spells.');
     const preview = this.magicCasting.preview(id, target);
     const resolution = this.magicCasting.commit(preview);
     this.startPlay();
@@ -349,7 +351,36 @@ export class Battle implements BattleContext {
 
   /** Everything marked on the board ahead of time: the challenge's and the region rule's. */
   telegraphs(): readonly Telegraph[] {
-    return [...(this.challenge.telegraphs?.() ?? []), ...(this.rule?.telegraphs() ?? [])];
+    const move = this.combat?.nextMove;
+    const obstruction: Telegraph[] =
+      this.board.magicEnabled && move?.kind === 'obstruct'
+        ? [
+            {
+              kind: 'cells',
+              what: 'obstruction',
+              owner: this.combat?.enemy.id,
+              leadPieces: 0,
+              leadMs:
+                Math.max(0, (this.combat?.actMs ?? 0) - (this.combat?.gauge ?? 0)) +
+                (this.interference.effects[this.combat?.enemy.id ?? '']?.delayMs ?? 0),
+              cells: move.cells.map((c) => [c.x, c.y] as const),
+            },
+          ]
+        : [];
+    const delayed: Telegraph[] = (this.combat?.delayedObstructions ?? []).map((pending) => ({
+      kind: 'cells',
+      what: 'obstruction',
+      owner: this.combat?.enemy.id,
+      leadPieces: 0,
+      leadMs: this.interference.effects[this.combat?.enemy.id ?? '']?.delayMs ?? 0,
+      cells: pending.cells.map((c) => [c.x, c.y] as const),
+    }));
+    return [
+      ...delayed,
+      ...(this.challenge.telegraphs?.() ?? []),
+      ...(this.rule?.telegraphs() ?? []),
+      ...obstruction,
+    ];
   }
 
   /** Events numbered `afterSeq` or later. */

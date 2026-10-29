@@ -21,6 +21,7 @@ export interface MagicState {
   tags: (CellTag | null)[][];
   obstructions: Record<string, Obstruction>;
   latchedRows: string[];
+  pendingRows: number[];
 }
 export type BoardElement = 'earth' | 'fire' | 'water' | 'wind' | 'lightning' | 'nature';
 export interface BoardSpell {
@@ -60,6 +61,7 @@ export function emptyMagic(width: number, height: number): MagicState {
     tags: Array.from({ length: height }, () => Array<CellTag | null>(width).fill(null)),
     obstructions: {},
     latchedRows: [],
+    pendingRows: [],
   };
 }
 export function spanFor(spell: BoardSpell, height: number): [number, number] {
@@ -148,6 +150,28 @@ export function resolveMagic(
       if (!moved) break;
     }
   };
+  const collapseRows = (collapse: Set<number>): void => {
+    result.collapsedRows.push(...collapse);
+    const next = emptyMagic(width, height);
+    next.latchedRows = state.latchedRows;
+    let ny = height - 1;
+    for (let y = height - 1; y >= 0; y--) {
+      if (collapse.has(y)) continue;
+      next.grid[ny] = required(state.grid[y]);
+      next.tags[ny] = required(state.tags[y]);
+      if (state.pendingRows.includes(y)) next.pendingRows.push(ny);
+      for (let x = 0; x < width; x++) {
+        const o = state.obstructions[position(x, y)];
+        if (o) next.obstructions[position(x, ny)] = o;
+        if (y !== ny && required(state.grid[y])[x] !== null) fresh.add(position(x, ny));
+      }
+      ny--;
+    }
+    state.grid = next.grid;
+    state.tags = next.tags;
+    state.obstructions = next.obstructions;
+    state.pendingRows = next.pendingRows;
+  };
   const spell = options.spell;
   if (spell) {
     const [top, bottom] = spanFor(spell, height);
@@ -232,12 +256,17 @@ export function resolveMagic(
         )
       ) {
         obstruction.step++;
+        obstruction.strength = Math.max(1, obstruction.strength - 1);
         hitContacts.add(obstruction.id);
         if (obstruction.step >= obstruction.sequence.length) erase(x, y, 'contact');
       }
       obstruction.contacts = contacts.map((c) => c.key);
     }
     if (options.clears === false) break;
+    const emptied = new Set(
+      state.pendingRows.filter((y) => required(state.grid[y]).every((c) => c === null)),
+    );
+    if (emptied.size) collapseRows(emptied);
     const full = state.grid.map((row) => row.every((c) => c !== null));
     const signatures = state.grid.map((row, y) =>
       JSON.stringify(row.map((c, x) => state.obstructions[position(x, y)]?.id ?? c)),
@@ -263,27 +292,9 @@ export function resolveMagic(
       });
       result.rows.push(y);
       if (required(state.grid[y]).every((c) => c === null)) collapse.add(y);
+      else if (!state.pendingRows.includes(y)) state.pendingRows.push(y);
     }
-    if (collapse.size) {
-      result.collapsedRows.push(...collapse);
-      const next = emptyMagic(width, height);
-      next.latchedRows = state.latchedRows;
-      let ny = height - 1;
-      for (let y = height - 1; y >= 0; y--) {
-        if (collapse.has(y)) continue;
-        next.grid[ny] = required(state.grid[y]);
-        next.tags[ny] = required(state.tags[y]);
-        for (let x = 0; x < width; x++) {
-          const o = state.obstructions[position(x, y)];
-          if (o) next.obstructions[position(x, ny)] = o;
-          if (y !== ny && required(state.grid[y])[x] !== null) fresh.add(position(x, ny));
-        }
-        ny--;
-      }
-      state.grid = next.grid;
-      state.tags = next.tags;
-      state.obstructions = next.obstructions;
-    }
+    if (collapse.size) collapseRows(collapse);
   }
   result.changed = JSON.stringify(input) !== JSON.stringify(state);
   return result;

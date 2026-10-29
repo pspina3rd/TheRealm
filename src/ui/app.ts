@@ -1254,7 +1254,7 @@ export class App {
   }
 
   private onKeyDown(event: KeyboardEvent): void {
-    if (this.dialog.isOpen) return;
+    if (this.dialog.isOpen || document.querySelector('dialog.magic-target-dialog[open]')) return;
     const key = normalizeKey(event.key);
 
     if (this.active) {

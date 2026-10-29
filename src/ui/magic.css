@@ -86,7 +86,7 @@
   background: #171922;
 }
 .multi-touch .magic-edge {
-  animation: magic-breathe 2s ease-in-out infinite;
+  animation: var(--pulse-name, magic-breathe) var(--pulse-seconds, 2s) ease-in-out infinite;
 }
 @keyframes magic-breathe {
   0%,

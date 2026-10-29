@@ -1,3 +1,4 @@
+import { pulseName } from './obstructionVisuals';
 import { visibleCells } from '../battle/rules';
 import { required } from '../core/required';
 import type { Battle } from '../battle/battle';
@@ -69,10 +70,18 @@ export function magicGrid(
           }
         if (obstruction.sequence.length - obstruction.step > 1) {
           square.classList.add('multi-touch');
+          square.style.setProperty(
+            '--pulse-name',
+            pulseName(obstruction.sequence.slice(obstruction.step)),
+          );
+          square.style.setProperty(
+            '--pulse-seconds',
+            String((obstruction.sequence.length - obstruction.step) * 2) + 's',
+          );
           const marks = el('small', {
             text: obstruction.sequence
               .slice(obstruction.step)
-              .map((s) => required(s.color[0]).toUpperCase())
+              .map((s) => s.color.slice(0, 2).toUpperCase())
               .join('→'),
           });
           square.append(marks);
@@ -117,6 +126,7 @@ export function openMagicTargeting(
     direction.append(option);
   }
   direction.value = '1';
+  const targetLabel = el('label', { text: 'Target row' }, row);
   const status = el('p');
   status.setAttribute('role', 'status');
   let preview: CastPreview | null = null;
@@ -158,10 +168,27 @@ export function openMagicTargeting(
         { element: preview.element, rank: preview.rank, bottomRow: preview.target.bottomRow },
         battle.board.height,
       );
+      const arcane = id.startsWith('arcane:');
+      const needsRows = !arcane || preview.element === 'lightning';
+      targetLabel.hidden = !needsRows;
+      direction.hidden = preview.element !== 'wind';
       title.textContent = preview.name;
       message.textContent = `Rank ${preview.rank} · ${Object.entries(preview.cost)
         .map(([e, n]) => `${n} ${e}`)
-        .join(' + ')} · rows ${span[0] + 1}–${span[1] + 1} from top`;
+        .join(' + ')}${needsRows ? ` · rows ${span[0] + 1}–${span[1] + 1} from top` : ''}`;
+      if (arcane) {
+        const rank = preview.rank;
+        const description = {
+          fire: `Red contact satisfies color requirements for ${rank} opponent placements.`,
+          water: `Their next obstruction placement is delayed by ${((rank * battle.magicCasting.intervalMs) / 1000).toFixed(1)} seconds.`,
+          wind: `Shift the next ${rank} incoming obstructions ${direction.value === '-1' ? 'left' : 'right'} where space permits.`,
+          lightning:
+            'Weaken their obstructions in the selected rows; at least one strength remains.',
+          nature: `The next ${rank} incoming obstructions become blank blocks.`,
+          earth: `Remove anchoring for ${rank} placements by that opponent. Unsupported obstructions fall.`,
+        }[preview.element];
+        message.textContent += ' · ' + description;
+      }
       const hidden =
         battle.rule?.id === 'dark'
           ? visibleCells(battle.board).map((row) => row.map((visible) => !visible))
@@ -172,7 +199,7 @@ export function openMagicTargeting(
         el('h3', { text: 'Before' }),
         magicGrid(battle.board.magicState(), {
           hidden,
-          selected: span,
+          selected: needsRows ? span : undefined,
           onRow: (y) => {
             row.value = String(y + 1);
             refresh();
@@ -204,7 +231,7 @@ export function openMagicTargeting(
     title,
     message,
     boards,
-    el('label', { text: 'Target row' }, row),
+    targetLabel,
     direction,
     status,
     el('div', { className: 'magic-actions' }, button('Cancel', close), confirm),

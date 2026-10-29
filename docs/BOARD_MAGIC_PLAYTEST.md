@@ -31,3 +31,23 @@ Review whether targeting and color requirements are clear, previews match result
 strength/anchoring are readable, interference feels fair, and phone controls work.
 Campaign-wide activation and numerical retuning follow this review. Existing M1
 acceptance remains a separate playtest.
+
+## Verified checkpoint
+
+The implementation has 1,127 passing tests (17 optional/report cases skipped),
+and passes format, lint, typecheck and the production build. The workshop and
+original M1 browser checks pass at 360x640, 390x844 and 1100x900 with no page
+errors or horizontal overflow. These are automated fixtures, not author
+acceptance or campaign-wide balance measurements.
+
+[Workshop browser report](artifacts/board-magic/workshop-report.json),
+[M1 regression report](artifacts/board-magic/m1-regression-report.json),
+[phone workshop capture](artifacts/board-magic/phone-workshop.png) and
+[desktop preview capture](artifacts/board-magic/desktop-preview.png) are saved.
+
+The rollout flag additionally enables selected Slime/Goblin interference variants
+and usable board-spell targets in mentor lessons. It is not set on adventure
+saves until this review. Boss signature moves are not replaced by those variants.
+Legacy row-sweep spells cannot bypass durable obstructions; Purify affects loose
+stone rather than owned obstructions. Targeted Lightning/Nature provide the new
+routes through owned obstacles.

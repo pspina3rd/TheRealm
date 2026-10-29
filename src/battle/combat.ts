@@ -1,3 +1,4 @@
+import { boardMagicEnemy } from './magicEncounters';
 import { BOARD_SPELLS, type MagicTarget } from './magicCasting';
 import type { LockResult } from '../core/board';
 import { ELEMENTS, colorOfElement, elementsOf, type Element } from '../core/elements';
@@ -166,9 +167,11 @@ export class CombatChallenge implements Challenge {
     const def = typeof enemy === 'string' ? ENEMIES[enemy] : enemy;
     if (!def) throw new Error(`Unknown enemy: ${String(enemy)}`);
     this.ctx = ctx;
-    this.enemy = def;
+    this.enemy = ctx.board.magicEnabled
+      ? boardMagicEnemy(def, ctx.board.width, ctx.board.height)
+      : def;
     this.enemyHp = def.hp;
-    this.nextMove = ctx.rng.pick(def.moves);
+    this.nextMove = ctx.rng.pick(this.enemy.moves);
   }
 
   /**
@@ -300,7 +303,12 @@ export class CombatChallenge implements Challenge {
   /** Fills the enemy's gauge in real time; it moves each time the gauge is full. */
   private pendingObstructions: Extract<EnemyMove, { kind: 'obstruct' }>[] = [];
 
+  get delayedObstructions(): readonly Extract<EnemyMove, { kind: 'obstruct' }>[] {
+    return this.pendingObstructions;
+  }
+
   update(dtMs: number): void {
+    if (this.status() !== 'ongoing') return;
     if (this.pendingObstructions.length && this.ctx.interference) {
       this.ctx.interference.elapse(this.enemy.id, dtMs);
       if (this.ctx.interference.effect(this.enemy.id).delayMs <= 0) {
@@ -369,7 +377,19 @@ export class CombatChallenge implements Challenge {
       return 'Mana is already full.';
     }
     if (effect.kind === 'swap' && !this.ctx.board.canSwapWithNext()) return 'No room to swap.';
-    if (effect.kind === 'purify' && this.ctx.board.count('stone') === 0)
+    if (
+      this.ctx.board.magicEnabled &&
+      effect.kind === 'clearRows' &&
+      !BOARD_SPELLS[spellId] &&
+      Object.keys(this.ctx.board.obstructions).some(
+        (key) => Number(key.split(',')[1]) >= this.ctx.board.height - effect.rows,
+      )
+    )
+      return 'Enemy obstructions resist this sweep; use targeted Lightning or Nature.';
+    if (
+      effect.kind === 'purify' &&
+      this.ctx.board.count('stone') - Object.keys(this.ctx.board.obstructions).length === 0
+    )
       return 'No stone to purify.';
     if (
       effect.kind === 'resonate' &&
@@ -612,7 +632,10 @@ export class CombatChallenge implements Challenge {
     switch (move.kind) {
       case 'obstruct':
         if (!this.ctx.board.magicEnabled) break;
-        if ((this.ctx.interference?.effect(this.enemy.id).delayMs ?? 0) > 0)
+        if (
+          (this.ctx.interference?.effect(this.enemy.id).delayMs ?? 0) > 0 &&
+          this.pendingObstructions.length === 0
+        )
           this.pendingObstructions.push(move);
         else this.ctx.placeObstructions?.(this.enemy.id, move.cells);
         break;

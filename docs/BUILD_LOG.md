@@ -462,3 +462,26 @@ format/lint/typecheck pass. Workshop Chromium checks pass at 360x640, 390x844 an
 1100x900: actual elemental cast, Arcane creation/upgrade/cast, reduced motion,
 44px controls, no horizontal overflow or page errors. Browser evidence is kept
 in `/tmp/magic-browser`; a tracked report and final instructions follow.
+
+## October 29 — workshop hardening and final review evidence
+
+Added pinned-row tracking so removing the final surviving obstruction collapses
+its cleared row without another payout. Nature conversion removes hazard tags;
+fresh color contact weakens and advances the sequence. Added actual lesson
+conversion targets, independently delayed interference telegraphs, safe active-
+piece collision rollback, and selected opt-in Slime/Goblin variants. Ice delays
+only the next placement packet; later packets and ordinary attacks keep their
+own timing. Legacy Purify/sweeps cannot bypass owned obstruction strength.
+
+Targeting now hides irrelevant direction/row controls and describes the affected
+character's pending Arcane effect. Cancel, keyboard routing and dark-preview
+masking are covered; multi-touch edges smoothly cycle their sequence colors and
+respect reduced motion. Save/correction and existing campaign behavior remain
+covered. Final: 1,127 tests pass, 17 optional/report cases skipped; required
+check/build pass. Workshop and original M1 browser checks pass at both phone
+sizes and desktop; tracked evidence is under `artifacts/board-magic`.
+
+GetPutTaco's playable workshop checkpoint was pushed before this hardening pass.
+The remaining acceptance is the author's workshop playtest before broad campaign
+activation and new balance retuning, as required by the approved plan. Existing
+M1 author acceptance and M2a remain separate; neither is silently marked done.

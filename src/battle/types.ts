@@ -132,10 +132,14 @@ export type Beat = 'start' | 'hazard' | 'nearly';
  * the cells it will touch (a spore's landing, the rot's next reach), rows
  * (a rising row, an incoming counter-offer) or a lamp about to be snuffed.
  */
-export type Telegraph = { readonly leadPieces: number } & (
+export type Telegraph = {
+  readonly leadPieces: number;
+  readonly leadMs?: number;
+  readonly owner?: string;
+} & (
   | {
       readonly kind: 'cells';
-      readonly what: 'spore' | 'spread';
+      readonly what: 'spore' | 'spread' | 'obstruction';
       readonly cells: readonly (readonly [number, number])[];
     }
   | { readonly kind: 'rows'; readonly what: 'rise' | 'send'; readonly rows: number }

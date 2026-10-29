@@ -50,6 +50,7 @@ export class LessonChallenge extends CombatChallenge {
     this.mentor = mentor;
     this.spellId = spec.spellId;
     this.helpChance = heroHelpChance(ctx.hero, mentor, spec.difficulty);
+    this.prepareMagicTargets();
   }
 
   /** The element the shield is ringed in: the taught spell's. */
@@ -117,6 +118,7 @@ export class LessonChallenge extends CombatChallenge {
         if (this.enemyHp > mark) super.hitEnemy(this.enemyHp - mark, element, affinity);
         this.shield = 'up';
         this.ctx.emit({ kind: 'shield', up: true });
+        this.prepareMagicTargets();
         return;
       }
     }
@@ -126,6 +128,42 @@ export class LessonChallenge extends CombatChallenge {
   override onLock(result: LockResult): void {
     super.onLock(result);
     if (this.status() === 'ongoing' && this.ctx.rng.next() < this.helpChance) this.toss();
+  }
+
+  /** Give board-spell lessons a usable target, including when a clear raises the shield. */
+  private prepareMagicTargets(): void {
+    const board = this.ctx.board;
+    if (!board.magicEnabled) return;
+    const hasObstruction = Object.values(board.obstructions).some((o) => o.owner === this.enemy.id);
+    if (!hasObstruction) {
+      for (let y = board.height - 2; y >= 4; y--) {
+        const row = board.grid[y];
+        const x = row?.findIndex((cell) => cell === null) ?? -1;
+        if (row && x >= 0) {
+          row[x] = 'stone';
+          board.obstructions[`${x},${y}`] = {
+            id: `lesson:${this.enemy.id}:${y}`,
+            owner: this.enemy.id,
+            strength: 1,
+            anchored: true,
+            sequence: [],
+            step: 0,
+            contacts: [],
+          };
+          break;
+        }
+      }
+    }
+    // A loose colored square is a target for Fire, Wind and Gravity as well.
+    for (let y = board.height - 3; y >= 4; y--) {
+      const row = board.grid[y],
+        below = board.grid[y + 1];
+      const x = row?.findIndex((cell, x) => cell === null && below?.[x] === null) ?? -1;
+      if (row && x >= 0) {
+        row[x] = colorOfElement(this.mentor.element);
+        break;
+      }
+    }
   }
 
   override objective(): Objective {

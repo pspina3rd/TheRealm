@@ -134,3 +134,164 @@ describe('cast preview and progression', () => {
     expect(clean.hero.arcane).toEqual({ fire: 4, wind: 2 });
   });
 });
+
+import { Battle } from '../src/battle/battle';
+import type { LessonChallenge } from '../src/battle/lesson';
+import { lessonsFor } from '../src/game/lessons';
+import { MENTORS } from '../src/data/mentors';
+it('delays actual opponent interference while ordinary enemy attacks continue on their independent clock', () => {
+  const hero = createHero();
+  hero.hp = hero.maxHp = 10000;
+  const battle = new Battle({ kind: 'combat', enemyId: 'slime' }, hero, createRng(99), {
+    boardMagic: true,
+  });
+  const combat = battle.combat!;
+  battle.board.active = null;
+  battle.interference.cast('slime', 'water', 4, 19, 1, combat.actMs);
+  combat.nextMove = { kind: 'obstruct', name: 'Place', cells: [{ x: 2, y: 15, strength: 3 }] };
+  combat.update(combat.actMs);
+  expect(battle.interference.placements.slime ?? 0).toBe(0);
+  combat.nextMove = { kind: 'attack', name: 'Attack while waiting', power: 1 };
+  const hp = hero.hp;
+  combat.update(combat.actMs);
+  expect(hero.hp).toBeLessThan(hp);
+  expect(battle.interference.placements.slime ?? 0).toBe(0);
+  combat.gauge = -100000;
+  combat.update(combat.actMs * 3);
+  expect(battle.interference.placements.slime).toBe(1);
+  expect(battle.board.obstructions['2,15']?.strength).toBe(3);
+});
+it('a blocked incoming batch consumes neither a character placement nor pending Arcane charges', () => {
+  const { board, interference } = fixture();
+  board.grid[5]![2] = 'red';
+  interference.cast('enemy', 'earth', 2, 9, 1, 7000);
+  interference.cast('enemy', 'nature', 1, 9, 1, 7000);
+  interference.place('enemy', [{ x: 2, y: 5, strength: 2 }]);
+  expect(interference.placements.enemy ?? 0).toBe(0);
+  expect(interference.effect('enemy').gravity).toBe(2);
+  expect(interference.effect('enemy').nature).toBe(1);
+});
+it('actual board casts award colored clears once and do not advance player-piece buffs or Arcane placement durations', () => {
+  const hero = createHero();
+  hero.spells.blizzard = newKnownSpell();
+  const battle = new Battle({ kind: 'combat', enemyId: 'slime' }, hero, createRng(1), {
+    boardMagic: true,
+  });
+  hero.mana.water = 20;
+  battle.board.grid[19]![0] = 'red';
+  battle.board.grid[19]![1] = 'red';
+  battle.slowPieces = 4;
+  battle.interference.cast('slime', 'earth', 2, 19, 1, 8500);
+  const pieces = battle.board.piecesPlaced;
+  battle.combat!.gauge = -100000;
+  battle.combat!.castSpell('blizzard', { bottomRow: 19, direction: 1 });
+  expect(battle.board.piecesPlaced).toBe(pieces);
+  expect(battle.slowPieces).toBeGreaterThanOrEqual(4);
+  expect(battle.interference.effect('slime').gravity).toBe(2);
+  expect(hero.mana.fire).toBeGreaterThan(0);
+  expect(battle.lines).toBe(1);
+});
+it('new Nature lessons have conversion targets and the lent board spell breaks their shield', () => {
+  const state = newGame();
+  expect(lessonsFor(state, MENTORS.hazel!).some((l) => l.spellId === 'natureConvert')).toBe(false);
+  state.flags.add('boardMagicEnabled');
+  expect(lessonsFor(state, MENTORS.hazel!).some((l) => l.spellId === 'natureConvert')).toBe(true);
+  const battle = new Battle(
+    {
+      kind: 'lesson',
+      mentorId: 'hazel',
+      enemyId: 'slime',
+      spellId: 'natureConvert',
+      difficulty: 1,
+    },
+    state.hero,
+    createRng(1),
+    { boardMagic: true, storyFlags: state.flags },
+  );
+  const lesson = battle.challenge as LessonChallenge;
+  lesson.shield = 'up';
+  state.hero.mana.nature = 12;
+  const obstruction = Object.keys(battle.board.obstructions)[0]!;
+  const row = Number(obstruction.split(',')[1]);
+  lesson.castSpell('natureConvert', { bottomRow: row, direction: 1 });
+  expect(lesson.shield).toBe('broken');
+  expect(battle.board.obstructions[obstruction]).toBeUndefined();
+});
+it('refuses empty Arcane Lightning instead of charging for a zero-valued status record', () => {
+  const { board, hero, interference } = fixture();
+  hero.arcane = { lightning: 1 };
+  const casting = new MagicCasting(board, hero, interference, flags, 'enemy', 7000);
+  const p = casting.preview('arcane:lightning', { bottomRow: 9, direction: 1 });
+  expect(p.reason).toContain('nothing');
+});
+
+it('selected campaign enemies receive owned obstruction moves only in opt-in encounters and telegraph their footprint', () => {
+  const ordinary = new Battle({ kind: 'combat', enemyId: 'slime' }, createHero(), createRng(1));
+  expect(ordinary.combat!.enemy.moves.some((m) => m.kind === 'obstruct')).toBe(false);
+  const enabled = new Battle({ kind: 'combat', enemyId: 'slime' }, createHero(), createRng(1), {
+    boardMagic: true,
+  });
+  const move = enabled.combat!.enemy.moves.find((m) => m.kind === 'obstruct')!;
+  enabled.combat!.nextMove = move;
+  expect(
+    enabled
+      .telegraphs()
+      .some((t) => t.kind === 'cells' && t.what === 'obstruction' && t.owner === 'slime'),
+  ).toBe(true);
+  enabled.combat!.update(enabled.combat!.actMs);
+  expect(enabled.interference.placements.slime).toBe(1);
+});
+
+it('legacy Purify leaves owned obstructions intact and bottom-row sweeps cannot bypass their durability', () => {
+  const hero = createHero();
+  hero.spells.purify = newKnownSpell();
+  hero.spells.bramble = newKnownSpell();
+  const battle = new Battle({ kind: 'combat', enemyId: 'slime' }, hero, createRng(5), {
+    boardMagic: true,
+  });
+  for (const e of Object.keys(hero.mana)) hero.mana[e as keyof typeof hero.mana] = 20;
+  battle.placeObstructions('slime', [{ x: 2, y: 19, strength: 3 }]);
+  battle.board.grid[18]![0] = 'stone';
+  battle.combat!.gauge = -100000;
+  battle.combat!.castSpell('purify');
+  expect(battle.board.grid[18]![0]).toBe('blue');
+  expect(battle.board.grid[19]![2]).toBe('stone');
+  expect(battle.board.obstructions['2,19']?.strength).toBe(3);
+  expect(battle.combat!.cannotCastReason('bramble')).toContain('resist');
+  expect(() => battle.combat!.castSpell('bramble')).toThrow('resist');
+});
+
+it('Ice delays only the next interference packet, while later packets retain their own action timing', () => {
+  const hero = createHero();
+  hero.hp = hero.maxHp = 10000;
+  const battle = new Battle({ kind: 'combat', enemyId: 'slime' }, hero, createRng(1), {
+    boardMagic: true,
+  });
+  const combat = battle.combat!;
+  battle.interference.cast('slime', 'water', 4, 19, 1, combat.actMs);
+  combat.nextMove = { kind: 'obstruct', name: 'First', cells: [{ x: 1, y: 15, strength: 3 }] };
+  combat.update(combat.actMs);
+  expect(combat.delayedObstructions).toHaveLength(1);
+  combat.nextMove = { kind: 'obstruct', name: 'Second', cells: [{ x: 3, y: 16, strength: 2 }] };
+  combat.update(combat.actMs);
+  expect(battle.interference.placements.slime).toBe(1);
+  expect(battle.board.obstructions['3,16']).toBeDefined();
+  expect(combat.delayedObstructions).toHaveLength(1);
+  expect(
+    battle.telegraphs().some((t) => t.owner === 'slime' && t.leadMs === combat.actMs * 3),
+  ).toBe(true);
+});
+it('a falling NPC obstruction cannot overwrite the active piece or consume its Arcane duration', () => {
+  const { board, interference } = fixture();
+  board.grid[9]![1] = 'stone';
+  board.spawn();
+  board.active!.x = 1;
+  board.active!.y = 8;
+  board.active!.cells = [[0, 0]];
+  interference.cast('enemy', 'earth', 1, 9, 1, 7000);
+  interference.place('enemy', [{ x: 1, y: 3, strength: 2 }]);
+  expect(board.grid[8]![1]).toBeNull();
+  expect(Object.values(board.obstructions)).toEqual([]);
+  expect(interference.effect('enemy').gravity).toBe(1);
+  expect(interference.placements.enemy ?? 0).toBe(0);
+});
