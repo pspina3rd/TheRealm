@@ -1,29 +1,36 @@
-# Spell practice
+# Spell workshop
 
 On GetPutTaco, run `npm install` and `npm run dev`, then open
 **http://localhost:5173/workshop.html** (or the port Vite prints).
 
-1. Read the goal at the top. The first exercise asks you to break three grey blocks.
-2. Tap a spell button, then tap its target row on the board.
-3. Read what the spell will do. **See result** lets you inspect it without casting.
-4. Press **Cast**. When the goal is complete, choose **Next exercise**.
+The workshop opens with a live, full-height board: falling pieces, landing ghost,
+Slime placing obstructions, and an ally occasionally supplying blank blocks.
+Your adventure save is separate, with practice mana and Arcane pairs provided.
 
-There are seven short exercises: Lightning, Nature, Gravity, Ice, Fire, Wind and
-Arcane. Practice waits for you; there is no falling-piece clock or incoming enemy
-pressure unless you turn on **live practice** under **More practice options**.
-**Reset** restarts the exercise. In the Arcane exercise, cast Arcane + Nature and
-then press **Let Slime place its block** to see its effect.
+- **Keyboard:** Left/Right move, Down soft drops, Up or X rotates, Space drops.
+- **Touch:** tap the board to rotate, drag to move, drag down to soft drop, flick
+  down to drop. The buttons below the spells provide the same actions; hold
+  Left, Right or Down to repeat.
+- **Spells:** select a spell, then tap or drag to choose its target row. The gold
+  band shows the affected rows; the side panel states rank, effect and mana cost.
+  Aiming pauses the action. **Cast** commits once and resumes play; **Cancel** or
+  Escape returns without spending mana. Character-targeted Arcane spells instead
+  highlight Slime. Row arrows and Enter also work while aiming.
+- **Pause** or P freezes play separately. **Reset** starts over.
+- **Exercises** offers seven focused scenarios. These use the same live physics;
+  read the goal and choose **Next exercise** after completing it.
 
-Practice supplies and Arcane pairs are provided so you can try the mechanics
-without grinding. Your adventure save is separate. Rank controls, the upgrade
-screen, other exercises and falling-piece controls are under **More practice
-options**.
+The board uses the adventure renderer and shared faceted crystal artwork.
+Colorless frosted blocks earn no mana. Weathered stone obstructions show strength
+pips, damage cracks, and colored contact edges where required.
 
-This is a development-only review fixture. Main-campaign activation remains
-pending author review; the adventure's current rules are unchanged.
+This is a development-only review fixture. Main-campaign board-magic activation
+remains pending author playtesting.
 
-[Current browser report](artifacts/board-magic/workshop-report.json),
-[phone view](artifacts/board-magic/phone-workshop.png) and
-[desktop preview](artifacts/board-magic/desktop-preview.png) are saved.
-The browser checks complete all seven exercises on both phone sizes and desktop,
-including direct board targeting, visible controls and untimed practice.
+[Browser report](artifacts/board-magic/workshop-report.json),
+[phone view](artifacts/board-magic/phone-workshop.png),
+[desktop preview](artifacts/board-magic/desktop-preview.png),
+[blank-block view](artifacts/board-magic/phone-blank-block.png), and
+[adventure regression report](artifacts/board-magic/m1-regression-report.json)
+are saved. Browser checks exercise movement, held buttons, real touch gestures,
+aiming, cancellation and casting on two phone sizes and desktop.

@@ -33,6 +33,7 @@ export function bindBoardGestures(
   canvas: HTMLElement,
   columns: () => number,
   apply: (action: GestureAction) => void,
+  enabled: () => boolean = () => true,
 ): { tick(timeMs: number): void; lockout(): void; readonly active: boolean } {
   const recognizer = new GestureRecognizer(1);
   let touch = false;
@@ -44,6 +45,7 @@ export function bindBoardGestures(
     }
   };
   canvas.addEventListener('pointerdown', (event) => {
+    if (!enabled()) return;
     // Only the primary mouse button plays; right/middle clicks do nothing.
     if (event.pointerType === 'mouse' && event.button !== 0) return;
     event.preventDefault();
@@ -58,15 +60,26 @@ export function bindBoardGestures(
     run(recognizer.down(event.pointerId, event.clientX, event.clientY, event.timeStamp));
   });
   canvas.addEventListener('pointermove', (event) => {
+    if (!enabled()) {
+      recognizer.lockout();
+      return;
+    }
     run(recognizer.move(event.pointerId, event.clientX, event.clientY, event.timeStamp));
   });
   canvas.addEventListener('pointerup', (event) => {
+    if (!enabled()) {
+      recognizer.cancel(event.pointerId);
+      return;
+    }
     run(recognizer.up(event.pointerId, event.clientX, event.clientY, event.timeStamp));
   });
   canvas.addEventListener('pointercancel', (event) => recognizer.cancel(event.pointerId));
   canvas.addEventListener('contextmenu', (event) => event.preventDefault());
   return {
-    tick: (timeMs) => run(recognizer.tick(timeMs)),
+    tick: (timeMs) => {
+      if (enabled()) run(recognizer.tick(timeMs));
+      else recognizer.lockout();
+    },
     lockout: () => recognizer.lockout(),
     get active() {
       return recognizer.active;

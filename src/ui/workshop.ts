@@ -1,8 +1,7 @@
-/** Guided, development-only practice; adventure saves are never touched. */
+/** Live review battle using the same piece input as the adventure. */
 import { required } from '../core/required';
-import { Battle } from '../battle/battle';
-import type { CastPreview } from '../battle/magicCasting';
-import { BOARD_SPELLS } from '../battle/magicCasting';
+import { Battle, type BattleAction } from '../battle/battle';
+import { BOARD_SPELLS, type CastPreview } from '../battle/magicCasting';
 import { spanFor } from '../core/boardMagic';
 import { createRng } from '../core/rng';
 import { newKnownSpell } from '../game/spells';
@@ -10,9 +9,14 @@ import { ARCANE_ELEMENTS, createArcane } from '../game/arcane';
 import { PRACTICES, PRACTICE_SPELLS, practiceProgress, setupPractice } from '../game/magicPractice';
 import { newGame } from '../world/state';
 import { loadGame, saveGame, type KeyValueStore } from '../game/save';
-import { magicGrid } from './magicTargeting';
-import { openArcaneEditor } from './arcaneEditor';
+import { MAGIC_COLORS } from './magicTargeting';
+import { bindWorkshopInput, type WorkshopMode } from './workshopInput';
 import { button, el } from './dom';
+import { WorkshopBoardView } from './workshopBoardView';
+import { iconElement } from './iconDraw';
+import { ELEMENT_ICONS } from './art/icons';
+import { Atlas } from './art/atlas';
+import { spritePortrait } from './screens/widgets';
 import './workshop.css';
 if (!import.meta.env.DEV) throw new Error('The workshop is a development review fixture.');
 const store: KeyValueStore = {
@@ -22,228 +26,265 @@ const store: KeyValueStore = {
 };
 const state = loadGame(store) ?? newGame();
 state.flags = new Set(['wyrmBeaten', 'scene:chapterEnd', 'boardMagicEnabled']);
-if (!state.hero.arcane || Object.keys(state.hero.arcane).length === 0)
-  state.hero.skillPoints = Math.max(100, state.hero.skillPoints);
 const root = required(document.getElementById('workshop'));
 let battle: Battle,
-  lessonIndex = 0,
-  selected = 'thunder',
+  mode: WorkshopMode = 'play',
+  selected: string | null = null,
   target: number | null = null,
   direction: -1 | 1 = 1,
-  showResult = false,
-  live = false,
-  enemyClock = 0,
-  enemySequence = 0;
-let preview: CastPreview | null = null,
+  arcaneBank = false,
+  exercise = -1,
+  complete = false,
+  enemySequence = 0,
+  allyClock = 0,
   lastBoard = '',
-  finished = false;
-const goalTitle = el('h2'),
-  instruction = el('p'),
+  lastNext = '';
+let preview: CastPreview | null = null;
+const badge = el('span', { className: 'mode-badge' }),
+  goal = el('p'),
   progress = el('strong'),
-  feedback = el('p', { className: 'workshop-feedback' }),
-  boardPanel = el('section', { className: 'workshop-board' }),
-  spellTitle = el('h3'),
-  spellDescription = el('p'),
-  cost = el('p', { className: 'workshop-cost' }),
-  outcome = el('p', { className: 'workshop-outcome' }),
-  palette = el('div', { className: 'spell-palette' }),
-  arcanePalette = el('div', { className: 'spell-palette' }),
-  viewLabel = el('span', { className: 'board-view-label' });
-feedback.setAttribute('role', 'status');
+  nextPiece = el('div', { className: 'next-piece' }),
+  enemy = el('section', { className: 'opponent' }),
+  enemyClock = el('p'),
+  effects = el('p', { className: 'effect-status' }),
+  spellName = el('h2'),
+  hint = el('p', { className: 'aim-hint' }),
+  outcome = el('p', { className: 'outcome' }),
+  cost = el('p', { className: 'mana-cost' }),
+  board = el('div', { className: 'board-surface' }),
+  pauseOverlay = el('div', { className: 'pause-overlay' }),
+  palette = el('nav', { className: 'spell-strip' }),
+  playControls = el('div', { className: 'piece-controls' }),
+  aimControls = el('div', { className: 'aim-controls' }),
+  stage = el('main', { className: 'playfield' });
+board.setAttribute('aria-label', 'Battle board');
+board.setAttribute('role', 'region');
+badge.setAttribute('role', 'status');
 outcome.setAttribute('aria-live', 'polite');
-progress.setAttribute('role', 'status');
-const buttons = new Map<string, HTMLButtonElement>();
-const practice = () => required(PRACTICES[lessonIndex]);
-const save = (): void => {
-  saveGame(store, state);
-};
-function prepareSpells(): void {
-  for (const id of [...Object.keys(BOARD_SPELLS), 'shadow'])
-    state.hero.spells[id] = { ...newKnownSpell(), level: 4 };
-}
-const nextButton = button('Next exercise →', () =>
-  loadLesson((lessonIndex + 1) % PRACTICES.length),
-);
-nextButton.className = 'primary next-exercise';
-const castButton = button('Cast Lightning', () => cast());
-castButton.className = 'primary cast-spell';
-const resultButton = button('See result', () => {
-  showResult = !showResult;
-  refresh();
-});
-const left = button('← Left', () => {
-    direction = -1;
-    refresh();
-  }),
-  right = button('Right →', () => {
-    direction = 1;
-    refresh();
+const pauseButton = button('Pause', () => togglePause()),
+  resetButton = button('Reset', () => reset(exercise)),
+  cancelButton = button('Cancel', () => cancelAim()),
+  castButton = button('Cast', () => cast()),
+  upButton = button('↑ Row', () => stepTarget(-1)),
+  downButton = button('↓ Row', () => stepTarget(1)),
+  windLeft = button('←', () => setDirection(-1)),
+  windRight = button('→', () => setDirection(1)),
+  bankButton = button('Arcane', () => {
+    arcaneBank = !arcaneBank;
+    renderPalette();
   });
-const directions = el('div', { className: 'wind-direction' }, left, right);
-const sendButton = button('Let Slime place its block', () => {
-  if (document.querySelector('dialog[open]')) return;
-  battle.paused = false;
-  const effect = battle.interference.effect('slime');
-  if (effect.delayMs > 0) {
-    feedback.textContent = `Slime is delayed for ${(effect.delayMs / 1000).toFixed(1)} seconds. Turn on live practice to watch the delay.`;
-    return;
-  }
-  battle.placeObstructions('slime', [{ x: 4, y: 18, strength: 2 }]);
-  feedback.textContent =
-    battle.board.grid[18]?.[4] === 'neutral'
-      ? 'Slime sent a blank block. It can help complete a row.'
-      : 'Slime placed a grey obstruction. Try Arcane + Nature before the next placement.';
-  refresh();
-});
-function chooseSpell(id: string): void {
-  selected = id;
-  target = null;
-  showResult = false;
-  preview = null;
-  feedback.textContent = '';
-  if (!id.startsWith('arcane:')) required(state.hero.spells[id]).level = Number(rank.value);
-  else {
-    prepareSpells();
-    for (const e of ARCANE_ELEMENTS) createArcane(state.hero, state.flags, e);
-  }
-  refresh();
-}
-for (const spell of PRACTICE_SPELLS) {
-  const node = button(spell.name, () => chooseSpell(spell.id));
-  node.style.setProperty(
-    '--spell-color',
+windLeft.setAttribute('aria-label', 'Wind left');
+windRight.setAttribute('aria-label', 'Wind right');
+const nextExercise = button('Next exercise', () => reset((exercise + 1) % PRACTICES.length));
+const controls: Partial<Record<BattleAction, HTMLElement>> = {};
+for (const [action, label] of [
+  ['left', '←'],
+  ['softDrop', '↓ Down'],
+  ['right', '→'],
+  ['rotate', 'Rotate'],
+  ['hardDrop', 'Drop'],
+] as const) {
+  const node = el('button', { text: label });
+  node.type = 'button';
+  node.dataset.action = action;
+  node.setAttribute(
+    'aria-label',
     {
-      lightning: '#dbc460',
-      nature: '#65b780',
-      earth: '#d88e57',
-      water: '#658de4',
-      fire: '#df565b',
-      wind: '#6ebfc9',
-    }[spell.element],
+      left: 'Move left',
+      softDrop: 'Soft drop',
+      right: 'Move right',
+      rotate: 'Rotate piece',
+      hardDrop: 'Hard drop',
+    }[action],
   );
-  node.dataset.spell = spell.id;
-  buttons.set(spell.id, node);
-  palette.append(node);
+  controls[action] = node;
+  playControls.append(node);
 }
-for (const element of ARCANE_ELEMENTS) {
-  const name =
-      element === 'earth'
-        ? 'Gravity'
-        : element === 'water'
-          ? 'Ice'
-          : element[0]?.toUpperCase() + element.slice(1),
-    id = `arcane:${element}`,
-    node = button(`Arcane + ${name}`, () => chooseSpell(id));
-  buttons.set(id, node);
-  arcanePalette.append(node);
-}
-const rank = el('select');
-rank.setAttribute('aria-label', 'Practice spell rank');
-for (let n = 1; n <= 4; n++) {
-  const option = el('option', { text: `Rank ${n}` });
-  option.value = String(n);
-  rank.append(option);
-}
-rank.value = '1';
-rank.addEventListener('change', () => chooseSpell(selected));
-const lessonSelect = el('select');
-lessonSelect.setAttribute('aria-label', 'Exercise');
-PRACTICES.forEach((lesson, i) => {
-  const option = el('option', { text: `${i + 1}. ${lesson.title}` });
-  option.value = String(i);
-  lessonSelect.append(option);
-});
-lessonSelect.addEventListener('change', () => loadLesson(Number(lessonSelect.value)));
-const liveButton = button('Start live practice', () => {
-  live = !live;
-  liveButton.textContent = live ? 'Pause live practice' : 'Start live practice';
-  target = null;
-  showResult = false;
-  feedback.textContent = live
-    ? 'Pieces are falling and Slime can send obstructions. Choosing a target pauses the action.'
-    : 'Paused. Take your time choosing a spell and row.';
-  refresh();
-});
-const pieceControls = el(
-  'div',
-  { className: 'workshop-actions' },
-  ...(['left', 'rotate', 'right', 'hardDrop'] as const).map((action, i) =>
-    button(['← Move', 'Rotate', 'Move →', 'Drop'][i] ?? action, () => {
-      if (!battle.paused) {
-        battle.input(action);
-        target = null;
-        showResult = false;
-        refresh();
-      }
-    }),
-  ),
+aimControls.append(cancelButton, upButton, downButton, windLeft, windRight, castButton);
+const endLabel = el('strong', { text: 'Paused' });
+const resume = button('Resume', () =>
+  battle.status === 'ongoing' ? togglePause() : reset(exercise),
 );
-const advanced = el(
-  'details',
-  { className: 'more-practice' },
-  el('summary', { text: 'More practice options' }),
-  el('label', { text: 'Exercise' }, lessonSelect),
-  el('label', { text: 'Spell strength' }, rank),
-  button('Arcane upgrades', () => {
-    battle.paused = true;
-    openArcaneEditor(state.hero, state.flags, save, () => {
-      battle.paused = false;
-      refresh();
-    });
-  }),
-  liveButton,
-  pieceControls,
-  button('Refill practice mana', () => {
-    for (const e of Object.keys(state.hero.mana))
-      state.hero.mana[e as keyof typeof state.hero.mana] = 100;
-    refresh();
-  }),
-);
-const resetButton = button('Reset', () => loadLesson(lessonIndex));
-resetButton.setAttribute('aria-label', 'Reset exercise');
-root.append(
-  el(
-    'header',
-    {},
-    el('h1', { text: 'Spell practice' }),
-    el('p', { text: 'Choose → Target → Cast' }),
-    resetButton,
-  ),
-  el('section', { className: 'practice-goal' }, goalTitle, instruction, progress),
-  el(
-    'div',
-    { className: 'workshop-layout' },
-    el('div', { className: 'board-column' }, viewLabel, boardPanel),
-    el(
-      'aside',
-      {},
-      palette,
-      arcanePalette,
-      el(
-        'section',
-        { className: 'selected-spell' },
-        spellTitle,
-        spellDescription,
-        directions,
-        cost,
-      ),
-      feedback,
-    ),
-  ),
+pauseOverlay.append(endLabel, resume);
+pauseOverlay.hidden = true;
+const rail = el(
+  'aside',
+  { className: 'info-rail' },
+  el('section', { className: 'next-panel' }, el('small', { text: 'Next piece' }), nextPiece),
   el(
     'section',
-    { className: 'cast-bar' },
-    outcome,
-    el('div', { className: 'cast-actions' }, resultButton, castButton, nextButton),
+    { className: 'goal-panel' },
+    el('small', { text: 'Goal' }),
+    goal,
+    progress,
+    nextExercise,
   ),
-  el('footer', {}, advanced),
+  enemy,
+  el('section', { className: 'spell-info' }, spellName, hint, outcome, cost),
+  bankButton,
 );
-function loadLesson(index: number): void {
-  lessonIndex = index;
-  lessonSelect.value = String(index);
-  prepareSpells();
-  rank.value = '1';
+enemy.append(el('strong', { text: 'Slime' }), enemyClock, effects);
+const header = el(
+  'header',
+  { className: 'game-hud' },
+  el('h1', { text: 'Magic workshop' }),
+  badge,
+  button('Exercises', () => openExercises()),
+  pauseButton,
+  resetButton,
+);
+const boardFrame = el('div', { className: 'board-frame' }, board, pauseOverlay);
+stage.append(boardFrame, rail);
+root.append(
+  header,
+  stage,
+  palette,
+  el('footer', { className: 'control-dock' }, playControls, aimControls),
+);
+const boardView = new WorkshopBoardView(board, nextPiece);
+const atlas = new Atlas();
+void atlas.load(`${import.meta.env.BASE_URL}assets/`).then(() => {
+  enemy.prepend(spritePortrait(atlas, 'enemy.slime', 96, 'battle'));
+});
+function setMode(next: WorkshopMode): void {
+  mode = next;
+  battle.paused = mode !== 'play';
+  inputs?.lockout();
+  refresh();
+}
+function cancelAim(): void {
+  selected = null;
+  target = null;
+  preview = null;
+  setMode('play');
+}
+function togglePause(): void {
+  if (mode === 'aim') {
+    selected = null;
+    target = null;
+    preview = null;
+  }
+  setMode(mode === 'paused' ? 'play' : 'paused');
+}
+function needsRow(): boolean {
+  return (
+    !!selected &&
+    (selected === 'arcane:lightning' ||
+      (!selected.startsWith('arcane:') &&
+        !(selected === 'quake' && (state.hero.spells.quake?.level ?? 1) >= 4)))
+  );
+}
+function chooseSpell(id: string): void {
+  if (mode === 'paused' || battle.status !== 'ongoing') return;
+  selected = id;
+  target = null;
+  preview = null;
+  setMode('aim');
+}
+function stepTarget(dy: number): void {
+  if (mode !== 'aim' || !needsRow()) return;
+  target = Math.max(0, Math.min(19, (target ?? 19) + dy));
+  refresh();
+}
+function setDirection(dx: -1 | 1): void {
+  if (mode === 'aim') {
+    direction = dx;
+    refresh();
+  }
+}
+function input(action: BattleAction): void {
+  if (mode !== 'play') return;
+  battle.input(action);
+  refresh();
+}
+const inputs = bindWorkshopInput(board, controls, {
+  mode: () => mode,
+  input,
+  targetRow(row) {
+    if (mode === 'aim' && needsRow()) {
+      target = row;
+      refresh();
+    }
+  },
+  stepTarget,
+  direction: setDirection,
+  confirm: cast,
+  cancel: cancelAim,
+  togglePause,
+  pick(slot) {
+    const element = ARCANE_ELEMENTS[slot - 1];
+    const id = arcaneBank
+      ? element
+        ? `arcane:${element}`
+        : undefined
+      : PRACTICE_SPELLS[slot - 1]?.id;
+    if (id) chooseSpell(id);
+  },
+  columns: () => 10,
+  rows: () => 20,
+  activePiece: () => battle?.board.active,
+});
+function renderPalette(): void {
+  palette.replaceChildren();
+  bankButton.textContent = arcaneBank ? 'Elements' : 'Arcane';
+  const options = arcaneBank
+    ? ARCANE_ELEMENTS.map((element) => ({
+        id: `arcane:${element}`,
+        name:
+          element === 'earth'
+            ? 'Gravity'
+            : element === 'water'
+              ? 'Ice'
+              : element[0]?.toUpperCase() + element.slice(1),
+        element,
+      }))
+    : PRACTICE_SPELLS;
+  for (const [slot, spell] of options.entries()) {
+    const node = button('', () => chooseSpell(spell.id));
+    node.dataset.spell = spell.id;
+    node.title = `${slot + 1}: ${arcaneBank ? 'Arcane + ' : ''}${spell.name}`;
+    node.setAttribute('aria-label', `${arcaneBank ? 'Arcane + ' : ''}${spell.name}`);
+    node.setAttribute('aria-pressed', String(selected === spell.id));
+    const glyph = iconElement(
+      arcaneBank ? { icon: 'arcane', badge: spell.element } : ELEMENT_ICONS[spell.element],
+      2,
+    );
+    glyph.classList.add('spell-glyph');
+    node.append(glyph, el('span', { text: spell.name }));
+    node.style.setProperty(
+      '--spell-color',
+      {
+        lightning: MAGIC_COLORS.gold,
+        nature: MAGIC_COLORS.green,
+        earth: MAGIC_COLORS.orange,
+        water: MAGIC_COLORS.blue,
+        fire: MAGIC_COLORS.red,
+        wind: MAGIC_COLORS.cyan,
+      }[spell.element] ?? '#aaa',
+    );
+    palette.append(node);
+  }
+}
+function reset(index = -1): void {
+  exercise = index;
+  complete = false;
+  mode = 'play';
+  selected = null;
+  target = null;
+  preview = null;
+  boardView.reset();
+  lastBoard = '';
+  lastNext = '';
+  enemySequence = 0;
+  allyClock = 0;
+  for (const id of [...Object.keys(BOARD_SPELLS), 'shadow'])
+    state.hero.spells[id] = { ...newKnownSpell(), level: 4 };
   for (const element of ARCANE_ELEMENTS) createArcane(state.hero, state.flags, element);
+  if (index >= 0) {
+    const lesson = required(PRACTICES[index]);
+    if (!lesson.spell.startsWith('arcane:')) required(state.hero.spells[lesson.spell]).level = 1;
+    arcaneBank = lesson.spell.startsWith('arcane:');
+  } else arcaneBank = false;
   battle = new Battle({ kind: 'combat', enemyId: 'slime' }, state.hero, createRng(42), {
     boardMagic: true,
     storyFlags: state.flags,
@@ -254,222 +295,383 @@ function loadLesson(index: number): void {
   for (const e of Object.keys(state.hero.mana))
     state.hero.mana[e as keyof typeof state.hero.mana] = 100;
   required(battle.combat).enemyHp = 10000;
-  required(battle.combat).gauge = -1e9;
-  setupPractice(battle, practice());
-  live = false;
-  liveButton.textContent = 'Start live practice';
-  enemyClock = 0;
-  enemySequence = 0;
-  finished = false;
-  lastBoard = '';
-  chooseSpell(practice().spell);
+  if (index >= 0) setupPractice(battle, required(PRACTICES[index]));
+  else {
+    battle.board.loadRows([
+      '..........',
+      '..r.......',
+      '..b.#.....',
+      'r..##...g.',
+      'rg..#..b..',
+      'rr.#..gg..',
+    ]);
+    for (const [x, y, strength] of [
+      [4, 16, 3],
+      [3, 17, 2],
+      [4, 17, 1],
+      [4, 18, 3],
+      [3, 19, 2],
+    ] as const)
+      battle.board.obstructions[`${x},${y}`] = {
+        id: `initial:${x}:${y}`,
+        owner: 'slime',
+        strength,
+        anchored: true,
+        sequence:
+          x === 4
+            ? [
+                { color: 'green', sides: ['left', 'right', 'top', 'bottom'] },
+                { color: 'red', sides: ['left', 'right', 'top', 'bottom'] },
+              ]
+            : [],
+        step: 0,
+        contacts: [],
+      };
+  }
+  // The opponent's authored next placement is visible before its clock starts.
+  required(battle.combat).nextMove = {
+    kind: 'obstruct',
+    name: 'Set an obstruction',
+    cells: incoming(),
+  };
+  renderPalette();
+  inputs.lockout();
+  refresh();
+  resize();
 }
-function description(): string {
-  if (!selected.startsWith('arcane:'))
-    return PRACTICE_SPELLS.find((s) => s.id === selected)?.description ?? '';
-  return (
-    (
-      {
-        fire: 'Let red blocks satisfy this opponent’s color requirements.',
-        water: 'Delay the opponent’s next obstruction.',
-        wind: 'Shift the opponent’s upcoming obstructions.',
-        lightning: 'Weaken the opponent’s grey obstructions.',
-        nature: 'Make the opponent’s next obstruction a blank block.',
-        earth: 'Unanchor the opponent’s obstructions so they fall.',
-      } as Record<string, string>
-    )[selected.slice(7)] ?? ''
-  );
+function incoming(): { x: number; y: number; strength: number }[] {
+  return exercise === 6
+    ? [{ x: 4, y: 18, strength: 2 }]
+    : [
+        {
+          x: 1 + ((enemySequence * 3) % 8),
+          y: 12 + (enemySequence % 3),
+          strength: 1 + (enemySequence % 3),
+        },
+      ];
 }
 function refresh(): void {
   if (!battle) return;
-  const lesson = practice(),
-    arcane = selected.startsWith('arcane:'),
-    needsRow = !arcane || selected === 'arcane:lightning';
-  const spell = PRACTICE_SPELLS.find((s) => s.id === selected),
-    name = arcane
-      ? `Arcane + ${selected.endsWith('earth') ? 'Gravity' : selected.endsWith('water') ? 'Ice' : selected.slice(7, 8).toUpperCase() + selected.slice(8)}`
-      : (spell?.name ?? selected);
-  goalTitle.textContent = `${lessonIndex + 1} / ${PRACTICES.length} · ${lesson.title}`;
-  instruction.textContent = lesson.instruction;
-  liveButton.textContent = live ? 'Pause live practice' : 'Start live practice';
-  const goal = practiceProgress(battle, lesson);
-  progress.textContent = goal.label;
-  progress.className = goal.done ? 'complete' : '';
-  if (goal.done && !finished) {
-    finished = true;
-    live = false;
-    feedback.textContent = 'That worked. Ready for the next exercise.';
-  }
-  nextButton.hidden = !goal.done;
-  castButton.hidden = goal.done;
-  resultButton.hidden = goal.done;
-  palette.hidden = arcane;
-  arcanePalette.hidden = !arcane;
-  sendButton.hidden = lesson.goal !== 'incoming';
-  for (const [id, node] of buttons) node.setAttribute('aria-pressed', String(id === selected));
-  spellTitle.textContent = name;
-  spellDescription.textContent = description();
-  castButton.textContent = `Cast ${name}`;
-  directions.hidden = !selected.endsWith('wind') && selected !== 'gale';
-  left.setAttribute('aria-pressed', String(direction === -1));
-  right.setAttribute('aria-pressed', String(direction === 1));
+  root.dataset.mode = mode;
+  const ended = battle.status !== 'ongoing';
+  badge.textContent = ended
+    ? battle.status === 'won'
+      ? 'Victory'
+      : 'Defeated'
+    : mode === 'play'
+      ? 'Playing'
+      : mode === 'aim'
+        ? 'Aiming'
+        : 'Paused';
+  endLabel.textContent = ended ? badge.textContent : 'Paused';
+  resume.textContent = ended ? 'Reset battle' : 'Resume';
+  pauseButton.disabled = ended;
+  pauseButton.textContent = mode === 'paused' ? 'Resume' : 'Pause';
+  pauseButton.setAttribute('aria-label', mode === 'paused' ? 'Resume game' : 'Pause game');
+  battle.paused = mode !== 'play';
+  pauseOverlay.hidden = !ended && mode !== 'paused';
+  playControls.hidden = mode === 'aim';
+  aimControls.hidden = mode !== 'aim';
+  for (const node of Object.values(controls))
+    if (node instanceof HTMLButtonElement)
+      node.disabled = mode !== 'play' || battle.status !== 'ongoing';
+  goal.textContent =
+    exercise < 0
+      ? 'Clear grey blocks'
+      : {
+          obstructions: 'Break grey blocks',
+          convert: 'Make blank blocks',
+          land: 'Land on the marks',
+          line: 'Clear the bottom row',
+          red: 'Burn red blocks',
+          shift: 'Move onto the mark',
+          incoming: 'Receive a blank block',
+        }[required(PRACTICES[exercise]).goal];
+  if (exercise >= 0) {
+    const done = practiceProgress(battle, required(PRACTICES[exercise]));
+    complete ||= done.done;
+    progress.textContent = complete ? 'Exercise complete' : done.label;
+  } else progress.textContent = `${Object.keys(battle.board.obstructions).length} remaining`;
+  nextExercise.hidden = exercise < 0 || !complete;
   preview = null;
-  if (!needsRow || target !== null)
+  if (mode === 'aim' && selected)
     try {
       preview = battle.magicCasting.preview(selected, { bottomRow: target ?? 19, direction });
     } catch (error) {
-      outcome.textContent = error instanceof Error ? error.message : 'Choose a spell.';
+      outcome.textContent = error instanceof Error ? error.message : 'Spell unavailable.';
     }
-  const span =
-    preview && needsRow
-      ? spanFor(
-          { element: preview.element, rank: preview.rank, bottomRow: preview.target.bottomRow },
-          battle.board.height,
-        )
-      : undefined;
-  const shown = showResult && preview ? preview.resolution.state : battle.board.magicState();
-  const active = battle.board.active;
-  if (live && !showResult && active)
-    for (const [dx, dy] of active.cells) {
-      const x = active.x + dx,
-        y = active.y + dy;
-      if (y >= 0 && y < battle.board.height && x >= 0 && x < battle.board.width)
-        required(shown.grid[y])[x] = active.color;
-    }
-  const crop = live ? 0 : 14;
-  const key = JSON.stringify([shown, span, showResult, crop, lesson.targets]);
-  if (key !== lastBoard) {
-    const visible = {
-      ...shown,
-      grid: shown.grid.slice(crop),
-      tags: shown.tags.slice(crop),
-      obstructions: Object.fromEntries(
-        Object.entries(shown.obstructions).map(([key, o]) => {
-          const [x, y] = key.split(',').map(Number);
-          return [`${x},${Number(y) - crop}`, o];
-        }),
-      ),
-    };
-    const grid = magicGrid(visible, {
-      ...(span ? { selected: [span[0] - crop, span[1] - crop] as const } : {}),
-      onRow: (y) => {
-        target = y + crop;
-        showResult = false;
-        feedback.textContent = '';
-        refresh();
-      },
-    });
-    grid.setAttribute(
-      'aria-label',
-      showResult ? 'Preview of spell result' : 'Practice board — tap a row to target it',
+  let span: readonly [number, number] | undefined;
+  const hasTarget = !needsRow() || target !== null;
+  if (preview && hasTarget && (!selected?.startsWith('arcane:') || needsRow()))
+    span = spanFor(
+      { element: preview.element, rank: preview.rank, bottomRow: preview.target.bottomRow },
+      20,
     );
-    for (const [x, y] of lesson.targets ?? []) {
-      const square = grid.children[y - crop]?.children[x];
-      if (square) {
-        square.classList.add('goal-square');
-        square.setAttribute('title', 'Move a block here');
+  const actual = battle.board.magicState(),
+    display = battle.board.magicState(),
+    piece = battle.board.active;
+  const ghostCells: string[] = [],
+    activeCells: string[] = [];
+  if (piece) {
+    const ghostY = battle.board.ghostY();
+    piece.cells.forEach(([dx, dy], i) => {
+      const x = piece.x + dx,
+        y = piece.y + dy,
+        gy = ghostY + dy,
+        color = piece.colors[i] ?? piece.color;
+      if (gy >= 0 && gy < 20 && display.grid[gy]?.[x] === null) {
+        required(display.grid[gy])[x] = color;
+        ghostCells.push(`${x},${gy}`);
       }
-    }
-    boardPanel.replaceChildren(grid);
+      if (y >= 0 && y < 20) {
+        required(display.grid[y])[x] = color;
+        activeCells.push(`${x},${y}`);
+      }
+    });
+  }
+  const key = JSON.stringify([
+    display,
+    span,
+    mode,
+    ghostCells,
+    activeCells,
+    preview?.resolution.state,
+    exercise,
+  ]);
+  if (key !== lastBoard) {
+    boardView.updateSemantics(display, (grid) => {
+      if (span)
+        for (let y = span[0]; y <= span[1]; y++) grid.children[y]?.classList.add('selected');
+      for (let y = 0; y < 20; y++)
+        for (let x = 0; x < 10; x++) {
+          const cell = grid.children[y]?.children[x];
+          if (!cell) continue;
+          if (ghostCells.includes(`${x},${y}`)) cell.classList.add('landing-ghost');
+          if (activeCells.includes(`${x},${y}`)) {
+            cell.classList.remove('landing-ghost');
+            cell.classList.add('active-piece');
+          }
+          if (preview && hasTarget) {
+            const after = preview.resolution.state,
+              before = actual.grid[y]?.[x],
+              next = after.grid[y]?.[x];
+            if (before !== next) cell.classList.add(next === null ? 'will-remove' : 'will-fill');
+            else if (
+              (actual.obstructions[`${x},${y}`]?.strength ?? 0) >
+              (after.obstructions[`${x},${y}`]?.strength ?? 0)
+            )
+              cell.classList.add('will-weaken');
+          }
+        }
+      for (const [x, y] of exercise >= 0 ? (PRACTICES[exercise]?.targets ?? []) : [])
+        grid.children[y]?.children[x]?.classList.add('goal-square');
+    });
     lastBoard = key;
   }
-  viewLabel.textContent = showResult ? 'Preview — nothing has changed yet' : 'Your board';
-  resultButton.textContent = showResult ? 'Back to board' : 'See result';
-  resultButton.disabled = preview === null;
-  battle.paused = (live && target !== null) || document.querySelector('dialog[open]') !== null;
-  if (preview) {
-    cost.textContent = Object.entries(preview.cost)
-      .map(
-        ([e, n]) =>
-          `${n} ${e === 'earth' ? 'earth' : e === 'water' ? 'water' : e} mana (${state.hero.mana[e as keyof typeof state.hero.mana]} available)`,
-      )
-      .join(' + ');
-    if (preview.reason)
-      outcome.textContent =
-        preview.reason === 'This cast would change nothing.'
-          ? 'Nothing here for this spell. Tap a different row.'
-          : preview.reason;
-    else if (arcane) outcome.textContent = description();
-    else {
-      const before = battle.board.magicState(),
-        after = preview.resolution.state;
-      const removed = Object.keys(before.obstructions).filter(
-        (key) => !after.obstructions[key],
-      ).length;
-      const weakened = Object.entries(before.obstructions).filter(
-        ([key, o]) => (after.obstructions[key]?.strength ?? o.strength) < o.strength,
-      ).length;
-      outcome.textContent = preview.resolution.completed.length
-        ? `This will clear ${preview.resolution.completed.length} row${preview.resolution.completed.length === 1 ? '' : 's'}.`
-        : removed
-          ? `This will ${selected === 'natureConvert' ? 'convert' : 'remove'} ${removed} obstruction${removed === 1 ? '' : 's'}.`
-          : weakened
-            ? `This will weaken ${weakened} obstruction${weakened === 1 ? '' : 's'}.`
-            : selected === 'quake'
-              ? 'The highlighted blocks will fall.'
-              : selected === 'gale'
-                ? `The highlighted blocks will move ${direction === -1 ? 'left' : 'right'}.`
-                : 'The highlighted blocks will burn away.';
-    }
-  } else {
-    cost.textContent = 'Practice mana is provided.';
-    outcome.textContent = needsRow
-      ? 'Tap a row on the board to choose your target.'
-      : 'Choose an Arcane spell.';
+  const next = battle.board.previewPieces(1)[0];
+  if (next && lastNext !== next.name) {
+    nextPiece.setAttribute('aria-label', `Next piece: ${next.name}`);
+    lastNext = next.name;
   }
-  castButton.disabled = !preview || preview.reason !== null || goal.done;
+  const effect = battle.interference.effects.slime;
+  enemyClock.textContent = `Next block: ${Math.max(0, (required(battle.combat).actMs - required(battle.combat).gauge + (effect?.delayMs ?? 0)) / 1000).toFixed(1)}s`;
+  effects.textContent = [
+    effect?.nature ? `${effect.nature} blank sends` : '',
+    effect?.wind ? `${effect.wind} shifted sends` : '',
+    effect?.gravity ? `${effect.gravity} unanchored moves` : '',
+    effect?.red ? `${effect.red} red-touch moves` : '',
+  ]
+    .filter(Boolean)
+    .join(' · ');
+  enemy.classList.toggle(
+    'character-target',
+    mode === 'aim' && !!selected?.startsWith('arcane:') && !needsRow(),
+  );
+  if (mode !== 'aim') {
+    spellName.textContent = 'Spells';
+    hint.textContent = ended ? 'Reset to play again.' : 'Choose a spell below to aim.';
+    outcome.textContent = 'Tap: rotate. Drag: move. Flick down: drop.';
+    cost.textContent = '';
+  } else {
+    const definition = PRACTICE_SPELLS.find((s) => s.id === selected),
+      name = selected?.startsWith('arcane:')
+        ? `Arcane + ${selected.endsWith('earth') ? 'Gravity' : selected.endsWith('water') ? 'Ice' : selected.slice(7)}`
+        : (definition?.name ?? 'Spell');
+    spellName.textContent = `${name} · Rank ${preview?.rank ?? state.hero.spells[selected ?? '']?.level ?? 1}`;
+    hint.textContent = needsRow()
+      ? target === null
+        ? 'Tap a row to target it.'
+        : 'Gold band = target rows.'
+      : selected?.startsWith('arcane:')
+        ? 'Target: Slime'
+        : 'Target: whole board';
+    if (preview) {
+      cost.textContent = Object.entries(preview.cost)
+        .map(([e, n]) => `${n} ${e} / ${state.hero.mana[e as keyof typeof state.hero.mana]}`)
+        .join(' + ');
+      const rank = preview.rank;
+      const hits = rank >= 3 ? 2 : 1;
+      const rows =
+        preview.element === 'earth'
+          ? ([1, 2, 4, 20][rank - 1] ?? 1)
+          : ['nature', 'lightning'].includes(preview.element)
+            ? rank % 2 === 0
+              ? 2
+              : 1
+            : rank;
+      const affected = Object.entries(actual.obstructions).filter(
+        ([key, o]) => (preview?.resolution.state.obstructions[key]?.strength ?? 0) < o.strength,
+      ).length;
+      const mechanics = selected?.startsWith('arcane:')
+        ? (
+            {
+              fire: `Red counts for ${rank} enemy placements.`,
+              water: `Next send delayed ${((rank * battle.magicCasting.intervalMs) / 1000).toFixed(0)}s.`,
+              wind: `Shift next ${rank} blocks ${direction === -1 ? 'left' : 'right'}.`,
+              lightning: `${rows} row(s) · ${hits} weakening hit(s).`,
+              nature: `Next ${rank} blocks become blank.`,
+              earth: `Unanchor for ${rank} enemy placements.`,
+            } as Record<string, string>
+          )[preview.element]
+        : ['lightning', 'nature'].includes(preview.element)
+          ? `${rows} row(s) · ${hits} hit(s)${hasTarget ? ` · ${affected} blocks affected` : ''}`
+          : preview.element === 'earth'
+            ? `${rows === 20 ? 'Whole board' : `${rows} row(s)`} · fall until supported.`
+            : preview.element === 'wind'
+              ? `${rows} row(s) · one space ${direction === -1 ? 'left' : 'right'}.`
+              : preview.element === 'water'
+                ? `Fill ${rows} row(s)${hasTarget ? ` · ${preview.resolution.completed.length} complete` : ''}.`
+                : `Burn ${rows} row(s). Grey blocks stay.`;
+      outcome.textContent =
+        hasTarget && preview.reason ? preview.reason : (mechanics ?? 'Affects the marked target.');
+    } else {
+      cost.textContent = '';
+      outcome.textContent = definition?.description ?? 'Aim at the highlighted opponent.';
+    }
+  }
+  const rowControls = mode === 'aim' && needsRow(),
+    wind = selected === 'gale' || selected === 'arcane:wind';
+  upButton.hidden = !rowControls;
+  downButton.hidden = !rowControls;
+  windLeft.hidden = !wind;
+  windRight.hidden = !wind;
+  windLeft.setAttribute('aria-pressed', String(direction === -1));
+  windRight.setAttribute('aria-pressed', String(direction === 1));
+  castButton.disabled =
+    !preview || !hasTarget || preview.reason !== null || battle.status !== 'ongoing';
+  for (const node of palette.querySelectorAll<HTMLButtonElement>('button'))
+    node.setAttribute('aria-pressed', String(node.dataset.spell === selected));
 }
 function cast(): void {
-  if (!preview || preview.reason) return;
+  if (mode !== 'aim' || !selected || !preview || preview.reason || (needsRow() && target === null))
+    return;
+  const id = selected,
+    chosen = preview.target;
   battle.paused = false;
   try {
-    if (selected.startsWith('arcane:')) battle.castArcane(selected, preview.target);
-    else required(battle.combat).castSpell(selected, preview.target);
-    feedback.textContent = 'Spell cast.';
-    if (live) target = null;
-    showResult = false;
-    save();
-    refresh();
+    if (id.startsWith('arcane:')) battle.castArcane(id, chosen);
+    else required(battle.combat).castSpell(id, chosen);
+    saveGame(store, state);
+    selected = null;
+    target = null;
+    preview = null;
+    setMode('play');
   } catch (error) {
-    feedback.textContent = error instanceof Error ? error.message : 'Unable to cast.';
-    refresh();
+    battle.paused = true;
+    outcome.textContent = error instanceof Error ? error.message : 'Unable to cast.';
   }
 }
-// Keep the character's next action visible beside Arcane, rather than among debug counters.
-arcanePalette.after(el('div', { className: 'opponent-action' }, sendButton));
-loadLesson(0);
-document.addEventListener('keydown', (event) => {
-  if (document.querySelector('dialog[open]') || event.target instanceof HTMLSelectElement) return;
-  if (event.key === 'Escape') {
-    target = null;
-    showResult = false;
-    refresh();
-    return;
-  }
-  const action = (
-    { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'rotate', ' ': 'hardDrop' } as const
-  )[event.key as 'ArrowLeft'];
-  if (action && live && !battle.paused) {
+function resize(): void {
+  const box = stage.getBoundingClientRect(),
+    railWidth = rail.getBoundingClientRect().width,
+    gap = window.innerWidth <= 600 ? 8 : 16;
+  const cell = Math.max(
+    1,
+    Math.floor(Math.min(box.height / 20, (box.width - railWidth - gap) / 10, 30)),
+  );
+  root.style.setProperty('--cell', `${cell}px`);
+}
+function openExercises(): void {
+  if (document.querySelector('dialog[open]')) return;
+  const prior = mode;
+  mode = 'paused';
+  battle.paused = true;
+  inputs.lockout();
+  refresh();
+  const dialog = el('dialog', { className: 'exercise-dialog' });
+  dialog.append(
+    el('h2', { text: 'Optional exercises' }),
+    el('p', {
+      text: 'The same falling-block controls and clocks stay active. Aim pauses play; Cast or Cancel resumes it.',
+    }),
+  );
+  const choose = (index: number): void => {
+    dialog.close();
+    dialog.remove();
+    reset(index);
+  };
+  dialog.append(button('Live workshop', () => choose(-1)));
+  for (const [index, lesson] of PRACTICES.entries())
+    dialog.append(button(lesson.title, () => choose(index)));
+  const close = (): void => {
+    dialog.close();
+    dialog.remove();
+    setMode(prior);
+  };
+  dialog.append(button('Back', close));
+  dialog.addEventListener('cancel', (event) => {
     event.preventDefault();
-    battle.input(action);
-    refresh();
-  }
-});
+    close();
+  });
+  document.body.append(dialog);
+  dialog.showModal();
+}
+window.addEventListener('resize', resize);
+new ResizeObserver(resize).observe(stage);
+reset();
 let previous = performance.now();
 function frame(now: number): void {
   const dt = Math.min(100, Math.max(0, now - previous));
   previous = now;
-  if (live && !battle.paused && battle.status === 'ongoing') {
+  inputs.tick(now);
+  if (mode === 'play' && battle.status === 'ongoing') {
+    const before = battle.interference.placements.slime ?? 0;
+    required(battle.combat).nextMove = {
+      kind: 'obstruct',
+      name: 'Set an obstruction',
+      cells: incoming(),
+    };
     battle.update(dt);
-    enemyClock += dt;
-    if (enemyClock > 8000) {
-      enemyClock = 0;
-      battle.placeObstructions('slime', [
-        { x: 1 + ((enemySequence++ * 3) % 8), y: 15, strength: 2 },
-      ]);
+    if ((battle.interference.placements.slime ?? 0) > before) enemySequence++;
+    allyClock += dt;
+    if (allyClock >= 12000) {
+      allyClock -= 12000;
+      const y = 19,
+        x = required(battle.board.grid[y]).findIndex((c) => c === null);
+      if (x >= 0) {
+        battle.interference.cast('ally', 'nature', 1, y, 1, 12000);
+        battle.placeObstructions('ally', [{ x, y, strength: 1 }]);
+      }
     }
     refresh();
   }
+  const hasTarget = !needsRow() || target !== null;
+  const span =
+    preview && hasTarget && (!selected?.startsWith('arcane:') || needsRow())
+      ? spanFor(
+          { element: preview.element, rank: preview.rank, bottomRow: preview.target.bottomRow },
+          20,
+        )
+      : undefined;
+  boardView.render(
+    battle,
+    mode === 'aim' ? preview : null,
+    hasTarget,
+    span,
+    exercise >= 0 ? (PRACTICES[exercise]?.targets ?? []) : [],
+    dt,
+    now,
+  );
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);

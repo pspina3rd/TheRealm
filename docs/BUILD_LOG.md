@@ -499,3 +499,21 @@ Each exercise has a real rank-one engine solution test; Nature's goal requires
 conversion rather than destruction. Browser coverage completes all seven goals
 at phone and desktop sizes and asserts that the cast controls do not cover the
 board. Existing main-campaign activation remains behind the same rollout flag.
+
+## October 29 — restore shared controls and improve block artwork
+
+Follow-up superseding the earlier untimed workshop default: restore live play,
+the full board, falling piece and landing ghost. Use the adventure's keyboard and
+touch bindings, including Down Arrow and held movement buttons. Selecting a spell
+pauses for explicit aiming, with a quantified preview and Cast/Cancel actions.
+The UI/UX specialist review identified the cropped board, hidden movement
+controls and disconnected touch gestures; the revised phone layout keeps the
+whole board and 44-pixel controls visible.
+
+Replace the workshop's placeholder HTML visuals with the adventure's BoardView,
+next-piece renderer, pixel spell icons and Slime artwork. Improve shared block
+faces with clipped corners, facets, beveled edges and smaller elemental glyphs.
+Blank blocks are colorless; stone has texture and damage cracks, retaining
+strength pips and colored contact indicators. Gameplay rules are unchanged by
+this artwork pass. Checks cover actual phone touch gestures, held Down, keyboard
+movement, aim/cast/cancel, and the main adventure regression.

@@ -9,7 +9,7 @@ import { ELEMENT_OF_COLOR } from '../core/elements';
 import { PIECES, isCrystal, type Cell } from '../core/pieces';
 import type { Feedback } from './art/feedback';
 import { ICON_SIZE, ELEMENT_ICONS, type IconId } from './art/icons';
-import { CRYSTAL_HEX } from './crystals';
+import { CRYSTAL_HEX, drawCrystal as drawCrystalFace, drawObstructionStone } from './crystals';
 import { drawIcon } from './iconDraw';
 
 const CELL = 30;
@@ -20,7 +20,7 @@ const SHAKE_MS = 300;
 const NEXT_MAIN_WIDTH = 96;
 const NEXT_SMALL_WIDTH = 48;
 /** The element glyph drawn on each crystal: a darker silhouette of its icon. */
-const GLYPH = { scale: 2, silhouette: 'rgba(20, 16, 36, 0.32)' } as const;
+const GLYPH = { silhouette: 'rgba(20, 16, 36, 0.55)' } as const;
 
 interface Flash {
   readonly row: number;
@@ -465,22 +465,17 @@ export function drawCrystal(
   size: number,
   alpha = 1,
 ): void {
-  ctx.globalAlpha = alpha;
-  ctx.fillStyle = CRYSTAL_HEX[cell];
-  ctx.fillRect(x + 1, y + 1, size - 2, size - 2);
-  ctx.fillStyle = '#ffffff35';
-  ctx.fillRect(x + 3, y + 3, size - 6, 3);
+  drawCrystalFace(ctx, cell, x, y, size, alpha);
   if (isCrystal(cell) && size >= 24) {
-    const glyph = ICON_SIZE * GLYPH.scale;
-    const scale = size >= 28 ? GLYPH.scale : 1;
-    const offset = (size - (scale === 1 ? ICON_SIZE : glyph)) / 2;
+    // A small rune leaves the gem facets and color readable at phone scale.
+    const scale = 1;
+    const offset = Math.round((size - ICON_SIZE) / 2);
     drawIcon(ctx, ELEMENT_ICONS[ELEMENT_OF_COLOR[cell]], x + offset, y + offset, {
       scale,
       silhouette: GLYPH.silhouette,
       alpha,
     });
   }
-  ctx.globalAlpha = 1;
 }
 
 /** A small outlined number, used on badges. */
@@ -515,13 +510,15 @@ function drawObstruction(
   timeMs: number,
 ): void {
   ctx.save();
-  const brightness = 50 + obstruction.strength * 30;
-  ctx.fillStyle = `rgb(${brightness},${brightness + 5},${brightness + 15})`;
-  ctx.fillRect(x + 2, y + 2, CELL - 4, CELL - 4);
-  ctx.fillStyle = '#fff';
-  ctx.font = 'bold 12px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('•'.repeat(obstruction.strength), x + CELL / 2, y + CELL / 2 + 4);
+  drawObstructionStone(ctx, x, y, CELL, obstruction.strength);
+  const pipWidth = obstruction.strength * 5 - 2;
+  for (let i = 0; i < obstruction.strength; i++) {
+    const px = x + Math.floor((CELL - pipWidth) / 2) + i * 5;
+    ctx.fillStyle = '#272532';
+    ctx.fillRect(px - 1, y + 12, 5, 6);
+    ctx.fillStyle = '#f6f2e7';
+    ctx.fillRect(px, y + 13, 3, 3);
+  }
   const step = obstruction.sequence[obstruction.step];
   if (step) {
     const reduced =
