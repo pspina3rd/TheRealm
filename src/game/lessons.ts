@@ -33,8 +33,7 @@ import {
   HELP_PER_POINT,
   HELP_MIN,
   HELP_MAX,
-  FOE_HP_PER_DIFFICULTY,
-  FOE_ATK_PER_DIFFICULTY,
+  LESSON_FOE_STEPS,
   HIDDEN_DIFFICULTY,
   NOVICE_LEVEL,
   NOVICE_FOE_HP,
@@ -45,8 +44,7 @@ export {
   HELP_PER_POINT,
   HELP_MIN,
   HELP_MAX,
-  FOE_HP_PER_DIFFICULTY,
-  FOE_ATK_PER_DIFFICULTY,
+  LESSON_FOE_STEPS,
   HIDDEN_DIFFICULTY,
   NOVICE_LEVEL,
   NOVICE_FOE_HP,
@@ -143,19 +141,26 @@ export function lessonFoeId(mentor: MentorDef, stop: MentorStop): string {
   return rest.reduce((best, enemy) => (enemy.level > best.level ? enemy : best), first).id;
 }
 
+/** The `LESSON_FOE_STEPS` row for a difficulty (past the table, its last row). */
+export function lessonFoeStep(difficulty: number): { readonly hp: number; readonly atk: number } {
+  const index = Math.min(Math.max(difficulty, 1), LESSON_FOE_STEPS.length) - 1;
+  return LESSON_FOE_STEPS[index] ?? { hp: 1, atk: 0 };
+}
+
 /**
- * A foe made harder for a lesson: more HP, attack and speed per difficulty
- * above 1, no spoils. At difficulty 1 a hero below `NOVICE_LEVEL` meets it
+ * A foe made harder for a lesson: more HP and attack by difficulty
+ * (`LESSON_FOE_STEPS`), a level (speed) per difficulty above 1, no spoils. At difficulty 1 a hero below `NOVICE_LEVEL` meets it
  * with `NOVICE_FOE_HP` of its HP, so the first lessons stay gentle.
  */
 export function scaledFoe(enemy: EnemyDef, difficulty: number, heroLevel = NOVICE_LEVEL): EnemyDef {
   const extra = Math.max(0, difficulty - 1);
   const novice = extra === 0 && heroLevel < NOVICE_LEVEL ? NOVICE_FOE_HP : 1;
+  const step = lessonFoeStep(difficulty);
   return {
     ...enemy,
     level: enemy.level + extra,
-    hp: Math.round(enemy.hp * (1 + FOE_HP_PER_DIFFICULTY * extra) * novice),
-    atk: enemy.atk + FOE_ATK_PER_DIFFICULTY * extra,
+    hp: Math.round(enemy.hp * step.hp * novice),
+    atk: enemy.atk + step.atk,
     xp: 0,
     gil: 0,
     drops: [],

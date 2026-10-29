@@ -143,16 +143,25 @@ export const HELP_MIN = 0.05;
 export const HELP_MAX = 0.1;
 /** The mentor's shield: at this share of HP the foe raises it; only the taught spell breaks it. */
 export const SHIELD_AT = 0.25;
-/** A lesson foe gains this share of its HP per difficulty above 1… */
-export const FOE_HP_PER_DIFFICULTY = 0.75;
-/** …and this much attack. */
-export const FOE_ATK_PER_DIFFICULTY = 5;
+/**
+ * A lesson foe's HP multiplier and attack bonus at each difficulty (index 0
+ * is difficulty 1; higher difficulties use the last row). A table, not a
+ * step per difficulty: the hero gains about two levels between lessons, so
+ * the foe has to climb faster than a straight line (the M1 tuning pass,
+ * Oct 29; it was +60% HP and +3 attack per step).
+ */
+export const LESSON_FOE_STEPS: readonly { readonly hp: number; readonly atk: number }[] = [
+  { hp: 1, atk: 0 },
+  { hp: 1.54, atk: 5 },
+  { hp: 2.2, atk: 12 },
+  { hp: 3.4, atk: 18 },
+];
 /** Extra difficulty of teaching a hidden spell. */
 export const HIDDEN_DIFFICULTY = 1;
 /** Heroes below this level meet gentler difficulty-1 lesson foes… */
 export const NOVICE_LEVEL = 3;
-/** …with this share of their HP (a 50 HP wisp has 36). */
-export const NOVICE_FOE_HP = 0.72;
+/** …with this share of their HP (a 50 HP wisp has 31). */
+export const NOVICE_FOE_HP = 0.62;
 
 // ---- Skill points (src/game/stats.ts)
 /** Skill points gained per hero level. */
@@ -195,8 +204,10 @@ export const REGIONS = {
 export const ENCOUNTERS = {
   /** Elder Rowan, "The Well": DIG + rising (§6.1). */
   elder: {
-    /** The shaft is this many columns wide (cols 0–5 inside the masonry). */
-    width: 6,
+    /** One correction per try, approved by the author for introductory encounters. */
+    corrections: 1,
+    /** The shaft is this many columns wide (cols 0–6 inside the masonry; the author's 7, Oct 29). */
+    width: 7,
     /** A cell locked above this row (row 1 is the bottom) is mold over the lip. */
     lip: 16,
     /** A 1-gap mold row pushes up every this many pieces… */
@@ -208,6 +219,7 @@ export const ENCOUNTERS = {
   },
   /** Pip, "The Crystal Tower": BUILD (§6.1). */
   kid: {
+    corrections: 1,
     /** The tower fails on the crack after this many… */
     crackLimit: 3,
     /** …or the wobble after this many. */
@@ -251,15 +263,15 @@ export const ENCOUNTERS = {
     /** Whether your clears cancel his pending rows first (from Lo on). */
     cancel: false,
     /** Strain: the meter starts this much worse per step. */
-    strainMeter: 0.02,
+    strainMeter: 0.01,
   },
   /** Forager Wren, "The Mushroom Ring": CONTAIN + protect (§6.4). */
   forager: {
-    pieceLimit: 36,
+    pieceLimit: 44,
     /** Rot spreads every this many pieces… */
-    spreadEvery: 5,
+    spreadEvery: 4,
     /** …this many cells at a time (one per source). */
-    spreadCells: 2,
+    spreadCells: 3,
     /** Caps that must be picked or still alive to win… */
     keepCaps: 2,
     /** …and the number of dead caps that fails. */
@@ -270,6 +282,10 @@ export const ENCOUNTERS = {
   /** Captain Vale, "The Ward Lamps": CHARGE, twist wind snuffs; a threshold (§6.2). */
   guard: {
     pieceLimit: 32,
+    /** Maren keeps the ward stable for this many extra placements on an assisted try. */
+    assistPieces: 16,
+    /** The additional lamp receives some time, while remaining harder than the solo first try. */
+    strainPieces: 4,
     /** A pure line has at least this many of its 10 cells in the lamp's element (≤ 7; P 6 by the author, Oct 29). */
     purity: 6,
     /** Every this many pieces the wind snuffs the oldest lit lamp (unless all are lit). */
@@ -295,7 +311,7 @@ export const DUEL_PRICES = {
   win: 0.94,
   even: 1.05,
   sold: 0.8,
-  walkOff: 1.15,
+  walkOff: 1.2,
 } as const;
 
 /**

@@ -45,9 +45,8 @@ describe.skipIf(!process.env.ENCOUNTERS)('M1 table (npm run sim ENCOUNTERS=…)'
     for (const row of ROWS) {
       if (only && !only.includes(row.name)) continue;
       const name = row.name.replace('+assist', '');
-      // Assistance is offered after two fails; cellTarget clears strain just like the game.
-      const strain = row.assisted ? STAKES.thresholdStrainMax : 0;
-      const opts = { strain, assisted: row.assisted ?? false };
+      // An assisted try clears strain in the game and in cellTarget.
+      const opts = { strain: 0, assisted: row.assisted ?? false };
       const cells = bots.map((bot) => measureCell(name, bot, runs, opts));
       const floors =
         row.floor === undefined

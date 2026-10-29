@@ -3,8 +3,8 @@
   "seed": 7932,
   "level": 2,
   "dualChance": 0.14285714285714285,
-  "source": "Team 5fe2859 tuning and approved Oct 29 bot policy; public timed inputs and preview reads only",
-  "seconds": 41.8,
+  "source": "Team f1b14e6 boards with author-approved correction and tuned recovery; public timed inputs and preview reads only",
+  "seconds": 30.8,
   "pieces": [
     {
       "name": "T",
@@ -35,7 +35,11 @@
       "second": "gold"
     },
     {
-      "name": "S",
+      "name": "J",
+      "second": null
+    },
+    {
+      "name": "Z",
       "second": null
     },
     {
@@ -43,47 +47,23 @@
       "second": null
     },
     {
-      "name": "L",
-      "second": null
-    },
-    {
-      "name": "Z",
-      "second": null
-    },
-    {
-      "name": "J",
-      "second": "violet"
-    },
-    {
-      "name": "T",
-      "second": null
-    },
-    {
       "name": "I",
-      "second": null
-    },
-    {
-      "name": "J",
-      "second": null
-    },
-    {
-      "name": "L",
-      "second": null
-    },
-    {
-      "name": "Z",
-      "second": null
-    },
-    {
-      "name": "T",
-      "second": null
+      "second": "blue"
     },
     {
       "name": "S",
       "second": null
     },
     {
-      "name": "I",
+      "name": "L",
+      "second": null
+    },
+    {
+      "name": "T",
+      "second": null
+    },
+    {
+      "name": "T",
       "second": null
     }
   ],
@@ -239,43 +219,16 @@
       "preview": true
     },
     {
-      "input": "right"
-    },
-    {
-      "input": "right"
-    },
-    {
-      "updates": 44
-    },
-    {
-      "input": "hardDrop"
-    },
-    {
-      "preview": true
-    },
-    {
-      "input": "right"
-    },
-    {
-      "input": "right"
-    },
-    {
-      "input": "right"
-    },
-    {
-      "input": "right"
-    },
-    {
-      "updates": 44
-    },
-    {
-      "input": "hardDrop"
-    },
-    {
-      "preview": true
-    },
-    {
       "input": "rotate"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
     },
     {
       "input": "rotate"
@@ -296,39 +249,6 @@
       "preview": true
     },
     {
-      "input": "rotate"
-    },
-    {
-      "updates": 44
-    },
-    {
-      "input": "hardDrop"
-    },
-    {
-      "preview": true
-    },
-    {
-      "input": "rotate"
-    },
-    {
-      "input": "rotate"
-    },
-    {
-      "input": "rotate"
-    },
-    {
-      "input": "right"
-    },
-    {
-      "input": "right"
-    },
-    {
-      "input": "right"
-    },
-    {
-      "input": "right"
-    },
-    {
       "input": "right"
     },
     {
@@ -341,13 +261,7 @@
       "preview": true
     },
     {
-      "input": "rotate"
-    },
-    {
-      "input": "right"
-    },
-    {
-      "input": "right"
+      "input": "left"
     },
     {
       "updates": 44
@@ -380,10 +294,25 @@
       "preview": true
     },
     {
-      "input": "rotate"
+      "input": "right"
     },
     {
       "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
     },
     {
       "input": "right"
@@ -408,78 +337,6 @@
     },
     {
       "input": "rotate"
-    },
-    {
-      "input": "left"
-    },
-    {
-      "input": "left"
-    },
-    {
-      "updates": 44
-    },
-    {
-      "input": "hardDrop"
-    },
-    {
-      "preview": true
-    },
-    {
-      "input": "rotate"
-    },
-    {
-      "input": "left"
-    },
-    {
-      "updates": 44
-    },
-    {
-      "input": "hardDrop"
-    },
-    {
-      "preview": true
-    },
-    {
-      "input": "rotate"
-    },
-    {
-      "input": "left"
-    },
-    {
-      "input": "left"
-    },
-    {
-      "updates": 44
-    },
-    {
-      "input": "hardDrop"
-    },
-    {
-      "preview": true
-    },
-    {
-      "input": "rotate"
-    },
-    {
-      "input": "right"
-    },
-    {
-      "input": "right"
-    },
-    {
-      "updates": 44
-    },
-    {
-      "input": "hardDrop"
-    },
-    {
-      "preview": true
-    },
-    {
-      "input": "rotate"
-    },
-    {
-      "input": "right"
     },
     {
       "updates": 44

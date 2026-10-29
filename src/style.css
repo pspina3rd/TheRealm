@@ -2012,6 +2012,23 @@ dialog.interlude .actions {
 }
 
 /* M1 cards and the board's objective frame. */
+.correct-drop {
+  min-width: 72px;
+  min-height: 44px;
+}
+@media (max-width: 760px) {
+  .battle-tools .correct-drop {
+    position: fixed;
+    right: max(8px, env(safe-area-inset-right));
+    bottom: calc(152px + env(safe-area-inset-bottom));
+    width: 86px;
+    height: 44px;
+    min-height: 44px;
+    top: auto;
+    left: auto;
+    padding: 4px;
+  }
+}
 #board-canvas {
   width: calc(600px * var(--board-ratio, 0.5));
 }

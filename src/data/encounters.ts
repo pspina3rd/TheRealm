@@ -56,6 +56,8 @@ export interface WorldProp {
 
 /** A threshold's mentor assist (§3.4), offered after two fails. */
 export interface Assist {
+  /** Extra placement time supplied by the mentor, disclosed before accepting. */
+  readonly extraPieces?: number;
   readonly mentorId: string;
   /** The shapes the mentor tosses (Maren: J or T). */
   readonly shapes: readonly PieceName[];
@@ -64,6 +66,8 @@ export interface Assist {
 }
 
 export interface EncounterDef {
+  /** A disclosed, bounded correction for introductory encounters only. */
+  readonly corrections?: number;
   /** The person's NPC id (also the encounter's id). */
   readonly id: string;
   readonly title: string;
@@ -103,6 +107,7 @@ const E = ENCOUNTERS;
 
 export const ENCOUNTER_DEFS: Readonly<Record<string, EncounterDef>> = {
   elder: {
+    corrections: E.elder.corrections,
     id: 'elder',
     title: 'The Well',
     width: E.elder.width,
@@ -110,7 +115,7 @@ export const ENCOUNTER_DEFS: Readonly<Record<string, EncounterDef>> = {
     spec: {
       verb: 'dig',
       params: {
-        rows: ['mm..mm', 'mmmm.m', 'm.mmmm', 'm.mmmm', 'mmPm.m'],
+        rows: ['mm..mmm', 'mmmmm.m', 'm.mmmmm', 'mm.mmmm', 'mmPmm.m'],
         lip: E.elder.lip,
         risingEvery: E.elder.risingEvery,
         soonerPerHole: E.elder.soonerPerHole,
@@ -136,6 +141,7 @@ export const ENCOUNTER_DEFS: Readonly<Record<string, EncounterDef>> = {
     },
   },
   kid: {
+    corrections: E.kid.corrections,
     id: 'kid',
     title: 'The Crystal Tower',
     skin: 'tower',
@@ -147,7 +153,8 @@ export const ENCOUNTER_DEFS: Readonly<Record<string, EncounterDef>> = {
           { cols: [4, 7], rows: [9, 9] },
         ],
         spare: { cols: [0, 2], rows: [1, 5] },
-        queue: ['O', 'S', 'O', 'J', 'J', 'Z', 'I', 'I', 'L', 'L', 'I'],
+        // The authored eleven, then one spare O: one slip is forgiven, two still lose (author, Oct 29).
+        queue: ['O', 'S', 'O', 'J', 'J', 'Z', 'I', 'I', 'L', 'L', 'I', 'O'],
         crackLimit: E.kid.crackLimit,
         wobbleLimit: E.kid.wobbleLimit,
         previews: E.kid.previews,
@@ -274,6 +281,7 @@ export const ENCOUNTER_DEFS: Readonly<Record<string, EncounterDef>> = {
         lamps: ['water', 'water', 'arcane', 'arcane'],
         purity: E.guard.purity,
         pieceLimit: E.guard.pieceLimit,
+        strainPieces: E.guard.strainPieces,
         snuffEvery: E.guard.snuffEvery,
         supply: { window: E.guard.supplyWindow, pieces: ['J', 'T'] },
         strainLamps: E.guard.strainLamps,
@@ -281,9 +289,14 @@ export const ENCOUNTER_DEFS: Readonly<Record<string, EncounterDef>> = {
     },
     objective: 'Light all four ward lamps: two blue, two violet. A lamp only takes a pure line.',
     failText: 'The lamps gutter',
-    strainText: 'one more lamp next time',
+    strainText: `one more lamp with ${E.guard.strainPieces} extra pieces next time`,
     retry: 'wait',
-    assist: { mentorId: 'maren', shapes: ['J', 'T'], recolor: false },
+    assist: {
+      mentorId: 'maren',
+      shapes: ['J', 'T'],
+      recolor: false,
+      extraPieces: E.guard.assistPieces,
+    },
     lines: {
       start: "Both colours. Don't mess up the ratio.",
       hazard: 'Wind! Hold that one!',

@@ -114,6 +114,13 @@ export class BuildChallenge implements Challenge {
 
   update(): void {}
 
+  checkpoint(): () => void {
+    const wobbles = this.wobbles;
+    return () => {
+      this.wobbles = wobbles;
+    };
+  }
+
   status(): BattleStatus {
     const board = this.ctx.board;
     if (this.cracks > this.params.crackLimit || this.wobbles > this.params.wobbleLimit)

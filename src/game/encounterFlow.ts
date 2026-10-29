@@ -162,7 +162,7 @@ export function stakesCard(
     assistOffered(state, flow.id, flow.rules) && def.assist
       ? {
           mentorId: def.assist.mentorId,
-          label: `With ${MENTORS[def.assist.mentorId]?.name ?? def.assist.mentorId}’s help (gil kept; no bonus or regard).`,
+          label: `With ${MENTORS[def.assist.mentorId]?.name ?? def.assist.mentorId}’s help${def.assist.extraPieces ? ` (+${def.assist.extraPieces} pieces)` : ''} (gil kept; no bonus or regard).`,
         }
       : undefined;
   const person = NPCS[spec.id];
@@ -179,7 +179,9 @@ export function stakesCard(
     rewards: paidRewards,
     ...(def.great ? { great: def.great } : {}),
     regard: { current, after, warmer: next !== attitude ? next : null },
-    objective: def.objective.replace('{target}', String(target)),
+    objective:
+      def.objective.replace('{target}', String(target)) +
+      (def.corrections ? ' One correction per attempt: restore the last dropped piece.' : ''),
     fail:
       def.spec.verb === 'duel'
         ? `${def.failText}. Browse prices rise until you win a haggle or two days pass. ${def.strainText}; regard falls.`

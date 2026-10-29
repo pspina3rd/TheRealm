@@ -98,6 +98,14 @@ export interface ActivePiece {
   y: number;
 }
 
+/** The board immediately before its last lock; future draws remain in their dealt order. */
+export interface LockCheckpoint {
+  readonly grid: readonly (readonly Cell[])[];
+  readonly tags: readonly (readonly (CellTag | null)[])[];
+  readonly piece: ActivePiece;
+  readonly piecesPlaced: number;
+}
+
 /** Counts of cleared cells by kind, e.g. `{ red: 4, stone: 2 }`. */
 export type CellTally = Partial<Record<Exclude<Cell, null>, number>>;
 
@@ -115,7 +123,7 @@ export interface PieceOptions {
 
 /**
  * Column where new pieces appear on a board `width` wide: 3 on the usual
- * 10, centred on a narrow board (1 in Rowan's 6-wide well).
+ * 10, centred on a narrow board (1 in Rowan's 7-wide well).
  */
 export function spawnColumn(width: number): number {
   return Math.max(0, Math.floor((width - 4) / 2));
@@ -401,6 +409,30 @@ export class Board {
       this.bag.unshift(piece.name);
       this.seconds.unshift(piece.second);
     }
+  }
+
+  checkpointLock(): LockCheckpoint | null {
+    if (!this.active) return null;
+    return {
+      grid: this.grid.map((row) => [...row]),
+      tags: this.tags.map((row) => [...row]),
+      piece: { ...this.active, cells: [...this.active.cells], colors: [...this.active.colors] },
+      piecesPlaced: this.piecesPlaced,
+    };
+  }
+
+  /** Return the dealt next piece to the queue, then retry the previous piece from spawn. */
+  restoreLock(point: LockCheckpoint): void {
+    if (this.active) this.requeue({ name: this.active.name, second: this.active.second });
+    this.grid = point.grid.map((row) => [...row]);
+    this.tags = point.tags.map((row) => [...row]);
+    this.piecesPlaced = point.piecesPlaced;
+    this.toppedOut = false;
+    this.active = makePiece(point.piece.name, {
+      x: this.spawnX,
+      second: point.piece.second,
+      ...(point.piece.recolored ? { color: point.piece.color } : {}),
+    });
   }
 
   /** True if the falling piece could be swapped for the next one (see `swapWithNext`). */

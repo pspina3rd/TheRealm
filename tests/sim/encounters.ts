@@ -275,7 +275,7 @@ export function execute(
   touch: Touch | null,
   rng: () => number,
   drop = true,
-): void {
+): boolean {
   const board = battle.board;
   const want = key(landing.cells);
   for (let i = 0; i < 4 && board.active && key(board.active.cells) !== want; i++)
@@ -296,7 +296,14 @@ export function execute(
     for (let i = 0; i < 12 && piece.x > target; i++) battle.input('left');
     for (let i = 0; i < 12 && piece.x < target; i++) battle.input('right');
   }
+  const actual = board.active;
+  const matched =
+    actual !== null &&
+    key(actual.cells) === want &&
+    actual.x + Math.min(...actual.cells.map(([x]) => x)) ===
+      landing.x + Math.min(...landing.cells.map(([x]) => x));
   if (drop) battle.input('hardDrop');
+  return matched;
 }
 
 /** Why a try ended (for the fail-cause mix). */
@@ -368,8 +375,28 @@ export function playEncounter(
   let waited = 0;
   let current = battle.board.active;
   let aimed = false;
-  while (battle.status === 'ongoing' && ms < limitMs) {
+  let aimedSlip = false;
+  let droppedSlip = false;
+  while ((battle.status === 'ongoing' || (placer && battle.canCorrect)) && ms < limitMs) {
+    // The same disclosed correction is available to a real player. Use it
+    // for a visible new tower crack/wobble, a well placement that differs
+    // from the intended landing, or a lost board. No unseen future is inspected.
+    const visibleBuildMistake = battle.spec.kind === 'encounter' && battle.spec.id === 'kid';
+    const correctionNeeded = visibleBuildMistake
+      ? battle.correctionSuggested
+      : droppedSlip || battle.status === 'lost';
+    if (placer && battle.canCorrect && correctionNeeded) {
+      battle.correctLastDrop();
+      droppedSlip = false;
+      aimedSlip = false;
+      current = battle.board.active;
+      waited = 0;
+      aimed = false;
+    }
+    if (battle.status !== 'ongoing') break;
     if (battle.board.active !== current) {
+      droppedSlip = aimedSlip;
+      aimedSlip = false;
       current = battle.board.active;
       waited = 0;
       aimed = false;
@@ -382,7 +409,7 @@ export function playEncounter(
       const choice = choose();
       if (choice) {
         trace?.(battle, choice);
-        execute(battle, choice, touch, () => noise.next(), false);
+        aimedSlip = !execute(battle, choice, touch, () => noise.next(), false);
       }
       if (process.env.AIM && choice) {
         const a = battle.board.active!;
@@ -401,6 +428,7 @@ export function playEncounter(
       else if (bot === 'dropper') battle.input('hardDrop');
       else if (aimed) {
         battle.input('hardDrop');
+        droppedSlip = aimedSlip;
         if (process.env.TRACEBOARD)
           process.stderr.write(
             battle.board.grid
@@ -412,7 +440,7 @@ export function playEncounter(
         const choice = choose();
         if (choice) {
           trace?.(battle, choice);
-          execute(battle, choice, touch, () => noise.next());
+          droppedSlip = !execute(battle, choice, touch, () => noise.next());
         } else battle.input('hardDrop');
       }
       current = battle.board.active;

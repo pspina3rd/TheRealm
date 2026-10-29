@@ -21,6 +21,29 @@ The seven open questions in section 10 are answered with the recommended answers
   - **beginner**: the old casual (`bestFit` one piece deep plus the hint, every slip uncaught). It is reported as an extra row and has no band.
 - **Vale's lamps:** purity **P 6** (was 7), and the controlled queue gives a J and a T in every **3** pieces (was 4). If the good bot then lands above 80–90%, balance numbers trim it into the band.
 - **Pip stays short:** his length band is **20–40 s**. His win bands are unchanged.
+- **Rowan's well is 7 wide** (was 6), so one slip doesn't cost the dig. The start rows are re-authored to seven columns; the lip and rising numbers are re-checked by sim.
+- **Pip gets one spare piece:** an O at the end of his authored queue (12 pieces). One slip is forgiven; two still lose. The solver's classes are counted on the authored eleven.
+
+### Approved follow-up: one introductory correction
+
+The author approved **one correction per attempt for Rowan and Pip** while
+closing the M1 open items. Their Stakes card discloses it. The Correct
+button restores the last dropped piece, grid/tags, score/mana and hazard
+state once; the future dealt queue stays in order. It does not restart the
+attempt, replay a demo, undo a victory, refund a failure, or work in other
+encounters. A failed introductory board waits for Correct or Give up
+before settling, so the correction remains usable after a fatal drop.
+
+### Recovery tuning under verification
+
+- Maren's assisted Vale try provides 16 extra placements (48 total), shown
+  on the offer. The solo first try remains 32 placements.
+- A strained Vale try still adds a lamp, with four extra placements to
+  avoid the prior retry wall. It remains harder than the first try.
+- Lesson HP/attack rows and novice HP are tuned against legal prior spell
+  ranks; the author's touch/noise definitions remain unchanged.
+- The official win-rate bands remain unchanged. Three-attempt recovery is
+  reported separately and never substitutes for a first-attempt gate.
 
 ## Changes from review (rev 1 → rev 2)
 
@@ -335,17 +358,18 @@ Dark appears only after Selene (§7.1).
 #### Elder Rowan: "The Well" · DIG + rising · _Clear to dig_
 
 - **Board**
-  - A **6-wide** well shaft (cols 0–5 inside brick masonry); the **lip** at row 14.
+  - A **7-wide** well shaft (cols 0–6 inside brick masonry; was 6, Author decisions, Oct 29); the **lip** at row 14 (16 since the M1 tuning).
   - Start (top to bottom):
 
-    | Row | Cells    |
-    | --- | -------- |
-    | r6  | `mm..mm` |
-    | r5  | `mmmm.m` |
-    | r4  | `m.mmmm` |
-    | r3  | `mmm.mm` |
-    | r2  | `m.mmmm` |
-    | r1  | `mmPm.m` |
+    | Row | Cells     |
+    | --- | --------- |
+    | r5  | `mm..mmm` |
+    | r4  | `mmmmm.m` |
+    | r3  | `m.mmmmm` |
+    | r2  | `mm.mmmm` |
+    | r1  | `mmPmm.m` |
+
+    (Five rows since the M1 feasibility re-authoring, seven wide since the Oct 29 decision.)
 
   - The **pipe** is P (a tagged stone) in row 1.
 - **Demo**: Rowan drops an O into r6's gap; r6 clears; the O's top half settles flat.
@@ -368,7 +392,7 @@ Dark appears only after Selene (§7.1).
   - **Spinner**: row 9, cols 4–7, capped by a flat I.
   - **Toy box**: cols 0–2, rows 1–5, where a mess is fine (holes don't count).
   - Line clears off; gravity at level 1; **3 previews** (Pip calls them out).
-- **Queue** (11): O, **S**, O, J, J, **Z**, I, I, L, L, I. Total = 36 tower and spinner cells (9 pieces) + 2 toy-box pieces.
+- **Queue** (12): O, **S**, O, J, J, **Z**, I, I, L, L, I, then a spare O (Author decisions, Oct 29). Total = 36 tower and spinner cells (9 pieces) + 2 toy-box pieces + 1 spare.
 - **Worked solution**
 
   | #    | Piece     | Placement                                                                                       |

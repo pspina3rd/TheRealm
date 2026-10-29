@@ -19,7 +19,8 @@ export function encounterDef(spec: EncounterSpec): EncounterDef {
 
 /** The verb's challenge for an encounter, at the spec's strain (and demo, for the duel). */
 export function createEncounterChallenge(ctx: BattleContext, spec: EncounterSpec): Challenge {
-  const { spec: verb } = encounterDef(spec);
+  const def = encounterDef(spec);
+  const { spec: verb } = def;
   switch (verb.verb) {
     case 'dig':
       return new DigChallenge(ctx, verb.params, spec.strain);
@@ -32,6 +33,13 @@ export function createEncounterChallenge(ctx: BattleContext, spec: EncounterSpec
     case 'contain':
       return new ContainChallenge(ctx, verb.params, spec.strain);
     case 'charge':
-      return new ChargeChallenge(ctx, verb.params, spec.strain);
+      return new ChargeChallenge(
+        ctx,
+        {
+          ...verb.params,
+          pieceLimit: verb.params.pieceLimit + (spec.assisted ? (def.assist?.extraPieces ?? 0) : 0),
+        },
+        spec.strain,
+      );
   }
 }

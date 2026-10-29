@@ -62,12 +62,13 @@ describe('team M1 flow reconciliation', () => {
     const state = newGame();
     const shown = offer(state, 'elder');
     expect(shown.stakes).toMatchObject({
-      objective: ENCOUNTER_DEFS.elder!.objective,
       rewards: [{ kind: 'spell', spellId: 'quake' }],
       regard: { current: 0, after: 1 },
       strain: 0,
       blockedReason: null,
     });
+    expect(shown.stakes?.objective).toContain(ENCOUNTER_DEFS.elder!.objective);
+    expect(shown.stakes?.objective).toContain('One correction per attempt');
     expect(shown.stakes?.fail).toContain('The mold spreads');
     expect(shown.spec).toMatchObject({ demo: true, strain: 0 });
     expect(recordOf(state, 'elder').tries).toBe(0);

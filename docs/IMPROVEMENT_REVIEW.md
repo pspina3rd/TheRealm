@@ -8,7 +8,7 @@ of features already implemented or a replacement for the team's decisions.
 ## Latest team check — supersedes the earlier scheduling assessment
 
 Rechecked `claude/laughing-brown-7i13lb` at
-[`5fe2859`](https://github.com/pspina3rd/TheRealm/commit/5fe285989df47ce92fa561bc2bc64c4fcc0a0f81).
+[`f1b14e6`](https://github.com/pspina3rd/TheRealm/commit/f1b14e6e15a0cfecb5a30baf3d6a9beabff05cb0).
 This adds the team’s M1 wiring, five-row Rowan/Wren layouts, shared hint
 weight, CHARGE hint revision, recorded tables, and smoke script. These are
 reconciled with GetPutTaco’s campaign and save-recovery checks. The subsequent
@@ -163,3 +163,9 @@ should not be used to make the unfinished main-route balance feel complete.
 This review preserves the original recommendation file. It does not silently
 enable new gestures, alter mana rules, add audio, or claim the tentative
 encounter mechanics are finished.
+
+Latest open-items work adopts the team’s better-only assist, separate lesson
+steps, approved seven-column well and spare O, Ordor and Wren tuning. It
+also adds the author-approved correction and disclosed recovery time.
+Browser evidence is now saved; current measured status is at the top of
+[M1_PLAYTEST.md](M1_PLAYTEST.md).

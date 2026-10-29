@@ -130,6 +130,7 @@ export class App {
   private started: boolean;
   private readonly dialog = new Dialog();
   private readonly leaveBattleButton = button('Leave', () => this.leaveBattle());
+  private readonly correctionButton = button('Correct · 1', () => this.correctBattle());
   private active: ActiveBattle | null = null;
   private heldDirection: Direction | null = null;
   /** Steps left of a tap-to-walk, taken one per `WALK_REPEAT_MS`. */
@@ -160,6 +161,10 @@ export class App {
     this.battleView.hero.onItem = (id) => this.tryCombat(id, (c) => c.useItem(id));
     this.leaveBattleButton.className = 'leave-battle';
     byId('pause-button').after(this.leaveBattleButton);
+    this.correctionButton.className = 'correct-drop';
+    this.correctionButton.title = 'Restore the last dropped piece. One correction per attempt.';
+    this.correctionButton.hidden = true;
+    this.leaveBattleButton.after(this.correctionButton);
     this.bindInput();
     this.applyTouchPrefs();
     if (store.persistent === false) {
@@ -252,7 +257,7 @@ export class App {
         if (isPhoneLayout()) this.battleView.hero.back();
       }
       if (!active.finished && battle.status !== 'ongoing') active.finished = true;
-      if (active.finished && active.resultDelay > 0) {
+      if (active.finished && active.resultDelay > 0 && !battle.canCorrect) {
         active.resultDelay -= dt;
         if (active.resultDelay <= 0) this.finishBattle();
       }
@@ -262,7 +267,10 @@ export class App {
           !(battle.spec.kind === 'lesson' && battle.spec.mentorId === 'hazel'))
           ? 'Give up'
           : 'Leave';
-      this.leaveBattleButton.disabled = active.finished;
+      this.leaveBattleButton.disabled = active.finished && !battle.canCorrect;
+      this.correctionButton.hidden = battle.correctionsRemaining <= 0;
+      this.correctionButton.disabled = !battle.canCorrect;
+      this.correctionButton.textContent = `Correct · ${battle.correctionsRemaining}`;
       this.battleView.render(battle, this.state.flags, dt, timeMs, active.finished);
       this.renderHud();
     } else {
@@ -770,9 +778,19 @@ export class App {
     if (this.commitInput()) this.active?.battle.input(action);
   }
 
+  private correctBattle(): void {
+    const active = this.active;
+    if (!active || this.dialog.isOpen || !battleTryCommitted(active.battle)) return;
+    if (!active.battle.correctLastDrop()) return;
+    active.finished = false;
+    active.resultDelay = RESULT_DELAY_MS;
+    this.battleView.corrected();
+    this.save();
+  }
+
   private leaveBattle(): void {
     const active = this.active;
-    if (!active || active.finished) return;
+    if (!active || (active.finished && !active.battle.canCorrect)) return;
     const stakesBattle =
       active.battle.spec.kind === 'encounter' ||
       (active.battle.spec.kind === 'lesson' && active.battle.spec.mentorId === 'hazel');

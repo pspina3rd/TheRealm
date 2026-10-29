@@ -87,6 +87,15 @@ export class DigChallenge implements Challenge {
 
   update(): void {}
 
+  checkpoint(): () => void {
+    const { won, overLip, untilRise } = this;
+    return () => {
+      this.won = won;
+      this.overLip = overLip;
+      this.untilRise = untilRise;
+    };
+  }
+
   status(): BattleStatus {
     if (this.won) return 'won';
     if (this.overLip || this.ctx.board.toppedOut) return 'lost';

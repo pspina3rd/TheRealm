@@ -33,6 +33,12 @@ export class BattleView {
   private readonly lessonHint = el('div', { className: 'lesson-affordance' });
   private frameKey = '';
 
+  corrected(): void {
+    this.board.reset();
+    this.frameKey = '';
+    this.stage.play({ kind: 'banner', text: 'Last drop restored' });
+  }
+
   /** The mentor's portrait beside the next piece, during lessons. */
   private readonly helper = byId('battle-helper');
   private readonly atlas: Atlas;

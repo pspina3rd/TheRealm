@@ -73,8 +73,9 @@ describe.skipIf(!env.TARGET)('sensitivity cell (TARGET=…)', () => {
       .map(([c, n]) => `${c} ${n}`)
       .join(', ');
     const price = name === 'stallKeeper' ? ` · price ${(cell.price * 100).toFixed(0)}%` : '';
-    const row = `| ${name} | ${env.LABEL ?? bot} | ${(cell.winRate * 100).toFixed(0)}% ±${(cell.half * 100).toFixed(1)} | ${cell.seconds.toFixed(0)} s / ${cell.pieces.toFixed(0)}${price} | ${mix || '—'} |\n`;
+    const row = `| ${name} | ${env.LABEL ?? bot} | ${(cell.winRate * 100).toFixed(1)}% [${(cell.lower * 100).toFixed(1)}, ${(cell.upper * 100).toFixed(1)}] | ${cell.seconds.toFixed(0)} s / ${cell.pieces.toFixed(0)}${price} | ${mix || '—'} |\n`;
     process.stderr.write(row);
     if (env.OUT) appendFileSync(env.OUT, row);
+    if (env.SIM_JSON) appendFileSync(env.SIM_JSON, JSON.stringify(cell) + '\n');
   }, 7_200_000);
 });

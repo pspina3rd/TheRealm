@@ -375,3 +375,54 @@ Corrected assisted measurements: single-attempt good 81.0% and casual
 67.5% (200 seeds each) still miss the official assisted gate. Casual
 within-three recovery is 97.5% (195/200), a separate diagnostic. No
 production assist mechanic was changed based on the mismeasured row.
+
+## Open-items work: team a4a5ec5
+
+- Imported both new team commits: only replace an incoming piece when
+  assistance improves its placement score, ignore completed lamp colors,
+  and use per-difficulty lesson foe scaling.
+- Preserved campaign and v12 recovery. Baseline: 1,085 tests passed,
+  12 skipped, with format/lint/typecheck passing.
+- Running fresh 200-seed assist/lesson checks and live Chromium smoke.
+
+## Team f1b14e6 synchronized
+
+Imported the author’s seven-column Rowan well, Pip spare O, revised Ordor
+strain and walk-off, Wren timing parameters, and direct afterLanding tests.
+Local lesson/assisted-time candidates remain under measurement; no
+first-try acceptance is inferred from a three-attempt recovery statistic.
+
+## Approved correction and recovery checkpoint
+
+- Added the author-approved one correction per Rowan/Pip attempt, clearly
+  disclosed on cards and a 44px control. Restores grid/tags, dealt piece,
+  score/mana and DIG/BUILD state without refunding the attempt or changing
+  the remaining bag. Fatal boards wait for Correct or Give up.
+- Focused core/UI tests cover hazard rollback, authored queue order, dual
+  colors, fatal wobbles, one-use cap, demo/victory/give-up exclusion and
+  saved attempt identity.
+- Added disclosed assisted placement time. Full 200-seed first-try Vale
+  assist: 100% good / 96% casual; dropper/idle 0%. Solo strained retry:
+  60% good / 36% casual, both floors met.
+- Refreshed public-input/RNG replay fixtures and correction-aware bots;
+  corrections use observed landing mistakes, not future information.
+- First live Chromium pass succeeded at phone390, phone360 and desktop.
+  A later capture exposed a correction-button height inheritance defect;
+  it was fixed and is being checked with a board-overlap assertion.
+- Final lesson and introductory balance checks remain in progress. M2a
+  and author acceptance remain off/pending.
+
+Verified correction/recovery checkpoint: 1,093 tests pass, 17 opt-in/report
+skips; format/lint/typecheck/build pass. Chromium completed all three
+viewports with six correction actions, no console errors/overflow, and
+checks for target size and board/Rotate overlap. Captures and report are
+saved under docs/artifacts/m1. Several final balance rows remain running;
+this checkpoint does not claim M1 acceptance.
+
+Pip final 200-seed verification passes: 96% good / 67.5% casual,
+floors 99% / 64.5%, mean 20 seconds, idle/dropper zero. Wren win rates
+and floors pass but mean length remains 54 seconds (target at least 55).
+The default Ranger already knows Cure, so its actual d1 Hazel path is
+Regen; that profile is being corrected before claiming first-lesson
+acceptance. The existing Cure-profile result remains a historical
+isolated benchmark, not a first-lesson acceptance claim.

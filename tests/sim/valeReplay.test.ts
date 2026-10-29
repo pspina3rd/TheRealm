@@ -8,7 +8,7 @@ import { dualChance } from '../../src/game/pieceOdds';
 import { playEncounter, simHero } from './encounters';
 
 const path = 'tests/sim/fixtures/vale-legal-win.json';
-type Step = { input: BattleAction } | { updates: number } | { preview: true };
+type Step = { input: BattleAction } | { updates: number } | { preview: true } | { correct: true };
 interface Replay {
   id?: string;
   seed: number;
@@ -25,6 +25,11 @@ function record(seed: number, id = 'guard'): Replay | null {
   const pieces: Replay['pieces'] = [];
   const input = Battle.prototype.input;
   const update = Battle.prototype.update;
+  const correct = Battle.prototype.correctLastDrop;
+  Battle.prototype.correctLastDrop = function () {
+    steps.push({ correct: true });
+    return correct.call(this);
+  };
   const preview = Object.getOwnPropertyDescriptor(Battle.prototype, 'upcomingPieces')!;
   Battle.prototype.input = function (action) {
     steps.push({ input: action });
@@ -65,7 +70,7 @@ function record(seed: number, id = 'guard'): Replay | null {
       level: 2,
       dualChance: dualChance(simHero(2)),
       source:
-        'Team 5fe2859 tuning and approved Oct 29 bot policy; public timed inputs and preview reads only',
+        'Team f1b14e6 boards with author-approved correction and tuned recovery; public timed inputs and preview reads only',
       seconds: result.seconds,
       pieces,
       steps,
@@ -73,6 +78,7 @@ function record(seed: number, id = 'guard'): Replay | null {
   } finally {
     Battle.prototype.input = input;
     Battle.prototype.update = update;
+    Battle.prototype.correctLastDrop = correct;
     Object.defineProperty(Battle.prototype, 'upcomingPieces', preview);
   }
 }
@@ -94,6 +100,7 @@ function replay(fixture: Replay): Battle {
   );
   for (const step of fixture.steps) {
     if ('input' in step) battle.input(step.input);
+    else if ('correct' in step) expect(battle.correctLastDrop()).toBe(true);
     else if ('preview' in step) void battle.upcomingPieces;
     else for (let i = 0; i < step.updates; i++) battle.update(50);
   }
@@ -122,7 +129,9 @@ it.skipIf(!existsSync(path))('replays Vale with real dual chance and no board mu
   expect(fixture.pieces.some((piece) => piece.second !== null)).toBe(true);
   const battle = replay(fixture);
   expect(battle.status).toBe('won');
-  expect(battle.board.piecesPlaced).toBe(fixture.pieces.length);
+  expect(battle.board.piecesPlaced).toBe(
+    fixture.pieces.length - fixture.steps.filter((step) => 'correct' in step).length,
+  );
   expect(battle.objective.progress).toBe(1);
 });
 

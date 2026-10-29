@@ -108,6 +108,7 @@ interface Harness {
   showInteraction(entity: EntityDef, interaction: ReturnType<typeof describeInteraction>): void;
   battleInput(action: 'left' | 'right' | 'hardDrop'): void;
   finishBattle(): void;
+  frame(timeMs: number): void;
   leaveBattle(): void;
 }
 function setup(): { app: Harness; store: KeyValueStore } {
@@ -168,6 +169,33 @@ describe('M1 player UI loop', () => {
     expect(recordOf(app.state, 'elder').fails).toBe(1);
     app.finishBattle();
     expect(recordOf(app.state, 'elder').fails).toBe(1);
+  });
+
+  it('uses one disclosed correction without a new try and keeps a lost board recoverable', () => {
+    const { app, store } = setup();
+    app.talk(entity('kid'));
+    click('Take it on');
+    finishDemo(app.active!.battle);
+    app.battleInput('hardDrop');
+    const battle = app.active!.battle;
+    const before = recordOf(app.state, 'kid').tries;
+    battle.board.toppedOut = true;
+    app.frame(100);
+    expect(app.active?.finished).toBe(true);
+    const correction = document.querySelector<HTMLButtonElement>('.correct-drop')!;
+    expect(correction.hidden).toBe(false);
+    expect(correction.disabled).toBe(false);
+    correction.click();
+    expect(app.active?.finished).toBe(false);
+    expect(battle.status).toBe('ongoing');
+    expect(battle.correctionsRemaining).toBe(0);
+    expect(recordOf(app.state, 'kid').tries).toBe(before);
+    expect(recordOf(app.state, 'kid').fails).toBe(0);
+    expect(JSON.parse(store.getItem(SAVE_KEY)!).pendingAttempt.try).toBe(before);
+    app.frame(200);
+    expect(correction.hidden).toBe(true);
+    app.leaveBattle();
+    expect(recordOf(app.state, 'kid').fails).toBe(1);
   });
 
   it('keeps Ordor’s incoming-row demonstration open on early input, then commits after it', () => {

@@ -1,3 +1,39 @@
+# Current M1 open-items checkpoint
+
+- **Browser verification complete:** Chromium at 390×844, 360×640 and
+  1100×900; no console errors or horizontal overflow. Six correction
+  actions exercised. Phone targets and correction-control overlap checked.
+  [Selected captures and machine report](artifacts/m1/report.json) are saved.
+- **One correction per Rowan/Pip attempt implemented**, as approved by the
+  author. Core/UI tests include fatal-board recovery, hazard rollback,
+  queue exhaustion, dual colors, score/mana restoration and no extra tries.
+- **Assisted Vale gate passes:** 200/200 good, 192/200 casual, 0 idle/dropper,
+  with the disclosed 48-piece assisted limit. The solo first try stays 32.
+- **Vale retry floor passes:** good 60%, casual 36% with five lamps / 36
+  placements; first try 80.5% / 52%, both in band.
+- **Ordor passes:** good 75.5%, casual 35%; floors 66.5% / 37.5%; mean
+  prices 89% / 96% / 120% / 114%; good length 58 seconds.
+- **Hazel d3 passes** its win bands and duration: 67% / 32.5%, 99 seconds.
+  The earlier d1 Cure profile was not the Ranger’s actual first offered
+  lesson (Regen); that profile is being corrected before claiming d1
+  acceptance. Final d2 verification also remains open.
+- **Pip now passes**: good 96%, casual 67.5%, floors 99% / 64.5%,
+  20-second mean length, idle/dropper 0% in the 200-seed verification.
+- **Rowan’s upper good band and Wren’s duration remain open.** Wren has
+  84% / 49.5% first-try wins and 82% / 40.5% floors, but 54-second mean
+  length is just below the 55-second minimum.
+  A 200-seed Rowan check with the correction passed casual and both floors
+  (67%, floors 94% / 29.5%) but good 98.5% exceeds the 97% upper target;
+  pressure tuning is still being checked. No target has been waived.
+- **1,093 tests pass**, 17 opt-in/report cases skipped; format, lint,
+  typecheck and production build pass. The author’s hands-on go/no-go is
+  the human acceptance row and remains pending; M2a stays off.
+
+The older records below are retained as historical diagnostics. Their
+policy/layout versions are stated; they are not current acceptance claims.
+
+---
+
 # M1 verification and playtest record
 
 **Functional implementation is checkpointed separately from acceptance. The

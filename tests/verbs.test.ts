@@ -47,10 +47,10 @@ describe('encounter definitions', () => {
 });
 
 describe('DIG + rising (Rowan’s well)', () => {
-  it('lays the well out, six wide, the pipe tagged in row 1', () => {
+  it('lays the well out, seven wide, the pipe tagged in row 1', () => {
     const battle = encounter('elder');
     const board = battle.board;
-    expect(board.width).toBe(6);
+    expect(board.width).toBe(7);
     expect(board.tagged('target')).toEqual([[2, 19]]);
     const dig = battle.challenge as DigChallenge;
     expect(dig.rowsAbove()).toBe(4);
@@ -115,7 +115,7 @@ describe('DIG + rising (Rowan’s well)', () => {
   it('loses when a rising row lifts the stack over the lip', () => {
     const battle = encounter('elder');
     const dig = battle.challenge as DigChallenge;
-    battle.board.grid[dig.lipY] = row(6, [0]);
+    battle.board.grid[dig.lipY] = row(7, [0]);
     dig.untilRise = 1;
     dig.onLock(EMPTY_LOCK);
     expect(dig.status()).toBe('lost');
@@ -158,7 +158,7 @@ describe('DIG + rising (Rowan’s well)', () => {
       1,
     )!;
     expect(dig.hint(down)).toBeGreaterThan(dig.hint(over));
-    board.loadRows(['..', 'mmPmm.'], { P: { cell: 'stone', tag: 'target' } });
+    board.loadRows(['..', 'mmPmm.m'], { P: { cell: 'stone', tag: 'target' } });
     const win = landingOf(
       board,
       'I',
@@ -171,7 +171,7 @@ describe('DIG + rising (Rowan’s well)', () => {
       5,
     )!;
     expect(dig.hint(win)).toBe(1000);
-    board.grid[dig.lipY] = row(6, [2, 3, 4, 5]);
+    board.grid[dig.lipY] = row(7, [2, 3, 4, 5]);
     const high = landingOf(
       board,
       'O',
@@ -193,13 +193,13 @@ describe('BUILD (Pip’s tower)', () => {
     return { battle, build: battle.challenge as BuildChallenge };
   };
 
-  it('turns clears off, follows the authored queue and shows three pieces ahead', () => {
+  it('turns clears off, follows the authored queue and shows three pieces ahead (twelve, the last a spare)', () => {
     const { battle, build } = pip();
     expect(battle.board.clearsEnabled).toBe(false);
     expect(battle.board.active?.name).toBe('O');
     expect(battle.upcoming).toEqual(['S', 'O', 'J']);
     expect(build.previews).toBe(3);
-    expect(build.objective()).toMatchObject({ counter: '0/36 · cracks 0/3', piecesLeft: 11 });
+    expect(build.objective()).toMatchObject({ counter: '0/36 · cracks 0/3', piecesLeft: 12 });
     expect(build.inOutline(4, 19)).toBe(true);
     expect(build.inOutline(4, 11)).toBe(true);
     expect(build.inOutline(3, 19)).toBe(false);
@@ -601,7 +601,7 @@ describe('CONTAIN + protect (Wren’s mushroom ring)', () => {
       { kind: 'cells', what: 'spread', cells: contain.frontier(), leadPieces: 1 },
     ]);
     contain.onLock(EMPTY_LOCK);
-    expect(battle.board.countTag('hazard')).toBe(4);
+    expect(battle.board.countTag('hazard')).toBe(2 + ENCOUNTERS.forager.spreadCells);
     expect(contain.telegraphs()).toEqual([]);
     expect(battle.events.map((e) => e.event.kind)).toContain('spread');
   });
@@ -808,5 +808,26 @@ describe('CHARGE (Vale’s ward lamps)', () => {
       ['red', 'red', 'red', 'red'],
     )!;
     expect(charge.hint(dirty)).toBeLessThan(charge.hint(lamp));
+  });
+
+  it('stops building toward a colour once all its lamps are lit', () => {
+    const { battle, charge } = vale();
+    const board = battle.board;
+    const tower = (color: 'blue' | 'violet') =>
+      landingOf(
+        board,
+        'I',
+        [
+          [0, 0],
+          [1, 0],
+          [2, 0],
+          [3, 0],
+        ],
+        0,
+        [color, color, color, color],
+      )!;
+    expect(charge.hint(tower('blue'))).toBeCloseTo(charge.hint(tower('violet')));
+    charge.lit = [0, 1]; // both blue lamps
+    expect(charge.hint(tower('blue'))).toBeLessThan(charge.hint(tower('violet')));
   });
 });

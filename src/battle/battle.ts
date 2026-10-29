@@ -19,6 +19,7 @@ import { BarterChallenge } from './barter';
 import { CombatChallenge } from './combat';
 import { HaggleChallenge } from './haggle';
 import { DuelChallenge } from './verbs/duel';
+import { BuildChallenge } from './verbs/build';
 import { LessonChallenge } from './lesson';
 import { OfferingChallenge } from './offering';
 import { PuzzleChallenge } from './puzzle';
@@ -113,6 +114,9 @@ export class Battle implements BattleContext {
   readonly assist: Assist | null;
   /** The region's rule in a fight or lesson (spores, the dark), if any. */
   readonly rule: RegionRule | null;
+  correctionsRemaining = 0;
+  correctionSuggested = false;
+  private lastCorrection: (() => void) | null = null;
   private saidNearly = false;
   /** Oldest first, numbered so the screen can play each event once. */
   readonly events: NumberedEvent[] = [];
@@ -126,6 +130,7 @@ export class Battle implements BattleContext {
     clearMana(hero);
     this.rng = rng;
     const def = spec.kind === 'encounter' ? encounterDef(spec) : null;
+    this.correctionsRemaining = def?.corrections ?? 0;
     this.board = new Board(rng, def?.width ?? BOARD_WIDTH, BOARD_HEIGHT, options.weights);
     this.board.dualChance = options.dualChance ?? 0;
     this.challenge = createChallenge(this, spec);
@@ -173,7 +178,62 @@ export class Battle implements BattleContext {
 
   /** The hero gives up: once committed (after the first touch) it counts as a fail. */
   giveUp(): void {
-    if (this.status === 'ongoing') this.gaveUp = true;
+    if (this.status !== 'won') this.gaveUp = true;
+  }
+
+  get canCorrect(): boolean {
+    return (
+      this.correctionsRemaining > 0 &&
+      this.lastCorrection !== null &&
+      !this.demoPlaying &&
+      !this.paused &&
+      !this.gaveUp &&
+      this.status !== 'won'
+    );
+  }
+
+  /** A bounded correction, never a new try or a rewind of the random bag. */
+  correctLastDrop(): boolean {
+    const restore = this.lastCorrection;
+    if (!this.canCorrect || !restore) return false;
+    this.lastCorrection = null;
+    this.correctionsRemaining--;
+    restore();
+    this.gravityTimer = 0;
+    this.correctionSuggested = false;
+    return true;
+  }
+
+  private correctionRisk(): number {
+    return this.challenge instanceof BuildChallenge
+      ? this.challenge.cracks + this.challenge.wobbles
+      : this.board.holes();
+  }
+
+  private captureCorrection(): { restore: () => void; risk: number } | null {
+    if (this.correctionsRemaining <= 0 || !this.started || this.demoPlaying) return null;
+    const point = this.board.checkpointLock();
+    const restoreChallenge = this.challenge.checkpoint?.();
+    if (!point || !restoreChallenge) return null;
+    const score = this.score;
+    const lines = this.lines;
+    const mana = { ...this.hero.mana };
+    return {
+      risk: this.correctionRisk(),
+      restore: () => {
+        this.board.restoreLock(point);
+        restoreChallenge();
+        this.score = score;
+        this.lines = lines;
+        Object.assign(this.hero.mana, mana);
+      },
+    };
+  }
+
+  private rememberCorrection(point: ReturnType<Battle['captureCorrection']>): void {
+    this.lastCorrection = point?.restore ?? null;
+    this.correctionSuggested =
+      point !== null && (this.status === 'lost' || this.correctionRisk() > point.risk);
   }
 
   get objective(): Objective {
@@ -279,16 +339,21 @@ export class Battle implements BattleContext {
         board.rotate();
         break;
       case 'softDrop': {
+        const point = this.captureCorrection();
         const result = board.step();
-        if (result) this.afterLock(result);
-        else this.score += SOFT_DROP_POINTS_PER_ROW;
+        if (result) {
+          this.afterLock(result);
+          this.rememberCorrection(point);
+        } else this.score += SOFT_DROP_POINTS_PER_ROW;
         this.gravityTimer = 0;
         break;
       }
       case 'hardDrop': {
+        const point = this.captureCorrection();
         const { distance, result } = board.hardDrop();
         this.score += distance * HARD_DROP_POINTS_PER_ROW;
         this.afterLock(result);
+        this.rememberCorrection(point);
         break;
       }
     }
@@ -310,8 +375,12 @@ export class Battle implements BattleContext {
     this.gravityTimer += dtMs;
     while (this.gravityTimer >= this.gravityMs && this.accepting()) {
       this.gravityTimer -= this.gravityMs;
+      const point = this.captureCorrection();
       const result = this.board.step();
-      if (result) this.afterLock(result);
+      if (result) {
+        this.afterLock(result);
+        this.rememberCorrection(point);
+      }
     }
   }
 
@@ -392,10 +461,12 @@ export class Battle implements BattleContext {
 
   /** The mentor tosses the shape the challenge's hint likes best, in its own colour or theirs. */
   private assistToss(assist: Assist): void {
+    const active = this.board.active;
     const best = steeredLanding(
       this.board,
       assist.shapes,
       this.challenge.hint?.bind(this.challenge),
+      active ? { name: active.name, colors: active.colors } : undefined,
     );
     const mentor = MENTORS[assist.mentorId];
     if (!best || !mentor) return;

@@ -9,8 +9,8 @@ import { MENTORS, type MentorDef } from '../src/data/mentors';
 import { describeInteraction, entitySprite, resolveBattle } from '../src/game/encounter';
 import { createHero, learnSpell, type Hero } from '../src/game/hero';
 import {
-  FOE_ATK_PER_DIFFICULTY,
-  FOE_HP_PER_DIFFICULTY,
+  LESSON_FOE_STEPS,
+  lessonFoeStep,
   completeLesson,
   easeSeal,
   helpChance,
@@ -148,13 +148,19 @@ describe('lesson foes', () => {
     const wisp = ENEMIES.emberWisp!;
     expect(scaledFoe(wisp, 1)).toMatchObject({ hp: wisp.hp, atk: wisp.atk, level: wisp.level });
     expect(scaledFoe(ENEMIES.goblin!, 3)).toMatchObject({
-      hp: Math.round(ENEMIES.goblin!.hp * (1 + 2 * FOE_HP_PER_DIFFICULTY)),
-      atk: ENEMIES.goblin!.atk + 2 * FOE_ATK_PER_DIFFICULTY,
+      hp: Math.round(ENEMIES.goblin!.hp * LESSON_FOE_STEPS[2]!.hp),
+      atk: ENEMIES.goblin!.atk + LESSON_FOE_STEPS[2]!.atk,
       level: ENEMIES.goblin!.level + 2,
       xp: 0,
       gil: 0,
       drops: [],
     });
+  });
+
+  it('reads the step table by difficulty, holding its last row past the end', () => {
+    expect(lessonFoeStep(1)).toBe(LESSON_FOE_STEPS[0]);
+    expect(lessonFoeStep(0)).toBe(LESSON_FOE_STEPS[0]);
+    expect(lessonFoeStep(LESSON_FOE_STEPS.length + 2)).toBe(LESSON_FOE_STEPS.at(-1));
   });
 
   it('builds a lesson spec for wherever the mentor is now', () => {
@@ -411,7 +417,7 @@ describe('LessonChallenge', () => {
 
   it('fights a scaled foe at the scaled speed, as a lesson', () => {
     const { battle, challenge } = lesson(2);
-    expect(challenge.enemy.hp).toBe(Math.round(50 * (1 + FOE_HP_PER_DIFFICULTY)));
+    expect(challenge.enemy.hp).toBe(Math.round(50 * LESSON_FOE_STEPS[1]!.hp));
     expect(battle.level).toBe(3);
     expect(challenge.objective().label).toBe('Lesson: Fire');
     expect(challenge.helpChance).toBeCloseTo(0.1 * 0.8);

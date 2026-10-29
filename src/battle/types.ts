@@ -212,6 +212,8 @@ export interface BattleContext {
  * and scoring; a challenge decides what clears mean and when the battle ends.
  */
 export interface Challenge {
+  /** A restoration closure for the two introductory encounters' one correction. */
+  checkpoint?(): () => void;
   /** Called after every piece locks. */
   onLock(result: LockResult): void;
   /** Called every frame while the battle is ongoing (after the pre-roll). */

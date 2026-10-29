@@ -19,6 +19,8 @@ export interface ChargeParams {
   /** A pure line holds at least this many of its cells in the lamp's element (P ≤ 7). */
   readonly purity: number;
   readonly pieceLimit: number;
+  /** Extra placements per additional strain lamp. */
+  readonly strainPieces?: number;
   /** Every this many pieces the wind snuffs the oldest lit lamp, unless all are lit (0: never). */
   readonly snuffEvery: number;
   readonly supply: Supply;
@@ -58,7 +60,10 @@ export class ChargeChallenge implements Challenge {
 
   constructor(ctx: BattleContext, params: ChargeParams, strain = 0) {
     this.ctx = ctx;
-    this.params = params;
+    this.params = {
+      ...params,
+      pieceLimit: params.pieceLimit + strain * (params.strainPieces ?? 0),
+    };
     const first = params.lamps[0] as Element;
     this.lamps = [...params.lamps, ...Array<Element>(strain * params.strainLamps).fill(first)];
     this.untilSnuff = params.snuffEvery;
@@ -141,7 +146,10 @@ export class ChargeChallenge implements Challenge {
    */
   hint(landing: Landing): number {
     const lit = this.lights(landing.clearedRows, this.lit).length;
-    const wanted = this.elements().map(colorOfElement);
+    // Only the colours of lamps still dark are worth building toward.
+    const wanted = this.elements()
+      .filter((element) => this.nextLamp(element) >= 0)
+      .map(colorOfElement);
     const width = this.ctx.board.width;
     const spare = width - this.params.purity;
     let worth = 0;
