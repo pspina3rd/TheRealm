@@ -153,7 +153,7 @@ export const SHIELD_AT = 0.25;
 export const LESSON_FOE_STEPS: readonly { readonly hp: number; readonly atk: number }[] = [
   { hp: 1, atk: 0 },
   { hp: 1.6, atk: 4 },
-  { hp: 2.5, atk: 10 },
+  { hp: 2.3, atk: 11 },
   { hp: 3.4, atk: 18 },
 ];
 /** Extra difficulty of teaching a hidden spell. */
