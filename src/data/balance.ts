@@ -152,7 +152,7 @@ export const HIDDEN_DIFFICULTY = 1;
 /** Heroes below this level meet gentler difficulty-1 lesson foes… */
 export const NOVICE_LEVEL = 3;
 /** …with this share of their HP (a 50 HP wisp has 36). */
-export const NOVICE_FOE_HP = 0.8;
+export const NOVICE_FOE_HP = 0.72;
 
 // ---- Skill points (src/game/stats.ts)
 /** Skill points gained per hero level. */
@@ -251,7 +251,7 @@ export const ENCOUNTERS = {
     /** Whether your clears cancel his pending rows first (from Lo on). */
     cancel: false,
     /** Strain: the meter starts this much worse per step. */
-    strainMeter: 0.05,
+    strainMeter: 0.02,
   },
   /** Forager Wren, "The Mushroom Ring": CONTAIN + protect (§6.4). */
   forager: {
