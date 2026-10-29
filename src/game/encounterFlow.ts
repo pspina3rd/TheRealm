@@ -1,5 +1,5 @@
 import type { Battle } from '../battle/battle';
-import { encounterOf } from '../data/encounters';
+import { type EncounterDef, encounterOf } from '../data/encounters';
 import { NPCS } from '../data/npcs';
 import { ITEMS } from '../data/items';
 import { SPELLS } from '../data/spells';
@@ -7,9 +7,9 @@ import { spellName } from './spells';
 import { MENTORS } from '../data/mentors';
 import type { ChallengeSpec, Reward } from '../data/types';
 import type { GameState } from '../world/state';
-import type { Attitude } from './attitude';
+import { attitudeOf, type Attitude } from './attitude';
 import { completeLesson, lessonDifficulty, lessonSpec } from './lessons';
-import { DUEL_PRICES } from '../data/balance';
+import { DUEL_PRICES, STAKES } from '../data/balance';
 import { settle, settleHaggle } from './stakes';
 import {
   assistOffered,
@@ -18,6 +18,7 @@ import {
   firstTry,
   recordOf,
   strainFor,
+  regardOf,
   type StakesRules,
 } from './stakes';
 
@@ -39,6 +40,13 @@ const M1_IDS = new Set(['elder', 'kid', 'farmer', 'stallKeeper', 'forager', 'gua
 
 export interface StakesCard {
   readonly win: string;
+  readonly rewards?: readonly Reward[];
+  readonly great?: Reward;
+  readonly regard?: {
+    readonly current: number;
+    readonly after: number;
+    readonly warmer: Attitude | null;
+  };
   readonly objective: string;
   readonly fail: string;
   readonly strain: number;
@@ -133,11 +141,12 @@ export function stakesCard(
     def.spec.verb === 'plant'
       ? def.spec.params.target + record.strain * def.spec.params.strainTarget
       : 0;
-  const rewardText = rewards
+  const paidRewards = record.wins > 0 ? halfPay(rewards) : [...rewards];
+  const rewardText = paidRewards
     .map((reward) => {
       switch (reward.kind) {
         case 'gil':
-          return `${record.wins > 0 ? Math.floor(reward.amount / 2) : reward.amount} gil`;
+          return `${reward.amount} gil`;
         case 'item':
           return `${reward.count} ${ITEMS[reward.itemId]?.name ?? reward.itemId}`;
         case 'spell':
@@ -156,8 +165,20 @@ export function stakesCard(
           label: `With ${MENTORS[def.assist.mentorId]?.name ?? def.assist.mentorId}’s help (gil kept; no bonus or regard).`,
         }
       : undefined;
+  const person = NPCS[spec.id];
+  const current = regardOf(state, spec.id);
+  const peak = state.regardPeak[spec.id] ?? current;
+  const after =
+    record.wins === 0 || def.spec.verb === 'duel'
+      ? Math.min(STAKES.regardMax, current + STAKES.regardWin)
+      : Math.max(current, Math.min(peak, current + STAKES.regardRestore));
+  const attitude = person ? attitudeOf(state.hero, person, current) : null;
+  const next = person ? attitudeOf(state.hero, person, after) : null;
   return {
-    win: `${rewardText ? rewardText + '. ' : ''}${def.world.win.text}.`,
+    win: `${def.spec.verb === 'duel' && !rewardText ? 'Lower shop prices until you leave town (an Even keeps prices unchanged). ' : ''}${rewardText ? rewardText + '. ' : ''}${def.world.win.text}.`,
+    rewards: paidRewards,
+    ...(def.great ? { great: def.great } : {}),
+    regard: { current, after, warmer: next !== attitude ? next : null },
     objective: def.objective.replace('{target}', String(target)),
     fail:
       def.spec.verb === 'duel'
@@ -167,7 +188,7 @@ export function stakesCard(
     retry:
       RETRY[def.retry] +
       (flow.rules.repeatable
-        ? ' After a win, replay next day for half gil; regard can only recover.'
+        ? ' After a win, replay next day for half pay; regard can only recover.'
         : ''),
     blockedReason: blockedText,
     ...(assist ? { assist } : {}),
@@ -277,9 +298,11 @@ export function abandonPendingAttempt(state: GameState): void {
     const spec = encounterSpec(state, pending.id, pending.assisted);
     const flow = flowFor(spec);
     if (!flow) return;
-    const shop = NPCS[pending.id]?.rewards.find((reward) => reward.kind === 'shop');
-    if (pending.id === 'stallKeeper' && shop?.kind === 'shop') {
-      settleHaggle(state, pending.id, shop.shopId, 'fail', DUEL_PRICES.walkOff);
+    const npc = NPCS[pending.id];
+    const shop = npc?.rewards.find((reward) => reward.kind === 'shop');
+    const shopId = npc?.shop ?? (shop?.kind === 'shop' ? shop.shopId : null);
+    if (pending.id === 'stallKeeper' && shopId) {
+      settleHaggle(state, pending.id, shopId, 'fail', DUEL_PRICES.walkOff);
     } else settle(state, flow.id, flow.rules, false, pending.assisted);
     return;
   }
@@ -292,4 +315,48 @@ export function abandonPendingAttempt(state: GameState): void {
   if (!flow) return;
   completeLesson(state.hero, spec, false);
   settle(state, flow.id, flow.rules, false);
+}
+
+/** The objective with its strain-dependent target, shared by board presentation. */
+export function objectiveText(def: EncounterDef, strain: number): string {
+  const target =
+    def.spec.verb === 'plant'
+      ? def.spec.params.target + strain * def.spec.params.strainTarget
+      : null;
+  return def.objective.replace('{target}', String(target));
+}
+
+export function worldState(
+  state: Pick<GameState, 'encounters'>,
+  id: string,
+): 'win' | 'fail' | null {
+  const record = recordOf(state, id);
+  if (record.fails > 0) return 'fail';
+  return record.wins > 0 ? 'win' : null;
+}
+
+export const REGION_FIXES: Readonly<Record<string, string>> = { grove: 'forager' };
+export function regionFixed(state: Pick<GameState, 'encounters'>, region: string): boolean {
+  const id = REGION_FIXES[region];
+  return id !== undefined && recordOf(state, id).wins > 0;
+}
+
+/** Repeat rewards halve gil and item counts, without granting zero-sized rewards. */
+export function halfPay(rewards: readonly Reward[]): Reward[] {
+  return rewards.flatMap((reward): Reward[] => {
+    if (reward.kind === 'gil') {
+      const amount = Math.floor(reward.amount * STAKES.repeatPay);
+      return amount > 0 ? [{ ...reward, amount }] : [];
+    }
+    if (reward.kind === 'item') {
+      const count = Math.floor(reward.count * STAKES.repeatPay);
+      return count > 0 ? [{ ...reward, count }] : [];
+    }
+    return [reward];
+  });
+}
+
+/** Compatibility name for the M1 Hazel lesson record; later mentors retain legacy flow. */
+export function lessonKey(spellId: string): string {
+  return `lesson:hazel:${spellId}`;
 }

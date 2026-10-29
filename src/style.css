@@ -236,6 +236,14 @@ canvas {
   height: 600px;
 }
 
+.regard-pips .pip.mid {
+  opacity: 0.5;
+}
+
+.regard-pips .pip.low {
+  background: #ff5c7a;
+}
+
 .battle-side {
   display: flex;
   flex-direction: column;
@@ -790,7 +798,9 @@ dialog h2 {
     min-height: 0;
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
-    grid-template-rows: var(--strip-h) auto minmax(0, 1fr) auto var(--spells-h) var(--controls-h);
+    grid-template-rows:
+      var(--strip-h) auto minmax(0, 1fr) auto var(--spells-h)
+      var(--controls-h);
     grid-template-areas:
       'stage stage'
       'board hero'

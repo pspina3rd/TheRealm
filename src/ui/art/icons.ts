@@ -862,6 +862,11 @@ export const ICONS = {
 
 export type IconId = keyof typeof ICONS;
 
+/** True when `name` is one of the icons (data names its icons by string). */
+export function isIconId(name: string): name is IconId {
+  return Object.hasOwn(ICONS, name);
+}
+
 /** The icon for each element. */
 export const ELEMENT_ICONS: Readonly<Record<Element, IconId>> = {
   fire: 'fire',

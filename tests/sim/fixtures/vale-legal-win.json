@@ -1,0 +1,632 @@
+{
+  "seed": 95041,
+  "level": 2,
+  "dualChance": 0.14285714285714285,
+  "source": "Team 5aa90cd authored layout/hint and shared HINT=1; public timed inputs and preview reads only",
+  "seconds": 50.6,
+  "pieces": [
+    {
+      "name": "J",
+      "second": null
+    },
+    {
+      "name": "S",
+      "second": null
+    },
+    {
+      "name": "Z",
+      "second": null
+    },
+    {
+      "name": "T",
+      "second": null
+    },
+    {
+      "name": "T",
+      "second": null
+    },
+    {
+      "name": "J",
+      "second": null
+    },
+    {
+      "name": "O",
+      "second": null
+    },
+    {
+      "name": "I",
+      "second": null
+    },
+    {
+      "name": "T",
+      "second": null
+    },
+    {
+      "name": "J",
+      "second": null
+    },
+    {
+      "name": "L",
+      "second": null
+    },
+    {
+      "name": "T",
+      "second": null
+    },
+    {
+      "name": "T",
+      "second": null
+    },
+    {
+      "name": "J",
+      "second": null
+    },
+    {
+      "name": "J",
+      "second": null
+    },
+    {
+      "name": "J",
+      "second": null
+    },
+    {
+      "name": "J",
+      "second": null
+    },
+    {
+      "name": "T",
+      "second": "orange"
+    },
+    {
+      "name": "Z",
+      "second": null
+    },
+    {
+      "name": "S",
+      "second": null
+    },
+    {
+      "name": "J",
+      "second": null
+    },
+    {
+      "name": "T",
+      "second": null
+    },
+    {
+      "name": "O",
+      "second": null
+    },
+    {
+      "name": "L",
+      "second": null
+    }
+  ],
+  "steps": [
+    {
+      "updates": 44
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "left"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    }
+  ]
+}

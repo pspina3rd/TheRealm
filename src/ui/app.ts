@@ -434,7 +434,29 @@ export class App {
       this.dialog.show({
         title: interaction.title,
         body,
-        actions: [{ label: 'OK', onClick: () => this.dialog.close() }],
+        actions: [
+          ...(interaction.kind === 'message' && interaction.browse
+            ? [
+                {
+                  label: 'Browse',
+                  onClick: () => {
+                    if (interaction.kind !== 'message' || !interaction.browse) return;
+                    const browse = interaction.browse;
+                    this.openShop(
+                      browse.shopId,
+                      browse.priceMultiplier,
+                      interaction.sprite,
+                      browse.attitude,
+                    );
+                  },
+                },
+              ]
+            : []),
+          {
+            label: interaction.kind === 'message' && interaction.browse ? 'Leave' : 'OK',
+            onClick: () => this.dialog.close(),
+          },
+        ],
       });
       return;
     }

@@ -53,14 +53,14 @@ describe('DIG + rising (Rowan’s well)', () => {
     expect(board.width).toBe(6);
     expect(board.tagged('target')).toEqual([[2, 19]]);
     const dig = battle.challenge as DigChallenge;
-    expect(dig.rowsAbove()).toBe(5);
-    expect(dig.objective()).toMatchObject({ counter: '5 rows to the pipe', piecesLeft: null });
+    expect(dig.rowsAbove()).toBe(4);
+    expect(dig.objective()).toMatchObject({ counter: '4 rows to the pipe', piecesLeft: null });
     expect(dig.lipY).toBe(20 - ENCOUNTERS.elder.lip);
   });
 
   it('adds a debris row on top per strain step', () => {
     const dig = encounter('elder', 2).challenge as DigChallenge;
-    expect(dig.rowsAbove()).toBe(7);
+    expect(dig.rowsAbove()).toBe(6);
   });
 
   it('wins when the pipe’s row clears', () => {
@@ -296,9 +296,9 @@ describe('BUILD (Pip’s tower)', () => {
       ],
       7,
     )!;
-    expect(build.hint(tower)).toBe(12);
+    expect(build.hint(tower)).toBe(36);
     expect(build.hint(box)).toBe(0);
-    expect(build.hint(outside)).toBe(-30);
+    expect(build.hint(outside)).toBe(-90);
     build.wobbles = 1;
     expect(build.hint(outside)).toBe(-1000);
   });
@@ -562,7 +562,7 @@ describe('CONTAIN + protect (Wren’s mushroom ring)', () => {
     return { battle, contain: battle.challenge as ContainChallenge };
   };
 
-  it('lays seven rows of litter, two rot sources and three young caps', () => {
+  it('lays five rows of litter, two rot sources and three young caps', () => {
     const { battle, contain } = wren();
     expect(battle.board.countTag('hazard')).toBe(2);
     expect(contain.alive).toBe(3);

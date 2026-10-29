@@ -238,7 +238,7 @@ describe('Vesper, one step ahead', () => {
   });
 
   it('sets an Offering or a Puzzle and pays Moon Shards and lore', () => {
-    const kinds = VESPER_ROUTE.map((s) => NPCS[s.npcId]!.challenge.kind);
+    const kinds = VESPER_ROUTE.map((s) => NPCS[s.npcId]!.challenge!.kind);
     expect(kinds).toEqual(['puzzle', 'offering', 'puzzle', 'offering']);
     for (const stop of VESPER_ROUTE) {
       const npc = NPCS[stop.npcId]!;

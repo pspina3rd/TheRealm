@@ -1,0 +1,466 @@
+{
+  "id": "forager",
+  "seed": 7932,
+  "level": 2,
+  "dualChance": 0.14285714285714285,
+  "source": "Team 5aa90cd authored layout/hint and shared HINT=1; public timed inputs and preview reads only",
+  "seconds": 39.6,
+  "pieces": [
+    {
+      "name": "T",
+      "second": null
+    },
+    {
+      "name": "O",
+      "second": null
+    },
+    {
+      "name": "I",
+      "second": null
+    },
+    {
+      "name": "Z",
+      "second": "orange"
+    },
+    {
+      "name": "J",
+      "second": null
+    },
+    {
+      "name": "L",
+      "second": null
+    },
+    {
+      "name": "S",
+      "second": "gold"
+    },
+    {
+      "name": "S",
+      "second": null
+    },
+    {
+      "name": "O",
+      "second": null
+    },
+    {
+      "name": "L",
+      "second": null
+    },
+    {
+      "name": "Z",
+      "second": null
+    },
+    {
+      "name": "J",
+      "second": "violet"
+    },
+    {
+      "name": "T",
+      "second": null
+    },
+    {
+      "name": "I",
+      "second": null
+    },
+    {
+      "name": "O",
+      "second": null
+    },
+    {
+      "name": "T",
+      "second": null
+    },
+    {
+      "name": "I",
+      "second": null
+    },
+    {
+      "name": "L",
+      "second": null
+    },
+    {
+      "name": "J",
+      "second": null
+    }
+  ],
+  "steps": [
+    {
+      "updates": 44
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    }
+  ]
+}

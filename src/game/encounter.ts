@@ -35,11 +35,12 @@ import { encounterOf } from '../data/encounters';
 import { DuelChallenge } from '../battle/verbs/duel';
 import { PlantChallenge } from '../battle/verbs/plant';
 import { ContainChallenge } from '../battle/verbs/contain';
-import { DUEL_PRICES, STAKES } from '../data/balance';
+import { DUEL_PRICES } from '../data/balance';
 import {
   stakesCard,
   encounterSpec,
   flowFor,
+  halfPay,
   type StakesCard,
   type BrowseOffer,
 } from './encounterFlow';
@@ -65,7 +66,7 @@ interface Speaker {
 /** What happens when the hero bumps into an entity. */
 export type Interaction =
   /** Just talk; no battle (a finished quest). */
-  | (Speaker & { readonly kind: 'message' })
+  | (Speaker & { readonly kind: 'message'; readonly browse?: BrowseOffer })
   /** An offering the hero can't make yet: shows the item they need. */
   | (Speaker & { readonly kind: 'needsItem'; readonly itemId: string })
   /** A mentor with lessons to teach: the player picks one, or leaves. */
@@ -221,22 +222,25 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
   const npc = npcNow(npcFor(entity), state.flags);
   const attitude = attitudeOf(state.hero, npc, regardOf(state, npc.id));
   const speaker = { title: npc.name, sprite: npc.sprite, ...(npc.inanimate ? {} : { attitude }) };
-  const shop = npc.rewards.find((reward) => reward.kind === 'shop');
-  if (shop && shop.kind === 'shop' && npc.id !== 'stallKeeper') {
+  const shopId = shopFor(npc);
+  if (shopId && npc.id !== 'stallKeeper') {
+    const browse = {
+      shopId,
+      priceMultiplier: priceChange(state, shopId) * ATTITUDE_PRICES[attitude],
+      attitude,
+    };
+    const text = introFor(npc, attitude, state.talk);
+    if (!npc.challenge) return { kind: 'message', ...speaker, text, browse };
     return {
       kind: 'challenge',
       ...speaker,
-      text: introFor(npc, attitude, state.talk),
+      text,
       spec: npc.challenge,
       rewards: [],
       extras: [],
       terms: dealTerms(npc, attitude) ?? 'wary',
       canAccept: false,
-      browse: {
-        shopId: shop.shopId,
-        priceMultiplier: priceChange(state, shop.shopId) * ATTITUDE_PRICES[attitude],
-        attitude,
-      },
+      browse,
     };
   }
   if (!npc.repeatable && state.flags.has(npcCompletionFlag(npc))) {
@@ -253,6 +257,7 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
   }
   const text = introFor(npc, attitude, state.talk);
   const spec = encounterOf(npc.id) ? encounterSpec(state, npc.id) : npc.challenge;
+  if (!spec) return { kind: 'message', ...speaker, text };
   if (spec.kind === 'offering' && itemCount(state.hero, spec.itemId) < 1) {
     return { kind: 'needsItem', ...speaker, text, itemId: spec.itemId };
   }
@@ -434,7 +439,7 @@ function resolveNpc(
     };
   }
 
-  const spec = npc.challenge;
+  const spec = battle.spec;
   const given: Gain[] = [];
   if (spec.kind === 'offering' && removeItem(state.hero, spec.itemId)) {
     given.push({ kind: 'item', itemId: spec.itemId, count: -1 });
@@ -462,18 +467,18 @@ function interactionOptions(
   const flow = flowFor(spec);
   if (!flow) return {};
   const stakes = stakesCard(state, spec, rewards);
-  const shop = npc.rewards.find((reward) => reward.kind === 'shop');
+  const shopId = shopFor(npc);
   return {
     stakes,
     canAccept: stakes.blockedReason === null,
     ...(spec.kind === 'encounter' && stakes.assist
       ? { assistedSpec: encounterSpec(state, npc.id, true) }
       : {}),
-    ...(shop?.kind === 'shop'
+    ...(shopId
       ? {
           browse: {
-            shopId: shop.shopId,
-            priceMultiplier: priceChange(state, shop.shopId) * ATTITUDE_PRICES[terms],
+            shopId,
+            priceMultiplier: priceChange(state, shopId) * ATTITUDE_PRICES[terms],
             attitude: terms,
           },
         }
@@ -517,28 +522,23 @@ function resolveEncounter(
   if (!def || !flow) throw new Error(`Unknown encounter: ${spec.id}`);
   const priorWins = recordOf(state, spec.id).wins;
   const offered = rewardsOnTerms(state.hero, npc, terms);
-  const shop = npc.rewards.find((reward) => reward.kind === 'shop');
+  const shopId = shopFor(npc);
   const duel = battle.challenge instanceof DuelChallenge ? battle.challenge : null;
   const gains =
-    duel && shop?.kind === 'shop'
+    duel && shopId
       ? settleHaggle(
           state,
           npc.id,
-          shop.shopId,
+          shopId,
           battle.gaveUp ? 'fail' : duel.grade,
           battle.gaveUp ? DUEL_PRICES.walkOff : duel.meter,
         )
       : settle(state, spec.id, flow.rules, won, spec.assisted);
   if (duel && !won) gains.push({ kind: 'strain', level: recordOf(state, spec.id).strain });
-  let shopId: string | null = shop?.kind === 'shop' ? shop.shopId : null;
+  let pricedShopId: string | null = shopId;
   if (won && (!duel || duel.grade !== 'even')) {
     let rewards = [...offered.base, ...(spec.assisted ? [] : offered.extras)];
-    if (priorWins > 0)
-      rewards = rewards.map((reward) =>
-        reward.kind === 'gil'
-          ? { ...reward, amount: Math.floor(reward.amount * STAKES.repeatPay) }
-          : reward,
-      );
+    if (priorWins > 0) rewards = halfPay(rewards);
     const great =
       duel?.grade === 'great' ||
       ((battle.challenge instanceof PlantChallenge ||
@@ -547,18 +547,28 @@ function resolveEncounter(
     if (great && def.great && !spec.assisted) rewards.push(def.great);
     const outcome = grantRewards(state.hero, state.flags, rewards);
     gains.push(...outcome.gains);
-    shopId = outcome.shopId ?? shopId;
+    pricedShopId = outcome.shopId ?? pricedShopId;
     if (!npc.repeatable) state.flags.add(npcCompletionFlag(npc));
   }
   return {
     won,
     gains,
     speech: won
-      ? [winSpeech(state, npc, terms, offered.knewSpell), def.winAdd].filter(Boolean).join(' ')
+      ? [
+          winSpeech(state, npc, terms, offered.knewSpell),
+          ...(priorWins === 0 && def.winAdd ? [def.winAdd] : []),
+        ]
+          .filter(Boolean)
+          .join(' ')
       : say(npc.lines.lose, terms, state.talk, lineKey(npc, 'lose')),
     fell: false,
-    shopId,
-    priceMultiplier: shopId ? priceChange(state, shopId) * ATTITUDE_PRICES[terms] : 1,
+    shopId: pricedShopId,
+    priceMultiplier: pricedShopId ? priceChange(state, pricedShopId) * ATTITUDE_PRICES[terms] : 1,
     attitude: terms,
   };
+}
+
+function shopFor(npc: NpcDef): string | null {
+  const reward = npc.rewards.find((reward) => reward.kind === 'shop');
+  return npc.shop ?? (reward?.kind === 'shop' ? reward.shopId : null);
 }

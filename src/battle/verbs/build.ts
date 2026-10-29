@@ -138,6 +138,6 @@ export class BuildChallenge implements Challenge {
     const wobble = this.wobbly(landing.placed) ? 1 : 0;
     const cracks = this.cracksOn(landing.grid);
     const over = cracks > this.params.crackLimit || this.wobbles + wobble > this.params.wobbleLimit;
-    return over ? -1000 : 3 * this.filled(landing.grid) - 12 * cracks - 30 * wobble;
+    return over ? -1000 : 9 * this.filled(landing.grid) - 36 * cracks - 90 * wobble;
   }
 }

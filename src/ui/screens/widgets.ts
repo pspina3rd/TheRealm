@@ -123,7 +123,6 @@ export function challengeCard(spec: ChallengeSpec): HTMLElement {
         'div',
         { className: 'challenge-card' },
         iconElement('coin', 3, 'Haggle'),
-        el('span', { className: 'price-gauge', title: 'Clear lines to lower the price' }),
         pieces(spec.pieceLimit),
       );
     case 'lesson':
@@ -170,7 +169,7 @@ export function rewardIcons(rewards: readonly Reward[]): HTMLElement[] {
         return [chip(ELEMENT_ICONS[spell.category], name, `Learn ${name}`)];
       }
       case 'shop':
-        return [chip('bag', '', 'Opens the shop')];
+        return [chip('coin', '', 'Opens the shop')];
       case 'flag': {
         const flag = FLAG_ICONS[reward.flag];
         return [

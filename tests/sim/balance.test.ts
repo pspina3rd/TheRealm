@@ -10,7 +10,8 @@
  */
 import { writeFileSync } from 'node:fs';
 import { describe, it } from 'vitest';
-import { REGIONS } from '../../src/data/balance';
+import { MAP_RULES, REGIONS } from '../../src/data/balance';
+import type { BattleOptions } from '../../src/battle/battle';
 import { ENEMIES } from '../../src/data/enemies';
 import { MAPS } from '../../src/data/maps';
 import type { ChallengeSpec } from '../../src/data/types';
@@ -20,14 +21,21 @@ import { FULL_KIT, measure } from './simulate';
 const pct = (n: number) => `${(n * 100).toFixed(0)}%`;
 
 /** One table row: the same fight for every bot. */
-function row(area: string, name: string, level: number, spec: ChallengeSpec, runs: number) {
+function row(
+  area: string,
+  name: string,
+  level: number,
+  spec: ChallengeSpec,
+  runs: number,
+  options: BattleOptions = {},
+) {
   const pace = Number(process.env.PACE ?? 1500);
-  const good = measure(spec, level, 'good', runs, 'ranger', [], pace);
-  const goodKit = measure(spec, level, 'good', runs, 'ranger', FULL_KIT, pace);
-  const prepared = measure(spec, level, 'prepared', runs, 'ranger', [], pace);
-  const preparedKit = measure(spec, level, 'prepared', runs, 'ranger', FULL_KIT, pace);
-  const singles = measure(spec, level, 'spammer', runs, 'ranger', [], pace);
-  const sloppy = measure(spec, level, 'sloppy', runs, 'ranger', [], pace);
+  const good = measure(spec, level, 'good', runs, 'ranger', [], pace, options);
+  const goodKit = measure(spec, level, 'good', runs, 'ranger', FULL_KIT, pace, options);
+  const prepared = measure(spec, level, 'prepared', runs, 'ranger', [], pace, options);
+  const preparedKit = measure(spec, level, 'prepared', runs, 'ranger', FULL_KIT, pace, options);
+  const singles = measure(spec, level, 'spammer', runs, 'ranger', [], pace, options);
+  const sloppy = measure(spec, level, 'sloppy', runs, 'ranger', [], pace, options);
   const cells = [
     area,
     name,
@@ -60,13 +68,18 @@ describe.skipIf(!process.env.SIM)('whole-game balance table (npm run sim)', () =
       ];
       for (const enemyId of foes) {
         const enemy = ENEMIES[enemyId]!;
-        rows.push(row(map.name, enemy.name, enemy.level, { kind: 'combat', enemyId }, runs));
+        // The region's rule (spores in the grove) plays in its monster fights, as in the game.
+        const rule = MAP_RULES[id];
+        const name = rule ? `${enemy.name} (${rule})` : enemy.name;
+        rows.push(row(map.name, name, enemy.level, { kind: 'combat', enemyId }, runs, { rule }));
       }
     }
     const lessons = [
       ['torva', 'emberWisp', 'fire'],
       ['maren', 'tideWisp', 'blizzard'],
       ['kestrel', 'galeWisp', 'gale'],
+      // Hazel's lessons bring her spores and her shield (MENTOR_RULES).
+      ['hazel', 'mossWisp', 'cure'],
     ] as const;
     for (const [difficulty, level] of (only && !only.includes('lessons')
       ? []

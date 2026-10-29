@@ -265,7 +265,7 @@ describe('playable second-half progression', () => {
         }),
       );
       expect(npc.essential, id).toBe(true);
-      expect(['puzzle', 'barter'], id).toContain(npc.challenge.kind);
+      expect(['puzzle', 'barter'], id).toContain(npc.challenge?.kind);
       if (!npc.inanimate) expect(attitudeOf(state.hero, npc), id).toBe('hostile');
       const interaction = describeInteraction(state, {
         id: `qa-${id}`,

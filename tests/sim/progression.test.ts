@@ -134,13 +134,17 @@ describe('attainable Chapter One resources', () => {
 
   it('plays every recorded puzzle through legal controls, and reports exhausted solver budgets', () => {
     for (const npc of Object.values(NPCS)) {
-      if (npc.challenge.kind !== 'puzzle') continue;
+      if (!npc.challenge || npc.challenge.kind !== 'puzzle') continue;
       const battle = progressionBattle(newGame(), npc.challenge, 1);
       const result = simulateBattle(battle, 'prepared', 1500, 180_000, { challengeAware: true });
       expect(result.stopReason, npc.id).toBe('won');
       expect(battle.status).toBe('won');
     }
-    const battle = progressionBattle(newGame(), NPCS.elder!.challenge, 1);
+    const battle = progressionBattle(
+      newGame(),
+      { kind: 'puzzle', rows: ['###...####', '####.#####'], queue: ['I', 'T'], linesToClear: 2 },
+      1,
+    );
     const result = simulateBattle(battle, 'prepared', 1500, 180_000, {
       challengeAware: true,
       puzzleNodeBudget: 0,
@@ -164,7 +168,7 @@ describe('attainable Chapter One resources', () => {
     expect(barterGain({ blue: 8, violet: 8 }, challenge)).toBe(0);
   });
 
-  it('bounds gate attempts, traces actual goals, and re-haggles before returning to a shop', () => {
+  it('bounds gate attempts, traces actual goals, and pays current Browse prices on shop returns', () => {
     const result = runCampaign({ route: ['brightwater', 'brightwater'], seed: 3 });
     for (const id of new Set(
       result.trace.flatMap((entry) => (entry.gateFlags.length ? [entry.entityId] : [])),
@@ -180,8 +184,14 @@ describe('attainable Chapter One resources', () => {
       }
     }
     for (const entry of result.trace.filter((entry) => entry.phase === 'shop-preparation')) {
-      expect(NPCS[entry.npcId!]!.challenge.kind).toBe('haggle');
-      expect(entry.pieces).toBeGreaterThan(0);
+      if (entry.outcome === 'browsed') {
+        expect(NPCS[entry.npcId!]!.shop).toBeDefined();
+        expect(entry.pieces).toBe(0);
+        expect(entry.after.gil).toBeLessThanOrEqual(entry.before.gil);
+      } else {
+        expect(NPCS[entry.npcId!]!.challenge?.kind).toBe('haggle');
+        expect(entry.pieces).toBeGreaterThan(0);
+      }
     }
     expect(result.chapterVictory).toBe(false);
     expect(result.completed).toBe(false);

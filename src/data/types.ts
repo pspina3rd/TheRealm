@@ -247,10 +247,7 @@ export type ChallengeSpec =
       readonly wants: Readonly<Partial<Record<CrystalColor, number>>>;
       readonly pieceLimit: number;
     }
-  /**
-   * Haggle: your line clears push the price down while the merchant pushes it
-   * up over time. The final price applies to the shop that opens afterwards.
-   */
+  /** Legacy challenge kept for existing campaign/test compatibility. */
   | { readonly kind: 'haggle'; readonly pieceLimit: number; readonly rivalIntervalMs: number }
   /**
    * A mentor's lesson: a fight against `enemyId`, made harder by
@@ -296,6 +293,7 @@ export type Reward =
    */
   | { readonly kind: 'spell'; readonly spellId: string; readonly instead?: Reward }
   | { readonly kind: 'flag'; readonly flag: string }
+  /** Legacy campaign shop reward; new keepers use NpcDef.shop. */
   | { readonly kind: 'shop'; readonly shopId: string };
 
 // ------------------------------------------------------------------ NPCs ---
@@ -352,7 +350,13 @@ export interface NpcDef {
   /** Their element: the hero's alignment around it sets their attitude. */
   readonly element: Element;
   readonly lines: NpcLines;
-  readonly challenge: ChallengeSpec;
+  /** Their challenge; none for a keeper who only sells (see `shop`). */
+  readonly challenge?: ChallengeSpec;
+  /**
+   * The shop they keep: always open to browse at list price × attitude
+   * (× a haggle's discount or markup); a keeper with a challenge haggles.
+   */
+  readonly shop?: string;
   readonly rewards: readonly Reward[];
   /** Added to the rewards when Friendly or Devoted. */
   readonly bonus?: Reward;

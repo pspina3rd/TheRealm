@@ -31,7 +31,7 @@ import { LessonChallenge } from '../../src/battle/lesson';
 import { newKnownSpell } from '../../src/game/spells';
 
 /** How much the good bot weighs the challenge's hint against plain stacking. */
-const HINT = Number(process.env.HINT ?? 3);
+const HINT = Number(process.env.HINT ?? 1);
 
 export type Bot = 'good' | 'casual' | 'dropper' | 'idle';
 
@@ -144,7 +144,7 @@ function clearReward(lines: number, tall: boolean): number {
   return (tall ? [0, 5, 10, 16, 28] : [0, -2, 6, 15, 32])[lines] ?? 32;
 }
 
-interface Choice {
+export interface Choice {
   readonly landing: Landing;
   readonly score: number;
 }
@@ -190,15 +190,20 @@ export function goodRanked(battle: Battle): Choice[] {
   return ranked.sort((a, b) => b.score - a.score);
 }
 
-/** The casual bot: one piece, tidy, plus the hint; sometimes the second-best spot. */
-function casualChoice(battle: Battle): Landing | null {
+/** One-piece ranking before the casual bot's fixed noise/second-best errors. */
+export function casualRanked(battle: Battle): Choice[] {
   const hint = battle.challenge.hint?.bind(battle.challenge);
-  const ranked = landingsNow(battle.board)
+  return landingsNow(battle.board)
     .map((landing) => ({
       landing,
-      score: scoreGrid(landing.grid, landing.lines) + (hint?.(landing) ?? 0),
+      score: 10 * scoreGrid(landing.grid, landing.lines) + HINT * (hint?.(landing) ?? 0),
     }))
     .sort((a, b) => b.score - a.score);
+}
+
+/** The casual bot: one piece, tidy, plus the hint; sometimes the second-best spot. */
+function casualChoice(battle: Battle): Landing | null {
+  const ranked = casualRanked(battle);
   const pick = ranked.length > 1 && battle.rng.next() < 0.15 ? ranked[1] : ranked[0];
   return pick?.landing ?? null;
 }
@@ -275,6 +280,7 @@ export function playEncounter(
   level = 1,
   options: BattleOptions = {},
   limitMs = 600_000,
+  trace?: (battle: Battle, landing: Landing) => void,
 ): TryResult {
   const hero = simHero(level);
   // Primary lesson d2/d3 follows the previously learned rank. A levelled
@@ -303,7 +309,10 @@ export function playEncounter(
     if (!aimed && battle.started && !battle.demoPlaying && (bot === 'good' || bot === 'casual')) {
       aimed = true;
       const choice = bot === 'good' ? goodChoice(battle) : casualChoice(battle);
-      if (choice) execute(battle, choice, bot === 'casual', () => noise.next(), false);
+      if (choice) {
+        trace?.(battle, choice);
+        execute(battle, choice, bot === 'casual', () => noise.next(), false);
+      }
       if (process.env.AIM && choice) {
         const a = battle.board.active!;
         process.stderr.write(
@@ -330,8 +339,10 @@ export function playEncounter(
           );
       } else {
         const choice = bot === 'good' ? goodChoice(battle) : casualChoice(battle);
-        if (choice) execute(battle, choice, bot === 'casual', () => noise.next());
-        else battle.input('hardDrop');
+        if (choice) {
+          trace?.(battle, choice);
+          execute(battle, choice, bot === 'casual', () => noise.next());
+        } else battle.input('hardDrop');
       }
       // Good and casual share the same spell policy. Spend taught healing
       // at a raised lesson shield even at full HP; otherwise conserve heals.
@@ -420,13 +431,18 @@ export interface Cell {
 }
 
 /**
- * Layout trials: ROWAN=row,row,… replaces the well's start rows (top
- * first) for this run, so a re-authored layout can be simmed before it is
+ * Layout trials: ROWAN=row,row,… (or WREN=…) replaces the well's (or the
+ * ring's) start rows (top first) for this run, so a re-authored layout can be simmed before it is
  * written into src/data/encounters.ts.
  */
-if (process.env.ROWAN) {
-  const spec = ENCOUNTER_DEFS.elder!.spec as { params: { rows: readonly string[] } };
-  spec.params = { ...spec.params, rows: process.env.ROWAN.split(',') };
+for (const [env, id] of [
+  ['ROWAN', 'elder'],
+  ['WREN', 'forager'],
+] as const) {
+  const rows = process.env[env];
+  if (!rows) continue;
+  const spec = ENCOUNTER_DEFS[id]!.spec as { params: { rows: readonly string[] } };
+  spec.params = { ...spec.params, rows: rows.split(',') };
 }
 
 /** One table cell: `runs` seeds of an encounter with one bot, first try, at a strain. */

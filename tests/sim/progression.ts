@@ -17,6 +17,7 @@ import { ENHANCEMENT_IDS } from '../../src/data/spells';
 import type { ChallengeSpec, ItemDef } from '../../src/data/types';
 import {
   describeInteraction,
+  commitBattleTry,
   reply,
   resolveBattle,
   type Resolution,
@@ -38,6 +39,7 @@ import { mentorEntities } from '../../src/world/mentors';
 import { activeEntities, newGame, travel, type GameState } from '../../src/world/state';
 import { MENTORS } from '../../src/data/mentors';
 import { simulateBattle, type FightResult } from './simulate';
+import { flowFor } from '../../src/game/encounterFlow';
 import { BarterChallenge } from '../../src/battle/barter';
 import { FINALE_FLAG } from '../../src/game/ending';
 import type { NpcEntity } from '../../src/world/map';
@@ -95,7 +97,10 @@ export function investEarnedPoints(hero: Hero): number {
 const gearValue = (item: ItemDef | undefined) => (item?.atk ?? 0) + (item?.def ?? 0);
 
 /** Buys only stock actually opened by a won challenge, without granting gil or gear. */
-export function purchaseSupplies(state: GameState, shop: Resolution): number {
+export function purchaseSupplies(
+  state: GameState,
+  shop: Pick<Resolution, 'shopId' | 'attitude' | 'priceMultiplier'>,
+): number {
   if (!shop.shopId) return 0;
   const def = SHOPS[shop.shopId];
   if (!def) throw new Error(`Unknown shop: ${shop.shopId}`);
@@ -349,6 +354,12 @@ export function runCampaign(options: CampaignOptions = {}): CampaignResult {
       attempts.set(entity.id, (attempts.get(entity.id) ?? 0) + 1);
       if (spec.kind === 'lesson') lessonsTried++;
       const battle = progressionBattle(state, spec, nextSeed());
+      if (flowFor(spec)) {
+        while (battle.demoPlaying) battle.update(50);
+        if (!commitBattleTry(state, battle))
+          throw new Error('Attempt blocked before simulated input');
+        battle.input('left');
+      }
       const result = simulateBattle(battle, 'prepared', pace, limit, {
         challengeAware: improved,
         puzzleNodeBudget: options.puzzleNodeBudget,
@@ -421,7 +432,14 @@ export function runCampaign(options: CampaignOptions = {}): CampaignResult {
     };
     const attempt = (entity: EntityDef, phase: EncounterTrace['phase'] = 'encounter') => {
       const interaction = describeInteraction(state, entity);
-      if (interaction.kind === 'challenge') {
+      if ('browse' in interaction && interaction.browse && entity.kind === 'npc') {
+        const before = resources(state);
+        spent += purchaseSupplies(state, interaction.browse);
+        merchants.set(entity.id, { mapId: state.mapId, entity, shopId: interaction.browse.shopId });
+        record(entity, phase, before, 'browsed', 'paid production Browse prices; no challenge');
+        return;
+      }
+      if (interaction.kind === 'challenge' && interaction.canAccept !== false) {
         if (interaction.replies) reply(state, interaction.replies, 'accept');
         fight(entity, interaction.spec, interaction.terms, phase);
       } else if (gateFlags(entity).length) {
@@ -469,7 +487,7 @@ export function runCampaign(options: CampaignOptions = {}): CampaignResult {
       }
     };
     const restock = () => {
-      // A previous shop win only identifies a merchant. Every return requires a new haggle.
+      // Known keepers can be browsed again at their current saved prices.
       const available = [...merchants.values()].sort((a, b) => {
         const rest = (id: string) => (SHOPS[id]!.stock.includes('innRest') ? 1 : 0);
         return state.hero.hp < state.hero.maxHp ? rest(b.shopId) - rest(a.shopId) : 0;
@@ -477,7 +495,24 @@ export function runCampaign(options: CampaignOptions = {}): CampaignResult {
       for (const merchant of available) {
         if (!enterMap(state, merchant.mapId)) continue;
         const interaction = describeInteraction(state, merchant.entity);
-        if (interaction.kind !== 'challenge' || interaction.spec.kind !== 'haggle') continue;
+        if ('browse' in interaction && interaction.browse) {
+          const before = resources(state);
+          spent += purchaseSupplies(state, interaction.browse);
+          record(
+            merchant.entity,
+            'shop-preparation',
+            before,
+            'browsed',
+            'paid current Browse prices',
+          );
+          break;
+        }
+        if (
+          interaction.kind !== 'challenge' ||
+          interaction.canAccept === false ||
+          interaction.spec.kind !== 'haggle'
+        )
+          continue;
         if (interaction.replies) reply(state, interaction.replies, 'accept');
         fight(merchant.entity, interaction.spec, interaction.terms, 'shop-preparation');
         if (timeouts > 0) return;

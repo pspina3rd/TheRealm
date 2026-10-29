@@ -4,6 +4,7 @@
  * (set `SIM=1` to print the full table).
  */
 import { Battle, type BattleAction, type BattleOptions } from '../../src/battle/battle';
+import { LessonChallenge } from '../../src/battle/lesson';
 import { rotationsOf } from '../../src/core/bestFit';
 import { Board, type ActivePiece, type CellTally, type LockResult } from '../../src/core/board';
 import type { Cell, Offset, PieceName } from '../../src/core/pieces';
@@ -350,9 +351,12 @@ function choose(battle: Battle, style: Style): Spot | null {
 function castReady(battle: Battle): void {
   const combat = battle.combat;
   if (!combat) return;
+  // A lesson's shield is up: only the taught spell gets through, so cast it, heal or not.
+  const lesson = combat instanceof LessonChallenge && combat.shield === 'up' ? combat : null;
   for (const id of Object.keys(combat.spellBook())) {
     const kind = SPELLS[id]?.levels[0].effect.kind;
-    if (kind === 'heal' && battle.hero.hp > battle.hero.maxHp * 0.5) continue;
+    const taught = lesson?.spellId === id;
+    if (kind === 'heal' && !taught && battle.hero.hp > battle.hero.maxHp * 0.5) continue;
     if (combat.cannotCastReason(id) === null && combat.status() === 'ongoing') combat.castSpell(id);
   }
 }
@@ -523,6 +527,7 @@ export function measure(
   classId = 'ranger',
   kit: readonly string[] = [],
   thinkMs = 1500,
+  options: BattleOptions = {},
 ): { winRate: number; seconds: number; pieces: number; hpLeft: number; overflows: number } {
   let wins = 0;
   let ms = 0;
@@ -532,7 +537,7 @@ export function measure(
   for (let seed = 1; seed <= runs; seed++) {
     const hero = heroAt(level, classId, kit);
     if (style === 'prepared') hero.items = { herb: 5, ether: 1, phoenixFeather: 1 };
-    const result = simulate(spec, hero, style, seed * 7919, thinkMs);
+    const result = simulate(spec, hero, style, seed * 7919, thinkMs, 600_000, options);
     if (result.won) wins++;
     overflows += result.overflows;
     ms += result.ms;

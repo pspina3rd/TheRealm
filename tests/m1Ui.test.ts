@@ -144,6 +144,7 @@ describe('M1 player UI loop', () => {
     expect([...document.querySelectorAll('.stakes-row b')].map((node) => node.textContent)).toEqual(
       ['Win', 'Ask', 'Fail', 'Retry'],
     );
+    expect(document.querySelector('.stakes-card')?.textContent).toContain('Regard 0 → 1');
     click('Take it on');
     expect(app.active!.battle.demo).not.toBeNull();
     app.battleInput('left');

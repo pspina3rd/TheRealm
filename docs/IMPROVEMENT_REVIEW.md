@@ -8,8 +8,11 @@ of features already implemented or a replacement for the team's decisions.
 ## Latest team check — supersedes the earlier scheduling assessment
 
 Rechecked `claude/laughing-brown-7i13lb` at
-[`f17985d`](https://github.com/pspina3rd/TheRealm/commit/f17985d91e42f78100e44cf57441518cf597ad17).
-The 16 newer team commits after `d14b3c4` have now been reconciled into
+[`5aa90cd`](https://github.com/pspina3rd/TheRealm/commit/5aa90cd220b1c694824eeb8e2fe8a422c4fa05cb).
+This adds the team’s M1 wiring, five-row Rowan/Wren layouts, shared hint
+weight, CHARGE hint revision, recorded tables, and smoke script. These are
+being reconciled with GetPutTaco’s campaign and save-recovery checks.
+The encounter foundation commits after `d14b3c4` have been reconciled into
 GetPutTaco, preserving the playable campaign. The unified save format is
 version 12 and loads both independently written version-10 formats, plus
 version 11. The player-facing M1 wiring is implemented and checkpointed;

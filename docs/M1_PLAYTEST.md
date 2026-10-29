@@ -5,6 +5,15 @@ M1 balance gate fails; the author's go/no-go is still pending. M2a remains
 off.** Passing Vitest means a report ran successfully, not that its measured
 win rates met the approved targets.
 
+## Latest team checkpoint under integration
+
+Team `5aa90cd` changes Rowan/Wren to five-row layouts, scales hints into
+the bots’ safety units, and supplies additional M1 flow and presentation.
+The tables below describe the earlier `f17985d` layouts/policy and are
+historical diagnostics after this update, except where explicitly rerun.
+They must not be used to claim that the new layouts passed or failed.
+Fresh affected cells will be recorded separately.
+
 ## Method and reproducibility
 
 All acceptance cells below use **200 deterministic seeds**. Brackets are
@@ -182,3 +191,34 @@ Current integration checks: 1,077 tests pass, 9 skipped; formatting, lint,
 type checks and production build pass. Phone/desktop DOM fixtures verify
 interactions, but new browser screenshots remain unverified: local socket
 operations are denied by this execution sandbox.
+
+## Reconciled team 5aa90cd measurements
+
+These fresh rows replace the earlier six-NPC table for the current layouts
+and shared hint weight. Each cell uses 200 seeds and Wilson 95% bounds.
+The CONTAIN warning fix and v12 save recovery are retained. Percentages
+below retain half-percent precision; Rowan is 189/200, **94.5%**, rather
+than an exact 95%. This remains below the strict 95% random-board gate.
+
+| NPC         | Good                 | Casual             | Dropper         | Idle            | Good strain 2        | Casual strain 2    |
+| ----------- | -------------------- | ------------------ | --------------- | --------------- | -------------------- | ------------------ |
+| elder       | 94.5% [90.4, 96.9]   | 4.5% [2.4, 8.3]    | 0.0% [0.0, 1.9] | 0.0% [0.0, 1.9] | 49.0% [42.2, 55.9]   | 0.0% [0.0, 1.9]    |
+| kid         | 100.0% [98.1, 100.0] | 0.5% [0.1, 2.8]    | 0.0% [0.0, 1.9] | 0.0% [0.0, 1.9] | 100.0% [98.1, 100.0] | 2.0% [0.8, 5.0]    |
+| farmer      | 100.0% [98.1, 100.0] | 55.0% [48.1, 61.7] | 0.0% [0.0, 1.9] | 0.0% [0.0, 1.9] | 94.0% [89.8, 96.5]   | 29.0% [23.2, 35.6] |
+| stallKeeper | 80.0% [73.9, 85.0]   | 0.5% [0.1, 2.8]    | 0.0% [0.0, 1.9] | 0.0% [0.0, 1.9] | 29.0% [23.2, 35.6]   | 0.0% [0.0, 1.9]    |
+| forager     | 86.0% [80.5, 90.1]   | 3.5% [1.7, 7.0]    | 0.0% [0.0, 1.9] | 0.0% [0.0, 1.9] | 77.5% [71.2, 82.7]   | 2.0% [0.8, 5.0]    |
+| guard       | 14.5% [10.3, 20.0]   | 0.0% [0.0, 1.9]    | 0.0% [0.0, 1.9] | 0.0% [0.0, 1.9] | 0.0% [0.0, 1.9]      | 0.0% [0.0, 1.9]    |
+
+Vale’s strain-two row is synthetic: his saved strain caps at one. At the
+reachable cap, good won 5/200 (2.5%, Wilson 1.1–5.7%) and casual won 0/200.
+Assisted casual Vale within three fresh attempts won **10/200 (5.0%,
+Wilson 2.7–9.0%)**, versus the ≥90% target. Final failures: 58 top-outs and
+132 exhausted budgets. This does not simulate the Wait scheduling fights.
+
+The new legal replay fixtures preserve actual RNG, timed public inputs and
+preview reads for Rowan, Wren and Vale; no board/queue edits are used. A
+legal win proves solvability for that seed, not a passing difficulty band.
+
+Still needed: casual accessibility and strain-floor balance, Vale’s assist
+recovery, Hazel pacing/difficulty, and a browser layout review of the combined
+tree. The author’s M1 playtest/go-no-go has not occurred; M2a stays off.

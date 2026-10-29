@@ -1,6 +1,6 @@
 import { ENCOUNTER_DEFS } from '../data/encounters';
 import type { ChallengeSpec } from '../data/types';
-import type { Telegraph } from '../battle/types';
+import type { Objective, Telegraph } from '../battle/types';
 import { visibleCells } from '../battle/rules';
 import { cellColors, type Board, type QueuedPiece } from '../core/board';
 import { ELEMENT_OF_COLOR } from '../core/elements';
@@ -36,6 +36,7 @@ export interface BoardStatus {
   /** While paused the stack and preview are hidden, so a pause can't be used to plan. */
   readonly paused: boolean;
   readonly spec?: ChallengeSpec;
+  readonly objective?: Objective;
   readonly rule?: { readonly id: string } | null;
   telegraphs?(): readonly Telegraph[];
 }
@@ -194,6 +195,13 @@ export class BoardView {
     const ctx = this.ctx;
     ctx.save();
     if (verb?.verb === 'plant') {
+      const limit = verb.params.pieceLimit;
+      const left = status.objective?.piecesLeft ?? limit;
+      const dayGone = Math.max(0, Math.min(1, 1 - left / limit));
+      ctx.fillStyle = dayGone > 0.85 ? '#ff9a3c' : '#f5d77b';
+      ctx.beginPath();
+      ctx.arc(9 + dayGone * (board.width * CELL - 18), 14, 8, 0, Math.PI * 2);
+      ctx.fill();
       verb.params.zones.forEach((color, x) => {
         if (!color) return;
         ctx.fillStyle = `${CRYSTAL_HEX[color]}25`;
@@ -245,11 +253,7 @@ export class BoardView {
       ctx.fillStyle = '#c2efff';
       ctx.fillRect(x + 11, y + 2, 8, 26);
     } else if (tag === 'protected') {
-      ctx.fillStyle = '#fff1bb';
-      ctx.beginPath();
-      ctx.arc(x + 15, y + 12, 9, Math.PI, 0);
-      ctx.fill();
-      ctx.fillRect(x + 13, y + 12, 4, 12);
+      drawIcon(ctx, 'mushroom', x + 3, y + 3, { scale: 2 });
     } else if (tag === 'hazard' || tag === 'spore') {
       ctx.fillStyle = tag === 'spore' ? '#d3ff9c' : '#d095ff';
       for (const [dx, dy] of [

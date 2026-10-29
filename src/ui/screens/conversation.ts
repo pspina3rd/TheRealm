@@ -115,12 +115,37 @@ export function conversationBody(
         'section',
         { className: 'stakes-card' },
         ...[
-          ['Win', stakes.win],
+          [
+            'Win',
+            stakes.win +
+              (stakes.regard
+                ? ` Regard ${stakes.regard.current} → ${stakes.regard.after}${stakes.regard.warmer ? ` · ${ATTITUDE_NAMES[stakes.regard.warmer]}` : ''}.`
+                : ''),
+          ],
           ['Ask', stakes.objective],
           ['Fail', `${stakes.fail} · Strain ${stakes.strain}`],
           ['Retry', stakes.retry],
         ].map(([label, text]) =>
-          el('div', { className: 'stakes-row' }, el('b', { text: label }), el('span', { text })),
+          el(
+            'div',
+            { className: 'stakes-row' },
+            el('b', { text: label }),
+            el(
+              'span',
+              {},
+              text ?? '',
+              ...(label === 'Win' && stakes.great
+                ? [
+                    el(
+                      'span',
+                      { className: 'stakes-great' },
+                      ' Great: ',
+                      ...rewardIcons([stakes.great]),
+                    ),
+                  ]
+                : []),
+            ),
+          ),
         ),
         ...(stakes.blockedReason
           ? [el('p', { className: 'stakes-blocked', text: stakes.blockedReason })]

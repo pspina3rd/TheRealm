@@ -2,6 +2,14 @@ import { VESPER_LINES } from './story';
 import { CAMPAIGN_NPCS } from './campaignNpcs';
 import type { ChallengeSpec, NpcDef } from './types';
 
+/**
+ * A person's encounter (src/data/encounters.ts), as their challenge: the
+ * strain, demo and assist are filled in when it is offered.
+ */
+function encounter(id: string): ChallengeSpec {
+  return { kind: 'encounter', id, strain: 0, demo: false, assisted: false };
+}
+
 /** Innkeeper Pete on Rowan's son (the script's Refusal), among his greetings. */
 export const HAREGUY =
   "Rowan's boy is upstairs. Three weeks asleep. Breathes fine. Just won't wake.";
@@ -10,10 +18,11 @@ export const HAREGUY =
  * Every NPC in the game. Each has a real need, the challenge is doing that
  * task, and the reward follows from it (see "NPCs and attitude" in
  * docs/GAME_DESIGN.md). Challenge kinds:
- * - offering: hand over an item, paid for with points (like MP for a spell)
- * - barter:   trade crystals of specific colours
- * - haggle:   a price duel that opens a shop
- * - puzzle:   a preset board with a fixed set of pieces
+ * - encounter: the person's own verb on their own board (src/data/encounters.ts)
+ * - offering:  hand over an item, paid for with points (like MP for a spell)
+ * - barter:    trade crystals of specific colours
+ * - puzzle:    a preset board with a fixed set of pieces
+ * Shopkeepers (`shop`) sell at list price; Ordor also haggles (an encounter).
  */
 export const NPCS: Readonly<Record<string, NpcDef>> = {
   ...CAMPAIGN_NPCS,
@@ -113,13 +122,8 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
         ],
       },
     },
-    // The spore field over the well: spores (green) and the well's stones.
-    challenge: {
-      kind: 'puzzle',
-      rows: ['nnn..nnnnn', 'nn#..nnnnn', 'n.nnnn#nnn'],
-      queue: ['O', 'I'],
-      linesToClear: 3,
-    },
+    // The well (src/data/encounters.ts).
+    challenge: encounter('elder'),
     rewards: [
       {
         kind: 'spell',
@@ -239,7 +243,8 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
         ],
       },
     },
-    challenge: { kind: 'barter', wants: { green: 7 }, pieceLimit: 21 },
+    // Their encounter (src/data/encounters.ts).
+    challenge: encounter('farmer'),
     rewards: [{ kind: 'item', itemId: 'herb', count: 2 }],
     bonus: { kind: 'item', itemId: 'herb', count: 1 },
     secret: { kind: 'item', itemId: 'groveCharm', count: 1 },
@@ -328,12 +333,8 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
         ],
       },
     },
-    challenge: {
-      kind: 'puzzle',
-      rows: ['###...####', '####.#####'],
-      queue: ['I', 'T'],
-      linesToClear: 2,
-    },
+    // Their encounter (src/data/encounters.ts).
+    challenge: encounter('kid'),
     rewards: [{ kind: 'item', itemId: 'ether', count: 1 }],
     bonus: { kind: 'item', itemId: 'herb', count: 1 },
     secret: { kind: 'item', itemId: 'windCharm', count: 1 },
@@ -408,8 +409,9 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
         warm: "Ah, close! We'll strike a deal next time.",
       },
     },
-    challenge: { kind: 'haggle', pieceLimit: 8, rivalIntervalMs: 2500 },
-    rewards: [{ kind: 'shop', shopId: 'mossvaleStall' }],
+    shop: 'mossvaleStall',
+    challenge: encounter('stallKeeper'),
+    rewards: [],
     repeatable: true,
   },
 
@@ -436,8 +438,8 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       },
       lose: 'Ha! Too slow. Come back when the barges are in.',
     },
-    challenge: { kind: 'haggle', pieceLimit: 10, rivalIntervalMs: 2000 },
-    rewards: [{ kind: 'shop', shopId: 'brightwaterGeneral' }],
+    shop: 'brightwaterGeneral',
+    rewards: [],
     repeatable: true,
   },
   smith: {
@@ -462,8 +464,8 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       },
       lose: 'Too slow. The forge is closed to you today.',
     },
-    challenge: { kind: 'haggle', pieceLimit: 10, rivalIntervalMs: 1600 },
-    rewards: [{ kind: 'shop', shopId: 'brightwaterSmith' }],
+    shop: 'brightwaterSmith',
+    rewards: [],
     repeatable: true,
   },
   innkeeper: {
@@ -491,8 +493,8 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       },
       lose: 'Maybe next time.',
     },
-    challenge: { kind: 'haggle', pieceLimit: 6, rivalIntervalMs: 3000 },
-    rewards: [{ kind: 'shop', shopId: 'brightwaterInn' }],
+    shop: 'brightwaterInn',
+    rewards: [],
     repeatable: true,
   },
   sage: {
@@ -588,7 +590,8 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
         warm: 'The watch owes you a debt. Stay safe down there!',
       },
     },
-    challenge: { kind: 'barter', wants: { blue: 8, violet: 8 }, pieceLimit: 30 },
+    // Their encounter (src/data/encounters.ts).
+    challenge: encounter('guard'),
     rewards: [
       { kind: 'flag', flag: 'cavePass' },
       { kind: 'gil', amount: 20 },
@@ -767,7 +770,8 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       },
       lose: 'Too thin. The rot will win that ring.',
     },
-    challenge: { kind: 'barter', wants: { green: 8 }, pieceLimit: 21 },
+    // Their encounter (src/data/encounters.ts).
+    challenge: encounter('forager'),
     rewards: [
       { kind: 'item', itemId: 'herb', count: 2 },
       { kind: 'gil', amount: 15 },
@@ -910,8 +914,8 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       },
       lose: 'Too slow. Full price or nothing today.',
     },
-    challenge: { kind: 'haggle', pieceLimit: 10, rivalIntervalMs: 1500 },
-    rewards: [{ kind: 'shop', shopId: 'emberforgeArmory' }],
+    shop: 'emberforgeArmory',
+    rewards: [],
     repeatable: true,
   },
   forgeInn: {
@@ -936,8 +940,8 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       },
       lose: 'Ha! Full price, then.',
     },
-    challenge: { kind: 'haggle', pieceLimit: 6, rivalIntervalMs: 3000 },
-    rewards: [{ kind: 'shop', shopId: 'cinderRest' }],
+    shop: 'cinderRest',
+    rewards: [],
     repeatable: true,
   },
 
@@ -1029,8 +1033,8 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       },
       lose: 'Too slow. Full price.',
     },
-    challenge: { kind: 'haggle', pieceLimit: 6, rivalIntervalMs: 3000 },
-    rewards: [{ kind: 'shop', shopId: 'eyrieRest' }],
+    shop: 'eyrieRest',
+    rewards: [],
     repeatable: true,
   },
 

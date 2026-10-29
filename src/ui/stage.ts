@@ -41,6 +41,16 @@ export interface StageOptions {
   readonly line?: string;
 }
 
+/** How long a reaction face shows. */
+const FACE_MS = 1200;
+
+/** The person's wordless faces (§4): a cheer, a wince, alarm. */
+const FACE_ICONS: Readonly<Record<Face, IconId>> = {
+  cheer: 'faceDevoted',
+  wince: 'faceWary',
+  alarm: 'faceHostile',
+};
+
 /** Where things are drawn on the stage. */
 interface Layout {
   readonly height: number;
@@ -235,21 +245,7 @@ export class Stage {
     }
     if (combat) this.drawEnemyStatus(combat, seesEnemyMove(battle.hero.stats.insight), timeMs);
     else this.drawObjective(battle.objective);
-    if (this.face) {
-      this.face.elapsed += dtMs;
-      if (this.face.elapsed > 1000) this.face = null;
-      else {
-        const face = this.face.value;
-        ctx.font = 'bold 24px system-ui';
-        ctx.textAlign = 'center';
-        ctx.fillStyle = '#fff1bb';
-        ctx.fillText(
-          face === 'cheer' ? '⌒ᴗ⌒' : face === 'wince' ? '›﹏‹' : '！',
-          this.layout.enemy.x,
-          70,
-        );
-      }
-    }
+    this.drawFace(dtMs);
     this.drawEffects(dtMs);
     this.drawPops(dtMs);
     this.drawFloats(dtMs);
@@ -502,7 +498,14 @@ export class Stage {
       ctx.fillStyle = '#ffe5ad';
       ctx.font = 'bold 12px system-ui';
       ctx.textAlign = 'left';
-      ctx.fillText(`↓ ${rival.pending}`, x, y + 57);
+      ctx.fillText(`↓ ${rival.pending} · ${rival.secondsLeft}s`, x, y + 57);
+      ctx.fillStyle = '#ff5c7a';
+      ctx.fillRect(
+        miniX - 6,
+        y + miniH - Math.min(miniH, rival.pending * 6),
+        4,
+        Math.min(miniH, rival.pending * 6),
+      );
     }
     objective.crystals?.forEach((goal, row) => {
       drawIcon(ctx, ELEMENT_ICONS[goal.element], x, y + row * 30, { scale: 2 });
@@ -560,6 +563,20 @@ export class Stage {
         ctx.fillRect(x + (i % 20) * 10, top + Math.floor(i / 20) * 10, 7, 7);
       }
     }
+  }
+
+  private drawFace(dtMs: number): void {
+    if (!this.face) return;
+    this.face.elapsed += dtMs;
+    if (this.face.elapsed >= FACE_MS) {
+      this.face = null;
+      return;
+    }
+    const { x, y } = this.anchor('enemy');
+    const bob = Math.round(Math.sin(this.face.elapsed / 90) * 2);
+    this.ctx.fillStyle = '#10132acc';
+    this.ctx.fillRect(x - 64, y - 66 + bob, 40, 40);
+    drawIcon(this.ctx, FACE_ICONS[this.face.value], x - 60, y - 62 + bob, { scale: 2 });
   }
 
   private drawEffects(dtMs: number): void {

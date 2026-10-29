@@ -239,3 +239,70 @@ not a completed encounter slice.
   phone integration fixtures do not substitute for a browser layout review.
 - Engineering version sequence: reconciliation v11; committed attempts v12;
   future M2a needs the next version, without changing the approved design.
+
+## Latest team checkpoint imported for reconciliation
+
+Team head: `5aa90cd220b1c694824eeb8e2fe8a422c4fa05cb`. The following
+log is preserved as their report; its smoke evidence belongs to their tree.
+Our combined tree still requires its own checks and visual review.
+
+# Build log: encounter redesign (M0 + M1)
+
+The running log of the encounter build (docs/ENCOUNTER_DESIGN.md, §9 M0 and
+M1). One entry per commit, newest last, so a restart can resume exactly.
+Branch `encounters-m1`, based on `claude/laughing-brown-7i13lb`.
+
+## Plan
+
+| Step | Contents                                                                                               |
+| ---- | ------------------------------------------------------------------------------------------------------ |
+| 1    | Board foundations: cell tags, narrow-board spawn, clears off, controlled supply, pushed rows           |
+| 2    | `ENCOUNTERS`, `STAKES`, `REGION_RULES` data; stakes rules (regard, strain, retry, day, seal); save v10 |
+| 3    | Verbs: DIG + rising, BUILD, PLANT, DUEL (scripted), CONTAIN + protect, CHARGE; pre-roll, demo, assist  |
+| 4    | Lessons: shield, lent spell, spell seal, help clamp; spores region rule; dark visibility               |
+| 5    | Sim harness (good / casual / dropper / idle, 200 seeds, 95% CI), solver, shape-fit and supply checks   |
+| 6    | Encounter flow: Stakes card data, resolution with stakes, browse shops, Ordor's haggle                 |
+| 7    | UI: Stakes card, frame objective, skins, faces and lines, demos, world props, Sevenstones stones       |
+| 8    | Docs (GAME_DESIGN, STORY lines, README), Playwright smoke at 390×844 and 1100×900                      |
+
+## Log
+
+| Date   | Commit                    | Done                                                                                                                                                                                                        | Next                           |
+| ------ | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| Oct 28 | —                         | Read the spec and code; wrote the plan                                                                                                                                                                      | Step 1                         |
+| Oct 28 | 6116516                   | Step 1: board tags, narrow spawn, clears off, controlled supply, pushed rows                                                                                                                                | Step 2                         |
+| Oct 28 | b741551                   | Step 2: `ENCOUNTERS`/`STAKES`/`REGION_RULES` data; stakes rules (regard, strain, retry, day, prices); spell seal replaces category locks; help clamp 5–35%; save v10 with zeroed-stakes migration from v1–9 | Step 3: verbs                  |
+| Oct 28 | 0951af3, ec9d156          | Step 3 (WIP): verbs DIG/BUILD/PLANT/DUEL/CONTAIN/CHARGE, encounter defs, Battle pre-roll/demo/assist/faces/give-up; encounter sim harness (`npm run sim ENCOUNTERS=…`)                                      | Tune boards via sims           |
+| Oct 28 | 6a580e6                   | Sim bots aim at spawn like touch players; fixed the landing-origin bug in bot execution (O pieces landed a column off; the old fight sim has it too); survival (El-Tetris) judge for the good bot           | Hooks                          |
+| Oct 28 | 8d5b1ae                   | Addendum hooks: `Battle.pushRows` (all pushes, with source flags), telegraph `leadPieces`, last-two-locks surge history, `holes` event, neutral cell kind, sim `CLASS`                                      | Fix kid/guard sims; verb tests |
+| Oct 28 | 85ffa23, 66deb36          | Lessons: mentor's shield (only the taught spell breaks it), lent spell, sealed spells blocked in fights; spores and dark rules; tests for verbs and battle systems                                          | Feasibility gate               |
+| Oct 28 | fdd782d                   | Feasibility gate: queue solver (Pip: 1–4 classes, greedy fails), shape-fit (Bean's furrows), supply rule, overlay budget                                                                                    | Encounter flow                 |
+| Oct 28 | d177d29 + tests           | Encounter flow: Stakes card, settled tries (half pay, assist, Great), browse shops + Ordor's once-a-day haggle; haggle challenge removed; lesson retry rule; fights ease the seal                           | Step 7: UI                     |
+| Oct 28 | 154e147                   | Tests for the encounter flow                                                                                                                                                                                | UI                             |
+| Oct 28 | 905af08                   | Step 7: UI: Stakes card, browse/haggle dialog, frame objective, board skins and overlays, faces and lines, give up, world props, the Sevenstones stones                                                     | Feasibility re-authoring       |
+| Oct 28 | c245398, f4a2625, 3fac26e | Rowan's well re-authored to five rows (good bot inside its band); one hint weight for both bots; Playwright smoke script                                                                                    | Wren                           |
+| Oct 28 | 4118ae6                   | Wren's ring re-authored to five rows; CONTAIN hint in the stacker's units                                                                                                                                   | Vale                           |
+| Oct 28 | 53340cd                   | Vale CHARGE hint (purity within the spare); good bot ~15%, band missed                                                                                                                                      | Docs, 200-seed sims            |
+| Oct 28 | c0ba7bf                   | STORY.md: encounters' draft lines; import test checks them word for word                                                                                                                                    | GAME_DESIGN                    |
+| Oct 28 | 62aa196                   | Fight sim: grove monsters with spores; Hazel's lessons in the lesson rows                                                                                                                                   | Docs                           |
+| Oct 28 | 600e562, 68a1b70          | Step 8 docs: GAME_DESIGN encounters section, browse shops, seals, save v10; README                                                                                                                          | Sim tables, smoke, report      |
+| Oct 28 | a94217b, b186592          | 200-seed encounter, grove and lesson tables in GAME_DESIGN; sim bot casts the taught spell through a lesson's shield; smoke rerun (52 shots, no console errors)                                             | Report                         |
+
+## Team 5aa90cd integration verification
+
+- Reconciled all 21 commits after f17985d using the actual ancestor.
+  Preserved the campaign, earned gates, finale, save v12 recovery, first-input
+  commitment, one-time settlement and CONTAIN warning correction.
+- Adopted revised Rowan/Wren boards and hint units, M1 NPC definitions,
+  Browse-only keepers, richer stakes incentives, pixel reactions, planting
+  sun, protected mushroom art, rival meter, seven hub stones, authored
+  encounter lines, simulator changes and portable smoke tooling.
+- Kept Hazel as the M1 lesson slice. Legacy haggle and shop-reward types
+  remain for campaign compatibility; new keepers use the team shop field.
+  Repeat pay halves item counts as well as gil.
+- Refreshed fixed public-input/RNG replay proofs for Rowan, Wren and Vale.
+  Updated the progression benchmark to pay actual Browse prices.
+- 1,082 tests passed, 11 opt-in/report skips; formatting, lint, typecheck,
+  production build and whitespace checks passed.
+- Fresh 200-seed tables remain outside acceptance bands. No M1 or M2a
+  acceptance is claimed. Combined-tree browser capture remains blocked.

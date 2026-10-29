@@ -599,8 +599,8 @@ A combo strikes as its category's element (Magma is earth).
   Casting closes the menu and takes time (the enemy's gauge jumps 10%). Tooltips give a short
   summary, e.g. "Blaze · Lv 2 · 22 damage".
 - **Spellbook** (menu): every known spell at its level, with level pips,
-  kind icon, cost, a scroll and a glowing frame when ready, and a lock when its
-  category is locked.
+  kind icon, cost, a scroll and a glowing frame when ready, and a seal on a
+  spell sealed by a lost lesson.
 
 ### Enhancements
 
@@ -636,10 +636,9 @@ Enhancing a spell makes it **ready** for its next level:
 - A **ready** spell waits for a [mentor](#mentors) lesson to raise it
   (`raiseSpellLevel` in `src/game/hero.ts`). Bonuses stay after the
   level-up and the next step starts empty.
-- **Locks**: a category can't be enhanced while the hero has a lost
-  mentor lesson in it still to win (`failedLessons`, see
-  [Mentors](#mentors)). It shows a lock, the lost spell's kind icon, the
-  mentor's face and where they are now (map and landmark).
+- **Seals** replaced the old category locks: enhancing is never blocked.
+  A lost lesson seals one known spell for a while instead (see
+  [Lessons with stakes](#lessons-with-stakes)).
 - **Skill screen**: each spell shows its level pips, the points one
   enhancement costs, step pips (bought, staged in green), and per
   attribute its icon, current value (Efficiency shows the mana taken off,
@@ -661,7 +660,7 @@ in the hero's mood with the mentor's element (their attitude score, as for
 an NPC of that element), rotating like any line. The first that applies
 (`mentorMoment`, `src/game/mentorLines.ts`):
 
-1. _If you failed their lesson_: while a lost lesson locks their category.
+1. _If you failed their lesson_: while a spell of their element is sealed by a lost lesson.
 2. _Seeks you out_: while they seek the hero (a board feat they noticed,
    see Hidden spells).
 3. _Arrives somewhere new_: the first talk since they moved to a new stop
@@ -716,7 +715,10 @@ noticed a feat waits at the nearest stop the hero can actually reach
   gil or drops.
 - **The mentor's help**: on every new piece, with chance
 
-  > p = clamp(40% − 5% × (alignment in the mentor's element − difficulty), 10%, 50%) × relation
+  > p = clamp(30% − 5% × (alignment in the mentor's element − difficulty), 5%, 35%) × relation
+
+  (the encounter rework's clamp, `HELP_BASE`/`HELP_MIN`/`HELP_MAX`; it was
+  40%, 10–50%)
 
   where relation compares the mentor's element to the hero's title
   element: same ×1, related ×0.8, the mentor's beats the hero's ×0.6, the
@@ -732,21 +734,12 @@ noticed a feat waits at the nearest stop the hero can actually reach
   tossed piece back to the queue in its own colour.
 
 - **Win**: the spell is learned or raised, shown on the results with its
-  icon and level pips. If it was the lesson that locked the category, the
-  lock opens.
+  icon and level pips. If that spell was sealed, the seal lifts.
 - **Before each try** (and each Retry) the mentor heals the hero to full
   HP; mana is the hero's own to manage.
-- **Lose**: the lesson is recorded and stays open (no trip to the inn). The hero can **Retry**
-  at once from the results (it has focus; keys are ignored for 350 ms so
-  mashing can't skip the result), or walk away, but the category is
-  **locked**: none of its spells can be enhanced until **that** lesson is
-  won. The mentor's other lessons stay on offer but don't lift the lock;
-  the lost one is marked with a lock in their list. If the hero comes to
-  know that spell at that level another way (e.g. an old save's tome), the lock lifts
-  by itself, so it can never become permanent. A later loss while locked
-  keeps the first lesson as the one to win. The lock shows the mentor's
-  face and where they are now; since mentors travel, the hero may have to
-  go and find them.
+- **Lose**: see [Lessons with stakes](#lessons-with-stakes): a lesson for
+  a spell the hero knows seals it; a lesson for a new spell costs regard
+  and a wait (Retry "Wait": until the next won monster fight).
 
 ### Charms
 
@@ -841,14 +834,16 @@ The NPC wants crystals of specific colours ("8 green"). Only crystals in
 cleared lines count. It rewards planning which pieces go where, and it
 uses the board's colours, which combat mostly ignores.
 
-### Haggle
+### Shops: browse, and Ordor's haggle
 
-Used by every shop and the inn. The price starts at 100%. Each line you
-clear pushes it down (−5% / −12% / −20% / −30% for 1–4 lines); the merchant
-pushes it up 3% on a timer. After a fixed number of pieces the deal is
-struck at the current price (50%–150%). Overflowing ends the haggle with no
-deal. Fast, clean play is literally cheaper. The keeper's
-[attitude](#npcs-and-attitude) then moves every price.
+Every shop and inn opens to **browse at list price** (times the keeper's
+[attitude](#npcs-and-attitude) price): no board stands between the hero
+and a Herb. The old haggle challenge (clear lines to push a meter down) is
+gone. **Haggling** is a choice at one stall in M1, Ordor's, once a day:
+a one-sided DUEL (see [Encounters](#encounters)). A Win or Great discounts
+his stall until the hero leaves town; a Fail marks his prices up until a
+haggle there is won or two days pass (`STAKES.markupDays`). An Even
+changes nothing.
 
 Every shop also **buys**: its Sell list shows what's in the bag, each at
 half its list price (rounded down). Worn gear isn't in the bag, services
@@ -868,16 +863,194 @@ Sword 80 (was 55), Crystal Mail 90 (65), Knight Blade 150 (105).
 
 ### Puzzle
 
-A preset board and a fixed sequence of pieces. Used by sages, children's
-games and sealed chests. Every puzzle has a recorded solution that the
-tests replay, so none can be accidentally unsolvable.
+A preset board and a fixed sequence of pieces. Used by sages and sealed
+chests (Pip's tower became a BUILD encounter). Every puzzle has a recorded
+solution that the tests replay, so none can be accidentally unsolvable.
 
 ### Other options considered (not built yet)
 
 - **Reputation**: repeated wins with an NPC unlock better rewards.
-- **Duel**: a rival on a second board sends stone rows when they clear.
 - **Escort / timed**: survive N seconds while an NPC's needs tick up.
 - **Gift instead of score**: pay the point cost with elemental mana instead of playing.
+
+## Encounters
+
+The encounter rework (docs/ENCOUNTER_DESIGN.md, rev 3) gives each person a
+board that plays like their trouble. M0 built the shared systems; M1 the
+Mossvale four, Wren, Vale, Hazel's lessons and the grove's spores. The
+numbers live in `ENCOUNTERS`, `DUEL_PRICES`, `STAKES` and `REGION_RULES`
+in `src/data/balance.ts`; the boards, lines and props in
+`src/data/encounters.ts`; the verbs in `src/battle/verbs/`.
+
+### Verbs (M1)
+
+| Person       | Board             | Verb              | Win                                   | Fail                              | Retry |
+| ------------ | ----------------- | ----------------- | ------------------------------------- | --------------------------------- | ----- |
+| Elder Rowan  | The Well (6 wide) | DIG + rising      | Clear the tagged pipe cell            | Mold locks above the lip (row 14) | Now   |
+| Pip          | The Crystal Tower | BUILD             | Fill the outline up to the spinner    | 3 cracks or 1 wobble              | Now   |
+| Farmer Bean  | The Herb Beds     | PLANT             | 12 sprouts in the furrows (16 Great)  | Sundown (26 pieces)               | Now   |
+| Ordor        | The Stall         | DUEL (one-sided)  | His price at 94% or less when it ends | Price above 105% (Even between)   | Day   |
+| Forager Wren | The Mushroom Ring | CONTAIN + protect | No rot left, 2 caps saved             | 2 caps dead, or 30 pieces         | Wait  |
+| Captain Vale | The Ward Lamps    | CHARGE            | All 4 lamps lit by pure lines         | 36 pieces, or a top-out           | Wait  |
+
+- **DIG**: a mold row (one gap) rises every 6 pieces, a piece sooner for
+  each new buried hole; clearing lines digs down to the pipe.
+- **BUILD**: clears are off; the queue is authored (Pip calls out the next
+  three). Cells inside the outline build the tower; a cell that leaves a
+  hole under it cracks; an overhang past the outline wobbles. Two pieces
+  in each queue are "ugly" and belong in the toy box (the right-hand
+  column), so the solver's solution classes are the pairs of pieces that
+  go to the box.
+- **PLANT**: neutral soil with ridges in columns 0, 4 and 8; a sprout is a
+  green S cell landed upright in a furrow. The queue holds one S in every
+  3 pieces.
+- **DUEL** (Ordor): his crate stack grows, sends and clears on timers;
+  your 2+ line clears push his price down (`DUEL_SENDS`), singles don't;
+  rows he sends are pushed under your stack. The meter is clamped
+  70–130%; ≤ 85% Great, ≤ 94% Win, ≤ 105% Even.
+- **CONTAIN + protect**: rot spreads from its frontier every 4 pieces; a
+  cap the rot reaches dies; clearing a cap's row picks it.
+- **CHARGE**: a pure line (7 of its 10 cells in one lamp's element) lights
+  the next unlit lamp of that element; every 14 pieces the wind snuffs the
+  oldest lit lamp, telegraphed one piece ahead.
+
+**Shared systems**: cell tags (`target`, `hazard`, `protected`, `ridge`,
+`spore`) ride with their cells through clears and pushes; narrow boards
+spawn centred; controlled queues guarantee a shape per window (the supply
+rule is checked against every strain); every row the board gains goes
+through one choke point, `Battle.pushRows`, flagged by source; every
+placement-relevant event is telegraphed `TELEGRAPH_LEAD` (1) piece ahead;
+each board keeps within the overlay budget (`overlaysOf`).
+
+**Pre-roll and demo**: an encounter waits on a still board until the first
+touch, with a ghost hint. On a first try the person plays a demo piece
+(700 ms in, a row every 45 ms) before the hero's turn. No verb adds an
+input or changes a gesture threshold, and nothing moves a piece while a
+finger is down.
+
+**On the board**: the objective sits on the frame (two lines at most), the
+person's face reacts (cheer on progress, alarm on a hazard, wince on a
+miss), and they say their three lines: at the start, at their hazard and
+when nearly done (see docs/STORY.md, _Encounters (draft lines)_). A Give
+up button ends a try as a fail. Each board has its skin (bricks, sky,
+soil, crates, moss, lamps). A win or fail leaves a prop beside the person
+on the map, and the grove's Sevenstones stone brightens once Wren's ring is
+saved.
+
+### Stakes
+
+Before every try a **Stakes card** says what's at risk: the reward, what a
+fail costs ("The mold spreads"), what each strain step adds ("one row worse
+next time"), the retry rule, and, at a threshold after two fails, the
+mentor's assist. Buttons: _Not now_ / _Take it on_ (or _Let Maren steady
+it_ / _I'll do it myself_).
+
+| Stake  | Range     | Moves                                                                                                    |
+| ------ | --------- | -------------------------------------------------------------------------------------------------------- |
+| Regard | −2..2     | First win +1, fail −1, a repeat win restores 1 (up to the first win's level). Added to attitude only.    |
+| Strain | 0–2 (1)   | Each fail adds a step (the card says what); a win clears it; a night at the inn takes a step off.        |
+| Retry  | rule      | Now; Now once (then Wait); Wait (until the next won monster fight); Day (once a day).                    |
+| Pay    | repeat    | Repeatables replay once a day after a win at half pay, with no regard.                                   |
+| Assist | threshold | After 2 fails the mentor may toss in a piece (30% per piece, steered by the board's hint). Strain cap 1. |
+
+A day ends at an inn (`innNight`). Regard never changes difficulty, and it
+never makes anyone Hostile on its own: the floor it can push to is Wary.
+
+### Lessons with stakes
+
+- **The mentor's shield**: at 25% of its HP (`SHIELD_AT`) the foe raises a
+  shield in the taught spell's colour, and holds there; nothing gets
+  through but that spell. Casting it breaks the shield, even when the
+  spell is a heal (Cure). So every lesson ends with the hero casting what
+  they are learning.
+- **The lent spell**: a lesson for a spell the hero doesn't know yet lends
+  it for the lesson (level 1, its mana from the board); a sealed spell may
+  be cast in its own lesson.
+- **The seal**: losing a lesson for a spell the hero knows seals that
+  spell (it can't be cast) until its lesson is won or 3 monster fights are
+  won (`STAKES.sealFights`); one seal at a time. A lesson for a new spell
+  has nothing to seal: its cost is regard and the wait.
+
+### Region rules
+
+Counted in pieces, telegraphed one piece ahead, and only in monster fights
+of their region and their mentor's lessons (`MAP_RULES`, `MENTOR_RULES`):
+
+- **Spores** (the grove, Hazel): a spore lands every 5 pieces and spreads
+  every 3; a cluster of 4 petrifies into stone. Clearing a spore's row
+  clears it.
+- **Dark** (prototype, Selene's test board at `?board=selene-dark`): only
+  the rows within 3 of the falling piece show; the skyline and the ghost
+  always do, so no drop is blind.
+
+### Feasibility gate
+
+Every M1 board passes before it ships (`tests/feasibility.test.ts`):
+
+- **Authored queues** (Pip): a solver (`src/core/solver.ts`) finds 1–4
+  solution classes at each strain, and the greedy bot fails.
+- **Shape fit** (Bean): the furrows take the S upright and nothing else
+  fits wrongly.
+- **Supply rule**: every controlled queue holds its promised shapes at
+  each strain.
+- **Overlays**: no board shows more than the budget.
+- **Good bot**: Rowan's and Wren's start layouts were re-authored to five
+  rows (from six and seven) so the good bot clears them inside its band.
+
+### Encounter sims
+
+`npm run sim ENCOUNTERS=all` (or a list of NPC ids; `RUNS`, `SIM_OUT`)
+plays every encounter with four bots at touch pace, 200 seeds per cell
+with 95% intervals: **good** (two-ply, a survival judge plus the board's
+own placement hint), **casual** (one-ply, the same hint, 15% second-best
+picks, touch noise: 8% one column off, 5% wrong rotation, 2.6 s a piece),
+**dropper** and **idle**. Both good and casual aim at the spawn and drop
+after thinking, as a touch player does.
+
+Results at 200 seeds (Oct 28; first try, strain 0 unless marked; mean ±
+95% interval; band from ENCOUNTER_DESIGN §5.3):
+
+| Encounter                 | Band      | Good            | Casual          | Dropper | Idle           | Good, strain 2      | Casual, strain 2 | Length (good) |
+| ------------------------- | --------- | --------------- | --------------- | ------- | -------------- | ------------------- | ---------------- | ------------- |
+| Rowan                     | Mossvale  | 95% ±3.2 ✓      | 5% ±2.9 ✗       | 0% ✓    | 0% ✓           | 49% ±6.9 ✗          | 0% ✗             | 40 s ✓        |
+| Pip                       | Mossvale  | 100% ✗ (97 max) | 1% ±1.0 ✗       | 0% ✓    | 0% ✓           | 100% ✓              | 2% ✗             | 20 s ✗        |
+| Bean                      | Mossvale  | 100% ✗ (97 max) | 55% ±6.9 ✗ (60) | 0% ✓    | 0% ✓           | 94% ✓               | 29% ✓            | 53 s ✓        |
+| Ordor                     | Haggle    | 80% ±5.5 ✓      | 1% ±1.0 ✗       | 0% ✓    | 0% ✓           | 29% ✗               | 0% ✗             | 58 s ✓        |
+| Ordor, price              | Haggle    | 88% ✓           | 103% ✓          | 115% ✓  | 111% ✗ (≥ 112) |                     |                  |               |
+| Wren                      | Grove     | 82% ±5.3 ✓      | 3% ±2.4 ✗       | 0% ✓    | 0% ✓           | 77% ✓               | 2% ✗             | 41 s ✗ (55)   |
+| Vale                      | Threshold | 14% ±4.9 ✗      | 0% ✗            | 0% ✓    | 0% ✓           | 0% ✗ (strain 1 cap) | 0% ✗             | 75 s          |
+| Vale, assisted (strain 1) | ≥ 97%     | 29% ±6.3 ✗      | 0% ✗ (≥ 90)     | —       | 0% ✓           |                     |                  |               |
+
+Misses, reported rather than tuned (the numbers are the spec's):
+
+- **Casual** misses almost everywhere. Its touch noise (8% a column off, 5%
+  a wrong rotation, no undo) wrecks the narrow and authored boards: a
+  single misplaced piece in Rowan's 6-wide well or Pip's queue is usually
+  fatal. Pip's casual 1% is by the spec's own rule (the greedy bot must
+  fail an authored queue), which the casual band contradicts.
+- **Vale's CHARGE** is far off: purity 7 of 10 over 36 pieces with the wind
+  snuffing every 14 asks for four near-pure rows; the bots build them too
+  slowly. The placement hint was reworked twice (0–3% → 14%).
+- **Strain 2** floors miss for Rowan (two debris rows on top) and Ordor
+  (meter starts 10% worse).
+- **Pip** is short (20 s, 11 pieces) and the good bot never fails it.
+- Ordor's idle price is 111% against ≥ 112%: his timers alone don't push
+  the meter far enough in 60 s.
+
+Grove monsters with spores (fight sim, touch pace, 200 seeds): good
+99–100%, singles 94–99%, sloppy 0–2%, 53–61 s. Without spores the same
+fights read 99–100% / 94–100% / 0–1%, so spores cost the good bot about
+a point. Both sit above the approved 75–85% because fixing the sim bots'
+landing bug (O pieces landed a column off) made the fight sim's bots
+stronger everywhere; the monster numbers were not retuned here.
+
+Lessons (fight sim, touch pace, 200 seeds): Torva's, Maren's and Kestrel's
+d1–d3 read good 100%, full kit 100%, singles 100%, sloppy 0%, 34–59 s.
+Hazel's (spores and the shield) read good 100% / 100% / 100% for d1/d2/d3,
+singles 100%, sloppy 0%, 54 / 74 / 81 s. All sit above the §5.3 lesson
+bands (80–90 / 70–80 / 60–70%); not tuned here. The fight sim's bots now
+cast the taught spell while a lesson's shield is up, heal or not (before
+that, Hazel's Cure waited for half HP and her lessons ran 6–9 minutes).
 
 ## NPCs and attitude
 
@@ -894,7 +1067,7 @@ opposed; nature and arcane (which fire beats) don't count. The tier
 | Attitude | Score     | Face  | Prices | Rewards               | Will deal?               | Dialogue        |
 | -------- | --------- | ----- | ------ | --------------------- | ------------------------ | --------------- |
 | Hostile  | below −2½ | Scowl | —      | —                     | Refuses; shops close     | Curt            |
-| Wary     | −2½ to −1 | Frown | +20%   | Base                  | Harder challenge         | Suspicious      |
+| Wary     | −2½ to −1 | Frown | +20%   | Base                  | Yes                      | Suspicious      |
 | Neutral  | −½ to 2½  | Flat  | ±0     | Base                  | Yes                      | Plain           |
 | Friendly | 3 to 5½   | Smile | −10%   | Base + one bonus item | Yes                      | Warm            |
 | Devoted  | 6 and up  | Grin  | −20%   | Base + bonus + secret | Yes, plus a secret offer | Confides, hints |
@@ -912,9 +1085,10 @@ takes real growth. A hero deep in the two elements that beat an NPC's
 - **Prices**: what you pay = list price × haggle result × attitude price,
   rounded, at least 1 gil. Charm counts once, inside attitude; there is no
   separate Charm discount.
-- **Wary is harder**: offerings need 25% more points, barters 25% more
-  crystals (rounded up), and merchants push prices up 25% faster. Puzzles
-  are unchanged, since each has exactly one recorded solution.
+- **Wary is no longer harder**: attitude never changes a board. A
+  person's **regard** (−2..2, from winning and failing their encounter)
+  is added to the attitude score instead; on its own it never makes
+  anyone Hostile (see [Encounters](#encounters)).
 - **Devoted secrets**: quest NPCs add a `secret` item; shopkeepers bring
   out `secretStock`. The Elder's secret is his last Ether, as his
   confidence says; the sage's confidence hints at Ball Lightning.
@@ -947,28 +1121,28 @@ speaker rotates through, and `*stage directions*` (see [Story](#story)).
 
 | NPC                   | Element   | Need                                      | Challenge                      | Reward (bonus / secret)                           |
 | --------------------- | --------- | ----------------------------------------- | ------------------------------ | ------------------------------------------------- |
-| Elder Rowan           | Earth     | Spores choke the village well             | Puzzle: clear the spore field  | Quake, or 40 gil (Ether / Ether)                  |
-| Farmer Bean           | Nature    | Blight left her herb beds bare            | Barter: plant 7 green          | 2 Herbs (Herb / Grove Charm)                      |
-| Pip                   | Wind      | His crystal tower is jammed before supper | Puzzle: unjam the tower        | Ether (Herb / Wind Charm)                         |
-| Shopkeeper Ordor      | Nature    | Makes his living at the stall             | Haggle                         | Mossvale Stall (secret: Iron Sword)               |
-| Merchant Lo           | Water     | Must clear stock before the barges come   | Haggle                         | Brightwater Goods (secret: Crystal Mail)          |
-| Smith Pyre            | Fire      | The forge eats coal faster than she sells | Haggle                         | Ember Forge (secret: Pyre's Hammer)               |
-| Innkeeper Pete        | Fire      | Empty rooms since the caves closed        | Haggle                         | The Sleeping Lantern (secret: Phoenix Feather)    |
+| Elder Rowan           | Earth     | Spores choke the village well             | DIG: the well                  | Quake, or 40 gil (Ether / Ether)                  |
+| Farmer Bean           | Nature    | Blight left her herb beds bare            | PLANT: the herb beds           | 2 Herbs (Herb / Grove Charm)                      |
+| Pip                   | Wind      | His crystal tower is jammed before supper | BUILD: the crystal tower       | Ether (Herb / Wind Charm)                         |
+| Shopkeeper Ordor      | Nature    | Makes his living at the stall             | Browse; DUEL haggle once a day | Mossvale Stall (secret: Iron Sword)               |
+| Merchant Lo           | Water     | Must clear stock before the barges come   | Browse                         | Brightwater Goods (secret: Crystal Mail)          |
+| Smith Pyre            | Fire      | The forge eats coal faster than she sells | Browse                         | Ember Forge (secret: Pyre's Hammer)               |
+| Innkeeper Pete        | Fire      | Empty rooms since the caves closed        | Browse                         | The Sleeping Lantern (secret: Phoenix Feather)    |
 | Sage Orrin            | Lightning | The storm broke his roof lattice          | Puzzle: rebuild the lattice    | Thunder, or a Storm Charm (Ether / 2 Ethers)      |
-| Captain Vale          | Earth     | The cave ward lamps are dying             | Barter: 8 blue, 8 violet       | Cave Pass, 20 gil (Herb / Phoenix Feather)        |
+| Captain Vale          | Earth     | The cave ward lamps are dying             | CHARGE: the ward lamps         | Cave Pass, 20 gil (Herb / Phoenix Feather)        |
 | Collector Nim         | Wind      | Goblin Charms for his cabinet, but clean  | Offering: clean a Goblin Charm | 45 gil (Ether / Moon Shard)                       |
 | Shrine Keeper Myst    | Water     | The shrine spring clouded with the lake   | Barter: 10 blue, 6 green       | Spring restored, Ether (Ether / Tide Charm)       |
 | Steve the Cave Hermit | Arcane    | Grinds Moon Shards into salves            | Offering: grind a Moon Shard   | 2 Ethers, 2 Herbs (Herb / Moon Charm)             |
 | Sealed Chest          | Arcane    | (a thing)                                 | Puzzle: break the seal         | Phoenix Feather, 2 Moon Shards (a delver's cache) |
-| Forager Wren          | Nature    | Rot ate her mushroom rings (grove)        | Barter: plant 8 green          | 2 Herbs, 15 gil (Herb / Grove Charm)              |
+| Forager Wren          | Nature    | Rot ate her mushroom rings (grove)        | CONTAIN: the mushroom ring     | 2 Herbs, 15 gil (Herb / Grove Charm)              |
 | Fisher Tam            | Water     | Lurkers tore his nets (lake)              | Barter: weave 8 blue           | 25 gil, Ether (Herb / Tide Charm)                 |
 | Foreman Flint         | Earth     | A rockslide buried the ridge road         | Barter: 10 orange, 6 violet    | Ridge road open, 40 gil (Ether / 3 Ethers)        |
 | Apprentice Cinda      | Fire      | Must forge the peak gate's key for Torva  | Barter: 10 red, 6 orange       | Peak gate key, Ether (2 Herbs / Ember Charm)      |
-| Armorer Garrick       | Fire      | The ore is back and his racks are full    | Haggle                         | Forgefyre Armory (secret: Phoenix Feather)        |
-| Innkeeper Rosa        | Fire      | Smiths sleep hard and pay late            | Haggle                         | The Cinder Rest (secret: Ether)                   |
+| Armorer Garrick       | Fire      | The ore is back and his racks are full    | Browse                         | Forgefyre Armory (secret: Phoenix Feather)        |
+| Innkeeper Rosa        | Fire      | Smiths sleep hard and pay late            | Browse                         | The Cinder Rest (secret: Ether)                   |
 | Beacon Keeper Ysolde  | Lightning | The storm beacon went dark                | Barter: charge 10 gold         | 2 Ethers, 30 gil (2 Herbs / Storm Charm)          |
 | Courier Twitch        | Wind      | A gust scattered his letters (cliffs)     | Barter: catch 10 cyan          | 50 gil, Herb (Ether / Phoenix Feather)            |
-| Warden Ada            | Wind      | Climbers rest at her lodge                | Haggle                         | Eyrie Lodge (secret: Wind Charm)                  |
+| Warden Ada            | Wind      | Climbers rest at her lodge                | Browse                         | Eyrie Lodge (secret: Wind Charm)                  |
 | Scholar Ivo           | Arcane    | The moon rune over the tower went dark    | Barter: relight with 10 violet | 2 Ethers, 30 gil (2 Herbs / Moon Shard)           |
 
 Spell tomes left the shops: mentors teach spells. Their items remain, so
@@ -1133,6 +1307,15 @@ script gives Vesper no warm bonus. The lore flags show as an arcane book
 and are kept for the story to build on.
 
 ### Saves
+
+Save version 10 adds the encounters' stakes: the day count, each
+person's regard (and its peak), each encounter's strain, tries, wins and
+last day, shop discounts and markups, and the hero's spell seal. Older
+saves (1–9) load with every stake zeroed: day 1, regard 0, no strain, no
+prices, no seal; their category locks (`failedLessons`) are dropped,
+since seals replaced them. Loading sanitises the new fields like the rest
+(regard clamped to −2..2, strain to 0–2, a seal on a spell the hero
+doesn't know dropped).
 
 Save version 9 adds the scenes: an older save has seen every scene already
 due (the opening always; the Refusal once Vision 1 is seen; the Wyrm's fall

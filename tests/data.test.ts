@@ -184,8 +184,8 @@ describe('content references', () => {
       for (const reward of npc.rewards) {
         if (reward.kind === 'item') expect(ITEMS[reward.itemId], reward.itemId).toBeDefined();
         if (reward.kind === 'spell') expect(SPELLS[reward.spellId], reward.spellId).toBeDefined();
-        if (reward.kind === 'shop') expect(SHOPS[reward.shopId], reward.shopId).toBeDefined();
       }
+      if (npc.shop) expect(SHOPS[npc.shop], npc.shop).toBeDefined();
       if (!npc.repeatable) expect(npc.lines.done, npc.id).toBeTruthy();
     }
   });
@@ -195,7 +195,7 @@ describe('content references', () => {
       Object.values(ENEMIES).flatMap((e) => (e.drops ?? []).map((d) => d.itemId)),
     );
     for (const npc of Object.values(NPCS)) {
-      if (npc.challenge.kind === 'offering')
+      if (npc.challenge?.kind === 'offering')
         expect(dropped.has(npc.challenge.itemId), npc.id).toBe(true);
     }
   });
@@ -204,7 +204,7 @@ describe('content references', () => {
     // Every bag of seven holds one piece (four crystals) of each colour.
     for (const npc of Object.values(NPCS)) {
       const spec = npc.challenge;
-      if (spec.kind !== 'barter') continue;
+      if (spec?.kind !== 'barter') continue;
       const sure = 4 * Math.floor(spec.pieceLimit / 7);
       for (const [color, wanted] of Object.entries(spec.wants)) {
         expect(wanted, `${npc.id} ${color}`).toBeLessThanOrEqual(sure);
@@ -215,14 +215,6 @@ describe('content references', () => {
 
 /** Known solutions for every NPC puzzle: `[rotations, leftmost column]` per piece. */
 const PUZZLE_SOLUTIONS: Record<string, [number, number][]> = {
-  elder: [
-    [0, 3],
-    [1, 1],
-  ],
-  kid: [
-    [0, 6],
-    [2, 3],
-  ],
   sage: [
     [0, 7],
     [0, 4],
@@ -262,7 +254,7 @@ const PUZZLE_SOLUTIONS: Record<string, [number, number][]> = {
 };
 
 describe('puzzles', () => {
-  const puzzles = Object.values(NPCS).filter((n) => n.challenge.kind === 'puzzle');
+  const puzzles = Object.values(NPCS).filter((n) => n.challenge?.kind === 'puzzle');
 
   it('has a recorded solution for every puzzle', () => {
     expect(puzzles.map((p) => p.id).sort()).toEqual(Object.keys(PUZZLE_SOLUTIONS).sort());
@@ -270,7 +262,7 @@ describe('puzzles', () => {
 
   for (const npc of puzzles) {
     it(`${npc.id} is solvable with normal input`, () => {
-      const battle = makeBattle(npc.challenge);
+      const battle = makeBattle(npc.challenge!);
       for (const [turns, x] of PUZZLE_SOLUTIONS[npc.id] ?? []) {
         for (let i = 0; i < turns; i++) battle.input('rotate');
         const piece = battle.board.active!;

@@ -71,7 +71,7 @@ describe('the person’s demo (first try)', () => {
     expect(battle.demo).toBeNull();
     expect(kinds(battle)).toEqual(expect.arrayContaining(['demo', 'lines']));
     // r6 cleared; the O's top half sits on r5.
-    expect((battle.challenge as DigChallenge).rowsAbove()).toBe(5);
+    expect((battle.challenge as DigChallenge).rowsAbove()).toBe(4);
     // The piece the O displaced comes next.
     expect(battle.board.active?.name).toBe(queued[0]);
     expect(battle.started).toBe(false);
