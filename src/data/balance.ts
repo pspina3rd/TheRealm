@@ -143,16 +143,25 @@ export const HELP_MIN = 0.05;
 export const HELP_MAX = 0.1;
 /** The mentor's shield: at this share of HP the foe raises it; only the taught spell breaks it. */
 export const SHIELD_AT = 0.25;
-/** A lesson foe gains this share of its HP per difficulty above 1… */
-export const FOE_HP_PER_DIFFICULTY = 0.75;
-/** …and this much attack. */
-export const FOE_ATK_PER_DIFFICULTY = 5;
+/**
+ * A lesson foe's HP multiplier and attack bonus at each difficulty (index 0
+ * is difficulty 1; higher difficulties use the last row). A table, not a
+ * step per difficulty: the hero gains about two levels between lessons, so
+ * the foe has to climb faster than a straight line (the M1 tuning pass,
+ * Oct 29; it was +60% HP and +3 attack per step).
+ */
+export const LESSON_FOE_STEPS: readonly { readonly hp: number; readonly atk: number }[] = [
+  { hp: 1, atk: 0 },
+  { hp: 1.6, atk: 4 },
+  { hp: 2.5, atk: 11 },
+  { hp: 3.4, atk: 18 },
+];
 /** Extra difficulty of teaching a hidden spell. */
 export const HIDDEN_DIFFICULTY = 1;
 /** Heroes below this level meet gentler difficulty-1 lesson foes… */
 export const NOVICE_LEVEL = 3;
-/** …with this share of their HP (a 50 HP wisp has 36). */
-export const NOVICE_FOE_HP = 0.72;
+/** …with this share of their HP (a 50 HP wisp has 30). */
+export const NOVICE_FOE_HP = 0.6;
 
 // ---- Skill points (src/game/stats.ts)
 /** Skill points gained per hero level. */
