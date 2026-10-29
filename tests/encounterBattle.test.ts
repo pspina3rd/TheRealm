@@ -181,6 +181,9 @@ describe('the threshold assist', () => {
     const battle = encounter('guard', { assisted: true });
     const toss = (assist: object) =>
       (battle as unknown as { assistToss(a: object): void }).assistToss(assist);
+    // Two rows with a 2-wide gap: an O clears both; the S that was dealt can't.
+    battle.board.loadRows(['xxxx..xxxx', 'xxxx..xxxx']);
+    battle.board.replaceActive('S');
     toss({ mentorId: 'torva', shapes: ['O'], recolor: true });
     expect(battle.board.active).toMatchObject({ name: 'O', color: 'red', recolored: true });
     const before = battle.events.length;
@@ -188,6 +191,18 @@ describe('the threshold assist', () => {
     expect(battle.events.length).toBe(before);
     expect(steeredLanding(battle.board, [], undefined)).toBeNull();
     expect(steeredLanding(battle.board, ['I'], undefined)?.name).toBe('I');
+  });
+
+  it('only swaps the dealt piece for a better one, so the assist never hurts', () => {
+    const battle = encounter('guard', { assisted: true });
+    const board = battle.board;
+    board.loadRows(['xxxx..xxxx', 'xxxx..xxxx']);
+    const o = { name: 'O' as const, colors: ['gold', 'gold', 'gold', 'gold'] as const };
+    // The dealt O already clears both rows: nothing a mentor holds does better.
+    expect(steeredLanding(board, ['O', 'S'], undefined, o)).toBeNull();
+    // A dealt S does worse, so the O is tossed.
+    const s = { name: 'S' as const, colors: ['green', 'green', 'green', 'green'] as const };
+    expect(steeredLanding(board, ['O'], undefined, s)?.name).toBe('O');
   });
 });
 

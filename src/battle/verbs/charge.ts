@@ -141,7 +141,10 @@ export class ChargeChallenge implements Challenge {
    */
   hint(landing: Landing): number {
     const lit = this.lights(landing.clearedRows, this.lit).length;
-    const wanted = this.elements().map(colorOfElement);
+    // Only the colours of lamps still dark are worth building toward.
+    const wanted = this.elements()
+      .filter((element) => this.nextLamp(element) >= 0)
+      .map(colorOfElement);
     const width = this.ctx.board.width;
     const spare = width - this.params.purity;
     let worth = 0;

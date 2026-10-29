@@ -379,10 +379,12 @@ export class Battle implements BattleContext {
 
   /** The mentor tosses the shape the challenge's hint likes best, in its own colour or theirs. */
   private assistToss(assist: Assist): void {
+    const active = this.board.active;
     const best = steeredLanding(
       this.board,
       assist.shapes,
       this.challenge.hint?.bind(this.challenge),
+      active ? { name: active.name, colors: active.colors } : undefined,
     );
     const mentor = MENTORS[assist.mentorId];
     if (!best || !mentor) return;

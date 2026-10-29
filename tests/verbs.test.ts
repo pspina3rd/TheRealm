@@ -809,4 +809,25 @@ describe('CHARGE (Vale’s ward lamps)', () => {
     )!;
     expect(charge.hint(dirty)).toBeLessThan(charge.hint(lamp));
   });
+
+  it('stops building toward a colour once all its lamps are lit', () => {
+    const { battle, charge } = vale();
+    const board = battle.board;
+    const tower = (color: 'blue' | 'violet') =>
+      landingOf(
+        board,
+        'I',
+        [
+          [0, 0],
+          [1, 0],
+          [2, 0],
+          [3, 0],
+        ],
+        0,
+        [color, color, color, color],
+      )!;
+    expect(charge.hint(tower('blue'))).toBeCloseTo(charge.hint(tower('violet')));
+    charge.lit = [0, 1]; // both blue lamps
+    expect(charge.hint(tower('blue'))).toBeLessThan(charge.hint(tower('violet')));
+  });
 });

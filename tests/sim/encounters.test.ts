@@ -44,9 +44,8 @@ describe.skipIf(!process.env.ENCOUNTERS)('M1 table (npm run sim ENCOUNTERS=…)'
     for (const row of ROWS) {
       if (only && !only.includes(row.name)) continue;
       const name = row.name.replace('+assist', '');
-      // An assisted threshold is tried after two fails, so at its capped strain.
-      const strain = row.assisted ? STAKES.thresholdStrainMax : 0;
-      const opts = { strain, assisted: row.assisted ?? false };
+      // An assisted try clears the strain (§3.4, `strainFor`), so it plays at 0.
+      const opts = { strain: 0, assisted: row.assisted ?? false };
       const cells = bots.map((bot) => measureCell(name, bot, runs, opts));
       const floor = (bot: Bot): string =>
         row.floor === undefined ? '—' : show(measureCell(name, bot, runs, { strain: row.floor }));
