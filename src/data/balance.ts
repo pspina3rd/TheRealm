@@ -153,7 +153,7 @@ export const SHIELD_AT = 0.25;
 export const LESSON_FOE_STEPS: readonly { readonly hp: number; readonly atk: number }[] = [
   { hp: 1, atk: 0 },
   { hp: 1.6, atk: 4 },
-  { hp: 2.5, atk: 11 },
+  { hp: 2.5, atk: 10 },
   { hp: 3.4, atk: 18 },
 ];
 /** Extra difficulty of teaching a hidden spell. */
@@ -260,15 +260,15 @@ export const ENCOUNTERS = {
     /** Whether your clears cancel his pending rows first (from Lo on). */
     cancel: false,
     /** Strain: the meter starts this much worse per step. */
-    strainMeter: 0.02,
+    strainMeter: 0.01,
   },
   /** Forager Wren, "The Mushroom Ring": CONTAIN + protect (§6.4). */
   forager: {
-    pieceLimit: 36,
+    pieceLimit: 44,
     /** Rot spreads every this many pieces… */
-    spreadEvery: 5,
+    spreadEvery: 4,
     /** …this many cells at a time (one per source). */
-    spreadCells: 2,
+    spreadCells: 3,
     /** Caps that must be picked or still alive to win… */
     keepCaps: 2,
     /** …and the number of dead caps that fails. */
@@ -304,7 +304,7 @@ export const DUEL_PRICES = {
   win: 0.94,
   even: 1.05,
   sold: 0.8,
-  walkOff: 1.15,
+  walkOff: 1.2,
 } as const;
 
 /**

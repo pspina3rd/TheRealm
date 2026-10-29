@@ -601,7 +601,7 @@ describe('CONTAIN + protect (Wren’s mushroom ring)', () => {
       { kind: 'cells', what: 'spread', cells: contain.frontier(), leadPieces: 1 },
     ]);
     contain.onLock(EMPTY_LOCK);
-    expect(battle.board.countTag('hazard')).toBe(4);
+    expect(battle.board.countTag('hazard')).toBe(2 + ENCOUNTERS.forager.spreadCells);
     expect(contain.telegraphs()).toEqual([]);
     expect(battle.events.map((e) => e.event.kind)).toContain('spread');
   });
