@@ -115,7 +115,7 @@ export interface PieceOptions {
 
 /**
  * Column where new pieces appear on a board `width` wide: 3 on the usual
- * 10, centred on a narrow board (1 in Rowan's 6-wide well).
+ * 10, centred on a narrow board (1 in Rowan's 7-wide well).
  */
 export function spawnColumn(width: number): number {
   return Math.max(0, Math.floor((width - 4) / 2));

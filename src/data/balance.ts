@@ -204,8 +204,8 @@ export const REGIONS = {
 export const ENCOUNTERS = {
   /** Elder Rowan, "The Well": DIG + rising (§6.1). */
   elder: {
-    /** The shaft is this many columns wide (cols 0–5 inside the masonry). */
-    width: 6,
+    /** The shaft is this many columns wide (cols 0–6 inside the masonry; the author's 7, Oct 29). */
+    width: 7,
     /** A cell locked above this row (row 1 is the bottom) is mold over the lip. */
     lip: 16,
     /** A 1-gap mold row pushes up every this many pieces… */

@@ -47,10 +47,10 @@ describe('encounter definitions', () => {
 });
 
 describe('DIG + rising (Rowan’s well)', () => {
-  it('lays the well out, six wide, the pipe tagged in row 1', () => {
+  it('lays the well out, seven wide, the pipe tagged in row 1', () => {
     const battle = encounter('elder');
     const board = battle.board;
-    expect(board.width).toBe(6);
+    expect(board.width).toBe(7);
     expect(board.tagged('target')).toEqual([[2, 19]]);
     const dig = battle.challenge as DigChallenge;
     expect(dig.rowsAbove()).toBe(4);
@@ -115,7 +115,7 @@ describe('DIG + rising (Rowan’s well)', () => {
   it('loses when a rising row lifts the stack over the lip', () => {
     const battle = encounter('elder');
     const dig = battle.challenge as DigChallenge;
-    battle.board.grid[dig.lipY] = row(6, [0]);
+    battle.board.grid[dig.lipY] = row(7, [0]);
     dig.untilRise = 1;
     dig.onLock(EMPTY_LOCK);
     expect(dig.status()).toBe('lost');
@@ -158,7 +158,7 @@ describe('DIG + rising (Rowan’s well)', () => {
       1,
     )!;
     expect(dig.hint(down)).toBeGreaterThan(dig.hint(over));
-    board.loadRows(['..', 'mmPmm.'], { P: { cell: 'stone', tag: 'target' } });
+    board.loadRows(['..', 'mmPmm.m'], { P: { cell: 'stone', tag: 'target' } });
     const win = landingOf(
       board,
       'I',
@@ -171,7 +171,7 @@ describe('DIG + rising (Rowan’s well)', () => {
       5,
     )!;
     expect(dig.hint(win)).toBe(1000);
-    board.grid[dig.lipY] = row(6, [2, 3, 4, 5]);
+    board.grid[dig.lipY] = row(7, [2, 3, 4, 5]);
     const high = landingOf(
       board,
       'O',
