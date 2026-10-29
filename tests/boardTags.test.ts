@@ -5,6 +5,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { Board, spawnColumn } from '../src/core/board';
+import { afterLanding, landingsOf } from '../src/core/landing';
 import { PIECES, type PieceName } from '../src/core/pieces';
 import { createRng } from '../src/core/rng';
 import { place } from './helpers';
@@ -150,5 +151,17 @@ describe('controlled queues', () => {
     const b = board();
     b.supply = { window: 1, pieces: ['O', 'I'] };
     expect(b.preview(4)).toEqual(expect.arrayContaining(['O', 'I']));
+  });
+});
+
+describe('planning on a landing', () => {
+  it('turns a landing into the board the next piece is planned on', () => {
+    const b = board();
+    const [first] = landingsOf(b, 'O');
+    const next = afterLanding(b, first!);
+    expect(next).toMatchObject({ width: 10, height: 20, clearsEnabled: b.clearsEnabled });
+    expect(next.grid).toBe(first!.grid);
+    expect(next.tags).toBe(first!.tags);
+    expect(landingsOf(next, 'O').length).toBeGreaterThan(0);
   });
 });
