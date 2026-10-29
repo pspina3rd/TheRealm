@@ -12,14 +12,14 @@
  * - Board knobs: PARAMS (JSON merged into the encounter's verb params),
  *   ASSISTED=1; HELP (the mentor's toss chance), SHIELD (its HP share),
  *   FOEHP (× the foe's HP), FOEATK (+ the foe's attack), FOEACT (× its
- *   act interval), SPORES
+ *   act interval), ASSIST (the threshold assist's toss chance), SPORES
  *   (`land,spread,petrify`), RULE=none (no region rule).
  */
 import { appendFileSync } from 'node:fs';
 import { describe, it } from 'vitest';
 import type { Battle } from '../../src/battle/battle';
 import { LessonChallenge } from '../../src/battle/lesson';
-import { REGION_RULES } from '../../src/data/balance';
+import { REGION_RULES, STAKES } from '../../src/data/balance';
 import { ENCOUNTER_DEFS } from '../../src/data/encounters';
 import { ENEMIES } from '../../src/data/enemies';
 import { cellTarget, measureCell, type Bot } from './encounters';
@@ -42,6 +42,7 @@ function applyDataKnobs(name: string): void {
     foe.atk += Number(env.FOEATK ?? 0);
     foe.actMs = Math.round(foe.actMs * Number(env.FOEACT ?? 1));
   }
+  if (env.ASSIST) Object.assign(STAKES, { assistToss: Number(env.ASSIST) });
   if (env.SPORES) {
     const [landEvery, spreadEvery, petrifyAt] = env.SPORES.split(',').map(Number);
     Object.assign(REGION_RULES.spores, { landEvery, spreadEvery, petrifyAt });
