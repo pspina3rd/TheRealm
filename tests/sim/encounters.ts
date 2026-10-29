@@ -3,16 +3,23 @@
  * encounter's real `Battle` on simulated time with four bots, over many
  * seeds, and reports each cell's mean with a 95% interval.
  *
+ * The bot definitions are the author's (ENCOUNTER_DESIGN.md, Author
+ * decisions, Oct 29): realistic touch players who plan one piece ahead and
+ * slip, catching most slips on the landing ghost before release.
+ *
  * - **good**: plans two pieces deep (the falling piece and the next), a
  *   competent stacker's judgement plus the challenge's placement hint;
+ *   light touch slips (half the casual rate), 70% caught on the ghost;
  *   2.2 s a piece (touch pace).
- * - **casual**: `bestFit`-style with no look-ahead, plus the same hint;
- *   takes the second-best spot 15% of the time; touch noise (8% one
- *   column off, 5% a wrong rotation); 2.6 s a piece.
+ * - **casual**: a planner with slips: the good bot's two-piece plan and
+ *   hint, the second-best spot 15% of the time, touch slips (8% one column
+ *   off, 5% a wrong rotation), 70% caught on the ghost; 2.6 s a piece.
+ * - **beginner** (reported, no band): the old casual: `bestFit` one piece
+ *   deep plus the hint, 15% second-best, every slip uncaught; 2.6 s.
  * - **dropper**: hard-drops every piece where it spawns.
  * - **idle**: touches once (the pre-roll ends), then never again.
  *
- * Both good and casual use the challenge's own hint, so it can't flatter one.
+ * All three placing bots use the challenge's own hint, so it can't flatter one.
  */
 import { Battle } from '../../src/battle/battle';
 import { type BattleOptions } from '../../src/battle/battle';
@@ -27,32 +34,50 @@ import { dualChance } from '../../src/game/pieceOdds';
 import { DuelChallenge } from '../../src/battle/verbs/duel';
 import { ENCOUNTER_DEFS } from '../../src/data/encounters';
 import { castReady, heroAt } from './simulate';
+import { MAP_RULES, type RegionRuleId } from '../../src/data/balance';
+import { ENEMIES } from '../../src/data/enemies';
+import { MAPS } from '../../src/data/maps';
 
 /** How much the good bot weighs the challenge's hint against plain stacking. */
 const HINT = Number(process.env.HINT ?? 1);
 /**
- * Sensitivity knobs (bot realism, for diagnosis; the defaults are the spec's
- * bots). NOISE scales the casual bot's touch slips (1 = 8% a column off, 5%
- * a wrong turn). GHOST is the chance a slip is caught before release, as a
- * touch player sees the landing ghost under their finger and corrects it.
+ * Each bot's touch: `noise` scales the slips (1 = 8% a column off, 5% a
+ * wrong turn); `ghost` is the chance a slip is caught before release (the
+ * player sees the landing ghost under their finger and corrects it).
+ * Sensitivity knobs override them: NOISE (casual and beginner), GOOD_NOISE
+ * (good), GHOST (every bot).
  */
 const NOISE = Number(process.env.NOISE ?? 1);
-const GHOST = Number(process.env.GHOST ?? 0);
-/** Diagnosis: the good bot's own touch slips, on the casual bot's scale (0 = none, as specced). */
-const GOOD_NOISE = Number(process.env.GOOD_NOISE ?? 0);
+const GOOD_NOISE = Number(process.env.GOOD_NOISE ?? 0.5);
+const GHOST = process.env.GHOST === undefined ? null : Number(process.env.GHOST);
+
+export interface Touch {
+  readonly noise: number;
+  readonly ghost: number;
+}
 /** Diagnosis: the casual bot's judgement (`bestFit` by default, or `survival`) and hint weight. */
 const CASUAL_JUDGE = process.env.CASUAL_JUDGE ?? 'bestFit';
 const CASUAL_HINT = Number(process.env.CASUAL_HINT ?? HINT);
 
-export type Bot = 'good' | 'casual' | 'dropper' | 'idle';
+export type Bot = 'good' | 'casual' | 'beginner' | 'dropper' | 'idle';
 
 /** Seconds a bot takes per piece (§5.3: touch pace 2.2 s; casual 2.6 s). */
 export const PACE: Readonly<Record<Bot, number>> = {
   good: 2200,
   casual: 2600,
+  beginner: 2600,
   dropper: 2200,
   idle: 2200,
 };
+
+/** Each placing bot's touch (see `Touch`). */
+function touchOf(bot: Bot): Touch {
+  const ghost = (catches: number): number => GHOST ?? catches;
+  if (bot === 'good') return { noise: GOOD_NOISE, ghost: ghost(0.7) };
+  if (bot === 'casual') return { noise: NOISE, ghost: ghost(0.7) };
+  if (bot === 'beginner') return { noise: NOISE, ghost: ghost(0) };
+  return { noise: 0, ghost: 0 };
+}
 
 function heights(grid: Grid): { heights: number[]; holes: number } {
   const height = grid.length;
@@ -201,8 +226,15 @@ export function goodRanked(battle: Battle): Choice[] {
   return ranked.sort((a, b) => b.score - a.score);
 }
 
-/** The casual bot: one piece, tidy, plus the hint; sometimes the second-best spot. */
-function casualChoice(battle: Battle): Landing | null {
+/** The casual bot: the good bot's plan, but the second-best spot 15% of the time. */
+function casualChoice(battle: Battle, rng: () => number): Landing | null {
+  const ranked = goodRanked(battle);
+  const pick = ranked.length > 1 && rng() < 0.15 ? ranked[1] : ranked[0];
+  return pick?.landing ?? null;
+}
+
+/** The beginner (the old casual): one piece, tidy, plus the hint; sometimes the second-best spot. */
+function beginnerChoice(battle: Battle): Landing | null {
   const hint = battle.challenge.hint?.bind(battle.challenge);
   const board = battle.board;
   const duel = battle.challenge instanceof DuelChallenge;
@@ -238,7 +270,7 @@ const key = (cells: readonly (readonly [number, number])[]): string => {
 export function execute(
   battle: Battle,
   landing: Landing,
-  noise: boolean | number,
+  touch: Touch | null,
   rng: () => number,
   drop = true,
 ): void {
@@ -247,10 +279,10 @@ export function execute(
   for (let i = 0; i < 4 && board.active && key(board.active.cells) !== want; i++)
     battle.input('rotate');
   // A slip happens, unless the ghost shows it and the player corrects it before release.
-  // `noise`: true is the casual bot's NOISE scale; a number is its own scale.
-  const scale = noise === true ? NOISE : noise === false ? 0 : noise;
+  const scale = touch?.noise ?? 0;
+  const ghost = touch?.ghost ?? 0;
   const slip = (rate: number): boolean =>
-    scale > 0 && rng() < rate * scale && !(GHOST > 0 && rng() < GHOST);
+    scale > 0 && rng() < rate * scale && !(ghost > 0 && rng() < ghost);
   if (slip(0.05)) battle.input('rotate');
   const piece = board.active;
   if (piece) {
@@ -317,7 +349,14 @@ export function playEncounter(
   const fight = battle.combat !== null;
   const noise = createRng(seed ^ 0x5eed);
   const think = PACE[bot];
-  const touchNoise = bot === 'casual' ? NOISE : bot === 'good' ? GOOD_NOISE : 0;
+  const touch = touchOf(bot);
+  const placer = bot === 'good' || bot === 'casual' || bot === 'beginner';
+  const choose = (): Landing | null =>
+    bot === 'good'
+      ? goodChoice(battle)
+      : bot === 'casual'
+        ? casualChoice(battle, () => noise.next())
+        : beginnerChoice(battle);
   const STEP = 50;
   let ms = 0;
   let begun = 0;
@@ -331,12 +370,12 @@ export function playEncounter(
       aimed = false;
     }
     // A touch player drags the piece over its spot at once, then flicks it down after thinking.
-    if (!aimed && battle.started && !battle.demo && (bot === 'good' || bot === 'casual')) {
+    if (!aimed && battle.started && !battle.demo && placer) {
       aimed = true;
       if (fight) castReady(battle);
       if (battle.status !== 'ongoing') break;
-      const choice = bot === 'good' ? goodChoice(battle) : casualChoice(battle);
-      if (choice) execute(battle, choice, touchNoise, () => noise.next(), false);
+      const choice = choose();
+      if (choice) execute(battle, choice, touch, () => noise.next(), false);
       if (process.env.AIM && choice) {
         const a = battle.board.active!;
         process.stderr.write(
@@ -361,8 +400,8 @@ export function playEncounter(
               .join('\n') + '\n\n',
           );
       } else {
-        const choice = bot === 'good' ? goodChoice(battle) : casualChoice(battle);
-        if (choice) execute(battle, choice, touchNoise, () => noise.next());
+        const choice = choose();
+        if (choice) execute(battle, choice, touch, () => noise.next());
         else battle.input('hardDrop');
       }
       current = battle.board.active;
@@ -481,6 +520,94 @@ export function measureEncounter(
     id,
     bot,
     strain,
+    runs,
+    winRate: mean,
+    half,
+    greatRate: greats / runs,
+    seconds: seconds / runs,
+    pieces: pieces / runs,
+    causes,
+    price: price / runs,
+  };
+}
+
+/** Lessons the tables play: each mentor's trial foe and the spell taught. */
+const LESSONS: Readonly<Record<string, readonly [string, string]>> = {
+  torva: ['emberWisp', 'fire'],
+  maren: ['tideWisp', 'blizzard'],
+  kestrel: ['galeWisp', 'gale'],
+  hazel: ['mossWisp', 'cure'],
+};
+/** The hero level a lesson of each difficulty is met at. */
+const LESSON_LEVELS = [0, 1, 3, 5];
+/** The hero level each encounter is met at (Mossvale's at 1). */
+export const ENCOUNTER_LEVELS: Readonly<Record<string, number>> = { forager: 3, guard: 2 };
+
+/**
+ * A table cell's battle: an encounter id, `lesson:<mentor>:<difficulty>`,
+ * or `fight:<enemyId>` (at the enemy's level, with its map's region rule).
+ */
+export function cellTarget(
+  name: string,
+  strain = 0,
+  assisted = false,
+): { spec: ChallengeSpec; level: number; rule?: RegionRuleId } {
+  const [kind, a = '', b = '1'] = name.split(':');
+  if (kind === 'lesson') {
+    const [enemyId, spellId] = LESSONS[a]!;
+    const difficulty = Number(b);
+    return {
+      spec: { kind: 'lesson', mentorId: a, enemyId, spellId, difficulty },
+      level: LESSON_LEVELS[difficulty]!,
+    };
+  }
+  if (kind === 'fight') {
+    const map = Object.values(MAPS).find((m) =>
+      m.entities.some((e) => e.kind === 'monster' && e.enemyId === a),
+    );
+    const rule = map ? MAP_RULES[map.id] : undefined;
+    return {
+      spec: { kind: 'combat', enemyId: a },
+      level: ENEMIES[a]!.level,
+      ...(rule ? { rule } : {}),
+    };
+  }
+  return {
+    spec: { kind: 'encounter', id: name, strain, demo: strain === 0, assisted },
+    level: ENCOUNTER_LEVELS[name] ?? 1,
+  };
+}
+
+/** One cell of any target (see `cellTarget`), `runs` seeds; `tweak` adjusts each battle. */
+export function measureCell(
+  name: string,
+  bot: Bot,
+  runs: number,
+  opts: { strain?: number; assisted?: boolean; noRule?: boolean; tweak?: (b: Battle) => void } = {},
+): Cell {
+  const { spec, level, rule } = cellTarget(name, opts.strain ?? 0, opts.assisted ?? false);
+  const options: BattleOptions = !opts.noRule && rule ? { rule } : {};
+  let wins = 0;
+  let greats = 0;
+  let seconds = 0;
+  let pieces = 0;
+  let price = 0;
+  const causes: Record<string, number> = {};
+  for (let seed = 1; seed <= runs; seed++) {
+    const result = playEncounter(spec, bot, seed * 7919 + 13, level, options, 900_000, opts.tweak);
+    if (result.won) wins++;
+    if (result.great) greats++;
+    seconds += result.seconds;
+    pieces += result.pieces;
+    price += result.price;
+    const cause = result.cause.startsWith('price') ? 'price' : result.cause;
+    causes[cause] = (causes[cause] ?? 0) + 1;
+  }
+  const { mean, half } = interval(wins, runs);
+  return {
+    id: name,
+    bot,
+    strain: opts.strain ?? 0,
     runs,
     winRate: mean,
     half,
