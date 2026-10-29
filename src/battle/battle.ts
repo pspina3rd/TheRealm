@@ -1,6 +1,8 @@
 import { ArcaneInterference, type ObstructionPlacement, type PlacementIntent } from './arcane';
+import { autoSpellOrder, autoTarget } from './autoCasting';
+import { BOARD_SPELLS } from './magicCasting';
 import { MagicCasting, type MagicTarget } from './magicCasting';
-import type { MagicResolution } from '../core/boardMagic';
+import { spanFor, type MagicResolution } from '../core/boardMagic';
 import { BOARD_HEIGHT, BOARD_WIDTH, Board, type LockResult, type QueuedPiece } from '../core/board';
 import { PIECES } from '../core/pieces';
 import { ELEMENTS, elementsOf, type Element } from '../core/elements';
@@ -75,6 +77,8 @@ const NEARLY = 0.85;
 
 export interface BattleOptions {
   readonly boardMagic?: boolean;
+  /** Opt-in rollout: one standard cast per earned line; Arcane stays manual. */
+  readonly autoCast?: boolean;
   readonly storyFlags?: ReadonlySet<string>;
   /** Copies of each piece per bag, from area, charm and alignment (see `pieceWeights`). */
   readonly weights?: Readonly<Record<PieceName, number>>;
@@ -91,6 +95,13 @@ export interface BattleOptions {
 export class Battle implements BattleContext {
   readonly interference: ArcaneInterference;
   readonly magicCasting: MagicCasting;
+  readonly autoCastingEnabled: boolean;
+  private resolvingAuto = false;
+  autoCastCount = 0;
+  autoCasts: { id: string; rank: number; target: MagicTarget }[] = [];
+  get autoOrder(): string[] {
+    return autoSpellOrder(this.hero, this.magicCasting.book());
+  }
   readonly spec: ChallengeSpec;
   readonly board: Board;
   readonly hero: Hero;
@@ -141,6 +152,7 @@ export class Battle implements BattleContext {
     this.board = new Board(rng, def?.width ?? BOARD_WIDTH, BOARD_HEIGHT, options.weights);
     this.board.dualChance = options.dualChance ?? 0;
     this.board.magicEnabled = options.boardMagic ?? false;
+    this.autoCastingEnabled = this.board.magicEnabled && (options.autoCast ?? false);
     this.interference = new ArcaneInterference(this.board);
     this.challenge = createChallenge(this, spec);
     this.magicCasting = new MagicCasting(
@@ -238,11 +250,15 @@ export class Battle implements BattleContext {
     const lines = this.lines;
     const mana = { ...this.hero.mana };
     const interference = this.interference.checkpoint();
+    const autoCasts = structuredClone(this.autoCasts),
+      autoCastCount = this.autoCastCount;
     return {
       risk: this.correctionRisk(),
       restore: () => {
         this.board.restoreLock(point);
         this.interference.restore(interference);
+        this.autoCasts = structuredClone(autoCasts);
+        this.autoCastCount = autoCastCount;
         restoreChallenge();
         this.score = score;
         this.lines = lines;
@@ -295,6 +311,8 @@ export class Battle implements BattleContext {
   }
 
   castBoardSpell(id: string, target: MagicTarget): void {
+    if (this.autoCastingEnabled && BOARD_SPELLS[id] && !this.resolvingAuto)
+      throw new Error('Standard spells cast automatically after line clears.');
     if (this.status !== 'ongoing' || this.demoPlaying)
       throw new Error('This encounter is not accepting spells.');
     const preview = this.magicCasting.preview(id, target);
@@ -325,6 +343,41 @@ export class Battle implements BattleContext {
       this.emit({ kind: 'lines', rows: result.rows, lines: result.lines });
     }
     this.combat?.onBoardClear(result, powerScale, surge, element);
+    this.resolveAutoCasts(result.linesCleared);
+  }
+
+  private resolveAutoCasts(lines: number): void {
+    if (!this.autoCastingEnabled || this.resolvingAuto || lines < 1 || this.demoPlaying) return;
+    this.autoCasts = [];
+    this.resolvingAuto = true;
+    try {
+      for (let opportunity = 0; opportunity < lines && this.status === 'ongoing'; opportunity++) {
+        let cast = false;
+        for (const id of this.autoOrder) {
+          const preview = autoTarget(this.magicCasting, id);
+          if (!preview) continue;
+          this.castBoardSpell(id, preview.target);
+          this.autoCasts.push({ id, rank: preview.rank, target: preview.target });
+          this.autoCastCount++;
+          const [top, bottom] = spanFor(
+            { element: preview.element, rank: preview.rank, bottomRow: preview.target.bottomRow },
+            this.board.height,
+          );
+          this.emit({
+            kind: 'autoSpell',
+            spellId: id,
+            element: preview.element,
+            rank: preview.rank,
+            rows: Array.from({ length: bottom - top + 1 }, (_, i) => top + i),
+          });
+          cast = true;
+          break;
+        }
+        if (!cast) break;
+      }
+    } finally {
+      this.resolvingAuto = false;
+    }
   }
 
   /** The elements that surged in each of the last two locks, oldest first (a lock with none: []). */
@@ -490,7 +543,7 @@ export class Battle implements BattleContext {
       if (result) {
         this.demo = null;
         this.emit({ kind: 'demo' });
-        this.afterLock(result);
+        this.afterLock(result, false);
       }
     }
   }
@@ -500,7 +553,7 @@ export class Battle implements BattleContext {
    * lock, fills elemental mana from every cleared crystal (in any kind of
    * battle; doubled while an Ether lasts), then lets the challenge apply its rules.
    */
-  private afterLock(result: LockResult): void {
+  private afterLock(result: LockResult, allowAuto = true): void {
     // Only fights (and lessons) count: puzzles' preset boards can't be replayed for feats.
     if (this.combat) recordFeats(this.hero, featsOfLock(result, this.hastePieces > 0));
     this.lines += result.linesCleared;
@@ -528,6 +581,7 @@ export class Battle implements BattleContext {
         event.kind === 'surge' ? [event.element] : [],
       ),
     );
+    if (allowAuto) this.resolveAutoCasts(result.linesCleared);
     if (this.recentSurges.length > 2) this.recentSurges.shift();
     if (this.spec.kind === 'encounter') this.react(result);
     if (this.assist && this.status === 'ongoing' && this.rng.next() < STAKES.assistToss)

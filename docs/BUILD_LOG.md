@@ -554,3 +554,26 @@ helpful placement, and intentional Nature/Gravity clears. Recorded the author's
 per-line autocasting decision in BOARD_MAGIC_PLAN.md; this checkpoint fixes
 unintended assistance without silently enabling the unfinished automatic cast
 scheduler or changing the workshop's current manual interaction.
+
+## October 29 — implement line-driven standard autocasting
+
+Added an opt-in battle scheduler and made it the default live workshop mode.
+One earned line permits one ready, useful standard cast; multi-line clears
+resolve successive casts against updated state. Existing elemental alignment
+sets affinity priority, with title/stable order ties. Learned levels and
+upgrades control effects and costs; leftover mana is retained. Automatic clears
+do not recursively create opportunities, and terminal battles/demos do not cast.
+Arcane stays manual. Campaign combat wiring remains behind boardMagicEnabled;
+lessons and explicit manual lab exercises keep their teaching interactions.
+
+The standard selection buttons are now read-only readiness/priority/rank cards.
+Added automatic cast feedback and a two-line opening to make the behavior easy
+to try. Arcane pairing buttons show affordability. Correction snapshots include
+automatic cast feedback/counts; no save format change was needed.
+
+Core regression tests cover zero/one/three-line triggers, affinity/reselection,
+learned rank and enhanced costs, retained mana, ineffective targets, deterministic
+previews, bounded Ice clears, terminal states, manual-standard rejection, and
+Arcane isolation. Automated touch/browser checks exercise the default flow at
+phone, landscape and desktop sizes, alongside the preserved manual targeting lab.
+The full suite, lint and build passed. Author hands-on acceptance remains open.

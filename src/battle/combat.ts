@@ -359,6 +359,8 @@ export class CombatChallenge implements Challenge {
 
   /** Why a spell can't be cast right now, or null if it can. */
   cannotCastReason(spellId: string): string | null {
+    if (this.ctx.autoCastingEnabled && BOARD_SPELLS[spellId])
+      return 'Automatic after a line clear.';
     const hero = this.ctx.hero;
     const cast = this.spellFor(spellId);
     if (!cast) return "You don't know that spell.";

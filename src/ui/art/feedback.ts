@@ -193,6 +193,16 @@ export function feedbackFor(event: BattleEvent): Feedback[] {
         },
         { kind: 'mana', elements: [event.element], direction: 'down' },
       ];
+    case 'autoSpell':
+      return [
+        { kind: 'flashRows', rows: event.rows, colors: [ELEMENT_COLOR_OF[event.element]] },
+        {
+          kind: 'icon',
+          target: 'board',
+          icon: ELEMENT_ICONS[event.element],
+          row: event.rows[0] ?? 0,
+        },
+      ];
     case 'spell': {
       const effect = SPELL_EFFECTS[event.spellId];
       if (!effect) return [];

@@ -61,6 +61,13 @@ export type BattleEvent =
   | { readonly kind: 'curse'; readonly rows: number }
   | { readonly kind: 'drain'; readonly element: Element; readonly amount: number }
   | { readonly kind: 'spell'; readonly spellId: string }
+  | {
+      readonly kind: 'autoSpell';
+      readonly spellId: string;
+      readonly element: Element;
+      readonly rank: number;
+      readonly rows: readonly number[];
+    }
   | { readonly kind: 'item'; readonly itemId: string }
   | { readonly kind: 'overflow' }
   /** A spell or item took time: the enemy's gauge jumped `share` of a gauge. */
@@ -189,6 +196,7 @@ export interface Objective {
 
 /** The parts of a running battle that challenge rules may read or change. */
 export interface BattleContext {
+  readonly autoCastingEnabled?: boolean;
   readonly interference?: ArcaneInterference;
   placeObstructions?(
     owner: string,

@@ -13,8 +13,10 @@ Moon Wyrm and chapter-end scene. This file accompanies implementation checkpoint
 - Gravity selects 1/2/4/all rows; selected squares fall fully. Fire burns normal
   squares in 1/2/3/4 rows; Ice fills those spans with neutral squares. Wind shifts
   those spans one square. Lightning/Nature use 1 row/1 hit, 2/1, 1/2, 2/2.
-- Preview uses the real deterministic resolver on a clone. No RNG, rewards,
-  payment or timer changes until confirmation. Targeting pauses play.
+- Manual previews use the real deterministic resolver on a clone. No RNG,
+  rewards, payment or timer changes until confirmation. Automatic target
+  evaluation uses the same clone and commits only after an earned line. Manual
+  targeting pauses play.
 - Preserve existing healing and Shadow Drain. Add Nature conversion separately.
 - Custom Arcane is Arcane + one element, not arbitrary ordered elemental pairs.
   Fire allows red contact; Ice delays interference; Wind shifts upcoming
@@ -43,9 +45,34 @@ encounter precedes broad campaign activation, as specified in the approved plan.
 The author confirmed that automatic casting is driven by **lines cleared**, not
 pieces placed or turns elapsed. A multi-line clear supplies one casting
 opportunity per line. Learned rank determines spell strength; mana used by a cast
-is spent and surplus is retained. Arcane remains manually triggered. Exact
-ready-spell scheduling and automatic target selection are not yet implemented;
-the current workshop still uses manual casting while those rules are developed.
+is spent and surplus is retained. Arcane remains manually triggered.
+
+Implemented in the default workshop and opt-in board-magic combat:
+
+- Each earned line allows one cast. The first affordable standard spell with a
+  useful target is chosen; a multi-line clear repeats this selection once per
+  line against the updated board and mana.
+- Affinity uses the game's existing elemental alignment (levels of known spells
+  belonging to each element). Greater alignment goes first; the hero's title
+  element breaks ties, then a stable listed spell order. The UI displays this
+  derived priority. Learned level and enhancements set the actual effect/cost;
+  there is no temporary mana-driven upgrade or cheaper-rank fallback.
+- Targets prefer completed rows, reduced obstruction strength, fewer covered
+  holes, then lower stack height. Equal scores keep a deterministic bottom-first
+  target (right before left for Wind). Non-improving targets are skipped.
+- No line, no automatic cast. Unused mana stays; unspent line opportunities do
+  not accumulate across later turns. A still-ready spell can use successive
+  line opportunities, including on later clears.
+- Automatic spell clears award normal rewards without recursively extending
+  the cast budget. Manual Arcane and deliberate helpful counterplay can earn
+  line opportunities. Stop on victory/defeat, and ignore teaching demos.
+- Readiness cards replace manual standard selection in automatic mode. Arcane
+  remains explicit and consumes both elemental and Arcane mana. Focused manual
+  exercises remain available for testing. Healing and Shadow Drain are unchanged.
+
+No save migration is required: order is derived from saved progression, and the
+mode is set by battle options. The existing campaign rollout flag remains off
+for new saves; lessons keep manual teaching interactions.
 
 Hostile obstruction placement must not independently award player clears. It
 leaves a gap instead of completing a row, including across a multi-cell batch.

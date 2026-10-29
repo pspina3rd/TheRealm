@@ -39,6 +39,7 @@ let battle: Battle,
   enemySequence = 0,
   lastBoard = '',
   lastNext = '';
+let seenAutoCasts = 0;
 let preview: CastPreview | null = null;
 let usefulRows: number[] = [],
   showResult = true,
@@ -222,7 +223,12 @@ function needsRow(): boolean {
   );
 }
 function chooseSpell(id: string): void {
-  if (mode === 'paused' || battle.status !== 'ongoing') return;
+  if (
+    mode === 'paused' ||
+    battle.status !== 'ongoing' ||
+    (battle.autoCastingEnabled && !id.startsWith('arcane:'))
+  )
+    return;
   selected = id;
   target = null;
   preview = null;
@@ -290,6 +296,7 @@ const inputs = bindWorkshopInput(board, controls, {
 });
 function renderPalette(): void {
   palette.replaceChildren();
+  elementBank.textContent = battle.autoCastingEnabled ? 'Affinity order' : 'Elements';
   elementBank.setAttribute('aria-pressed', String(!arcaneBank));
   bankButton.setAttribute('aria-pressed', String(arcaneBank));
   spellNodes.clear();
@@ -307,13 +314,19 @@ function renderPalette(): void {
               : element[0]?.toUpperCase() + element.slice(1),
         element,
       }))
-    : PRACTICE_SPELLS;
+    : battle.autoCastingEnabled
+      ? battle.autoOrder.map((id) => required(PRACTICE_SPELLS.find((s) => s.id === id)))
+      : PRACTICE_SPELLS;
   for (const [slot, spell] of options.entries()) {
-    const node = button('', () => chooseSpell(spell.id));
+    const automatic = battle.autoCastingEnabled && !arcaneBank;
+    const node = automatic
+      ? el('article', { className: 'auto-spell' })
+      : button('', () => chooseSpell(spell.id));
+    if (automatic) node.setAttribute('role', 'group');
     node.dataset.spell = spell.id;
     node.title = `${slot + 1}: ${arcaneBank ? 'Arcane + ' : ''}${spell.name}`;
     node.setAttribute('aria-label', `${arcaneBank ? 'Arcane + ' : ''}${spell.name}`);
-    node.setAttribute('aria-pressed', String(selected === spell.id));
+    if (!automatic) node.setAttribute('aria-pressed', String(selected === spell.id));
     const glyph = iconElement(
       arcaneBank ? { icon: 'arcane', badge: spell.element } : ELEMENT_ICONS[spell.element],
       2,
@@ -323,7 +336,22 @@ function renderPalette(): void {
     const pool = el('progress', { className: 'mana-pool' });
     pool.max = state.hero.manaCap;
     pool.setAttribute('aria-label', `${spell.name} mana available`);
-    node.append(glyph, el('span', { className: 'spell-label', text: spell.name }), price, pool);
+    node.append(
+      glyph,
+      el('span', {
+        className: 'spell-label',
+        text: `${automatic ? `${slot + 1} ` : ''}${spell.name}`,
+      }),
+      price,
+      pool,
+    );
+    if (automatic)
+      node.querySelector('.spell-label')?.append(
+        el('small', {
+          className: 'auto-rank',
+          text: `Lv${state.hero.spells[spell.id]?.level ?? 1}`,
+        }),
+      );
     spellNodes.set(spell.id, { price, pool });
     node.style.setProperty(
       '--spell-color',
@@ -352,6 +380,7 @@ function reset(index = -1): void {
   showResult = true;
   lastBoard = '';
   lastNext = '';
+  seenAutoCasts = 0;
   enemySequence = 0;
   for (const id of [...Object.keys(BOARD_SPELLS), 'shadow'])
     state.hero.spells[id] = { ...newKnownSpell(), level: 4 };
@@ -363,6 +392,7 @@ function reset(index = -1): void {
   } else arcaneBank = false;
   battle = new Battle({ kind: 'combat', enemyId: 'slime' }, state.hero, createRng(42), {
     boardMagic: true,
+    autoCast: index === -1,
     storyFlags: state.flags,
   });
   state.hero.maxHp = 10000;
@@ -404,6 +434,23 @@ function reset(index = -1): void {
         contacts: [],
       };
   }
+  if (index === -1) {
+    battle.board.loadRows(['..#.......', '.......#..', '..........', 'rrrr..rrrr', 'rrrr..rrrr']);
+    for (const [x, y, strength] of [
+      [2, 15, 3],
+      [7, 16, 2],
+    ] as const)
+      battle.board.obstructions[`${x},${y}`] = {
+        id: `initial:${x}:${y}`,
+        owner: 'slime',
+        strength,
+        anchored: true,
+        sequence: [],
+        step: 0,
+        contacts: [],
+      };
+    battle.board.replaceActive('O', { x: 3 });
+  }
   // The opponent's authored next placement is visible before its clock starts.
   required(battle.combat).nextMove = {
     kind: 'obstruct',
@@ -428,6 +475,11 @@ function incoming(): { x: number; y: number; strength: number }[] {
 }
 function refresh(): void {
   if (!battle) return;
+  if (seenAutoCasts !== battle.autoCastCount) {
+    seenAutoCasts = battle.autoCastCount;
+    lastCast = '';
+    saveGame(store, state);
+  }
   root.dataset.mode = mode;
   const ended = battle.status !== 'ongoing';
   badge.textContent = ended
@@ -457,7 +509,9 @@ function refresh(): void {
       node.disabled = mode !== 'play' || battle.status !== 'ongoing';
   goal.textContent =
     exercise < 0
-      ? 'Clear grey blocks'
+      ? battle.autoCastingEnabled
+        ? 'Clear lines to cast'
+        : 'Clear grey blocks'
       : {
           obstructions: 'Break grey blocks',
           convert: 'Make blank blocks',
@@ -471,7 +525,10 @@ function refresh(): void {
     const done = practiceProgress(battle, required(PRACTICES[exercise]));
     complete ||= done.done;
     progress.textContent = complete ? 'Exercise complete' : `${done.remaining} remaining`;
-  } else progress.textContent = `${Object.keys(battle.board.obstructions).length} remaining`;
+  } else
+    progress.textContent = battle.autoCastingEnabled
+      ? `${battle.lines} lines · ${battle.autoCastCount} auto casts`
+      : `${Object.keys(battle.board.obstructions).length} remaining`;
   nextExercise.hidden = exercise < 0 || !complete;
   preview = null;
   let previewError = '';
@@ -588,9 +645,31 @@ function refresh(): void {
   let consequence = '';
   if (mode !== 'aim') {
     cost.textContent = '';
-    castingTitle.textContent = ended ? badge.textContent : lastCast ? 'Spell cast' : 'Playing';
+    castingTitle.textContent = ended
+      ? badge.textContent
+      : battle.autoCastingEnabled
+        ? 'Standard spells: automatic'
+        : lastCast
+          ? 'Spell cast'
+          : 'Playing';
     castingStep.textContent =
-      lastCast || (ended ? 'Reset to try again.' : 'Place blocks or choose a spell.');
+      lastCast ||
+      (ended
+        ? 'Reset to try again.'
+        : battle.autoCastingEnabled
+          ? battle.autoCasts.length
+            ? `Last auto: ${
+                battle.autoCasts
+                  .slice(0, 2)
+                  .map(
+                    (c) =>
+                      `${PRACTICE_SPELLS.find((s) => s.id === c.id)?.name ?? c.id} Lv${c.rank}`,
+                  )
+                  .join(' → ') +
+                (battle.autoCasts.length > 2 ? ` +${battle.autoCasts.length - 2}` : '')
+              }`
+            : 'Each cleared line allows one useful cast. Arcane is manual.'
+          : 'Place blocks or choose a spell.');
   } else {
     castingTitle.textContent = `${name}${boardPreview ? (showResult ? ' · Preview' : ' · Before') : ''}`;
     if (preview) {
@@ -681,7 +760,26 @@ function refreshMana(): void {
       nodes.pool.value = available;
       nodes.pool.max = state.hero.manaCap;
       nodes.pool.setAttribute('aria-valuetext', `${available} ${p.element} mana available`);
-      const node = nodes.price.parentElement as HTMLButtonElement;
+      const node = required(nodes.price.parentElement);
+      const ready = Object.entries(p.cost).every(
+        ([e, n]) => state.hero.mana[e as keyof typeof state.hero.mana] >= (n ?? 0),
+      );
+      node.classList.toggle('mana-ready', ready);
+      if (battle.autoCastingEnabled && !arcaneBank)
+        nodes.price.replaceChildren(
+          el('span', {
+            className: 'mana-full',
+            text: `${ready ? 'Ready' : 'Charging'} · ${total} of ${available} mana`,
+          }),
+          el('span', { className: 'mana-compact', text: `${total} mana · ${available} held` }),
+        );
+      if (node instanceof HTMLButtonElement && arcaneBank) node.disabled = !ready;
+      if (battle.autoCastingEnabled && !arcaneBank) {
+        node.setAttribute(
+          'aria-label',
+          `${PRACTICE_SPELLS.find((s) => s.id === id)?.name} · level ${p.rank} · ${ready ? 'Ready for next line' : 'Charging'} · cost ${total}, held ${available}`,
+        );
+      }
       node.classList.toggle('unaffordable', p.reason === 'Not enough mana.');
       node.title = `${node.getAttribute('aria-label')} · ${Object.entries(p.cost)
         .map(([e, n]) => `${n} ${e}`)
@@ -716,7 +814,10 @@ function openExercises(): void {
     dialog.remove();
     reset(index);
   };
-  dialog.append(button('Live workshop', () => choose(-1)));
+  dialog.append(
+    button('Live workshop', () => choose(-1)),
+    button('Manual spell lab', () => choose(-2)),
+  );
   for (const [index, lesson] of PRACTICES.entries())
     dialog.append(button(lesson.title, () => choose(index)));
   const close = (): void => {

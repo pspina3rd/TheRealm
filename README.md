@@ -372,9 +372,10 @@ bot or a human campaign completion proof.
 On GetPutTaco, run `npm install` and `npm run dev`, then open
 **http://localhost:5173/workshop.html** (or the port Vite prints). This isolated
 development fixture contains durable obstructions, elemental board spells,
-NPC interference, explicit aiming previews and Arcane pairs. It uses a separate
+NPC interference, line-driven standard autocasting and manual Arcane pairs. It uses a separate
 save namespace and practice supplies. Desktop and touch have distinct encounter
-layouts, with visible spell costs, target previews and stable movement controls.
+layouts, with visible affinity order, learned ranks, mana readiness and stable
+movement controls. Clear the opening two lines to try two automatic casts.
 See [the workshop playtest instructions](docs/BOARD_MAGIC_PLAYTEST.md).
 
 The existing adventure keeps its current rules while the workshop is reviewed.

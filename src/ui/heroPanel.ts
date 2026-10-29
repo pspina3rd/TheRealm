@@ -1,3 +1,4 @@
+import { BOARD_SPELLS } from '../battle/magicCasting';
 import type { Battle } from '../battle/battle';
 import { MAX_ITEMS_PER_BATTLE } from '../battle/combat';
 import { ITEMS } from '../data/items';
@@ -204,6 +205,14 @@ export class HeroPanel {
       const use = ITEMS[id]?.use;
       return Boolean(use?.heal || use?.manaBoost);
     });
+    if (battle.autoCastingEnabled)
+      for (const node of this.spellList.querySelectorAll<HTMLButtonElement>('[data-action]')) {
+        if (BOARD_SPELLS[node.dataset.action ?? '']) {
+          node.disabled = true;
+          node.title = 'Automatic after a line clear';
+          node.append(el('small', { text: 'AUTO · LINE CLEAR' }));
+        }
+      }
     // Item uses left this battle, as a bag with a count, before the items.
     const usesLeft = combat ? MAX_ITEMS_PER_BATTLE - combat.itemsUsed : 0;
     const uses = el('span', { className: 'item-uses' });

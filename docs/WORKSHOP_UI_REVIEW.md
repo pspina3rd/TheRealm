@@ -40,3 +40,17 @@ reports. The next author playtest should evaluate whether the encounter now
 communicates the player's available actions and the relationship between spell,
 mana, board, and opponent. Story-based spell teaching and campaign rollout remain
 separate from this fixture review.
+
+## Automatic casting follow-up
+
+Following author feedback, standard spell selection in the default workshop was
+replaced with noninteractive readiness cards showing affinity priority, learned
+level, and cost/held mana. One earned line supplies one cast opportunity; Arcane
+keeps explicit aiming/confirmation. A supplied square and two-line opening give
+a direct first test without spell selection. Manual targeting remains in an
+explicit lab rather than competing with the default flow.
+
+The AI game UI/UX follow-up found no blocking composition problem across phone,
+landscape, and desktop. It requested clearer opportunity wording, shorter compact
+mana labels, and an explicit priority label; these were addressed. The automatic
+browser report and captures are linked in BOARD_MAGIC_PLAYTEST.md.

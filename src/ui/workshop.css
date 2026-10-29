@@ -126,7 +126,7 @@ small {
   grid-template-columns: 1fr;
   gap: 6px;
 }
-.spell-strip button {
+.spell-strip > :is(button, .auto-spell) {
   position: relative;
   display: grid;
   grid-template-columns: 28px minmax(0, 1fr);
@@ -590,7 +590,7 @@ small {
   .spell-strip {
     gap: 4px;
   }
-  .spell-strip button {
+  .spell-strip > :is(button, .auto-spell) {
     min-height: 44px;
     padding: 4px 6px;
     grid-template-columns: 20px minmax(0, 1fr);
@@ -685,7 +685,7 @@ small {
     grid-template-columns: 1fr 1fr;
     gap: 4px;
   }
-  .spell-strip button {
+  .spell-strip > :is(button, .auto-spell) {
     grid-template-columns: 18px 1fr;
     gap: 1px 4px;
     padding: 4px;
@@ -840,7 +840,7 @@ small {
     grid-template-columns: 1fr 1fr;
     gap: 4px;
   }
-  .spell-strip button {
+  .spell-strip > :is(button, .auto-spell) {
     grid-template-columns: 18px 1fr;
     grid-template-rows: 17px 11px 2px;
     gap: 1px 4px;
@@ -990,5 +990,58 @@ small {
   }
   .piece-controls button {
     min-width: 44px;
+  }
+}
+
+.auto-spell {
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+  cursor: default;
+}
+.auto-spell.mana-ready {
+  border-right: 3px solid var(--spell-color);
+}
+.auto-spell:not(.mana-ready) .mana-pool {
+  opacity: 0.55;
+}
+.spell-strip button.mana-ready {
+  border-right: 3px solid var(--spell-color);
+}
+
+.auto-spell .spell-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+}
+.auto-rank {
+  font-size: 9px;
+  letter-spacing: 0;
+  color: #b5bfd7;
+  font-weight: 400;
+}
+
+.mana-compact {
+  display: none;
+}
+@media (min-width: 600px) and (max-height: 650px) {
+  .mana-full {
+    display: none;
+  }
+  .mana-compact {
+    display: inline;
+  }
+}
+@media (min-width: 600px) and (max-height: 650px) {
+  .auto-spell .spell-label {
+    font-size: 9px;
+    gap: 2px;
+    white-space: nowrap;
+  }
+  .auto-spell .auto-rank {
+    font-size: 8px;
+  }
+  .casting-guide strong {
+    line-height: 14px;
   }
 }

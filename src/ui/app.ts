@@ -172,6 +172,7 @@ export class App {
     byId('menu-button').replaceChildren(iconElement('bag', 3));
     this.battleView.hero.onCast = (id) => {
       const battle = this.active?.battle;
+      if (battle?.autoCastingEnabled && BOARD_SPELLS[id]) return;
       if (battle?.board.magicEnabled && BOARD_SPELLS[id]) {
         openMagicTargeting(
           battle,
@@ -670,6 +671,7 @@ export class App {
       boardMagic:
         this.state.flags.has('boardMagicEnabled') &&
         (spec.kind === 'combat' || spec.kind === 'lesson'),
+      autoCast: this.state.flags.has('boardMagicEnabled') && spec.kind === 'combat',
       storyFlags: this.state.flags,
       dualChance: dual,
       ...(rule ? { rule } : {}),

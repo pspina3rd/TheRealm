@@ -29,6 +29,8 @@ try {
     page.on('pageerror', (e) => errors.push(e.message));
     await page.goto(`${process.env.BASE ?? 'http://127.0.0.1:5186/'}workshop.html`);
     await page.getByRole('heading', { name: 'Magic workshop', exact: true }).waitFor();
+    await page.getByRole('button', { name: 'Exercises', exact: true }).click();
+    await page.getByRole('button', { name: 'Manual spell lab', exact: true }).click();
     const controls = await page.locator('.piece-controls').boundingBox();
     const board = await page.locator('.board-surface').boundingBox();
     assert(

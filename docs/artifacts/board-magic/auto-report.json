@@ -1,0 +1,54 @@
+[
+  {
+    "width": 360,
+    "height": 640,
+    "touch": true,
+    "readOnlyStandardCards": true,
+    "learnedRanksVisible": true,
+    "twoLinesTwoCasts": true,
+    "noCastOnOrdinaryPlacement": true,
+    "manualArcane": true,
+    "stableControls": true,
+    "noOverlap": true,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "touch": true,
+    "readOnlyStandardCards": true,
+    "learnedRanksVisible": true,
+    "twoLinesTwoCasts": true,
+    "noCastOnOrdinaryPlacement": true,
+    "manualArcane": true,
+    "stableControls": true,
+    "noOverlap": true,
+    "errors": []
+  },
+  {
+    "width": 844,
+    "height": 390,
+    "touch": true,
+    "readOnlyStandardCards": true,
+    "learnedRanksVisible": true,
+    "twoLinesTwoCasts": true,
+    "noCastOnOrdinaryPlacement": true,
+    "manualArcane": true,
+    "stableControls": true,
+    "noOverlap": true,
+    "errors": []
+  },
+  {
+    "width": 1100,
+    "height": 900,
+    "touch": false,
+    "readOnlyStandardCards": true,
+    "learnedRanksVisible": true,
+    "twoLinesTwoCasts": true,
+    "noCastOnOrdinaryPlacement": true,
+    "manualArcane": true,
+    "stableControls": true,
+    "noOverlap": true,
+    "errors": []
+  }
+]
