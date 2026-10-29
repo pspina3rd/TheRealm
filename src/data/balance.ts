@@ -133,20 +133,20 @@ export const HOME_FALL_HP_SHARE = 0.5;
 // ---- Lessons (src/game/lessons.ts, src/battle/lesson.ts)
 /**
  * Help chance per piece before the clamp: base − per point × (alignment −
- * difficulty), clamped to 5–35% (docs/ENCOUNTER_DESIGN.md §6.3; it was
- * 10–50% around a 40% base, and lessons won 87–100% for the good bot)…
+ * difficulty), clamped to 5–10% (the M1 tuning pass, Oct 29: 35% let
+ * every lesson's bots win 98–100%; before that 10–50% around a 40% base)…
  */
 export const HELP_BASE = 0.3;
 export const HELP_PER_POINT = 0.05;
 /** …clamped to this range… */
 export const HELP_MIN = 0.05;
-export const HELP_MAX = 0.35;
+export const HELP_MAX = 0.1;
 /** The mentor's shield: at this share of HP the foe raises it; only the taught spell breaks it. */
 export const SHIELD_AT = 0.25;
 /** A lesson foe gains this share of its HP per difficulty above 1… */
-export const FOE_HP_PER_DIFFICULTY = 0.6;
+export const FOE_HP_PER_DIFFICULTY = 0.75;
 /** …and this much attack. */
-export const FOE_ATK_PER_DIFFICULTY = 3;
+export const FOE_ATK_PER_DIFFICULTY = 5;
 /** Extra difficulty of teaching a hidden spell. */
 export const HIDDEN_DIFFICULTY = 1;
 /** Heroes below this level meet gentler difficulty-1 lesson foes… */
@@ -198,11 +198,11 @@ export const ENCOUNTERS = {
     /** The shaft is this many columns wide (cols 0–5 inside the masonry). */
     width: 6,
     /** A cell locked above this row (row 1 is the bottom) is mold over the lip. */
-    lip: 14,
+    lip: 16,
     /** A 1-gap mold row pushes up every this many pieces… */
-    risingEvery: 6,
+    risingEvery: 12,
     /** …and each new buried hole brings it this many pieces sooner. */
-    soonerPerHole: 1,
+    soonerPerHole: 0,
     /** Strain: each step adds this many debris rows on top. */
     strainRows: 1,
   },
@@ -219,17 +219,17 @@ export const ENCOUNTERS = {
   },
   /** Farmer Bean, "The Herb Beds": PLANT (§6.1). */
   farmer: {
-    pieceLimit: 26,
+    pieceLimit: 24,
     /** Sprouts to plant… */
-    target: 12,
+    target: 19,
     /** …and the Great mark (+1 Herb). */
-    great: 16,
-    /** Controlled queue: one S in every 3 pieces. */
-    supplyWindow: 3,
+    great: 22,
+    /** Controlled queue: one S in every 2 pieces. */
+    supplyWindow: 2,
     /** What a wrong colour in a furrow scores at Mossvale (−1 from Twitch on). */
     wrongColour: 0,
     /** Strain: the target grows this much per step. */
-    strainTarget: 2,
+    strainTarget: 1,
   },
   /** Shopkeeper Ordor, "The Stall": DUEL, one-sided (§6.1). */
   stallKeeper: {
@@ -247,17 +247,17 @@ export const ENCOUNTERS = {
     /** Each row you send moves the meter this much in your favour… */
     meterPerSent: -0.03,
     /** …and each row you receive this much against you (+3% elsewhere; Ordor never cancels). */
-    meterPerReceived: 0.01,
+    meterPerReceived: 0.012,
     /** Whether your clears cancel his pending rows first (from Lo on). */
     cancel: false,
     /** Strain: the meter starts this much worse per step. */
-    strainMeter: 0.05,
+    strainMeter: 0.02,
   },
   /** Forager Wren, "The Mushroom Ring": CONTAIN + protect (§6.4). */
   forager: {
-    pieceLimit: 30,
+    pieceLimit: 36,
     /** Rot spreads every this many pieces… */
-    spreadEvery: 4,
+    spreadEvery: 5,
     /** …this many cells at a time (one per source). */
     spreadCells: 2,
     /** Caps that must be picked or still alive to win… */
@@ -269,13 +269,13 @@ export const ENCOUNTERS = {
   },
   /** Captain Vale, "The Ward Lamps": CHARGE, twist wind snuffs; a threshold (§6.2). */
   guard: {
-    pieceLimit: 36,
-    /** A pure line has at least this many of its 10 cells in the lamp's element (≤ 7). */
-    purity: 7,
+    pieceLimit: 32,
+    /** A pure line has at least this many of its 10 cells in the lamp's element (≤ 7; P 6 by the author, Oct 29). */
+    purity: 6,
     /** Every this many pieces the wind snuffs the oldest lit lamp (unless all are lit). */
     snuffEvery: 14,
-    /** Controlled queue: one J and one T in every 4 pieces. */
-    supplyWindow: 4,
+    /** Controlled queue: one J and one T in every 3 pieces (author, Oct 29). */
+    supplyWindow: 3,
     /** Strain: each step adds a lamp (thresholds cap strain at 1). */
     strainLamps: 1,
   },

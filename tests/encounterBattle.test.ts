@@ -14,7 +14,7 @@ import type { BattleContext, BattleEvent } from '../src/battle/types';
 import type { DigChallenge } from '../src/battle/verbs/dig';
 import { Board } from '../src/core/board';
 import { createRng } from '../src/core/rng';
-import { REGION_RULES, SHIELD_AT, STAKES } from '../src/data/balance';
+import { ENCOUNTERS, REGION_RULES, SHIELD_AT, STAKES } from '../src/data/balance';
 import { ENCOUNTER_DEFS, encounterOf } from '../src/data/encounters';
 import { createHero, learnSpell } from '../src/game/hero';
 import { feedbackFor } from '../src/ui/art/feedback';
@@ -125,7 +125,10 @@ describe('faces and lines', () => {
     const before = battle.events.length;
     react(EMPTY_LOCK);
     expect(battle.events.length).toBe(before);
-    (battle.challenge as unknown as { score: number }).score = 11;
+    // Nine-tenths of the way there: past the “nearly” mark.
+    (battle.challenge as unknown as { score: number }).score = Math.ceil(
+      ENCOUNTERS.farmer.target * 0.9,
+    );
     react(EMPTY_LOCK);
     react(EMPTY_LOCK);
     expect(events(battle).filter((e) => e.kind === 'beat' && e.beat === 'nearly')).toHaveLength(1);

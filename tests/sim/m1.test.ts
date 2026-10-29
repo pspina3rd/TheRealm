@@ -6,6 +6,7 @@ import type { Element } from '../../src/core/elements';
 import type { Landing } from '../../src/core/landing';
 import {
   interval,
+  cellTarget,
   measureBattle,
   playEncounter,
   summarize,
@@ -18,6 +19,15 @@ it('reports finite Wilson bounds for zero and all wins', () => {
   expect(interval(0, 200).upper).toBeCloseTo(0.01885, 4);
   expect(interval(200, 200).lower).toBeCloseTo(0.98115, 4);
   expect(interval(200, 200).upper).toBe(1);
+});
+
+it('clears assisted threshold strain like the production offer', () => {
+  expect(cellTarget('guard', 1, true).spec).toMatchObject({
+    strain: 0,
+    assisted: true,
+    demo: false,
+  });
+  expect(cellTarget('guard', 1, false).spec).toMatchObject({ strain: 1, assisted: false });
 });
 
 const pct = (n: number): string => (n * 100).toFixed(1);

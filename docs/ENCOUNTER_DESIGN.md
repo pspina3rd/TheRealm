@@ -13,6 +13,15 @@ The seven open questions in section 10 are answered with the recommended answers
 - **Vesper (Q5), changed:** losing to Vesper carries more weight, but it is not game over. On a loss, Vesper **withdraws back along his route**, and you must retrace your steps to reach him again before you can challenge him a second time. The consumable or gil cost stays, and his lore is told either way. Exact retreat rules are specified when Vesper is built (M4).
 - **Build work saved consistently (author's process requirement):** the build commits after every working step, keeps a running build log (`docs/BUILD_LOG.md`), and checkpoints are pushed regularly, so no work is lost to limits or restarts. Game saves follow the normal rule: a version bump with migration tests.
 
+### Oct 29: after the M1 tuning diagnosis
+
+- **Bot definitions (§5.3) change** to realistic touch players. The old 1-ply casual bot lost because it never looked ahead, not because of touch noise. A player who sees the next piece and the landing ghost plays differently.
+  - **good**: two pieces deep plus the board's hint. It slips at half the casual rate (4% a column off, 2.5% a wrong turn), and 70% of slips are caught on the ghost before release. 2.2 s a piece.
+  - **casual**: a planner with slips. Two pieces deep plus the hint, the second-best spot 15% of the time. It slips 8% a column off and 5% a wrong turn, and 70% are caught on the ghost. 2.6 s a piece.
+  - **beginner**: the old casual (`bestFit` one piece deep plus the hint, every slip uncaught). It is reported as an extra row and has no band.
+- **Vale's lamps:** purity **P 6** (was 7), and the controlled queue gives a J and a T in every **3** pieces (was 4). If the good bot then lands above 80–90%, balance numbers trim it into the band.
+- **Pip stays short:** his length band is **20–40 s**. His win bands are unchanged.
+
 ## Changes from review (rev 1 → rev 2)
 
 The reviewer's verdict was REVISE, with the direction approved. Each issue below lists how it was resolved. I disagree with none; two items are adopted with small adjustments, noted where they apply.
@@ -280,11 +289,12 @@ Dark appears only after Selene (§7.1).
 - **200 seeds per cell.** Each cell reports its mean and 95% interval (±5.5 points at 80%, ±7 at 50%).
 - **A cell passes** when its mean is inside the band.
 - **Bots**:
-  - **good** (existing);
-  - **casual**: `bestFit` with no look-ahead, 15% second-best placements, **touch noise** (8% one column off, 5% wrong rotation), 2.6 s per piece;
+  - **good**: two pieces deep plus the hint; light touch slips (half the casual rate), 70% caught on the landing ghost; 2.2 s per piece (Author decisions, Oct 29);
+  - **casual**: a planner with slips: two pieces deep plus the hint, 15% second-best placements, **touch noise** (8% one column off, 5% wrong rotation), 70% caught on the ghost, 2.6 s per piece (Author decisions, Oct 29);
+  - **beginner** (reported, no band): the old casual, `bestFit` with no look-ahead, 15% second-best, every slip uncaught;
   - **dropper**;
   - **idle**.
-- Both good and casual use the same per-verb placement hint, so the hint can't flatter one of them.
+- Good, casual and beginner use the same per-verb placement hint, so the hint can't flatter one of them.
 
 | Band                          | Good                                                                      | Casual                         | Dropper | Idle   | Length (good) |
 | ----------------------------- | ------------------------------------------------------------------------- | ------------------------------ | ------- | ------ | ------------- |
@@ -435,8 +445,8 @@ Dark appears only after Selene (§7.1).
 #### Captain Vale: "The Ward Lamps" · CHARGE, twist _wind snuffs_ · **Threshold** (cavePass) · no dark
 
 - **Board**: the cave mouth, with 4 sconces on the frame.
-- **Queue**: controlled, with **one J and one T in every 4 pieces**.
-- **Objective**: "Light all four ward lamps: two blue, two violet. A lamp only takes a pure line." P = 7, dual halves count. 36 pieces.
+- **Queue**: controlled, with **one J and one T in every 3 pieces** (was 4; Author decisions, Oct 29).
+- **Objective**: "Light all four ward lamps: two blue, two violet. A lamp only takes a pure line." P = 6 (was 7; Author decisions, Oct 29), dual halves count. 36 pieces.
 - **Twist**: every 14 pieces the wind snuffs the oldest lit lamp, unless all 4 are lit. The flame flickers one piece ahead.
 - **Supply**: 4 × 7 = 28 cells needed, against about 72 wanted cells supplied (39%).
 - **Fail**: pieces run out, or top-out.

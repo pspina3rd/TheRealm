@@ -52,6 +52,7 @@ function record(seed: number, id = 'guard'): Replay | null {
       2,
       {},
       600_000,
+      undefined,
       (battle) => {
         const piece = battle.board.active!;
         pieces.push({ name: piece.name, second: piece.second });
@@ -64,7 +65,7 @@ function record(seed: number, id = 'guard'): Replay | null {
       level: 2,
       dualChance: dualChance(simHero(2)),
       source:
-        'Team 5aa90cd authored layout/hint and shared HINT=1; public timed inputs and preview reads only',
+        'Team 5fe2859 tuning and approved Oct 29 bot policy; public timed inputs and preview reads only',
       seconds: result.seconds,
       pieces,
       steps,

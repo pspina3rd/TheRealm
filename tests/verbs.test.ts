@@ -81,15 +81,25 @@ describe('DIG + rising (Rowan’s well)', () => {
     expect(other.challenge.status()).toBe('lost');
   });
 
-  it('pushes a mold row up every 6 pieces, sooner for each new buried hole, marked a piece ahead', () => {
+  it('pushes a mold row up every few pieces, sooner for each new buried hole, marked a piece ahead', () => {
     const battle = encounter('elder');
     const dig = battle.challenge as DigChallenge;
-    expect(dig.untilRise).toBe(ENCOUNTERS.elder.risingEvery);
+    const { risingEvery, soonerPerHole } = ENCOUNTERS.elder;
+    expect(dig.untilRise).toBe(risingEvery);
     dig.onLock({ ...EMPTY_LOCK, holesMade: 2 });
-    expect(dig.untilRise).toBe(3);
-    expect(dig.telegraphs()).toEqual([]);
-    dig.onLock(EMPTY_LOCK);
-    dig.onLock(EMPTY_LOCK);
+    expect(dig.untilRise).toBe(risingEvery - 1 - 2 * soonerPerHole);
+    // With a speed-up per hole, each new buried hole brings the row a piece sooner.
+    (dig as unknown as { params: { soonerPerHole: number } }).params = {
+      ...(dig as unknown as { params: object }).params,
+      soonerPerHole: 1,
+    };
+    const before = dig.untilRise;
+    dig.onLock({ ...EMPTY_LOCK, holesMade: 1 });
+    expect(dig.untilRise).toBe(before - 2);
+    while (dig.untilRise > 1) {
+      expect(dig.telegraphs()).toEqual([]);
+      dig.onLock(EMPTY_LOCK);
+    }
     expect(dig.telegraphs()).toHaveLength(1);
     const target = battle.board.tagged('target')[0]!;
     dig.onLock(EMPTY_LOCK);
@@ -315,13 +325,13 @@ describe('PLANT (Bean’s herb beds)', () => {
     clearedRows: [{ cells, tags }],
   });
 
-  it('lays soil ridges (neutral) in each furrow’s left column, and slots an S into every 3 pieces', () => {
+  it('lays soil ridges (neutral) in each furrow’s left column, and slots an S into every window of pieces', () => {
     const { battle } = bean();
     for (const x of [0, 4, 8]) {
       expect(battle.board.grid[19]![x]).toBe('neutral');
       expect(battle.board.tagAt(x, 19)).toBe('ridge');
     }
-    expect(battle.board.supply).toEqual({ window: 3, pieces: ['S'] });
+    expect(battle.board.supply).toEqual({ window: ENCOUNTERS.farmer.supplyWindow, pieces: ['S'] });
   });
 
   it('scores green in furrows only: other colours, paths and ridges score nothing', () => {
@@ -342,27 +352,32 @@ describe('PLANT (Bean’s herb beds)', () => {
     expect(plant.rowScore({ cells: line, tags: [...tags] })).toBe(4);
   });
 
-  it('counts sprouts as lines clear, and ends at sundown: a win at 12, a Great at 16', () => {
+  it('counts sprouts as lines clear, and ends at sundown: a win at the target, a Great beyond', () => {
+    const { target, great } = ENCOUNTERS.farmer;
     const { battle, plant } = bean();
     plant.onLock(cleared(Array<Cell>(10).fill('green')));
     expect(plant.score).toBe(6);
     expect(battle.events.at(-1)?.event).toEqual({ kind: 'beat', beat: 'hazard' });
     plant.onLock(EMPTY_LOCK);
-    expect(plant.objective()).toMatchObject({ counter: 'Sprouts 6/12', progress: 0.5 });
+    expect(plant.objective()).toMatchObject({
+      counter: `Sprouts 6/${target}`,
+      progress: 6 / target,
+    });
     expect(plant.status()).toBe('ongoing');
     battle.board.piecesPlaced = ENCOUNTERS.farmer.pieceLimit;
     expect(plant.status()).toBe('lost');
-    plant.score = 12;
+    plant.score = target;
     expect(plant.status()).toBe('won');
     expect(plant.great).toBe(false);
-    plant.score = 16;
+    plant.score = great;
     expect(plant.great).toBe(true);
     battle.board.toppedOut = true;
     expect(plant.status()).toBe('lost');
   });
 
-  it('asks two more sprouts per strain step', () => {
-    expect(bean(2).plant.target).toBe(16);
+  it('asks more sprouts per strain step', () => {
+    const { target, strainTarget } = ENCOUNTERS.farmer;
+    expect(bean(2).plant.target).toBe(target + 2 * strainTarget);
   });
 
   it('hints toward green in the furrows, and scoring now', () => {
@@ -444,9 +459,9 @@ describe('DUEL, scripted (Ordor’s stall)', () => {
     ]);
   });
 
-  it('starts the meter 5 points worse per strain step', () => {
+  it('starts the meter worse per strain step', () => {
     expect(ordor().duel.meter).toBe(1);
-    expect(ordor(2).duel.meter).toBe(1.1);
+    expect(ordor(2).duel.meter).toBeCloseTo(1 + 2 * ENCOUNTERS.stallKeeper.strainMeter);
   });
 
   it('sends the demo counter-offer during the pre-roll; it lands after the first lock', () => {
@@ -458,7 +473,7 @@ describe('DUEL, scripted (Ordor’s stall)', () => {
     expect(duel.telegraphs()).toEqual([{ kind: 'rows', what: 'send', rows: 1, leadPieces: 1 }]);
     battle.input('hardDrop');
     expect(duel.pendingRows).toBe(0);
-    expect(duel.meter).toBe(1.01);
+    expect(duel.meter).toBeCloseTo(1 + ENCOUNTERS.stallKeeper.meterPerReceived);
     expect(battle.board.grid[19]!.filter((c) => c === 'stone')).toHaveLength(9);
   });
 
@@ -513,7 +528,7 @@ describe('DUEL, scripted (Ordor’s stall)', () => {
     expect(duel.status()).toBe('won');
   });
 
-  it('ends at time: Even at about 104% for singles only', () => {
+  it('ends at time: Even, a few points up, for singles only', () => {
     const { duel } = ordor();
     for (let s = 0; s < 4; s++) {
       duel.update(15_000);
@@ -522,7 +537,7 @@ describe('DUEL, scripted (Ordor’s stall)', () => {
     }
     expect(duel.status()).toBe('won');
     expect(duel.grade).toBe('even');
-    expect(duel.meter).toBeCloseTo(1.03);
+    expect(duel.meter).toBeCloseTo(1 + 3 * ENCOUNTERS.stallKeeper.meterPerReceived);
   });
 
   it('walks off at 115% or worse when the hero tops out', () => {
@@ -566,7 +581,10 @@ describe('CONTAIN + protect (Wren’s mushroom ring)', () => {
     const { battle, contain } = wren();
     expect(battle.board.countTag('hazard')).toBe(2);
     expect(contain.alive).toBe(3);
-    expect(contain.objective()).toMatchObject({ counter: 'Rot 2 · caps 3/3', piecesLeft: 30 });
+    expect(contain.objective()).toMatchObject({
+      counter: 'Rot 2 · caps 3/3',
+      piecesLeft: ENCOUNTERS.forager.pieceLimit,
+    });
     expect(contain.frontier()).toHaveLength(4);
   });
 
@@ -576,9 +594,9 @@ describe('CONTAIN + protect (Wren’s mushroom ring)', () => {
     expect(contain.dead).toBe(0);
   });
 
-  it('spreads every 4 pieces into crystals beside it (marked a piece ahead)', () => {
+  it('spreads every few pieces into crystals beside it (marked a piece ahead)', () => {
     const { battle, contain } = wren();
-    for (let i = 0; i < 3; i++) contain.onLock(EMPTY_LOCK);
+    for (let i = 0; i < ENCOUNTERS.forager.spreadEvery - 1; i++) contain.onLock(EMPTY_LOCK);
     expect(contain.telegraphs()).toEqual([
       { kind: 'cells', what: 'spread', cells: contain.frontier(), leadPieces: 1 },
     ]);
@@ -625,13 +643,13 @@ describe('CONTAIN + protect (Wren’s mushroom ring)', () => {
 
   it('loses when the pieces run out, or on a top-out', () => {
     const { battle, contain } = wren();
-    battle.board.piecesPlaced = 30;
+    battle.board.piecesPlaced = ENCOUNTERS.forager.pieceLimit;
     expect(contain.status()).toBe('lost');
     battle.board.piecesPlaced = 0;
     battle.board.toppedOut = true;
     expect(contain.status()).toBe('lost');
     contain.onLock(EMPTY_LOCK);
-    expect(contain.untilSpread).toBe(4);
+    expect(contain.untilSpread).toBe(ENCOUNTERS.forager.spreadEvery);
   });
 
   it('hints toward clearing rot and picking caps, away from feeding the rot', () => {
@@ -695,7 +713,10 @@ describe('CHARGE (Vale’s ward lamps)', () => {
 
   it('lights the next lamp of a pure line’s element, and a pure line of a lit element does nothing', () => {
     const { battle, charge } = vale();
-    expect(battle.board.supply).toEqual({ window: 4, pieces: ['J', 'T'] });
+    expect(battle.board.supply).toEqual({
+      window: ENCOUNTERS.guard.supplyWindow,
+      pieces: ['J', 'T'],
+    });
     charge.onLock(clears(line('blue', 7), line('blue', 8), line('blue', 9)));
     expect(charge.lit).toEqual([0, 1]);
     charge.onLock(clears(line('violet', 7), line('red', 9)));

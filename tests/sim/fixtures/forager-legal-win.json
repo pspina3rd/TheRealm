@@ -3,8 +3,8 @@
   "seed": 7932,
   "level": 2,
   "dualChance": 0.14285714285714285,
-  "source": "Team 5aa90cd authored layout/hint and shared HINT=1; public timed inputs and preview reads only",
-  "seconds": 39.6,
+  "source": "Team 5fe2859 tuning and approved Oct 29 bot policy; public timed inputs and preview reads only",
+  "seconds": 41.8,
   "pieces": [
     {
       "name": "T",
@@ -63,15 +63,7 @@
       "second": null
     },
     {
-      "name": "O",
-      "second": null
-    },
-    {
-      "name": "T",
-      "second": null
-    },
-    {
-      "name": "I",
+      "name": "J",
       "second": null
     },
     {
@@ -79,7 +71,19 @@
       "second": null
     },
     {
-      "name": "J",
+      "name": "Z",
+      "second": null
+    },
+    {
+      "name": "T",
+      "second": null
+    },
+    {
+      "name": "S",
+      "second": null
+    },
+    {
+      "name": "I",
       "second": null
     }
   ],
@@ -376,31 +380,10 @@
       "preview": true
     },
     {
-      "input": "left"
-    },
-    {
-      "input": "left"
-    },
-    {
-      "input": "left"
-    },
-    {
-      "updates": 44
-    },
-    {
-      "input": "hardDrop"
-    },
-    {
-      "preview": true
-    },
-    {
       "input": "rotate"
     },
     {
-      "input": "rotate"
-    },
-    {
-      "input": "rotate"
+      "input": "right"
     },
     {
       "input": "right"
@@ -424,6 +407,30 @@
       "input": "rotate"
     },
     {
+      "input": "rotate"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "input": "left"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "left"
+    },
+    {
       "updates": 44
     },
     {
@@ -440,6 +447,24 @@
     },
     {
       "input": "left"
+    },
+    {
+      "updates": 44
+    },
+    {
+      "input": "hardDrop"
+    },
+    {
+      "preview": true
+    },
+    {
+      "input": "rotate"
+    },
+    {
+      "input": "right"
+    },
+    {
+      "input": "right"
     },
     {
       "updates": 44

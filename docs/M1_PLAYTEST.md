@@ -5,7 +5,7 @@ M1 balance gate fails; the author's go/no-go is still pending. M2a remains
 off.** Passing Vitest means a report ran successfully, not that its measured
 win rates met the approved targets.
 
-## Latest team checkpoint under integration
+## Team checkpoint chronology
 
 Team `5aa90cd` changes Rowan/Wren to five-row layouts, scales hints into
 the bots’ safety units, and supplies additional M1 flow and presentation.
@@ -222,3 +222,45 @@ legal win proves solvability for that seed, not a passing difficulty band.
 Still needed: casual accessibility and strain-floor balance, Vale’s assist
 recovery, Hazel pacing/difficulty, and a browser layout review of the combined
 tree. The author’s M1 playtest/go-no-go has not occurred; M2a stays off.
+
+## Current policy: author decisions at team 5fe2859
+
+The author’s October 29 decisions supersede the old good/casual definitions
+in the earlier tables. Good now has light slips; casual plans two pieces
+deep with slips and 70% ghost corrections. The old one-ply casual is
+reported as Beginner, without an acceptance band. Vale uses purity 6 and
+a J/T supply window of 3; Pip’s length target is 20–40 seconds. The full
+tuning set and **the team’s own** 200-seed table are preserved in
+[GAME_DESIGN.md](GAME_DESIGN.md#encounter-sims). Those are attributed team
+results, not an independent run of this combined tree.
+
+The tuning pass improves several first-try means, but the team still
+reports misses for Rowan/Pip casual, strain floors, Ordor’s idle price,
+Vale assistance, Hazel difficulties and Wren duration. M1 is not accepted.
+
+A measurement defect was found during integration: the assisted table
+passed strain one straight into the battle, whereas the actual game clears
+strain on assistance. The shared cell constructor now clears it and has a
+regression test. Fresh assisted-within-three measurements are recorded next.
+Our Wilson intervals, immediate incremental reports, bounded lesson
+prerequisites, Ordor demo readiness and legal replay fixtures are retained.
+
+The earlier raw percentages must not be applied to the new policy or
+tuning. No later boss mechanics, reactions or class abilities were enabled.
+
+## Corrected assisted measurement
+
+With the Oct 29 policy and tuning, 195/200 casual runs won within three
+fresh assisted attempts: **97.5%**, Wilson 94.3–98.9%. Five final failures
+exhausted the piece budget; mean total time 92.65 seconds / 37.09 pieces.
+This is a recovery diagnostic, **not** the first-attempt assisted gate in
+ENCOUNTER_DESIGN §5.3. Intervening Wait-unblocking monster fights are not
+simulated. Single-attempt good/casual measurements remain required.
+
+The corrected **single-attempt** assisted row has now also been rerun
+independently (200 seeds per bot): good **162/200, 81.0%** (Wilson
+75.0–85.8%), casual **135/200, 67.5%** (60.7–73.6%). Beginner 11.5%;
+dropper and idle 0%. Good losses all exhausted the piece budget. Mean
+good duration: 49.09 seconds / 23.32 pieces. Both active-bot means still
+miss the official assisted bands (≥97% good / ≥90% casual). The
+three-attempt result above must not be substituted for these gates.

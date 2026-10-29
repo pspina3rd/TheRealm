@@ -163,8 +163,8 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     id: 'sproutling',
     name: 'Sproutling',
     level: 2,
-    hp: 95,
-    atk: 7,
+    hp: 143,
+    atk: 9,
     xp: 9,
     gil: 6,
     element: 'nature',
@@ -185,8 +185,8 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     id: 'leafSprite',
     name: 'Leaf Sprite',
     level: 3,
-    hp: 100,
-    atk: 8,
+    hp: 140,
+    atk: 11,
     xp: 13,
     gil: 8,
     element: 'nature',
@@ -206,12 +206,12 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
     id: 'thornTroll',
     name: 'Thorn Troll',
     level: 4,
-    hp: 135,
-    atk: 9,
+    hp: 203,
+    atk: 14,
     xp: 18,
     gil: 11,
     element: 'nature',
-    actMs: 10000,
+    actMs: 8500,
     band: REGIONS.grove.band,
     moves: [
       { kind: 'attack', name: 'Thorn Club', power: 7 },
@@ -612,7 +612,8 @@ export const ENEMIES: Readonly<Record<string, EnemyDef>> = {
  * A wisp: the trial foe a mentor summons at home for a lesson, one of each
  * element, sharing the slime's sprite washed in the element's colour. These
  * are their difficulty 1 numbers; `lessonFoe` scales them up. They give no
- * spoils: the lesson is the reward.
+ * spoils: the lesson is the reward. Quick and sharp since the M1 tuning
+ * pass (Oct 29: 8 attack every 5.9 s, was 5 every 9 s), so a lesson can be lost.
  */
 function wisp(id: string, name: string, element: Element, special: EnemyMove): EnemyDef {
   return {
@@ -620,11 +621,11 @@ function wisp(id: string, name: string, element: Element, special: EnemyMove): E
     name,
     level: 2,
     hp: 50,
-    atk: 5,
+    atk: 8,
     xp: 0,
     gil: 0,
     element,
-    actMs: 9000,
+    actMs: 5900,
     moves: [{ kind: 'attack', name: 'Lash', power: 2 }, special],
     sprite: 'enemy.slime',
     tint: element,

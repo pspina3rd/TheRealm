@@ -351,7 +351,7 @@ exists.
 
 ### Current integration checkpoint
 
-GetPutTaco reconciles team `5aa90cd` with the playable underground campaign.
+GetPutTaco reconciles team `5fe2859` with the playable underground campaign.
 Save version 12 loads older saves and settles abandoned M1 attempts once.
 The team’s M1 verbs, Browse shops, cards, board feedback and map props are
 connected. [M1_PLAYTEST.md](docs/M1_PLAYTEST.md) records failing balance gates

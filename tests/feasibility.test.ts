@@ -95,7 +95,12 @@ describe('the supply rule (§2)', () => {
   it('catches a board that asks too much', () => {
     const bean = ENCOUNTER_DEFS.farmer!.spec;
     if (bean.verb !== 'plant') throw new Error('Bean plants');
-    expect(supplyRuleHolds({ verb: 'plant', params: { ...bean.params, target: 18 } })).toBe(false);
+    expect(
+      supplyRuleHolds({
+        verb: 'plant',
+        params: { ...bean.params, target: bean.params.pieceLimit + 1 },
+      }),
+    ).toBe(false);
     const vale = ENCOUNTER_DEFS.guard!.spec;
     if (vale.verb !== 'charge') throw new Error('Vale charges');
     expect(supplyRuleHolds({ verb: 'charge', params: { ...vale.params, purity: 8 } })).toBe(false);

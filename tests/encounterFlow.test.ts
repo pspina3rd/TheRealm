@@ -73,8 +73,8 @@ describe('team M1 flow reconciliation', () => {
     expect(recordOf(state, 'elder').tries).toBe(0);
   });
   it('fills the strain-dependent planting target', () => {
-    expect(objectiveText(ENCOUNTER_DEFS.farmer!, 0)).toContain('12 sprouts');
-    expect(objectiveText(ENCOUNTER_DEFS.farmer!, 2)).toContain('16 sprouts');
+    expect(objectiveText(ENCOUNTER_DEFS.farmer!, 0)).toContain('19 sprouts');
+    expect(objectiveText(ENCOUNTER_DEFS.farmer!, 2)).toContain('21 sprouts');
   });
   it('records loss then recovery, and remembers the latest outcome', () => {
     const state = newGame('knight');
