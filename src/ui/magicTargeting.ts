@@ -35,7 +35,17 @@ export function magicGrid(
     line.setAttribute('role', 'row');
     if (options.selected && y >= options.selected[0] && y <= options.selected[1])
       line.classList.add('selected');
-    if (options.onRow) line.addEventListener('click', () => required(options.onRow)(y));
+    if (options.onRow) {
+      line.tabIndex = 0;
+      line.setAttribute('aria-label', `Target row ${state.grid.length - y} from bottom`);
+      line.addEventListener('click', () => required(options.onRow)(y));
+      line.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          required(options.onRow)(y);
+        }
+      });
+    }
     row.forEach((cell, x) => {
       const square = el('span', { className: 'magic-square' });
       square.setAttribute('role', 'gridcell');

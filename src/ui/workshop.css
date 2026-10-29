@@ -1,43 +1,216 @@
 body {
   margin: 0;
-  background: #131624;
+  background: #111421;
   color: #eee9f4;
   font-family: system-ui, sans-serif;
 }
 #workshop {
-  max-width: 950px;
+  max-width: 880px;
   margin: auto;
+  padding: 16px 20px 130px;
+}
+h1 {
+  font-size: 24px;
+  margin: 0 0 4px;
+}
+header p {
+  margin: 0;
+  color: #aeb5cc;
+}
+h2 {
+  font-size: 20px;
+  margin: 0 0 8px;
+}
+h3 {
+  font-size: 18px;
+  margin: 0 0 4px;
+}
+p {
+  line-height: 1.45;
+}
+.practice-goal {
+  margin: 18px 0;
   padding: 16px;
+  border: 1px solid #586681;
+  border-radius: 12px;
+  background: #1d2639;
+}
+.practice-goal p {
+  margin: 0 0 8px;
+}
+.practice-goal strong {
+  color: #edcf7d;
+}
+.practice-goal .complete {
+  color: #88dfa5;
 }
 .workshop-layout {
   display: grid;
-  grid-template-columns: minmax(240px, 360px) minmax(240px, 1fr);
+  grid-template-columns: minmax(240px, 340px) minmax(240px, 1fr);
   gap: 24px;
+  align-items: start;
 }
-.workshop-board {
+.workshop-layout > * {
+  min-width: 0;
+}
+.board-column {
   width: 100%;
+  max-width: 340px;
+  margin: auto;
 }
-.workshop-controls {
-  display: grid;
-  gap: 10px;
+.board-view-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #c5ccdf;
+}
+.workshop-board .magic-grid {
+  box-sizing: border-box;
+}
+.workshop-board .magic-row {
+  cursor: crosshair;
+}
+.workshop-board .magic-row:hover {
+  background: #edf0ff17;
+  outline: 2px solid #aebce4;
+  outline-offset: -2px;
+}
+.workshop-board .magic-row.selected {
+  outline: 2px solid #ffda7f;
+  background: #ffda7f18;
+}
+.workshop-board .magic-square:not(.obstruction) {
+  color: transparent;
+}
+.workshop-board .magic-square[aria-label='neutral'] {
+  color: #333;
+}
+.goal-square {
+  outline: 2px dashed #eef5ff;
+  outline-offset: -4px;
 }
 button,
 select {
   min-height: 44px;
-  background: #30364b;
+  background: #272e43;
   color: #fff;
-  border: 1px solid #8b82aa;
-  border-radius: 5px;
-  padding: 8px;
+  border: 1px solid #69758f;
+  border-radius: 8px;
+  padding: 9px 12px;
   font: inherit;
+  box-sizing: border-box;
+}
+button {
+  cursor: pointer;
 }
 button:disabled {
   opacity: 0.45;
+  cursor: default;
+}
+button[aria-pressed='true'] {
+  border-color: #ffe4a0;
+  background: #444052;
+  box-shadow: inset 0 0 0 1px #ffe4a0;
+}
+button:focus-visible,
+select:focus-visible,
+.magic-row:focus-visible {
+  outline: 3px solid #b3d6ff;
+  outline-offset: 2px;
+}
+.spell-palette {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.spell-palette button {
+  text-align: left;
+  border-left: 4px solid var(--spell-color, #a88ae0);
+}
+[hidden] {
+  display: none !important;
+}
+.selected-spell {
+  margin-top: 16px;
+}
+.selected-spell p {
+  margin: 4px 0 10px;
+  color: #c5ccdf;
+}
+.wind-direction {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0;
+}
+.wind-direction button {
+  flex: 1;
+}
+.workshop-cost {
+  font-size: 13px;
+}
+.workshop-feedback {
+  color: #a1e1b9;
+  min-height: 24px;
+}
+.cast-bar {
+  position: sticky;
+  bottom: 12px;
+  background: #1d2639f5;
+  border: 1px solid #75819b;
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 16px;
+  box-shadow: 0 8px 30px #0008;
+  z-index: 3;
+}
+.workshop-outcome {
+  margin: 0 0 8px;
+  min-height: 22px;
+}
+.cast-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.primary {
+  background: #f1d48b;
+  color: #1b2031;
+  border-color: #f1d48b;
+  font-weight: 700;
+}
+footer {
+  margin-top: 16px;
+}
+.more-practice {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid #46516b;
+  border-radius: 8px;
+}
+summary {
+  cursor: pointer;
+  min-height: 32px;
+}
+.more-practice[open] {
+  display: grid;
+  gap: 10px;
+}
+.more-practice select {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+.more-practice label {
+  display: block;
+  margin-top: 12px;
+}
+.more-practice button {
+  margin: 6px 4px 0 0;
 }
 .workshop-actions {
   display: flex;
+  gap: 6px;
   flex-wrap: wrap;
-  gap: 8px;
 }
 .workshop-actions button {
   flex: 1;
@@ -46,22 +219,109 @@ button:disabled {
   border-top: 1px solid #747087;
   padding: 8px 0;
 }
+.opponent-action {
+  margin-top: 12px;
+}
 @media (max-width: 600px) {
+  #workshop {
+    padding: 12px 12px 100px;
+  }
+  header h1 {
+    font-size: 21px;
+  }
+  header p {
+    font-size: 14px;
+  }
+  .practice-goal {
+    padding: 12px;
+    margin: 12px 0;
+  }
+  h2 {
+    font-size: 17px;
+  }
+  .practice-goal p {
+    font-size: 14px;
+  }
   .workshop-layout {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 10px;
   }
-  .workshop-board {
-    max-width: 330px;
-    margin: auto;
+  .workshop-layout aside {
+    width: 100%;
+  }
+  .spell-palette {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .spell-palette button {
+    font-size: 13px;
+    padding: 8px;
+  }
+  .selected-spell {
+    margin-top: 8px;
+  }
+  .selected-spell h3,
+  .selected-spell > p:not(.workshop-cost) {
+    display: none;
+  }
+  .workshop-cost {
+    margin: 6px 0 !important;
+    font-size: 12px;
+  }
+  .workshop-feedback:empty {
+    display: none;
+  }
+  .board-column {
+    max-width: 290px;
+  }
+  .board-view-label {
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .cast-bar {
+    bottom: 8px;
+    padding: 10px;
+  }
+  .workshop-outcome {
+    font-size: 14px;
+  }
+  .cast-actions button {
+    font-size: 14px;
   }
 }
-.workshop-layout > *,
-.workshop-controls > * {
-  min-width: 0;
+@media (max-width: 600px) {
+  .cast-bar {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    margin: 0;
+  }
+  .board-column {
+    max-width: 260px;
+  }
 }
-.workshop-controls select {
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
+
+@media (max-width: 600px) {
+  .board-column {
+    max-width: min(290px, calc(100dvh - 420px));
+  }
+}
+header {
+  position: relative;
+  padding-right: 75px;
+}
+header > button {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.cast-bar {
+  background: #1d2639;
+}
+@media (max-width: 600px) {
+  footer {
+    margin-top: 115px;
+  }
 }

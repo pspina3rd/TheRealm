@@ -4,29 +4,29 @@
     "height": 640,
     "overflow": false,
     "errors": [],
-    "cast": true,
-    "arcaneUpgrade": true,
-    "neutralizeCharges": 2,
-    "reducedMotion": true
+    "untimed": true,
+    "completedExercises": 7,
+    "castsOnMainBoard": true,
+    "noCastingDialogs": true
   },
   {
     "width": 390,
     "height": 844,
     "overflow": false,
     "errors": [],
-    "cast": true,
-    "arcaneUpgrade": true,
-    "neutralizeCharges": 2,
-    "reducedMotion": true
+    "untimed": true,
+    "completedExercises": 7,
+    "castsOnMainBoard": true,
+    "noCastingDialogs": true
   },
   {
     "width": 1100,
     "height": 900,
     "overflow": false,
     "errors": [],
-    "cast": true,
-    "arcaneUpgrade": true,
-    "neutralizeCharges": 2,
-    "reducedMotion": true
+    "untimed": true,
+    "completedExercises": 7,
+    "castsOnMainBoard": true,
+    "noCastingDialogs": true
   }
 ]

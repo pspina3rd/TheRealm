@@ -485,3 +485,17 @@ GetPutTaco's playable workshop checkpoint was pushed before this hardening pass.
 The remaining acceptance is the author's workshop playtest before broad campaign
 activation and new balance retuning, as required by the approved plan. Existing
 M1 author acceptance and M2a remain separate; neither is silently marked done.
+
+## October 29 — replace the confusing spell workshop interface
+
+Responded to the author's hands-on feedback by replacing spell/rank dropdowns,
+row sliders and casting dialogs with spell buttons and direct targeting on the
+main board. Added seven authored, solvable exercises with an explicit goal,
+remaining progress, result preview and completion/next action. Default practice
+is untimed and enemy pressure is off. Live practice and progression controls are
+optional. Practice Arcane pairs are available without a prerequisite grind.
+
+Each exercise has a real rank-one engine solution test; Nature's goal requires
+conversion rather than destruction. Browser coverage completes all seven goals
+at phone and desktop sizes and asserts that the cast controls do not cover the
+board. Existing main-campaign activation remains behind the same rollout flag.
