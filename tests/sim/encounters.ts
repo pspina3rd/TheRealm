@@ -606,8 +606,11 @@ export function cellTarget(
 ): { spec: ChallengeSpec; level: number; rule?: RegionRuleId } {
   const [kind, a = '', b = '1'] = name.split(':');
   if (kind === 'lesson') {
-    const [enemyId, spellId] = LESSONS[a]!;
+    const [enemyId, primary] = LESSONS[a]!;
     const difficulty = Number(b);
+    // Ranger starts with Cure: its actual first Hazel lesson is Regen, not a new Cure.
+    const spellId =
+      a === 'hazel' && difficulty === 1 && createHero(SIM_CLASS).spells.cure ? 'regen' : primary;
     return {
       spec: { kind: 'lesson', mentorId: a, enemyId, spellId, difficulty },
       level: LESSON_LEVELS[difficulty]!,

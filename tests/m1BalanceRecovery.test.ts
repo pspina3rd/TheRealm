@@ -1,3 +1,5 @@
+import type { LessonChallenge } from '../src/battle/lesson';
+import { castReady } from './sim/simulate';
 import { expect, it } from 'vitest';
 import { Battle } from '../src/battle/battle';
 import { createRng } from '../src/core/rng';
@@ -24,4 +26,20 @@ it('gives an assisted threshold more placement time without easing the solo tria
   expect(stakesCard(state, helpedSpec, []).assist?.label).toContain(
     `+${ENCOUNTERS.guard.assistPieces} pieces`,
   );
+});
+
+it('uses the taught shield-breaking spell before another spell consumes the same mana', () => {
+  const hero = createHero('ranger');
+  const battle = new Battle(
+    { kind: 'lesson', mentorId: 'hazel', spellId: 'regen', enemyId: 'mossWisp', difficulty: 1 },
+    hero,
+    createRng(4),
+  );
+  const lesson = battle.challenge as LessonChallenge;
+  lesson.shield = 'up';
+  hero.hp = 1;
+  hero.mana.nature = 6;
+  castReady(battle);
+  expect(lesson.shield).toBe('broken');
+  expect(hero.mana.nature).toBe(0);
 });

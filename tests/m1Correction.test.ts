@@ -4,6 +4,7 @@ import type { BuildChallenge } from '../src/battle/verbs/build';
 import type { DigChallenge } from '../src/battle/verbs/dig';
 import { createRng } from '../src/core/rng';
 import { createHero } from '../src/game/hero';
+import { ENCOUNTER_DEFS } from '../src/data/encounters';
 import { ENCOUNTERS } from '../src/data/balance';
 
 const trial = (id: string, demo = false) =>
@@ -79,6 +80,24 @@ describe('one introductory correction', () => {
     battle.input('hardDrop');
     expect(battle.status).toBe('lost');
     expect(battle.correctLastDrop()).toBe(false);
+  });
+
+  it('adds retry debris with adjacent openings while keeping the original pipe board', () => {
+    const battle = new Battle(
+      { kind: 'encounter', id: 'elder', strain: 2, demo: false, assisted: false },
+      createHero(),
+      createRng(3),
+    );
+    const def = ENCOUNTER_DEFS.elder!.spec;
+    if (def.verb !== 'dig') throw new Error('Expected well');
+    const top = battle.board.height - def.params.rows.length - 2;
+    for (const row of battle.board.grid.slice(top, top + 2)) {
+      const holes = row.flatMap((cell, x) => (cell === null ? [x] : []));
+      expect(holes).toHaveLength(ENCOUNTERS.elder.strainGapWidth);
+      expect(holes[1]! - holes[0]!).toBe(1);
+      expect(row.some((cell) => cell !== null)).toBe(true);
+    }
+    expect((battle.challenge as DigChallenge).rowsAbove()).toBe(def.params.rows.length - 1 + 2);
   });
 
   it('does not rewind the demonstration, a victory, a give-up, or other encounters', () => {

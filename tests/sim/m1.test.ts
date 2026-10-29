@@ -1,5 +1,8 @@
 /** Extended M1 cells: M1_SIM=1 RUNS=200 npx vitest run tests/sim/m1.test.ts. */
 import { appendFileSync, writeFileSync } from 'node:fs';
+import { newGame } from '../../src/world/state';
+import { MENTORS } from '../../src/data/mentors';
+import { lessonsFor } from '../../src/game/lessons';
 import { describe, expect, it } from 'vitest';
 import type { ChallengeSpec } from '../../src/data/types';
 import type { Element } from '../../src/core/elements';
@@ -28,6 +31,15 @@ it('clears assisted threshold strain like the production offer', () => {
     demo: false,
   });
   expect(cellTarget('guard', 1, false).spec).toMatchObject({ strain: 1, assisted: false });
+});
+
+it('uses an actually offered first Hazel lesson for the default class', () => {
+  const { spec } = cellTarget('lesson:hazel:1');
+  if (spec.kind !== 'lesson') throw new Error('Expected lesson');
+  const state = newGame(process.env.CLASS ?? 'ranger');
+  expect(lessonsFor(state, MENTORS.hazel!)).toContainEqual(
+    expect.objectContaining({ spellId: spec.spellId, difficulty: 1 }),
+  );
 });
 
 const pct = (n: number): string => (n * 100).toFixed(1);

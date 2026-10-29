@@ -120,6 +120,7 @@ export const ENCOUNTER_DEFS: Readonly<Record<string, EncounterDef>> = {
         risingEvery: E.elder.risingEvery,
         soonerPerHole: E.elder.soonerPerHole,
         strainRows: E.elder.strainRows,
+        strainGapWidth: E.elder.strainGapWidth,
       },
     },
     objective: 'Scrape down to the pipe before the mold climbs over the lip.',

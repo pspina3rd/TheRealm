@@ -16,12 +16,15 @@ export interface DigParams {
   readonly soonerPerHole: number;
   /** Debris rows added on top per strain step. */
   readonly strainRows: number;
+  readonly strainGapWidth?: number;
 }
 
-/** A mold row as `loadRows` text, with one gap. */
-function moldText(width: number, rng: Rng): string {
-  const gap = rng.int(width);
-  return Array.from({ length: width }, (_, x) => (x === gap ? '.' : 'm')).join('');
+/** Retry debris as `loadRows` text, keeping an adjacent opening. */
+function moldText(width: number, rng: Rng, gapWidth = 1): string {
+  const gap = rng.int(width - gapWidth + 1);
+  return Array.from({ length: width }, (_, x) => (x >= gap && x < gap + gapWidth ? '.' : 'm')).join(
+    '',
+  );
 }
 
 /**
@@ -46,7 +49,7 @@ export class DigChallenge implements Challenge {
     this.params = params;
     const board = ctx.board;
     const extra = Array.from({ length: strain * params.strainRows }, () =>
-      moldText(board.width, ctx.rng),
+      moldText(board.width, ctx.rng, params.strainGapWidth ?? 1),
     );
     board.loadRows([...extra, ...params.rows], { P: { cell: 'stone', tag: 'target' } });
     this.untilRise = params.risingEvery;

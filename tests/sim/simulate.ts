@@ -353,7 +353,10 @@ export function castReady(battle: Battle): void {
   if (!combat) return;
   // A lesson's shield is up: only the taught spell gets through, so cast it, heal or not.
   const lesson = combat instanceof LessonChallenge && combat.shield === 'up' ? combat : null;
-  for (const id of Object.keys(combat.spellBook())) {
+  const ids = Object.keys(combat.spellBook()).sort(
+    (a, b) => Number(b === lesson?.spellId) - Number(a === lesson?.spellId),
+  );
+  for (const id of ids) {
     const kind = SPELLS[id]?.levels[0].effect.kind;
     const taught = lesson?.spellId === id;
     if (kind === 'heal' && !taught && battle.hero.hp > battle.hero.maxHp * 0.5) continue;

@@ -18,7 +18,8 @@ The encounter foundation commits after `d14b3c4` have been reconciled into
 GetPutTaco, preserving the playable campaign. The unified save format is
 version 12 and loads both independently written version-10 formats, plus
 version 11. The player-facing M1 wiring is implemented and checkpointed;
-its automated balance gate still fails. See [M1_PLAYTEST.md](M1_PLAYTEST.md).
+its remaining automated balance gates now pass; the author’s hands-on
+acceptance is still pending. See [M1_PLAYTEST.md](M1_PLAYTEST.md).
 
 The new work includes board tags, controlled supply, encounter verbs, stakes,
 lesson shields, telegraphs, feasibility checks, and simulator changes. The

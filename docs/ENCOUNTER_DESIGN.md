@@ -34,7 +34,7 @@ attempt, replay a demo, undo a victory, refund a failure, or work in other
 encounters. A failed introductory board waits for Correct or Give up
 before settling, so the correction remains usable after a fatal drop.
 
-### Recovery tuning under verification
+### Recovery tuning verified in the M1 encounter profiles
 
 - Maren's assisted Vale try provides 16 extra placements (48 total), shown
   on the offer. The solo first try remains 32 placements.
@@ -42,6 +42,11 @@ before settling, so the correction remains usable after a fatal drop.
   avoid the prior retry wall. It remains harder than the first try.
 - Lesson HP/attack rows and novice HP are tuned against legal prior spell
   ranks; the author's touch/noise definitions remain unchanged.
+- Rowan uses lip 13 and two-cell adjacent openings in added strain debris;
+  the authored seven-column well and rising cadence remain. Wren uses
+  48 placements, spreading four cells every four placements.
+- The final 200-seed measurements, simulator limits and remaining human
+  acceptance are recorded in [M1_PLAYTEST.md](M1_PLAYTEST.md).
 - The official win-rate bands remain unchanged. Three-attempt recovery is
   reported separately and never substitutes for a first-attempt gate.
 

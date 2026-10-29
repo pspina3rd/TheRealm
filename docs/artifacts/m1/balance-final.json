@@ -1,0 +1,1227 @@
+[
+  {
+    "row": {
+      "name": "elder",
+      "band": "Mossvale",
+      "floor": 2
+    },
+    "cells": [
+      {
+        "id": "elder",
+        "bot": "good",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.96,
+        "half": 0.028263775571771215,
+        "lower": 0.9230670617058012,
+        "upper": 0.9795946128493436,
+        "greatRate": 0,
+        "seconds": 47.75175,
+        "pieces": 23.41,
+        "causes": {
+          "won": 192,
+          "rule": 8
+        },
+        "price": 1
+      },
+      {
+        "id": "elder",
+        "bot": "casual",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.62,
+        "half": 0.06667258409780635,
+        "lower": 0.5510658951919951,
+        "upper": 0.6844110633876079,
+        "greatRate": 0,
+        "seconds": 87.3375,
+        "pieces": 34.975,
+        "causes": {
+          "rule": 76,
+          "won": 124
+        },
+        "price": 1
+      },
+      {
+        "id": "elder",
+        "bot": "beginner",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.085,
+        "half": 0.03907579298625073,
+        "lower": 0.05374529946985246,
+        "upper": 0.13189688544235392,
+        "greatRate": 0,
+        "seconds": 61.59449999999999,
+        "pieces": 24.83,
+        "causes": {
+          "rule": 183,
+          "won": 17
+        },
+        "price": 1
+      },
+      {
+        "id": "elder",
+        "bot": "dropper",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0,
+        "half": 0.009423002959160447,
+        "lower": 0,
+        "upper": 0.018846005918320894,
+        "greatRate": 0,
+        "seconds": 9.059499999999979,
+        "pieces": 6.155,
+        "causes": {
+          "rule": 200
+        },
+        "price": 1
+      },
+      {
+        "id": "elder",
+        "bot": "idle",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0,
+        "half": 0.009423002959160447,
+        "lower": 0,
+        "upper": 0.018846005918320894,
+        "greatRate": 0,
+        "seconds": 38.98249999999991,
+        "pieces": 5.965,
+        "causes": {
+          "rule": 200
+        },
+        "price": 1
+      }
+    ],
+    "floors": [
+      {
+        "id": "elder",
+        "bot": "good",
+        "strain": 2,
+        "runs": 200,
+        "winRate": 0.815,
+        "half": 0.053635328636910486,
+        "lower": 0.7554281794988185,
+        "upper": 0.8626988367726394,
+        "greatRate": 0,
+        "seconds": 88.45874999999998,
+        "pieces": 40.7,
+        "causes": {
+          "won": 163,
+          "rule": 37
+        },
+        "price": 1
+      },
+      {
+        "id": "elder",
+        "bot": "casual",
+        "strain": 2,
+        "runs": 200,
+        "winRate": 0.27,
+        "half": 0.06110103405080826,
+        "lower": 0.2132335473104056,
+        "upper": 0.3354356154120221,
+        "greatRate": 0,
+        "seconds": 106.13574999999999,
+        "pieces": 41.02,
+        "causes": {
+          "rule": 146,
+          "won": 54
+        },
+        "price": 1
+      }
+    ],
+    "source": "rowan-recovery-final"
+  },
+  {
+    "row": {
+      "name": "kid",
+      "band": "Mossvale (Pip: 20\u201340 s)",
+      "floor": 2
+    },
+    "cells": [
+      {
+        "id": "kid",
+        "bot": "good",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.96,
+        "half": 0.028263775571771215,
+        "lower": 0.9230670617058012,
+        "upper": 0.9795946128493436,
+        "greatRate": 0,
+        "seconds": 20.22900000000007,
+        "pieces": 11.025,
+        "causes": {
+          "won": 192,
+          "rule": 4,
+          "pieces": 4
+        },
+        "price": 1
+      },
+      {
+        "id": "kid",
+        "bot": "casual",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.675,
+        "half": 0.06438338053384406,
+        "lower": 0.6073185684304498,
+        "upper": 0.736085329498138,
+        "greatRate": 0,
+        "seconds": 26.364,
+        "pieces": 11.425,
+        "causes": {
+          "pieces": 50,
+          "rule": 15,
+          "won": 135
+        },
+        "price": 1
+      },
+      {
+        "id": "kid",
+        "bot": "beginner",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.06,
+        "half": 0.03364039270278969,
+        "lower": 0.0346518499012715,
+        "upper": 0.10193263530685089,
+        "greatRate": 0,
+        "seconds": 25.07525000000001,
+        "pieces": 10.65,
+        "causes": {
+          "rule": 87,
+          "pieces": 101,
+          "won": 12
+        },
+        "price": 1
+      },
+      {
+        "id": "kid",
+        "bot": "dropper",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0,
+        "half": 0.009423002959160447,
+        "lower": 0,
+        "upper": 0.018846005918320894,
+        "greatRate": 0,
+        "seconds": 4.399999999999985,
+        "pieces": 4,
+        "causes": {
+          "rule": 200
+        },
+        "price": 1
+      },
+      {
+        "id": "kid",
+        "bot": "idle",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0,
+        "half": 0.009423002959160447,
+        "lower": 0,
+        "upper": 0.018846005918320894,
+        "greatRate": 0,
+        "seconds": 34.25,
+        "pieces": 4,
+        "causes": {
+          "rule": 200
+        },
+        "price": 1
+      }
+    ],
+    "floors": [
+      {
+        "id": "kid",
+        "bot": "good",
+        "strain": 2,
+        "runs": 200,
+        "winRate": 0.99,
+        "half": 0.016487942296202308,
+        "lower": 0.9642775148038205,
+        "upper": 0.9972533993962251,
+        "greatRate": 0,
+        "seconds": 22.27499999999999,
+        "pieces": 11.01,
+        "causes": {
+          "won": 198,
+          "pieces": 1,
+          "rule": 1
+        },
+        "price": 1
+      },
+      {
+        "id": "kid",
+        "bot": "casual",
+        "strain": 2,
+        "runs": 200,
+        "winRate": 0.645,
+        "half": 0.06574748432576372,
+        "lower": 0.5765198448160798,
+        "upper": 0.7080148134676072,
+        "greatRate": 0,
+        "seconds": 28.716999999999967,
+        "pieces": 11.35,
+        "causes": {
+          "pieces": 53,
+          "won": 129,
+          "rule": 18
+        },
+        "price": 1
+      }
+    ],
+    "source": "pip-approved-final"
+  },
+  {
+    "row": {
+      "name": "farmer",
+      "band": "Mossvale",
+      "floor": 2
+    },
+    "cells": [
+      {
+        "id": "farmer",
+        "bot": "good",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.9,
+        "half": 0.04186846119575715,
+        "lower": 0.8505931364369146,
+        "upper": 0.9343300588284289,
+        "greatRate": 0.775,
+        "seconds": 48.39999999999982,
+        "pieces": 24,
+        "causes": {
+          "won": 180,
+          "pieces": 20
+        },
+        "price": 1
+      },
+      {
+        "id": "farmer",
+        "bot": "casual",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.735,
+        "half": 0.0607482112747057,
+        "lower": 0.6698229773344888,
+        "upper": 0.7913193998839003,
+        "greatRate": 0.56,
+        "seconds": 57.155250000000095,
+        "pieces": 24,
+        "causes": {
+          "won": 147,
+          "pieces": 53
+        },
+        "price": 1
+      },
+      {
+        "id": "farmer",
+        "bot": "beginner",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.21,
+        "half": 0.05618204643767889,
+        "lower": 0.15928329527863416,
+        "upper": 0.271647388153992,
+        "greatRate": 0.12,
+        "seconds": 56.73775000000009,
+        "pieces": 24,
+        "causes": {
+          "pieces": 158,
+          "won": 42
+        },
+        "price": 1
+      },
+      {
+        "id": "farmer",
+        "bot": "dropper",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0,
+        "half": 0.009423002959160447,
+        "lower": 0,
+        "upper": 0.018846005918320894,
+        "greatRate": 0,
+        "seconds": 15.74099999999997,
+        "pieces": 10.84,
+        "causes": {
+          "topout": 200
+        },
+        "price": 1
+      },
+      {
+        "id": "farmer",
+        "bot": "idle",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0,
+        "half": 0.009423002959160447,
+        "lower": 0,
+        "upper": 0.018846005918320894,
+        "greatRate": 0,
+        "seconds": 69.23350000000003,
+        "pieces": 10.475,
+        "causes": {
+          "topout": 200
+        },
+        "price": 1
+      }
+    ],
+    "floors": [
+      {
+        "id": "farmer",
+        "bot": "good",
+        "strain": 2,
+        "runs": 200,
+        "winRate": 0.67,
+        "half": 0.0646306148630815,
+        "lower": 0.602165564130804,
+        "upper": 0.7314267938569671,
+        "greatRate": 0.625,
+        "seconds": 50.57925000000019,
+        "pieces": 24,
+        "causes": {
+          "won": 134,
+          "pieces": 66
+        },
+        "price": 1
+      },
+      {
+        "id": "farmer",
+        "bot": "casual",
+        "strain": 2,
+        "runs": 200,
+        "winRate": 0.515,
+        "half": 0.06861006516492237,
+        "lower": 0.44610724474630287,
+        "upper": 0.5833273750761476,
+        "greatRate": 0.48,
+        "seconds": 59.75299999999986,
+        "pieces": 24,
+        "causes": {
+          "won": 103,
+          "pieces": 97
+        },
+        "price": 1
+      }
+    ],
+    "source": "bean-confirm-200"
+  },
+  {
+    "row": {
+      "name": "stallKeeper",
+      "band": "Haggle",
+      "floor": 2
+    },
+    "cells": [
+      {
+        "id": "stallKeeper",
+        "bot": "good",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.755,
+        "half": 0.05923795236231292,
+        "lower": 0.6909563161285153,
+        "upper": 0.809432220853141,
+        "greatRate": 0.27,
+        "seconds": 58.00199999999999,
+        "pieces": 27.155,
+        "causes": {
+          "won": 151,
+          "price": 49
+        },
+        "price": 0.8916699999999989
+      },
+      {
+        "id": "stallKeeper",
+        "bot": "casual",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.35,
+        "half": 0.0655397414935942,
+        "lower": 0.28728715939415395,
+        "upper": 0.41836664238134236,
+        "greatRate": 0.04,
+        "seconds": 59.65475000000001,
+        "pieces": 23.95,
+        "causes": {
+          "won": 70,
+          "price": 127,
+          "topout": 3
+        },
+        "price": 0.963279999999999
+      },
+      {
+        "id": "stallKeeper",
+        "bot": "beginner",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.005,
+        "half": 0.013445626940202637,
+        "lower": 0.0008831459893662054,
+        "upper": 0.02777439986977148,
+        "greatRate": 0,
+        "seconds": 59.8975,
+        "pieces": 24.065,
+        "causes": {
+          "price": 196,
+          "won": 1,
+          "topout": 3
+        },
+        "price": 1.0378300000000011
+      },
+      {
+        "id": "stallKeeper",
+        "bot": "dropper",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0,
+        "half": 0.009423002959160447,
+        "lower": 0,
+        "upper": 0.018846005918320894,
+        "greatRate": 0,
+        "seconds": 16.370249999999995,
+        "pieces": 10.3,
+        "causes": {
+          "topout": 200
+        },
+        "price": 1.1999999999999957
+      },
+      {
+        "id": "stallKeeper",
+        "bot": "idle",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0,
+        "half": 0.009423002959160447,
+        "lower": 0,
+        "upper": 0.018846005918320894,
+        "greatRate": 0,
+        "seconds": 57.773999999999994,
+        "pieces": 7.3,
+        "causes": {
+          "price": 81,
+          "topout": 119
+        },
+        "price": 1.1384399999999986
+      }
+    ],
+    "floors": [
+      {
+        "id": "stallKeeper",
+        "bot": "good",
+        "strain": 2,
+        "runs": 200,
+        "winRate": 0.665,
+        "half": 0.06486978128909647,
+        "lower": 0.5970206277343806,
+        "upper": 0.7267601903125736,
+        "greatRate": 0.245,
+        "seconds": 58.105999999999995,
+        "pieces": 27.215,
+        "causes": {
+          "won": 133,
+          "price": 67
+        },
+        "price": 0.9078600000000023
+      },
+      {
+        "id": "stallKeeper",
+        "bot": "casual",
+        "strain": 2,
+        "runs": 200,
+        "winRate": 0.375,
+        "half": 0.06650249768733865,
+        "lower": 0.3108532530524515,
+        "upper": 0.44385824842712884,
+        "greatRate": 0.045,
+        "seconds": 59.861000000000004,
+        "pieces": 23.955,
+        "causes": {
+          "won": 75,
+          "price": 125
+        },
+        "price": 0.9670100000000026
+      }
+    ],
+    "source": "remaining-final-200"
+  },
+  {
+    "row": {
+      "name": "forager",
+      "band": "Grove",
+      "floor": 2
+    },
+    "cells": [
+      {
+        "id": "forager",
+        "bot": "good",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.785,
+        "half": 0.05665318604999938,
+        "lower": 0.7229757022632792,
+        "upper": 0.836282074363278,
+        "greatRate": 0.745,
+        "seconds": 58.57999999999999,
+        "pieces": 27.63,
+        "causes": {
+          "won": 157,
+          "pieces": 42,
+          "rule": 1
+        },
+        "price": 1
+      },
+      {
+        "id": "forager",
+        "bot": "casual",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.48,
+        "half": 0.06858647932346816,
+        "lower": 0.4117904407948983,
+        "upper": 0.5489633994418346,
+        "greatRate": 0.455,
+        "seconds": 90.77200000000013,
+        "pieces": 36.025,
+        "causes": {
+          "pieces": 99,
+          "won": 96,
+          "rule": 3,
+          "topout": 2
+        },
+        "price": 1
+      },
+      {
+        "id": "forager",
+        "bot": "beginner",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.025,
+        "half": 0.023227291340414718,
+        "lower": 0.010724561470787711,
+        "upper": 0.05717914415161715,
+        "greatRate": 0.025,
+        "seconds": 107.71900000000005,
+        "pieces": 44,
+        "causes": {
+          "pieces": 140,
+          "topout": 36,
+          "won": 5,
+          "rule": 19
+        },
+        "price": 1
+      },
+      {
+        "id": "forager",
+        "bot": "dropper",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0,
+        "half": 0.009423002959160447,
+        "lower": 0,
+        "upper": 0.018846005918320894,
+        "greatRate": 0,
+        "seconds": 11.935750000000008,
+        "pieces": 8.15,
+        "causes": {
+          "topout": 200
+        },
+        "price": 1
+      },
+      {
+        "id": "forager",
+        "bot": "idle",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0,
+        "half": 0.009423002959160447,
+        "lower": 0,
+        "upper": 0.018846005918320894,
+        "greatRate": 0,
+        "seconds": 44.172999999999966,
+        "pieces": 7.695,
+        "causes": {
+          "topout": 200
+        },
+        "price": 1
+      }
+    ],
+    "floors": [
+      {
+        "id": "forager",
+        "bot": "good",
+        "strain": 2,
+        "runs": 200,
+        "winRate": 0.75,
+        "half": 0.05963073331661497,
+        "lower": 0.6856577652038048,
+        "upper": 0.8049192318370347,
+        "greatRate": 0.65,
+        "seconds": 62.50399999999994,
+        "pieces": 29.42,
+        "causes": {
+          "won": 150,
+          "pieces": 50
+        },
+        "price": 1
+      },
+      {
+        "id": "forager",
+        "bot": "casual",
+        "strain": 2,
+        "runs": 200,
+        "winRate": 0.415,
+        "half": 0.06766021877056089,
+        "lower": 0.3489416917324964,
+        "upper": 0.48426212927361817,
+        "greatRate": 0.335,
+        "seconds": 96.61625000000016,
+        "pieces": 38.3,
+        "causes": {
+          "pieces": 111,
+          "won": 83,
+          "rule": 6
+        },
+        "price": 1
+      }
+    ],
+    "source": "wren-final-200"
+  },
+  {
+    "row": {
+      "name": "guard",
+      "band": "Threshold",
+      "floor": 1
+    },
+    "cells": [
+      {
+        "id": "guard",
+        "bot": "good",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.805,
+        "half": 0.05469361616003027,
+        "lower": 0.744558352034882,
+        "upper": 0.8539455843549424,
+        "greatRate": 0,
+        "seconds": 51.7725,
+        "pieces": 24.535,
+        "causes": {
+          "pieces": 39,
+          "won": 161
+        },
+        "price": 1
+      },
+      {
+        "id": "guard",
+        "bot": "casual",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.52,
+        "half": 0.06858647932346816,
+        "lower": 0.4510366005581654,
+        "upper": 0.5882095592051018,
+        "greatRate": 0,
+        "seconds": 69.60325000000012,
+        "pieces": 27.8,
+        "causes": {
+          "pieces": 96,
+          "won": 104
+        },
+        "price": 1
+      },
+      {
+        "id": "guard",
+        "bot": "beginner",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.025,
+        "half": 0.023227291340414718,
+        "lower": 0.010724561470787711,
+        "upper": 0.05717914415161715,
+        "greatRate": 0,
+        "seconds": 76.61675000000002,
+        "pieces": 31.365,
+        "causes": {
+          "pieces": 170,
+          "topout": 25,
+          "won": 5
+        },
+        "price": 1
+      },
+      {
+        "id": "guard",
+        "bot": "dropper",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0,
+        "half": 0.009423002959160447,
+        "lower": 0,
+        "upper": 0.018846005918320894,
+        "greatRate": 0,
+        "seconds": 16.40924999999998,
+        "pieces": 10.215,
+        "causes": {
+          "topout": 200
+        },
+        "price": 1
+      },
+      {
+        "id": "guard",
+        "bot": "idle",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0,
+        "half": 0.009423002959160447,
+        "lower": 0,
+        "upper": 0.018846005918320894,
+        "greatRate": 0,
+        "seconds": 73.08524999999995,
+        "pieces": 9.645,
+        "causes": {
+          "topout": 200
+        },
+        "price": 1
+      }
+    ],
+    "floors": [
+      {
+        "id": "guard",
+        "bot": "good",
+        "strain": 1,
+        "runs": 200,
+        "winRate": 0.6,
+        "half": 0.06727996090804267,
+        "lower": 0.5308354385001253,
+        "upper": 0.6653953603162106,
+        "greatRate": 0,
+        "seconds": 65.67649999999999,
+        "pieces": 30.855,
+        "causes": {
+          "pieces": 80,
+          "won": 120
+        },
+        "price": 1
+      },
+      {
+        "id": "guard",
+        "bot": "casual",
+        "strain": 1,
+        "runs": 200,
+        "winRate": 0.36,
+        "half": 0.0659475635151669,
+        "lower": 0.29669087731339805,
+        "upper": 0.42858600434373184,
+        "greatRate": 0,
+        "seconds": 83.94800000000001,
+        "pieces": 33.34,
+        "causes": {
+          "pieces": 128,
+          "won": 72
+        },
+        "price": 1
+      }
+    ],
+    "source": "guard-floor-final"
+  },
+  {
+    "row": {
+      "name": "guard+assist",
+      "band": "Threshold, assisted",
+      "assisted": true
+    },
+    "cells": [
+      {
+        "id": "guard",
+        "bot": "good",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 1,
+        "half": 0.009423002959160447,
+        "lower": 0.9811539940816791,
+        "upper": 1,
+        "greatRate": 0,
+        "seconds": 47.60799999999998,
+        "pieces": 22.64,
+        "causes": {
+          "won": 200
+        },
+        "price": 1
+      },
+      {
+        "id": "guard",
+        "bot": "casual",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.96,
+        "half": 0.028263775571771215,
+        "lower": 0.9230670617058012,
+        "upper": 0.9795946128493436,
+        "greatRate": 0,
+        "seconds": 66.454,
+        "pieces": 26.63,
+        "causes": {
+          "won": 192,
+          "pieces": 6,
+          "topout": 2
+        },
+        "price": 1
+      },
+      {
+        "id": "guard",
+        "bot": "beginner",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.34,
+        "half": 0.06510096873097579,
+        "lower": 0.2779143922159556,
+        "upper": 0.40811632967790723,
+        "greatRate": 0,
+        "seconds": 89.17224999999999,
+        "pieces": 37.99,
+        "causes": {
+          "topout": 100,
+          "won": 68,
+          "pieces": 32
+        },
+        "price": 1
+      },
+      {
+        "id": "guard",
+        "bot": "dropper",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0,
+        "half": 0.009423002959160447,
+        "lower": 0,
+        "upper": 0.018846005918320894,
+        "greatRate": 0,
+        "seconds": 16.171249999999965,
+        "pieces": 10.115,
+        "causes": {
+          "topout": 200
+        },
+        "price": 1
+      },
+      {
+        "id": "guard",
+        "bot": "idle",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0,
+        "half": 0.009423002959160447,
+        "lower": 0,
+        "upper": 0.018846005918320894,
+        "greatRate": 0,
+        "seconds": 72.19124999999997,
+        "pieces": 9.5,
+        "causes": {
+          "topout": 200
+        },
+        "price": 1
+      }
+    ],
+    "floors": null,
+    "source": "open-assist-48-200"
+  },
+  {
+    "row": {
+      "name": "lesson:hazel:1",
+      "band": "Lesson d1"
+    },
+    "cells": [
+      {
+        "id": "lesson:hazel:1",
+        "bot": "good",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.845,
+        "half": 0.05010618689543527,
+        "lower": 0.7883919410627441,
+        "upper": 0.8886043148536146,
+        "greatRate": 0,
+        "seconds": 61.64800000000001,
+        "pieces": 28.955,
+        "causes": {
+          "won": 169,
+          "hp": 31
+        },
+        "price": 1
+      },
+      {
+        "id": "lesson:hazel:1",
+        "bot": "casual",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.63,
+        "half": 0.06632500573185758,
+        "lower": 0.5612250134987606,
+        "upper": 0.6938750249624759,
+        "greatRate": 0,
+        "seconds": 69.42724999999997,
+        "pieces": 27.54,
+        "causes": {
+          "hp": 74,
+          "won": 126
+        },
+        "price": 1
+      },
+      {
+        "id": "lesson:hazel:1",
+        "bot": "beginner",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.17,
+        "half": 0.051940828441989356,
+        "lower": 0.12427835351105657,
+        "upper": 0.22816001039503528,
+        "greatRate": 0,
+        "seconds": 72.51425000000005,
+        "pieces": 28.715,
+        "causes": {
+          "hp": 166,
+          "won": 34
+        },
+        "price": 1
+      },
+      {
+        "id": "lesson:hazel:1",
+        "bot": "dropper",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0,
+        "half": 0.009423002959160447,
+        "lower": 0,
+        "upper": 0.018846005918320894,
+        "greatRate": 0,
+        "seconds": 26.63575000000002,
+        "pieces": 14.815,
+        "causes": {
+          "hp": 200
+        },
+        "price": 1
+      },
+      {
+        "id": "lesson:hazel:1",
+        "bot": "idle",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0,
+        "half": 0.009423002959160447,
+        "lower": 0,
+        "upper": 0.018846005918320894,
+        "greatRate": 0,
+        "seconds": 53.82324999999997,
+        "pieces": 5.23,
+        "causes": {
+          "hp": 200
+        },
+        "price": 1
+      }
+    ],
+    "floors": null,
+    "source": "legal-lessons-final"
+  },
+  {
+    "row": {
+      "name": "lesson:hazel:2",
+      "band": "Lesson d2"
+    },
+    "cells": [
+      {
+        "id": "lesson:hazel:2",
+        "bot": "good",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.785,
+        "half": 0.05665318604999938,
+        "lower": 0.7229757022632792,
+        "upper": 0.836282074363278,
+        "greatRate": 0,
+        "seconds": 81.41524999999997,
+        "pieces": 37.895,
+        "causes": {
+          "won": 157,
+          "hp": 43
+        },
+        "price": 1
+      },
+      {
+        "id": "lesson:hazel:2",
+        "bot": "casual",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.415,
+        "half": 0.06766021877056089,
+        "lower": 0.3489416917324964,
+        "upper": 0.48426212927361817,
+        "greatRate": 0,
+        "seconds": 88.92649999999996,
+        "pieces": 34.92,
+        "causes": {
+          "hp": 117,
+          "won": 83
+        },
+        "price": 1
+      },
+      {
+        "id": "lesson:hazel:2",
+        "bot": "beginner",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.05,
+        "half": 0.031098353634599427,
+        "lower": 0.027382349028644986,
+        "upper": 0.08957905629784384,
+        "greatRate": 0,
+        "seconds": 77.14975000000003,
+        "pieces": 30.465,
+        "causes": {
+          "hp": 190,
+          "won": 10
+        },
+        "price": 1
+      },
+      {
+        "id": "lesson:hazel:2",
+        "bot": "dropper",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0,
+        "half": 0.009423002959160447,
+        "lower": 0,
+        "upper": 0.018846005918320894,
+        "greatRate": 0,
+        "seconds": 26.592500000000015,
+        "pieces": 15.08,
+        "causes": {
+          "hp": 200
+        },
+        "price": 1
+      },
+      {
+        "id": "lesson:hazel:2",
+        "bot": "idle",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0,
+        "half": 0.009423002959160447,
+        "lower": 0,
+        "upper": 0.018846005918320894,
+        "greatRate": 0,
+        "seconds": 52.13649999999998,
+        "pieces": 5.595,
+        "causes": {
+          "hp": 200
+        },
+        "price": 1
+      }
+    ],
+    "floors": null,
+    "source": "legal-lessons-final"
+  },
+  {
+    "row": {
+      "name": "lesson:hazel:3",
+      "band": "Lesson d3"
+    },
+    "cells": [
+      {
+        "id": "lesson:hazel:3",
+        "bot": "good",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.67,
+        "half": 0.0646306148630815,
+        "lower": 0.602165564130804,
+        "upper": 0.7314267938569671,
+        "greatRate": 0,
+        "seconds": 98.67524999999998,
+        "pieces": 45.685,
+        "causes": {
+          "won": 134,
+          "hp": 66
+        },
+        "price": 1
+      },
+      {
+        "id": "lesson:hazel:3",
+        "bot": "casual",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.325,
+        "half": 0.06438338053384406,
+        "lower": 0.2639146705018621,
+        "upper": 0.39268143156955027,
+        "greatRate": 0,
+        "seconds": 100.52425000000001,
+        "pieces": 39.325,
+        "causes": {
+          "won": 65,
+          "hp": 135
+        },
+        "price": 1
+      },
+      {
+        "id": "lesson:hazel:3",
+        "bot": "beginner",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0.01,
+        "half": 0.016487942296202304,
+        "lower": 0.0027466006037749346,
+        "upper": 0.03572248519617954,
+        "greatRate": 0,
+        "seconds": 79.32424999999998,
+        "pieces": 31.15,
+        "causes": {
+          "hp": 198,
+          "won": 2
+        },
+        "price": 1
+      },
+      {
+        "id": "lesson:hazel:3",
+        "bot": "dropper",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0,
+        "half": 0.009423002959160447,
+        "lower": 0,
+        "upper": 0.018846005918320894,
+        "greatRate": 0,
+        "seconds": 25.806999999999988,
+        "pieces": 14.815,
+        "causes": {
+          "hp": 200
+        },
+        "price": 1
+      },
+      {
+        "id": "lesson:hazel:3",
+        "bot": "idle",
+        "strain": 0,
+        "runs": 200,
+        "winRate": 0,
+        "half": 0.009423002959160447,
+        "lower": 0,
+        "upper": 0.018846005918320894,
+        "greatRate": 0,
+        "seconds": 56.56275000000001,
+        "pieces": 7.595,
+        "causes": {
+          "hp": 200
+        },
+        "price": 1
+      }
+    ],
+    "floors": null,
+    "source": "lessons-final-200"
+  }
+]

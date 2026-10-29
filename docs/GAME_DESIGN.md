@@ -1,3 +1,6 @@
+> Current October 29 M1 results and remaining author playtest: see
+> [M1_PLAYTEST.md](M1_PLAYTEST.md). Earlier tuning tables below are historical.
+
 # Game design
 
 The first playable underground continuation was checkpointed at `3edb994`.

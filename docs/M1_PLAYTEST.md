@@ -1,33 +1,54 @@
-# Current M1 open-items checkpoint
+# Current M1 open-items checkpoint — October 29
 
-- **Browser verification complete:** Chromium at 390×844, 360×640 and
-  1100×900; no console errors or horizontal overflow. Six correction
-  actions exercised. Phone targets and correction-control overlap checked.
-  [Selected captures and machine report](artifacts/m1/report.json) are saved.
-- **One correction per Rowan/Pip attempt implemented**, as approved by the
-  author. Core/UI tests include fatal-board recovery, hazard rollback,
-  queue exhaustion, dual colors, score/mana restoration and no extra tries.
-- **Assisted Vale gate passes:** 200/200 good, 192/200 casual, 0 idle/dropper,
-  with the disclosed 48-piece assisted limit. The solo first try stays 32.
-- **Vale retry floor passes:** good 60%, casual 36% with five lamps / 36
-  placements; first try 80.5% / 52%, both in band.
-- **Ordor passes:** good 75.5%, casual 35%; floors 66.5% / 37.5%; mean
-  prices 89% / 96% / 120% / 114%; good length 58 seconds.
-- **Hazel d3 passes** its win bands and duration: 67% / 32.5%, 99 seconds.
-  The earlier d1 Cure profile was not the Ranger’s actual first offered
-  lesson (Regen); that profile is being corrected before claiming d1
-  acceptance. Final d2 verification also remains open.
-- **Pip now passes**: good 96%, casual 67.5%, floors 99% / 64.5%,
-  20-second mean length, idle/dropper 0% in the 200-seed verification.
-- **Rowan’s upper good band and Wren’s duration remain open.** Wren has
-  84% / 49.5% first-try wins and 82% / 40.5% floors, but 54-second mean
-  length is just below the 55-second minimum.
-  A 200-seed Rowan check with the correction passed casual and both floors
-  (67%, floors 94% / 29.5%) but good 98.5% exceeds the 97% upper target;
-  pressure tuning is still being checked. No target has been waived.
-- **1,093 tests pass**, 17 opt-in/report cases skipped; format, lint,
-  typecheck and production build pass. The author’s hands-on go/no-go is
-  the human acceptance row and remains pending; M2a stays off.
+**The remaining automated M1 balance gates pass. The author’s hands-on
+playtest and go/no-go remain pending; M2a stays off.**
+
+One correction per Rowan/Pip attempt is implemented as approved, disclosed
+on the card, and tested through fatal-board recovery without granting
+another try. Team branch `claude/laughing-brown-7i13lb` was rechecked at
+`f1b14e6`; its changes are reconciled into this branch.
+
+Each cell below uses 200 deterministic seeds. Percentages are observed
+means, not confidence-bound guarantees. Retry columns use the encounter’s
+maximum strain. Duration uses whole-second rounding, as in the design
+bands (Pip’s raw mean is 19.8 seconds).
+
+| Encounter                | Good  | Casual | Retry good / casual | Good duration |
+| ------------------------ | ----- | ------ | ------------------- | ------------- |
+| Rowan                    | 96%   | 62%    | 81.5% / 27%         | 48 s          |
+| Pip                      | 96%   | 67.5%  | 99% / 64.5%         | 20 s          |
+| Bean                     | 90%   | 73.5%  | 67% / 51.5%         | 48 s          |
+| Ordor                    | 75.5% | 35%    | 66.5% / 37.5%       | 58 s          |
+| Wren                     | 78.5% | 48%    | 75% / 41.5%         | 59 s          |
+| Vale solo                | 80.5% | 52%    | 60% / 36%           | 52 s          |
+| Vale assisted            | 100%  | 96%    | —                   | 48 s          |
+| Hazel d1 (Ranger: Regen) | 84.5% | 63%    | —                   | 62 s          |
+| Hazel d2                 | 78.5% | 41.5%  | —                   | 81 s          |
+| Hazel d3                 | 67%   | 32.5%  | —                   | 99 s          |
+
+All listed idle/dropper cells win 0%. Ordor’s mean prices are
+0.89167 / 0.96328 / 1.20 / 1.13844 for good/casual/dropper/idle.
+[Raw cells, Wilson intervals and provenance](artifacts/m1/balance-final.json)
+are saved with this checkpoint. Unchanged Grove monster baselines remain
+the team’s recorded 200-seed results (good: Sproutling 84%, Leaf Sprite
+78%, Thorn Troll 82%); these were not rerun for this follow-up.
+
+The simulator uses the approved touch slips, ghost correction and two-ply
+policy. Rowan/Pip correction decisions use observed landing mistakes and
+visible challenge state. Lessons prioritize the visibly requested spell
+while the shield is up; the Ranger’s first lesson is actually offered
+Regen, and later ranks have their prerequisite. Combat/lesson profiles use
+the team’s synthetic level-fit gear/stat allocation. These isolated
+encounter checks do not prove campaign resource affordability.
+
+Browser verification passed at 390×844, 360×640 and 1100×900: no console
+errors or horizontal overflow, six correction actions, phone target sizes
+and control overlap checked. [Captures and report](artifacts/m1/report.json)
+verify rendering/input, not an author playthrough. **1,096 tests pass**, 17
+opt-in/report cases skipped; format, lint, typecheck and production build
+pass. Recorded legal-win replays were refreshed.
+
+The remaining human check is [the short author playtest](M1_AUTHOR_PLAYTEST.md).
 
 The older records below are retained as historical diagnostics. Their
 policy/layout versions are stated; they are not current acceptance claims.

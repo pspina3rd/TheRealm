@@ -152,7 +152,7 @@ export const SHIELD_AT = 0.25;
  */
 export const LESSON_FOE_STEPS: readonly { readonly hp: number; readonly atk: number }[] = [
   { hp: 1, atk: 0 },
-  { hp: 1.54, atk: 5 },
+  { hp: 1.5, atk: 5 },
   { hp: 2.2, atk: 12 },
   { hp: 3.4, atk: 18 },
 ];
@@ -209,13 +209,15 @@ export const ENCOUNTERS = {
     /** The shaft is this many columns wide (cols 0–6 inside the masonry; the author's 7, Oct 29). */
     width: 7,
     /** A cell locked above this row (row 1 is the bottom) is mold over the lip. */
-    lip: 16,
+    lip: 13,
     /** A 1-gap mold row pushes up every this many pieces… */
     risingEvery: 12,
     /** …and each new buried hole brings it this many pieces sooner. */
     soonerPerHole: 0,
     /** Strain: each step adds this many debris rows on top. */
     strainRows: 1,
+    /** Retry debris keeps two adjacent openings so a failure does not create a wall. */
+    strainGapWidth: 2,
   },
   /** Pip, "The Crystal Tower": BUILD (§6.1). */
   kid: {
@@ -267,11 +269,11 @@ export const ENCOUNTERS = {
   },
   /** Forager Wren, "The Mushroom Ring": CONTAIN + protect (§6.4). */
   forager: {
-    pieceLimit: 44,
+    pieceLimit: 48,
     /** Rot spreads every this many pieces… */
     spreadEvery: 4,
     /** …this many cells at a time (one per source). */
-    spreadCells: 3,
+    spreadCells: 4,
     /** Caps that must be picked or still alive to win… */
     keepCaps: 2,
     /** …and the number of dead caps that fails. */

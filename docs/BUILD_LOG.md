@@ -426,3 +426,18 @@ The default Ranger already knows Cure, so its actual d1 Hazel path is
 Regen; that profile is being corrected before claiming first-lesson
 acceptance. The existing Cure-profile result remains a historical
 isolated benchmark, not a first-lesson acceptance claim.
+
+## October 29 — remaining automated M1 gates verified
+
+Saved the final Rowan/Wren/lesson tuning and the approved introductory
+correction. The 200-seed encounter profiles now meet the remaining
+first-try, retry-floor, duration, assist and price requirements. Exact
+cells and intervals are tracked in `artifacts/m1/balance-final.json`;
+`M1_PLAYTEST.md` identifies synthetic-kit and human-playtest limits.
+The first Ranger lesson profile now uses offered Regen, and the bot
+prioritizes the visible lesson shield request before spending its mana.
+Regression tests cover that choice and adjacent openings in retry debris.
+Recorded legal-win fixtures refreshed; 1,096 tests pass, 17 optional/report
+cases skipped; check/build pass. Browser phone/desktop evidence is saved.
+Team branch rechecked at f1b14e6, still aligned. Author go/no-go remains
+pending; M2a stays off.
