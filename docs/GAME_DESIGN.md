@@ -704,7 +704,7 @@ noticed a feat waits at the nearest stop the hero can actually reach
 - **The foe**: at home, the mentor's trial **wisp** of their element;
   away, the toughest non-boss monster of the area (of the mentor's element
   if there is one), or the wisp in a town. Per difficulty above 1 the foe
-  gains 75% HP, +5 attack and a level (faster pieces; M1 tuning, was 60% and +3). Wisps attack 8 every 5.9 s (was 5 every 9 s). Lessons give no XP,
+  gains HP and attack from `LESSON_FOE_STEPS` (×1.6 HP and +4 at d2, ×2.3 and +11 at d3; M1 tuning, was +60% HP and +3 attack a step) and a level (faster pieces). Wisps attack 8 every 5.9 s (was 5 every 9 s). Lessons give no XP,
   gil or drops.
 - **The mentor's help**: on every new piece, with chance
 
@@ -883,7 +883,7 @@ in `src/data/balance.ts`; the boards, lines and props in
 | Pip          | The Crystal Tower | BUILD             | Fill the outline up to the spinner    | 3 cracks or 1 wobble              | Now   |
 | Farmer Bean  | The Herb Beds     | PLANT             | 19 sprouts in the furrows (22 Great)  | Sundown (24 pieces)               | Now   |
 | Ordor        | The Stall         | DUEL (one-sided)  | His price at 94% or less when it ends | Price above 105% (Even between)   | Day   |
-| Forager Wren | The Mushroom Ring | CONTAIN + protect | No rot left, 2 caps saved             | 2 caps dead, or 36 pieces         | Wait  |
+| Forager Wren | The Mushroom Ring | CONTAIN + protect | No rot left, 2 caps saved             | 2 caps dead, or 44 pieces         | Wait  |
 | Captain Vale | The Ward Lamps    | CHARGE            | All 4 lamps lit by pure lines         | 32 pieces, or a top-out           | Wait  |
 
 - **DIG**: a mold row (one gap) rises every 12 pieces (each new buried
@@ -894,7 +894,7 @@ in `src/data/balance.ts`; the boards, lines and props in
   hole under it cracks; an overhang past the outline wobbles. Two pieces
   in each queue are "ugly" and belong in the toy box (the right-hand
   column), so the solver's solution classes are the pairs of pieces that
-  go to the box.
+  go to the box. The queue ends with a spare O (one slip forgiven, two still lose; the author, Oct 29).
 - **PLANT**: neutral soil with ridges in columns 0, 4 and 8; a sprout is a
   green S cell landed upright in a furrow. The queue holds one S in every
   2 pieces.
@@ -902,7 +902,7 @@ in `src/data/balance.ts`; the boards, lines and props in
   your 2+ line clears push his price down (`DUEL_SENDS`), singles don't;
   rows he sends are pushed under your stack. The meter is clamped
   70–130%; ≤ 85% Great, ≤ 94% Win, ≤ 105% Even.
-- **CONTAIN + protect**: rot spreads from its frontier every 5 pieces; a
+- **CONTAIN + protect**: rot spreads from its frontier every 4 pieces, 3 cells at a time; a
   cap the rot reaches dies; clearing a cap's row picks it.
 - **CHARGE**: a pure line (6 of its 10 cells in one lamp's element; the
   author's P 6, with a J and a T in every 3 pieces) lights
@@ -1008,52 +1008,62 @@ Author decisions, Oct 29):
 `tests/sim/diagnose.test.ts` runs single cells with bot and board knobs
 for tuning.
 
-**The M1 tuning pass (Oct 29)** changed balance numbers only:
+**The M1 tuning pass (Oct 29)** changed balance numbers, plus the author's two board changes and one defect fix.
+
+Balance numbers:
 
 - **Rowan**: lip 16, rising every 12, no speed-up for holes.
 - **Bean**: 19 sprouts in 24 pieces, an S in every 2, Great at 22, +1 per strain.
-- **Ordor**: received rows +1.2%, strain +2% a step.
-- **Wren**: 36 pieces, rot every 5.
+- **Ordor**:
+  - received rows +1.2%;
+  - strain +1% a step;
+  - a hero who tops out walks off at 120%.
+- **Wren**: 44 pieces, rot every 4, 3 cells at a time.
 - **Vale** (the author's P 6 and window 3): 32 pieces.
 - **Lessons**:
   - help clamped to 5–10%;
   - wisps attack 8 every 5.9 s;
-  - +5 attack and +75% HP per difficulty.
+  - a per-difficulty foe table (`LESSON_FOE_STEPS`: ×1.6 HP and +4 attack at d2, ×2.3 and +11 at d3), since the hero gains about two levels between lessons;
+  - novice foes at 60% HP.
 - **Grove foes**:
   - Sproutling 143 HP / 9 attack;
   - Leaf Sprite 140 / 11;
   - Thorn Troll 203 / 14, every 8.5 s.
 
+The author's board changes and the fix:
+
+- **Rowan's well** is 7 wide.
+- **Pip's queue** ends with a spare O.
+- **The threshold assist** now only swaps the dealt piece for a better one. Vale's hint no longer builds toward colours whose lamps are all lit. Before, a higher toss chance lowered wins (toss 1.0: 11%).
+
 Results at 200 seeds. Strain 0 unless marked; mean ± 95% interval. The
-floor is strain 2, or strain 1 for a threshold:
+floor is strain 2, or strain 1 for a threshold. An assisted try plays at
+strain 0, as in the game:
 
-| Row                       | Band (good / casual)                      | Good          | Casual        | Beginner | Dropper | Idle       | Good, floor | Casual, floor | Length (good)      |
-| ------------------------- | ----------------------------------------- | ------------- | ------------- | -------- | ------- | ---------- | ----------- | ------------- | ------------------ |
-| Rowan                     | 90–97 / 60–75                             | 94 ±3.4 ✓     | **52 ±6.9 ✗** | 5        | 0 ✓     | 0 ✓        | 71 ✓        | **13 ✗**      | 57 s ✓             |
-| Pip                       | 90–97 / 60–75, 20–40 s                    | **84 ±5.1 ✗** | **29 ±6.3 ✗** | 1        | 0 ✓     | 0 ✓        | 89 ✓        | 31 ✓          | 20 s ✓             |
-| Bean                      | 90–97 / 60–75                             | 90 ±4.2 ✓     | 74 ±6.1 ✓     | 21       | 0 ✓     | 0 ✓        | 67 ✓        | 52 ✓          | 48 s ✓             |
-| Ordor (≤ 94%)             | 70–80 / 30–45                             | 76 ±6.0 ✓     | 35 ±6.6 ✓     | 1        | 0 ✓     | 0 ✓        | **49 ✗**    | **21 ✗**      | 58 s ✓             |
-| Ordor, mean price         | 84–90 / 96–103; dropper ≥ 110, idle ≥ 112 | 89% ✓         | 96% ✓         | —        | 115% ✓  | **111% ✗** |             |               |                    |
-| Wren                      | 80–90 / 45–60                             | 83 ±5.2 ✓     | 51 ±6.9 ✓     | 2        | 0 ✓     | 0 ✓        | 76 ✓        | 39 ✓          | **46 s ✗** (55–95) |
-| Vale                      | 80–90 / 45–60                             | 82 ±5.3 ✓     | 58 ±6.8 ✓     | 4        | 0 ✓     | 0 ✓        | **49 ✗**    | 28 ✓          | 51 s               |
-| Vale, assisted (strain 1) | ≥ 97 / ≥ 90                               | **62 ±6.7 ✗** | **49 ±6.9 ✗** | 4        | —       | 0 ✓        |             |               |                    |
-| Hazel d1                  | 80–90 / 50–65                             | **78 ±5.7 ✗** | 60 ±6.8 ✓     | 15       | 0 ✓     | 0 ✓        |             |               | 64 s ✓             |
-| Hazel d2                  | 70–80 / 40–55                             | **65 ±6.6 ✗** | **34 ±6.5 ✗** | 4        | 0 ✓     | 0 ✓        |             |               | 91 s ✓             |
-| Hazel d3                  | 60–70 / 30–45                             | **72 ±6.3 ✗** | 38 ±6.7 ✓     | 3        | 0 ✓     | 0 ✓        |             |               | 109 s ✗ (50–100)   |
-| Sproutling (spores)       | 75–85                                     | 84 ±5.1 ✓     | 45            | 6        | 0       | 0          |             |               | 103 s              |
-| Leaf Sprite (spores)      | 75–85                                     | 78 ±5.8 ✓     | 54            | 11       | 0       | 0          |             |               | 81 s               |
-| Thorn Troll (spores)      | 75–85                                     | 82 ±5.3 ✓     | 40            | 4        | 0       | 0          |             |               | 105 s              |
+| Row                  | Band (good / casual)                      | Good          | Casual        | Beginner | Dropper | Idle   | Good, floor | Casual, floor | Length (good)  |
+| -------------------- | ----------------------------------------- | ------------- | ------------- | -------- | ------- | ------ | ----------- | ------------- | -------------- |
+| Rowan                | 90–97 / 60–75                             | 95 ±3.0 ✓     | **52 ±6.9 ✗** | 5        | 0 ✓     | 0 ✓    | 89 ✓        | **20 ✗**      | 58 s ✓         |
+| Pip                  | 90–97 / 60–75, 20–40 s                    | **84 ±5.1 ✗** | **44 ±6.9 ✗** | 1        | 0 ✓     | 0 ✓    | 90 ✓        | 42 ✓          | 20 s ✓         |
+| Bean                 | 90–97 / 60–75                             | 90 ±4.2 ✓     | 74 ±6.1 ✓     | 21       | 0 ✓     | 0 ✓    | 67 ✓        | 52 ✓          | 48 s ✓         |
+| Ordor (≤ 94%)        | 70–80 / 30–45                             | 76 ±6.0 ✓     | 35 ±6.6 ✓     | 1        | 0 ✓     | 0 ✓    | 67 ✓        | 38 ✓          | 58 s ✓         |
+| Ordor, mean price    | 84–90 / 96–103; dropper ≥ 110, idle ≥ 112 | 89% ✓         | 96% ✓         | —        | 120% ✓  | 114% ✓ |             |               |                |
+| Wren                 | 80–90 / 45–60                             | 82 ±5.3 ✓     | 49 ±6.9 ✓     | 2        | 0 ✓     | 0 ✓    | 74 ✓        | 42 ✓          | 55 s ✓         |
+| Vale                 | 80–90 / 45–60                             | 81 ±5.5 ✓     | 52 ±6.9 ✓     | 3        | 0 ✓     | 0 ✓    | **46 ✗**    | 26 ✓          | 52 s           |
+| Vale, assisted       | ≥ 97 / ≥ 90                               | **91 ±4.0 ✗** | **76 ±6.0 ✗** | 18       | 0       | 0 ✓    |             |               | 47 s           |
+| Hazel d1             | 80–90 / 50–65                             | 80 ±5.6 ✓     | 61 ±6.8 ✓     | 21       | 0 ✓     | 0 ✓    |             |               | 60 s ✓         |
+| Hazel d2             | 70–80 / 40–55                             | 79 ±5.6 ✓     | 47 ±6.9 ✓     | 5        | 0 ✓     | 0 ✓    |             |               | 91 s ✓         |
+| Hazel d3             | 60–70 / 30–45                             | 64 ±6.7 ✓     | 32 ±6.5 ✓     | 4        | 0 ✓     | 0 ✓    |             |               | 101 s (50–100) |
+| Sproutling (spores)  | 75–85                                     | 84 ±5.1 ✓     | 45            | 6        | 0       | 0      |             |               | 103 s          |
+| Leaf Sprite (spores) | 75–85                                     | 78 ±5.8 ✓     | 54            | 11       | 0       | 0      |             |               | 81 s           |
+| Thorn Troll (spores) | 75–85                                     | 82 ±5.3 ✓     | 40            | 4        | 0       | 0      |             |               | 105 s          |
 
-**What numbers alone can't reach** (reported, not changed):
+**Still missing:**
 
-- **Rowan, casual:** it stays near 50% whatever the lip and rising rate; one slip in a 6-wide well costs the dig. Its strain-2 floor (13%) fails for the same reason.
-- **Pip:** good 84% and casual 29%. The crack and wobble limits and the previews move neither. A slip wastes a piece of an authored queue with no spare, so the fix is a spare piece or an undo, which is a spec change.
-- **Ordor's strain floor:** 49% / 21% even at +2% a step.
-- **Ordor's idle price:** 111% against ≥ 112%.
-- **Vale's strain-1 floor:** 49%. The extra lamp is the strain step; `strainLamps` 0 would pass (82 / 58) but makes strain do nothing.
-- **Vale assisted:** the assist lowers wins as its toss chance rises (toss 1.0: 11%). The mentor's tossed piece likely works against the purity plan. This looks like a defect and needs a code look.
-- **Hazel d2 and d3:** the per-difficulty steps are linear, but the hero gains two levels between them, so d2 sits low and d3 high. A convex step, such as a level-aware foe, needs a rule change.
-- **Wren's length:** 46 s, because good tries end early.
+- **Rowan, casual (52%) and its strain-2 floor (20%):** the 7-wide well lifted good (95%), but casual stays near 52% at every lip and rising rate tried (lip 14–17, rising every 6–20). This goes to the author.
+- **Pip (84% / 44%):** the spare O lifted casual from 29% to 44%; good is unchanged. The good bot's misses are slips that crack the tower or waste two pieces. This goes to the author.
+- **Vale's strain-1 floor (46%):** the strain step is a fifth lamp in the same 32 pieces. The only number that passes is `strainLamps` 0 (82%), but then strain does nothing.
+- **Vale assisted (91% / 76% against ≥ 97% / ≥ 90%):** after the fix the assist helps (+10 / +24 points over the unassisted try). At the spec's 30% a piece it reaches 91 / 76; at 70% it reaches 94 / 80. The ≥ 97% band needs more than the toss: a spec change (§3.4).
+- **Hazel d3's length:** 101 s, one second over.
 
 ## NPCs and attitude
 
