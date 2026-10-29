@@ -11,7 +11,8 @@
  * - Bot knobs (tests/sim/encounters.ts): NOISE, GOOD_NOISE, GHOST, HINT.
  * - Board knobs: PARAMS (JSON merged into the encounter's verb params),
  *   ASSISTED=1; HELP (the mentor's toss chance), SHIELD (its HP share),
- *   FOEHP (× the foe's HP), FOEATK (+ the foe's attack), SPORES
+ *   FOEHP (× the foe's HP), FOEATK (+ the foe's attack), FOEACT (× its
+ *   act interval), SPORES
  *   (`land,spread,petrify`), RULE=none (no region rule).
  */
 import { appendFileSync } from 'node:fs';
@@ -32,10 +33,14 @@ function applyDataKnobs(name: string): void {
     const def = ENCOUNTER_DEFS[spec.id]!.spec as { params: object };
     def.params = { ...def.params, ...(JSON.parse(env.PARAMS) as object) };
   }
-  if ((env.FOEHP || env.FOEATK) && (spec.kind === 'lesson' || spec.kind === 'combat')) {
-    const foe = ENEMIES[spec.enemyId] as { hp: number; atk: number };
+  if (
+    (env.FOEHP || env.FOEATK || env.FOEACT) &&
+    (spec.kind === 'lesson' || spec.kind === 'combat')
+  ) {
+    const foe = ENEMIES[spec.enemyId] as { hp: number; atk: number; actMs: number };
     foe.hp = Math.round(foe.hp * Number(env.FOEHP ?? 1));
     foe.atk += Number(env.FOEATK ?? 0);
+    foe.actMs = Math.round(foe.actMs * Number(env.FOEACT ?? 1));
   }
   if (env.SPORES) {
     const [landEvery, spreadEvery, petrifyAt] = env.SPORES.split(',').map(Number);
