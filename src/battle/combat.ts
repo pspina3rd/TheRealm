@@ -1,3 +1,4 @@
+import { BOARD_SPELLS, type MagicTarget } from './magicCasting';
 import type { LockResult } from '../core/board';
 import { ELEMENTS, colorOfElement, elementsOf, type Element } from '../core/elements';
 import type { Rng } from '../core/rng';
@@ -181,7 +182,7 @@ export class CombatChallenge implements Challenge {
     return this.enraged ? (this.enemy.enrage?.actMs ?? this.enemy.actMs) : this.enemy.actMs;
   }
 
-  onLock(result: LockResult): void {
+  onBoardClear(result: LockResult, powerScale = 1, extraSurge = 0, spellElement?: Element): void {
     if (result.linesCleared > 0) {
       const lines = result.linesCleared;
       const cleared = elementsOf(result.clearedCells);
@@ -200,12 +201,15 @@ export class CombatChallenge implements Challenge {
       const chance = critChance(hero.stats.luck, lines);
       const crit = chance > 0 && this.ctx.rng.next() < chance;
       if (crit) this.ctx.emit({ kind: 'crit' });
-      const damage = strikeDamage(lines, {
-        attack: totalAttack(hero),
-        backToBack,
-        combo: this.combo,
-        affinity,
-      });
+      const damage = Math.round(
+        powerScale *
+          strikeDamage(lines, {
+            attack: totalAttack(hero),
+            backToBack,
+            combo: this.combo,
+            affinity,
+          }),
+      );
       this.hitEnemy(
         crit ? damage * CRIT_MULTIPLIER : damage,
         null,
@@ -222,7 +226,18 @@ export class CombatChallenge implements Challenge {
         this.charge.clears--;
         this.elementalHit(this.charge.power, 'lightning');
       }
-    } else this.combo = -1;
+    }
+    if (extraSurge > 0 && spellElement && result.linesCleared > 0 && this.status() === 'ongoing')
+      this.applySurge(
+        { element: spellElement, power: extraSurge },
+        result.linesCleared,
+        result.rows[0] ?? 0,
+      );
+  }
+
+  onLock(result: LockResult): void {
+    this.onBoardClear(result);
+    if (result.linesCleared === 0) this.combo = -1;
     this.tick();
     if (result.toppedOut) {
       this.overflow();
@@ -283,7 +298,16 @@ export class CombatChallenge implements Challenge {
   }
 
   /** Fills the enemy's gauge in real time; it moves each time the gauge is full. */
+  private pendingObstructions: Extract<EnemyMove, { kind: 'obstruct' }>[] = [];
+
   update(dtMs: number): void {
+    if (this.pendingObstructions.length && this.ctx.interference) {
+      this.ctx.interference.elapse(this.enemy.id, dtMs);
+      if (this.ctx.interference.effect(this.enemy.id).delayMs <= 0) {
+        const move = this.pendingObstructions.shift();
+        if (move) this.ctx.placeObstructions?.(this.enemy.id, move.cells);
+      }
+    }
     if (this.status() !== 'ongoing') return;
     this.gauge += dtMs;
     if (this.gauge >= this.actMs) this.fillGauge();
@@ -330,6 +354,8 @@ export class CombatChallenge implements Challenge {
     const hero = this.ctx.hero;
     const cast = this.spellFor(spellId);
     if (!cast) return "You don't know that spell.";
+    if (SPELLS[spellId]?.boardOnly && !this.ctx.board.magicEnabled)
+      return 'Board magic is unavailable here.';
     if (isSealed(hero, spellId) && !this.unsealed(spellId))
       return 'Sealed: win its lesson back, or win more fights.';
     if (!canAfford(hero, cast.cost)) return 'Not enough mana!';
@@ -358,7 +384,14 @@ export class CombatChallenge implements Challenge {
    * Casts a known spell at the hero's level of it, with its enhancements.
    * It takes time: the enemy's gauge jumps `SPELL_TIME`. Throws if it can't be cast.
    */
-  castSpell(spellId: string): void {
+  castSpell(spellId: string, target?: MagicTarget): void {
+    if (this.ctx.board.magicEnabled && BOARD_SPELLS[spellId]) {
+      if (!target || !this.ctx.castBoardSpell)
+        throw new Error('Choose a row and preview the cast.');
+      this.ctx.castBoardSpell(spellId, target);
+      this.spendBoardSpellTime();
+      return;
+    }
     const reason = this.cannotCastReason(spellId);
     const spell = SPELLS[spellId];
     const hero = this.ctx.hero;
@@ -443,6 +476,10 @@ export class CombatChallenge implements Challenge {
     if (cast.surge > 0 && this.status() === 'ongoing') {
       this.applySurge({ element, power: cast.surge }, 1, this.ctx.board.height - 1);
     }
+    this.spendTime(this.enemy.boss ? BOSS_SPELL_TIME : SPELL_TIME);
+  }
+
+  spendBoardSpellTime(): void {
     this.spendTime(this.enemy.boss ? BOSS_SPELL_TIME : SPELL_TIME);
   }
 
@@ -573,6 +610,12 @@ export class CombatChallenge implements Challenge {
   private enemyAct(move: EnemyMove): void {
     this.ctx.emit({ kind: 'enemyMove', move });
     switch (move.kind) {
+      case 'obstruct':
+        if (!this.ctx.board.magicEnabled) break;
+        if ((this.ctx.interference?.effect(this.enemy.id).delayMs ?? 0) > 0)
+          this.pendingObstructions.push(move);
+        else this.ctx.placeObstructions?.(this.enemy.id, move.cells);
+        break;
       case 'attack': {
         const fury = this.enraged ? (this.enemy.enrage?.atk ?? 0) : 0;
         const attack = move.power + this.enemy.atk + fury;

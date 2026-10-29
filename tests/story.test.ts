@@ -307,7 +307,7 @@ describe('save version 8 (story)', () => {
     const state = newGame();
     state.talk = { 'elder.intro': 3 };
     state.flags.add('vision:1');
-    expect(SAVE_VERSION).toBe(12);
+    expect(SAVE_VERSION).toBe(13);
     const loaded = deserialize(serialize(state))!;
     expect(loaded.talk).toEqual({ 'elder.intro': 3 });
     expect(loaded.flags.has('vision:1')).toBe(true);

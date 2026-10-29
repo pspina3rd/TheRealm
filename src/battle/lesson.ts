@@ -1,3 +1,4 @@
+import type { MagicTarget } from './magicCasting';
 import type { LockResult } from '../core/board';
 import { bestPlacement } from '../core/bestFit';
 import { colorOfElement, type Element } from '../core/elements';
@@ -82,10 +83,10 @@ export class LessonChallenge extends CombatChallenge {
    * does (a heal breaks it as surely as a strike), and its own strike
    * passes the mark.
    */
-  override castSpell(spellId: string): void {
+  override castSpell(spellId: string, target?: MagicTarget): void {
     this.casting = spellId === this.spellId;
     try {
-      super.castSpell(spellId);
+      super.castSpell(spellId, target);
       if (this.casting && this.shield === 'up') {
         this.shield = 'broken';
         this.ctx.emit({ kind: 'shield', up: false });

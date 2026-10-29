@@ -1,3 +1,6 @@
+import { ArcaneInterference, type ObstructionPlacement } from './arcane';
+import { MagicCasting, type MagicTarget } from './magicCasting';
+import type { MagicResolution } from '../core/boardMagic';
 import { BOARD_HEIGHT, BOARD_WIDTH, Board, type LockResult, type QueuedPiece } from '../core/board';
 import { PIECES } from '../core/pieces';
 import { ELEMENTS, elementsOf, type Element } from '../core/elements';
@@ -71,6 +74,8 @@ const ALARM_ROWS = 5;
 const NEARLY = 0.85;
 
 export interface BattleOptions {
+  readonly boardMagic?: boolean;
+  readonly storyFlags?: ReadonlySet<string>;
   /** Copies of each piece per bag, from area, charm and alignment (see `pieceWeights`). */
   readonly weights?: Readonly<Record<PieceName, number>>;
   /** Chance each random piece arrives dual (see `dualChance` in `src/game/pieceOdds.ts`). */
@@ -84,6 +89,8 @@ export interface BattleOptions {
  * and delegates the rules to a `Challenge` built from a `ChallengeSpec`.
  */
 export class Battle implements BattleContext {
+  readonly interference: ArcaneInterference;
+  readonly magicCasting: MagicCasting;
   readonly spec: ChallengeSpec;
   readonly board: Board;
   readonly hero: Hero;
@@ -133,7 +140,19 @@ export class Battle implements BattleContext {
     this.correctionsRemaining = def?.corrections ?? 0;
     this.board = new Board(rng, def?.width ?? BOARD_WIDTH, BOARD_HEIGHT, options.weights);
     this.board.dualChance = options.dualChance ?? 0;
+    this.board.magicEnabled = options.boardMagic ?? false;
+    this.interference = new ArcaneInterference(this.board);
     this.challenge = createChallenge(this, spec);
+    this.magicCasting = new MagicCasting(
+      this.board,
+      hero,
+      this.interference,
+      options.storyFlags ?? new Set(),
+      this.combat?.enemy.id ?? 'npc',
+      this.combat?.actMs ?? 7000,
+      () => this.combat?.spellBook() ?? hero.spells,
+      spec.kind === 'lesson' ? spec.spellId : undefined,
+    );
     this.started =
       !this.challenge.preroll && !(spec.kind === 'lesson' && spec.mentorId === 'hazel');
     const ruleId =
@@ -218,10 +237,12 @@ export class Battle implements BattleContext {
     const score = this.score;
     const lines = this.lines;
     const mana = { ...this.hero.mana };
+    const interference = this.interference.checkpoint();
     return {
       risk: this.correctionRisk(),
       restore: () => {
         this.board.restoreLock(point);
+        this.interference.restore(interference);
         restoreChallenge();
         this.score = score;
         this.lines = lines;
@@ -262,6 +283,42 @@ export class Battle implements BattleContext {
   get upcomingPieces(): QueuedPiece[] {
     const shown = Math.max(previewCount(this.hero.stats.insight), this.challenge.previews ?? 0);
     return this.board.previewPieces(this.fogPieces > 0 ? 0 : shown);
+  }
+
+  placeObstructions(owner: string, cells: readonly ObstructionPlacement[]): void {
+    const resolution = this.interference.place(owner, cells);
+    this.rewardMagic(resolution);
+  }
+
+  castBoardSpell(id: string, target: MagicTarget): void {
+    const preview = this.magicCasting.preview(id, target);
+    const resolution = this.magicCasting.commit(preview);
+    this.startPlay();
+    this.emit({ kind: 'spell', spellId: id.startsWith('arcane:') ? 'shadow' : id });
+    this.rewardMagic(resolution, preview.powerScale, preview.surge, preview.element);
+  }
+
+  castArcane(id: string, target: MagicTarget): void {
+    if (!this.combat) throw new Error('No opponent here.');
+    this.castBoardSpell(id, target);
+    this.combat.spendBoardSpellTime();
+  }
+
+  rewardMagic(resolution: MagicResolution, powerScale = 1, surge = 0, element?: Element): void {
+    const result = this.board.magicLockResult(resolution);
+    this.lines += result.linesCleared;
+    this.score += lineClearPoints(result.linesCleared);
+    if (result.linesCleared > 0) {
+      const crystals = elementsOf(result.clearedCells);
+      const share = MANA_PER_LINES[Math.min(result.linesCleared, MANA_PER_LINES.length - 1)] ?? 0;
+      const boost = this.manaBoostPieces > 0 ? MANA_BOOST_MULTIPLIER : 1;
+      const gained = Object.fromEntries(
+        ELEMENTS.map((e) => [e, Math.floor(crystals[e] * share) * boost]),
+      );
+      if (addMana(this.hero, gained) > 0) this.emit({ kind: 'mana', gained });
+      this.emit({ kind: 'lines', rows: result.rows, lines: result.lines });
+    }
+    this.combat?.onBoardClear(result, powerScale, surge, element);
   }
 
   /** The elements that surged in each of the last two locks, oldest first (a lock with none: []). */

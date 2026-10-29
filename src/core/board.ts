@@ -1,4 +1,11 @@
 import {
+  cloneMagic,
+  resolveMagic,
+  type MagicState,
+  type MagicResolution,
+  type Obstruction,
+} from './boardMagic';
+import {
   PIECES,
   PIECE_NAMES,
   isCrystal,
@@ -100,6 +107,7 @@ export interface ActivePiece {
 
 /** The board immediately before its last lock; future draws remain in their dealt order. */
 export interface LockCheckpoint {
+  readonly magic: MagicState;
   readonly grid: readonly (readonly Cell[])[];
   readonly tags: readonly (readonly (CellTag | null)[])[];
   readonly piece: ActivePiece;
@@ -187,6 +195,13 @@ export class Board {
   readonly width: number;
   readonly height: number;
   grid: Cell[][];
+  magicEnabled = false;
+  obstructions: Record<string, Obstruction> = {};
+  magicLatchedRows: string[] = [];
+  magicOwners: { settleOwners: string[]; redOwners: string[] } = {
+    settleOwners: [],
+    redOwners: [],
+  };
   /** Each cell's tag (see `CellTag`), index-matched to `grid`. */
   tags: (CellTag | null)[][];
   active: ActivePiece | null = null;
@@ -289,6 +304,8 @@ export class Board {
   loadRows(rows: readonly string[], legend: Readonly<Record<string, CellCode>> = {}): void {
     this.grid = Board.emptyGrid(this.width, this.height);
     this.tags = Board.emptyTags(this.width, this.height);
+    this.obstructions = {};
+    this.magicLatchedRows = [];
     const offset = this.height - rows.length;
     rows.forEach((row, i) => {
       const y = offset + i;
@@ -414,6 +431,7 @@ export class Board {
   checkpointLock(): LockCheckpoint | null {
     if (!this.active) return null;
     return {
+      magic: this.magicState(),
       grid: this.grid.map((row) => [...row]),
       tags: this.tags.map((row) => [...row]),
       piece: { ...this.active, cells: [...this.active.cells], colors: [...this.active.colors] },
@@ -424,6 +442,7 @@ export class Board {
   /** Return the dealt next piece to the queue, then retry the previous piece from spawn. */
   restoreLock(point: LockCheckpoint): void {
     if (this.active) this.requeue({ name: this.active.name, second: this.active.second });
+    this.adoptMagic(point.magic);
     this.grid = point.grid.map((row) => [...row]);
     this.tags = point.tags.map((row) => [...row]);
     this.piecesPlaced = point.piecesPlaced;
@@ -567,7 +586,11 @@ export class Board {
     this.piecesPlaced++;
     this.active = null;
 
-    const cleared = this.clearsEnabled ? this.clearFullLines() : NO_CLEAR;
+    const cleared = this.magicEnabled
+      ? this.magicCleared(this.resolveBoardMagic({ fresh: placed, clears: this.clearsEnabled }))
+      : this.clearsEnabled
+        ? this.clearFullLines()
+        : NO_CLEAR;
     if (this.seal && --this.seal.pieces <= 0) this.seal = null;
     const holesMade = Math.max(0, this.holes() - holesBefore);
     if (!this.toppedOut) this.spawn();
@@ -652,6 +675,7 @@ export class Board {
    * the top; lifts the falling piece if the rising floor now overlaps it.
    */
   pushRow(cells: readonly Cell[], tags: readonly (CellTag | null)[] = []): void {
+    this.shiftMagic(-1);
     const top = this.grid.shift() as Cell[];
     this.tags.shift();
     if (top.some((cell) => cell !== null)) this.toppedOut = true;
@@ -664,6 +688,7 @@ export class Board {
   removeBottomRows(count: number): CellTally {
     const tally: CellTally = {};
     for (let i = 0; i < count; i++) {
+      this.shiftMagic(1, this.height - 1);
       const row = this.grid.pop() as Cell[];
       this.tags.pop();
       tallyRow(row, tally);
@@ -689,6 +714,8 @@ export class Board {
   reset(): void {
     this.grid = Board.emptyGrid(this.width, this.height);
     this.tags = Board.emptyTags(this.width, this.height);
+    this.obstructions = {};
+    this.magicLatchedRows = [];
     this.toppedOut = false;
     this.seal = null;
     this.active = null;
@@ -698,6 +725,66 @@ export class Board {
   /** Number of filled cells on the board (excluding the active piece). */
   filledCount(): number {
     return this.grid.reduce((sum, row) => sum + row.filter((c) => c !== null).length, 0);
+  }
+
+  magicState(): MagicState {
+    return cloneMagic({
+      grid: this.grid,
+      tags: this.tags,
+      obstructions: this.obstructions,
+      latchedRows: this.magicLatchedRows,
+    });
+  }
+
+  adoptMagic(state: MagicState): void {
+    const copy = cloneMagic(state);
+    this.grid = copy.grid;
+    this.tags = copy.tags;
+    this.obstructions = copy.obstructions;
+    this.magicLatchedRows = copy.latchedRows;
+  }
+
+  resolveBoardMagic(options: Parameters<typeof resolveMagic>[1] = {}): MagicResolution {
+    const result = resolveMagic(this.magicState(), { ...this.magicOwners, ...options });
+    this.adoptMagic(result.state);
+    return result;
+  }
+
+  magicLockResult(resolution: MagicResolution): LockResult {
+    const cleared = this.magicCleared(resolution);
+    return {
+      linesCleared: cleared.lines.length,
+      clearedCells: cleared.tally,
+      lines: cleared.lines,
+      rows: cleared.rows,
+      clearedTags: cleared.clearedTags,
+      clearedRows: cleared.clearedRows,
+      toppedOut: this.toppedOut,
+      holesMade: 0,
+      placed: [],
+    };
+  }
+
+  private magicCleared(resolution: MagicResolution): Cleared {
+    const tally: CellTally = {},
+      clearedTags: TagTally = {};
+    const lines = resolution.completed.map((row) => tallyRow(row.cells, {}));
+    for (const row of resolution.completed) tallyRow(row.cells, tally);
+    for (const removed of resolution.removed)
+      if (removed.tag) clearedTags[removed.tag] = (clearedTags[removed.tag] ?? 0) + 1;
+    return { tally, clearedTags, lines, rows: resolution.rows, clearedRows: resolution.completed };
+  }
+
+  private shiftMagic(dy: number, removedRow = -1): void {
+    this.obstructions = Object.fromEntries(
+      Object.entries(this.obstructions).flatMap(([key, value]) => {
+        const [x, y] = key.split(',').map(Number) as [number, number];
+        return y === removedRow || y + dy < 0 || y + dy >= this.height
+          ? []
+          : [[`${x},${y + dy}`, value]];
+      }),
+    );
+    this.magicLatchedRows = [];
   }
 
   private clearFullLines(): Cleared {

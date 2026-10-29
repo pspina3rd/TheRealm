@@ -346,6 +346,17 @@ export const SPELLS: Readonly<Record<string, SpellDef>> = {
       },
     ],
   },
+  natureConvert: {
+    id: 'natureConvert',
+    category: 'nature',
+    role: 'primary',
+    boardOnly: true,
+    levels: [1, 2, 3, 4].map((rank) => ({
+      name: `Transmute ${rank}`,
+      cost: { nature: 4 + 2 * rank },
+      effect: { kind: 'clearRows' as const, rows: rank % 2 === 0 ? 2 : 1, power: 0 },
+    })) as unknown as SpellDef['levels'],
+  },
 };
 
 /** Spells every new hero knows, on top of their class's own spell. */

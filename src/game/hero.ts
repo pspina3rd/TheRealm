@@ -1,3 +1,4 @@
+import type { BoardElement } from '../core/boardMagic';
 import { ELEMENTS, emptyCounts, type Element, type ElementCounts } from '../core/elements';
 import { CLASSES, DEFAULT_CLASS, type HeroClass } from '../data/classes';
 import { ITEMS } from '../data/items';
@@ -29,6 +30,8 @@ export { WALK_REGEN, WALK_REGEN_CAP, BEGINNER_REGEN_CAP, BEGINNER_LEVEL } from '
 
 /** The player character. Plain data so it can be saved as JSON. */
 export interface Hero {
+  /** Custom Arcane pair ranks; old saves start with no purchased pairs. */
+  arcane?: Partial<Record<BoardElement, number>>;
   name: string;
   /** Key into `CLASSES`; decides base numbers, starting ranks, HP growth and sprite. */
   classId: string;
@@ -106,6 +109,7 @@ export function createHero(classId = DEFAULT_CLASS, name?: string): Hero {
     ),
     seal: null,
     feats: {},
+    arcane: {},
   };
 }
 

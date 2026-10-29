@@ -969,6 +969,7 @@ export const SPELL_KIND_ICONS: Readonly<Record<SpellEffect['kind'], IconSpec>> =
 
 /** The icon for each kind of enemy move, shown when Insight reveals it. */
 export const MOVE_ICONS: Readonly<Record<EnemyMove['kind'], IconSpec>> = {
+  obstruct: { icon: 'lock', palette: PALETTES.iron },
   attack: { icon: 'sword', palette: ICONS.heart.palette },
   curse: { icon: 'piece', palette: PALETTES.iron },
   haste: { icon: 'haste' },

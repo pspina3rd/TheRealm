@@ -1,3 +1,4 @@
+import type { ObstructionPlacement } from '../battle/arcane';
 /**
  * Shared data definitions. Everything under `src/data` is plain, serialisable
  * content so new enemies, NPCs and maps can be added without touching logic.
@@ -85,6 +86,7 @@ export interface SpellLevel {
 }
 
 export interface SpellDef {
+  readonly boardOnly?: boolean;
   readonly id: string;
   /**
    * The category the spell sits in (one per element). It is also the
@@ -112,6 +114,11 @@ export interface SpellDef {
 
 /** An action an enemy performs each time its action gauge fills (see `EnemyDef.actMs`). */
 export type EnemyMove =
+  | {
+      readonly kind: 'obstruct';
+      readonly name: string;
+      readonly cells: readonly ObstructionPlacement[];
+    }
   /** Physical or magical hit; damage is `power + enemy atk - hero defence`. */
   | { readonly kind: 'attack'; readonly name: string; readonly power: number }
   /** Pushes stone rows up from the bottom of the board. */

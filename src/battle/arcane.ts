@@ -1,0 +1,158 @@
+import { required } from '../core/required';
+/** Character-owned interference: duration is measured by that character's placements. */
+import type { Board } from '../core/board';
+import {
+  resolveMagic,
+  position,
+  type BoardElement,
+  type ColorTouch,
+  type MagicResolution,
+} from '../core/boardMagic';
+export interface InterferenceEffects {
+  red: number;
+  wind: number;
+  nature: number;
+  gravity: number;
+  direction: -1 | 1;
+  delayMs: number;
+}
+export interface ObstructionPlacement {
+  x: number;
+  y: number;
+  strength: number;
+  sequence?: readonly ColorTouch[];
+}
+export class ArcaneInterference {
+  effects: Record<string, InterferenceEffects> = {};
+  placements: Record<string, number> = {};
+  private serial = 0;
+  constructor(readonly board: Board) {}
+  effect(owner: string): InterferenceEffects {
+    return (this.effects[owner] ??= {
+      red: 0,
+      wind: 0,
+      nature: 0,
+      gravity: 0,
+      direction: 1,
+      delayMs: 0,
+    });
+  }
+  checkpoint(): {
+    effects: Record<string, InterferenceEffects>;
+    placements: Record<string, number>;
+    serial: number;
+  } {
+    return structuredClone({
+      effects: this.effects,
+      placements: this.placements,
+      serial: this.serial,
+    });
+  }
+  restore(point: ReturnType<ArcaneInterference['checkpoint']>): void {
+    this.effects = structuredClone(point.effects);
+    this.placements = { ...point.placements };
+    this.serial = point.serial;
+    this.sync();
+  }
+  sync(): void {
+    this.board.magicOwners = {
+      settleOwners: Object.keys(this.effects).filter((o) => required(this.effects[o]).gravity > 0),
+      redOwners: Object.keys(this.effects).filter((o) => required(this.effects[o]).red > 0),
+    };
+  }
+  /** Call on a copy for previews; no placement counters advance on casting. */
+  cast(
+    owner: string,
+    element: BoardElement,
+    rank: number,
+    bottomRow: number,
+    direction: -1 | 1,
+    intervalMs: number,
+  ): MagicResolution {
+    const e = this.effect(owner),
+      r = Math.max(1, Math.min(4, Math.floor(rank)));
+    if (element === 'fire') e.red = Math.max(e.red, r);
+    if (element === 'water') e.delayMs = Math.max(e.delayMs, r * intervalMs);
+    if (element === 'wind') {
+      e.wind = Math.max(e.wind, r);
+      e.direction = direction;
+    }
+    if (element === 'nature') e.nature = Math.max(e.nature, r);
+    if (element === 'earth') e.gravity = Math.max(e.gravity, r);
+    this.sync();
+    const result = this.board.resolveBoardMagic(
+      element === 'lightning'
+        ? { spell: { element, rank: r, bottomRow, owner, weaken: true } }
+        : {},
+    );
+    return result;
+  }
+  /** A whole authored piece/batch is ONE owner placement, even if it has several cells. */
+  place(owner: string, cells: readonly ObstructionPlacement[]): MagicResolution {
+    const e = this.effect(owner),
+      state = this.board.magicState();
+    const fresh: [number, number][] = [];
+    for (const cell of cells) {
+      let { x } = cell;
+      const { y } = cell;
+      if (
+        !Number.isInteger(x) ||
+        !Number.isInteger(y) ||
+        x < 0 ||
+        y < 0 ||
+        y >= this.board.height ||
+        x >= this.board.width ||
+        required(state.grid[y])[x] !== null
+      )
+        continue;
+      const neutral = e.nature > 0;
+
+      if (e.wind > 0) {
+        const nx = x + e.direction;
+        if (nx >= 0 && nx < this.board.width && required(state.grid[y])[nx] === null) x = nx;
+      }
+      if (
+        this.board.active?.cells.some(
+          ([dx, dy]) =>
+            required(this.board.active).x + dx === x && required(this.board.active).y + dy === y,
+        )
+      )
+        continue;
+      if (neutral) e.nature--;
+      if (e.wind > 0) e.wind--;
+      required(state.grid[y])[x] = neutral ? 'neutral' : 'stone';
+      fresh.push([x, y]);
+      if (!neutral)
+        state.obstructions[position(x, y)] = {
+          id: `${owner}:${++this.serial}`,
+          owner,
+          strength: Math.max(1, Math.min(3, cell.strength)),
+          anchored: e.gravity === 0,
+          sequence: cell.sequence ?? [],
+          step: 0,
+          contacts: [],
+        };
+    }
+    this.sync();
+    const result = resolveMagic(state, { ...this.board.magicOwners, fresh });
+    this.board.adoptMagic(result.state);
+    if (fresh.length === 0) return result;
+    this.placements[owner] = (this.placements[owner] ?? 0) + 1;
+    if (e.red > 0) e.red--;
+    if (e.gravity > 0 && --e.gravity === 0) {
+      for (const o of Object.values(this.board.obstructions))
+        if (o.owner === owner) o.anchored = true;
+      // Preview/commit equality includes re-anchoring after the final affected placement.
+      result.state = this.board.magicState();
+    }
+    this.sync();
+    return result;
+  }
+  /** Delays obstruction delivery only; the opponent's other actions keep their own clock. */
+  elapse(owner: string, dtMs: number): number {
+    const e = this.effect(owner),
+      consumed = Math.min(e.delayMs, Math.max(0, dtMs));
+    e.delayMs -= consumed;
+    return Math.max(0, dtMs - consumed);
+  }
+}

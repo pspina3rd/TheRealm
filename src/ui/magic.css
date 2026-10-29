@@ -1,0 +1,135 @@
+.magic-target-dialog {
+  color: #ece9f4;
+  background: #202231;
+  border: 2px solid #8476a3;
+  border-radius: 10px;
+  width: min(700px, 92vw);
+  max-height: 90dvh;
+  padding: 16px;
+  box-sizing: border-box;
+  overflow: auto;
+}
+.magic-target-dialog::backdrop {
+  background: #050713cc;
+}
+.magic-preview-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.magic-grid {
+  width: 100%;
+  border: 1px solid #686c82;
+  background: #111421;
+}
+.magic-row {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+}
+.magic-row.selected {
+  outline: 2px solid #e5c98e;
+  outline-offset: -2px;
+}
+.magic-square {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  border: 1px solid #262b41;
+  box-sizing: border-box;
+  font: bold clamp(8px, 2vw, 15px) monospace;
+  color: #151824;
+}
+.magic-square.obstruction {
+  background: rgb(
+    calc(50 + var(--strength) * 30),
+    calc(55 + var(--strength) * 30),
+    calc(65 + var(--strength) * 30)
+  ) !important;
+  color: white;
+}
+.magic-edge {
+  position: absolute;
+  opacity: 0.9;
+}
+.magic-edge.top,
+.magic-edge.bottom {
+  height: 3px;
+  left: 1px;
+  right: 1px;
+}
+.magic-edge.left,
+.magic-edge.right {
+  width: 3px;
+  top: 1px;
+  bottom: 1px;
+}
+.magic-edge.top {
+  top: 0;
+}
+.magic-edge.bottom {
+  bottom: 0;
+}
+.magic-edge.left {
+  left: 0;
+}
+.magic-edge.right {
+  right: 0;
+}
+.magic-square small {
+  position: absolute;
+  bottom: 2px;
+  font-size: 7px;
+  color: white;
+  background: #171922;
+}
+.multi-touch .magic-edge {
+  animation: magic-breathe 2s ease-in-out infinite;
+}
+@keyframes magic-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.magic-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+.magic-target-dialog button,
+.magic-target-dialog select,
+.magic-target-dialog input {
+  min-height: 44px;
+}
+.magic-target-dialog input {
+  width: 100%;
+}
+.magic-target-dialog button {
+  min-width: 72px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .multi-touch .magic-edge {
+    animation: none;
+  }
+}
+.battle-tools .arcane-cast {
+  height: 44px;
+  min-height: 44px;
+  width: 86px;
+}
+@media (max-width: 760px) {
+  .battle-tools .arcane-cast {
+    position: fixed;
+    right: max(8px, env(safe-area-inset-right));
+    bottom: calc(152px + env(safe-area-inset-bottom));
+    top: auto;
+    left: auto;
+  }
+}

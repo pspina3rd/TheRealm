@@ -85,7 +85,11 @@ export function lessonDifficulty(spell: SpellDef, level: number): number {
 export function lessonsFor(seeker: Seeker, mentor: MentorDef): Lesson[] {
   const { hero } = seeker;
   return Object.values(SPELLS)
-    .filter((spell) => spell.category === mentor.element)
+    .filter(
+      (spell) =>
+        spell.category === mentor.element &&
+        (!spell.boardOnly || seeker.flags.has('boardMagicEnabled')),
+    )
     .sort((a, b) => ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role))
     .flatMap((spell): Lesson[] => {
       const known = knownSpell(hero, spell.id);

@@ -441,3 +441,24 @@ Recorded legal-win fixtures refreshed; 1,096 tests pass, 17 optional/report
 cases skipped; check/build pass. Browser phone/desktop evidence is saved.
 Team branch rechecked at f1b14e6, still aligned. Author go/no-go remains
 pending; M2a stays off.
+
+## October 29 — board magic playable workshop checkpoint
+
+Implemented the approved deterministic resolver, durable owned obstructions,
+sequential edge-color contacts, neutral Ice/Nature cells, elemental targeting,
+preview/commit, six character-targeted Arcane pairings and XP-funded pair ranks.
+Character placement events are independent of player locks. Save v13 retains all
+older migrations and committed-try recovery; board corrections restore obstruction
+state and character effects. Existing healing and Shadow Drain remain intact.
+
+The isolated workshop is playable with `npm run dev` at `/workshop.html`. It uses
+its own save namespace and practice resources. Main-game wiring is behind the
+`boardMagicEnabled` rollout flag, which is not granted to adventure saves yet:
+the approved plan requires hands-on workshop review before broad activation.
+No campaign-wide new balance acceptance is claimed from the workshop fixture.
+
+Checkpoint verification: 1,113 tests pass, 17 optional/report cases skipped;
+format/lint/typecheck pass. Workshop Chromium checks pass at 360x640, 390x844 and
+1100x900: actual elemental cast, Arcane creation/upgrade/cast, reduced motion,
+44px controls, no horizontal overflow or page errors. Browser evidence is kept
+in `/tmp/magic-browser`; a tracked report and final instructions follow.

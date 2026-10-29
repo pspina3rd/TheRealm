@@ -63,7 +63,7 @@ const at = (level: number, step = {}, kept = {}): KnownSpell => ({
 const ONE_EACH = { power: 1, efficiency: 1, effect: 1 };
 
 describe('spell data', () => {
-  const primaries = Object.values(SPELLS).filter((s) => s.role === 'primary');
+  const primaries = Object.values(SPELLS).filter((s) => s.role === 'primary' && !s.boardOnly);
 
   it('has one four-level primary per element', () => {
     expect(primaries.map((s) => s.category).sort()).toEqual([...ELEMENTS].sort());

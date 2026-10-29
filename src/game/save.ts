@@ -1,3 +1,4 @@
+import { sanitizeArcane } from './arcane';
 import { ELEMENTS, emptyCounts, type Element } from '../core/elements';
 import { CLASSES, DEFAULT_CLASS } from '../data/classes';
 import { ITEMS } from '../data/items';
@@ -44,12 +45,27 @@ export const CORRUPT_KEY = `${SAVE_KEY}.corrupt`;
  *   stakes (day, regard, encounter records, haggle prices and spell seals).
  * - 11 unifies both version-10 formats. Missing stakes start at zero;
  *   campaign progress and earned scenes remain intact in either format.
+ * - 13 adds custom Arcane ranks without changing committed-try recovery.
  * - 12 persists committed M1 tries, settling interrupted tries as a failure on load.
  */
-export const SAVE_VERSION = 12;
+export const SAVE_VERSION = 13;
 const recoveredLoads = new WeakSet<GameState>();
 /** Older versions `deserialize` can still upgrade. */
-const MIGRATABLE_VERSIONS: readonly number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, SAVE_VERSION];
+const MIGRATABLE_VERSIONS: readonly number[] = [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  SAVE_VERSION,
+];
 const FACINGS: readonly Direction[] = ['up', 'down', 'left', 'right'];
 
 /** JSON-friendly form of `GameState` (sets become arrays). */
@@ -541,6 +557,7 @@ function sanitizeHero(hero: Hero, version = SAVE_VERSION): Hero | null {
   const feats = field('feats');
   const clean: Hero = {
     ...hero,
+    arcane: sanitizeArcane(raw.arcane),
     titleElement: ELEMENTS.includes(hero.titleElement) ? hero.titleElement : cls.element,
     level: clampInt(hero.level, 1),
     xp: clampInt(hero.xp, 0),

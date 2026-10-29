@@ -1,3 +1,7 @@
+import { BOARD_SPELLS } from '../battle/magicCasting';
+import { arcaneUnlocked } from '../game/arcane';
+import { openMagicTargeting } from './magicTargeting';
+import { openArcaneEditor, openArcaneChooser } from './arcaneEditor';
 import { Battle, type BattleAction } from '../battle/battle';
 import { createRng, type Rng } from '../core/rng';
 import { SHOPS } from '../data/shops';
@@ -131,6 +135,15 @@ export class App {
   private readonly dialog = new Dialog();
   private readonly leaveBattleButton = button('Leave', () => this.leaveBattle());
   private readonly correctionButton = button('Correct · 1', () => this.correctBattle());
+  private readonly arcaneButton = button('Arcane', () => {
+    const battle = this.active?.battle;
+    if (battle)
+      openArcaneChooser(
+        battle,
+        () => this.commitInput(),
+        () => this.save(),
+      );
+  });
   private active: ActiveBattle | null = null;
   private heldDirection: Direction | null = null;
   /** Steps left of a tap-to-walk, taken one per `WALK_REPEAT_MS`. */
@@ -157,7 +170,17 @@ export class App {
     byId('hud-xp-icon').replaceChildren(iconElement('star', 2, 'Experience'));
     byId('hud-gil-icon').replaceChildren(iconElement('coin', 2, 'Gil'));
     byId('menu-button').replaceChildren(iconElement('bag', 3));
-    this.battleView.hero.onCast = (id) => this.tryCombat(id, (c) => c.castSpell(id));
+    this.battleView.hero.onCast = (id) => {
+      const battle = this.active?.battle;
+      if (battle?.board.magicEnabled && BOARD_SPELLS[id]) {
+        openMagicTargeting(
+          battle,
+          id,
+          () => this.commitInput(),
+          () => this.save(),
+        );
+      } else this.tryCombat(id, (c) => c.castSpell(id));
+    };
     this.battleView.hero.onItem = (id) => this.tryCombat(id, (c) => c.useItem(id));
     this.leaveBattleButton.className = 'leave-battle';
     byId('pause-button').after(this.leaveBattleButton);
@@ -165,6 +188,9 @@ export class App {
     this.correctionButton.title = 'Restore the last dropped piece. One correction per attempt.';
     this.correctionButton.hidden = true;
     this.leaveBattleButton.after(this.correctionButton);
+    this.arcaneButton.className = 'arcane-cast';
+    this.arcaneButton.hidden = true;
+    this.correctionButton.after(this.arcaneButton);
     this.bindInput();
     this.applyTouchPrefs();
     if (store.persistent === false) {
@@ -268,6 +294,8 @@ export class App {
           ? 'Give up'
           : 'Leave';
       this.leaveBattleButton.disabled = active.finished && !battle.canCorrect;
+      this.arcaneButton.hidden = !battle.board.magicEnabled || !arcaneUnlocked(this.state.flags);
+      this.arcaneButton.disabled = active.finished || battle.paused;
       this.correctionButton.hidden = battle.correctionsRemaining <= 0;
       this.correctionButton.disabled = !battle.canCorrect;
       this.correctionButton.textContent = `Correct · ${battle.correctionsRemaining}`;
@@ -639,6 +667,10 @@ export class App {
     const rule = spec.kind === 'combat' ? MAP_RULES[this.state.mapId] : undefined;
     const battle = new Battle(spec, this.state.hero, this.rng, {
       weights,
+      boardMagic:
+        this.state.flags.has('boardMagicEnabled') &&
+        (spec.kind === 'combat' || spec.kind === 'lesson'),
+      storyFlags: this.state.flags,
       dualChance: dual,
       ...(rule ? { rule } : {}),
     });
@@ -967,6 +999,20 @@ export class App {
         hiddenSlots(this.state),
       ),
       actions: [
+        ...(this.state.flags.has('boardMagicEnabled') && arcaneUnlocked(this.state.flags)
+          ? [
+              {
+                label: 'Arcane Weaving',
+                onClick: () =>
+                  openArcaneEditor(
+                    hero,
+                    this.state.flags,
+                    () => this.save(),
+                    () => this.openMenu(),
+                  ),
+              },
+            ]
+          : []),
         { label: 'New Game', onClick: () => this.confirmNewGame() },
         {
           label: 'Skills',

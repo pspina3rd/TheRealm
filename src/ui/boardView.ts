@@ -1,3 +1,4 @@
+import type { Obstruction } from '../core/boardMagic';
 import { ENCOUNTER_DEFS } from '../data/encounters';
 import type { ChallengeSpec } from '../data/types';
 import type { Objective, Telegraph } from '../battle/types';
@@ -133,6 +134,9 @@ export class BoardView {
           ctx.strokeRect(x * CELL + 2, y * CELL + 2, CELL - 4, CELL - 4);
           ctx.strokeStyle = '#1d2238';
         }
+        const obstruction = board.obstructions[`${x},${y}`];
+        if (obstruction && (!visible || visible[y]?.[x]))
+          drawObstruction(ctx, obstruction, x * CELL, y * CELL, timeMs);
         const tag = board.tagAt(x, y);
         if (tag && (!visible || visible[y]?.[x])) this.drawTag(tag, x * CELL, y * CELL);
       }
@@ -499,4 +503,42 @@ function context(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
   if (!ctx) throw new Error('2D canvas is not supported');
   ctx.imageSmoothingEnabled = false;
   return ctx;
+}
+
+/** Persistent strength/edge marks; pulse is slow and disabled for reduced motion. */
+function drawObstruction(
+  ctx: CanvasRenderingContext2D,
+  obstruction: Obstruction,
+  x: number,
+  y: number,
+  timeMs: number,
+): void {
+  ctx.save();
+  const brightness = 50 + obstruction.strength * 30;
+  ctx.fillStyle = `rgb(${brightness},${brightness + 5},${brightness + 15})`;
+  ctx.fillRect(x + 2, y + 2, CELL - 4, CELL - 4);
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 12px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('•'.repeat(obstruction.strength), x + CELL / 2, y + CELL / 2 + 4);
+  const step = obstruction.sequence[obstruction.step];
+  if (step) {
+    const reduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    ctx.globalAlpha = reduced ? 1 : 0.75 + 0.25 * Math.sin((timeMs * Math.PI) / 1000);
+    ctx.fillStyle = CRYSTAL_HEX[step.color];
+    for (const side of step.sides) {
+      if (side === 'top') ctx.fillRect(x + 1, y + 1, CELL - 2, 3);
+      if (side === 'bottom') ctx.fillRect(x + 1, y + CELL - 4, CELL - 2, 3);
+      if (side === 'left') ctx.fillRect(x + 1, y + 1, 3, CELL - 2);
+      if (side === 'right') ctx.fillRect(x + CELL - 4, y + 1, 3, CELL - 2);
+    }
+    ctx.globalAlpha = 1;
+    obstruction.sequence.slice(obstruction.step).forEach((touch, i) => {
+      ctx.fillStyle = CRYSTAL_HEX[touch.color];
+      ctx.fillRect(x + 4 + i * 5, y + CELL - 8, 3, 3);
+    });
+  }
+  ctx.restore();
 }

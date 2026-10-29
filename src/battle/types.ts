@@ -1,3 +1,5 @@
+import type { ArcaneInterference, ObstructionPlacement } from './arcane';
+import type { MagicTarget } from './magicCasting';
 import type { Board, CellTally, LockResult } from '../core/board';
 import type { Landing } from '../core/landing';
 import type { Element } from '../core/elements';
@@ -183,6 +185,9 @@ export interface Objective {
 
 /** The parts of a running battle that challenge rules may read or change. */
 export interface BattleContext {
+  readonly interference?: ArcaneInterference;
+  placeObstructions?(owner: string, cells: readonly ObstructionPlacement[]): void;
+  castBoardSpell?(id: string, target: MagicTarget): void;
   readonly board: Board;
   readonly hero: Hero;
   readonly rng: Rng;

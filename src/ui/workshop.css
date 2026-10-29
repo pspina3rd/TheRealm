@@ -1,0 +1,67 @@
+body {
+  margin: 0;
+  background: #131624;
+  color: #eee9f4;
+  font-family: system-ui, sans-serif;
+}
+#workshop {
+  max-width: 950px;
+  margin: auto;
+  padding: 16px;
+}
+.workshop-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 360px) minmax(240px, 1fr);
+  gap: 24px;
+}
+.workshop-board {
+  width: 100%;
+}
+.workshop-controls {
+  display: grid;
+  gap: 10px;
+}
+button,
+select {
+  min-height: 44px;
+  background: #30364b;
+  color: #fff;
+  border: 1px solid #8b82aa;
+  border-radius: 5px;
+  padding: 8px;
+  font: inherit;
+}
+button:disabled {
+  opacity: 0.45;
+}
+.workshop-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.workshop-actions button {
+  flex: 1;
+}
+.arcane-editor-row {
+  border-top: 1px solid #747087;
+  padding: 8px 0;
+}
+@media (max-width: 600px) {
+  .workshop-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .workshop-board {
+    max-width: 330px;
+    margin: auto;
+  }
+}
+.workshop-layout > *,
+.workshop-controls > * {
+  min-width: 0;
+}
+.workshop-controls select {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}

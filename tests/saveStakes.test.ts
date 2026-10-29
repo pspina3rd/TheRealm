@@ -33,9 +33,9 @@ function saveAt(version: number): Record<string, unknown> {
   return { ...data, version };
 }
 
-describe('save version 12 (committed tries and unified campaign stakes)', () => {
+describe('save version 13 (committed tries and unified campaign stakes)', () => {
   it('is the current version', () => {
-    expect(SAVE_VERSION).toBe(12);
+    expect(SAVE_VERSION).toBe(13);
   });
 
   for (let version = 1; version < 10; version++) {
