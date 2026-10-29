@@ -147,7 +147,8 @@ export const ENCOUNTER_DEFS: Readonly<Record<string, EncounterDef>> = {
           { cols: [4, 7], rows: [9, 9] },
         ],
         spare: { cols: [0, 2], rows: [1, 5] },
-        queue: ['O', 'S', 'O', 'J', 'J', 'Z', 'I', 'I', 'L', 'L', 'I'],
+        // The authored eleven, then one spare O: one slip is forgiven, two still lose (author, Oct 29).
+        queue: ['O', 'S', 'O', 'J', 'J', 'Z', 'I', 'I', 'L', 'L', 'I', 'O'],
         crackLimit: E.kid.crackLimit,
         wobbleLimit: E.kid.wobbleLimit,
         previews: E.kid.previews,

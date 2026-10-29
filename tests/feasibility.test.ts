@@ -30,7 +30,9 @@ describe('Pip’s tower: an authored queue', () => {
     const { battle, build } = pip();
     const def = ENCOUNTER_DEFS.kid!.spec;
     if (def.verb !== 'build') throw new Error('Pip builds');
-    const { queue } = def.params;
+    // The authored eleven: the twelfth piece is a spare O that only a slip needs.
+    const queue = def.params.queue.slice(0, -1);
+    expect(def.params.queue.at(-1)).toBe('O');
     // The tower (36 cells) takes 9 of the 11 pieces; the toy box, apart from it, the other 2.
     // A class is the pair sent to the box: the decision the traps test. The tower's own tilings
     // vary freely and are not counted.

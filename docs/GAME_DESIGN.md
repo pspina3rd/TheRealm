@@ -879,7 +879,7 @@ in `src/data/balance.ts`; the boards, lines and props in
 
 | Person       | Board             | Verb              | Win                                   | Fail                              | Retry |
 | ------------ | ----------------- | ----------------- | ------------------------------------- | --------------------------------- | ----- |
-| Elder Rowan  | The Well (6 wide) | DIG + rising      | Clear the tagged pipe cell            | Mold locks above the lip (row 16) | Now   |
+| Elder Rowan  | The Well (7 wide) | DIG + rising      | Clear the tagged pipe cell            | Mold locks above the lip (row 16) | Now   |
 | Pip          | The Crystal Tower | BUILD             | Fill the outline up to the spinner    | 3 cracks or 1 wobble              | Now   |
 | Farmer Bean  | The Herb Beds     | PLANT             | 19 sprouts in the furrows (22 Great)  | Sundown (24 pieces)               | Now   |
 | Ordor        | The Stall         | DUEL (one-sided)  | His price at 94% or less when it ends | Price above 105% (Even between)   | Day   |

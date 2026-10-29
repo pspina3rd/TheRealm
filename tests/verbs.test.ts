@@ -193,13 +193,13 @@ describe('BUILD (Pip’s tower)', () => {
     return { battle, build: battle.challenge as BuildChallenge };
   };
 
-  it('turns clears off, follows the authored queue and shows three pieces ahead', () => {
+  it('turns clears off, follows the authored queue and shows three pieces ahead (twelve, the last a spare)', () => {
     const { battle, build } = pip();
     expect(battle.board.clearsEnabled).toBe(false);
     expect(battle.board.active?.name).toBe('O');
     expect(battle.upcoming).toEqual(['S', 'O', 'J']);
     expect(build.previews).toBe(3);
-    expect(build.objective()).toMatchObject({ counter: '0/36 · cracks 0/3', piecesLeft: 11 });
+    expect(build.objective()).toMatchObject({ counter: '0/36 · cracks 0/3', piecesLeft: 12 });
     expect(build.inOutline(4, 19)).toBe(true);
     expect(build.inOutline(4, 11)).toBe(true);
     expect(build.inOutline(3, 19)).toBe(false);
