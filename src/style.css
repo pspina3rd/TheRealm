@@ -1,0 +1,2114 @@
+:root {
+  color-scheme: dark;
+  --bg: #111323;
+  --panel: #1b1f34;
+  --panel-deep: #101324;
+  --border: #464c70;
+  --text: #eef0ff;
+  --muted: #aeb6d7;
+  --gold: #f5d77b;
+  --hp: #e66c83;
+  --good: #8fe3a7;
+  --bad: #ffb7c5;
+  --button: #353c63;
+  --button-border: #7079a8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Elements toggled with the `hidden` attribute must stay hidden even when a class sets `display`. */
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font:
+    15px/1.4 system-ui,
+    sans-serif;
+}
+
+main {
+  max-width: 1000px;
+  margin: auto;
+  padding: 12px 16px 24px;
+}
+
+.session-notice {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 6px 10px;
+  border: 1px solid var(--gold);
+  border-radius: 7px;
+  color: var(--gold);
+  font-size: 12px;
+}
+
+h2 {
+  font-size: 15px;
+  margin: 8px 0 6px;
+  color: #dbe1ff;
+}
+
+button {
+  background: var(--button);
+  border: 1px solid var(--button-border);
+  color: var(--text);
+  border-radius: 7px;
+  padding: 7px 10px;
+  cursor: pointer;
+  font: inherit;
+  touch-action: manipulation;
+}
+
+button:hover:not(:disabled),
+button:focus-visible {
+  filter: brightness(1.2);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+canvas {
+  display: block;
+  image-rendering: pixelated;
+  max-width: 100%;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* ---------------------------------------------------------------- HUD --- */
+
+.hud {
+  display: grid;
+  grid-template-columns: auto minmax(120px, 1fr) minmax(80px, 0.6fr) auto auto auto;
+  gap: 12px;
+  align-items: center;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+}
+
+.hud-name b {
+  color: var(--gold);
+}
+
+.hud-meter {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.hud-meter .bar {
+  margin: 0;
+}
+
+.hud-gil {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--gold);
+}
+
+.hud-place {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+#menu-button {
+  justify-self: end;
+  padding: 4px 6px;
+  line-height: 0;
+}
+
+.bar {
+  height: 7px;
+  background: #090b15;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 3px 0;
+}
+
+.bar.xp span {
+  background: var(--gold);
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: var(--hp);
+  transition: width 0.2s;
+}
+
+.attune-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.attune-grid button {
+  display: grid;
+  grid-template-columns: 24px 140px 1fr;
+  gap: 8px;
+  align-items: center;
+  text-align: left;
+}
+
+/* -------------------------------------------------------------- views --- */
+
+.view {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px;
+}
+
+#world-canvas {
+  width: 100%;
+  border-radius: 8px;
+  background: #000;
+}
+
+#world-view {
+  position: relative;
+}
+
+.world-banner {
+  position: absolute;
+  top: 26px;
+  left: 50%;
+  transform: translate(-50%, -8px);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  max-width: 80%;
+  padding: 8px 18px;
+  background: #10132ae6;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.4s,
+    transform 0.4s;
+}
+
+.world-banner.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.battle {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+}
+
+.battle-board {
+  background: #0b0d18;
+  border-radius: 8px;
+  padding: 6px;
+  align-self: start;
+}
+
+#board-canvas {
+  width: 300px;
+  height: 600px;
+}
+
+/* An encounter's objective on the board's frame, with its counter beside it (§4). */
+.board-frame {
+  grid-column: 1;
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  justify-content: space-between;
+  max-width: 312px;
+  padding: 4px 8px;
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  background: #10132a;
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.board-frame span {
+  font-style: italic;
+}
+
+.board-frame b {
+  flex: none;
+  color: var(--gold);
+}
+
+.board-frame[hidden],
+#giveup-button[hidden] {
+  display: none;
+}
+
+.battle.has-frame .battle-side {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+}
+
+#giveup-button {
+  margin-top: 6px;
+  flex: none;
+}
+
+/* The Stakes card (§3.1): the win first, then the ask, the cost and the retry rule. */
+.stakes-card {
+  display: grid;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  background: #10132a;
+}
+
+.stakes-card h3 {
+  margin: 0;
+  font-size: 14px;
+  color: var(--gold);
+}
+
+.stakes-row {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.stakes-row > span {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+.stakes-blocked {
+  margin: 2px 0 0;
+  color: #ff9a3c;
+  font-size: 13px;
+}
+
+.regard-pips .pip.mid {
+  opacity: 0.5;
+}
+
+.regard-pips .pip.low {
+  background: #ff5c7a;
+}
+
+.battle-side {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.panel {
+  background: var(--panel-deep);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+/* ---------------------------------------------------------- battle ---- */
+
+#stage-canvas {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  background:
+    radial-gradient(ellipse at 62% 92%, #3a4270 0%, transparent 55%),
+    linear-gradient(#1c2142, #10132a);
+}
+
+.hero-panel {
+  display: grid;
+  gap: 8px;
+}
+
+.hp-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.hp-row .bar {
+  height: 12px;
+  margin: 0;
+}
+
+#battle-hp-fill {
+  background: var(--hp);
+}
+
+#next-canvas {
+  background: #0b0d18;
+  border-radius: 6px;
+}
+
+/* The mentor beside the next piece in a lesson; it flashes when they toss one. */
+.helper:not([hidden]) {
+  display: block;
+  border-radius: 6px;
+  background: #0b0d18;
+  box-shadow: 0 0 0 2px var(--helper, var(--gold));
+}
+
+.helper .portrait {
+  display: block;
+  width: 48px;
+  height: 48px;
+}
+
+.helper.tossed {
+  animation: helper-toss 0.6s ease-out;
+}
+
+@keyframes helper-toss {
+  0% {
+    transform: translateY(0) scale(1);
+    box-shadow:
+      0 0 0 2px var(--helper),
+      0 0 18px 6px var(--helper);
+  }
+  40% {
+    transform: translateY(-6px) scale(1.12);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+.icon {
+  display: block;
+  image-rendering: pixelated;
+}
+
+.mana-bars {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.mana-pool {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  border-radius: 6px;
+  padding: 3px 0;
+}
+
+.mana-track {
+  width: 14px;
+  height: 34px;
+  background: #090b15;
+  border-radius: 4px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.mana-track span {
+  display: block;
+  width: 100%;
+  transition: height 0.25s;
+}
+
+.mana-pool small {
+  font-size: 11px;
+  line-height: 1;
+  color: var(--muted);
+}
+
+.mana-pool.full small {
+  color: var(--gold);
+}
+
+.mana-pool.glow {
+  animation: glow 0.6s ease-out;
+}
+
+.mana-pool.drained {
+  animation: drained 0.6s ease-out;
+}
+
+@keyframes glow {
+  0% {
+    background: #ffffff40;
+    transform: scale(1.15);
+  }
+  100% {
+    background: transparent;
+    transform: scale(1);
+  }
+}
+
+@keyframes drained {
+  0%,
+  50% {
+    background: #ff5c7a66;
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+.spells,
+.items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+}
+
+/*
+ * Seven element slots: up to four a row, fewer when a slot would get too
+ * narrow for its longest name; rows share one height, and a category menu
+ * keeps the slots' height. Each slot stacks the icon (hotkey beside it,
+ * top right), then name, pips and cost, so a name never runs under the key.
+ */
+.spells {
+  grid-template-columns: repeat(auto-fill, minmax(max(84px, calc((100% - 18px) / 4)), 1fr));
+  grid-auto-rows: 1fr;
+  align-content: start;
+}
+
+.spells .spell {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 5px 6px;
+  font-size: 12px;
+  min-width: 0;
+}
+
+.spells .spell > span {
+  max-width: 100%;
+}
+
+.spells .spell b {
+  font-size: 13px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.spells .spell .spell-meta,
+.spells .spell .cost {
+  flex-wrap: wrap;
+}
+
+.spells .spell .cost {
+  gap: 3px;
+  font-size: 11px;
+}
+
+.spells .spell.back {
+  justify-content: center;
+}
+
+.spell.empty-slot {
+  background: var(--panel-deep);
+  border-color: #2a2f4d;
+  opacity: 1;
+}
+
+.spell-meta {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* No keyboard here: hide the Escape hint. */
+@media (pointer: coarse) {
+  .spell kbd.esc {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .spells {
+    gap: 4px;
+  }
+}
+
+.items {
+  margin-top: 6px;
+}
+
+.item-uses {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 6px;
+  color: var(--muted);
+}
+
+.spell,
+.item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  position: relative;
+}
+
+.spell b {
+  display: block;
+}
+
+.spell kbd {
+  position: absolute;
+  top: 3px;
+  right: 6px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+/* A category with several spells: how many more its menu holds (under the hotkey). */
+.spell .more {
+  position: absolute;
+  top: 18px;
+  right: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+/* A spell's level: one pip per level, filled up to the current one. */
+.level-pips {
+  display: flex;
+  gap: 2px;
+  margin: 1px 0 2px;
+}
+
+.level-pips span {
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: #2a2f4d;
+}
+
+.level-pips span.on {
+  background: var(--gold);
+}
+
+.cost {
+  display: flex;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.cost-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.unusable {
+  opacity: 0.4;
+}
+
+.denied {
+  animation: denied 0.35s;
+}
+
+@keyframes denied {
+  20%,
+  60% {
+    transform: translateX(-5px);
+  }
+  40%,
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+/* ------------------------------------------------------- touch pad --- */
+
+/*
+ * The walking d-pad: on touch screens a small, see-through pad floats over
+ * the bottom-left corner of the map, away from the hero (the camera keeps
+ * the hero centred). It walks while held. Tapping the map walks there, so
+ * once the player has done that the pad goes away, unless the Touch
+ * buttons setting is on.
+ */
+.touch-pad {
+  display: none;
+  position: absolute;
+  left: max(10px, env(safe-area-inset-left));
+  bottom: max(10px, env(safe-area-inset-bottom));
+  grid-template-columns: repeat(3, 40px);
+  grid-template-rows: repeat(3, 40px);
+  grid-template-areas: '. up .' 'left . right' '. down .';
+  gap: 2px;
+  opacity: 0.45;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.touch-pad:active,
+.touch-pad:focus-within {
+  opacity: 0.85;
+}
+
+.touch-pad button {
+  padding: 0;
+  font-size: 16px;
+  border-radius: 50%;
+  background: #1b1f34b3;
+}
+
+.touch-pad [data-dir='up'] {
+  grid-area: up;
+}
+.touch-pad [data-dir='left'] {
+  grid-area: left;
+}
+.touch-pad [data-dir='down'] {
+  grid-area: down;
+}
+.touch-pad [data-dir='right'] {
+  grid-area: right;
+}
+
+@media (pointer: coarse) {
+  body:not(.tap-walker) .touch-pad {
+    display: grid;
+  }
+}
+
+/* Taps on the map walk; the board takes every touch during a battle. */
+#world-canvas {
+  touch-action: manipulation;
+}
+
+#board-canvas {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.controls button,
+.rotate-button {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Items and pause share a row under the spells (on a phone, the top strip). */
+.battle-tools {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.battle-tools .items {
+  flex: 1;
+}
+
+#pause-button {
+  margin-top: 6px;
+  flex: none;
+}
+
+/* The rotate button only exists on a phone's touch screen (see below). */
+.rotate-button {
+  display: none;
+}
+
+/* ------------------------------------------------------------ dialog --- */
+
+dialog {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  width: min(480px, calc(100vw - 32px));
+  padding: 16px;
+}
+
+dialog::backdrop {
+  background: #05060dcc;
+}
+
+dialog h2 {
+  margin-top: 0;
+  color: var(--gold);
+  font-size: 18px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.list-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #363b59;
+  padding: 6px 0;
+}
+
+.list-row:last-child {
+  border: 0;
+}
+
+.list-row small {
+  display: block;
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------ phone --- */
+
+@media (max-width: 760px) {
+  main {
+    padding: max(6px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right))
+      max(6px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hud {
+    grid-template-columns: 1fr minmax(60px, 0.5fr) auto auto;
+    gap: 8px;
+    padding: 4px 6px 4px 10px;
+    margin-bottom: 6px;
+    flex: none;
+  }
+
+  .hud-place,
+  .hud-name {
+    display: none;
+  }
+
+  #menu-button {
+    min-width: 44px;
+    min-height: 44px;
+    display: grid;
+    place-items: center;
+  }
+
+  /* The map fills the rest of the screen; the app sizes its canvas to match. */
+  #world-view {
+    flex: 1;
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  #world-canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  /*
+   * The battle takes the whole screen, portrait, with no scrolling, and the
+   * board is the controller: tap rotates, drag moves, drag down drops,
+   * flick down slams. On top, the enemy strip with pause and items beside
+   * it; then the board, as large as fits, with the next piece, HP and mana
+   * beside it and a rotate button under them; then one slim strip of the
+   * seven spell slots. The move buttons only appear (taking their row)
+   * when the Touch buttons setting is on.
+   */
+  body[data-view='battle'] .hud {
+    display: none;
+  }
+
+  body[data-view='battle'] main {
+    padding: 0;
+  }
+
+  .battle {
+    --pad: 6px;
+    --gap: 6px;
+    --side: 76px;
+    --tools-w: 84px;
+    --strip-h: min(112px, calc((100vw - 2 * var(--pad) - var(--gap) - var(--tools-w)) * 0.3125));
+    --spells-h: 44px;
+    --controls-h: 0px;
+    --board-h: min(
+      calc(
+        100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 2 * var(--pad) -
+          var(--strip-h) - var(--frame-h) - var(--spells-h) - var(--controls-h) - 4 * var(--gap) -
+          6px
+      ),
+      calc(2 * (100vw - 2 * var(--pad) - var(--gap) - 6px - var(--side)))
+    );
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    --frame-h: 0px;
+    grid-template-rows:
+      var(--strip-h) var(--frame-h) auto minmax(0, 1fr) auto var(--spells-h)
+      var(--controls-h);
+    grid-template-areas:
+      'stage stage'
+      'frame frame'
+      'board hero'
+      'board .'
+      'board rotate'
+      'spells spells'
+      'controls controls';
+    row-gap: var(--gap);
+    column-gap: var(--gap);
+    padding: max(var(--pad), env(safe-area-inset-top)) max(var(--pad), env(safe-area-inset-right))
+      max(var(--pad), env(safe-area-inset-bottom)) max(var(--pad), env(safe-area-inset-left));
+    border: 0;
+    border-radius: 0;
+    overflow: hidden;
+  }
+
+  body.touch-buttons .battle {
+    --controls-h: 48px;
+  }
+
+  .battle-side,
+  .actions-panel {
+    display: contents;
+  }
+
+  #stage-canvas {
+    grid-area: stage;
+    justify-self: start;
+    width: calc(100% - var(--tools-w) - var(--gap));
+    height: var(--strip-h);
+    object-fit: contain;
+    background: none;
+  }
+
+  .battle.has-frame {
+    --frame-h: 32px;
+  }
+
+  .board-frame {
+    grid-area: frame;
+    max-width: none;
+    padding: 2px 6px;
+    font-size: 11px;
+    overflow: hidden;
+  }
+
+  .battle.has-frame .battle-side {
+    grid-row: auto;
+    grid-column: auto;
+  }
+
+  #giveup-button {
+    margin: 0;
+    padding: 0 4px;
+  }
+
+  .battle-board {
+    grid-area: board;
+    align-self: center;
+    padding: 3px;
+  }
+
+  #board-canvas {
+    height: var(--board-h);
+    width: calc(var(--board-h) / 2);
+  }
+
+  /* Pause and items: small icons in two rows at the right of the enemy strip. */
+  .battle-tools {
+    position: absolute;
+    top: max(var(--pad), env(safe-area-inset-top));
+    right: max(var(--pad), env(safe-area-inset-right));
+    z-index: 2;
+    /* Two rows of 44 px thumb targets: a hair taller than a small phone's strip, over the gap. */
+    height: max(var(--strip-h), 90px);
+    display: grid;
+    grid-template-rows: repeat(2, minmax(44px, 1fr));
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(44px, auto);
+    align-items: stretch;
+    gap: 2px 4px;
+  }
+
+  .battle-tools button {
+    min-width: 44px;
+    min-height: 44px;
+    height: 100%;
+  }
+
+  .battle-tools .items {
+    display: contents;
+  }
+
+  #pause-button {
+    order: -1;
+    margin: 0;
+    padding: 0 4px;
+    font-size: 13px;
+  }
+
+  .items .item-uses {
+    flex-direction: column;
+    justify-content: center;
+    gap: 0;
+    margin: 0;
+    font-size: 11px;
+  }
+
+  .items .item {
+    padding: 0 4px;
+    justify-content: center;
+    gap: 2px;
+  }
+
+  .items .item > span {
+    display: none;
+  }
+
+  .items .item .count {
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .hero-panel {
+    grid-area: hero;
+    padding: 5px;
+    gap: 6px;
+    align-content: start;
+  }
+
+  .hp-row {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      'next next'
+      'helper helper'
+      'icon bar'
+      'text text';
+    gap: 3px;
+  }
+
+  #next-canvas {
+    grid-area: next;
+    justify-self: center;
+    width: 100%;
+    max-width: 96px;
+    height: auto;
+  }
+
+  #battle-helper {
+    grid-area: helper;
+    justify-self: center;
+  }
+
+  #battle-hp-icon {
+    grid-area: icon;
+  }
+
+  .hp-row .bar {
+    grid-area: bar;
+  }
+
+  #battle-hp-text {
+    grid-area: text;
+    text-align: center;
+    font-size: 12px;
+  }
+
+  /* Mana as seven slim rows: icon, bar, amount. */
+  .hero-panel .mana-bars {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .hero-panel .mana-pool {
+    grid-template-columns: auto 1fr 14px;
+    align-items: center;
+    gap: 3px;
+    padding: 0;
+  }
+
+  .hero-panel .mana-track {
+    width: auto;
+    height: 6px;
+  }
+
+  .hero-panel .mana-track span {
+    height: 100% !important;
+    width: var(--fill, 0%);
+    transition: width 0.25s;
+  }
+
+  .hero-panel .mana-pool small {
+    font-size: 10px;
+    text-align: right;
+  }
+
+  .rotate-button {
+    grid-area: rotate;
+    justify-self: center;
+    display: block;
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 26px;
+    background: #353c63cc;
+  }
+
+  /* The spell slots: one slim strip of seven icons (names show in a category's popover). */
+  .spells {
+    grid-area: spells;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-auto-rows: 100%;
+    gap: 4px;
+  }
+
+  .spells:not(.menu-open) .spell {
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 1px;
+  }
+
+  .spells:not(.menu-open) .spell b,
+  .spells:not(.menu-open) .spell .spell-meta,
+  .spells .spell kbd {
+    display: none;
+  }
+
+  .spells:not(.menu-open) .spell .level-pips {
+    margin: 1px 0 0;
+  }
+
+  .spells:not(.menu-open) .spell .more {
+    top: 1px;
+    right: 3px;
+  }
+
+  /*
+   * An open category: a one-row popover over the enemy strip, never over
+   * the board (it closes when the board is touched or a new piece comes).
+   */
+  .spells.menu-open {
+    grid-area: auto; /* so it sits against the battle, not inside the strip's grid cell */
+    position: absolute;
+    left: max(var(--pad), env(safe-area-inset-left));
+    right: max(var(--pad), env(safe-area-inset-right));
+    top: max(var(--pad), env(safe-area-inset-top));
+    height: var(--strip-h);
+    z-index: 3;
+    grid-template-columns: none;
+    grid-template-rows: minmax(0, 1fr);
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(68px, 1fr);
+    grid-auto-rows: auto !important;
+    min-height: 0 !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px;
+    background: var(--panel);
+    border: 1px solid var(--gold);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px #000a;
+  }
+
+  .spells.menu-open .spell {
+    min-height: 0;
+    overflow: hidden;
+    padding: 3px 6px;
+    gap: 1px;
+  }
+
+  .spells.menu-open .spell.back {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .battle .controls {
+    display: none;
+  }
+
+  body.touch-buttons .battle .controls {
+    grid-area: controls;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+
+  .battle .controls button {
+    padding: 0;
+    font-size: 18px;
+    border-radius: 12px;
+  }
+}
+
+/* A phone held sideways: no room for the one-screen battle, so it scrolls instead. */
+@media (max-width: 760px) and (max-height: 500px) {
+  main {
+    height: auto;
+  }
+
+  .battle {
+    --board-h: 440px;
+  }
+}
+
+/* The rotate button is for touch: a mouse or keyboard has its own. */
+@media (pointer: fine) {
+  .rotate-button {
+    display: none !important;
+  }
+}
+
+/* ------------------------------------------------------ class select --- */
+
+.class-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.class-card {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  text-align: left;
+}
+
+.class-card > canvas {
+  flex: none;
+  width: 72px;
+  height: 72px;
+  background: #10132a;
+  border-radius: 6px;
+}
+
+.class-card small {
+  display: block;
+  color: var(--muted);
+}
+
+@media (max-width: 760px) {
+  .class-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.hud .mana-track {
+  height: 18px;
+  width: 10px;
+}
+
+.hud .mana-bars {
+  gap: 3px;
+}
+
+/* ----------------------------------------------------------- screens --- */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.chip-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+}
+
+.chip-value.up {
+  color: var(--good);
+}
+
+.chip-value.down {
+  color: var(--bad);
+}
+
+.portrait {
+  image-rendering: pixelated;
+  flex: none;
+}
+
+.speech {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.speaker {
+  position: relative;
+  flex: none;
+}
+
+.speaker > .icon {
+  position: absolute;
+  top: 0;
+  right: -6px;
+}
+
+.extras {
+  display: flex;
+  gap: 12px;
+  padding: 2px 8px;
+  border: 2px solid var(--gold);
+  border-radius: 6px;
+}
+
+.shop-card.secret {
+  border-color: var(--gold);
+}
+
+.bubble {
+  position: relative;
+  margin: 0 0 24px;
+  padding: 10px 12px;
+  background: #f4efe2;
+  color: #2a2234;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+.bubble::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  bottom: 12px;
+  border: 8px solid transparent;
+  border-right-color: #f4efe2;
+  border-left: 0;
+}
+
+.deal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.challenge-card,
+.rewards {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--panel-deep);
+  border-radius: 8px;
+}
+
+.challenge-card.missing {
+  margin-top: 12px;
+  opacity: 0.7;
+}
+
+.deal-arrow {
+  font-size: 22px;
+  color: var(--gold);
+}
+
+.price-gauge {
+  display: inline-block;
+  width: 70px;
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #6ff08f, #f5d77b, #ff5c7a);
+}
+
+.line-pips {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.line-pips span {
+  width: 22px;
+  height: 8px;
+  background: #61d9e8;
+  border-radius: 2px;
+}
+
+.gains {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.gain {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 18px;
+  animation: rise 0.4s ease-out both;
+}
+
+.gain:nth-child(2) {
+  animation-delay: 0.12s;
+}
+.gain:nth-child(3) {
+  animation-delay: 0.24s;
+}
+.gain:nth-child(4) {
+  animation-delay: 0.36s;
+}
+.gain:nth-child(5) {
+  animation-delay: 0.48s;
+}
+
+.gain.level-up {
+  color: var(--gold);
+}
+
+.gain.loss {
+  color: var(--bad);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.section-title {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.hero-card {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.alignment-star {
+  margin-left: auto;
+  image-rendering: pixelated;
+}
+
+.hero-card h2 {
+  margin: 0;
+}
+
+.hero-card p {
+  margin: 0 0 6px;
+}
+
+.xp-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.slots {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.slot {
+  padding: 6px;
+  background: var(--panel-deep);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.slot.empty {
+  opacity: 0.25;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 52px);
+  gap: 6px;
+}
+
+.tile {
+  position: relative;
+  padding: 6px;
+}
+
+.tile .count {
+  position: absolute;
+  right: 3px;
+  bottom: 1px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.item-detail:not(:empty) {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--panel-deep);
+  border-radius: 8px;
+}
+
+.item-detail p {
+  margin: 2px 0 0;
+}
+
+.spell-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+}
+
+.spell-tile {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 6px;
+  background: var(--panel-deep);
+  border-radius: 8px;
+}
+
+.spell-tile b {
+  display: block;
+}
+
+/* A mentor's lessons: one button per spell or level they can teach. */
+.lessons {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.lesson {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  text-align: left;
+}
+
+.lesson b {
+  display: block;
+}
+
+.difficulty {
+  display: flex;
+  gap: 2px;
+}
+
+/* Where to find the mentor of a locked category: their face and the place. */
+.lock-hint {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.spell-tile .lock-hint {
+  flex-basis: 100%;
+}
+
+.lock-hint .portrait {
+  width: 24px;
+  height: 24px;
+}
+
+/* A spell ready for its next level glows until a mentor teaches it. */
+.spell-tile.ready,
+.spell-row.ready {
+  box-shadow:
+    0 0 0 1px var(--gold),
+    0 0 10px #f5d77b66;
+}
+
+.shop-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 8px;
+}
+
+.shop-cards {
+  display: grid;
+  gap: 6px;
+}
+
+.shop-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  text-align: left;
+}
+
+.shop-info b {
+  display: block;
+}
+
+.shop-price {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.shop-price s {
+  color: var(--muted);
+}
+
+dialog {
+  width: min(560px, calc(100vw - 32px));
+}
+
+/* ------------------------------------------------------------- story --- */
+
+/* A stage direction in a line: italic narration, a shade softer than the words. */
+em.stage {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+#world-banner em.stage {
+  color: var(--muted);
+  opacity: 1;
+}
+
+/* An interlude (the Wyrm's visions and lair): the whole screen goes dark. */
+dialog.interlude[open] {
+  width: 100vw;
+  max-width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: radial-gradient(ellipse at center, #1a1640 0%, #05060d 70%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+dialog.interlude::backdrop {
+  background: #000;
+}
+
+dialog.interlude h2 {
+  color: var(--muted);
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+dialog.interlude #dialog-body {
+  max-width: 34em;
+  flex: 0 1 auto;
+}
+
+.interlude-text {
+  font-size: 19px;
+  line-height: 1.6;
+  text-align: center;
+  margin: 0 0 24px;
+}
+
+.interlude-text em.stage {
+  display: block;
+  margin-bottom: 12px;
+  color: #b8b0e8;
+  opacity: 1;
+}
+
+.interlude-speaker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 12px;
+  color: var(--muted);
+}
+
+.interlude-hint {
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+dialog.interlude .actions {
+  justify-content: center;
+}
+
+/* ------------------------------------------------------------ skills --- */
+
+/* Unspent skill points: a badge on the menu button and on the Skills action. */
+#menu-button {
+  position: relative;
+}
+
+#menu-button[data-points]::after {
+  content: attr(data-points);
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  padding: 1px 4px;
+  border-radius: 9px;
+  background: var(--gold);
+  color: #2a2234;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 16px;
+}
+
+.badge {
+  display: inline-block;
+  margin-left: 6px;
+  min-width: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--gold);
+  color: #2a2234;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 18px;
+}
+
+.stat-strip {
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.skill-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  min-height: 28px;
+}
+
+.skill-points b {
+  margin-left: 6px;
+  font-size: 18px;
+  color: var(--gold);
+}
+
+.skill-points .spent {
+  opacity: 0.25;
+}
+
+.stat-rows {
+  display: grid;
+  gap: 6px;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: auto minmax(110px, 1fr) minmax(90px, auto) auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 8px;
+  background: var(--panel-deep);
+  border: 1px solid transparent;
+  border-radius: 8px;
+}
+
+.stat-row.staged {
+  border-color: var(--good);
+}
+
+/* A stat with no ranks yet: its effect shows faintly. */
+.stat-row .chips.none {
+  opacity: 0.4;
+}
+
+.stat-name b {
+  display: block;
+  font-size: 13px;
+}
+
+.rank-pips {
+  display: flex;
+  gap: 3px;
+}
+
+.rank-pips .pip {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #2a2f4d;
+}
+
+.rank-pips .pip.milestone {
+  box-shadow: 0 0 0 1px var(--gold);
+}
+
+.rank-pips .pip.on {
+  background: var(--gold);
+}
+
+.rank-pips .pip.staged {
+  background: var(--good);
+}
+
+.stat-row .step {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+@media (max-width: 760px) {
+  /* Compact rows so all eight stats and the actions fit a phone screen. */
+  .stat-rows {
+    gap: 4px;
+  }
+
+  .stat-row {
+    grid-template-columns: auto 1fr auto auto;
+    gap: 2px 6px;
+    padding: 3px 6px;
+  }
+
+  .stat-row .stat-name {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .stat-row .stat-name b {
+    font-size: 12px;
+  }
+
+  .stat-row .rank-pips {
+    gap: 2px;
+  }
+
+  .stat-row .rank-pips .pip {
+    width: 7px;
+    height: 7px;
+  }
+
+  .stat-row .chips {
+    gap: 8px;
+  }
+
+  .stat-row > .icon,
+  .stat-row .step {
+    grid-row: 1 / span 2;
+  }
+
+  .stat-row .stat-name,
+  .stat-row .chips {
+    grid-column: 2;
+  }
+
+  .stat-row .step:first-of-type {
+    grid-column: 3;
+  }
+
+  .stat-row .step:last-of-type {
+    grid-column: 4;
+  }
+}
+
+/* ------------------------------------------------------ skill spells --- */
+
+.spell-rows {
+  display: grid;
+  gap: 6px;
+}
+
+.spell-row {
+  display: grid;
+  gap: 6px;
+  padding: 6px 8px;
+  background: var(--panel-deep);
+  border: 1px solid transparent;
+  border-radius: 8px;
+}
+
+.spell-row.staged {
+  border-color: var(--good);
+}
+
+.spell-row.max .stat-name {
+  opacity: 0.6;
+}
+
+.spell-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.spell-head .stat-name {
+  flex: 1;
+}
+
+.spell-head .stat-name b {
+  display: block;
+  font-size: 13px;
+}
+
+.step-pips .pip {
+  border-radius: 2px;
+}
+
+.spell-attributes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+/* Icon and value, then pips, then − and +. */
+.spell-attribute {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  align-items: center;
+  padding: 4px;
+  border: 1px solid #2a2f4d;
+  border-radius: 6px;
+}
+
+.spell-attribute.staged {
+  border-color: var(--good);
+}
+
+.attribute-head,
+.spell-attribute .rank-pips {
+  grid-column: 1 / -1;
+}
+
+.attribute-head {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.attribute-head .efficiency {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.attribute-head .efficiency .cost {
+  color: var(--muted);
+}
+
+.spell-attribute .rank-pips {
+  min-height: 9px;
+}
+
+.spell-attribute .step {
+  width: 100%;
+  height: 36px;
+  padding: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+@media (max-width: 760px) {
+  .spell-row {
+    padding: 4px 6px;
+  }
+
+  .spell-attributes {
+    gap: 4px;
+  }
+
+  .spell-attribute .rank-pips .pip {
+    width: 7px;
+    height: 7px;
+  }
+}
+
+/* A hidden spell the hero doesn't know: a dark silhouette with a faint hint
+   of what reveals it; once revealed, lit in its element's colour with the
+   mentor who teaches it. */
+.hidden-spell {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 4px 6px;
+  background: var(--panel-deep);
+  border: 1px dashed #2a2f4d;
+  border-radius: 8px;
+}
+
+.hidden-spell .hint {
+  opacity: 0.5;
+}
+
+.hidden-spell .progress-pips {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--gold);
+}
+
+.hidden-spell.unlocked {
+  border: 1px solid var(--glow);
+  box-shadow: 0 0 10px var(--glow);
+}
+
+.hidden-spell .portrait {
+  width: 32px;
+  height: 32px;
+}
+
+/* A mentor asks for an item: the item, an arrow and the mentor's face. */
+.gift-offer {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+}
+
+.shop-sell {
+  margin: 14px 0 6px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.epilogue-hero {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.epilogue-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 18px;
+  color: var(--gold);
+}
+
+.epilogue-mentors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0;
+}
+
+/* ------------------------------------------------------ phone sheets --- */
+
+/*
+ * On a phone every dialog is a bottom sheet: full width, up to nearly the
+ * whole screen, its body scrolling inside and its actions pinned at the
+ * bottom where a thumb reaches them, each at least 48px tall.
+ */
+@media (max-width: 760px) {
+  dialog {
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100dvh - max(16px, env(safe-area-inset-top)));
+    margin: auto 0 0;
+    padding: 14px max(14px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom))
+      max(14px, env(safe-area-inset-left));
+    border-width: 1px 0 0;
+    border-radius: 16px 16px 0 0;
+    overflow: hidden;
+  }
+
+  dialog[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  dialog h2 {
+    flex: none;
+    margin-bottom: 8px;
+  }
+
+  #dialog-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  dialog .actions {
+    flex: none;
+    margin-top: 10px;
+    gap: 6px;
+  }
+
+  dialog .actions button {
+    flex: 1 1 28%;
+    min-height: 48px;
+    min-width: 0;
+    padding: 6px 8px;
+  }
+
+  #dialog-body button {
+    min-height: 44px;
+  }
+
+  .shop-card,
+  .lesson {
+    gap: 8px;
+  }
+}
+
+/* Less motion: no shakes, pops or slides (the stage's own shake and drift stop too). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

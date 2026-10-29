@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="Mana Crystals: a falling-block fantasy RPG." />
+    <link rel="icon" href="data:," />
+    <title>Mana Crystals</title>
+  </head>
+  <body>
+    <main id="app">
+      <header class="hud" aria-label="Hero status">
+        <div class="hud-name"><b id="hud-name"></b> <span id="hud-level"></span></div>
+        <div class="hud-meter">
+          <span id="hud-hp-icon"></span>
+          <div class="bar"><span id="hud-hp-bar"></span></div>
+          <small id="hud-hp"></small>
+        </div>
+        <div class="hud-meter" id="hud-xp">
+          <span id="hud-xp-icon"></span>
+          <div class="bar xp"><span id="hud-xp-bar"></span></div>
+        </div>
+        <div class="hud-gil" title="Gil"><span id="hud-gil-icon"></span><b id="hud-gil"></b></div>
+        <div class="hud-place" id="hud-place"></div>
+        <button
+          id="menu-button"
+          type="button"
+          aria-haspopup="dialog"
+          aria-label="Menu"
+          title="Menu (M)"
+        ></button>
+      </header>
+
+      <section id="world-view" class="view" aria-label="World">
+        <canvas id="world-canvas" width="640" height="416"></canvas>
+        <div id="world-banner" class="world-banner" role="status" aria-live="polite"></div>
+        <div id="touch-pad" class="touch-pad" aria-label="Touch movement">
+          <button type="button" data-dir="up" aria-label="Walk up">▲</button>
+          <button type="button" data-dir="left" aria-label="Walk left">◀</button>
+          <button type="button" data-dir="down" aria-label="Walk down">▼</button>
+          <button type="button" data-dir="right" aria-label="Walk right">▶</button>
+        </div>
+      </section>
+
+      <section id="battle-view" class="view battle" aria-label="Battle" hidden>
+        <div id="board-frame" class="board-frame" role="status" hidden>
+          <span id="frame-objective"></span><b id="frame-counter"></b>
+        </div>
+        <div class="battle-board">
+          <canvas
+            id="board-canvas"
+            width="300"
+            height="600"
+            aria-label="Board: tap to rotate, drag sideways to move, drag down to drop, flick down to slam"
+          ></canvas>
+        </div>
+        <div class="battle-side">
+          <canvas id="stage-canvas" width="480" height="240" aria-hidden="true"></canvas>
+          <div class="panel hero-panel">
+            <div class="hp-row">
+              <span id="battle-hp-icon"></span>
+              <div class="bar"><span id="battle-hp-fill"></span></div>
+              <b id="battle-hp-text"></b>
+              <span id="battle-helper" class="helper" hidden></span>
+              <canvas id="next-canvas" width="96" height="56" aria-label="Next piece"></canvas>
+            </div>
+            <div id="battle-mana" aria-label="Elemental mana"></div>
+          </div>
+          <div class="panel actions-panel" id="actions-panel">
+            <div id="spell-list" class="spells"></div>
+          </div>
+          <div class="battle-tools">
+            <div id="battle-items" class="items"></div>
+            <button type="button" id="pause-button" aria-label="Pause" title="P">❚❚</button>
+            <button type="button" id="giveup-button" aria-label="Give up" title="Give up" hidden>
+              ✕
+            </button>
+          </div>
+          <button
+            type="button"
+            id="rotate-button"
+            class="rotate-button"
+            data-battle="rotate"
+            aria-label="Rotate"
+            title="Up arrow"
+          >
+            ↻
+          </button>
+          <div class="controls" aria-label="Move buttons">
+            <button type="button" data-battle="left" aria-label="Move left" title="Left arrow">
+              ◀
+            </button>
+            <button type="button" data-battle="rotate" aria-label="Rotate" title="Up arrow">
+              ↻
+            </button>
+            <button type="button" data-battle="right" aria-label="Move right" title="Right arrow">
+              ▶
+            </button>
+            <button type="button" data-battle="softDrop" aria-label="Soft drop" title="Down arrow">
+              ▽
+            </button>
+            <button type="button" data-battle="hardDrop" aria-label="Hard drop" title="Space">
+              ▼
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <dialog id="dialog" aria-labelledby="dialog-title">
+        <h2 id="dialog-title"></h2>
+        <div id="dialog-body"></div>
+        <div id="dialog-actions" class="actions"></div>
+      </dialog>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

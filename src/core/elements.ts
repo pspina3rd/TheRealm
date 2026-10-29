@@ -1,0 +1,121 @@
+/**
+ * The seven elements. Every piece shape has one, shown by its crystal
+ * colour: clearing crystals fills that element's mana, and each cleared
+ * line triggers the effect of its strongest element.
+ */
+import type { CellTally } from './board';
+import { PIECES, isCrystal, type Cell, type CrystalColor, type PieceName } from './pieces';
+
+export const ELEMENTS = [
+  'fire',
+  'water',
+  'lightning',
+  'nature',
+  'earth',
+  'arcane',
+  'wind',
+] as const;
+export type Element = (typeof ELEMENTS)[number];
+
+/** Which element each crystal colour carries. */
+export const ELEMENT_OF_COLOR: Readonly<Record<CrystalColor, Element>> = {
+  red: 'fire',
+  blue: 'water',
+  gold: 'lightning',
+  green: 'nature',
+  orange: 'earth',
+  violet: 'arcane',
+  cyan: 'wind',
+};
+
+export const ELEMENT_NAMES: Readonly<Record<Element, string>> = {
+  fire: 'Fire',
+  water: 'Water',
+  lightning: 'Lightning',
+  nature: 'Nature',
+  earth: 'Earth',
+  arcane: 'Arcane',
+  wind: 'Wind',
+};
+
+/** The piece shape that carries each element. */
+export function pieceOfElement(element: Element): PieceName {
+  const piece = Object.values(PIECES).find((p) => ELEMENT_OF_COLOR[p.color] === element);
+  if (!piece) throw new Error(`No piece for ${element}`);
+  return piece.name;
+}
+
+/** A count per element, e.g. mana pools or crystals in a line. */
+export type ElementCounts = Record<Element, number>;
+
+export function emptyCounts(value = 0): ElementCounts {
+  return Object.fromEntries(ELEMENTS.map((e) => [e, value])) as ElementCounts;
+}
+
+/** Converts a colour tally (from cleared cells) into element counts. Stone and neutral cells count as nothing. */
+export function elementsOf(tally: CellTally): ElementCounts {
+  const counts = emptyCounts();
+  for (const [color, count] of Object.entries(tally)) {
+    if (isCrystal(color as Cell)) counts[ELEMENT_OF_COLOR[color as CrystalColor]] += count ?? 0;
+  }
+  return counts;
+}
+
+/**
+ * The element with the most crystals, and how many. Ties go to the element
+ * listed first in `ELEMENTS`. Returns null when there are no crystals.
+ */
+export function dominantElement(
+  counts: Readonly<ElementCounts>,
+): { element: Element; count: number } | null {
+  let best: { element: Element; count: number } | null = null;
+  for (const element of ELEMENTS) {
+    if (counts[element] > (best?.count ?? 0)) best = { element, count: counts[element] };
+  }
+  return best;
+}
+
+// ----------------------------------------------------------------- chart ---
+
+/**
+ * The element chart: each element is strong against exactly two others.
+ * Everything else about how elements relate is derived from this table.
+ */
+export const STRONG_AGAINST: Readonly<Record<Element, readonly [Element, Element]>> = {
+  fire: ['nature', 'arcane'],
+  water: ['fire', 'earth'],
+  earth: ['lightning', 'wind'],
+  nature: ['earth', 'water'],
+  lightning: ['water', 'wind'],
+  wind: ['fire', 'arcane'],
+  arcane: ['nature', 'lightning'],
+};
+
+/** How element `other` stands toward `element`. */
+export type ElementRelation = 'same' | 'strong' | 'weak' | 'related';
+
+/** The elements that are strong against `element` (its opposed elements). */
+export function weakTo(element: Element): Element[] {
+  return ELEMENTS.filter((other) => STRONG_AGAINST[other].includes(element));
+}
+
+/**
+ * How `other` relates to `element`: `strong` if `element` beats it, `weak` if
+ * it beats `element`, otherwise `related` (the neutral pair).
+ */
+export function relationOf(element: Element, other: Element): ElementRelation {
+  if (other === element) return 'same';
+  if (STRONG_AGAINST[element].includes(other)) return 'strong';
+  if (STRONG_AGAINST[other].includes(element)) return 'weak';
+  return 'related';
+}
+
+/** The two neutral elements, neither beating nor beaten by `element`. */
+export function relatedTo(element: Element): Element[] {
+  return ELEMENTS.filter((other) => relationOf(element, other) === 'related');
+}
+
+/** The crystal colour that carries `element` (e.g. fire → red). */
+export function colorOfElement(element: Element): CrystalColor {
+  return PIECES[pieceOfElement(element)].color;
+}

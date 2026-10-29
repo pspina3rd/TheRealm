@@ -1,0 +1,7 @@
+dist
+coverage
+node_modules
+package-lock.json
+
+# The author's story script, kept exactly as written
+docs/STORY.md
