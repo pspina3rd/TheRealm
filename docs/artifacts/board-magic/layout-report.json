@@ -1,0 +1,46 @@
+[
+  {
+    "width": 640,
+    "height": 360,
+    "hasTouch": true,
+    "fullBoard": true,
+    "noOverlap": true,
+    "stableControls": true,
+    "windAndArcaneFit": true,
+    "touchTargets": true,
+    "errors": []
+  },
+  {
+    "width": 844,
+    "height": 390,
+    "hasTouch": true,
+    "fullBoard": true,
+    "noOverlap": true,
+    "stableControls": true,
+    "windAndArcaneFit": true,
+    "touchTargets": true,
+    "errors": []
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "hasTouch": true,
+    "fullBoard": true,
+    "noOverlap": true,
+    "stableControls": true,
+    "windAndArcaneFit": true,
+    "touchTargets": true,
+    "errors": []
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "hasTouch": false,
+    "fullBoard": true,
+    "noOverlap": true,
+    "stableControls": true,
+    "windAndArcaneFit": true,
+    "touchTargets": true,
+    "errors": []
+  }
+]

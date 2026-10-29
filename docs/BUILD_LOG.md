@@ -517,3 +517,24 @@ Blank blocks are colorless; stone has texture and damage cracks, retaining
 strength pips and colored contact indicators. Gameplay rules are unchanged by
 this artwork pass. Checks cover actual phone touch gestures, held Down, keyboard
 movement, aim/cast/cancel, and the main adventure regression.
+
+## October 29 — rebuild the encounter composition
+
+Responded to the author's layout feedback with distinct desktop, portrait touch,
+and short-landscape arrangements. Spells and mana remain beside the board; Slime
+has a recognizable portrait and an action timer. Casting details, target/result,
+comparison, Cancel, and confirmation share a persistent action area. Movement
+controls retain their positions while aiming and are disabled during the freeze.
+The six spell buttons and Elements/Arcane tabs stay visible.
+
+Retained explicit confirmation while validating the layout. Useful target rows
+light up; copied board state shows the result using game artwork, and Before /
+Result comparison never mutates the real board. Spell buttons show cost and held
+mana, with Arcane's additional resource displayed separately. The story remains
+the place to introduce spells; this fixture does not replace those scenes.
+
+The AI game UI/UX review and saved evidence are documented in
+`WORKSHOP_UI_REVIEW.md`. Touch interaction checks cover two phone sizes; separate
+checks cover tablet, wide desktop, and two landscape sizes, including Wind and
+Arcane. The full automated suite, lint, and build passed. Hands-on author
+acceptance remains open; campaign activation is unchanged.

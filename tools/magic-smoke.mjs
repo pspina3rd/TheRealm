@@ -58,14 +58,24 @@ try {
     const boardBox = await board.boundingBox(),
       stripBox = await page.locator('.spell-strip').boundingBox(),
       controlsBox = await page.locator('.control-dock').boundingBox();
+    const disjoint = (a, b) =>
+      a &&
+      b &&
+      (a.x + a.width <= b.x + 1 ||
+        b.x + b.width <= a.x + 1 ||
+        a.y + a.height <= b.y + 1 ||
+        b.y + b.height <= a.y + 1);
     assert(
-      boardBox &&
-        stripBox &&
-        controlsBox &&
-        boardBox.y + boardBox.height <= stripBox.y + 1 &&
-        stripBox.y + stripBox.height <= controlsBox.y + 1,
-      'Full board and controls must not overlap.',
+      disjoint(boardBox, stripBox) &&
+        disjoint(boardBox, controlsBox) &&
+        disjoint(stripBox, controlsBox),
+      'Board, spells and movement controls must not overlap.',
     );
+    const spellButtons = page.locator('.spell-strip button');
+    assert.equal(await spellButtons.count(), 6);
+    assert.equal(await page.locator('.spell-price').filter({ hasText: 'held' }).count(), 6);
+    for (const node of await spellButtons.all()) assert(await node.isVisible());
+    const stableControls = await page.locator('.piece-controls').boundingBox();
     assert.equal(
       await page.evaluate(
         () =>
@@ -146,7 +156,25 @@ try {
     const trigger = page.getByRole('button', { name: 'Lightning', exact: true });
     if (touchscreen) await trigger.tap();
     else await trigger.click();
+    await page.waitForFunction(
+      () => document.querySelector('.mode-badge')?.textContent === 'Aiming',
+      undefined,
+      { timeout: 2000 },
+    );
     assert.equal(await badge.innerText(), 'Aiming');
+    assert.deepEqual(
+      await page.locator('.piece-controls').boundingBox(),
+      stableControls,
+      'Movement buttons must retain their positions during aiming.',
+    );
+    assert.equal(
+      await page.getByRole('button', { name: 'Soft drop', exact: true }).isDisabled(),
+      true,
+    );
+    assert.equal(
+      await page.getByRole('button', { name: 'Cast Lightning', exact: true }).isDisabled(),
+      true,
+    );
     const aimed = await position(page),
       clock = await page.locator('.opponent').innerText();
     await page.waitForTimeout(1100);
@@ -167,10 +195,27 @@ try {
       'An Aim-mode touch chooses a row without rotating.',
     );
     assert.equal(await page.locator('.magic-row.selected').count(), 2);
-    assert.equal(await page.getByRole('button', { name: 'Cast', exact: true }).isEnabled(), true);
+    assert.equal(
+      await page.getByRole('button', { name: 'Cast Lightning', exact: true }).isEnabled(),
+      true,
+    );
+    assert.match(await page.locator('.casting-guide').innerText(), /Preview/);
+    const uncastState = await board
+      .locator('.magic-square')
+      .evaluateAll((nodes) => nodes.map((n) => n.getAttribute('aria-label')));
+    await page.getByRole('button', { name: 'Show original board', exact: true }).click();
+    assert.match(await page.locator('.casting-guide').innerText(), /Before/);
+    await page.getByRole('button', { name: 'Show spell result', exact: true }).click();
+    assert.deepEqual(
+      await board
+        .locator('.magic-square')
+        .evaluateAll((nodes) => nodes.map((n) => n.getAttribute('aria-label'))),
+      uncastState,
+      'Preview comparison cannot mutate the actual board.',
+    );
     await page.screenshot({ path: `${out}/${width}-preview.png`, fullPage: true });
     const obstructions = await page.locator('.obstruction').count();
-    if (touchscreen) await page.getByRole('button', { name: 'Cast', exact: true }).tap();
+    if (touchscreen) await page.getByRole('button', { name: 'Cast Lightning', exact: true }).tap();
     else await page.keyboard.press('Enter');
     assert.equal(await badge.innerText(), 'Playing');
     assert((await page.locator('.obstruction').count()) < obstructions);
@@ -193,7 +238,53 @@ try {
         .evaluateAll((nodes) => nodes.map((n) => n.getAttribute('aria-label'))),
       cancelState,
     );
-    await page.getByRole('button', { name: 'Arcane', exact: true }).click();
+    // Exercise the most crowded target options and a character-targeted spell.
+    const exercise = async (title) => {
+      await page.getByRole('button', { name: 'Exercises', exact: true }).click();
+      await page.getByRole('button', { name: title, exact: true }).click();
+    };
+    await exercise('Push the block into place');
+    await page.getByRole('button', { name: 'Wind', exact: true }).click();
+    const windBox = await board.boundingBox();
+    await page.mouse.click(windBox.x + windBox.width * 0.45, windBox.y + windBox.height * 0.925);
+    await page.getByRole('button', { name: 'Wind left', exact: true }).click();
+    assert.match(await page.locator('.casting-guide').innerText(), /left/);
+    await page.getByRole('button', { name: 'Wind right', exact: true }).click();
+    assert.match(await page.locator('.casting-guide').innerText(), /right/);
+    await page.screenshot({ path: `${out}/${width}-wind.png`, fullPage: true });
+    const tools = await page.locator('.aim-controls').boundingBox(),
+      action = await page.locator('.action-area').boundingBox();
+    assert(
+      tools.x >= action.x && tools.x + tools.width <= action.x + action.width + 1,
+      'Wind options must fit within the casting area.',
+    );
+    await page.getByRole('button', { name: 'Cast Wind', exact: true }).click();
+    assert.equal(await page.locator('.goal-panel strong').innerText(), 'Exercise complete');
+    await exercise('Turn obstacles into usable blocks');
+    await page.getByRole('button', { name: 'Nature', exact: true }).click();
+    const natureBox = await board.boundingBox();
+    await page.mouse.click(
+      natureBox.x + natureBox.width * 0.75,
+      natureBox.y + natureBox.height * 0.975,
+    );
+    await page.getByRole('button', { name: 'Cast Nature', exact: true }).click();
+    assert.equal(await page.locator('.magic-square[aria-label="neutral"]').count(), 1);
+    await page.screenshot({ path: `${out}/${width}-nature.png`, fullPage: true });
+    await exercise('Change what Slime sends');
+    await page.getByRole('button', { name: 'Arcane + Nature', exact: true }).click();
+    assert.equal(await page.locator('.opponent.character-target').count(), 1);
+    assert.equal(await page.locator('.board-target').count(), 0);
+    await page.screenshot({ path: `${out}/${width}-arcane.png`, fullPage: true });
+    await page.getByRole('button', { name: 'Cast Arcane Nature', exact: true }).click();
+    assert.match(await page.locator('.effect-status').innerText(), /1 blank sends/);
+    if (width === 390) {
+      await page.waitForFunction(
+        () => document.querySelectorAll('.magic-square[aria-label="neutral"]').length > 0,
+        undefined,
+        { timeout: 12000 },
+      );
+    }
+
     await page.keyboard.press('9');
     assert.equal(await badge.innerText(), 'Playing', 'Invalid spell slots are ignored.');
     const sizes = await page
@@ -220,6 +311,12 @@ try {
       resumesPlay: true,
       cancelNoMutation: true,
       noOverlap: true,
+      stableMovementControls: true,
+      manaVisible: true,
+      compareDoesNotMutate: true,
+      windOptionsFit: true,
+      natureMakesBlank: true,
+      arcaneTargetsOpponent: true,
       ...touchChecks,
       errors,
     });

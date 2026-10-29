@@ -3,34 +3,57 @@
 On GetPutTaco, run `npm install` and `npm run dev`, then open
 **http://localhost:5173/workshop.html** (or the port Vite prints).
 
-The workshop opens with a live, full-height board: falling pieces, landing ghost,
-Slime placing obstructions, and an ally occasionally supplying blank blocks.
-Your adventure save is separate, with practice mana and Arcane pairs provided.
+On desktop, your spellbook sits beside the board, with Slime and the objective
+opposite it. On a phone, Slime and the objective move into the top encounter bar,
+spells form a vertical rail, and movement controls stay at the bottom. Landscape
+touch screens use the side panels to leave more height for the board.
+
+## Play and cast
 
 - **Keyboard:** Left/Right move, Down soft drops, Up or X rotates, Space drops.
 - **Touch:** tap the board to rotate, drag to move, drag down to soft drop, flick
-  down to drop. The buttons below the spells provide the same actions; hold
-  Left, Right or Down to repeat.
-- **Spells:** select a spell, then tap or drag to choose its target row. The gold
-  band shows the affected rows; the side panel states rank, effect and mana cost.
-  Aiming pauses the action. **Cast** commits once and resumes play; **Cancel** or
-  Escape returns without spending mana. Character-targeted Arcane spells instead
-  highlight Slime. Row arrows and Enter also work while aiming.
-- **Pause** or P freezes play separately. **Reset** starts over.
-- **Exercises** offers seven focused scenarios. These use the same live physics;
-  read the goal and choose **Next exercise** after completing it.
+  down to drop. Movement buttons support the same actions; hold Left, Right or
+  Down to repeat.
+- **Choose a spell beside the board.** Its cost, held mana, and mana bar are
+  visible on its button. The Elements and Arcane tabs stay available. Arcane's
+  additional shared mana cost is shown above its spell list.
+- **Choose the target.** Useful rows light up; tap or drag across the board to
+  select an affected band. The game pauses while aiming. The board shows the
+  actual result preview, and the action area describes what will change.
+  **Before / Result** compares the current board with the preview. The arrow
+  keys can also adjust a row target; Wind has explicit Left/Right options.
+- **Cast [spell]** or Enter applies the result once and resumes play.
+  Character-targeted Arcane spells mark Slime instead of the board.
+  **Cancel** or Escape returns without spending mana.
+- Movement buttons remain in place during aiming and are disabled until play
+  resumes. **Pause** or P freezes play separately; **Reset** starts over.
+- **Exercises** offers seven focused scenarios using the same live physics.
+  Choose **Next exercise** after completing the objective.
 
-The board uses the adventure renderer and shared faceted crystal artwork.
-Colorless frosted blocks earn no mana. Weathered stone obstructions show strength
-pips, damage cracks, and colored contact edges where required.
+Practice mana and Arcane pairs are supplied; your adventure save is separate.
+The story remains where spells are introduced and their uses are taught. This
+fixture is for reviewing board interactions and the interface.
 
-This is a development-only review fixture. Main-campaign board-magic activation
-remains pending author playtesting.
+The board uses the adventure renderer and shared crystal artwork. Colorless
+blank blocks earn no mana. Stone obstructions show damage, strength pips, and
+colored contact edges where required.
 
-[Browser report](artifacts/board-magic/workshop-report.json),
-[phone view](artifacts/board-magic/phone-workshop.png),
-[desktop preview](artifacts/board-magic/desktop-preview.png),
-[blank-block view](artifacts/board-magic/phone-blank-block.png), and
-[adventure regression report](artifacts/board-magic/m1-regression-report.json)
-are saved. Browser checks exercise movement, held buttons, real touch gestures,
-aiming, cancellation and casting on two phone sizes and desktop.
+This is a development-only fixture. Main-campaign board-magic activation remains
+pending author playtesting.
+
+## Saved views and checks
+
+[Desktop](artifacts/board-magic/desktop-workshop.png) ·
+[Phone](artifacts/board-magic/phone-workshop.png) ·
+[Phone casting](artifacts/board-magic/phone-preview.png) ·
+[Wind](artifacts/board-magic/phone-wind.png) ·
+[Arcane](artifacts/board-magic/phone-arcane.png) ·
+[Landscape](artifacts/board-magic/landscape-workshop.png) ·
+[Blank blocks](artifacts/board-magic/phone-blank-block.png)
+
+The [interaction report](artifacts/board-magic/workshop-report.json) covers real
+touch gestures, held buttons, stable movement controls, comparison without
+mutation, exact casting costs, Wind, Nature, and Arcane. The
+[responsive layout report](artifacts/board-magic/layout-report.json) adds tablet,
+wide desktop, and landscape touch sizes. These checks support the review; the
+author's hands-on usability acceptance is still open.

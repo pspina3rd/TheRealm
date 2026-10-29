@@ -13,10 +13,11 @@ import { MAGIC_COLORS } from './magicTargeting';
 import { bindWorkshopInput, type WorkshopMode } from './workshopInput';
 import { button, el } from './dom';
 import { WorkshopBoardView } from './workshopBoardView';
+import { spellIntent, castConsequence } from './workshopCasting';
 import { iconElement } from './iconDraw';
 import { ELEMENT_ICONS } from './art/icons';
 import { Atlas } from './art/atlas';
-import { spritePortrait } from './screens/widgets';
+import { workshopPortrait } from './workshopPortrait';
 import './workshop.css';
 if (!import.meta.env.DEV) throw new Error('The workshop is a development review fixture.');
 const store: KeyValueStore = {
@@ -40,6 +41,21 @@ let battle: Battle,
   lastBoard = '',
   lastNext = '';
 let preview: CastPreview | null = null;
+let usefulRows: number[] = [],
+  showResult = true,
+  lastCast = '',
+  paletteResourceKey = '';
+const castingTitle = el('strong'),
+  castingStep = el('span');
+const castingGuide = el('section', { className: 'casting-guide' }, castingTitle, castingStep);
+castingGuide.setAttribute('role', 'status');
+const spellArea = el('div', { className: 'spell-area' });
+const arcaneResource = el('small', { className: 'arcane-resource' });
+const compareButton = button('Show original', () => {
+  showResult = !showResult;
+  refresh();
+});
+compareButton.classList.add('compare-result');
 const badge = el('span', { className: 'mode-badge' }),
   goal = el('p'),
   progress = el('strong'),
@@ -47,9 +63,6 @@ const badge = el('span', { className: 'mode-badge' }),
   enemy = el('section', { className: 'opponent' }),
   enemyClock = el('p'),
   effects = el('p', { className: 'effect-status' }),
-  spellName = el('h2'),
-  hint = el('p', { className: 'aim-hint' }),
-  outcome = el('p', { className: 'outcome' }),
   cost = el('p', { className: 'mana-cost' }),
   board = el('div', { className: 'board-surface' }),
   pauseOverlay = el('div', { className: 'pause-overlay' }),
@@ -57,22 +70,33 @@ const badge = el('span', { className: 'mode-badge' }),
   playControls = el('div', { className: 'piece-controls' }),
   aimControls = el('div', { className: 'aim-controls' }),
   stage = el('main', { className: 'playfield' });
+const boardWell = el('section', { className: 'board-well' });
+const enemyMeter = el('progress', { className: 'enemy-meter' });
+enemyMeter.max = 1;
+enemyMeter.setAttribute('aria-label', 'Time until Slime places an obstruction');
+const enemyIntent = el('span', { className: 'enemy-intent', text: 'Preparing stone' });
+const spellNodes = new Map<string, { price: HTMLElement; pool: HTMLProgressElement }>();
 board.setAttribute('aria-label', 'Battle board');
 board.setAttribute('role', 'region');
 badge.setAttribute('role', 'status');
-outcome.setAttribute('aria-live', 'polite');
 const pauseButton = button('Pause', () => togglePause()),
   resetButton = button('Reset', () => reset(exercise)),
   cancelButton = button('Cancel', () => cancelAim()),
   castButton = button('Cast', () => cast()),
-  upButton = button('↑ Row', () => stepTarget(-1)),
-  downButton = button('↓ Row', () => stepTarget(1)),
   windLeft = button('←', () => setDirection(-1)),
   windRight = button('→', () => setDirection(1)),
   bankButton = button('Arcane', () => {
-    arcaneBank = !arcaneBank;
+    arcaneBank = true;
     renderPalette();
+    refresh();
+  }),
+  elementBank = button('Elements', () => {
+    arcaneBank = false;
+    renderPalette();
+    refresh();
   });
+windLeft.textContent = '← Left';
+windRight.textContent = 'Right →';
 windLeft.setAttribute('aria-label', 'Wind left');
 windRight.setAttribute('aria-label', 'Wind right');
 const nextExercise = button('Next exercise', () => reset((exercise + 1) % PRACTICES.length));
@@ -97,33 +121,48 @@ for (const [action, label] of [
       hardDrop: 'Hard drop',
     }[action],
   );
+  node.title = {
+    left: 'Move left (←)',
+    right: 'Move right (→)',
+    softDrop: 'Soft drop (↓)',
+    rotate: 'Rotate (↑ / X)',
+    hardDrop: 'Hard drop (Space)',
+  }[action];
   controls[action] = node;
   playControls.append(node);
 }
-aimControls.append(cancelButton, upButton, downButton, windLeft, windRight, castButton);
+aimControls.append(compareButton, windLeft, windRight, cancelButton, castButton);
 const endLabel = el('strong', { text: 'Paused' });
 const resume = button('Resume', () =>
   battle.status === 'ongoing' ? togglePause() : reset(exercise),
 );
 pauseOverlay.append(endLabel, resume);
 pauseOverlay.hidden = true;
-const rail = el(
+const encounter = el(
   'aside',
-  { className: 'info-rail' },
-  el('section', { className: 'next-panel' }, el('small', { text: 'Next piece' }), nextPiece),
+  { className: 'encounter', title: 'Opponent and encounter goal' },
+  enemy,
   el(
     'section',
     { className: 'goal-panel' },
-    el('small', { text: 'Goal' }),
+    el('small', { text: 'OBJECTIVE' }),
     goal,
     progress,
     nextExercise,
   ),
-  enemy,
-  el('section', { className: 'spell-info' }, spellName, hint, outcome, cost),
-  bankButton,
+  el('section', { className: 'next-panel' }, el('small', { text: 'NEXT' }), nextPiece),
 );
-enemy.append(el('strong', { text: 'Slime' }), enemyClock, effects);
+const enemyDetails = el(
+  'div',
+  { className: 'enemy-details' },
+  el('small', { text: 'OPPONENT' }),
+  el('strong', { text: 'Slime' }),
+  enemyIntent,
+  enemyMeter,
+  enemyClock,
+  effects,
+);
+enemy.append(enemyDetails);
 const header = el(
   'header',
   { className: 'game-hud' },
@@ -134,17 +173,26 @@ const header = el(
   resetButton,
 );
 const boardFrame = el('div', { className: 'board-frame' }, board, pauseOverlay);
-stage.append(boardFrame, rail);
-root.append(
-  header,
-  stage,
-  palette,
-  el('footer', { className: 'control-dock' }, playControls, aimControls),
+boardWell.append(boardFrame);
+const actionArea = el(
+  'section',
+  { className: 'action-area' },
+  el('div', { className: 'action-copy' }, castingGuide, cost),
+  aimControls,
 );
+spellArea.append(
+  el('h2', { className: 'spellbook-title', text: 'YOUR MAGIC' }),
+  el('div', { className: 'spell-banks' }, elementBank, bankButton),
+  arcaneResource,
+  palette,
+);
+spellArea.setAttribute('aria-label', 'Your spells and mana');
+stage.append(spellArea, boardWell, encounter);
+root.append(header, stage, actionArea, el('footer', { className: 'control-dock' }, playControls));
 const boardView = new WorkshopBoardView(board, nextPiece);
 const atlas = new Atlas();
 void atlas.load(`${import.meta.env.BASE_URL}assets/`).then(() => {
-  enemy.prepend(spritePortrait(atlas, 'enemy.slime', 96, 'battle'));
+  enemy.prepend(workshopPortrait(atlas));
 });
 function setMode(next: WorkshopMode): void {
   mode = next;
@@ -179,7 +227,23 @@ function chooseSpell(id: string): void {
   selected = id;
   target = null;
   preview = null;
+  showResult = true;
+  paletteResourceKey = '';
+  lastCast = '';
+  findUsefulRows();
   setMode('aim');
+}
+function findUsefulRows(): void {
+  usefulRows = [];
+  if (!selected || !needsRow()) return;
+  for (let y = 0; y < 20; y++) {
+    try {
+      if (!battle.magicCasting.preview(selected, { bottomRow: y, direction }).reason)
+        usefulRows.push(y);
+    } catch {
+      /* Unavailable spells have no useful targets. */
+    }
+  }
 }
 function stepTarget(dy: number): void {
   if (mode !== 'aim' || !needsRow()) return;
@@ -189,6 +253,7 @@ function stepTarget(dy: number): void {
 function setDirection(dx: -1 | 1): void {
   if (mode === 'aim') {
     direction = dx;
+    findUsefulRows();
     refresh();
   }
 }
@@ -226,7 +291,12 @@ const inputs = bindWorkshopInput(board, controls, {
 });
 function renderPalette(): void {
   palette.replaceChildren();
-  bankButton.textContent = arcaneBank ? 'Elements' : 'Arcane';
+  elementBank.setAttribute('aria-pressed', String(!arcaneBank));
+  bankButton.setAttribute('aria-pressed', String(arcaneBank));
+  spellNodes.clear();
+  paletteResourceKey = '';
+  spellArea.dataset.bank = arcaneBank ? 'arcane' : 'elements';
+  arcaneResource.hidden = !arcaneBank;
   const options = arcaneBank
     ? ARCANE_ELEMENTS.map((element) => ({
         id: `arcane:${element}`,
@@ -250,7 +320,12 @@ function renderPalette(): void {
       2,
     );
     glyph.classList.add('spell-glyph');
-    node.append(glyph, el('span', { text: spell.name }));
+    const price = el('span', { className: 'spell-price' });
+    const pool = el('progress', { className: 'mana-pool' });
+    pool.max = state.hero.manaCap;
+    pool.setAttribute('aria-label', `${spell.name} mana available`);
+    node.append(glyph, el('span', { className: 'spell-label', text: spell.name }), price, pool);
+    spellNodes.set(spell.id, { price, pool });
     node.style.setProperty(
       '--spell-color',
       {
@@ -273,6 +348,9 @@ function reset(index = -1): void {
   target = null;
   preview = null;
   boardView.reset();
+  usefulRows = [];
+  lastCast = '';
+  showResult = true;
   lastBoard = '';
   lastNext = '';
   enemySequence = 0;
@@ -370,8 +448,12 @@ function refresh(): void {
   pauseButton.setAttribute('aria-label', mode === 'paused' ? 'Resume game' : 'Pause game');
   battle.paused = mode !== 'play';
   pauseOverlay.hidden = !ended && mode !== 'paused';
-  playControls.hidden = mode === 'aim';
+  playControls.hidden = false;
   aimControls.hidden = mode !== 'aim';
+  boardWell.classList.toggle(
+    'board-target',
+    mode === 'aim' && (!selected?.startsWith('arcane:') || needsRow()),
+  );
   for (const node of Object.values(controls))
     if (node instanceof HTMLButtonElement)
       node.disabled = mode !== 'play' || battle.status !== 'ongoing';
@@ -390,15 +472,16 @@ function refresh(): void {
   if (exercise >= 0) {
     const done = practiceProgress(battle, required(PRACTICES[exercise]));
     complete ||= done.done;
-    progress.textContent = complete ? 'Exercise complete' : done.label;
+    progress.textContent = complete ? 'Exercise complete' : `${done.remaining} remaining`;
   } else progress.textContent = `${Object.keys(battle.board.obstructions).length} remaining`;
   nextExercise.hidden = exercise < 0 || !complete;
   preview = null;
+  let previewError = '';
   if (mode === 'aim' && selected)
     try {
       preview = battle.magicCasting.preview(selected, { bottomRow: target ?? 19, direction });
     } catch (error) {
-      outcome.textContent = error instanceof Error ? error.message : 'Spell unavailable.';
+      previewError = error instanceof Error ? error.message : 'Spell unavailable.';
     }
   let span: readonly [number, number] | undefined;
   const hasTarget = !needsRow() || target !== null;
@@ -475,6 +558,13 @@ function refresh(): void {
   }
   const effect = battle.interference.effects.slime;
   enemyClock.textContent = `Next block: ${Math.max(0, (required(battle.combat).actMs - required(battle.combat).gauge + (effect?.delayMs ?? 0)) / 1000).toFixed(1)}s`;
+  enemyMeter.value = Math.min(
+    1,
+    required(battle.combat).gauge / (required(battle.combat).actMs + (effect?.delayMs ?? 0)),
+  );
+  enemyIntent.textContent = effect?.nature
+    ? 'Next send: blank block'
+    : `Preparing stone · ${incoming()[0]?.strength ?? 1} hit${incoming()[0]?.strength === 1 ? '' : 's'}`;
   effects.textContent = [
     effect?.nature ? `${effect.nature} blank sends` : '',
     effect?.wind ? `${effect.wind} shifted sends` : '',
@@ -483,82 +573,77 @@ function refresh(): void {
   ]
     .filter(Boolean)
     .join(' · ');
-  enemy.classList.toggle(
-    'character-target',
-    mode === 'aim' && !!selected?.startsWith('arcane:') && !needsRow(),
+  const characterTarget = mode === 'aim' && !!selected?.startsWith('arcane:') && !needsRow();
+  enemy.classList.toggle('character-target', characterTarget);
+  enemy.setAttribute('aria-label', characterTarget ? 'Slime, spell target' : 'Slime');
+  const definition = PRACTICE_SPELLS.find((s) => s.id === selected);
+  const name = selected?.startsWith('arcane:')
+    ? `Arcane + ${selected.endsWith('earth') ? 'Gravity' : selected.endsWith('water') ? 'Ice' : (selected[7]?.toUpperCase() ?? '') + selected.slice(8)}`
+    : (definition?.name ?? 'Spell');
+  const validPreview = !!preview && hasTarget && !preview.reason;
+  const boardPreview =
+    mode === 'aim' && validPreview && (!selected?.startsWith('arcane:') || needsRow());
+  board.setAttribute(
+    'aria-label',
+    boardPreview && showResult ? 'Spell result preview; Cast to apply' : 'Battle board',
   );
+  let consequence = '';
   if (mode !== 'aim') {
-    spellName.textContent = 'Spells';
-    hint.textContent = ended ? 'Reset to play again.' : 'Choose a spell below to aim.';
-    outcome.textContent = 'Tap: rotate. Drag: move. Flick down: drop.';
     cost.textContent = '';
+    castingTitle.textContent = ended ? badge.textContent : lastCast ? 'Spell cast' : 'Playing';
+    castingStep.textContent =
+      lastCast || (ended ? 'Reset to try again.' : 'Place blocks or choose a spell.');
   } else {
-    const definition = PRACTICE_SPELLS.find((s) => s.id === selected),
-      name = selected?.startsWith('arcane:')
-        ? `Arcane + ${selected.endsWith('earth') ? 'Gravity' : selected.endsWith('water') ? 'Ice' : selected.slice(7)}`
-        : (definition?.name ?? 'Spell');
-    spellName.textContent = `${name} · Rank ${preview?.rank ?? state.hero.spells[selected ?? '']?.level ?? 1}`;
-    hint.textContent = needsRow()
-      ? target === null
-        ? 'Tap a row to target it.'
-        : 'Gold band = target rows.'
-      : selected?.startsWith('arcane:')
-        ? 'Target: Slime'
-        : 'Target: whole board';
+    castingTitle.textContent = `${name}${boardPreview ? (showResult ? ' · Preview' : ' · Before') : ''}`;
     if (preview) {
       cost.textContent = Object.entries(preview.cost)
-        .map(([e, n]) => `${n} ${e} / ${state.hero.mana[e as keyof typeof state.hero.mana]}`)
+        .map(([e, n]) =>
+          selected?.startsWith('arcane:')
+            ? `${n} ${e}`
+            : `${n} of ${state.hero.mana[e as keyof typeof state.hero.mana]} mana`,
+        )
         .join(' + ');
-      const rank = preview.rank;
-      const hits = rank >= 3 ? 2 : 1;
-      const rows =
-        preview.element === 'earth'
-          ? ([1, 2, 4, 20][rank - 1] ?? 1)
-          : ['nature', 'lightning'].includes(preview.element)
-            ? rank % 2 === 0
-              ? 2
-              : 1
-            : rank;
-      const affected = Object.entries(actual.obstructions).filter(
-        ([key, o]) => (preview?.resolution.state.obstructions[key]?.strength ?? 0) < o.strength,
-      ).length;
-      const mechanics = selected?.startsWith('arcane:')
-        ? (
-            {
-              fire: `Red counts for ${rank} enemy placements.`,
-              water: `Next send delayed ${((rank * battle.magicCasting.intervalMs) / 1000).toFixed(0)}s.`,
-              wind: `Shift next ${rank} blocks ${direction === -1 ? 'left' : 'right'}.`,
-              lightning: `${rows} row(s) · ${hits} weakening hit(s).`,
-              nature: `Next ${rank} blocks become blank.`,
-              earth: `Unanchor for ${rank} enemy placements.`,
-            } as Record<string, string>
-          )[preview.element]
-        : ['lightning', 'nature'].includes(preview.element)
-          ? `${rows} row(s) · ${hits} hit(s)${hasTarget ? ` · ${affected} blocks affected` : ''}`
-          : preview.element === 'earth'
-            ? `${rows === 20 ? 'Whole board' : `${rows} row(s)`} · fall until supported.`
-            : preview.element === 'wind'
-              ? `${rows} row(s) · one space ${direction === -1 ? 'left' : 'right'}.`
-              : preview.element === 'water'
-                ? `Fill ${rows} row(s)${hasTarget ? ` · ${preview.resolution.completed.length} complete` : ''}.`
-                : `Burn ${rows} row(s). Grey blocks stay.`;
-      outcome.textContent =
-        hasTarget && preview.reason ? preview.reason : (mechanics ?? 'Affects the marked target.');
-    } else {
-      cost.textContent = '';
-      outcome.textContent = definition?.description ?? 'Aim at the highlighted opponent.';
-    }
+      consequence = hasTarget ? castConsequence(actual, preview) : spellIntent(selected ?? '');
+    } else cost.textContent = '';
   }
-  const rowControls = mode === 'aim' && needsRow(),
-    wind = selected === 'gale' || selected === 'arcane:wind';
-  upButton.hidden = !rowControls;
-  downButton.hidden = !rowControls;
-  windLeft.hidden = !wind;
-  windRight.hidden = !wind;
+  palette.hidden = false;
+  castingGuide.hidden = false;
+  compareButton.hidden =
+    mode !== 'aim' ||
+    !preview ||
+    !hasTarget ||
+    !!preview.reason ||
+    (selected?.startsWith('arcane:') === true && !needsRow());
+  compareButton.textContent = showResult ? 'Before' : 'Result';
+  compareButton.setAttribute(
+    'aria-label',
+    showResult ? 'Show original board' : 'Show spell result',
+  );
+  compareButton.setAttribute('aria-pressed', String(showResult));
+  if (mode === 'aim')
+    castingStep.textContent = !hasTarget
+      ? usefulRows.length
+        ? `${spellIntent(selected ?? '')}. Choose a lit row.`
+        : previewError || 'No useful target. Choose another spell.'
+      : preview?.reason
+        ? preview.reason
+        : `${consequence}${characterTarget ? ' → Slime' : ''}`;
+  castButton.textContent = selected?.startsWith('arcane:') ? 'Cast Arcane' : `Cast ${name}`;
+  castButton.setAttribute(
+    'aria-label',
+    selected?.startsWith('arcane:') ? `Cast ${name.replace(' + ', ' ')}` : `Cast ${name}`,
+  );
+  castButton.hidden = false;
+  castButton.dataset.cast = 'true';
+  cancelButton.hidden = mode !== 'aim';
+  const wind = selected === 'gale' || selected === 'arcane:wind';
+  windLeft.hidden = mode !== 'aim' || !wind;
+  windRight.hidden = mode !== 'aim' || !wind;
   windLeft.setAttribute('aria-pressed', String(direction === -1));
   windRight.setAttribute('aria-pressed', String(direction === 1));
   castButton.disabled =
     !preview || !hasTarget || preview.reason !== null || battle.status !== 'ongoing';
+  refreshMana();
   for (const node of palette.querySelectorAll<HTMLButtonElement>('button'))
     node.setAttribute('aria-pressed', String(node.dataset.spell === selected));
 }
@@ -566,29 +651,52 @@ function cast(): void {
   if (mode !== 'aim' || !selected || !preview || preview.reason || (needsRow() && target === null))
     return;
   const id = selected,
-    chosen = preview.target;
+    chosen = preview.target,
+    result = castConsequence(battle.board.magicState(), preview);
   battle.paused = false;
   try {
     if (id.startsWith('arcane:')) battle.castArcane(id, chosen);
     else required(battle.combat).castSpell(id, chosen);
     saveGame(store, state);
+    lastCast = `Cast complete: ${result}`;
     selected = null;
     target = null;
     preview = null;
     setMode('play');
   } catch (error) {
     battle.paused = true;
-    outcome.textContent = error instanceof Error ? error.message : 'Unable to cast.';
+    castingStep.textContent = error instanceof Error ? error.message : 'Unable to cast.';
+  }
+}
+function refreshMana(): void {
+  const key = JSON.stringify([state.hero.mana, state.hero.spells, state.hero.arcane, arcaneBank]);
+  if (key === paletteResourceKey) return;
+  paletteResourceKey = key;
+  for (const [id, nodes] of spellNodes) {
+    try {
+      const p = battle.magicCasting.preview(id, { bottomRow: 19, direction });
+      const available = state.hero.mana[p.element];
+      const total = Object.values(p.cost).reduce((sum, n) => sum + (n ?? 0), 0);
+      nodes.price.textContent = `${p.cost[p.element] ?? total} mana · ${available} held`;
+      if (id.startsWith('arcane:'))
+        arcaneResource.textContent = `+ ${p.cost.arcane ?? 0} Arcane · ${state.hero.mana.arcane} held`;
+      nodes.pool.value = available;
+      nodes.pool.max = state.hero.manaCap;
+      nodes.pool.setAttribute('aria-valuetext', `${available} ${p.element} mana available`);
+      const node = nodes.price.parentElement as HTMLButtonElement;
+      node.classList.toggle('unaffordable', p.reason === 'Not enough mana.');
+      node.title = `${node.getAttribute('aria-label')} · ${Object.entries(p.cost)
+        .map(([e, n]) => `${n} ${e}`)
+        .join(' + ')} mana · ${available} ${p.element} available`;
+    } catch {
+      nodes.price.textContent = 'Unavailable';
+      nodes.pool.value = 0;
+    }
   }
 }
 function resize(): void {
-  const box = stage.getBoundingClientRect(),
-    railWidth = rail.getBoundingClientRect().width,
-    gap = window.innerWidth <= 600 ? 8 : 16;
-  const cell = Math.max(
-    1,
-    Math.floor(Math.min(box.height / 20, (box.width - railWidth - gap) / 10, 30)),
-  );
+  const box = boardWell.getBoundingClientRect();
+  const cell = Math.max(1, Math.floor(Math.min((box.height - 8) / 20, (box.width - 8) / 10, 34)));
   root.style.setProperty('--cell', `${cell}px`);
 }
 function openExercises(): void {
@@ -627,7 +735,7 @@ function openExercises(): void {
   dialog.showModal();
 }
 window.addEventListener('resize', resize);
-new ResizeObserver(resize).observe(stage);
+new ResizeObserver(resize).observe(boardWell);
 reset();
 let previous = performance.now();
 function frame(now: number): void {
@@ -671,6 +779,10 @@ function frame(now: number): void {
     exercise >= 0 ? (PRACTICES[exercise]?.targets ?? []) : [],
     dt,
     now,
+    {
+      usefulRows: mode === 'aim' && target === null ? usefulRows : [],
+      showResult: mode === 'aim' && showResult && hasTarget && !preview?.reason,
+    },
   );
   requestAnimationFrame(frame);
 }
