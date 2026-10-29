@@ -295,3 +295,76 @@ it('a falling NPC obstruction cannot overwrite the active piece or consume its A
   expect(interference.effect('enemy').gravity).toBe(1);
   expect(interference.placements.enemy ?? 0).toBe(0);
 });
+
+describe('hostile placements cannot solve the player’s rows', () => {
+  it.each([1, 2, 3])(
+    'leaves the final gap open for a strength-%i enemy obstruction',
+    (strength) => {
+      const { board, interference } = fixture();
+      board.grid[9] = ['red', 'red', 'red', 'red', 'red', null];
+      const result = interference.place('enemy', [{ x: 5, y: 9, strength }]);
+      expect(board.grid[9]).toEqual(['red', 'red', 'red', 'red', 'red', null]);
+      expect(result.completed).toEqual([]);
+      expect(interference.placements.enemy ?? 0).toBe(0);
+      // No completed row is left waiting to reward an unrelated player action.
+      expect(board.resolveBoardMagic({}).completed).toEqual([]);
+    },
+  );
+  it('checks later cells in the same batch against the already placed cells', () => {
+    const { board, interference } = fixture();
+    board.grid[9] = ['red', 'red', null, 'red', 'red', null];
+    const result = interference.place('enemy', [
+      { x: 2, y: 9, strength: 3 },
+      { x: 5, y: 9, strength: 1 },
+    ]);
+    expect(board.grid[9]).toEqual(['red', 'red', 'stone', 'red', 'red', null]);
+    expect(board.obstructions['2,9']?.strength).toBe(3);
+    expect(result.completed).toEqual([]);
+    expect(interference.placements.enemy).toBe(1);
+  });
+  it('awards no line, mana, score or damage for an ordinary enemy placement', () => {
+    const hero = createHero();
+    const battle = new Battle({ kind: 'combat', enemyId: 'slime' }, hero, createRng(1), {
+      boardMagic: true,
+    });
+    battle.board.grid[19] = Array.from({ length: 10 }, (_, x) => (x === 9 ? null : 'red'));
+    const before = structuredClone({
+      mana: hero.mana,
+      score: battle.score,
+      hp: battle.combat!.enemyHp,
+    });
+    battle.placeObstructions('slime', [{ x: 9, y: 19, strength: 1 }]);
+    expect(battle.lines).toBe(0);
+    expect(hero.mana).toEqual(before.mana);
+    expect(battle.score).toBe(before.score);
+    expect(battle.combat!.enemyHp).toBe(before.hp);
+  });
+  it('allows an explicitly helpful placement to complete a row', () => {
+    const { board, interference } = fixture();
+    board.grid[9] = ['red', 'red', 'red', 'red', 'red', null];
+    const result = interference.place('ally', [{ x: 5, y: 9, strength: 1 }], 'helpful');
+    expect(result.completed).toHaveLength(1);
+    expect(board.grid[9]).toEqual(Array(6).fill(null));
+  });
+  it('preserves line clearing earned by converting the enemy’s send with Arcane Nature', () => {
+    const hero = createHero();
+    const battle = new Battle({ kind: 'combat', enemyId: 'slime' }, hero, createRng(1), {
+      boardMagic: true,
+    });
+    battle.board.grid[19] = Array.from({ length: 10 }, (_, x) => (x === 9 ? null : 'red'));
+    battle.interference.cast('slime', 'nature', 1, 19, 1, 8500);
+    battle.placeObstructions('slime', [{ x: 9, y: 19, strength: 3 }]);
+    expect(battle.lines).toBe(1);
+    expect(hero.mana.fire).toBeGreaterThan(0);
+    expect(battle.interference.effect('slime').nature).toBe(0);
+  });
+  it('preserves intentional row completion caused by Arcane Gravity', () => {
+    const { board, interference } = fixture();
+    board.grid[9] = ['red', 'red', 'red', 'red', 'red', null];
+    interference.cast('enemy', 'earth', 1, 9, 1, 7000);
+    const result = interference.place('enemy', [{ x: 5, y: 5, strength: 1 }]);
+    expect(result.completed).toHaveLength(1);
+    expect(board.grid[9]).toEqual(Array(6).fill(null));
+    expect(interference.effect('enemy').gravity).toBe(0);
+  });
+});

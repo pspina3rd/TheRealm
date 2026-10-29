@@ -1,4 +1,4 @@
-import { ArcaneInterference, type ObstructionPlacement } from './arcane';
+import { ArcaneInterference, type ObstructionPlacement, type PlacementIntent } from './arcane';
 import { MagicCasting, type MagicTarget } from './magicCasting';
 import type { MagicResolution } from '../core/boardMagic';
 import { BOARD_HEIGHT, BOARD_WIDTH, Board, type LockResult, type QueuedPiece } from '../core/board';
@@ -285,8 +285,12 @@ export class Battle implements BattleContext {
     return this.board.previewPieces(this.fogPieces > 0 ? 0 : shown);
   }
 
-  placeObstructions(owner: string, cells: readonly ObstructionPlacement[]): void {
-    const resolution = this.interference.place(owner, cells);
+  placeObstructions(
+    owner: string,
+    cells: readonly ObstructionPlacement[],
+    intent: PlacementIntent = 'hostile',
+  ): void {
+    const resolution = this.interference.place(owner, cells, intent);
     this.rewardMagic(resolution);
   }
 

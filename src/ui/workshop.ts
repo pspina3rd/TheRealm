@@ -37,7 +37,6 @@ let battle: Battle,
   exercise = -1,
   complete = false,
   enemySequence = 0,
-  allyClock = 0,
   lastBoard = '',
   lastNext = '';
 let preview: CastPreview | null = null;
@@ -354,7 +353,6 @@ function reset(index = -1): void {
   lastBoard = '';
   lastNext = '';
   enemySequence = 0;
-  allyClock = 0;
   for (const id of [...Object.keys(BOARD_SPELLS), 'shadow'])
     state.hero.spells[id] = { ...newKnownSpell(), level: 4 };
   for (const element of ARCANE_ELEMENTS) createArcane(state.hero, state.flags, element);
@@ -751,16 +749,6 @@ function frame(now: number): void {
     };
     battle.update(dt);
     if ((battle.interference.placements.slime ?? 0) > before) enemySequence++;
-    allyClock += dt;
-    if (allyClock >= 12000) {
-      allyClock -= 12000;
-      const y = 19,
-        x = required(battle.board.grid[y]).findIndex((c) => c === null);
-      if (x >= 0) {
-        battle.interference.cast('ally', 'nature', 1, y, 1, 12000);
-        battle.placeObstructions('ally', [{ x, y, strength: 1 }]);
-      }
-    }
     refresh();
   }
   const hasTarget = !needsRow() || target !== null;

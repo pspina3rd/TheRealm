@@ -538,3 +538,19 @@ The AI game UI/UX review and saved evidence are documented in
 checks cover tablet, wide desktop, and two landscape sizes, including Wind and
 Arcane. The full automated suite, lint, and build passed. Hands-on author
 acceptance remains open; campaign activation is unchanged.
+
+## October 29 — prevent unintended enemy assistance
+
+Confirmed the accidental help came from hostile placements running the full row
+resolver and from a hidden 12-second blank-block helper in the workshop. Removed
+the helper. Hostile placements now preserve a gap instead of completing a row,
+including the last cell of a multi-cell batch, and skip the row-clear phase.
+They therefore cannot grant immediate mana/score/damage or leave a completed row
+waiting to reward an unrelated player placement. Explicit helpful placement and
+player-driven Arcane Nature/Gravity counterplay retain their effects.
+
+Regression coverage checks strengths 1–3, multi-cell batches, reward isolation,
+helpful placement, and intentional Nature/Gravity clears. Recorded the author's
+per-line autocasting decision in BOARD_MAGIC_PLAN.md; this checkpoint fixes
+unintended assistance without silently enabling the unfinished automatic cast
+scheduler or changing the workshop's current manual interaction.

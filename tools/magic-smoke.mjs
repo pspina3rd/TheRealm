@@ -287,6 +287,15 @@ try {
 
     await page.keyboard.press('9');
     assert.equal(await badge.innerText(), 'Playing', 'Invalid spell slots are ignored.');
+    if (width === 360) {
+      await page.getByRole('button', { name: 'Reset', exact: true }).click();
+      await page.waitForTimeout(12500);
+      assert.equal(
+        await page.locator('.magic-square[aria-label="neutral"]').count(),
+        0,
+        'Idle practice must not receive hidden helpful blank blocks.',
+      );
+    }
     const sizes = await page
       .locator('button')
       .evaluateAll((nodes) =>
@@ -311,6 +320,7 @@ try {
       resumesPlay: true,
       cancelNoMutation: true,
       noOverlap: true,
+      ...(width === 360 ? { noHiddenHelper: true } : {}),
       stableMovementControls: true,
       manaVisible: true,
       compareDoesNotMutate: true,

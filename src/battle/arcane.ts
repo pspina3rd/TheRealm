@@ -16,6 +16,7 @@ export interface InterferenceEffects {
   direction: -1 | 1;
   delayMs: number;
 }
+export type PlacementIntent = 'hostile' | 'helpful';
 export interface ObstructionPlacement {
   x: number;
   y: number;
@@ -88,11 +89,17 @@ export class ArcaneInterference {
     return result;
   }
   /** A whole authored piece/batch is ONE owner placement, even if it has several cells. */
-  place(owner: string, cells: readonly ObstructionPlacement[]): MagicResolution {
+  place(
+    owner: string,
+    cells: readonly ObstructionPlacement[],
+    intent: PlacementIntent = 'hostile',
+  ): MagicResolution {
     const before = this.checkpoint();
     const e = this.effect(owner),
       state = this.board.magicState();
     const fresh: [number, number][] = [];
+    // Allies and player-applied Arcane effects may deliberately help the board.
+    let allowClears = intent === 'helpful' || e.gravity > 0 || e.red > 0;
     for (const cell of cells) {
       let { x } = cell;
       const { y } = cell;
@@ -119,6 +126,17 @@ export class ArcaneInterference {
         )
       )
         continue;
+      const redirected = x !== cell.x;
+      const playerAffected = neutral || redirected || e.gravity > 0;
+      // A hostile stone must leave a gap, rather than finish a row now or gift
+      // a completed row on the player's next lock. Validate the whole batch.
+      if (
+        intent === 'hostile' &&
+        !playerAffected &&
+        required(state.grid[y]).every((c, column) => column === x || c !== null)
+      )
+        continue;
+      if (playerAffected) allowClears = true;
       if (neutral) e.nature--;
       if (e.wind > 0) e.wind--;
       required(state.grid[y])[x] = neutral ? 'neutral' : 'stone';
@@ -135,7 +153,7 @@ export class ArcaneInterference {
         };
     }
     this.sync();
-    const result = resolveMagic(state, { ...this.board.magicOwners, fresh });
+    const result = resolveMagic(state, { ...this.board.magicOwners, fresh, clears: allowClears });
     if (
       this.board.active?.cells.some(([dx, dy]) => {
         const x = required(this.board.active).x + dx,

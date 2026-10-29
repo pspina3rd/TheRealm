@@ -31,6 +31,9 @@ touch screens use the side panels to leave more height for the board.
   Choose **Next exercise** after completing the objective.
 
 Practice mana and Arcane pairs are supplied; your adventure save is separate.
+There is no hidden timed helper adding blank blocks. Ordinary enemy placements
+leave a gap rather than completing your rows; your Arcane counterplay can still
+turn enemy sends into useful material.
 The story remains where spells are introduced and their uses are taught. This
 fixture is for reviewing board interactions and the interface.
 

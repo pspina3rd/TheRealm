@@ -13,6 +13,7 @@
     "resumesPlay": true,
     "cancelNoMutation": true,
     "noOverlap": true,
+    "noHiddenHelper": true,
     "stableMovementControls": true,
     "manaVisible": true,
     "compareDoesNotMutate": true,

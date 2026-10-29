@@ -37,3 +37,18 @@ Save v13 preserves all v1–12 migrations and committed-try recovery; correction
 snapshots include obstruction state. Exact numerical balance remains subject to
 existing gates, not waived by a passing test runner. Human review of the isolated
 encounter precedes broad campaign activation, as specified in the approved plan.
+
+## Follow-up: line-driven automatic casting
+
+The author confirmed that automatic casting is driven by **lines cleared**, not
+pieces placed or turns elapsed. A multi-line clear supplies one casting
+opportunity per line. Learned rank determines spell strength; mana used by a cast
+is spent and surplus is retained. Arcane remains manually triggered. Exact
+ready-spell scheduling and automatic target selection are not yet implemented;
+the current workshop still uses manual casting while those rules are developed.
+
+Hostile obstruction placement must not independently award player clears. It
+leaves a gap instead of completing a row, including across a multi-cell batch.
+Ordinary hostile placements do not run the row-clear/reward phase. Explicit
+helpful placements and deliberate player Arcane counterplay can still complete
+rows. The workshop has no undisclosed timed ally supplying blank blocks.
