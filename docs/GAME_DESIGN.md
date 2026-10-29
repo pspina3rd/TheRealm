@@ -704,14 +704,14 @@ noticed a feat waits at the nearest stop the hero can actually reach
 - **The foe**: at home, the mentor's trial **wisp** of their element;
   away, the toughest non-boss monster of the area (of the mentor's element
   if there is one), or the wisp in a town. Per difficulty above 1 the foe
-  gains 60% HP, +3 attack and a level (faster pieces). Lessons give no XP,
+  gains 75% HP, +5 attack and a level (faster pieces; M1 tuning, was 60% and +3). Wisps attack 8 every 5.9 s (was 5 every 9 s). Lessons give no XP,
   gil or drops.
 - **The mentor's help**: on every new piece, with chance
 
-  > p = clamp(30% − 5% × (alignment in the mentor's element − difficulty), 5%, 35%) × relation
+  > p = clamp(30% − 5% × (alignment in the mentor's element − difficulty), 5%, 10%) × relation
 
-  (the encounter rework's clamp, `HELP_BASE`/`HELP_MIN`/`HELP_MAX`; it was
-  40%, 10–50%)
+  (`HELP_BASE`/`HELP_MIN`/`HELP_MAX`; the M1 tuning pass set the top to
+  10%, from 35%; before the encounter rework it was 40%, 10–50%)
 
   where relation compares the mentor's element to the hero's title
   element: same ×1, related ×0.8, the mentor's beats the hero's ×0.6, the
@@ -879,15 +879,16 @@ in `src/data/balance.ts`; the boards, lines and props in
 
 | Person       | Board             | Verb              | Win                                   | Fail                              | Retry |
 | ------------ | ----------------- | ----------------- | ------------------------------------- | --------------------------------- | ----- |
-| Elder Rowan  | The Well (6 wide) | DIG + rising      | Clear the tagged pipe cell            | Mold locks above the lip (row 14) | Now   |
+| Elder Rowan  | The Well (6 wide) | DIG + rising      | Clear the tagged pipe cell            | Mold locks above the lip (row 16) | Now   |
 | Pip          | The Crystal Tower | BUILD             | Fill the outline up to the spinner    | 3 cracks or 1 wobble              | Now   |
-| Farmer Bean  | The Herb Beds     | PLANT             | 12 sprouts in the furrows (16 Great)  | Sundown (26 pieces)               | Now   |
+| Farmer Bean  | The Herb Beds     | PLANT             | 19 sprouts in the furrows (22 Great)  | Sundown (24 pieces)               | Now   |
 | Ordor        | The Stall         | DUEL (one-sided)  | His price at 94% or less when it ends | Price above 105% (Even between)   | Day   |
-| Forager Wren | The Mushroom Ring | CONTAIN + protect | No rot left, 2 caps saved             | 2 caps dead, or 30 pieces         | Wait  |
-| Captain Vale | The Ward Lamps    | CHARGE            | All 4 lamps lit by pure lines         | 36 pieces, or a top-out           | Wait  |
+| Forager Wren | The Mushroom Ring | CONTAIN + protect | No rot left, 2 caps saved             | 2 caps dead, or 36 pieces         | Wait  |
+| Captain Vale | The Ward Lamps    | CHARGE            | All 4 lamps lit by pure lines         | 32 pieces, or a top-out           | Wait  |
 
-- **DIG**: a mold row (one gap) rises every 6 pieces, a piece sooner for
-  each new buried hole; clearing lines digs down to the pipe.
+- **DIG**: a mold row (one gap) rises every 12 pieces (each new buried
+  hole could bring it sooner; `soonerPerHole` is 0 since the M1 tuning);
+  clearing lines digs down to the pipe.
 - **BUILD**: clears are off; the queue is authored (Pip calls out the next
   three). Cells inside the outline build the tower; a cell that leaves a
   hole under it cracks; an overhang past the outline wobbles. Two pieces
@@ -896,14 +897,15 @@ in `src/data/balance.ts`; the boards, lines and props in
   go to the box.
 - **PLANT**: neutral soil with ridges in columns 0, 4 and 8; a sprout is a
   green S cell landed upright in a furrow. The queue holds one S in every
-  3 pieces.
+  2 pieces.
 - **DUEL** (Ordor): his crate stack grows, sends and clears on timers;
   your 2+ line clears push his price down (`DUEL_SENDS`), singles don't;
   rows he sends are pushed under your stack. The meter is clamped
   70–130%; ≤ 85% Great, ≤ 94% Win, ≤ 105% Even.
-- **CONTAIN + protect**: rot spreads from its frontier every 4 pieces; a
+- **CONTAIN + protect**: rot spreads from its frontier every 5 pieces; a
   cap the rot reaches dies; clearing a cap's row picks it.
-- **CHARGE**: a pure line (7 of its 10 cells in one lamp's element) lights
+- **CHARGE**: a pure line (6 of its 10 cells in one lamp's element; the
+  author's P 6, with a J and a T in every 3 pieces) lights
   the next unlit lamp of that element; every 14 pieces the wind snuffs the
   oldest lit lamp, telegraphed one piece ahead.
 
@@ -992,58 +994,66 @@ Every M1 board passes before it ships (`tests/feasibility.test.ts`):
 
 ### Encounter sims
 
-`npm run sim ENCOUNTERS=all` (or a list of NPC ids; `RUNS`, `SIM_OUT`)
-plays every encounter with four bots at touch pace, 200 seeds per cell
-with 95% intervals: **good** (two-ply, a survival judge plus the board's
-own placement hint), **casual** (one-ply, the same hint, 15% second-best
-picks, touch noise: 8% one column off, 5% wrong rotation, 2.6 s a piece),
-**dropper** and **idle**. Both good and casual aim at the spawn and drop
-after thinking, as a touch player does.
+`npm run sim ENCOUNTERS=all` (or a list of rows: NPC ids, `guard+assist`,
+`lesson:hazel:1`, `fight:sproutling`; `RUNS`, `SIM_OUT`) plays every M1
+row with five bots at touch pace, 200 seeds per cell, with 95% intervals.
+The bots are the author's realistic touch players (ENCOUNTER_DESIGN.md,
+Author decisions, Oct 29):
 
-Results at 200 seeds (Oct 28; first try, strain 0 unless marked; mean ±
-95% interval; band from ENCOUNTER_DESIGN §5.3):
+- **good**: two pieces deep with the board's hint, light slips, 70% caught on the landing ghost.
+- **casual**: a planner with slips. The good bot's plan, the second-best spot 15% of the time, slips of 8% one column off and 5% a wrong turn, 70% caught, 2.6 s a piece.
+- **beginner**: the old one-ply casual. It is reported but has no band.
+- **dropper** and **idle**.
 
-| Encounter                 | Band      | Good            | Casual          | Dropper | Idle           | Good, strain 2      | Casual, strain 2 | Length (good) |
-| ------------------------- | --------- | --------------- | --------------- | ------- | -------------- | ------------------- | ---------------- | ------------- |
-| Rowan                     | Mossvale  | 95% ±3.2 ✓      | 5% ±2.9 ✗       | 0% ✓    | 0% ✓           | 49% ±6.9 ✗          | 0% ✗             | 40 s ✓        |
-| Pip                       | Mossvale  | 100% ✗ (97 max) | 1% ±1.0 ✗       | 0% ✓    | 0% ✓           | 100% ✓              | 2% ✗             | 20 s ✗        |
-| Bean                      | Mossvale  | 100% ✗ (97 max) | 55% ±6.9 ✗ (60) | 0% ✓    | 0% ✓           | 94% ✓               | 29% ✓            | 53 s ✓        |
-| Ordor                     | Haggle    | 80% ±5.5 ✓      | 1% ±1.0 ✗       | 0% ✓    | 0% ✓           | 29% ✗               | 0% ✗             | 58 s ✓        |
-| Ordor, price              | Haggle    | 88% ✓           | 103% ✓          | 115% ✓  | 111% ✗ (≥ 112) |                     |                  |               |
-| Wren                      | Grove     | 82% ±5.3 ✓      | 3% ±2.4 ✗       | 0% ✓    | 0% ✓           | 77% ✓               | 2% ✗             | 41 s ✗ (55)   |
-| Vale                      | Threshold | 14% ±4.9 ✗      | 0% ✗            | 0% ✓    | 0% ✓           | 0% ✗ (strain 1 cap) | 0% ✗             | 75 s          |
-| Vale, assisted (strain 1) | ≥ 97%     | 29% ±6.3 ✗      | 0% ✗ (≥ 90)     | —       | 0% ✓           |                     |                  |               |
+`tests/sim/diagnose.test.ts` runs single cells with bot and board knobs
+for tuning.
 
-Misses, reported rather than tuned (the numbers are the spec's):
+**The M1 tuning pass (Oct 29)** changed balance numbers only:
 
-- **Casual** misses almost everywhere. Its touch noise (8% a column off, 5%
-  a wrong rotation, no undo) wrecks the narrow and authored boards: a
-  single misplaced piece in Rowan's 6-wide well or Pip's queue is usually
-  fatal. Pip's casual 1% is by the spec's own rule (the greedy bot must
-  fail an authored queue), which the casual band contradicts.
-- **Vale's CHARGE** is far off: purity 7 of 10 over 36 pieces with the wind
-  snuffing every 14 asks for four near-pure rows; the bots build them too
-  slowly. The placement hint was reworked twice (0–3% → 14%).
-- **Strain 2** floors miss for Rowan (two debris rows on top) and Ordor
-  (meter starts 10% worse).
-- **Pip** is short (20 s, 11 pieces) and the good bot never fails it.
-- Ordor's idle price is 111% against ≥ 112%: his timers alone don't push
-  the meter far enough in 60 s.
+- **Rowan**: lip 16, rising every 12, no speed-up for holes.
+- **Bean**: 19 sprouts in 24 pieces, an S in every 2, Great at 22, +1 per strain.
+- **Ordor**: received rows +1.2%, strain +2% a step.
+- **Wren**: 36 pieces, rot every 5.
+- **Vale** (the author's P 6 and window 3): 32 pieces.
+- **Lessons**:
+  - help clamped to 5–10%;
+  - wisps attack 8 every 5.9 s;
+  - +5 attack and +75% HP per difficulty.
+- **Grove foes**:
+  - Sproutling 143 HP / 9 attack;
+  - Leaf Sprite 140 / 11;
+  - Thorn Troll 203 / 14, every 8.5 s.
 
-Grove monsters with spores (fight sim, touch pace, 200 seeds): good
-99–100%, singles 94–99%, sloppy 0–2%, 53–61 s. Without spores the same
-fights read 99–100% / 94–100% / 0–1%, so spores cost the good bot about
-a point. Both sit above the approved 75–85% because fixing the sim bots'
-landing bug (O pieces landed a column off) made the fight sim's bots
-stronger everywhere; the monster numbers were not retuned here.
+Results at 200 seeds. Strain 0 unless marked; mean ± 95% interval. The
+floor is strain 2, or strain 1 for a threshold:
 
-Lessons (fight sim, touch pace, 200 seeds): Torva's, Maren's and Kestrel's
-d1–d3 read good 100%, full kit 100%, singles 100%, sloppy 0%, 34–59 s.
-Hazel's (spores and the shield) read good 100% / 100% / 100% for d1/d2/d3,
-singles 100%, sloppy 0%, 54 / 74 / 81 s. All sit above the §5.3 lesson
-bands (80–90 / 70–80 / 60–70%); not tuned here. The fight sim's bots now
-cast the taught spell while a lesson's shield is up, heal or not (before
-that, Hazel's Cure waited for half HP and her lessons ran 6–9 minutes).
+| Row                       | Band (good / casual)                      | Good          | Casual        | Beginner | Dropper | Idle       | Good, floor | Casual, floor | Length (good)      |
+| ------------------------- | ----------------------------------------- | ------------- | ------------- | -------- | ------- | ---------- | ----------- | ------------- | ------------------ |
+| Rowan                     | 90–97 / 60–75                             | 94 ±3.4 ✓     | **52 ±6.9 ✗** | 5        | 0 ✓     | 0 ✓        | 71 ✓        | **13 ✗**      | 57 s ✓             |
+| Pip                       | 90–97 / 60–75, 20–40 s                    | **84 ±5.1 ✗** | **29 ±6.3 ✗** | 1        | 0 ✓     | 0 ✓        | 89 ✓        | 31 ✓          | 20 s ✓             |
+| Bean                      | 90–97 / 60–75                             | 90 ±4.2 ✓     | 74 ±6.1 ✓     | 21       | 0 ✓     | 0 ✓        | 67 ✓        | 52 ✓          | 48 s ✓             |
+| Ordor (≤ 94%)             | 70–80 / 30–45                             | 76 ±6.0 ✓     | 35 ±6.6 ✓     | 1        | 0 ✓     | 0 ✓        | **49 ✗**    | **21 ✗**      | 58 s ✓             |
+| Ordor, mean price         | 84–90 / 96–103; dropper ≥ 110, idle ≥ 112 | 89% ✓         | 96% ✓         | —        | 115% ✓  | **111% ✗** |             |               |                    |
+| Wren                      | 80–90 / 45–60                             | 83 ±5.2 ✓     | 51 ±6.9 ✓     | 2        | 0 ✓     | 0 ✓        | 76 ✓        | 39 ✓          | **46 s ✗** (55–95) |
+| Vale                      | 80–90 / 45–60                             | 82 ±5.3 ✓     | 58 ±6.8 ✓     | 4        | 0 ✓     | 0 ✓        | **49 ✗**    | 28 ✓          | 51 s               |
+| Vale, assisted (strain 1) | ≥ 97 / ≥ 90                               | **62 ±6.7 ✗** | **49 ±6.9 ✗** | 4        | —       | 0 ✓        |             |               |                    |
+| Hazel d1                  | 80–90 / 50–65                             | **78 ±5.7 ✗** | 60 ±6.8 ✓     | 15       | 0 ✓     | 0 ✓        |             |               | 64 s ✓             |
+| Hazel d2                  | 70–80 / 40–55                             | **65 ±6.6 ✗** | **34 ±6.5 ✗** | 4        | 0 ✓     | 0 ✓        |             |               | 91 s ✓             |
+| Hazel d3                  | 60–70 / 30–45                             | **72 ±6.3 ✗** | 38 ±6.7 ✓     | 3        | 0 ✓     | 0 ✓        |             |               | 109 s ✗ (50–100)   |
+| Sproutling (spores)       | 75–85                                     | 84 ±5.1 ✓     | 45            | 6        | 0       | 0          |             |               | 103 s              |
+| Leaf Sprite (spores)      | 75–85                                     | 78 ±5.8 ✓     | 54            | 11       | 0       | 0          |             |               | 81 s               |
+| Thorn Troll (spores)      | 75–85                                     | 82 ±5.3 ✓     | 40            | 4        | 0       | 0          |             |               | 105 s              |
+
+**What numbers alone can't reach** (reported, not changed):
+
+- **Rowan, casual:** it stays near 50% whatever the lip and rising rate; one slip in a 6-wide well costs the dig. Its strain-2 floor (13%) fails for the same reason.
+- **Pip:** good 84% and casual 29%. The crack and wobble limits and the previews move neither. A slip wastes a piece of an authored queue with no spare, so the fix is a spare piece or an undo, which is a spec change.
+- **Ordor's strain floor:** 49% / 21% even at +2% a step.
+- **Ordor's idle price:** 111% against ≥ 112%.
+- **Vale's strain-1 floor:** 49%. The extra lamp is the strain step; `strainLamps` 0 would pass (82 / 58) but makes strain do nothing.
+- **Vale assisted:** the assist lowers wins as its toss chance rises (toss 1.0: 11%). The mentor's tossed piece likely works against the purity plan. This looks like a defect and needs a code look.
+- **Hazel d2 and d3:** the per-difficulty steps are linear, but the hero gains two levels between them, so d2 sits low and d3 high. A convex step, such as a level-aware foe, needs a rule change.
+- **Wren's length:** 46 s, because good tries end early.
 
 ## NPCs and attitude
 
