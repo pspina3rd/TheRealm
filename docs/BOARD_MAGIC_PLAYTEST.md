@@ -1,3 +1,31 @@
+# Play and review the current casting interface
+
+Run `git pull --ff-only` and `npm run dev`, then open Vite's **main game URL**
+(without `workshop.html`) to check normal combat and your saved adventure.
+Existing saves now use the same current casting rules as new games.
+
+Seven learned primary schools are automatic. Cards show actual level, priority,
+reach, **Held** mana and **Cost**, and whether they are ready or waiting. Earn a
+line clear; no standard spell selection is needed. Base Arcane strikes the faced
+opponent. Advanced Arcane techniques and your equipped custom Weaving have their
+own manual controls. Teaching and support spells remain explicitly separate.
+
+[Full-book phone](artifacts/casting-main/phone-full-book.png) ·
+[Automatic Arcane](artifacts/casting-main/phone-arcane-auto.png) ·
+[Weaving preview](artifacts/casting-main/phone-weaving.png) ·
+[Actual-main browser evidence](artifacts/casting-main/report.json)
+
+Independent reviewers checked the ordinary main-game route, including full books,
+small touch screens, actual earned mana, and both Fire and seventh-school Arcane
+auto-casts. Their returned findings and re-review verdicts are saved in
+[UI/UX review](reviews/CASTING_UI_REVIEW.md) and
+[gameplay review](reviews/CASTING_GAME_REVIEW.md).
+
+The workshop below is an optional isolated test tool, not the only place where
+auto-casting works.
+
+---
+
 # Spell workshop
 
 On GetPutTaco, run `npm install` and `npm run dev`, then open
@@ -39,7 +67,7 @@ Spells without a useful target keep their mana. Automatic spell clears still
 award their normal rewards but do not recursively create more cast opportunities.
 Nothing fires automatically after victory or defeat.
 
-## Arcane stays manual
+## Advanced Arcane techniques stay manual
 
 Choose the **Arcane** tab. Affordable techniques light up; unaffordable ones are
 disabled. Choose a technique, inspect its target and mana cost, then **Cast Arcane**.
@@ -75,9 +103,10 @@ than completing your rows; your deliberate Arcane counterplay can still help.
 Colorless blank blocks earn no mana. Story scenes remain responsible for teaching
 spells, and learned rank controls each spell's effect and enhanced cost.
 
-This is a development-only review fixture. Campaign combat wiring supports the
-same engine behind the existing `boardMagicEnabled` rollout flag; new adventure
-saves still do not receive that flag. Lessons retain manual teaching interactions.
+This is a development-only review fixture. The main game now uses the same current rules for new and loaded adventures.
+All seven primary schools, including opponent-targeted Arcane, auto-cast in
+combat. Lessons retain manual teaching interactions; advanced opponent techniques
+and custom Weaving remain manual.
 
 ## Saved views and checks
 

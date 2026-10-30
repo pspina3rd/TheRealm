@@ -1,0 +1,47 @@
+[
+  {
+    "width": 360,
+    "height": 640,
+    "touch": true,
+    "productionApp": true,
+    "oldSaveWithoutRolloutFlag": true,
+    "noManualStandardSelection": true,
+    "actualRanksVisible": true,
+    "earnedLineCast": true,
+    "seventhPrimaryArcaneAutomatic": true,
+    "actualManaPaid": true,
+    "customSlotShowsRecipe": true,
+    "customActionsVisible": true,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "touch": true,
+    "productionApp": true,
+    "oldSaveWithoutRolloutFlag": true,
+    "noManualStandardSelection": true,
+    "actualRanksVisible": true,
+    "earnedLineCast": true,
+    "seventhPrimaryArcaneAutomatic": true,
+    "actualManaPaid": true,
+    "customSlotShowsRecipe": true,
+    "customActionsVisible": true,
+    "errors": []
+  },
+  {
+    "width": 1100,
+    "height": 900,
+    "touch": false,
+    "productionApp": true,
+    "oldSaveWithoutRolloutFlag": true,
+    "noManualStandardSelection": true,
+    "actualRanksVisible": true,
+    "earnedLineCast": true,
+    "seventhPrimaryArcaneAutomatic": true,
+    "actualManaPaid": true,
+    "customSlotShowsRecipe": true,
+    "customActionsVisible": true,
+    "errors": []
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "width": 360,
+  "height": 640,
+  "touchButtons": true,
+  "normalMainEntry": true,
+  "defaultAfterOneBottomTarget": {
+    "x": 76.59375,
+    "y": 486.46875,
+    "width": 178,
+    "height": 17.8125
+  },
+  "stickyFooter": {
+    "x": 2,
+    "y": 510.4375,
+    "width": 327.1875,
+    "height": 127.5625
+  },
+  "targetFullyAboveFooter": true,
+  "castCancelReachable": true,
+  "errors": []
+}

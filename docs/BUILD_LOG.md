@@ -634,3 +634,26 @@ phone, landscape and desktop. Full automated suite, lint and build passed.
   configurations, generated progression histories, whole-cost refusal and stale
   previews. Full engine checks and touch/desktop browser flows were run; evidence
   is in the board-magic artifact folder. Human campaign acceptance is still open.
+
+## 2026-10-30 · Actual-main casting repair and independent review cycle
+
+- Reproduced the user's manual seven-slot interface in ordinary main-game
+  navigation. The disabled rollout flag made workshop evidence insufficient.
+- Enabled current combat rules for new/loaded main games; replaced manual
+  primary controls with read-only priority/rank/reach/Held/Cost/readiness cards.
+- Independent reviews corrected an inherited design mistake: all seven primary
+  schools auto-cast, including opponent-targeted Arcane. Advanced techniques and
+  custom Weaving stay manual. Arcane preserves learned cost/damage/drain, without
+  an extra manual gauge penalty or fictional board rows.
+- Returned small-phone findings were corrected and re-reviewed: bounded full-book
+  rail, visible manual actions, separate custom control, highlighted preview
+  spans, staged costs/shortfalls and an aimed row kept above the sticky footer.
+- Clarified mastery before equipping and guarded recovered invalid recipes.
+  Lesson/menu/skill descriptions now reflect actual board effects. Fire's
+  Power/Effect are transparently next-level training, not promised direct burn
+  damage. Lesson costs from fresh records are labeled as base costs.
+- Added actual-App navigation/earned-line checks for Fire and Arcane, full books,
+  mobile/desktop, and expanded state coverage to 78,125 seven-primary books.
+- UI/UX and gameplay AI-agent reviews returned findings, received corrections and
+  performed independent re-reviews. Reports distinguish scoped passes from human
+  or PM approval, novice comprehension, balance preferences and campaign proof.

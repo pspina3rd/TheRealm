@@ -1,5 +1,5 @@
 import { boardMagicEnemy } from './magicEncounters';
-import { BOARD_SPELLS, type MagicTarget } from './magicCasting';
+import { STANDARD_SPELLS, BOARD_SPELLS, type MagicTarget } from './magicCasting';
 import type { LockResult } from '../core/board';
 import { ELEMENTS, colorOfElement, elementsOf, type Element } from '../core/elements';
 import type { Rng } from '../core/rng';
@@ -358,8 +358,8 @@ export class CombatChallenge implements Challenge {
   }
 
   /** Why a spell can't be cast right now, or null if it can. */
-  cannotCastReason(spellId: string): string | null {
-    if (this.ctx.autoCastingEnabled && BOARD_SPELLS[spellId])
+  cannotCastReason(spellId: string, automatic = false): string | null {
+    if (this.ctx.autoCastingEnabled && STANDARD_SPELLS[spellId] && !automatic)
       return 'Automatic after a line clear.';
     const hero = this.ctx.hero;
     const cast = this.spellFor(spellId);
@@ -406,7 +406,7 @@ export class CombatChallenge implements Challenge {
    * Casts a known spell at the hero's level of it, with its enhancements.
    * It takes time: the enemy's gauge jumps `SPELL_TIME`. Throws if it can't be cast.
    */
-  castSpell(spellId: string, target?: MagicTarget): void {
+  castSpell(spellId: string, target?: MagicTarget, automatic = false): void {
     if (this.ctx.board.magicEnabled && BOARD_SPELLS[spellId]) {
       if (!target || !this.ctx.castBoardSpell)
         throw new Error('Choose a row and preview the cast.');
@@ -414,7 +414,7 @@ export class CombatChallenge implements Challenge {
       this.spendBoardSpellTime();
       return;
     }
-    const reason = this.cannotCastReason(spellId);
+    const reason = this.cannotCastReason(spellId, automatic);
     const spell = SPELLS[spellId];
     const hero = this.ctx.hero;
     const cast = this.spellFor(spellId);
@@ -498,7 +498,7 @@ export class CombatChallenge implements Challenge {
     if (cast.surge > 0 && this.status() === 'ongoing') {
       this.applySurge({ element, power: cast.surge }, 1, this.ctx.board.height - 1);
     }
-    this.spendTime(this.enemy.boss ? BOSS_SPELL_TIME : SPELL_TIME);
+    if (!automatic) this.spendTime(this.enemy.boss ? BOSS_SPELL_TIME : SPELL_TIME);
   }
 
   spendBoardSpellTime(): void {

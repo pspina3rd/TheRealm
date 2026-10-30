@@ -196,7 +196,7 @@ export function openMagicTargeting(
             'Weaken their obstructions in the selected rows; at least one strength remains.',
           nature: `The next ${rank} incoming obstructions become blank blocks.`,
           earth: `Remove anchoring for ${rank} placements by that opponent. Unsupported obstructions fall.`,
-        }[preview.element];
+        }[preview.element === 'arcane' ? 'fire' : preview.element];
         message.textContent += ' · ' + description;
       }
       const hidden =

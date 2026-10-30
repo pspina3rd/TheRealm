@@ -1,4 +1,8 @@
-import { BOARD_SPELLS } from '../battle/magicCasting';
+import { autoTarget } from '../battle/autoCasting';
+import { canAfford } from '../game/hero';
+import { isSealed } from '../game/spells';
+import { WEAVE_NAMES, weaveCost, weaveReason } from '../game/weaving';
+import { BOARD_SPELLS, STANDARD_SPELLS } from '../battle/magicCasting';
 import type { Battle } from '../battle/battle';
 import { MAX_ITEMS_PER_BATTLE } from '../battle/combat';
 import { ITEMS } from '../data/items';
@@ -50,6 +54,8 @@ export class HeroPanel {
 
   onCast: (spellId: string) => void = () => {};
   onItem: (itemId: string) => void = () => {};
+  onWeaving: () => void = () => {};
+  onArcane: () => void = () => {};
 
   private readonly atlas: Atlas;
 
@@ -103,6 +109,9 @@ export class HeroPanel {
     this.mana.update(hero);
 
     const combat = battle.combat;
+    const automatic = battle.autoCastingEnabled;
+    byId('battle-view').classList.toggle('casting-auto', automatic);
+    this.spellList.classList.toggle('auto-mode', automatic);
     this.actions.hidden = !combat;
     const ongoing = battle.status === 'ongoing' && !battle.paused && !battle.autoCastingBusy;
     const key = JSON.stringify([
@@ -115,9 +124,17 @@ export class HeroPanel {
       Boolean(combat),
       combat?.itemsUsed,
       this.open,
+      automatic,
+      automatic ? battle.board.magicState() : null,
+      battle.autoFrame
+        ? [battle.autoFrame.phase, battle.autoFrame.index, battle.autoFrame.preview.id]
+        : null,
+      battle.autoCasts.map((c) => [c.id, c.rank]),
+      hero.weaving,
     ]);
     if (key === this.controlsKey) return;
     this.controlsKey = key;
+    this.actions.querySelector('.manual-spells')?.remove();
     // Live HP/mana updates rebuild controls. Keep keyboard focus on the
     // same action instead of dropping it back to the document body.
     const focused = document.activeElement;
@@ -137,7 +154,11 @@ export class HeroPanel {
     const menu = categories.find((c) => c.category === this.open);
     // On a phone an open category's menu pops up over the board as a sheet.
     this.spellList.classList.toggle('menu-open', Boolean(menu));
-    if (menu) {
+    if (automatic) {
+      this.open = null;
+      this.choices = [];
+      this.renderAutomatic(battle, hero, ongoing, flags);
+    } else if (menu) {
       this.choices = menu.spells.map((id) => () => cast(id));
       const back = button('', () => this.setOpen(null), { title: 'Back (Esc)' });
       back.dataset.action = `back-${menu.category}`;
@@ -248,6 +269,154 @@ export class HeroPanel {
         .find((node) => node.dataset.action === focusedAction)
         ?.focus({ preventScroll: true });
     }
+  }
+
+  private renderAutomatic(
+    battle: Battle,
+    hero: Hero,
+    ongoing: boolean,
+    flags: ReadonlySet<string>,
+  ): void {
+    const order = battle.autoOrder;
+    const frame = battle.autoFrame;
+    const latest = battle.autoCasts.at(-1);
+    const nameOf = (id: string): string =>
+      id === 'shadow' ? 'Arcane' : (WEAVE_NAMES[id as keyof typeof WEAVE_NAMES] ?? id);
+    const status = el('div', {
+      className: 'auto-cast-summary',
+      text: frame
+        ? `${frame.source === 'weave' ? 'Custom' : 'Auto'} ${frame.index}/${frame.total}: ${nameOf(frame.preview.id)} Lv ${frame.preview.rank} · ${frame.phase === 'target' ? 'Targeting' : frame.phase === 'effect' ? 'Casting' : 'Applied'}`
+        : latest
+          ? `Last: ${nameOf(latest.id)} Lv ${latest.rank}`
+          : 'AUTO · Priority order · One chance per cleared line',
+    });
+    status.setAttribute('role', 'status');
+    this.spellList.replaceChildren(status);
+    for (const [priority, id] of order.entries()) {
+      const cast = heroSpell(hero, id);
+      if (!cast) continue;
+      const element = STANDARD_SPELLS[id];
+      const hits = element === 'lightning' || element === 'nature';
+      const rows =
+        element === 'earth'
+          ? [1, 2, 4, battle.board.height][cast.level - 1]
+          : hits
+            ? cast.level % 2 === 0
+              ? 2
+              : 1
+            : cast.level;
+      const reach =
+        id === 'shadow'
+          ? 'Opponent · damage + drain'
+          : rows === battle.board.height
+            ? 'Whole board'
+            : `${rows} row${rows === 1 ? '' : 's'}${hits ? ` · ${cast.level >= 3 ? 2 : 1} hit${cast.level >= 3 ? 's' : ''}` : ''}`;
+      const current = frame?.preview.id === id && frame.source !== 'weave';
+      const readiness = current
+        ? 'Casting'
+        : isSealed(hero, id)
+          ? 'Sealed'
+          : !canAfford(hero, cast.cost)
+            ? 'Waiting for mana'
+            : autoTarget(battle.magicCasting, id)
+              ? 'Ready'
+              : 'No useful target';
+      const amounts = Object.entries(cast.cost)
+        .map(([e, n]) => `Held ${hero.mana[e as keyof typeof hero.mana]} · Cost ${n} ${e}`)
+        .join(' + ');
+      const card = el(
+        'article',
+        { className: `auto-standard${current ? ' casting-now' : ''}` },
+        el('b', { text: `${priority + 1}. ${nameOf(id)} · Lv ${cast.level}` }),
+        el('small', { text: amounts }),
+        el('small', { text: `${reach} · ${readiness}` }),
+      );
+      card.dataset.spell = id;
+      card.setAttribute(
+        'aria-label',
+        `${nameOf(id)} level ${cast.level}, automatic, priority ${priority + 1}, ${reach}, ${amounts}, ${readiness}`,
+      );
+      this.spellList.append(card);
+    }
+    if (!order.length)
+      this.spellList.append(
+        el('p', {
+          className: 'auto-empty',
+          text: 'No standard spells learned. Clear lines to fight and earn mana.',
+        }),
+      );
+    const manual = el('div', { className: 'manual-spells' });
+    if (Object.keys(hero.arcane ?? {}).length)
+      manual.append(
+        button('Arcane techniques · Opponent', () => this.onArcane(), { disabled: !ongoing }),
+      );
+    const recipe = hero.weaving?.recipes.find((r) => r.id === hero.weaving?.equipped);
+    if (recipe) {
+      const sequence = recipe.stages.map((s) => `${nameOf(s.spell)} Lv ${s.rank}`).join(' → ');
+      const recipeReason = weaveReason(hero, flags, recipe);
+      let cost = recipeReason ?? '';
+      if (!recipeReason)
+        cost = Object.entries(weaveCost(hero, recipe))
+          .map(([e, n]) => `${n} ${e}`)
+          .join(' + ');
+      const node = button(`${recipe.name} · ${sequence} · ${cost}`, () => this.onWeaving(), {
+        disabled: !ongoing || !!recipeReason,
+      });
+      node.className = 'equipped-weaving';
+      node.setAttribute('aria-label', `Cast custom spell ${recipe.name}: ${sequence}, ${cost}`);
+      manual.append(node);
+    }
+    const supportIds = Object.keys(hero.spells).filter((id) => !STANDARD_SPELLS[id]);
+    if (supportIds.length)
+      manual.append(
+        button(
+          'Support spells · Manual',
+          () => {
+            const dialog = el('dialog', { className: 'magic-target-dialog' });
+            const paused = battle.paused;
+            battle.paused = true;
+            const close = (): void => {
+              battle.paused = paused;
+              dialog.close();
+              dialog.remove();
+            };
+            dialog.append(el('h2', { text: 'Manual support spells' }));
+            for (const id of supportIds) {
+              const cast = heroSpell(hero, id);
+              if (!cast) continue;
+              dialog.append(
+                button(
+                  `${cast.name} Lv ${cast.level}`,
+                  () => {
+                    close();
+                    this.onCast(id);
+                  },
+                  { disabled: battle.combat?.cannotCastReason(id) !== null },
+                ),
+              );
+            }
+            dialog.append(button('Cancel', close));
+            dialog.addEventListener('cancel', (e) => {
+              e.preventDefault();
+              close();
+            });
+            document.body.append(dialog);
+            dialog.showModal();
+          },
+          { disabled: !ongoing },
+        ),
+      );
+    if (manual.childElementCount) this.actions.append(manual);
+    this.spellList.style.minHeight = '';
+    this.spellList.style.gridAutoRows = '';
+    byId('battle-view').style.setProperty(
+      '--auto-manual-h',
+      `${manual.childElementCount ? Math.ceil(manual.childElementCount / 2) * 48 : 0}px`,
+    );
+    byId('battle-view').style.setProperty(
+      '--auto-spells-h',
+      `${30 + Math.max(1, Math.ceil(order.length / 3)) * 68 + (manual.childElementCount ? Math.ceil(manual.childElementCount / 2) * 58 : 0)}px`,
+    );
   }
 
   private setOpen(category: Element | null): void {

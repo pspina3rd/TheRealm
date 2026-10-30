@@ -146,7 +146,7 @@ export class App {
         () => this.save(),
       );
   });
-  private readonly weavingButton = button('Weaving', () => {
+  private readonly weavingButton = button('Custom spell', () => {
     const battle = this.active?.battle;
     if (battle)
       openWeavingTargeting(
@@ -175,6 +175,7 @@ export class App {
     const saved = loaded.state;
     this.started = saved !== null;
     this.state = saved ?? newGame();
+    this.state.flags.add('boardMagicEnabled');
     this.world = new WorldView(byId<HTMLCanvasElement>('world-canvas'), atlas);
     this.battleView = new BattleView(atlas);
     byId('hud-hp-icon').replaceChildren(iconElement('heart', 2, 'HP'));
@@ -193,6 +194,8 @@ export class App {
         );
       } else this.tryCombat(id, (c) => c.castSpell(id));
     };
+    this.battleView.hero.onWeaving = () => this.weavingButton.click();
+    this.battleView.hero.onArcane = () => this.arcaneButton.click();
     this.battleView.hero.onItem = (id) => this.tryCombat(id, (c) => c.useItem(id));
     this.leaveBattleButton.className = 'leave-battle';
     byId('pause-button').after(this.leaveBattleButton);
@@ -203,6 +206,7 @@ export class App {
     this.arcaneButton.className = 'arcane-cast';
     this.arcaneButton.hidden = true;
     this.correctionButton.after(this.arcaneButton);
+    this.weavingButton.className = 'weaving-cast';
     this.weavingButton.hidden = true;
     this.arcaneButton.after(this.weavingButton);
     this.bindInput();
@@ -684,10 +688,8 @@ export class App {
     const rule = spec.kind === 'combat' ? MAP_RULES[this.state.mapId] : undefined;
     const battle = new Battle(spec, this.state.hero, this.rng, {
       weights,
-      boardMagic:
-        this.state.flags.has('boardMagicEnabled') &&
-        (spec.kind === 'combat' || spec.kind === 'lesson'),
-      autoCast: this.state.flags.has('boardMagicEnabled') && spec.kind === 'combat',
+      boardMagic: spec.kind === 'combat' || spec.kind === 'lesson',
+      autoCast: spec.kind === 'combat',
       autoCastPacingMs: 500,
       storyFlags: this.state.flags,
       dualChance: dual,
@@ -1146,6 +1148,7 @@ export class App {
   private startNewGame(classId: string): void {
     deleteSave(this.store);
     this.state = newGame(classId);
+    this.state.flags.add('boardMagicEnabled');
     this.started = true;
     this.save();
     this.dialog.close();

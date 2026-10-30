@@ -1,3 +1,33 @@
+# Current player-facing casting contract · October 30 correction
+
+The main game now enables the current board-magic rules for both new and loaded
+adventures. The old workshop-only rollout gate caused a real user-path defect
+and is superseded by this correction.
+
+All **seven primary schools** auto-cast from earned line opportunities at their
+learned ranks and real mana costs: Fire, Ice, Gravity, Wind, Lightning, Nature
+conversion, and opponent-targeted Arcane (the existing Shadow Drain effect).
+Primary Arcane uses the same affinity order/budget and has no extra manual-cast
+clock penalty or board-row target. Advanced Arcane techniques and custom ordered
+Weaving stay manual. Healing/support spells remain distinct manual actions.
+
+Main combat uses read-only priority/rank/reach/Held/Cost/readiness cards; no
+standard spell needs selection. Phone layouts put the full spellbook in a bounded
+rail and keep manual actions separately visible. Weaving previews highlight the
+actual selected spans, show both staged costs and named mana shortages, and keep
+controls/actions reachable. Recipe mastery limits and paid strength unlocks are
+shown before first equipment.
+
+Independent AI-agent UI/UX and gameplay reviews returned the implementation for
+corrections, then re-reviewed actual main-game paths and recorded scoped passes:
+[UI review](reviews/CASTING_UI_REVIEW.md), [gameplay review](reviews/CASTING_GAME_REVIEW.md).
+These are not human designer or project-manager approval, exhaustive campaign
+acceptance, or proof of novice comprehension. The historical notes below record
+the prior implementation; this current contract overrides conflicting six-auto,
+manual-primary-Arcane, or disabled-main-rollout language.
+
+---
+
 # Board magic implementation contract
 
 ## Author correction · October 30

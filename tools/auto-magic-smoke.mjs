@@ -32,16 +32,16 @@ try {
     assert.equal(await page.locator('.auto-spell').count(), 0);
     await page.getByRole('button', { name: 'Exercises', exact: true }).click();
     await page.getByRole('button', { name: 'Supplied spells · Lv 1', exact: true }).click();
-    assert.equal(await page.locator('.auto-spell').count(), 6);
+    assert.equal(await page.locator('.auto-spell').count(), 7);
     assert.equal(
       await page.locator('.spell-strip button').count(),
       0,
       'Standard readiness cards must not require selection.',
     );
-    assert.equal(await page.locator('.auto-rank').filter({ hasText: 'Lv1' }).count(), 6);
+    assert.equal(await page.locator('.auto-rank').filter({ hasText: 'Lv1' }).count(), 7);
     await page.getByRole('button', { name: 'Exercises', exact: true }).click();
     await page.getByRole('button', { name: 'Supplied spells · Lv 4', exact: true }).click();
-    assert.equal(await page.locator('.auto-rank').filter({ hasText: 'Lv4' }).count(), 6);
+    assert.equal(await page.locator('.auto-rank').filter({ hasText: 'Lv4' }).count(), 7);
     const controls = await page.locator('.piece-controls').boundingBox();
     await page.locator('.auto-spell').first().click();
     await page.keyboard.press('1');

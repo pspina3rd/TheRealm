@@ -372,18 +372,24 @@ bot or a human campaign completion proof.
 On GetPutTaco, run `npm install` and `npm run dev`, then open
 **http://localhost:5173/workshop.html** (or the port Vite prints). This isolated
 development fixture contains durable obstructions, elemental board spells,
-NPC interference, line-driven standard autocasting, seventh-group opponent Arcane
-techniques, and separate custom Arcane Weaving. It uses a separate save namespace.
+NPC interference, line-driven automatic casting for all seven primaries (including opponent-targeted
+base Arcane), manual advanced techniques, and separate custom Arcane Weaving. It uses a separate save namespace.
 New players start with zero spells and earned mana; Exercises lets you choose
 learning order and independent upgrades. Supplied spells/mana are labeled debug
 controls. Desktop and touch have distinct encounter
 layouts, with visible affinity order, learned ranks, mana readiness and stable
-movement controls. Clear the opening two lines to try two automatic casts.
+movement controls. The default workshop starts with no spells; supplied loadouts
+are optional debug scenarios for isolating effects.
 See [the workshop playtest instructions](docs/BOARD_MAGIC_PLAYTEST.md).
 
-The existing adventure keeps its current rules while the workshop is reviewed.
-Campaign wiring and selected encounter variants are implemented behind the
-`boardMagicEnabled` rollout flag; new adventure saves do not receive that flag
-yet. This does not mark the new campaign-wide balance or the M1 author playtest
-as accepted. Saves are now version 14, preserving empty spellbooks, existing ownership, custom
+The main application enables the current rules for both new and loaded games.
+This fixes the old flag mismatch between the workshop and ordinary combat.
+It does not mark campaign-wide balance or the M1 author playtest as accepted.
+Saves are version 14, preserving empty spellbooks, existing ownership, custom
 recipes, earlier migrations and recovery.
+
+The **main game** now uses these casting rules for new and loaded adventures;
+standard spells are read-only AUTO cards, not seven manual category buttons.
+See the [casting playtest instructions](docs/BOARD_MAGIC_PLAYTEST.md) and the
+[independent review records](docs/reviews/CASTING_UI_REVIEW.md) for corrected
+behavior and the limits of the reviewed scope.

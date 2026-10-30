@@ -2,7 +2,7 @@ import { required } from '../core/required';
 import { previewWeave, commitWeave, type WeavePreview } from './weaving';
 import { ArcaneInterference, type ObstructionPlacement, type PlacementIntent } from './arcane';
 import { autoSpellOrder, autoTarget } from './autoCasting';
-import { BOARD_SPELLS } from './magicCasting';
+import { STANDARD_SPELLS } from './magicCasting';
 import { MagicCasting, type MagicTarget, type CastPreview } from './magicCasting';
 import { spanFor, type MagicResolution, type MagicState } from '../core/boardMagic';
 import { BOARD_HEIGHT, BOARD_WIDTH, Board, type LockResult, type QueuedPiece } from '../core/board';
@@ -79,7 +79,7 @@ const NEARLY = 0.85;
 
 export interface BattleOptions {
   readonly boardMagic?: boolean;
-  /** Opt-in rollout: one standard cast per earned line; Arcane stays manual. */
+  /** One primary cast per earned line; advanced techniques and custom Weaving stay manual. */
   readonly autoCast?: boolean;
   readonly autoCastPacingMs?: number;
   readonly storyFlags?: ReadonlySet<string>;
@@ -192,6 +192,12 @@ export class Battle implements BattleContext {
       this.combat?.actMs ?? 7000,
       () => this.combat?.spellBook() ?? hero.spells,
       spec.kind === 'lesson' ? spec.spellId : undefined,
+      {
+        reason: () =>
+          this.combat?.cannotCastReason('shadow', true) ??
+          (this.combat ? null : 'No opponent here.'),
+        cast: () => this.combat?.castSpell('shadow', undefined, true),
+      },
     );
     this.started =
       !this.challenge.preroll && !(spec.kind === 'lesson' && spec.mentorId === 'hazel');
@@ -343,7 +349,7 @@ export class Battle implements BattleContext {
   castBoardSpell(id: string, target: MagicTarget): void {
     if (this.autoCastingBusy && !this.resolvingAuto)
       throw new Error('Wait for the current automatic cast.');
-    if (this.autoCastingEnabled && BOARD_SPELLS[id] && !this.resolvingAuto)
+    if (this.autoCastingEnabled && STANDARD_SPELLS[id] && !this.resolvingAuto)
       throw new Error('Standard spells cast automatically after line clears.');
     if (this.status !== 'ongoing' || this.demoPlaying)
       throw new Error('This encounter is not accepting spells.');
@@ -468,8 +474,10 @@ export class Battle implements BattleContext {
   }
   private applyAutomatic(preview: CastPreview, before: MagicState): void {
     const resolution = this.magicCasting.commit(preview);
-    this.emit({ kind: 'spell', spellId: preview.id });
-    this.rewardMagic(resolution, preview.powerScale, preview.surge, preview.element);
+    if (!preview.character) {
+      this.emit({ kind: 'spell', spellId: preview.id });
+      this.rewardMagic(resolution, preview.powerScale, preview.surge, preview.element);
+    }
     this.autoCasts.push({
       id: preview.id,
       rank: preview.rank,
@@ -487,7 +495,7 @@ export class Battle implements BattleContext {
       spellId: preview.id,
       element: preview.element,
       rank: preview.rank,
-      rows: Array.from({ length: bottom - top + 1 }, (_, i) => top + i),
+      rows: preview.character ? [] : Array.from({ length: bottom - top + 1 }, (_, i) => top + i),
     });
   }
   private startAutomatic(): void {

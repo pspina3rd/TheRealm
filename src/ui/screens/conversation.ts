@@ -1,3 +1,5 @@
+import { standardName, standardSpellText } from '../standardSpellText';
+import { costIcons } from '../manaBars';
 import { ELEMENT_NAMES } from '../../core/elements';
 import { ITEMS } from '../../data/items';
 import { SPELLS } from '../../data/spells';
@@ -54,10 +56,19 @@ function lessonButton(
   node.className = 'lesson';
   if (!spell) return node;
   const cast = castSpellFor(spell, { ...newKnownSpell(), level: lesson.level });
-  node.title = castSummary(cast);
+  const current = standardSpellText(lesson.spellId, cast);
+  node.title = current ?? castSummary(cast);
   node.append(
     iconElement(ELEMENT_ICONS[spell.category], 3, ELEMENT_NAMES[spell.category]),
-    el('span', {}, el('b', { text: cast.name }), levelPips(spell, lesson.level), spellMeta(cast)),
+    el(
+      'span',
+      {},
+      el('b', { text: `${standardName(lesson.spellId) ?? cast.name} · Lv ${lesson.level}` }),
+      levelPips(spell, lesson.level),
+      current
+        ? el('small', { text: current }, el('span', { text: ' Base cost: ' }), costIcons(cast.cost))
+        : spellMeta(cast),
+    ),
     failed
       ? iconElement('lock', 2, 'Win this lesson to lift the seal')
       : lesson.level > 1

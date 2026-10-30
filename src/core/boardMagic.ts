@@ -75,7 +75,11 @@ export function emptyMagic(width: number, height: number): MagicState {
     pendingRows: [],
   };
 }
-export function spanFor(spell: BoardSpell, height: number): [number, number] {
+export function spanFor(
+  spell: Omit<BoardSpell, 'element'> & { element: BoardElement | 'arcane' },
+  height: number,
+): [number, number] {
+  if (spell.element === 'arcane') return [0, -1];
   const rank = Math.max(1, Math.min(4, Math.floor(spell.rank)));
   const rows =
     spell.element === 'earth'

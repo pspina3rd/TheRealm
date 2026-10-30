@@ -1,3 +1,5 @@
+import { costIcons } from '../manaBars';
+import { standardName, standardSpellText } from '../standardSpellText';
 import { ELEMENTS, type Element } from '../../core/elements';
 import type { HiddenSlot } from '../../game/hidden';
 import { ITEMS } from '../../data/items';
@@ -167,15 +169,17 @@ export function menuBody(
             'div',
             {
               className: `spell-tile${ready ? ' ready' : ''}`,
-              title: castSummary(cast),
+              title: standardSpellText(id, cast) ?? castSummary(cast),
             },
             iconElement(ELEMENT_ICONS[spell.category], 3),
             el(
               'span',
               {},
-              el('b', { text: cast.name }),
+              el('b', { text: `${standardName(id) ?? cast.name} · Lv ${cast.level}` }),
               levelPips(spell, cast.level),
-              spellMeta(cast),
+              standardSpellText(id, cast)
+                ? el('small', { text: standardSpellText(id, cast) ?? '' }, costIcons(cast.cost))
+                : spellMeta(cast),
             ),
             ...(ready
               ? [iconElement('scroll', 2, 'Ready: a mentor can teach the next level')]

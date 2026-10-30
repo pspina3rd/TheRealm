@@ -1,18 +1,18 @@
-/** Deterministic line-driven scheduling. It never casts Arcane or mutates a preview. */
+/** Deterministic line-driven scheduling. Seven primaries are automatic; advanced techniques and custom Weaving stay manual. */
 import { required } from '../core/required';
 import type { Hero } from '../game/hero';
 import { alignmentOf } from '../game/alignment';
-import { BOARD_SPELLS, type CastPreview, type MagicCasting } from './magicCasting';
+import { STANDARD_SPELLS, type CastPreview, type MagicCasting } from './magicCasting';
 import type { MagicState } from '../core/boardMagic';
 
 /** Existing elemental alignment is affinity; title breaks ties, then stable spell order. */
 export function autoSpellOrder(hero: Hero, book = hero.spells): string[] {
   const affinity = alignmentOf(book);
-  return Object.keys(BOARD_SPELLS)
+  return Object.keys(STANDARD_SPELLS)
     .filter((id) => book[id])
     .sort((a, b) => {
-      const ae = required(BOARD_SPELLS[a]),
-        be = required(BOARD_SPELLS[b]);
+      const ae = required(STANDARD_SPELLS[a]),
+        be = required(STANDARD_SPELLS[b]);
       return (
         affinity[be] - affinity[ae] ||
         Number(be === hero.titleElement) - Number(ae === hero.titleElement)
@@ -37,7 +37,11 @@ function quality(state: MagicState): number {
 }
 /** Prefer clears, obstruction damage/conversion, then improved stack shape. */
 export function autoTarget(casting: MagicCasting, id: string): CastPreview | null {
-  if (!BOARD_SPELLS[id] || !casting.book()[id]) return null;
+  if (!STANDARD_SPELLS[id] || !casting.book()[id]) return null;
+  if (id === 'shadow') {
+    const preview = casting.preview(id, { bottomRow: 0, direction: 1 });
+    return preview.reason ? null : preview;
+  }
   const before = casting.board.magicState();
   const beforeQuality = quality(before);
   const strength = Object.values(before.obstructions).reduce((s, o) => s + o.strength, 0);

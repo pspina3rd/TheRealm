@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { autoSpellOrder } from '../src/battle/autoCasting';
-import { BOARD_SPELLS } from '../src/battle/magicCasting';
+import { BOARD_SPELLS, STANDARD_SPELLS } from '../src/battle/magicCasting';
 import {
   createHero,
   learnSpell,
@@ -24,32 +24,32 @@ describe('player-chosen spell progression', () => {
       expect(deserialize(serialize(state))!.hero.spells).toEqual({});
     }
   });
-  it('covers all 15,625 base spellbooks, including empty books and mixed ranks', () => {
+  it('covers all 78,125 seven-primary spellbooks, including empty books and mixed ranks', () => {
     const hero = createHero();
     hero.titleElement = 'fire';
     let checked = 0;
-    for (let encoded = 0; encoded < 5 ** 6; encoded++) {
+    for (let encoded = 0; encoded < 5 ** 7; encoded++) {
       let remaining = encoded;
       hero.spells = {};
-      for (const id of ids) {
+      for (const id of Object.keys(STANDARD_SPELLS)) {
         const rank = remaining % 5;
         remaining = Math.floor(remaining / 5);
         if (rank) hero.spells[id] = { ...newKnownSpell(), level: rank };
       }
       const before = JSON.stringify(hero.spells);
       const order = autoSpellOrder(hero);
-      const expected = ids
+      const expected = Object.keys(STANDARD_SPELLS)
         .filter((id) => hero.spells[id])
         .sort(
           (a, b) =>
             hero.spells[b]!.level - hero.spells[a]!.level ||
-            Number(BOARD_SPELLS[b] === 'fire') - Number(BOARD_SPELLS[a] === 'fire'),
+            Number(STANDARD_SPELLS[b] === 'fire') - Number(STANDARD_SPELLS[a] === 'fire'),
         );
       expect(order).toEqual(expected);
       expect(JSON.stringify(hero.spells)).toBe(before);
       checked++;
     }
-    expect(checked).toBe(15625);
+    expect(checked).toBe(78125);
   });
   it('allows every acquisition order through mentor offers without requiring another base school', () => {
     let prefixes = 0,

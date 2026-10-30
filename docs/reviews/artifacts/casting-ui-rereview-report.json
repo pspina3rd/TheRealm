@@ -1,0 +1,74 @@
+[
+  {
+    "w": 360,
+    "h": 640,
+    "touchButtons": false,
+    "allSevenPrimariesReadOnly": true,
+    "allRankCostLabelsReachable": true,
+    "manualArcaneCustomSupportInViewport": true,
+    "visibleAimSpans": true,
+    "sliderMovesHighlight": true,
+    "castCancelReachable": true,
+    "errors": []
+  },
+  {
+    "w": 360,
+    "h": 640,
+    "touchButtons": true,
+    "allSevenPrimariesReadOnly": true,
+    "allRankCostLabelsReachable": true,
+    "manualArcaneCustomSupportInViewport": true,
+    "visibleAimSpans": true,
+    "sliderMovesHighlight": true,
+    "castCancelReachable": true,
+    "errors": []
+  },
+  {
+    "w": 390,
+    "h": 844,
+    "touchButtons": false,
+    "allSevenPrimariesReadOnly": true,
+    "allRankCostLabelsReachable": true,
+    "manualArcaneCustomSupportInViewport": true,
+    "visibleAimSpans": true,
+    "sliderMovesHighlight": true,
+    "castCancelReachable": true,
+    "errors": []
+  },
+  {
+    "w": 390,
+    "h": 844,
+    "touchButtons": true,
+    "allSevenPrimariesReadOnly": true,
+    "allRankCostLabelsReachable": true,
+    "manualArcaneCustomSupportInViewport": true,
+    "visibleAimSpans": true,
+    "sliderMovesHighlight": true,
+    "castCancelReachable": true,
+    "errors": []
+  },
+  {
+    "w": 1100,
+    "h": 900,
+    "touchButtons": false,
+    "allSevenPrimariesReadOnly": true,
+    "allRankCostLabelsReachable": true,
+    "manualArcaneCustomSupportInViewport": true,
+    "visibleAimSpans": true,
+    "sliderMovesHighlight": true,
+    "castCancelReachable": true,
+    "errors": []
+  },
+  {
+    "w": 1100,
+    "h": 900,
+    "touchButtons": true,
+    "allSevenPrimariesReadOnly": true,
+    "allRankCostLabelsReachable": true,
+    "manualArcaneCustomSupportInViewport": true,
+    "visibleAimSpans": true,
+    "sliderMovesHighlight": true,
+    "castCancelReachable": true,
+    "errors": []
+  }
+]

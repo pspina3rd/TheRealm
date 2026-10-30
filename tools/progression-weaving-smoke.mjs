@@ -84,7 +84,9 @@ try {
       await page.getByLabel('Effect 1', { exact: true }).selectOption('fire');
       await page.getByLabel('Effect 2', { exact: true }).selectOption('quake');
       await page.getByRole('button', { name: 'Save and equip', exact: true }).click();
-      await page.getByRole('button', { name: 'Upgrade weaving · 6 points', exact: true }).click();
+      await page
+        .getByRole('button', { name: 'Unlock Lv 2 strengths · 6 points', exact: true })
+        .click();
       await page.getByLabel('Effect 1 strength', { exact: true }).selectOption('2');
       await page.getByRole('button', { name: 'Save and equip', exact: true }).click();
       assert.match(await page.locator('.weave-cost').innerText(), /fire.*earth/);
@@ -99,7 +101,10 @@ try {
         await page.getByRole('button', { name: 'Cast custom spell', exact: true }).isEnabled(),
         false,
       );
-      assert.match(await page.locator('.weaving-target [role=status]').innerText(), /both effects/);
+      assert.match(
+        await page.locator('.weaving-target [role=status]').innerText(),
+        /more fire needed.*more earth needed/,
+      );
       await page.getByRole('button', { name: 'Cancel', exact: true }).click();
       await setup('Supply mana (debug)');
       await page.getByRole('button', { name: 'Arcane', exact: true }).click();

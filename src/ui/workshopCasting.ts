@@ -20,6 +20,7 @@ const amount = (n: number, singular: string, plural = `${singular}s`): string =>
   `${n} ${n === 1 ? singular : plural}`;
 export function castConsequence(before: MagicState, preview: CastPreview): string {
   if (preview.reason) return preview.reason;
+  if (preview.character) return 'Strike the opponent with Arcane and recover HP.';
   const { element, rank, resolution, target } = preview;
   if (preview.id.startsWith('arcane:')) {
     return {
@@ -29,6 +30,7 @@ export function castConsequence(before: MagicState, preview: CastPreview): strin
       earth: `Unanchor Slime’s blocks for ${amount(rank, 'move')}.`,
       wind: `Shift next ${amount(rank, 'send')} ${target.direction < 0 ? 'left' : 'right'}.`,
       lightning: 'Weaken Slime’s stone in the marked rows.',
+      arcane: 'Strike the opponent and recover HP.',
     }[element];
   }
   const survivors = new Map(Object.values(resolution.state.obstructions).map((o) => [o.id, o]));

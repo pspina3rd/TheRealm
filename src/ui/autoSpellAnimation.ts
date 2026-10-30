@@ -28,6 +28,7 @@ export function drawAutoSpell(
   time: number,
   reducedMotion = false,
 ): void {
+  if (frame.preview.character) return;
   const { preview, before } = frame,
     result = preview.resolution,
     effect = result.effectState ?? result.state;

@@ -353,7 +353,13 @@ function renderPalette(): void {
         element,
       }))
     : battle.autoCastingEnabled
-      ? battle.autoOrder.map((id) => required(PRACTICE_SPELLS.find((s) => s.id === id)))
+      ? battle.autoOrder.map((id) =>
+          required(
+            [...PRACTICE_SPELLS, { id: 'shadow', name: 'Arcane', element: 'arcane' as const }].find(
+              (s) => s.id === id,
+            ),
+          ),
+        )
       : PRACTICE_SPELLS;
   if (options.length === 0)
     palette.append(
@@ -407,6 +413,7 @@ function renderPalette(): void {
         water: MAGIC_COLORS.blue,
         fire: MAGIC_COLORS.red,
         wind: MAGIC_COLORS.cyan,
+        arcane: MAGIC_COLORS.violet,
       }[spell.element] ?? '#aaa',
     );
     palette.append(node);
@@ -700,7 +707,9 @@ function refresh(): void {
   ]
     .filter(Boolean)
     .join(' · ');
-  const characterTarget = mode === 'aim' && !!selected?.startsWith('arcane:') && !needsRow();
+  const characterTarget =
+    !!battle.autoFrame?.preview.character ||
+    (mode === 'aim' && !!selected?.startsWith('arcane:') && !needsRow());
   enemy.classList.toggle('character-target', characterTarget);
   enemy.setAttribute('aria-label', characterTarget ? 'Slime, spell target' : 'Slime');
   const definition = PRACTICE_SPELLS.find((s) => s.id === selected);
@@ -858,7 +867,7 @@ function refreshMana(): void {
       if (battle.autoCastingEnabled && !arcaneBank) {
         node.setAttribute(
           'aria-label',
-          `${PRACTICE_SPELLS.find((s) => s.id === id)?.name} · level ${p.rank} · ${ready ? 'Ready for next line' : 'Charging'} · cost ${total}, held ${available}`,
+          `${[...PRACTICE_SPELLS, { id: 'shadow', name: 'Arcane', element: 'arcane' as const }].find((s) => s.id === id)?.name} · level ${p.rank} · ${ready ? 'Ready for next line' : 'Charging'} · cost ${total}, held ${available}`,
         );
       }
       node.classList.toggle('unaffordable', p.reason === 'Not enough mana.');

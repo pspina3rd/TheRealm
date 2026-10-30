@@ -92,7 +92,12 @@ export function lessonsFor(seeker: Seeker, mentor: MentorDef): Lesson[] {
         (spell.category !== 'arcane' || arcaneUnlocked(seeker.flags)) &&
         (!spell.boardOnly || seeker.flags.has('boardMagicEnabled')),
     )
-    .sort((a, b) => ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role))
+    .sort(
+      (a, b) =>
+        Number(seeker.flags.has('boardMagicEnabled') && b.id === 'natureConvert') -
+          Number(seeker.flags.has('boardMagicEnabled') && a.id === 'natureConvert') ||
+        ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role),
+    )
     .flatMap((spell): Lesson[] => {
       const known = knownSpell(hero, spell.id);
       const level = known ? known.level + 1 : 1;

@@ -17,11 +17,19 @@ export function openWeavingTargeting(
     { bottomRow: battle.board.height - 1, direction: 1 },
     { bottomRow: battle.board.height - 1, direction: 1 },
   ];
-  const controls = el('div'),
+  const controls = el('div', { className: 'weave-target-controls' }),
     views = el('div', { className: 'weave-previews' }),
     message = el('p');
   message.setAttribute('role', 'status');
-  const targetControls: { label: HTMLLabelElement; direction: HTMLSelectElement }[] = [];
+  const targetControls: {
+    label: HTMLLabelElement;
+    direction: HTMLSelectElement;
+    group: HTMLElement;
+  }[] = [];
+  let selectedPhase = 0;
+  const tabs = el('div', { className: 'weave-phase-tabs' });
+  tabs.setAttribute('role', 'tablist');
+  const tabButtons: HTMLButtonElement[] = [];
   let preview: WeavePreview | null = null;
   const close = (): void => {
     battle.paused = priorPaused;
@@ -51,21 +59,59 @@ export function openWeavingTargeting(
         battle.rule?.id === 'dark'
           ? visibleCells(battle.board).map((r) => r.map((v) => !v))
           : undefined;
+      views.dataset.phase = String(selectedPhase);
+      controls.dataset.phase = String(selectedPhase);
+      tabButtons.forEach((tab, i) =>
+        tab.setAttribute('aria-selected', String(i === selectedPhase)),
+      );
+      const spans = preview.stages.map((s) =>
+        spanFor(
+          {
+            element: s.preview.element,
+            rank: s.preview.rank,
+            bottomRow: s.preview.target.bottomRow,
+          },
+          battle.board.height,
+        ),
+      );
       views.replaceChildren(
         el(
           'section',
-          {},
-          el('h3', { text: 'Before' }),
-          magicGrid(battle.board.magicState(), { hidden }),
+          { className: 'weave-before' },
+          el('h3', { text: 'Before · aim effect 1' }),
+          magicGrid(battle.board.magicState(), {
+            hidden,
+            selected: spans[0],
+            onRow: (y) => {
+              targets[0].bottomRow = y;
+              refresh();
+            },
+          }),
         ),
       );
       preview.stages.forEach((stage, i) =>
         views.append(
           el(
             'section',
-            {},
-            el('h3', { text: `${i + 1}. ${stage.preview.name} · Lv ${stage.preview.rank}` }),
-            magicGrid(stage.preview.resolution.state, { hidden }),
+            { className: `weave-after-${i + 1}` },
+            el('h3', {
+              text: `${i + 1}. ${stage.preview.name} · Lv ${stage.preview.rank} · ${Object.entries(
+                stage.preview.cost,
+              )
+                .map(([e, n]) => `${n} ${e}`)
+                .join(' + ')}`,
+            }),
+            magicGrid(stage.preview.resolution.state, {
+              hidden,
+              selected: i === 0 ? spans[1] : undefined,
+              onRow:
+                i === 0
+                  ? (y) => {
+                      targets[1].bottomRow = y;
+                      refresh();
+                    }
+                  : undefined,
+            }),
           ),
         ),
       );
@@ -84,12 +130,32 @@ export function openWeavingTargeting(
           controls.label.firstChild.textContent = `${index + 1}. ${stage.preview.name} · rows ${top + 1}–${bottom + 1} from top `;
         controls.direction.hidden = stage.preview.element !== 'wind';
       });
+      const short = Object.entries(preview.cost)
+        .filter(([e, n]) => battle.hero.mana[e as keyof typeof battle.hero.mana] < n)
+        .map(
+          ([e, n]) =>
+            `${n - battle.hero.mana[e as keyof typeof battle.hero.mana]} more ${e} needed (held ${battle.hero.mana[e as keyof typeof battle.hero.mana]}, cost ${n})`,
+        )
+        .join('; ');
       message.textContent = `${preview.name} · ${Object.entries(preview.cost)
         .map(([e, n]) => `${n} ${e}`)
         .join(
           ' + ',
-        )} · ${preview.reason ?? 'Both effects cast in this order. Mana is spent once.'}`;
+        )} · ${short || preview.reason || 'Both effects cast in this order. Mana is spent once.'}`;
       cast.disabled = !!preview.reason;
+      if (matchMedia('(max-width: 480px)').matches)
+        requestAnimationFrame(() => {
+          const active = views.children[selectedPhase];
+          const marked = active?.querySelectorAll<HTMLElement>('.magic-row.selected');
+          const first = marked?.[0],
+            last = marked?.[marked.length - 1];
+          if (!first || !last) return;
+          const box = views.getBoundingClientRect(),
+            end = last.getBoundingClientRect(),
+            start = first.getBoundingClientRect();
+          if (end.bottom > box.bottom) views.scrollTop += end.bottom - box.bottom + 2;
+          else if (start.top < box.top) views.scrollTop -= box.top - start.top + 2;
+        });
     } catch (error) {
       cast.disabled = true;
       message.textContent = error instanceof Error ? error.message : 'Unavailable.';
@@ -122,17 +188,26 @@ export function openWeavingTargeting(
       refresh();
     });
     const label = el('label', {}, `Effect ${index + 1} row `, row);
-    targetControls.push({ label, direction });
-    controls.append(label, direction);
+    const group = el('section', { className: `weave-control-${index}` }, label, direction);
+    targetControls.push({ label, direction, group });
+    controls.append(group);
   }
-  dialog.append(
-    el('h2', { text: 'Cast equipped weaving' }),
+  for (const [index, text] of ['Before · aim 1', 'After 1 · aim 2', 'After 2 · result'].entries()) {
+    const tab = button(text, () => {
+      selectedPhase = index;
+      refresh();
+    });
+    tab.setAttribute('role', 'tab');
+    tabButtons.push(tab);
+    tabs.append(tab);
+  }
+  const footer = el(
+    'div',
+    { className: 'weave-cast-footer' },
     message,
-    views,
-    controls,
-    button('Cancel', close),
-    cast,
+    el('div', {}, button('Cancel', close), cast),
   );
+  dialog.append(el('h2', { text: 'Cast custom spell' }), tabs, controls, views, footer);
   dialog.addEventListener('cancel', (event) => {
     event.preventDefault();
     close();

@@ -1,3 +1,4 @@
+import type { Element } from '../core/elements';
 import { required } from '../core/required';
 import { Board } from '../core/board';
 import { createRng } from '../core/rng';
@@ -16,6 +17,10 @@ export const BOARD_SPELLS: Readonly<Record<string, BoardElement>> = {
   thunder: 'lightning',
   natureConvert: 'nature',
 };
+export const STANDARD_SPELLS: Readonly<Record<string, Element>> = {
+  ...BOARD_SPELLS,
+  shadow: 'arcane',
+};
 export const GRAVITY_NAMES = ['Gravity', 'Mudslide', 'Earthquake', 'Avalanche'] as const;
 export interface MagicTarget {
   bottomRow: number;
@@ -33,7 +38,8 @@ export interface CastPreview {
   reason: string | null;
   powerScale: number;
   surge: number;
-  element: BoardElement;
+  element: Element;
+  character?: boolean;
 }
 export class MagicCasting {
   constructor(
@@ -45,6 +51,7 @@ export class MagicCasting {
     readonly intervalMs: number,
     readonly book: () => Hero['spells'] = () => hero.spells,
     readonly unsealedId?: string,
+    readonly characterCast?: { reason: () => string | null; cast: () => void },
   ) {}
   snapshotKey(): string {
     return this.fingerprint();
@@ -62,6 +69,35 @@ export class MagicCasting {
     ]);
   }
   preview(id: string, target: MagicTarget): CastPreview {
+    if (id === 'shadow') {
+      const known = this.book().shadow;
+      if (!known) throw new Error("You don't know that spell.");
+      const cast = castSpellFor(required(SPELLS.shadow), known);
+      return {
+        id,
+        name: cast.name,
+        rank: known.level,
+        cost: cast.cost,
+        target: { ...target },
+        element: 'arcane',
+        character: true,
+        before: this.fingerprint(),
+        reason: !this.board.magicEnabled
+          ? 'Board magic is unavailable in this encounter.'
+          : (this.characterCast?.reason() ?? (this.characterCast ? null : 'No opponent here.')),
+        powerScale: 1,
+        surge: cast.surge,
+        effects: this.interference.checkpoint(),
+        resolution: {
+          state: this.board.magicState(),
+          completed: [],
+          rows: [],
+          collapsedRows: [],
+          removed: [],
+          changed: false,
+        },
+      };
+    }
     const arcane = id.startsWith('arcane:');
     const element = arcane ? (id.slice(7) as BoardElement) : BOARD_SPELLS[id];
     if (!element || !Object.hasOwn(ARCANE_BASE, element)) throw new Error('Unknown board spell.');
@@ -143,6 +179,10 @@ export class MagicCasting {
     // Re-resolve, rather than trusting a mutable UI preview object.
     const actual = this.preview(preview.id, preview.target);
     if (actual.reason) throw new Error(actual.reason);
+    if (actual.character) {
+      this.characterCast?.cast();
+      return actual.resolution;
+    }
     spendMana(this.hero, actual.cost);
     this.board.adoptMagic(actual.resolution.state);
     this.interference.restore(actual.effects);

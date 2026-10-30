@@ -1,3 +1,5 @@
+import { BOARD_SPELLS } from '../../battle/magicCasting';
+import { standardName, standardSpellText } from '../standardSpellText';
 import { ELEMENT_NAMES, type Element } from '../../core/elements';
 import {
   EFFECT_ENHANCEMENTS,
@@ -149,8 +151,17 @@ function attributeValue(
   cast: CastSpell,
   count: number,
   up: boolean,
+  boardSpell = false,
+  trainingOnly = false,
 ): HTMLElement {
   const tone = up ? ' up' : '';
+  if (trainingOnly && attribute !== 'efficiency')
+    return el('span', { className: `chip-value${tone}`, text: `Training +${count}` });
+  if (boardSpell && attribute !== 'efficiency')
+    return el('span', {
+      className: `chip-value${tone}`,
+      text: attribute === 'power' ? `Row attacks +${count * 20}%` : `Clear surge +${count * 3}`,
+    });
   switch (attribute) {
     case 'power':
       return el('span', { className: `chip-value${tone}`, text: String(castPower(cast.effect)) });
@@ -202,7 +213,7 @@ function spellRows(
         el(
           'span',
           { className: 'stat-name' },
-          el('b', { text: cast.name }),
+          el('b', { text: `${standardName(spellId) ?? cast.name} · Lv ${cast.level}` }),
           levelPips(spell, cast.level),
         ),
       );
@@ -239,10 +250,12 @@ function spellRows(
               const def = ENHANCEMENTS[attribute];
               const added = staged[attribute] ?? 0;
               const target: StepTarget = { kind: 'spell', spellId, attribute };
-              const title = `${cast.name} ${def.name}`;
+              const title = `${standardName(spellId) ?? cast.name} ${def.name}`;
               const tip =
-                (attribute === 'effect' && EFFECT_ENHANCEMENTS[cast.effect.kind]) ||
-                def.description;
+                BOARD_SPELLS[spellId] && attribute !== 'efficiency'
+                  ? 'Only applies when the spell completes a row; it does not add target rows, obstruction hits, or damage to burned blocks. Also trains the next spell level.'
+                  : (attribute === 'effect' && EFFECT_ENHANCEMENTS[cast.effect.kind]) ||
+                    def.description;
               return el(
                 'div',
                 {
@@ -258,6 +271,8 @@ function spellRows(
                     cast,
                     totalEnhancements(known)[attribute] + added,
                     added > 0,
+                    !!BOARD_SPELLS[spellId],
+                    spellId === 'fire',
                   ),
                 ),
                 attributePips(known.step[attribute], added, step.each),
@@ -273,7 +288,22 @@ function spellRows(
       if (anyStaged) classes.push('staged');
       if (!step) classes.push('max');
       return [
-        el('div', { className: classes.join(' ') }, header, ...(attributes ? [attributes] : [])),
+        el(
+          'div',
+          { className: classes.join(' ') },
+          header,
+          ...(standardSpellText(spellId, cast)
+            ? [el('small', { text: standardSpellText(spellId, cast) ?? '' })]
+            : []),
+          ...(spellId === 'fire' && attributes
+            ? [
+                el('small', {
+                  text: 'Fire Power/Effect purchases train the next level. Burning blocks does not deal separate damage or complete rows, so it receives no row-clear bonuses.',
+                }),
+              ]
+            : []),
+          ...(attributes ? [attributes] : []),
+        ),
       ];
     }),
   );

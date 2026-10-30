@@ -115,13 +115,13 @@ describe('line-driven standard autocasting', () => {
     expect(battle.lines).toBeGreaterThanOrEqual(2);
     expect(battle.autoCasts).toHaveLength(1);
   });
-  it('never automatically casts an Arcane combination or spends its Arcane mana', () => {
+  it('never automatically casts an advanced Arcane combination; primary Arcane remains eligible', () => {
     const { battle, hero } = fixture({ natureConvert: 2, shadow: 2 });
     hero.arcane = { nature: 1 };
     prepare(battle, 1);
     battle.input('hardDrop');
     expect(battle.interference.effect('slime').nature).toBe(0);
-    expect(hero.mana.arcane).toBe(100);
+    expect(hero.mana.arcane).toBe(100 - price('shadow', 2).arcane!);
     expect(battle.autoCasts.some((c) => c.id.startsWith('arcane:'))).toBe(false);
   });
   it('stops if the earned clear already wins the battle', () => {
@@ -270,4 +270,44 @@ describe('all learned standard spell ranks in earned-line casting', () => {
       expect(hero.mana).toEqual(before);
     },
   );
+});
+
+describe('seventh primary Arcane auto-casting', () => {
+  it.each([1, 2, 3, 4])(
+    'casts learned rank %i on the opponent without rows or extra gauge time',
+    (rank) => {
+      const { battle, hero } = fixture({ shadow: rank }, 500);
+      prepare(battle, 1);
+      hero.hp = 1;
+      const hp = battle.combat!.enemyHp;
+      battle.input('hardDrop');
+      expect(battle.autoFrame?.preview.character).toBe(true);
+      expect(battle.autoFrame?.preview.rank).toBe(rank);
+      const board = structuredClone(battle.board.magicState()),
+        beforeHp = battle.combat!.enemyHp,
+        gauge = battle.combat!.gauge;
+      battle.update(500);
+      battle.update(900);
+      expect(battle.autoCastCount).toBe(1);
+      expect(hero.mana.arcane).toBe(100 - price('shadow', rank).arcane!);
+      expect(hero.hp).toBeGreaterThan(1);
+      expect(battle.combat!.enemyHp).toBeLessThan(beforeHp);
+      expect(battle.combat!.enemyHp).toBeLessThan(hp);
+      expect(battle.combat!.gauge).toBe(gauge);
+      expect(battle.board.magicState()).toEqual(board);
+      const event = battle.eventsSince(0).find((entry) => entry.event.kind === 'autoSpell');
+      expect(event?.event.kind === 'autoSpell' && event.event.rows).toEqual([]);
+    },
+  );
+  it('skips primary Arcane without sufficient mana and uses it at full HP when affordable', () => {
+    const { battle, hero } = fixture({ shadow: 1 });
+    hero.mana.arcane = 0;
+    prepare(battle, 1);
+    battle.input('hardDrop');
+    expect(battle.autoCastCount).toBe(0);
+    hero.mana.arcane = 100;
+    prepare(battle, 1);
+    battle.input('hardDrop');
+    expect(battle.autoCasts[0]?.id).toBe('shadow');
+  });
 });

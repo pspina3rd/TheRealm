@@ -5,6 +5,7 @@ import {
   saveWeave,
   upgradeWeave,
   weaveCost,
+  weaveCap,
   weaveReason,
   WEAVE_NAMES,
   WEAVE_SPELLS,
@@ -64,6 +65,48 @@ export function openWeavingEditor(
       el('label', {}, 'Name ', name),
       el('p', { text: `Weaving level ${draft.level} · ${hero.skillPoints} skill points` }),
     );
+    const mastery = el('p', {
+      className: 'weave-mastery',
+      text: `Effect strengths are capped at Lv ${draft.level} by this custom spell's mastery, and by each source spell's learned level.`,
+    });
+    const price = WEAVE_UPGRADE_COSTS[draft.level - 1];
+    dialog.append(
+      mastery,
+      el('p', {
+        text:
+          book.equipped === draft.id
+            ? `Equipped: ${draft.name}`
+            : `Editing: ${draft.name} · not equipped`,
+      }),
+    );
+    if (price !== undefined)
+      dialog.append(
+        button(
+          `Unlock Lv ${draft.level + 1} strengths · ${price} points`,
+          () => {
+            if (
+              hero.skillPoints < price ||
+              draft.level >= weaveCap(hero, draft.stages) ||
+              weaveReason(hero, flags, draft)
+            )
+              return;
+            const priorEquipped = book.equipped;
+            if (saveWeave(hero, flags, draft) && upgradeWeave(hero, flags, draft.id)) {
+              book.equipped = priorEquipped;
+              const upgraded = book.recipes.find((r) => r.id === draft.id);
+              if (upgraded) draft = structuredClone(upgraded);
+              save();
+              render();
+            }
+          },
+          {
+            disabled:
+              hero.skillPoints < price ||
+              draft.level >= weaveCap(hero, draft.stages) ||
+              !!weaveReason(hero, flags, draft),
+          },
+        ),
+      );
     for (const [index, stage] of draft.stages.entries()) {
       const spell = el('select');
       spell.setAttribute('aria-label', `Effect ${index + 1}`);
@@ -129,27 +172,6 @@ export function openWeavingEditor(
         { disabled: !!reason },
       ),
     );
-    const saved = book.recipes.find((r) => r.id === draft.id);
-    if (saved)
-      dialog.append(
-        button(
-          `Upgrade weaving · ${WEAVE_UPGRADE_COSTS[saved.level - 1] ?? 0} points`,
-          () => {
-            if (upgradeWeave(hero, flags, saved.id)) {
-              draft.level = saved.level;
-              save();
-              render();
-            }
-          },
-          {
-            disabled:
-              saved.level >= 4 ||
-              saved.level >=
-                Math.min(...saved.stages.map((s) => hero.spells[s.spell]?.level ?? 0)) ||
-              hero.skillPoints < (WEAVE_UPGRADE_COSTS[saved.level - 1] ?? Infinity),
-          },
-        ),
-      );
     if (book.equipped)
       dialog.append(
         button('Unequip custom spell', () => {

@@ -232,6 +232,7 @@ export class Stage {
     this.drawAlly(dtMs, timeMs);
     this.drawHero(timeMs);
     this.drawOpponent(dtMs, timeMs, battle.combat?.enraged ?? false);
+    this.drawAutomaticArcane(battle);
     const combat = battle.combat;
     this.rushFlash = Math.max(0, this.rushFlash - dtMs);
     if (combat instanceof LessonChallenge && combat.shield === 'up') {
@@ -256,6 +257,43 @@ export class Stage {
     if (reducedMotion()) return 0;
     const left = this.shakes[target] ?? 0;
     return left > 0 ? Math.sin(timeMs / 16) * 6 * (left / SHAKE_MS) : 0;
+  }
+
+  private drawAutomaticArcane(battle: Battle): void {
+    const frame = battle.autoFrame;
+    if (!frame?.preview.character) return;
+    const ctx = this.ctx,
+      enemy = this.anchor('enemy'),
+      hero = this.anchor('hero');
+    const p = 1 - frame.remainingMs / frame.durationMs;
+    ctx.save();
+    ctx.strokeStyle = '#c193ff';
+    ctx.fillStyle = '#c193ff';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(enemy.x, enemy.y, 24, 30, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    drawIcon(ctx, 'arcane', enemy.x - 8, enemy.y - 42, { scale: 2 });
+    if (frame.phase === 'effect') {
+      ctx.beginPath();
+      ctx.moveTo(enemy.x, enemy.y);
+      ctx.quadraticCurveTo((enemy.x + hero.x) / 2, enemy.y - 30, hero.x, hero.y);
+      ctx.stroke();
+      if (!reducedMotion())
+        for (let i = 0; i < 5; i++) {
+          const t = (p + i / 5) % 1;
+          ctx.beginPath();
+          ctx.arc(
+            enemy.x + (hero.x - enemy.x) * t,
+            enemy.y + (hero.y - enemy.y) * t - Math.sin(t * Math.PI) * 20,
+            2,
+            0,
+            Math.PI * 2,
+          );
+          ctx.fill();
+        }
+    }
+    ctx.restore();
   }
 
   private anchor(target: Target): { x: number; y: number } {
