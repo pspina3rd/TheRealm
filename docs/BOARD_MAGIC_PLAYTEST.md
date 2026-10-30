@@ -82,7 +82,7 @@ Author hands-on acceptance is still open.
 ## Watch the spell animations
 
 Open **http://localhost:5173/spell-animations.html** (use Vite's printed port) to
-watch all six effects side by side. The workbench uses the same renderer and
+watch all six spells at all four levels side by side (24 examples). The workbench uses the same renderer and
 actual resolver traces as play, including the intermediate filled row before
 Ice clears it. [Animated preview](artifacts/board-magic/spell-animations.gif).
 
@@ -91,3 +91,10 @@ and cracks stone; Nature grows vines and converts stone to colorless material;
 Gravity animates exact falling paths; Wind slides blocks with directional gusts.
 Reduced-motion mode omits travel and particle movement while retaining the
 separate target/effect/result states. No manual confirmation is added to autos.
+
+[All four levels](artifacts/board-magic/spell-levels.png) show the actual reach:
+Fire/Ice/Wind cover 1/2/3/4 rows; Gravity covers 1/2/4 rows then the whole board.
+Lightning/Nature use 1 row × 1 hit, 2 rows × 1 hit, 1 row × 2 hits, and
+2 rows × 2 hits. Higher-rank hits animate separately, with the intermediate
+obstruction strength visible between them. Four steady rank pips and per-row
+target ticks identify the tier and area without extra flashing.

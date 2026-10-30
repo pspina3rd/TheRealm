@@ -1,4 +1,4 @@
-/** Six distinct effects, driven by the resolver's actual cell identities and destinations. */
+/** Six elemental effects at all four ranks, driven by the resolver's actual cell identities and destinations. */
 import type { AutoCastFrame } from '../battle/battle';
 import type { Board } from '../core/board';
 import type { Cell } from '../core/pieces';
@@ -68,6 +68,16 @@ export function drawAutoSpell(
         origin[1] + (dest[1] - origin[1]) * ease,
       ];
       ctx.save();
+      const obstruction = from ? before.obstructions[`${from[0]},${from[1]}`] : undefined;
+      const strikes = preview.rank >= 3 ? 2 : 1;
+      const strikeTimes = strikes === 2 ? [0.25, 0.7] : [0.45];
+      const landed = strikeTimes.filter((impact) => p >= impact).length;
+      const conversion =
+        first &&
+        obstruction &&
+        (preview.element === 'lightning' || preview.element === 'nature') &&
+        (old !== next ||
+          obstruction.strength !== effect.obstructions[`${origin[0]},${origin[1]}`]?.strength);
       if (!to) ctx.globalAlpha = 1 - p;
       else if (!from) ctx.globalAlpha = p;
       const strengthChanged =
@@ -75,7 +85,24 @@ export function drawAutoSpell(
         from &&
         before.obstructions[`${from[0]},${from[1]}`]?.strength !==
           effect.obstructions[`${from[0]},${from[1]}`]?.strength;
-      if ((old !== next || strengthChanged) && old && next) {
+      if (conversion) {
+        // Show each actual durability hit before the final break/conversion.
+        ctx.globalAlpha = 1;
+        if (landed >= Math.min(strikes, obstruction.strength)) block(ctx, next, dest, effect, time);
+        else {
+          const intermediate = {
+            ...before,
+            obstructions: {
+              ...before.obstructions,
+              [`${origin[0]},${origin[1]}`]: {
+                ...obstruction,
+                strength: Math.max(1, obstruction.strength - landed),
+              },
+            },
+          };
+          block(ctx, old, origin, intermediate, time);
+        }
+      } else if ((old !== next || strengthChanged) && old && next) {
         ctx.globalAlpha = 1 - p;
         block(ctx, old, origin, first ? before : effect, time);
         ctx.globalAlpha = p;
@@ -100,7 +127,7 @@ export function drawAutoSpell(
         const changed =
           before.obstructions[`${origin[0]},${origin[1]}`]?.strength !==
           effect.obstructions[`${origin[0]},${origin[1]}`]?.strength;
-        if (changed) {
+        if (changed && strikeTimes.some((impact) => p >= impact - 0.1 && p < impact + 0.12)) {
           ctx.beginPath();
           ctx.moveTo(x + 17, Math.max(top * S, y - 40));
           ctx.lineTo(x + 9, y + 7);
@@ -118,6 +145,16 @@ export function drawAutoSpell(
           ctx.quadraticCurveTo(x + 4, y + 28 - p * 35, x + 25, y + 28 - p * 25);
           ctx.stroke();
           drawIcon(ctx, 'nature', x + 8, y + 18 - p * 15, { scale: 1, alpha: p });
+          for (const impact of strikeTimes) {
+            const wave = (p - impact + 0.12) / 0.3;
+            if (wave >= 0 && wave <= 1) {
+              ctx.globalAlpha = 1 - wave;
+              ctx.beginPath();
+              ctx.arc(x + 15, y + 15, 4 + wave * 12, 0, Math.PI * 2);
+              ctx.stroke();
+              ctx.globalAlpha = 1;
+            }
+          }
         }
       } else if (preview.element === 'water' && !actor.from && to) {
         // A frost crystal grows into each gap before the completed row collapses.
@@ -177,6 +214,20 @@ export function drawAutoSpell(
   ctx.strokeStyle = color;
   ctx.lineWidth = 2;
   ctx.strokeRect(1, top * S + 1, board.width * S - 2, (bottom - top + 1) * S - 2);
+  // Separate row ticks keep the area legible, including Gravity's whole-board rank.
+  for (let row = top; row <= bottom; row++) {
+    ctx.beginPath();
+    ctx.moveTo(1, row * S + S / 2);
+    ctx.lineTo(7, row * S + S / 2);
+    ctx.moveTo(board.width * S - 7, row * S + S / 2);
+    ctx.lineTo(board.width * S - 1, row * S + S / 2);
+    ctx.stroke();
+  }
+  // Four rank pips identify the learned tier without relying on flash brightness.
+  for (let tier = 1; tier <= 4; tier++) {
+    ctx.fillStyle = tier <= preview.rank ? color : '#38415b';
+    ctx.fillRect(8 + (tier - 1) * 7, top * S + 4, 5, 4);
+  }
   if (frame.phase === 'target') {
     for (const actor of actors) {
       const changed =

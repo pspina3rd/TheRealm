@@ -21,15 +21,21 @@ try {
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(`${process.env.BASE ?? 'http://127.0.0.1:5186/'}spell-animations.html`);
   await page.locator('canvas').first().waitFor();
-  assert.deepEqual(await page.locator('h2').allTextContents(), [
-    'Fire',
-    'Ice',
-    'Lightning',
-    'Nature',
-    'Gravity',
-    'Wind',
-  ]);
-  assert.equal(await page.locator('canvas').count(), 6);
+  assert.deepEqual(
+    await page.locator('h2').allTextContents(),
+    ['Fire', 'Ice', 'Lightning', 'Nature', 'Gravity', 'Wind'].flatMap((name) =>
+      [1, 2, 3, 4].map((rank) => `${name} · Lv ${rank}`),
+    ),
+  );
+  assert.equal(await page.locator('canvas').count(), 24);
+  for (const id of ['fire', 'blizzard', 'thunder', 'natureConvert', 'quake', 'gale']) {
+    assert.deepEqual(
+      await page
+        .locator(`[data-spell="${id}"]`)
+        .evaluateAll((cards) => cards.map((card) => card.dataset.rank)),
+      ['1', '2', '3', '4'],
+    );
+  }
   await page.waitForTimeout(700);
   await page.screenshot({ path: `${out}/six-spells.png`, fullPage: true });
   await page.waitForTimeout(2400);
@@ -43,7 +49,13 @@ try {
   writeFileSync(
     `${out}/report.json`,
     JSON.stringify(
-      { sixDistinctEffects: true, realResolverTraces: true, reducedMotion: true, errors },
+      {
+        sixDistinctEffects: true,
+        fourLevelsEach: true,
+        realResolverTraces: true,
+        reducedMotion: true,
+        errors,
+      },
       null,
       2,
     ) + '\n',

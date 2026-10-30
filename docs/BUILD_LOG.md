@@ -594,3 +594,13 @@ Core checks reconstruct intermediate/final grids from the animation traces for
 all six elements; paced checks cover frozen clocks/input, commit timing, pause
 and sequential cast selection. Browser checks capture target/effect phases on
 phone, landscape and desktop. Full automated suite, lint and build passed.
+
+## 2026-10-30 · All four spell animation tiers
+
+- Expanded the shared animation workbench to 24 reproducible resolver-backed
+  examples: all six standard spells at levels 1–4.
+- Kept the established row spans and costs. Added steady rank pips and row ticks;
+  Lightning/Nature levels 3–4 now show two impacts and intermediate durability.
+- Saved the full level comparison in `artifacts/board-magic/spell-levels.png`.
+- Verified all 24 exact cell traces, automatic-cast timing, normal/reduced-motion
+  browser rendering, lint, and production build.

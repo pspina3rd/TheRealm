@@ -1,5 +1,6 @@
 {
   "sixDistinctEffects": true,
+  "fourLevelsEach": true,
   "realResolverTraces": true,
   "reducedMotion": true,
   "errors": []

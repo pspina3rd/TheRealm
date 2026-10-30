@@ -1,9 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { emptyMagic, resolveMagic, type BoardElement } from '../src/core/boardMagic';
 describe('spell animation trace follows actual board mutations', () => {
-  it.each(['fire', 'water', 'lightning', 'nature', 'earth', 'wind'] as BoardElement[])(
-    '%s traces exact cell destinations, conversions and removals',
-    (element) => {
+  const cases = (
+    ['fire', 'water', 'lightning', 'nature', 'earth', 'wind'] as BoardElement[]
+  ).flatMap((element) => [1, 2, 3, 4].map((rank) => ({ element, rank })));
+  it.each(cases)(
+    '$element level $rank traces exact cell destinations, conversions and removals',
+    ({ element, rank }) => {
       const before = emptyMagic(6, 10);
       before.grid[3]![1] = 'red';
       before.grid[4]![1] = 'red';
@@ -11,7 +14,7 @@ describe('spell animation trace follows actual board mutations', () => {
       before.obstructions['2,8'] = {
         id: 'enemy:1',
         owner: 'enemy',
-        strength: 1,
+        strength: 3,
         anchored: true,
         sequence: [],
         step: 0,
@@ -19,7 +22,7 @@ describe('spell animation trace follows actual board mutations', () => {
       };
       before.grid[9] = ['blue', 'blue', null, 'blue', 'blue', 'blue'];
       const result = resolveMagic(before, {
-        spell: { element, rank: 4, bottomRow: 9, direction: 1 },
+        spell: { element, rank, bottomRow: 9, direction: 1 },
       });
       const rendered = emptyMagic(6, 10).grid,
         intermediate = emptyMagic(6, 10).grid;

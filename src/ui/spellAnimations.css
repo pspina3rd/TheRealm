@@ -10,7 +10,7 @@ body {
     sans-serif;
 }
 main {
-  max-width: 680px;
+  max-width: 960px;
   margin: auto;
   padding: 18px;
 }
@@ -24,7 +24,7 @@ h2 {
 }
 .animation-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
 }
 section {
@@ -50,4 +50,11 @@ small {
   main {
     padding: 10px;
   }
+}
+
+p {
+  min-height: 32px;
+  margin: 0 0 8px;
+  color: #b6c7e1;
+  font-size: 12px;
 }
