@@ -502,7 +502,7 @@ function context(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
 }
 
 /** Persistent strength/edge marks; pulse is slow and disabled for reduced motion. */
-function drawObstruction(
+export function drawObstruction(
   ctx: CanvasRenderingContext2D,
   obstruction: Obstruction,
   x: number,

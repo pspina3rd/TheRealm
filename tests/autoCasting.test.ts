@@ -5,7 +5,7 @@ import { createRng } from '../src/core/rng';
 import { createHero } from '../src/game/hero';
 import { castSpellFor, newKnownSpell } from '../src/game/spells';
 import { SPELLS } from '../src/data/spells';
-function fixture(spells: Record<string, number> = { fire: 1 }) {
+function fixture(spells: Record<string, number> = { fire: 1 }, pacing = 0) {
   const hero = createHero();
   hero.spells = Object.fromEntries(
     Object.entries(spells).map(([id, level]) => [id, { ...newKnownSpell(), level }]),
@@ -13,6 +13,7 @@ function fixture(spells: Record<string, number> = { fire: 1 }) {
   const battle = new Battle({ kind: 'combat', enemyId: 'slime' }, hero, createRng(42), {
     boardMagic: true,
     autoCast: true,
+    autoCastPacingMs: pacing,
   });
   hero.hp = hero.maxHp = 10000;
   hero.manaCap = 100;
@@ -152,5 +153,58 @@ describe('line-driven standard autocasting', () => {
     const { hero } = fixture({ fire: 1, thunder: 1, natureConvert: 1 });
     hero.titleElement = 'nature';
     expect(autoSpellOrder(hero)).toEqual(['natureConvert', 'fire', 'thunder']);
+  });
+});
+
+describe('paced automatic cast presentation', () => {
+  it('shows the target and effect before paying or changing cells, then holds the result', () => {
+    const { battle, hero } = fixture({ fire: 1 }, 500);
+    prepare(battle, 1);
+    battle.input('hardDrop');
+    expect(battle.autoFrame?.phase).toBe('target');
+    const before = JSON.stringify(battle.board.magicState()),
+      mana = hero.mana.fire,
+      gauge = battle.combat!.gauge,
+      x = battle.board.active!.x;
+    battle.input('left');
+    battle.update(499);
+    expect(battle.board.active!.x).toBe(x);
+    expect(battle.combat!.gauge).toBe(gauge);
+    expect(hero.mana.fire).toBe(mana);
+    expect(JSON.stringify(battle.board.magicState())).toBe(before);
+    battle.update(1);
+    expect(battle.autoFrame?.phase).toBe('effect');
+    battle.update(899);
+    expect(hero.mana.fire).toBe(mana);
+    battle.update(1);
+    expect(battle.autoFrame?.phase).toBe('result');
+    expect(battle.autoCastCount).toBe(1);
+    expect(hero.mana.fire).toBeLessThan(mana);
+    expect(JSON.stringify(battle.board.magicState())).not.toBe(before);
+    battle.update(500);
+    expect(battle.autoCastingBusy).toBe(false);
+    battle.input('left');
+    expect(battle.board.active!.x).toBe(x - 1);
+  });
+  it('finishes each result before selecting the next cast and supports pausing', () => {
+    const { battle, hero } = fixture({ fire: 1 }, 500);
+    prepare(battle, 3);
+    battle.input('hardDrop');
+    battle.paused = true;
+    battle.update(10000);
+    expect(battle.autoFrame?.phase).toBe('target');
+    expect(battle.autoCastCount).toBe(0);
+    battle.paused = false;
+    battle.update(500);
+    battle.update(900);
+    expect(battle.autoFrame?.phase).toBe('result');
+    expect(battle.autoCastCount).toBe(1);
+    const mana = hero.mana.fire;
+    battle.update(499);
+    expect(battle.autoCastCount).toBe(1);
+    battle.update(1);
+    expect(battle.autoFrame?.phase).toBe('target');
+    expect(battle.autoFrame?.index).toBe(2);
+    expect(hero.mana.fire).toBe(mana);
   });
 });

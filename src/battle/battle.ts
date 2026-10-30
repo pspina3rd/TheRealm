@@ -1,8 +1,8 @@
 import { ArcaneInterference, type ObstructionPlacement, type PlacementIntent } from './arcane';
 import { autoSpellOrder, autoTarget } from './autoCasting';
 import { BOARD_SPELLS } from './magicCasting';
-import { MagicCasting, type MagicTarget } from './magicCasting';
-import { spanFor, type MagicResolution } from '../core/boardMagic';
+import { MagicCasting, type MagicTarget, type CastPreview } from './magicCasting';
+import { spanFor, type MagicResolution, type MagicState } from '../core/boardMagic';
 import { BOARD_HEIGHT, BOARD_WIDTH, Board, type LockResult, type QueuedPiece } from '../core/board';
 import { PIECES } from '../core/pieces';
 import { ELEMENTS, elementsOf, type Element } from '../core/elements';
@@ -79,6 +79,7 @@ export interface BattleOptions {
   readonly boardMagic?: boolean;
   /** Opt-in rollout: one standard cast per earned line; Arcane stays manual. */
   readonly autoCast?: boolean;
+  readonly autoCastPacingMs?: number;
   readonly storyFlags?: ReadonlySet<string>;
   /** Copies of each piece per bag, from area, charm and alignment (see `pieceWeights`). */
   readonly weights?: Readonly<Record<PieceName, number>>;
@@ -92,13 +93,35 @@ export interface BattleOptions {
  * Runs one falling-block battle: owns the board, gravity, input and score,
  * and delegates the rules to a `Challenge` built from a `ChallengeSpec`.
  */
+export interface AutoCastFrame {
+  preview: CastPreview;
+  before: MagicState;
+  phase: 'target' | 'effect' | 'result';
+  remainingMs: number;
+  durationMs: number;
+  index: number;
+  total: number;
+}
 export class Battle implements BattleContext {
   readonly interference: ArcaneInterference;
   readonly magicCasting: MagicCasting;
   readonly autoCastingEnabled: boolean;
   private resolvingAuto = false;
   autoCastCount = 0;
-  autoCasts: { id: string; rank: number; target: MagicTarget }[] = [];
+  autoCasts: {
+    id: string;
+    rank: number;
+    target: MagicTarget;
+    preview: CastPreview;
+    before: MagicState;
+  }[] = [];
+  autoFrame: AutoCastFrame | null = null;
+  private readonly autoPacingMs: number;
+  private autoBudget = 0;
+  private autoTotal = 0;
+  get autoCastingBusy(): boolean {
+    return this.autoFrame !== null;
+  }
   get autoOrder(): string[] {
     return autoSpellOrder(this.hero, this.magicCasting.book());
   }
@@ -153,6 +176,7 @@ export class Battle implements BattleContext {
     this.board.dualChance = options.dualChance ?? 0;
     this.board.magicEnabled = options.boardMagic ?? false;
     this.autoCastingEnabled = this.board.magicEnabled && (options.autoCast ?? false);
+    this.autoPacingMs = Math.max(0, options.autoCastPacingMs ?? 0);
     this.interference = new ArcaneInterference(this.board);
     this.challenge = createChallenge(this, spec);
     this.magicCasting = new MagicCasting(
@@ -217,6 +241,7 @@ export class Battle implements BattleContext {
       this.correctionsRemaining > 0 &&
       this.lastCorrection !== null &&
       !this.demoPlaying &&
+      !this.autoCastingBusy &&
       !this.paused &&
       !this.gaveUp &&
       this.status !== 'won'
@@ -242,7 +267,8 @@ export class Battle implements BattleContext {
   }
 
   private captureCorrection(): { restore: () => void; risk: number } | null {
-    if (this.correctionsRemaining <= 0 || !this.started || this.demoPlaying) return null;
+    if (this.autoCastingBusy || this.correctionsRemaining <= 0 || !this.started || this.demoPlaying)
+      return null;
     const point = this.board.checkpointLock();
     const restoreChallenge = this.challenge.checkpoint?.();
     if (!point || !restoreChallenge) return null;
@@ -311,6 +337,8 @@ export class Battle implements BattleContext {
   }
 
   castBoardSpell(id: string, target: MagicTarget): void {
+    if (this.autoCastingBusy && !this.resolvingAuto)
+      throw new Error('Wait for the current automatic cast.');
     if (this.autoCastingEnabled && BOARD_SPELLS[id] && !this.resolvingAuto)
       throw new Error('Standard spells cast automatically after line clears.');
     if (this.status !== 'ongoing' || this.demoPlaying)
@@ -346,34 +374,110 @@ export class Battle implements BattleContext {
     this.resolveAutoCasts(result.linesCleared);
   }
 
+  private nextAutomatic(): CastPreview | null {
+    for (const id of this.autoOrder) {
+      const preview = autoTarget(this.magicCasting, id);
+      if (preview) return preview;
+    }
+    return null;
+  }
+  private applyAutomatic(preview: CastPreview, before: MagicState): void {
+    const resolution = this.magicCasting.commit(preview);
+    this.emit({ kind: 'spell', spellId: preview.id });
+    this.rewardMagic(resolution, preview.powerScale, preview.surge, preview.element);
+    this.autoCasts.push({
+      id: preview.id,
+      rank: preview.rank,
+      target: preview.target,
+      preview,
+      before,
+    });
+    this.autoCastCount++;
+    const [top, bottom] = spanFor(
+      { element: preview.element, rank: preview.rank, bottomRow: preview.target.bottomRow },
+      this.board.height,
+    );
+    this.emit({
+      kind: 'autoSpell',
+      spellId: preview.id,
+      element: preview.element,
+      rank: preview.rank,
+      rows: Array.from({ length: bottom - top + 1 }, (_, i) => top + i),
+    });
+  }
+  private startAutomatic(): void {
+    const preview = this.autoBudget > 0 && this.status === 'ongoing' ? this.nextAutomatic() : null;
+    this.autoFrame = preview
+      ? {
+          preview,
+          before: this.board.magicState(),
+          phase: 'target',
+          remainingMs: this.autoPacingMs,
+          durationMs: this.autoPacingMs,
+          index: this.autoTotal - this.autoBudget + 1,
+          total: this.autoTotal,
+        }
+      : null;
+    if (!preview) this.autoBudget = 0;
+  }
+  private advanceAutomatic(dtMs: number): void {
+    const frame = this.autoFrame;
+    if (!frame) return;
+    if (this.status !== 'ongoing' && frame.phase !== 'result') {
+      this.autoFrame = null;
+      this.autoBudget = 0;
+      return;
+    }
+    frame.remainingMs -= Math.max(0, dtMs);
+    if (frame.remainingMs > 0) return;
+    if (frame.phase === 'target') {
+      frame.phase = 'effect';
+      frame.durationMs = this.autoPacingMs * 1.8;
+      frame.remainingMs = frame.durationMs;
+      return;
+    }
+    if (frame.phase === 'effect') {
+      if (this.status !== 'ongoing') {
+        this.autoFrame = null;
+        this.autoBudget = 0;
+        return;
+      }
+      this.resolvingAuto = true;
+      try {
+        this.applyAutomatic(frame.preview, frame.before);
+      } finally {
+        this.resolvingAuto = false;
+      }
+      this.autoBudget--;
+      frame.phase = 'result';
+      frame.durationMs = this.autoPacingMs;
+      frame.remainingMs = frame.durationMs;
+      return;
+    }
+    this.startAutomatic();
+  }
   private resolveAutoCasts(lines: number): void {
-    if (!this.autoCastingEnabled || this.resolvingAuto || lines < 1 || this.demoPlaying) return;
+    if (
+      !this.autoCastingEnabled ||
+      this.resolvingAuto ||
+      this.autoCastingBusy ||
+      lines < 1 ||
+      this.demoPlaying
+    )
+      return;
     this.autoCasts = [];
+    if (this.autoPacingMs > 0) {
+      this.autoBudget = lines;
+      this.autoTotal = lines;
+      this.startAutomatic();
+      return;
+    }
     this.resolvingAuto = true;
     try {
-      for (let opportunity = 0; opportunity < lines && this.status === 'ongoing'; opportunity++) {
-        let cast = false;
-        for (const id of this.autoOrder) {
-          const preview = autoTarget(this.magicCasting, id);
-          if (!preview) continue;
-          this.castBoardSpell(id, preview.target);
-          this.autoCasts.push({ id, rank: preview.rank, target: preview.target });
-          this.autoCastCount++;
-          const [top, bottom] = spanFor(
-            { element: preview.element, rank: preview.rank, bottomRow: preview.target.bottomRow },
-            this.board.height,
-          );
-          this.emit({
-            kind: 'autoSpell',
-            spellId: id,
-            element: preview.element,
-            rank: preview.rank,
-            rows: Array.from({ length: bottom - top + 1 }, (_, i) => top + i),
-          });
-          cast = true;
-          break;
-        }
-        if (!cast) break;
+      for (let i = 0; i < lines && this.status === 'ongoing'; i++) {
+        const preview = this.nextAutomatic();
+        if (!preview) break;
+        this.applyAutomatic(preview, this.board.magicState());
       }
     } finally {
       this.resolvingAuto = false;
@@ -506,6 +610,11 @@ export class Battle implements BattleContext {
 
   /** Advances gravity and challenge timers by `dtMs`. */
   update(dtMs: number): void {
+    if (this.paused) return;
+    if (this.autoCastingBusy) {
+      this.advanceAutomatic(dtMs);
+      return;
+    }
     if (!this.accepting()) return;
     if (this.demo) {
       this.playDemo(dtMs);
@@ -530,7 +639,12 @@ export class Battle implements BattleContext {
   }
 
   private accepting(): boolean {
-    return !this.paused && this.status === 'ongoing' && this.board.active !== null;
+    return (
+      !this.paused &&
+      !this.autoCastingBusy &&
+      this.status === 'ongoing' &&
+      this.board.active !== null
+    );
   }
 
   /** The demo piece waits, then falls a row at a time and locks; then the hero has control. */

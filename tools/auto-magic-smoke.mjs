@@ -44,8 +44,41 @@ try {
     // The supplied square fits the two-line opening without any spell interaction.
     if (touch) await page.getByRole('button', { name: 'Hard drop', exact: true }).tap();
     else await page.keyboard.press('Space');
+    await page.waitForFunction(
+      () => document.querySelector('#workshop')?.getAttribute('data-auto-phase') === 'target',
+    );
+    assert.equal(await page.locator('.auto-spell.casting-now').count(), 1);
+    const beforeEffect = await page
+      .locator('.magic-square')
+      .evaluateAll((ns) => ns.map((n) => n.getAttribute('aria-label')));
+    const beforeMana = await page.locator('.spell-price').allTextContents();
+    const clock = await page.locator('.opponent p').first().innerText();
+    await page.screenshot({ path: `${out}/${width}-target.png` });
+    await page.waitForFunction(
+      () => document.querySelector('#workshop')?.getAttribute('data-auto-phase') === 'effect',
+    );
+    assert.deepEqual(
+      await page
+        .locator('.magic-square')
+        .evaluateAll((ns) => ns.map((n) => n.getAttribute('aria-label'))),
+      beforeEffect,
+    );
+    assert.deepEqual(
+      await page.locator('.spell-price').allTextContents(),
+      beforeMana,
+      'Casting animation cannot spend mana early.',
+    );
+    assert.equal(
+      await page.locator('.opponent p').first().innerText(),
+      clock,
+      'Opponent clock is frozen while a cast is shown.',
+    );
+    await page.screenshot({ path: `${out}/${width}-effect.png` });
     await page.waitForFunction(() =>
       document.querySelector('.goal-panel strong')?.textContent.includes('2 auto casts'),
+    );
+    await page.waitForFunction(
+      () => document.querySelector('#workshop')?.getAttribute('data-auto-phase') === 'idle',
     );
     assert.match(await page.locator('.casting-guide').innerText(), /Last auto:.*Lv4/);
     assert.equal(await page.locator('.mode-badge').innerText(), 'Playing');
@@ -104,6 +137,10 @@ try {
       readOnlyStandardCards: true,
       learnedRanksVisible: true,
       twoLinesTwoCasts: true,
+      targetThenEffectThenResult: true,
+      oneHighlightedCaster: true,
+      noEarlyManaSpend: true,
+      opponentClockFrozen: true,
       noCastOnOrdinaryPlacement: true,
       manualArcane: true,
       stableControls: true,

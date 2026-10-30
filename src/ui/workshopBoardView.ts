@@ -3,6 +3,8 @@ import type { Battle } from '../battle/battle';
 import { Board } from '../core/board';
 import { createRng } from '../core/rng';
 import type { CastPreview } from '../battle/magicCasting';
+import { drawAutoSpell } from './autoSpellAnimation';
+import { reducedMotion } from './touch';
 import { BoardView } from './boardView';
 import { feedbackFor } from './art/feedback';
 import { magicGrid } from './magicTargeting';
@@ -55,6 +57,8 @@ export class WorkshopBoardView {
   ): void {
     for (const { seq, event } of battle.eventsSince(this.seq)) {
       this.seq = seq + 1;
+      if (battle.autoCastingEnabled && ['lines', 'surge', 'autoSpell'].includes(event.kind))
+        continue;
       for (const feedback of feedbackFor(event)) this.view.play(feedback);
     }
     const showingResult = aim.showResult && preview && hasTarget && !preview.reason;
@@ -136,5 +140,6 @@ export class WorkshopBoardView {
     ctx.setLineDash([3, 3]);
     for (const [x, y] of targets) ctx.strokeRect(x * 30 + 5, y * 30 + 5, 20, 20);
     ctx.restore();
+    if (battle.autoFrame) drawAutoSpell(ctx, battle.autoFrame, battle.board, time, reducedMotion());
   }
 }

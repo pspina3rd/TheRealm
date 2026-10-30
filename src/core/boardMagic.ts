@@ -33,7 +33,18 @@ export interface BoardSpell {
   owner?: string;
   weaken?: boolean;
 }
+export interface MagicVisualBlock {
+  from: readonly [number, number] | null;
+  to: readonly [number, number] | null;
+  before: Cell;
+  after: Cell;
+  effectAt: readonly [number, number] | null;
+  effectCell: Cell;
+}
 export interface MagicResolution {
+  /** Render-only trace from actual moves, additions, conversions, and removals. */
+  visual?: MagicVisualBlock[];
+  effectState?: MagicState;
   state: MagicState;
   completed: ClearedRow[];
   rows: number[];
@@ -99,17 +110,48 @@ export function resolveMagic(
     removed: [],
     changed: false,
   };
+  const actors: MagicVisualBlock[] = [];
+  let actorAt = new Map<string, MagicVisualBlock>();
+  if (options.spell)
+    for (let y = 0; y < height; y++)
+      for (let x = 0; x < width; x++) {
+        const cell = state.grid[y]?.[x];
+        if (cell) {
+          const actor: MagicVisualBlock = {
+            from: [x, y],
+            to: [x, y],
+            before: cell,
+            after: cell,
+            effectAt: [x, y],
+            effectCell: cell,
+          };
+          actors.push(actor);
+          actorAt.set(position(x, y), actor);
+        }
+      }
   const fresh = new Set((options.fresh ?? []).map(([x, y]) => position(x, y)));
   const hitContacts = new Set<string>();
   const erase = (x: number, y: number, cause: 'clear' | 'spell' | 'contact'): void => {
     const cell = state.grid[y]?.[x];
     if (cell === null || cell === undefined) return;
+    const actor = actorAt.get(position(x, y));
+    if (actor) {
+      actor.to = null;
+      actor.after = null;
+      actorAt.delete(position(x, y));
+    }
     result.removed.push({ cell, tag: state.tags[y]?.[x] ?? null, cause });
     required(state.grid[y])[x] = null;
     required(state.tags[y])[x] = null;
     Reflect.deleteProperty(state.obstructions, position(x, y));
   };
   const move = (x: number, y: number, nx: number, ny: number): void => {
+    const actor = actorAt.get(position(x, y));
+    if (actor) {
+      actor.to = [nx, ny];
+      actorAt.delete(position(x, y));
+      actorAt.set(position(nx, ny), actor);
+    }
     required(state.grid[ny])[nx] = required(required(state.grid[y])[x]);
     required(state.grid[y])[x] = null;
     required(state.tags[ny])[nx] = required(state.tags[y])[x] ?? null;
@@ -154,6 +196,7 @@ export function resolveMagic(
     result.collapsedRows.push(...collapse);
     const next = emptyMagic(width, height);
     next.latchedRows = state.latchedRows;
+    const nextActors = new Map<string, MagicVisualBlock>();
     let ny = height - 1;
     for (let y = height - 1; y >= 0; y--) {
       if (collapse.has(y)) continue;
@@ -161,12 +204,18 @@ export function resolveMagic(
       next.tags[ny] = required(state.tags[y]);
       if (state.pendingRows.includes(y)) next.pendingRows.push(ny);
       for (let x = 0; x < width; x++) {
+        const actor = actorAt.get(position(x, y));
+        if (actor) {
+          actor.to = [x, ny];
+          nextActors.set(position(x, ny), actor);
+        }
         const o = state.obstructions[position(x, y)];
         if (o) next.obstructions[position(x, ny)] = o;
         if (y !== ny && required(state.grid[y])[x] !== null) fresh.add(position(x, ny));
       }
       ny--;
     }
+    actorAt = nextActors;
     state.grid = next.grid;
     state.tags = next.tags;
     state.obstructions = next.obstructions;
@@ -198,6 +247,18 @@ export function resolveMagic(
           const obstruction = state.obstructions[position(x, y)];
           if (spell.element === 'water' && required(state.grid[y])[x] === null) {
             required(state.grid[y])[x] = 'neutral';
+            if (options.spell) {
+              const actor: MagicVisualBlock = {
+                from: null,
+                to: [x, y],
+                before: null,
+                after: 'neutral',
+                effectAt: [x, y],
+                effectCell: 'neutral',
+              };
+              actors.push(actor);
+              actorAt.set(position(x, y), actor);
+            }
             fresh.add(position(x, y));
           } else if (spell.element === 'fire' && !obstruction) erase(x, y, 'spell');
           else if (
@@ -215,11 +276,21 @@ export function resolveMagic(
                 });
                 required(state.tags[y])[x] = null;
                 required(state.grid[y])[x] = 'neutral';
+                const actor = actorAt.get(position(x, y));
+                if (actor) actor.after = 'neutral';
                 Reflect.deleteProperty(state.obstructions, position(x, y));
               } else erase(x, y, 'spell');
             }
           }
         }
+  }
+  if (spell) {
+    result.effectState = cloneMagic(state);
+    for (const actor of actors) {
+      actor.effectAt = actor.to;
+      actor.effectCell = actor.after;
+    }
+    result.visual = actors;
   }
   const settleOwners = options.settleOwners ?? [];
   const settle = (): void => {

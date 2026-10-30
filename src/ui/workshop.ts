@@ -13,7 +13,7 @@ import { MAGIC_COLORS } from './magicTargeting';
 import { bindWorkshopInput, type WorkshopMode } from './workshopInput';
 import { button, el } from './dom';
 import { WorkshopBoardView } from './workshopBoardView';
-import { spellIntent, castConsequence } from './workshopCasting';
+import { spellIntent, castConsequence, castOutcome } from './workshopCasting';
 import { iconElement } from './iconDraw';
 import { ELEMENT_ICONS } from './art/icons';
 import { Atlas } from './art/atlas';
@@ -224,6 +224,7 @@ function needsRow(): boolean {
 }
 function chooseSpell(id: string): void {
   if (
+    battle.autoCastingBusy ||
     mode === 'paused' ||
     battle.status !== 'ongoing' ||
     (battle.autoCastingEnabled && !id.startsWith('arcane:'))
@@ -268,7 +269,7 @@ function input(action: BattleAction): void {
   refresh();
 }
 const inputs = bindWorkshopInput(board, controls, {
-  mode: () => mode,
+  mode: () => (battle?.autoCastingBusy ? 'paused' : mode),
   input,
   targetRow(row) {
     if (mode === 'aim' && needsRow()) {
@@ -393,6 +394,7 @@ function reset(index = -1): void {
   battle = new Battle({ kind: 'combat', enemyId: 'slime' }, state.hero, createRng(42), {
     boardMagic: true,
     autoCast: index === -1,
+    autoCastPacingMs: 500,
     storyFlags: state.flags,
   });
   state.hero.maxHp = 10000;
@@ -481,13 +483,18 @@ function refresh(): void {
     saveGame(store, state);
   }
   root.dataset.mode = mode;
-  const ended = battle.status !== 'ongoing';
+  root.dataset.autoPhase = battle.autoFrame?.phase ?? 'idle';
+  for (const node of palette.querySelectorAll<HTMLElement>('[data-spell]'))
+    node.classList.toggle('casting-now', node.dataset.spell === battle.autoFrame?.preview.id);
+  const ended = battle.status !== 'ongoing' && !battle.autoCastingBusy;
   badge.textContent = ended
     ? battle.status === 'won'
       ? 'Victory'
       : 'Defeated'
     : mode === 'play'
-      ? 'Playing'
+      ? battle.autoCastingBusy
+        ? 'Casting'
+        : 'Playing'
       : mode === 'aim'
         ? 'Aiming'
         : 'Paused';
@@ -506,7 +513,7 @@ function refresh(): void {
   );
   for (const node of Object.values(controls))
     if (node instanceof HTMLButtonElement)
-      node.disabled = mode !== 'play' || battle.status !== 'ongoing';
+      node.disabled = mode !== 'play' || battle.autoCastingBusy || battle.status !== 'ongoing';
   goal.textContent =
     exercise < 0
       ? battle.autoCastingEnabled
@@ -683,6 +690,15 @@ function refresh(): void {
       consequence = hasTarget ? castConsequence(actual, preview) : spellIntent(selected ?? '');
     } else cost.textContent = '';
   }
+  const frame = battle.autoFrame;
+  if (frame) {
+    const spell = PRACTICE_SPELLS.find((s) => s.id === frame.preview.id);
+    castingTitle.textContent = `${spell?.name ?? frame.preview.name} Lv${frame.preview.rank} · ${frame.index}/${frame.total}`;
+    castingStep.textContent = `${frame.phase === 'result' ? 'Applied' : frame.phase === 'effect' ? 'Casting' : 'Next'}: ${frame.phase === 'result' ? castOutcome(frame.before, frame.preview) : castConsequence(frame.before, frame.preview)}`;
+    cost.textContent = Object.entries(frame.preview.cost)
+      .map(([e, n]) => `${n} ${e} mana`)
+      .join(' + ');
+  }
   palette.hidden = false;
   castingGuide.hidden = false;
   compareButton.hidden =
@@ -841,7 +857,7 @@ function frame(now: number): void {
   const dt = Math.min(100, Math.max(0, now - previous));
   previous = now;
   inputs.tick(now);
-  if (mode === 'play' && battle.status === 'ongoing') {
+  if (mode === 'play' && (battle.status === 'ongoing' || battle.autoCastingBusy)) {
     const before = battle.interference.placements.slime ?? 0;
     required(battle.combat).nextMove = {
       kind: 'obstruct',

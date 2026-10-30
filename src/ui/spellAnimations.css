@@ -1,0 +1,53 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: #0d101b;
+  color: #ecedf5;
+  font:
+    14px system-ui,
+    sans-serif;
+}
+main {
+  max-width: 680px;
+  margin: auto;
+  padding: 18px;
+}
+h1 {
+  font-size: 20px;
+  margin: 0 0 16px;
+}
+h2 {
+  font-size: 15px;
+  margin: 0 0 8px;
+}
+.animation-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+section {
+  padding: 10px;
+  background: #1c2336;
+  border: 1px solid #38415b;
+  border-radius: 8px;
+}
+canvas {
+  display: block;
+  width: 100%;
+  image-rendering: pixelated;
+}
+small {
+  display: block;
+  color: #b6c7e1;
+  margin-top: 6px;
+}
+@media (max-width: 480px) {
+  .animation-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  main {
+    padding: 10px;
+  }
+}

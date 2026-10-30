@@ -8,7 +8,10 @@ On GetPutTaco, run `npm install` and `npm run dev`, then open
 The workshop now opens with **automatic standard spells**. The supplied square
 fits the opening gap: press Space or tap **Drop** to clear two lines and see two
 automatic casts. The status area reports what cast and at which learned level.
-No spell selection or target confirmation is required for standard spells.
+No spell selection or target confirmation is required for standard spells. Each
+cast now plays on its own: its card lights up, its targets are marked, and its
+blocks animate before the result is applied. Piece and opponent clocks pause
+briefly through the sequence. Broad automatic row flashes are removed.
 
 The numbered cards show **affinity order**, learned level, mana cost, held mana,
 and readiness. Each earned line allows one cast of the first ready spell with a
@@ -75,3 +78,16 @@ ordinary placement, and manual Arcane on phone, landscape, and desktop. The
 [manual-lab report](artifacts/board-magic/workshop-report.json) covers targeting,
 comparison, touch gestures, Wind, Nature, and the absence of a hidden helper.
 Author hands-on acceptance is still open.
+
+## Watch the spell animations
+
+Open **http://localhost:5173/spell-animations.html** (use Vite's printed port) to
+watch all six effects side by side. The workbench uses the same renderer and
+actual resolver traces as play, including the intermediate filled row before
+Ice clears it. [Animated preview](artifacts/board-magic/spell-animations.gif).
+
+Fire burns with flames and embers; Ice grows frost into gaps; Lightning strikes
+and cracks stone; Nature grows vines and converts stone to colorless material;
+Gravity animates exact falling paths; Wind slides blocks with directional gusts.
+Reduced-motion mode omits travel and particle movement while retaining the
+separate target/effect/result states. No manual confirmation is added to autos.

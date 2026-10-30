@@ -60,3 +60,15 @@ export function castConsequence(before: MagicState, preview: CastPreview): strin
     parts.push(`clear ${amount(resolution.completed.length, 'row')}`);
   return `${parts.join('; ') || 'Change the marked target'}.`;
 }
+
+export function castOutcome(before: MagicState, preview: CastPreview): string {
+  return castConsequence(before, preview)
+    .replace(/^Make /, 'Created ')
+    .replace(/^Break /, 'Broke ')
+    .replace(/^Burn /, 'Burned ')
+    .replace(/^Drop /, 'Dropped ')
+    .replace(/^Move /, 'Moved ')
+    .replace(/^Fill /, 'Filled ')
+    .replace(/weaken /g, 'weakened ')
+    .replace(/clear /g, 'cleared ');
+}

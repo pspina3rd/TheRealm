@@ -577,3 +577,20 @@ previews, bounded Ice clears, terminal states, manual-standard rejection, and
 Arcane isolation. Automated touch/browser checks exercise the default flow at
 phone, landscape and desktop sizes, alongside the preserved manual targeting lab.
 The full suite, lint and build passed. Author hands-on acceptance remains open.
+
+## October 29 — distinct spell animations and sequential cast playback
+
+Replaced the combined automatic row flash with a target → effect → result
+sequence for each cast. The active spell card and affected blocks are marked;
+Fire burns, Ice grows into gaps, Lightning strikes/cracks, Nature grows/converts,
+Gravity falls and Wind slides. Rows visibly clear/collapse after the spell
+changes their cells. Playback uses exact render-only resolver traces, with mana
+and mutation committed after the motion, and opponent/input clocks held while
+it plays. Reduced-motion playback preserves the distinct stages without travel
+or particles. Arcane targeting stays manual and ordinary gameplay rules remain.
+
+Added a development-only six-spell visual workbench and an animated GIF preview.
+Core checks reconstruct intermediate/final grids from the animation traces for
+all six elements; paced checks cover frozen clocks/input, commit timing, pause
+and sequential cast selection. Browser checks capture target/effect phases on
+phone, landscape and desktop. Full automated suite, lint and build passed.

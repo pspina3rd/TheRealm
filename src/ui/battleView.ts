@@ -6,6 +6,8 @@ import type { Battle } from '../battle/battle';
 import type { Atlas } from './art/atlas';
 import type { CreatureId } from './art/creatures';
 import { ELEMENT_COLOR_OF, feedbackFor } from './art/feedback';
+import { drawAutoSpell } from './autoSpellAnimation';
+import { reducedMotion } from './touch';
 import { BoardView } from './boardView';
 import { byId, el } from './dom';
 import { HeroPanel } from './heroPanel';
@@ -145,12 +147,17 @@ export class BattleView {
           if (line) this.stage.play({ kind: 'banner', text: line });
         }
         if (feedback.kind === 'toss') this.pulseHelper();
-        this.board.play(feedback);
+        if (!(battle.autoCastingEnabled && ['lines', 'surge', 'autoSpell'].includes(event.kind)))
+          this.board.play(feedback);
         this.stage.play(feedback);
         this.hero.play(feedback);
       }
     }
     this.board.render(battle.board, battle, dtMs, timeMs, battle.paused || finished);
+    if (battle.autoFrame) {
+      const ctx = byId<HTMLCanvasElement>('board-canvas').getContext('2d');
+      if (ctx) drawAutoSpell(ctx, battle.autoFrame, battle.board, timeMs, reducedMotion());
+    }
     this.stage.render(battle, dtMs, timeMs);
     this.hero.render(battle, flags);
     const lesson = battle.combat instanceof LessonChallenge ? battle.combat : null;

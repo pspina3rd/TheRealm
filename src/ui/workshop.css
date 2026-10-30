@@ -1045,3 +1045,11 @@ small {
     line-height: 14px;
   }
 }
+
+.auto-spell.casting-now {
+  box-shadow: 0 0 0 2px var(--spell-color);
+  background: color-mix(in srgb, var(--spell-color) 22%, #1c2336);
+}
+#workshop[data-auto-phase='effect'] .board-surface {
+  cursor: default;
+}

@@ -79,3 +79,18 @@ leaves a gap instead of completing a row, including across a multi-cell batch.
 Ordinary hostile placements do not run the row-clear/reward phase. Explicit
 helpful placements and deliberate player Arcane counterplay can still complete
 rows. The workshop has no undisclosed timed ally supplying blank blocks.
+
+## Cast presentation
+
+Paced presentation is enabled in the workshop and opt-in campaign combat. Each
+cast has target, element-specific motion, and result stages. Mana and game state
+commit after the motion stage; player input and opponent/gravity clocks wait
+until the sequence completes. The next cast is selected against the actual
+updated board. The headless/default engine option can still resolve immediately.
+
+A render-only resolver trace preserves cell identities, creation, conversion,
+removal and collapse destinations, including an intermediate state before row
+clears. Animations use this data rather than guessing where identical colors
+moved. Ordinary resolution/save state and spell effects are unchanged. Automatic
+row flashes and simultaneous surge icons are suppressed on the board. The six
+standard spell types each use their own visual treatment.

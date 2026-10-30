@@ -104,7 +104,7 @@ export class HeroPanel {
 
     const combat = battle.combat;
     this.actions.hidden = !combat;
-    const ongoing = battle.status === 'ongoing' && !battle.paused;
+    const ongoing = battle.status === 'ongoing' && !battle.paused && !battle.autoCastingBusy;
     const key = JSON.stringify([
       hero.mana,
       hero.hp,

@@ -283,7 +283,8 @@ export class App {
         // never lingers over the play in real time.
         if (isPhoneLayout()) this.battleView.hero.back();
       }
-      if (!active.finished && battle.status !== 'ongoing') active.finished = true;
+      if (!active.finished && battle.status !== 'ongoing' && !battle.autoCastingBusy)
+        active.finished = true;
       if (active.finished && active.resultDelay > 0 && !battle.canCorrect) {
         active.resultDelay -= dt;
         if (active.resultDelay <= 0) this.finishBattle();
@@ -296,7 +297,7 @@ export class App {
           : 'Leave';
       this.leaveBattleButton.disabled = active.finished && !battle.canCorrect;
       this.arcaneButton.hidden = !battle.board.magicEnabled || !arcaneUnlocked(this.state.flags);
-      this.arcaneButton.disabled = active.finished || battle.paused;
+      this.arcaneButton.disabled = active.finished || battle.paused || battle.autoCastingBusy;
       this.correctionButton.hidden = battle.correctionsRemaining <= 0;
       this.correctionButton.disabled = !battle.canCorrect;
       this.correctionButton.textContent = `Correct · ${battle.correctionsRemaining}`;
@@ -672,6 +673,7 @@ export class App {
         this.state.flags.has('boardMagicEnabled') &&
         (spec.kind === 'combat' || spec.kind === 'lesson'),
       autoCast: this.state.flags.has('boardMagicEnabled') && spec.kind === 'combat',
+      autoCastPacingMs: 500,
       storyFlags: this.state.flags,
       dualChance: dual,
       ...(rule ? { rule } : {}),
@@ -792,6 +794,7 @@ export class App {
       active.finished ||
       this.dialog.isOpen ||
       active.battle.paused ||
+      active.battle.autoCastingBusy ||
       active.battle.demoPlaying ||
       active.battle.status !== 'ongoing'
     )

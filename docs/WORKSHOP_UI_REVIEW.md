@@ -54,3 +54,11 @@ The AI game UI/UX follow-up found no blocking composition problem across phone,
 landscape, and desktop. It requested clearer opportunity wording, shorter compact
 mana labels, and an explicit priority label; these were addressed. The automatic
 browser report and captures are linked in BOARD_MAGIC_PLAYTEST.md.
+
+## Per-spell visual feedback
+
+The author reported that simultaneous flashes obscured what cast and why rows
+disappeared. Automatic casts now play separately with a highlighted caster,
+marked targets, distinct elemental block animation, and a held result. Game
+clocks wait during playback. A visual workbench and GIF show all six treatments;
+see BOARD_MAGIC_PLAYTEST.md. Text labels supplement the animated block changes.
