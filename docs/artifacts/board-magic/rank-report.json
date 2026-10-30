@@ -1,0 +1,194 @@
+[
+  {
+    "id": "fire",
+    "rank": 1,
+    "touch": true,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "2 lines · 2 auto casts"
+  },
+  {
+    "id": "blizzard",
+    "rank": 1,
+    "touch": true,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "4 lines · 2 auto casts"
+  },
+  {
+    "id": "quake",
+    "rank": 1,
+    "touch": true,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "2 lines · 1 auto casts"
+  },
+  {
+    "id": "gale",
+    "rank": 1,
+    "touch": true,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "2 lines · 1 auto casts"
+  },
+  {
+    "id": "thunder",
+    "rank": 1,
+    "touch": true,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "2 lines · 2 auto casts"
+  },
+  {
+    "id": "natureConvert",
+    "rank": 1,
+    "touch": true,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "2 lines · 2 auto casts"
+  },
+  {
+    "id": "fire",
+    "rank": 2,
+    "touch": false,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "2 lines · 1 auto casts"
+  },
+  {
+    "id": "blizzard",
+    "rank": 2,
+    "touch": false,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "6 lines · 2 auto casts"
+  },
+  {
+    "id": "quake",
+    "rank": 2,
+    "touch": false,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "2 lines · 1 auto casts"
+  },
+  {
+    "id": "gale",
+    "rank": 2,
+    "touch": false,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "2 lines · 1 auto casts"
+  },
+  {
+    "id": "thunder",
+    "rank": 2,
+    "touch": false,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "2 lines · 2 auto casts"
+  },
+  {
+    "id": "natureConvert",
+    "rank": 2,
+    "touch": false,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "2 lines · 2 auto casts"
+  },
+  {
+    "id": "fire",
+    "rank": 3,
+    "touch": true,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "2 lines · 1 auto casts"
+  },
+  {
+    "id": "blizzard",
+    "rank": 3,
+    "touch": true,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "8 lines · 2 auto casts"
+  },
+  {
+    "id": "quake",
+    "rank": 3,
+    "touch": true,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "2 lines · 1 auto casts"
+  },
+  {
+    "id": "gale",
+    "rank": 3,
+    "touch": true,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "2 lines · 1 auto casts"
+  },
+  {
+    "id": "thunder",
+    "rank": 3,
+    "touch": true,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "2 lines · 2 auto casts"
+  },
+  {
+    "id": "natureConvert",
+    "rank": 3,
+    "touch": true,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "2 lines · 2 auto casts"
+  },
+  {
+    "id": "fire",
+    "rank": 4,
+    "touch": false,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "2 lines · 1 auto casts"
+  },
+  {
+    "id": "blizzard",
+    "rank": 4,
+    "touch": false,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "10 lines · 2 auto casts"
+  },
+  {
+    "id": "quake",
+    "rank": 4,
+    "touch": false,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "2 lines · 1 auto casts"
+  },
+  {
+    "id": "gale",
+    "rank": 4,
+    "touch": false,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "2 lines · 1 auto casts"
+  },
+  {
+    "id": "thunder",
+    "rank": 4,
+    "touch": false,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "2 lines · 2 auto casts"
+  },
+  {
+    "id": "natureConvert",
+    "rank": 4,
+    "touch": false,
+    "earnedLineCasting": true,
+    "resetPreservesSetup": true,
+    "result": "2 lines · 2 auto casts"
+  }
+]

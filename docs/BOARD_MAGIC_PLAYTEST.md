@@ -5,7 +5,7 @@ On GetPutTaco, run `npm install` and `npm run dev`, then open
 
 ## Start here
 
-The workshop now opens with **automatic standard spells**. The supplied square
+The workshop opens with **level 1 automatic standard spells**. The supplied square
 fits the opening gap: press Space or tap **Drop** to clear two lines and see two
 automatic casts. The status area reports what cast and at which learned level.
 No spell selection or target confirmation is required for standard spells. Each
@@ -52,9 +52,12 @@ The additional Arcane mana cost is displayed separately above the pairings.
 **Exercises → Manual spell lab** retains the earlier targeting fixture for
 isolating individual effects. The seven focused manual exercises are there too;
 they intentionally disable standard autocasting. **Live workshop** returns to
-automatic mode.
+automatic mode. Under **Exercises**, pick **Test spells** (all spells or one
+isolated element), then **Live workshop · Lv 1/2/3/4**. Reset preserves that setup.
+The selected level appears in the objective and each spell card. Arcane pairings
+are available from level 2, following their base-spell requirement.
 
-Practice mana and Arcane pairs are supplied; your adventure save is separate.
+Practice mana is supplied; your adventure save is separate.
 There is no hidden timed ally. Ordinary hostile placements leave a gap rather
 than completing your rows; your deliberate Arcane counterplay can still help.
 Colorless blank blocks earn no mana. Story scenes remain responsible for teaching
@@ -77,6 +80,10 @@ casting, read-only readiness cards, visible learned levels, no casting on an
 ordinary placement, and manual Arcane on phone, landscape, and desktop. The
 [manual-lab report](artifacts/board-magic/workshop-report.json) covers targeting,
 comparison, touch gestures, Wind, Nature, and the absence of a hidden helper.
+The [live rank report](artifacts/board-magic/rank-report.json) exercises all 24
+spell/level combinations through an earned line, checks the level shown and the
+completed cast, and verifies Reset preserves the chosen setup. Engine tests check
+costs, committed results, and refusal below mana cost at every rank.
 Author hands-on acceptance is still open.
 
 ## Watch the spell animations

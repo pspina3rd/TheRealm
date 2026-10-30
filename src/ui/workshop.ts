@@ -35,6 +35,8 @@ let battle: Battle,
   direction: -1 | 1 = 1,
   arcaneBank = false,
   exercise = -1,
+  testLevel = 1,
+  testSpell = 'all',
   complete = false,
   enemySequence = 0,
   lastBoard = '',
@@ -383,8 +385,12 @@ function reset(index = -1): void {
   lastNext = '';
   seenAutoCasts = 0;
   enemySequence = 0;
-  for (const id of [...Object.keys(BOARD_SPELLS), 'shadow'])
-    state.hero.spells[id] = { ...newKnownSpell(), level: 4 };
+  state.hero.spells = {};
+  state.hero.arcane = {};
+  const testIds =
+    index === -1 && testSpell !== 'all' ? [testSpell] : [...Object.keys(BOARD_SPELLS), 'shadow'];
+  for (const id of testIds)
+    state.hero.spells[id] = { ...newKnownSpell(), level: index === -1 ? testLevel : 4 };
   for (const element of ARCANE_ELEMENTS) createArcane(state.hero, state.flags, element);
   if (index >= 0) {
     const lesson = required(PRACTICES[index]);
@@ -437,7 +443,15 @@ function reset(index = -1): void {
       };
   }
   if (index === -1) {
-    battle.board.loadRows(['..#.......', '.......#..', '..........', 'rrrr..rrrr', 'rrrr..rrrr']);
+    battle.board.loadRows([
+      '.r........',
+      '..b.......',
+      '..#.......',
+      '.......#..',
+      '..........',
+      'rrrr..rrrr',
+      'rrrr..rrrr',
+    ]);
     for (const [x, y, strength] of [
       [2, 15, 3],
       [7, 16, 2],
@@ -484,6 +498,8 @@ function refresh(): void {
   }
   root.dataset.mode = mode;
   root.dataset.autoPhase = battle.autoFrame?.phase ?? 'idle';
+  root.dataset.testLevel = String(testLevel);
+  root.dataset.testSpell = testSpell;
   for (const node of palette.querySelectorAll<HTMLElement>('[data-spell]'))
     node.classList.toggle('casting-now', node.dataset.spell === battle.autoFrame?.preview.id);
   const ended = battle.status !== 'ongoing' && !battle.autoCastingBusy;
@@ -517,7 +533,7 @@ function refresh(): void {
   goal.textContent =
     exercise < 0
       ? battle.autoCastingEnabled
-        ? 'Clear lines to cast'
+        ? `Lv ${testLevel} · Clear lines to cast`
         : 'Clear grey blocks'
       : {
           obstructions: 'Break grey blocks',
@@ -825,15 +841,33 @@ function openExercises(): void {
       text: 'The same falling-block controls and clocks stay active. Aim pauses play; Cast or Cancel resumes it.',
     }),
   );
-  const choose = (index: number): void => {
+  const spellSelect = el('select');
+  spellSelect.setAttribute('aria-label', 'Test spells');
+  for (const [id, name] of [
+    ['all', 'All spells'],
+    ['fire', 'Fire only'],
+    ['blizzard', 'Ice only'],
+    ['quake', 'Gravity only'],
+    ['gale', 'Wind only'],
+    ['thunder', 'Lightning only'],
+    ['natureConvert', 'Nature only'],
+  ]) {
+    const option = el('option', { text: name });
+    option.value = required(id);
+    spellSelect.append(option);
+  }
+  spellSelect.value = testSpell;
+  dialog.append(el('label', {}, 'Live test spells ', spellSelect));
+  const choose = (index: number, level = testLevel): void => {
+    testLevel = level;
+    testSpell = spellSelect.value;
     dialog.close();
     dialog.remove();
     reset(index);
   };
-  dialog.append(
-    button('Live workshop', () => choose(-1)),
-    button('Manual spell lab', () => choose(-2)),
-  );
+  for (const level of [1, 2, 3, 4])
+    dialog.append(button(`Live workshop · Lv ${level}`, () => choose(-1, level)));
+  dialog.append(button('Manual spell lab', () => choose(-2)));
   for (const [index, lesson] of PRACTICES.entries())
     dialog.append(button(lesson.title, () => choose(index)));
   const close = (): void => {

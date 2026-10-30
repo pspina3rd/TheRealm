@@ -604,3 +604,15 @@ phone, landscape and desktop. Full automated suite, lint and build passed.
 - Saved the full level comparison in `artifacts/board-magic/spell-levels.png`.
 - Verified all 24 exact cell traces, automatic-cast timing, normal/reduced-motion
   browser rendering, lint, and production build.
+
+## 2026-10-30 · Playable testing across every spell rank
+
+- Corrected the live workshop's hard-coded level 4 spell loadout. It now opens at
+  level 1; Exercises exposes levels 1–4 and an individual-spell selector so
+  affinity order cannot hide the other effects during testing.
+- Reset keeps the selected level/spell and clears stale saved upgrades/Arcane
+  ownership before rebuilding the loadout. Supplied mana remains practice-only.
+- Added 24 earned-line engine cases checking learned rank, real cost, and exact
+  committed preview result; another 24 cases reject insufficient mana without
+  falling back. Browser checks cover all 24 playable spell/rank combinations,
+  Reset persistence, and the existing phone/landscape/desktop automatic layout.

@@ -35,6 +35,9 @@ try {
       0,
       'Standard readiness cards must not require selection.',
     );
+    assert.equal(await page.locator('.auto-rank').filter({ hasText: 'Lv1' }).count(), 6);
+    await page.getByRole('button', { name: 'Exercises', exact: true }).click();
+    await page.getByRole('button', { name: 'Live workshop · Lv 4', exact: true }).click();
     assert.equal(await page.locator('.auto-rank').filter({ hasText: 'Lv4' }).count(), 6);
     const controls = await page.locator('.piece-controls').boundingBox();
     await page.locator('.auto-spell').first().click();

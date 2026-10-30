@@ -208,3 +208,66 @@ describe('paced automatic cast presentation', () => {
     expect(hero.mana.fire).toBe(mana);
   });
 });
+
+describe('all learned standard spell ranks in earned-line casting', () => {
+  const spells = ['fire', 'blizzard', 'quake', 'gale', 'thunder', 'natureConvert'];
+  const cases = spells.flatMap((id) => [1, 2, 3, 4].map((rank) => ({ id, rank })));
+  it.each(cases)(
+    '$id level $rank pays its own cost and commits its shown result',
+    ({ id, rank }) => {
+      const { battle, hero } = fixture({ [id]: rank }, 500);
+      prepare(battle, 1);
+      if (id === 'thunder' || id === 'natureConvert')
+        battle.interference.place('slime', [{ x: 8, y: 8, strength: 3 }]);
+      if (id === 'blizzard')
+        battle.board.grid[8] = [
+          'red',
+          'red',
+          'red',
+          'red',
+          null,
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+        ];
+      if (id === 'gale') {
+        battle.board.grid[8] = [null, null, 'red', null, null, null, null, null, null, null];
+        battle.board.grid[9] = [null, null, null, 'red', null, null, null, null, null, null];
+      }
+      battle.input('hardDrop');
+      const frame = battle.autoFrame;
+      expect(frame, 'an earned line must start this learned spell').not.toBeNull();
+      expect(frame!.preview.id).toBe(id);
+      expect(frame!.preview.rank).toBe(rank);
+      const expectedCost = price(id, rank);
+      expect(frame!.preview.cost).toEqual(expectedCost);
+      const mana = { ...hero.mana };
+      battle.update(500);
+      battle.update(900);
+      expect(battle.autoCastCount).toBe(1);
+      expect(battle.board.magicState()).toEqual(frame!.preview.resolution.state);
+      for (const [element, amount] of Object.entries(expectedCost))
+        expect(hero.mana[element as keyof typeof hero.mana]).toBe(
+          mana[element as keyof typeof mana] - amount,
+        );
+      battle.update(500);
+      expect(battle.autoCastingBusy).toBe(false);
+      expect(battle.autoCastCount).toBe(1);
+    },
+  );
+  it.each(cases)(
+    '$id level $rank stays idle below its mana cost without falling back',
+    ({ id, rank }) => {
+      const { battle, hero } = fixture({ [id]: rank });
+      prepare(battle, 1);
+      battle.interference.place('slime', [{ x: 8, y: 8, strength: 3 }]);
+      for (const [element, amount] of Object.entries(price(id, rank)))
+        hero.mana[element as keyof typeof hero.mana] = amount - 1;
+      const before = structuredClone(hero.mana);
+      expect(autoTarget(battle.magicCasting, id)).toBeNull();
+      expect(hero.mana).toEqual(before);
+    },
+  );
+});
