@@ -1,3 +1,4 @@
+import { arcaneUnlocked } from './arcane';
 /**
  * Mentor lessons: what a mentor can teach the hero, how hard each lesson
  * is, which foe it is fought against, how often the mentor helps, and what
@@ -88,6 +89,7 @@ export function lessonsFor(seeker: Seeker, mentor: MentorDef): Lesson[] {
     .filter(
       (spell) =>
         spell.category === mentor.element &&
+        (spell.category !== 'arcane' || arcaneUnlocked(seeker.flags)) &&
         (!spell.boardOnly || seeker.flags.has('boardMagicEnabled')),
     )
     .sort((a, b) => ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role))

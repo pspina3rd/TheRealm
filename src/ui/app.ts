@@ -1,3 +1,5 @@
+import { openWeavingEditor } from './weavingEditor';
+import { openWeavingTargeting } from './weavingTargeting';
 import { BOARD_SPELLS } from '../battle/magicCasting';
 import { arcaneUnlocked } from '../game/arcane';
 import { openMagicTargeting } from './magicTargeting';
@@ -144,6 +146,15 @@ export class App {
         () => this.save(),
       );
   });
+  private readonly weavingButton = button('Weaving', () => {
+    const battle = this.active?.battle;
+    if (battle)
+      openWeavingTargeting(
+        battle,
+        () => this.commitInput(),
+        () => this.save(),
+      );
+  });
   private active: ActiveBattle | null = null;
   private heldDirection: Direction | null = null;
   /** Steps left of a tap-to-walk, taken one per `WALK_REPEAT_MS`. */
@@ -192,6 +203,8 @@ export class App {
     this.arcaneButton.className = 'arcane-cast';
     this.arcaneButton.hidden = true;
     this.correctionButton.after(this.arcaneButton);
+    this.weavingButton.hidden = true;
+    this.arcaneButton.after(this.weavingButton);
     this.bindInput();
     this.applyTouchPrefs();
     if (store.persistent === false) {
@@ -298,6 +311,8 @@ export class App {
       this.leaveBattleButton.disabled = active.finished && !battle.canCorrect;
       this.arcaneButton.hidden = !battle.board.magicEnabled || !arcaneUnlocked(this.state.flags);
       this.arcaneButton.disabled = active.finished || battle.paused || battle.autoCastingBusy;
+      this.weavingButton.hidden = !battle.board.magicEnabled || !battle.hero.weaving?.equipped;
+      this.weavingButton.disabled = active.finished || battle.paused || battle.autoCastingBusy;
       this.correctionButton.hidden = battle.correctionsRemaining <= 0;
       this.correctionButton.disabled = !battle.canCorrect;
       this.correctionButton.textContent = `Correct · ${battle.correctionsRemaining}`;
@@ -1007,9 +1022,23 @@ export class App {
         ...(this.state.flags.has('boardMagicEnabled') && arcaneUnlocked(this.state.flags)
           ? [
               {
-                label: 'Arcane Weaving',
+                label: 'Arcane mastery',
                 onClick: () =>
                   openArcaneEditor(
+                    hero,
+                    this.state.flags,
+                    () => this.save(),
+                    () => this.openMenu(),
+                  ),
+              },
+            ]
+          : []),
+        ...(this.state.flags.has('boardMagicEnabled') && arcaneUnlocked(this.state.flags)
+          ? [
+              {
+                label: 'Arcane Weaving',
+                onClick: () =>
+                  openWeavingEditor(
                     hero,
                     this.state.flags,
                     () => this.save(),
@@ -1071,7 +1100,6 @@ export class App {
       const card = button('', () => this.startNewGame(cls.id));
       card.className = 'class-card';
       const { maxHp, manaCap, atk, def, stats } = createHero(cls.id);
-      const spell = SPELLS[cls.spell];
       card.append(
         preview,
         el(
@@ -1079,6 +1107,7 @@ export class App {
           {},
           el('b', { text: `${cls.name} · ${cls.heroName}` }),
           el('small', { text: cls.description }),
+          el('small', { text: 'Starts with no spells. Choose what to learn.' }),
           el(
             'span',
             { className: 'chips' },
@@ -1089,8 +1118,8 @@ export class App {
             chip('coin', cls.gil, 'Gil'),
             chip(
               ELEMENT_ICONS[cls.element],
-              spell ? spellName(spell) : cls.spell,
-              `${ELEMENT_NAMES[cls.element]} spell`,
+              ELEMENT_NAMES[cls.element],
+              'Starting affinity; learn your first spell from a mentor',
             ),
           ),
           el(

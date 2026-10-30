@@ -84,7 +84,7 @@ describe('team M1 flow reconciliation', () => {
     expect(recordOf(state, 'elder')).toMatchObject({ tries: 1, fails: 1, strain: 1 });
     expect(worldState(state, 'elder')).toBe('fail');
     const recovered = play(state, 'elder', true);
-    expect(recovered.result.gains).toContainEqual({ kind: 'gil', amount: 40 });
+    expect(recovered.result.gains).toContainEqual({ kind: 'spell', spellId: 'quake' });
     expect(worldState(state, 'elder')).toBe('win');
     expect(state.flags.has('npc:elder')).toBe(true);
     expect(regardOf(state, 'elder')).toBe(0);

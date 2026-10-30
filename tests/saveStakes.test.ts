@@ -1,3 +1,4 @@
+import { learnSpell as learnFixtureSpell } from '../src/game/hero';
 /**
  * Save version 10: the encounter stakes. Every older version loads with
  * its stakes at zero and nothing sealed; a version 10 save keeps them,
@@ -22,6 +23,7 @@ function saveAt(version: number): Record<string, unknown> {
     false,
   );
   settleHaggle(state, 'stallKeeper', 'mossvaleStall', 'fail', 1.1);
+  learnFixtureSpell(state.hero, 'shadow');
   state.hero.seal = { spellId: 'shadow', fights: 2 };
   const data = JSON.parse(serialize(state)) as Record<string, unknown>;
   const hero = data.hero as Record<string, unknown>;
@@ -33,9 +35,9 @@ function saveAt(version: number): Record<string, unknown> {
   return { ...data, version };
 }
 
-describe('save version 13 (committed tries and unified campaign stakes)', () => {
+describe('save version 14 (committed tries and unified campaign stakes)', () => {
   it('is the current version', () => {
-    expect(SAVE_VERSION).toBe(13);
+    expect(SAVE_VERSION).toBe(14);
   });
 
   for (let version = 1; version < 10; version++) {

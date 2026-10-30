@@ -28,7 +28,10 @@ try {
       errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
     await page.goto(`${process.env.BASE ?? 'http://127.0.0.1:5186/'}workshop.html`);
-    await page.locator('.auto-spell').first().waitFor();
+    await page.locator('.mode-badge').waitFor();
+    assert.equal(await page.locator('.auto-spell').count(), 0);
+    await page.getByRole('button', { name: 'Exercises', exact: true }).click();
+    await page.getByRole('button', { name: 'Supplied spells · Lv 1', exact: true }).click();
     assert.equal(await page.locator('.auto-spell').count(), 6);
     assert.equal(
       await page.locator('.spell-strip button').count(),
@@ -37,7 +40,7 @@ try {
     );
     assert.equal(await page.locator('.auto-rank').filter({ hasText: 'Lv1' }).count(), 6);
     await page.getByRole('button', { name: 'Exercises', exact: true }).click();
-    await page.getByRole('button', { name: 'Live workshop · Lv 4', exact: true }).click();
+    await page.getByRole('button', { name: 'Supplied spells · Lv 4', exact: true }).click();
     assert.equal(await page.locator('.auto-rank').filter({ hasText: 'Lv4' }).count(), 6);
     const controls = await page.locator('.piece-controls').boundingBox();
     await page.locator('.auto-spell').first().click();

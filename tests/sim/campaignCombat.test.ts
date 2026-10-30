@@ -99,9 +99,7 @@ describe('second-half encounter fixture integrity', () => {
         FIXTURE_GIL - prepared.purchases.reduce((sum, purchase) => sum + purchase.cost, 0),
       );
       expect(prepared.state.hero.gil).toBeGreaterThanOrEqual(0);
-      expect(Object.keys(prepared.state.hero.spells).sort()).toEqual(
-        [CLASSES[classId]!.spell, 'cure'].sort(),
-      );
+      expect(Object.keys(prepared.state.hero.spells).sort()).toEqual([]);
       expect(Object.values(prepared.state.hero.spells).every((spell) => spell.level === 1)).toBe(
         true,
       );

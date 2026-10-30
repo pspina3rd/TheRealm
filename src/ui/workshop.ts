@@ -1,3 +1,17 @@
+import {
+  learnSpell,
+  gainXp,
+  spendSkillPoints,
+  raiseSpellLevel,
+  refreshStats,
+  createHero,
+} from '../game/hero';
+import { isReady } from '../game/spells';
+import { SPELLS } from '../data/spells';
+import { WEAVE_NAMES, WEAVE_SPELLS } from '../game/weaving';
+import { openWeavingEditor } from './weavingEditor';
+import { openWeavingTargeting } from './weavingTargeting';
+import { openArcaneEditor } from './arcaneEditor';
 /** Live review battle using the same piece input as the adventure. */
 import { required } from '../core/required';
 import { Battle, type BattleAction } from '../battle/battle';
@@ -5,7 +19,7 @@ import { BOARD_SPELLS, type CastPreview } from '../battle/magicCasting';
 import { spanFor } from '../core/boardMagic';
 import { createRng } from '../core/rng';
 import { newKnownSpell } from '../game/spells';
-import { ARCANE_ELEMENTS, createArcane } from '../game/arcane';
+import { ARCANE_ELEMENTS, createArcane, arcaneUnlocked } from '../game/arcane';
 import { PRACTICES, PRACTICE_SPELLS, practiceProgress, setupPractice } from '../game/magicPractice';
 import { newGame } from '../world/state';
 import { loadGame, saveGame, type KeyValueStore } from '../game/save';
@@ -25,8 +39,12 @@ const store: KeyValueStore = {
   setItem: (key, value) => localStorage.setItem(`magic-workshop:${key}`, value),
   removeItem: (key) => localStorage.removeItem(`magic-workshop:${key}`),
 };
-const state = loadGame(store) ?? newGame();
-state.flags = new Set(['wyrmBeaten', 'scene:chapterEnd', 'boardMagicEnabled']);
+const loaded = loadGame(store);
+const state = loaded?.flags.has('workshopProgressionV1') ? loaded : newGame();
+state.flags.add('boardMagicEnabled');
+state.flags.add('workshopProgressionV1');
+let liveBook: typeof state.hero.spells = structuredClone(state.hero.spells);
+let practiceMana = false;
 const root = required(document.getElementById('workshop'));
 let battle: Battle,
   mode: WorkshopMode = 'play',
@@ -306,6 +324,23 @@ function renderPalette(): void {
   paletteResourceKey = '';
   spellArea.dataset.bank = arcaneBank ? 'arcane' : 'elements';
   arcaneResource.hidden = !arcaneBank;
+  if (arcaneBank && state.hero.weaving?.equipped)
+    palette.append(
+      button('Equipped weaving', () => {
+        if (battle.autoCastingBusy) return;
+        const prior = mode;
+        mode = 'paused';
+        inputs.lockout();
+        openWeavingTargeting(
+          battle,
+          () => true,
+          () => {
+            setMode(prior);
+            saveGame(store, state);
+          },
+        );
+      }),
+    );
   const options = arcaneBank
     ? ARCANE_ELEMENTS.map((element) => ({
         id: `arcane:${element}`,
@@ -320,6 +355,13 @@ function renderPalette(): void {
     : battle.autoCastingEnabled
       ? battle.autoOrder.map((id) => required(PRACTICE_SPELLS.find((s) => s.id === id)))
       : PRACTICE_SPELLS;
+  if (options.length === 0)
+    palette.append(
+      el('p', {
+        className: 'empty-spellbook',
+        text: 'No spells learned. Open Exercises to choose your first.',
+      }),
+    );
   for (const [slot, spell] of options.entries()) {
     const automatic = battle.autoCastingEnabled && !arcaneBank;
     const node = automatic
@@ -385,13 +427,14 @@ function reset(index = -1): void {
   lastNext = '';
   seenAutoCasts = 0;
   enemySequence = 0;
-  state.hero.spells = {};
-  state.hero.arcane = {};
-  const testIds =
-    index === -1 && testSpell !== 'all' ? [testSpell] : [...Object.keys(BOARD_SPELLS), 'shadow'];
-  for (const id of testIds)
-    state.hero.spells[id] = { ...newKnownSpell(), level: index === -1 ? testLevel : 4 };
-  for (const element of ARCANE_ELEMENTS) createArcane(state.hero, state.flags, element);
+  if (index === -1) state.hero.spells = structuredClone(liveBook);
+  else {
+    state.hero.spells = {};
+    state.hero.arcane = {};
+    for (const id of [...Object.keys(BOARD_SPELLS), 'shadow'])
+      state.hero.spells[id] = { ...newKnownSpell(), level: 4 };
+    for (const element of ARCANE_ELEMENTS) createArcane(state.hero, state.flags, element);
+  }
   if (index >= 0) {
     const lesson = required(PRACTICES[index]);
     if (!lesson.spell.startsWith('arcane:')) required(state.hero.spells[lesson.spell]).level = 1;
@@ -403,12 +446,15 @@ function reset(index = -1): void {
     autoCastPacingMs: 500,
     storyFlags: state.flags,
   });
-  state.hero.maxHp = 10000;
-  state.hero.hp = 10000;
-  state.hero.manaCap = 100;
+  refreshStats(state.hero);
+  if (index !== -1 || practiceMana) {
+    state.hero.maxHp = 10000;
+    state.hero.manaCap = 100;
+  }
+  state.hero.hp = state.hero.maxHp;
   for (const e of Object.keys(state.hero.mana))
-    state.hero.mana[e as keyof typeof state.hero.mana] = 100;
-  required(battle.combat).enemyHp = 10000;
+    state.hero.mana[e as keyof typeof state.hero.mana] = index !== -1 || practiceMana ? 100 : 0;
+  if (index !== -1 || practiceMana) required(battle.combat).enemyHp = 10000;
   if (index >= 0) setupPractice(battle, required(PRACTICES[index]));
   else {
     battle.board.loadRows([
@@ -498,6 +544,7 @@ function refresh(): void {
   }
   root.dataset.mode = mode;
   root.dataset.autoPhase = battle.autoFrame?.phase ?? 'idle';
+  root.dataset.castSource = battle.autoFrame?.source ?? 'auto';
   root.dataset.testLevel = String(testLevel);
   root.dataset.testSpell = testSpell;
   for (const node of palette.querySelectorAll<HTMLElement>('[data-spell]'))
@@ -533,7 +580,9 @@ function refresh(): void {
   goal.textContent =
     exercise < 0
       ? battle.autoCastingEnabled
-        ? `Lv ${testLevel} · Clear lines to cast`
+        ? Object.keys(state.hero.spells).length
+          ? 'Clear lines to cast'
+          : 'No spells learned · Clear lines'
         : 'Clear grey blocks'
       : {
           obstructions: 'Break grey blocks',
@@ -709,7 +758,7 @@ function refresh(): void {
   const frame = battle.autoFrame;
   if (frame) {
     const spell = PRACTICE_SPELLS.find((s) => s.id === frame.preview.id);
-    castingTitle.textContent = `${spell?.name ?? frame.preview.name} Lv${frame.preview.rank} · ${frame.index}/${frame.total}`;
+    castingTitle.textContent = `${frame.source === 'weave' ? 'Weaving · ' : ''}${spell?.name ?? frame.preview.name} Lv${frame.preview.rank} · ${frame.index}/${frame.total}`;
     castingStep.textContent = `${frame.phase === 'result' ? 'Applied' : frame.phase === 'effect' ? 'Casting' : 'Next'}: ${frame.phase === 'result' ? castOutcome(frame.before, frame.preview) : castConsequence(frame.before, frame.preview)}`;
     cost.textContent = Object.entries(frame.preview.cost)
       .map(([e, n]) => `${n} ${e} mana`)
@@ -828,7 +877,7 @@ function resize(): void {
   root.style.setProperty('--cell', `${cell}px`);
 }
 function openExercises(): void {
-  if (document.querySelector('dialog[open]')) return;
+  if (battle.autoCastingBusy || document.querySelector('dialog[open]')) return;
   const prior = mode;
   mode = 'paused';
   battle.paused = true;
@@ -836,9 +885,106 @@ function openExercises(): void {
   refresh();
   const dialog = el('dialog', { className: 'exercise-dialog' });
   dialog.append(
-    el('h2', { text: 'Optional exercises' }),
+    el('h2', { text: 'Progression and exercises' }),
     el('p', {
       text: 'The same falling-block controls and clocks stay active. Aim pauses play; Cast or Cancel resumes it.',
+    }),
+  );
+  const resumeLive = (): void => {
+    liveBook = structuredClone(state.hero.spells);
+    testLevel = 0;
+    testSpell = 'mixed';
+    dialog.close();
+    dialog.remove();
+    setMode(prior);
+    renderPalette();
+    refresh();
+    saveGame(store, state);
+  };
+  dialog.append(
+    el('h3', { text: 'Player progression' }),
+    el('p', {
+      text: `${state.hero.skillPoints} skill points. Starts with no spells; mana comes from cleared crystals. These controls simulate learning and earned XP for testing.`,
+    }),
+    button('Earn a level (test XP)', () => {
+      gainXp(state.hero, state.hero.nextXp);
+      resumeLive();
+    }),
+    button('Moon Wyrm aftermath (test unlock)', () => {
+      state.flags.add('wyrmBeaten');
+      state.flags.add('scene:chapterEnd');
+      resumeLive();
+    }),
+  );
+  for (const id of [...WEAVE_SPELLS, 'shadow'] as const) {
+    const known = state.hero.spells[id];
+    const name = id === 'shadow' ? 'Arcane' : WEAVE_NAMES[id];
+    if (!known)
+      dialog.append(
+        button(
+          `Learn ${name}`,
+          () => {
+            learnSpell(state.hero, id);
+            resumeLive();
+          },
+          { disabled: id === 'shadow' && !arcaneUnlocked(state.flags) },
+        ),
+      );
+    else {
+      dialog.append(el('p', { text: `${name} · Lv ${known.level}` }));
+      for (const attribute of ['power', 'efficiency', 'effect'] as const)
+        dialog.append(
+          button(`Enhance ${name} ${attribute}`, () => {
+            spendSkillPoints(state.hero, { stats: {}, spells: { [id]: { [attribute]: 1 } } });
+            resumeLive();
+          }),
+        );
+      dialog.append(
+        button(
+          `Train ${name} next level`,
+          () => {
+            raiseSpellLevel(state.hero, id);
+            resumeLive();
+          },
+          { disabled: !isReady(required(SPELLS[id]), known) },
+        ),
+      );
+    }
+  }
+  const edit = (open: typeof openWeavingEditor): void => {
+    dialog.close();
+    dialog.remove();
+    open(
+      state.hero,
+      state.flags,
+      () => {
+        liveBook = structuredClone(state.hero.spells);
+        saveGame(store, state);
+      },
+      () => {
+        setMode(prior);
+        renderPalette();
+        refresh();
+      },
+    );
+  };
+  dialog.append(
+    button('Arcane mastery', () => edit(openArcaneEditor)),
+    button('Arcane Weaving', () => edit(openWeavingEditor)),
+  );
+  dialog.append(
+    el('h3', { text: 'Supplied practice loadouts' }),
+    el('p', {
+      text: 'Debug presets below grant spells and full mana. They do not represent a new player.',
+    }),
+  );
+  dialog.append(
+    button('Supply mana (debug)', () => {
+      practiceMana = true;
+      state.hero.manaCap = 100;
+      for (const e of Object.keys(state.hero.mana))
+        state.hero.mana[e as keyof typeof state.hero.mana] = 100;
+      resumeLive();
     }),
   );
   const spellSelect = el('select');
@@ -856,17 +1002,43 @@ function openExercises(): void {
     option.value = required(id);
     spellSelect.append(option);
   }
-  spellSelect.value = testSpell;
+  spellSelect.value = testSpell === 'mixed' ? 'all' : testSpell;
   dialog.append(el('label', {}, 'Live test spells ', spellSelect));
   const choose = (index: number, level = testLevel): void => {
     testLevel = level;
     testSpell = spellSelect.value;
     dialog.close();
     dialog.remove();
+    state.flags.add('wyrmBeaten');
+    state.flags.add('scene:chapterEnd');
+    if (index === -1) {
+      practiceMana = true;
+      liveBook = {};
+      state.hero.arcane = {};
+      state.hero.weaving = { recipes: [], equipped: null };
+      for (const id of testSpell === 'all' ? [...Object.keys(BOARD_SPELLS), 'shadow'] : [testSpell])
+        liveBook[id] = { ...newKnownSpell(), level };
+      state.hero.spells = structuredClone(liveBook);
+      for (const element of ARCANE_ELEMENTS) createArcane(state.hero, state.flags, element);
+    }
     reset(index);
   };
+  dialog.append(
+    button('New zero-spell run', () => {
+      liveBook = {};
+      practiceMana = false;
+      Object.assign(state.hero, createHero());
+      state.hero.arcane = {};
+      state.hero.weaving = { recipes: [], equipped: null };
+      state.hero.skillPoints = 0;
+      state.flags = new Set(['boardMagicEnabled', 'workshopProgressionV1']);
+      dialog.close();
+      dialog.remove();
+      reset(-1);
+    }),
+  );
   for (const level of [1, 2, 3, 4])
-    dialog.append(button(`Live workshop · Lv ${level}`, () => choose(-1, level)));
+    dialog.append(button(`Supplied spells · Lv ${level}`, () => choose(-1, level)));
   dialog.append(button('Manual spell lab', () => choose(-2)));
   for (const [index, lesson] of PRACTICES.entries())
     dialog.append(button(lesson.title, () => choose(index)));

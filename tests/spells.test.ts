@@ -253,6 +253,8 @@ describe('the hero’s spells', () => {
     const hero = createHero();
     expect(knownSpell(hero, 'toString')).toBeUndefined();
     expect(heroSpell(hero, 'fire')).toBeNull();
+    expect(heroSpell(hero, 'gale')).toBeNull();
+    learnSpell(hero, 'gale');
     expect(heroSpell(hero, 'gale')?.name).toBe('Gale');
   });
 
@@ -364,6 +366,7 @@ describe('skill plans with spells', () => {
 
   it('spend stats and enhancements together, making a spell ready', () => {
     const hero = createHero('ranger');
+    learnSpell(hero, 'gale');
     for (let i = 0; i < 3; i++) gainXp(hero, hero.nextXp); // level 4: 6 points
     const plan = { stats: {}, spells: { gale: ONE_EACH } };
     expect(spendSkillPoints(hero, plan)).toBe(true);

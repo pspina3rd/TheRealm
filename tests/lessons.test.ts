@@ -93,7 +93,10 @@ describe('lessonsFor', () => {
   it('only teaches the mentor’s own element', () => {
     const scholar = heroKnowing('fire', 'blizzard', 'thunder', 'cure', 'quake', 'shadow', 'gale');
     for (const m of Object.values(MENTORS)) {
-      const lessons = lessonsFor(seek(scholar), m);
+      const lessons = lessonsFor(
+        { hero: scholar, flags: new Set(['wyrmBeaten', 'scene:chapterEnd']) },
+        m,
+      );
       expect(lessons.length, m.id).toBeGreaterThan(0);
       for (const { spellId } of lessons) expect(SPELLS[spellId]?.category).toBe(m.element);
     }
@@ -333,7 +336,7 @@ describe('mentor encounters', () => {
       title: 'Torva',
       sprite: 'char.020',
       mentorId: 'torva',
-      lessons: [{ spellId: 'fire' }, { spellId: 'wildfire' }],
+      lessons: [{ spellId: 'fire' }],
       sealed: null,
       silhouettes: [{ spell: SPELLS.volcano, state: 'hidden' }],
     });

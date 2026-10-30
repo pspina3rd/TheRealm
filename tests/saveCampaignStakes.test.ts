@@ -1,3 +1,4 @@
+import { learnSpell as learnFixtureSpell } from '../src/game/hero';
 import { describe, expect, it } from 'vitest';
 import { createRng } from '../src/core/rng';
 import { CAMPAIGN_FLAGS as C } from '../src/data/campaignFlags';
@@ -57,6 +58,7 @@ function addStakes(state: GameState): void {
     false,
   );
   settleHaggle(state, 'stallKeeper', 'mossvaleStall', 'fail', 1.1);
+  learnFixtureSpell(state.hero, 'shadow');
   state.hero.seal = { spellId: 'shadow', fights: 2 };
 }
 
@@ -84,7 +86,7 @@ describe('unified campaign and stakes save migration', () => {
     const pages = scenePages(scene, state.hero);
     // Viewing pages does not complete the scene; reload starts it again.
     const loaded = deserialize(serialize(state))!;
-    expect(SAVE_VERSION).toBe(13);
+    expect(SAVE_VERSION).toBe(14);
     expect(loaded).toEqual(state);
     expect(scenePages(dueScenes(loaded.flags, loaded.mapId)[0]!, loaded.hero)).toEqual(pages);
     finishScene(loaded, scene);

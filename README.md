@@ -372,8 +372,11 @@ bot or a human campaign completion proof.
 On GetPutTaco, run `npm install` and `npm run dev`, then open
 **http://localhost:5173/workshop.html** (or the port Vite prints). This isolated
 development fixture contains durable obstructions, elemental board spells,
-NPC interference, line-driven standard autocasting and manual Arcane pairs. It uses a separate
-save namespace and practice supplies. Desktop and touch have distinct encounter
+NPC interference, line-driven standard autocasting, seventh-group opponent Arcane
+techniques, and separate custom Arcane Weaving. It uses a separate save namespace.
+New players start with zero spells and earned mana; Exercises lets you choose
+learning order and independent upgrades. Supplied spells/mana are labeled debug
+controls. Desktop and touch have distinct encounter
 layouts, with visible affinity order, learned ranks, mana readiness and stable
 movement controls. Clear the opening two lines to try two automatic casts.
 See [the workshop playtest instructions](docs/BOARD_MAGIC_PLAYTEST.md).
@@ -382,4 +385,5 @@ The existing adventure keeps its current rules while the workshop is reviewed.
 Campaign wiring and selected encounter variants are implemented behind the
 `boardMagicEnabled` rollout flag; new adventure saves do not receive that flag
 yet. This does not mark the new campaign-wide balance or the M1 author playtest
-as accepted. Saves are now version 13, retaining earlier migrations and recovery.
+as accepted. Saves are now version 14, preserving empty spellbooks, existing ownership, custom
+recipes, earlier migrations and recovery.

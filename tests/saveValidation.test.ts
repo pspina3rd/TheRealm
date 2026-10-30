@@ -93,7 +93,7 @@ describe('save validation: stale entries are repaired, not fatal', () => {
 
   it('defaults malformed enhancements, spell levels and stats, and refills missing mana', () => {
     const save = data();
-    const id = Object.keys(save.hero.spells)[0] as string;
+    const id = 'gale';
     save.hero.spells[id] = { level: 999, step: { power: -1 }, kept: null };
     save.hero.stats = {};
     save.hero.mana = null;

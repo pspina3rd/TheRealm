@@ -359,8 +359,8 @@ export const SPELLS: Readonly<Record<string, SpellDef>> = {
   },
 };
 
-/** Spells every new hero knows, on top of their class's own spell. */
-export const STARTING_SPELLS: readonly string[] = ['cure'];
+/** No spells are granted by character creation; the player chooses what to learn. */
+export const STARTING_SPELLS: readonly string[] = [];
 
 // ---------------------------------------------------------- enhancements ---
 

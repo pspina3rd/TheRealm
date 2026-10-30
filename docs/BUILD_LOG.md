@@ -616,3 +616,21 @@ phone, landscape and desktop. Full automated suite, lint and build passed.
   committed preview result; another 24 cases reject insufficient mana without
   falling back. Browser checks cover all 24 playable spell/rank combinations,
   Reset persistence, and the existing phone/landscape/desktop automatic layout.
+
+## 2026-10-30 · Correct player progression and separate Weaving
+
+- Rechecked team branch `f1b14e6`; unchanged. Corrected new-game zero-spell
+  behavior, empty-book save recovery, class-picker claims, mentor availability,
+  and tests which assumed class spells/Cure. Existing owned spells stay owned.
+- Save v14 preserves versions 1–13 and committed-try recovery, adds separate
+  custom recipes/equipment, and keeps legacy starting-spell provenance.
+- Kept seventh-group opponent Arcane techniques and their progression. Added
+  independent ordered custom Weaving with chosen strengths, real summed costs,
+  XP-earned upgrades, equipment, three-board preview and sequential animation.
+- Rebuilt the live workshop around zero spells, normal stats, earned mana,
+  independent learning and uneven progression; supplied resources are explicit
+  debug controls. Progress and equipment persist through reload.
+- Covered all base spellbooks and acquisition paths, ordered recipe/strength
+  configurations, generated progression histories, whole-cost refusal and stale
+  previews. Full engine checks and touch/desktop browser flows were run; evidence
+  is in the board-magic artifact folder. Human campaign acceptance is still open.

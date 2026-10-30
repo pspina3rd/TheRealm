@@ -46,6 +46,9 @@ export class MagicCasting {
     readonly book: () => Hero['spells'] = () => hero.spells,
     readonly unsealedId?: string,
   ) {}
+  snapshotKey(): string {
+    return this.fingerprint();
+  }
   private fingerprint(): string {
     return JSON.stringify([
       this.board.magicState(),
@@ -53,6 +56,7 @@ export class MagicCasting {
       this.hero.mana,
       this.hero.spells,
       this.hero.arcane,
+      this.hero.weaving,
       this.interference.checkpoint(),
       [...this.flags],
     ]);
@@ -66,7 +70,7 @@ export class MagicCasting {
       known = this.book()[base];
     if (!def || !known) throw new Error("You don't know that spell.");
     const rank = arcane ? arcaneRank(this.hero, element) : known.level;
-    if (rank < 1) throw new Error('Create this Arcane pairing first.');
+    if (rank < 1) throw new Error('Learn this Arcane technique first.');
     const cast = castSpellFor(def, known),
       cost = { ...cast.cost };
     if (arcane) {

@@ -133,3 +133,51 @@
     left: auto;
   }
 }
+
+.weaving-editor label,
+.weaving-target label {
+  display: block;
+  margin: 12px 0;
+}
+.weaving-editor select,
+.weaving-editor input,
+.weaving-target select {
+  min-height: 44px;
+  max-width: 100%;
+  padding: 8px;
+  color: inherit;
+  background: #101422;
+  border: 1px solid #8476a3;
+  border-radius: 6px;
+}
+.weaving-editor button,
+.weaving-target button {
+  min-height: 44px;
+  margin: 4px;
+}
+.weave-stage {
+  border: 1px solid #686c82;
+  border-radius: 8px;
+  padding: 10px;
+  margin: 10px 0;
+}
+.weave-stage select {
+  margin: 4px;
+}
+.weave-previews {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.weave-previews h3 {
+  font-size: 13px;
+}
+@media (max-width: 480px) {
+  .weave-previews {
+    grid-template-columns: 1fr;
+  }
+  .weave-previews .magic-grid {
+    max-width: 180px;
+    margin: auto;
+  }
+}

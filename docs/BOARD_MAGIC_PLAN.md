@@ -1,5 +1,25 @@
 # Board magic implementation contract
 
+## Author correction · October 30
+
+The current implementation and its passing tests are not acceptance of the
+intended progression. The author clarified that new players start with **zero
+spells**, choose the acquisition order of the six base schools, and choose which
+schools to level. **Arcane is a seventh, opponent-targeted spell group. Arcane
+Weaving is a separate equippable custom spell with player-selected effects,
+strengths, and execution order, displaying the resulting casting cost.**
+
+The historical rule below restricting custom Arcane to Arcane + one element is
+incorrect for Weaving and is superseded by this clarification. Existing
+opponent-interference effects are useful implementation material for the seventh
+group, not a substitute for the custom spell system. Existing unlock timing is
+retained unless the author changes it; the correction does not authorize silently
+inventing a fixed spell-acquisition order.
+
+See [progression and coverage correction](SPELL_PROGRESSION_CORRECTION.md) for
+verified implementation gaps, coverage scope, and the repair sequence. The
+workshop's 24 individual spell/rank checks remain component evidence only.
+
 Approved October 29: board magic and durable, owned obstructions; colorless Ice
 and Nature blocks; per-character placement counters; Arcane unlocked after the
 Moon Wyrm and chapter-end scene. This file accompanies implementation checkpoints.
@@ -18,7 +38,8 @@ Moon Wyrm and chapter-end scene. This file accompanies implementation checkpoint
   evaluation uses the same clone and commits only after an earned line. Manual
   targeting pauses play.
 - Preserve existing healing and Shadow Drain. Add Nature conversion separately.
-- Custom Arcane is Arcane + one element, not arbitrary ordered elemental pairs.
+- Seventh-group Arcane techniques target the faced character. They are separate
+  from the player-configured Weaving spell.
   Fire allows red contact; Ice delays interference; Wind shifts upcoming
   obstructions; Lightning weakens current ones; Nature neutralizes incoming
   obstructions; Gravity removes anchoring. Rank controls 1/2/3/4 charges or
@@ -35,7 +56,7 @@ Moon Wyrm and chapter-end scene. This file accompanies implementation checkpoint
 Commit the resolver and tests, then board integration, targeting and workshop,
 then Arcane/progression/save migration, then campaign wiring and validation.
 Keep the existing campaign playable while the new isolated workshop is reviewed.
-Save v13 preserves all v1–12 migrations and committed-try recovery; correction
+Save v14 preserves all v1–13 migrations and committed-try recovery; correction
 snapshots include obstruction state. Exact numerical balance remains subject to
 existing gates, not waived by a passing test runner. Human review of the isolated
 encounter precedes broad campaign activation, as specified in the approved plan.
@@ -94,3 +115,33 @@ clears. Animations use this data rather than guessing where identical colors
 moved. Ordinary resolution/save state and spell effects are unchanged. Automatic
 row flashes and simultaneous surge icons are suppressed on the board. The six
 standard spell types each use their own visual treatment.
+
+## Corrected progression and custom spell delivery · October 30
+
+Implemented zero starting spells, empty-book persistence, class selection without
+spell grants, and player-selected learning/uneven upgrades. Legacy ownership is
+retained; old starting-spell provenance prevents class affinity being mistaken
+for a newly earned lesson. Arcane lessons require the Moon Wyrm aftermath.
+
+Arcane mastery retains opponent techniques and their saved progress. Independent
+Weaving recipes store exactly two ordered source effects, chosen strengths,
+weaving level, name, and equipment. Either effect may use the same school.
+Sources are the six standard board spells and must be learned to level 2.
+Weaving unlocks after the Wyrm aftermath, starts at level 1, and uses its own
+6/12/20 skill-point upgrade schedule, capped by the source levels. Each selected
+strength is bounded by the source and weaving levels; cost sums both actual
+enhanced casts. There is no recipe discount or partial payment.
+
+Preview resolves both effects on a clone in order and shows the intermediate
+board. Casting revalidates the equipped recipe and complete cost, presents both
+stages with the shared elemental renderer, then atomically commits and pays.
+Input and opponent clocks wait throughout. Custom casting stays manual and
+retains the intended earned-line behavior for deliberately completed rows.
+
+Coverage includes all 15,625 base spellbooks, 720 complete learning orders and
+1,957 acquisition prefixes, 576 ordered two-effect/strength configurations,
+reproducible mixed progression histories, cost/refusal/stale-preview checks,
+save migration, paced execution, and keyboard/touch browser flows. These verify
+specific contracts; they do not claim every possible campaign or board history
+has been exhaustively tested. The existing campaign rollout flag stays under the
+previous human-playtest gate.

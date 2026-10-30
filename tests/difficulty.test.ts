@@ -476,7 +476,11 @@ describe('bosses', () => {
       ['slime', SPELL_TIME],
     ] as const) {
       const { combat, hero } = fight(id);
-      hero.spells.fire = { ...hero.spells.gale! };
+      hero.spells.fire = {
+        level: 1,
+        step: { power: 0, efficiency: 0, effect: 0 },
+        kept: { power: 0, efficiency: 0, effect: 0 },
+      };
       hero.mana = { ...hero.mana, fire: 99 };
       combat.gauge = 0;
       combat.castSpell('fire');

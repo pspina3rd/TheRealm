@@ -26,12 +26,13 @@ try {
       page.on('pageerror', (e) => errors.push(e.message));
       try {
         await page.goto(`${process.env.BASE ?? 'http://127.0.0.1:5186/'}workshop.html`);
-        assert.equal(await page.locator('.auto-rank').filter({ hasText: 'Lv1' }).count(), 6);
+        await page.locator('.mode-badge').waitFor();
+        assert.equal(await page.locator('.auto-rank').count(), 0);
         for (const id of ['fire', 'blizzard', 'quake', 'gale', 'thunder', 'natureConvert']) {
           await page.getByRole('button', { name: 'Exercises', exact: true }).click();
           await page.getByLabel('Test spells', { exact: true }).selectOption(id);
           await page
-            .getByRole('button', { name: `Live workshop · Lv ${rank}`, exact: true })
+            .getByRole('button', { name: `Supplied spells · Lv ${rank}`, exact: true })
             .click();
           assert.equal(await page.locator('.auto-spell').count(), 1);
           assert.equal(await page.locator('.auto-rank').innerText(), `Lv${rank}`);

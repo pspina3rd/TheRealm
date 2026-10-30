@@ -40,6 +40,29 @@ export function drawAutoSpell(
   const progress = Math.max(0, Math.min(1, 1 - frame.remainingMs / frame.durationMs));
   ctx.save();
   ctx.imageSmoothingEnabled = false;
+  if (frame.source === 'weave' && frame.phase !== 'effect') {
+    const visible = frame.phase === 'target' ? before : result.state;
+    ctx.fillStyle = '#0a0c17';
+    ctx.fillRect(0, 0, board.width * S, board.height * S);
+    ctx.strokeStyle = '#1d2238';
+    for (let y = 0; y < board.height; y++)
+      for (let x = 0; x < board.width; x++) {
+        ctx.strokeRect(x * S + 0.5, y * S + 0.5, S, S);
+        block(ctx, visible.grid[y]?.[x] ?? null, [x, y], visible, time);
+      }
+    const piece = board.active;
+    if (piece)
+      piece.cells.forEach(([dx, dy], i) => {
+        if (piece.y + dy >= 0)
+          drawCrystal(
+            ctx,
+            piece.colors[i] ?? piece.color,
+            (piece.x + dx) * S,
+            (piece.y + dy) * S,
+            S,
+          );
+      });
+  }
   if (frame.phase === 'effect') {
     ctx.fillStyle = '#0a0c17';
     ctx.fillRect(0, 0, board.width * S, board.height * S);

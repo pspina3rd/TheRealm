@@ -20,7 +20,7 @@ export function openArcaneEditor(
   const dialog = el('dialog', { className: 'magic-target-dialog' });
   const render = (): void => {
     dialog.replaceChildren(
-      el('h2', { text: 'Arcane Weaving' }),
+      el('h2', { text: 'Arcane mastery' }),
       el('p', {
         text: `${hero.skillPoints} skill points · upgrades use the same XP-earned points as your other skills.`,
       }),
@@ -44,7 +44,7 @@ export function openArcaneEditor(
       row.append(
         button(
           rank === 0
-            ? 'Create pairing'
+            ? 'Learn technique'
             : rank >= 4
               ? 'Maximum rank'
               : `Upgrade · ${cost ?? 0} points`,
@@ -98,7 +98,7 @@ export function openArcaneChooser(
     dialog.close();
     dialog.remove();
   };
-  dialog.append(el('h2', { text: 'Choose Arcane pairing' }));
+  dialog.append(el('h2', { text: 'Choose Arcane technique' }));
   let count = 0;
   for (const e of ARCANE_ELEMENTS) {
     const rank = arcaneRank(battle.hero, e);
@@ -112,7 +112,7 @@ export function openArcaneChooser(
     );
   }
   if (count === 0)
-    dialog.append(el('p', { text: 'Create a pairing in Arcane Weaving outside battle.' }));
+    dialog.append(el('p', { text: 'Learn a technique in Arcane mastery outside battle.' }));
   dialog.append(
     button('Cancel', () => {
       close();

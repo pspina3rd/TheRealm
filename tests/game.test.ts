@@ -239,6 +239,7 @@ describe('resolveBattle', () => {
 describe('grantRewards', () => {
   it('applies each reward kind', () => {
     const state = newGame();
+    learnSpell(state.hero, 'cure');
     const out = grantRewards(state.hero, state.flags, [
       { kind: 'gil', amount: 5 },
       { kind: 'item', itemId: 'ether', count: 2 },
@@ -556,6 +557,7 @@ describe('save migration from version 3 (stats)', () => {
 
   it('keeps version 4 stats and points as saved', () => {
     const state = newGame('rogue');
+    learnSpell(state.hero, 'thunder');
     state.hero.skillPoints = 3;
     state.hero.stats.luck = 4;
     const data = JSON.parse(serialize(state));
@@ -599,6 +601,7 @@ describe('save migration to version 6 (mentors)', () => {
 
   it('saves the spell seal', () => {
     const state = newGame('mage');
+    learnSpell(state.hero, 'shadow');
     state.hero.seal = { spellId: 'shadow', fights: 2 };
     expect(deserialize(serialize(state))!.hero.seal).toEqual(state.hero.seal);
   });
@@ -620,7 +623,7 @@ describe('save migration to version 7 (feats)', () => {
   it('saves the hero’s board feats', () => {
     const state = newGame();
     state.hero.feats = { 'pure.lightning': 3, hastedClear: 1 };
-    expect(SAVE_VERSION).toBe(13);
+    expect(SAVE_VERSION).toBe(14);
     expect(deserialize(serialize(state))!.hero.feats).toEqual(state.hero.feats);
   });
 
@@ -659,6 +662,7 @@ describe('shopping for charms and tomes', () => {
     state.hero.gil = 500;
     buy(state, 'fireTome', 1);
     expect(cannotBuyReason(state, ITEMS.fireTome!, 1)).toBe('You already have this spell.');
+    learnSpell(state.hero, 'gale');
     expect(cannotBuyReason(state, ITEMS.galeTome!, 1)).toBe('You already have this spell.');
     learnSpell(state.hero, 'shadow');
     expect(cannotBuyReason(state, ITEMS.shadowTome!, 1)).toBe('You already have this spell.');

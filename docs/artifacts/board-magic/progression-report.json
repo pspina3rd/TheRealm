@@ -1,0 +1,36 @@
+[
+  {
+    "width": 390,
+    "height": 844,
+    "touch": true,
+    "zeroSpellStart": true,
+    "arbitraryFirstSchool": true,
+    "mixedRanks": true,
+    "realPointSpending": true,
+    "unlockGated": true,
+    "independentArcane": true,
+    "customStrengthAndOrder": true,
+    "threeStagePreview": true,
+    "insufficientManaRejected": true,
+    "sequentialCasting": true,
+    "reloadPreservesProgress": true,
+    "errors": []
+  },
+  {
+    "width": 1100,
+    "height": 900,
+    "touch": false,
+    "zeroSpellStart": true,
+    "arbitraryFirstSchool": true,
+    "mixedRanks": true,
+    "realPointSpending": true,
+    "unlockGated": true,
+    "independentArcane": true,
+    "customStrengthAndOrder": true,
+    "threeStagePreview": true,
+    "insufficientManaRejected": true,
+    "sequentialCasting": true,
+    "reloadPreservesProgress": true,
+    "errors": []
+  }
+]

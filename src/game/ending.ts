@@ -52,7 +52,7 @@ export interface Epilogue {
  */
 export function mentorsTaught(hero: Hero): MentorDef[] {
   const elsewhere = new Set([
-    heroClass(hero).spell,
+    ...(hero.legacyStartingSpells ?? [heroClass(hero).spell, 'cure']),
     ...STARTING_SPELLS,
     ...Object.values(NPCS).flatMap((npc) =>
       npc.rewards.flatMap((r) => (r.kind === 'spell' ? [r.spellId] : [])),

@@ -180,11 +180,13 @@ describe('tier effects', () => {
   });
 
   it('gives something else for a spell the hero already knows', () => {
-    const knight = createHero('knight'); // knows Quake
+    const knight = createHero('knight');
+    knight.spells.quake = newKnownSpell();
     expect(rewardsOnTerms(knight, NPCS.elder!, 'neutral').base).toEqual([
       { kind: 'gil', amount: 40 },
     ]);
-    const rogue = createHero('rogue'); // knows Thunder
+    const rogue = createHero('rogue');
+    rogue.spells.thunder = newKnownSpell();
     expect(rewardsOnTerms(rogue, NPCS.sage!, 'neutral').base).toEqual([
       { kind: 'item', itemId: 'stormCharm', count: 1 },
     ]);
@@ -420,6 +422,7 @@ describe('encounters on terms', () => {
       ['knight', { kind: 'gil', amount: 40 }],
     ] as const) {
       const state = newGame(classId);
+      if (classId === 'knight') state.hero.spells.quake = newKnownSpell();
       const shown = describeInteraction(state, entityOf('elder'));
       expect(shown).toMatchObject({
         kind: 'challenge',

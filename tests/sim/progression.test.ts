@@ -1,3 +1,4 @@
+import { learnSpell as learnFixtureSpell } from '../../src/game/hero';
 import { writeFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { CLASSES } from '../../src/data/classes';
@@ -37,6 +38,7 @@ describe('attainable Chapter One resources', () => {
 
   it('charges earned points for enhancements and cannot upgrade spells without a lesson', () => {
     const { hero } = newGame('ranger');
+    learnFixtureSpell(hero, 'gale');
     for (let i = 0; i < 4; i++) gainXp(hero, hero.nextXp);
     const earned = hero.skillPoints;
     const spent = investEarnedPoints(hero);

@@ -38,12 +38,12 @@ import { SKILL_POINTS_PER_LEVEL } from '../src/game/stats';
 import { knownSpells } from './helpers';
 
 describe('hero', () => {
-  it('starts at level 1 with its class spell and Cure, named after the class', () => {
+  it('starts at level 1 with no spells, named after the class', () => {
     const hero = createHero();
     expect(hero.name).toBe(CLASSES.ranger!.heroName);
     expect(hero.classId).toBe('ranger');
     expect(hero.level).toBe(1);
-    expect(hero.spells).toEqual(knownSpells('gale', 'cure'));
+    expect(hero.spells).toEqual({});
     expect(hero.seal).toBeNull();
     expect(createHero('mage', 'Test').name).toBe('Test');
   });
@@ -267,10 +267,10 @@ describe('hero', () => {
   });
 
   describe('alignment', () => {
-    it('starts each class aligned to its element, with its own spell', () => {
+    it('starts each class aligned to its element without granting a spell', () => {
       for (const cls of Object.values(CLASSES)) {
         const hero = createHero(cls.id);
-        expect(Object.keys(hero.spells)[0]).toBe(cls.spell);
+        expect(hero.spells).toEqual({});
         expect(SPELLS[cls.spell]?.category).toBe(cls.element);
         expect(hero.titleElement).toBe(cls.element);
       }
@@ -278,7 +278,9 @@ describe('hero', () => {
     });
 
     it('counts known spells per element', () => {
-      const hero = createHero('knight'); // quake, cure
+      const hero = createHero('knight');
+      learnSpell(hero, 'quake');
+      learnSpell(hero, 'cure');
       expect(heroAlignment(hero)).toMatchObject({ earth: 1, nature: 1, fire: 0 });
       learnSpell(hero, 'fire');
       expect(heroAlignment(hero).fire).toBe(1);

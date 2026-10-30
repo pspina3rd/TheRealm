@@ -268,6 +268,9 @@ describe('mentors teaching hidden spells', () => {
       silhouettes: [{ spell: spell('eclipse'), state: 'hidden' }],
     });
     state.flags.add(giftFlag('eclipse'));
+    expect(describeInteraction(state, selene).kind).toBe('message');
+    state.flags.add('wyrmBeaten');
+    state.flags.add('scene:chapterEnd');
     expect(describeInteraction(state, selene)).toMatchObject({
       silhouettes: [],
       lessons: expect.arrayContaining([expect.objectContaining({ spellId: 'eclipse' })]),

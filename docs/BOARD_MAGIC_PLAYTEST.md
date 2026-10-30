@@ -5,13 +5,25 @@ On GetPutTaco, run `npm install` and `npm run dev`, then open
 
 ## Start here
 
-The workshop opens with **level 1 automatic standard spells**. The supplied square
-fits the opening gap: press Space or tap **Drop** to clear two lines and see two
-automatic casts. The status area reports what cast and at which learned level.
-No spell selection or target confirmation is required for standard spells. Each
-cast now plays on its own: its card lights up, its targets are marked, and its
-blocks animate before the result is applied. Piece and opponent clocks pause
-briefly through the sequence. Broad automatic row flashes are removed.
+The workshop opens with **zero spells and empty mana**, using normal character
+stats. Place blocks and clear lines normally. Under **Exercises**, choose the
+school to learn first, then learn others in any order. The progression controls
+simulate mentor learning and earned XP; they do not change your adventure save.
+
+**Earn a level (test XP)** awards the real XP-earned skill points. Spend them on
+one spell's Power, Efficiency and Effect; **Train next level** becomes available
+when that spell is ready. Other schools keep their own levels. Reset keeps the
+learned book; reloading preserves progression and equipped custom spells.
+**New zero-spell run** clears this separate test progression.
+
+For isolated visual checks, Exercises also has explicitly labeled **Supplied
+spells · Lv 1–4** presets, a single-school selector, and **Supply mana (debug)**.
+Those are supplied practice scenarios, not new-player acceptance tests.
+
+Standard spells cast automatically after earned line clears, using their learned
+levels and available mana. No selection or confirmation is required. Each cast
+marks its targets, animates the actual blocks, then holds the result. Piece and
+opponent clocks pause through the sequence.
 
 The numbered cards show **affinity order**, learned level, mana cost, held mana,
 and readiness. Each earned line allows one cast of the first ready spell with a
@@ -29,8 +41,8 @@ Nothing fires automatically after victory or defeat.
 
 ## Arcane stays manual
 
-Choose the **Arcane** tab. Affordable pairings light up; unaffordable ones are
-disabled. Choose a pairing, inspect its target and mana cost, then **Cast Arcane**.
+Choose the **Arcane** tab. Affordable techniques light up; unaffordable ones are
+disabled. Choose a technique, inspect its target and mana cost, then **Cast Arcane**.
 Character effects mark Slime; Arcane Lightning uses selected rows. **Before /
 Result** compares a board preview without changing the game. **Cancel** or Escape
 returns without spending mana. Arrow keys adjust row/direction and Enter confirms.
@@ -51,13 +63,13 @@ The additional Arcane mana cost is displayed separately above the pairings.
 
 **Exercises → Manual spell lab** retains the earlier targeting fixture for
 isolating individual effects. The seven focused manual exercises are there too;
-they intentionally disable standard autocasting. **Live workshop** returns to
-automatic mode. Under **Exercises**, pick **Test spells** (all spells or one
-isolated element), then **Live workshop · Lv 1/2/3/4**. Reset preserves that setup.
-The selected level appears in the objective and each spell card. Arcane pairings
-are available from level 2, following their base-spell requirement.
+they intentionally disable standard autocasting. **Supplied spells · Lv 1–4** returns to automatic mode with debug resources.
+Pick **Test spells** to isolate a school, then select the supplied level.
+Each spell card shows its own learned level. Arcane techniques require the
+Moon Wyrm aftermath and their trained prerequisites.
 
-Practice mana is supplied; your adventure save is separate.
+Supplied resources are limited to the labeled debug controls. Your adventure
+save is separate.
 There is no hidden timed ally. Ordinary hostile placements leave a gap rather
 than completing your rows; your deliberate Arcane counterplay can still help.
 Colorless blank blocks earn no mana. Story scenes remain responsible for teaching
@@ -74,6 +86,28 @@ saves still do not receive that flag. Lessons retain manual teaching interaction
 [Automatic casts](artifacts/board-magic/phone-preview.png) ·
 [Manual Arcane](artifacts/board-magic/phone-arcane.png) ·
 [Landscape](artifacts/board-magic/landscape-workshop.png)
+
+## Arcane and custom Weaving are separate
+
+**Exercises → Arcane mastery** manages seventh-group opponent techniques.
+**Exercises → Arcane Weaving** creates a custom, equippable two-effect spell:
+choose both schools, their order, and each effect's strength. Both source schools
+must be learned to level 2 and the Moon Wyrm aftermath must be complete. The
+workshop has an explicit test-unlock control; it does not unlock the adventure.
+
+New recipes begin at weaving level 1. Upgrade them with XP-earned skill points
+(6/12/20), capped by both source levels. Casting cost is the sum of the two chosen
+strengths' real enhanced costs, including repeated schools. Editing/equipping is
+free. **Reverse order** changes the recipe; **Unequip** preserves saved recipes.
+
+In the Arcane tab, **Equipped weaving** opens a preview showing Before, After
+Effect 1, and After Effect 2, with separate targets and Wind directions. Cast
+plays both elemental animations in order and pays once for the complete spell.
+Insufficient total mana rejects the entire cast. Weaving is never auto-cast.
+
+[Phone editor](artifacts/board-magic/weaving-editor-phone.png) ·
+[Ordered preview](artifacts/board-magic/weaving-preview-desktop.png) ·
+[Progression/Weaving browser report](artifacts/board-magic/progression-report.json)
 
 The [automatic-mode report](artifacts/board-magic/auto-report.json) checks two-line
 casting, read-only readiness cards, visible learned levels, no casting on an

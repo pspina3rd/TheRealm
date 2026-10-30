@@ -68,7 +68,8 @@ export function groveStone(
     ) ||
     Object.entries(state.hero.spells).some(
       ([id, spell]) =>
-        SPELLS[id]?.category === 'nature' && (!STARTING_SPELLS.includes(id) || spell.level > 1),
+        SPELLS[id]?.category === 'nature' &&
+        (!(state.hero.legacyStartingSpells ?? STARTING_SPELLS).includes(id) || spell.level > 1),
     );
   const light = helped && taught ? 2 : helped || taught ? 1 : 0;
   return {

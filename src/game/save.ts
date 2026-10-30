@@ -1,3 +1,4 @@
+import { sanitizeWeaving } from './weaving';
 import { sanitizeArcane } from './arcane';
 import { ELEMENTS, emptyCounts, type Element } from '../core/elements';
 import { CLASSES, DEFAULT_CLASS } from '../data/classes';
@@ -45,10 +46,11 @@ export const CORRUPT_KEY = `${SAVE_KEY}.corrupt`;
  *   stakes (day, regard, encounter records, haggle prices and spell seals).
  * - 11 unifies both version-10 formats. Missing stakes start at zero;
  *   campaign progress and earned scenes remain intact in either format.
- * - 13 adds custom Arcane ranks without changing committed-try recovery.
+ * - 14 separates custom Weaving recipes and preserves empty spellbooks.
+ * - 13 adds opponent Arcane ranks without changing committed-try recovery.
  * - 12 persists committed M1 tries, settling interrupted tries as a failure on load.
  */
-export const SAVE_VERSION = 13;
+export const SAVE_VERSION = 14;
 const recoveredLoads = new WeakSet<GameState>();
 /** Older versions `deserialize` can still upgrade. */
 const MIGRATABLE_VERSIONS: readonly number[] = [
@@ -64,6 +66,7 @@ const MIGRATABLE_VERSIONS: readonly number[] = [
   10,
   11,
   12,
+  13,
   SAVE_VERSION,
 ];
 const FACINGS: readonly Direction[] = ['up', 'down', 'left', 'right'];
@@ -553,11 +556,19 @@ function sanitizeHero(hero: Hero, version = SAVE_VERSION): Hero | null {
       [id, { level, step: sanitizeEnhancements(k.step), kept: sanitizeEnhancements(k.kept) }],
     ];
   });
-  if (spells.length === 0) spells.push([cls.spell, newKnownSpell()]);
   const feats = field('feats');
   const clean: Hero = {
     ...hero,
+    legacyStartingSpells: (Array.isArray(raw.legacyStartingSpells)
+      ? raw.legacyStartingSpells
+      : version < 14
+        ? [cls.spell, 'cure']
+        : []
+    ).filter(
+      (id): id is string => typeof id === 'string' && spells.some(([known]) => known === id),
+    ),
     arcane: sanitizeArcane(raw.arcane),
+    weaving: sanitizeWeaving(raw.weaving),
     titleElement: ELEMENTS.includes(hero.titleElement) ? hero.titleElement : cls.element,
     level: clampInt(hero.level, 1),
     xp: clampInt(hero.xp, 0),

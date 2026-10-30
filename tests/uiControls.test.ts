@@ -1,3 +1,4 @@
+import { learnSpell as learnFixtureSpell } from '../src/game/hero';
 // @vitest-environment jsdom
 import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -108,6 +109,7 @@ describe('battle controls in the DOM', () => {
 
   it.each(['spell', 'item'])('preserves focused %s through HP and mana updates', (kind) => {
     const battle = makeBattle(challenges[0]!);
+    learnFixtureSpell(battle.hero, 'gale');
     addItem(battle.hero, 'herb', 2);
     const panel = new HeroPanel(atlas);
     panel.render(battle, new Set());

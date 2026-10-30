@@ -1,3 +1,5 @@
+import { required } from '../core/required';
+import { previewWeave, commitWeave, type WeavePreview } from './weaving';
 import { ArcaneInterference, type ObstructionPlacement, type PlacementIntent } from './arcane';
 import { autoSpellOrder, autoTarget } from './autoCasting';
 import { BOARD_SPELLS } from './magicCasting';
@@ -95,6 +97,7 @@ export interface BattleOptions {
  */
 export interface AutoCastFrame {
   preview: CastPreview;
+  source?: 'weave';
   before: MagicState;
   phase: 'target' | 'effect' | 'result';
   remainingMs: number;
@@ -117,6 +120,7 @@ export class Battle implements BattleContext {
   }[] = [];
   autoFrame: AutoCastFrame | null = null;
   private readonly autoPacingMs: number;
+  private weavePlayback: { preview: WeavePreview; index: number; lines: number } | null = null;
   private autoBudget = 0;
   private autoTotal = 0;
   get autoCastingBusy(): boolean {
@@ -356,6 +360,87 @@ export class Battle implements BattleContext {
     this.combat.spendBoardSpellTime();
   }
 
+  previewWeaving(targets: readonly [MagicTarget, MagicTarget]): WeavePreview {
+    return previewWeave(this.magicCasting, targets);
+  }
+
+  castWeaving(preview: WeavePreview): void {
+    if (!this.combat || this.status !== 'ongoing' || this.demoPlaying || this.autoCastingBusy)
+      throw new Error('This encounter is not accepting a custom spell.');
+    if (preview.before !== this.magicCasting.snapshotKey())
+      throw new Error('Preview the custom spell again.');
+    const actual = this.previewWeaving(
+      preview.stages.map((s) => s.preview.target) as [MagicTarget, MagicTarget],
+    );
+    if (actual.reason) throw new Error(actual.reason);
+    this.startPlay();
+    if (this.autoPacingMs > 0) {
+      this.weavePlayback = { preview: actual, index: 0, lines: 0 };
+      this.startWeaveFrame();
+    } else this.finishWeave(actual);
+  }
+
+  private finishWeave(preview: WeavePreview): number {
+    const actual = commitWeave(this.magicCasting, preview);
+    this.resolvingAuto = true;
+    let lines = 0;
+    try {
+      for (const stage of actual.stages) {
+        const p = stage.preview;
+        this.emit({ kind: 'spell', spellId: p.id });
+        this.rewardMagic(p.resolution, p.powerScale, p.surge, p.element);
+        lines += p.resolution.completed.length;
+      }
+      this.combat?.spendBoardSpellTime();
+    } finally {
+      this.resolvingAuto = false;
+    }
+    if (!this.weavePlayback) this.resolveAutoCasts(lines);
+    return lines;
+  }
+
+  private startWeaveFrame(): void {
+    const play = this.weavePlayback;
+    if (!play) return;
+    const stage = required(play.preview.stages[play.index]);
+    this.autoFrame = {
+      preview: stage.preview,
+      before: stage.before,
+      source: 'weave',
+      phase: 'target',
+      remainingMs: this.autoPacingMs,
+      durationMs: this.autoPacingMs,
+      index: play.index + 1,
+      total: 2,
+    };
+  }
+
+  private advanceWeave(dtMs: number): void {
+    const play = this.weavePlayback,
+      frame = this.autoFrame;
+    if (!play || !frame) return;
+    frame.remainingMs -= Math.max(0, dtMs);
+    if (frame.remainingMs > 0) return;
+    if (frame.phase === 'target') {
+      frame.phase = 'effect';
+      frame.durationMs = this.autoPacingMs * 1.8;
+    } else if (frame.phase === 'effect') {
+      if (play.index === 1) play.lines = this.finishWeave(play.preview);
+      frame.phase = 'result';
+      frame.durationMs = this.autoPacingMs;
+    } else if (play.index === 0) {
+      play.index = 1;
+      this.startWeaveFrame();
+      return;
+    } else {
+      this.weavePlayback = null;
+      this.autoFrame = null;
+      this.resolveAutoCasts(play.lines);
+      return;
+    }
+    frame.remainingMs = frame.durationMs;
+  }
+
   rewardMagic(resolution: MagicResolution, powerScale = 1, surge = 0, element?: Element): void {
     const result = this.board.magicLockResult(resolution);
     this.lines += result.linesCleared;
@@ -421,6 +506,10 @@ export class Battle implements BattleContext {
     if (!preview) this.autoBudget = 0;
   }
   private advanceAutomatic(dtMs: number): void {
+    if (this.weavePlayback) {
+      this.advanceWeave(dtMs);
+      return;
+    }
     const frame = this.autoFrame;
     if (!frame) return;
     if (this.status !== 'ongoing' && frame.phase !== 'result') {

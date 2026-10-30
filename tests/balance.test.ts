@@ -150,6 +150,7 @@ describe('final tuning', () => {
     const hero = newGame('knight').hero;
     learnSpell(hero, 'thunder'); // the sage's reward, not a lesson
     expect(mentorsTaught(hero)).toEqual([]);
+    learnSpell(hero, 'quake');
     hero.spells.quake!.level = 2; // only a lesson raises a spell
     hero.spells.thunder!.level = 2;
     expect(mentorsTaught(hero).map((m) => m.id)).toEqual(['rook', 'dorn']);

@@ -62,3 +62,13 @@ disappeared. Automatic casts now play separately with a highlighted caster,
 marked targets, distinct elemental block animation, and a held result. Game
 clocks wait during playback. A visual workbench and GIF show all six treatments;
 see BOARD_MAGIC_PLAYTEST.md. Text labels supplement the animated block changes.
+
+## October 30 · Player progression and distinct custom spells
+
+The default is now a zero-spell character with earned mana and normal stats.
+Exercises separates player-chosen learning/uneven upgrades from labeled supplied
+loadouts. Arcane mastery remains opponent-targeted; Arcane Weaving configures an
+equipped two-stage spell with selectable strengths, order, cost and paid upgrades.
+The cast view displays the initial and both resulting boards; execution uses the
+same ordered elemental animations as the base spells. Phone and desktop browser
+checks include persistence, insufficient mana, and independent ownership.

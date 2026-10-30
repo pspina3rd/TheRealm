@@ -1,8 +1,9 @@
+import type { Weaving } from './weaving';
 import type { BoardElement } from '../core/boardMagic';
 import { ELEMENTS, emptyCounts, type Element, type ElementCounts } from '../core/elements';
 import { CLASSES, DEFAULT_CLASS, type HeroClass } from '../data/classes';
 import { ITEMS } from '../data/items';
-import { ENHANCEMENT_IDS, SPELLS, STARTING_SPELLS } from '../data/spells';
+import { ENHANCEMENT_IDS, SPELLS } from '../data/spells';
 import { STAT_IDS, type StatRanks } from '../data/stats';
 import type { ElementAmounts, ItemDef } from '../data/types';
 import type { Feats } from './feats';
@@ -30,7 +31,11 @@ export { WALK_REGEN, WALK_REGEN_CAP, BEGINNER_REGEN_CAP, BEGINNER_LEVEL } from '
 
 /** The player character. Plain data so it can be saved as JSON. */
 export interface Hero {
-  /** Custom Arcane pair ranks; old saves start with no purchased pairs. */
+  /** Only old saves had automatically granted spells; never inferred from current class. */
+  legacyStartingSpells?: string[];
+  /** Independent custom recipes; never a replacement for seventh-group Arcane. */
+  weaving?: Weaving;
+  /** Opponent-targeted Arcane technique ranks; separate from custom Weaving recipes. */
   arcane?: Partial<Record<BoardElement, number>>;
   name: string;
   /** Key into `CLASSES`; decides base numbers, starting ranks, HP growth and sprite. */
@@ -101,15 +106,12 @@ export function createHero(classId = DEFAULT_CLASS, name?: string): Hero {
     armorId: null,
     accessoryId: null,
     items: { herb: 2, ether: 1 },
-    spells: Object.fromEntries(
-      [cls.spell, ...STARTING_SPELLS.filter((id) => id !== cls.spell)].map((id) => [
-        id,
-        newKnownSpell(),
-      ]),
-    ),
+    spells: {},
+    legacyStartingSpells: [],
     seal: null,
     feats: {},
     arcane: {},
+    weaving: { recipes: [], equipped: null },
   };
 }
 

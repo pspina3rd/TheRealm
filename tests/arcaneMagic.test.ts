@@ -128,7 +128,7 @@ describe('cast preview and progression', () => {
     const loaded = deserialize(JSON.stringify(old))!;
     expect(loaded.hero.arcane).toEqual({});
     expect(loaded.flags.has('wyrmBeaten')).toBe(true);
-    expect(SAVE_VERSION).toBe(13);
+    expect(SAVE_VERSION).toBe(14);
     loaded.hero.arcane = { fire: 99, wind: 2 };
     const clean = deserialize(serialize(loaded))!;
     expect(clean.hero.arcane).toEqual({ fire: 4, wind: 2 });
