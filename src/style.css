@@ -2479,3 +2479,102 @@ dialog.interlude .actions {
 .casting-auto .hero-panel .mana-bars {
   display: none;
 }
+
+.spell-next-level,
+.spell-learned-flow {
+  display: grid;
+  gap: 4px;
+}
+.spell-next-level {
+  border-left: 2px solid #8194b6;
+  padding: 6px 8px;
+  margin: 6px 0;
+}
+.next-cost {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.spell-learned-flow {
+  flex-basis: 100%;
+}
+.spells.lesson-mode {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-auto-rows: auto;
+}
+.practice-spell {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px;
+  text-align: left;
+  min-height: 70px;
+}
+.practice-spell small {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  white-space: normal;
+}
+.spells.lesson-mode > button {
+  min-height: 44px;
+}
+.lesson-mode-note {
+  font-size: 13px;
+  color: #bdcce3;
+}
+@media (max-width: 760px) {
+  .battle.lesson-practice {
+    --spells-h: 106px;
+  }
+  .practice-spell {
+    padding: 5px;
+  }
+  .practice-spell b {
+    font-size: 12px;
+  }
+  .practice-spell small {
+    font-size: 11px;
+  }
+  .spells.lesson-mode > button:not(.practice-spell) {
+    max-width: 70px;
+    padding: 4px;
+    font-size: 11px;
+  }
+}
+
+/* Zero-mana novices must still be able to read what the practice action teaches. */
+.practice-spell:disabled {
+  opacity: 1;
+  color: #dce5f5;
+  border-color: #687794;
+  background: #1b2339;
+}
+.auto-scroll-hint {
+  color: #f0d99a;
+  font-size: 11px;
+}
+
+@media (max-width: 760px) {
+  .battle.lesson-practice {
+    grid-template-rows: var(--strip-h) minmax(0, 1fr) var(--spells-h) var(--controls-h);
+    grid-template-areas: 'stage stage' 'board hero' 'spells spells' 'controls controls';
+    --board-h: min(
+      calc(
+        100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 2 * var(--pad) -
+          var(--strip-h) - var(--spells-h) - var(--controls-h) - 3 * var(--gap) - 12px
+      ),
+      calc(2 * (100vw - 2 * var(--pad) - var(--gap) - 6px - var(--side)))
+    );
+  }
+  .spells.lesson-mode {
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .lesson-practice .rotate-button {
+    display: none;
+  }
+  .lesson-practice .hero-panel {
+    min-height: 0;
+    overflow-y: auto;
+  }
+}

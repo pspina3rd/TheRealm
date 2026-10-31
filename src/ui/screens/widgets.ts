@@ -1,3 +1,5 @@
+import { standardName, standardSpellText } from '../standardSpellText';
+import { castSpellFor, newKnownSpell } from '../../game/spells';
 /** Small visual building blocks shared by the menu, shop, conversation and results screens. */
 import { ELEMENT_NAMES } from '../../core/elements';
 import { ITEMS } from '../../data/items';
@@ -165,7 +167,7 @@ export function rewardIcons(rewards: readonly Reward[]): HTMLElement[] {
       case 'spell': {
         const spell = SPELLS[reward.spellId];
         if (!spell) return [];
-        const name = spellName(spell);
+        const name = standardName(reward.spellId) ?? spellName(spell);
         return [chip(ELEMENT_ICONS[spell.category], name, `Learn ${name}`)];
       }
       case 'shop':
@@ -219,10 +221,31 @@ export function gainRows(gains: readonly Gain[]): HTMLElement[] {
           { className: 'gain level-up' },
           chip(
             spell ? ELEMENT_ICONS[spell.category] : 'book',
-            spell ? spellName(spell, level) : gain.spellId,
+            spell
+              ? `${standardName(gain.spellId) ?? spellName(spell, level)} · Lv ${level}`
+              : gain.spellId,
             gain.kind === 'spell' ? 'New spell' : `Level ${level}`,
           ),
           ...(spell ? [levelPips(spell, level)] : []),
+          ...(spell && standardName(gain.spellId)
+            ? [
+                el(
+                  'div',
+                  { className: 'spell-learned-flow' },
+                  el('b', { text: 'Clear a line → charge mana → AUTO cast' }),
+                  el('small', {
+                    text:
+                      standardSpellText(
+                        gain.spellId,
+                        castSpellFor(spell, { ...newKnownSpell(), level }),
+                      ) ?? '',
+                  }),
+                  el('small', {
+                    text: 'In fights, the learned level casts when affordable and useful. Lessons remain hands-on practice.',
+                  }),
+                ),
+              ]
+            : []),
         );
       }
       case 'seal':

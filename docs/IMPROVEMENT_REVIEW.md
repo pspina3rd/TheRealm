@@ -1,3 +1,30 @@
+# Current follow-up status · October 31
+
+All seven primary schools retain four independently trained levels. Current
+work repaired actual lesson-to-AUTO onboarding, exposed current-practice and
+next-earned levels, grouped Fire's training-only purchases without changing
+saved investment or its board effects, and added paid upgrade/save checks for
+all seven schools. Current campaign simulations now use real board physics,
+earned-line AUTO casting, animation time, real mentor access and chosen-school
+investment rather than the former manual/class-primary assumptions.
+
+The first-school benchmark exercises all four classes and all six freely chosen
+initial schools. Wind's former failures were a manual-lesson bot-targeting bug.
+The remaining Lightning sample losses are beatable with the real carried Herbs;
+no production stats were changed to make that fixture pass. These are bounded
+examples, not campaign-wide win-rate or player acceptance claims. See
+[the current-rules report](PROGRESSION_CURRENT_RULES.md).
+
+Optional vibration now has a saved Off/On setting and bounded, coalesced feedback.
+The approved reactions/class-abilities/synergy work is saved as tested **inactive
+foundations**: their runtime integration, teaching, UI and paired balance checks
+remain separate outstanding work. They are not enabled by these onboarding fixes.
+Audio/character-reaction work and the explicitly deferred postgame modes remain
+later items. Historical milestone and save-version notes below describe their
+original checkpoints; the current save format is version 14.
+
+---
+
 # Improvement Recommendations — implementation review
 
 Reviewed against the preserved [recommendations](../Improvement%20Recommendations),

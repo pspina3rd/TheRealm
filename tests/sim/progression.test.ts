@@ -30,7 +30,9 @@ describe('attainable Chapter One resources', () => {
   it('starts with only the actual class resources and never invents a spell kit', () => {
     for (const classId of Object.keys(CLASSES)) {
       const { state, rows } = runCampaign({ classId, route: [] });
-      expect(state).toEqual(newGame(classId));
+      const initial = newGame(classId);
+      initial.flags.add('boardMagicEnabled');
+      expect(state).toEqual(initial);
       expect(rows).toEqual([]);
       expect(investEarnedPoints(state.hero)).toBe(0);
     }
@@ -90,7 +92,7 @@ describe('attainable Chapter One resources', () => {
   it('records closed map gates instead of granting progress to reach later areas', () => {
     const { rows, state } = runCampaign({ route: ['peaks', 'caves1'] });
     expect(rows.every((row) => row.blocked)).toBe(true);
-    expect(state.flags.size).toBe(0);
+    expect([...state.flags]).toEqual(['boardMagicEnabled']);
     expect(state.hero.level).toBe(1);
   });
 

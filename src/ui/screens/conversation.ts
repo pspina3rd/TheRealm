@@ -96,6 +96,12 @@ export function conversationBody(
   if (given.length > 0) body.push(el('div', { className: 'gains' }, ...gainRows(given)));
   if (interaction.kind === 'lessons') {
     body.push(
+      el('p', {
+        className: 'lesson-mode-note',
+        text: 'Lessons lend the spell for hands-on practice. Once learned, standard spells cast automatically after cleared lines in fights when charged.',
+      }),
+    );
+    body.push(
       el(
         'div',
         { className: 'lessons' },

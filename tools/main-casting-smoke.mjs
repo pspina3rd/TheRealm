@@ -164,7 +164,21 @@ try {
               (card) => card.getBoundingClientRect().bottom <= rail.getBoundingClientRect().bottom,
             ),
           );
-        assert(fits, 'All seven readiness cards fit the portrait rail.');
+        if (!fits) {
+          assert(
+            await page.locator('.auto-scroll-hint').isVisible(),
+            'Overflowing spellbooks need a visible continuation cue.',
+          );
+          const accessible = await page.locator('#spell-list').evaluate((rail) => {
+            rail.scrollTop = rail.scrollHeight;
+            const last = rail.querySelector('.auto-standard:last-of-type').getBoundingClientRect();
+            const bounds = rail.getBoundingClientRect();
+            const visible = last.top >= bounds.top && last.bottom <= bounds.bottom;
+            rail.scrollTop = 0;
+            return visible;
+          });
+          assert(accessible, 'Every learned school must remain reachable in the bounded rail.');
+        }
       }
 
       const manualBounds = await page.locator('.manual-spells').boundingBox();

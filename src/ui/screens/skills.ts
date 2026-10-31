@@ -10,7 +10,13 @@ import {
 } from '../../data/spells';
 import { STATS, STAT_IDS, type StatId } from '../../data/stats';
 import type { Hero } from '../../game/hero';
-import { canEnhance, canRaiseStat, skillPlanCost, type SkillPlan } from '../../game/skills';
+import {
+  canEnhance,
+  canRaiseStat,
+  fireTrainingAttribute,
+  skillPlanCost,
+  type SkillPlan,
+} from '../../game/skills';
 import {
   castEffect,
   castPower,
@@ -102,6 +108,7 @@ function rankPips(stat: StatId, rank: number, added: number): HTMLElement {
 /** What a step button changes: a stat rank or a spell attribute. */
 export type StepTarget =
   | { readonly kind: 'stat'; readonly stat: StatId }
+  | { readonly kind: 'fireTraining'; readonly spellId: 'fire' }
   | { readonly kind: 'spell'; readonly spellId: string; readonly attribute: EnhancementId };
 
 /** A step button's `data-step` key, so focus can find it again after a redraw. */
@@ -246,7 +253,9 @@ function spellRows(
         ? el(
             'div',
             { className: 'spell-attributes' },
-            ...ENHANCEMENT_IDS.map((attribute) => {
+            ...ENHANCEMENT_IDS.filter(
+              (attribute) => spellId !== 'fire' || attribute === 'efficiency',
+            ).map((attribute) => {
               const def = ENHANCEMENTS[attribute];
               const added = staged[attribute] ?? 0;
               const target: StepTarget = { kind: 'spell', spellId, attribute };
@@ -282,6 +291,41 @@ function spellRows(
             }),
           )
         : null;
+      if (spellId === 'fire' && attributes && step) {
+        const adding = (staged.power ?? 0) + (staged.effect ?? 0);
+        const have = Math.min(known.step.power, step.each) + Math.min(known.step.effect, step.each);
+        const requiredNow =
+          Math.min(known.step.power + (staged.power ?? 0), step.each) +
+          Math.min(known.step.effect + (staged.effect ?? 0), step.each);
+        const electives = known.step.power + known.step.effect + adding - requiredNow;
+        const target: StepTarget = { kind: 'fireTraining', spellId: 'fire' };
+        const nextAttribute = fireTrainingAttribute(hero, plan, 1);
+        attributes.prepend(
+          el(
+            'div',
+            { className: `spell-attribute fire-training${adding ? ' staged' : ''}` },
+            el('span', {
+              className: 'attribute-head',
+              text: `Training ${requiredNow}/${step.each * 2}${electives ? ` · ${electives} elective` : ''}`,
+            }),
+            attributePips(have, requiredNow - have, step.each * 2),
+            stepButton(
+              target,
+              -1,
+              fireTrainingAttribute(hero, plan, -1) !== null,
+              'Fire training',
+              onAdjust,
+            ),
+            stepButton(
+              target,
+              1,
+              nextAttribute !== null && canEnhance(hero, plan, 'fire', nextAttribute),
+              'Fire training',
+              onAdjust,
+            ),
+          ),
+        );
+      }
       const classes = ['spell-row'];
       if (ready) classes.push('ready');
       if (locked) classes.push('sealed');
@@ -298,8 +342,49 @@ function spellRows(
           ...(spellId === 'fire' && attributes
             ? [
                 el('small', {
-                  text: 'Fire Power/Effect purchases train the next level. Burning blocks does not deal separate damage or complete rows, so it receives no row-clear bonuses.',
+                  text: `Training readies the Lv ${known.level + 1} lesson. Efficiency lowers the cost immediately. Burning blocks adds no separate attack damage.`,
                 }),
+              ]
+            : []),
+          ...(step
+            ? [
+                el(
+                  'div',
+                  { className: 'spell-next-level' },
+                  el('b', {
+                    text: ready
+                      ? `Ready for the Lv ${known.level + 1} lesson`
+                      : `Next: Lv ${known.level + 1} · ${stepSize(step) - ENHANCEMENT_IDS.reduce((n, id) => n + known.step[id] + (staged[id] ?? 0), 0)} training steps left`,
+                  }),
+                  ...(() => {
+                    const next = castSpellFor(spell, {
+                      level: known.level + 1,
+                      step: { power: 0, efficiency: 0, effect: 0 },
+                      kept: {
+                        power: totalEnhancements(known).power + (staged.power ?? 0),
+                        efficiency: totalEnhancements(known).efficiency + (staged.efficiency ?? 0),
+                        effect: totalEnhancements(known).effect + (staged.effect ?? 0),
+                      },
+                    });
+                    const description = standardSpellText(spellId, next);
+                    return description
+                      ? [
+                          el('small', { text: description }),
+                          el(
+                            'span',
+                            { className: 'next-cost' },
+                            el('small', { text: 'Cost with current training: ' }),
+                            costIcons(next.cost),
+                          ),
+                        ]
+                      : [];
+                  })(),
+                  el('small', {
+                    text: ready
+                      ? 'Win its mentor lesson to raise the spell level.'
+                      : `${step.cost} skill points per step. Finish training, then win its mentor lesson.`,
+                  }),
+                ),
               ]
             : []),
           ...(attributes ? [attributes] : []),

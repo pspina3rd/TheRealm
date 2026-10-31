@@ -175,8 +175,8 @@ Automatic cards now have colored mana charge bars labeled **held / cost**.
 The bar caps visually at full while the number retains any surplus. **Charging**,
 **Ready · next clear**, **No target**, **Sealed**, and **Casting** distinguish mana
 from actual eligibility. A full bar alone does not promise a cast. Level remains
-explicit and does not change with the bar. The portrait rail fits seven cards at
-360×640 and 390×844; redundant legacy mana bars are hidden in automatic combat.
+explicit and does not change with the bar. The portrait rail keeps seven schools reachable at
+360×640 and 390×844; crowded books show a scroll cue, and redundant legacy mana bars are hidden in automatic combat.
 
 When a fully cleared row releases the blocks above it, those blocks now finish
 falling to their next support. This may complete another row, resolved once with
@@ -184,3 +184,29 @@ its normal rewards. Untouched overhangs, boards without a clear, and rows pinned
 by surviving durable obstructions keep their existing behavior. Gravity remains
 useful for those unsupported overhangs. Automatic spell-created clears still do
 not generate more automatic casting opportunities.
+
+## October 31 progression follow-up
+
+Lessons now show one named **Practice** action with the actual current rank,
+cost, effect, and the rank earned on victory. An unlearned spell is lent for
+practice; it is not added to the saved spellbook until a win. Other spells have
+a separate optional chooser. Normal combat continues to cast all seven learned
+primary schools automatically after earned lines, when affordable and useful.
+
+Skills shows the next rank's effect, its cost with current training, and the
+remaining steps before a mentor lesson. Fire groups its training-only Power and
+Effect purchases as **Training**, with required and elective steps distinguished.
+Efficiency still reduces cost immediately. Existing counts and SP prices are
+preserved; all seven primary schools still have their independent four-level
+upgrade paths. A completed training plan readies a lesson; it does not quietly
+raise the spell's rank.
+
+The main menu includes optional **Vibration**, off by default. Supported devices
+can give brief feedback for touch actions, major clears and stronger automatic
+spells; unsupported devices continue normally.
+
+[Lesson browser evidence](artifacts/progression-followup/lesson-browser.json) ·
+[Paid Fire UI evidence](artifacts/progression-followup/fire-training-browser.json) ·
+[Current progression benchmark](PROGRESSION_CURRENT_RULES.md) ·
+[UI re-review](reviews/CASTING_FOLLOWUP_UI_REVIEW.md) ·
+[Gameplay review](reviews/PROGRESSION_FOLLOWUP_REVIEW.md).

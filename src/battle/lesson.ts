@@ -1,3 +1,4 @@
+import { standardName } from '../game/spellNames';
 import type { MagicTarget } from './magicCasting';
 import type { LockResult } from '../core/board';
 import { bestPlacement } from '../core/bestFit';
@@ -168,7 +169,10 @@ export class LessonChallenge extends CombatChallenge {
 
   override objective(): Objective {
     const spell = SPELLS[this.spellId];
-    return { ...super.objective(), label: `Lesson: ${spell ? spellName(spell) : this.spellId}` };
+    return {
+      ...super.objective(),
+      label: `Lesson: ${standardName(this.spellId) ?? (spell ? spellName(spell) : this.spellId)}`,
+    };
   }
 
   /** Replaces the new falling piece with the best-fitting shape, in the mentor's colour. */

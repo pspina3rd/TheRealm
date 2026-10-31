@@ -1,3 +1,5 @@
+import { autoTarget } from '../../src/battle/autoCasting';
+import { BOARD_SPELLS } from '../../src/battle/magicCasting';
 /**
  * A battle simulator for balance checks: plays a real `Battle` on simulated
  * time with a simple bot. Not shipped; used by `tests/difficulty.test.ts`
@@ -72,7 +74,11 @@ function reachableDrops(board: Board, remaining: readonly PieceName[] = []): Rea
     seen.add(id);
     const make = (copyGrid: boolean) => {
       const next = new Board(createRng(1), board.width, board.height);
-      next.grid = copyGrid ? board.grid.map((row) => row.slice()) : board.grid;
+      if (copyGrid && board.magicEnabled) next.adoptMagic(board.magicState());
+      else next.grid = copyGrid ? board.grid.map((row) => row.slice()) : board.grid;
+      next.magicEnabled = board.magicEnabled;
+      next.magicOwners = structuredClone(board.magicOwners);
+      next.clearsEnabled = board.clearsEnabled;
       next.active = copyActive(node.piece);
       next.seal = board.seal ? { ...board.seal } : null;
       next.setFixedQueue(remaining);
@@ -275,6 +281,13 @@ function landings(grid: Grid, name: PieceName, sealed: number | null): Landing[]
 function spots(board: Board, score: (g: Grid, lines: number) => number): Spot[] {
   const piece = board.active;
   if (!piece) return [];
+  if (board.magicEnabled)
+    return reachableDrops(board).map((drop) => ({
+      cells: piece.cells,
+      x: piece.x,
+      actions: drop.actions,
+      score: score(drop.board.grid, drop.lock.linesCleared),
+    }));
   return landings(board.grid, piece.name, board.seal?.column ?? null).map((l) => ({
     cells: l.cells,
     x: l.x,
@@ -289,6 +302,29 @@ function goodSpot(battle: Battle): Spot | null {
   if (!piece) return null;
   const sealed = board.seal?.column ?? null;
   const wellColumn = sealed === 9 ? 0 : 9;
+  if (board.magicEnabled) {
+    let best: Spot | null = null;
+    const tall = (grid: Grid) => Math.max(...features(grid).heights) > 9;
+    for (const first of reachableDrops(board, battle.upcoming)) {
+      if (first.lock.toppedOut) continue;
+      let score = goodReward(first.lock.linesCleared, tall(board.grid));
+      if (first.board.active) {
+        let second = -Infinity;
+        for (const next of reachableDrops(first.board)) {
+          if (next.lock.toppedOut) continue;
+          second = Math.max(
+            second,
+            goodReward(next.lock.linesCleared, tall(first.board.grid)) +
+              goodValue(next.board.grid, wellColumn),
+          );
+        }
+        score += second === -Infinity ? -1000 : second;
+      } else score += goodValue(first.board.grid, wellColumn);
+      if (!best || score > best.score)
+        best = { cells: piece.cells, x: piece.x, actions: first.actions, score };
+    }
+    return best;
+  }
   const tall = (grid: Grid) => Math.max(...features(grid).heights) > 9;
   const [next] = battle.upcoming;
   let best: Spot | null = null;
@@ -360,7 +396,23 @@ export function castReady(battle: Battle): void {
     const kind = SPELLS[id]?.levels[0].effect.kind;
     const taught = lesson?.spellId === id;
     if (kind === 'heal' && !taught && battle.hero.hp > battle.hero.maxHp * 0.5) continue;
-    if (combat.cannotCastReason(id) === null && combat.status() === 'ongoing') combat.castSpell(id);
+    if (combat.cannotCastReason(id) !== null || combat.status() !== 'ongoing') continue;
+    if (battle.board.magicEnabled && BOARD_SPELLS[id]) {
+      let preview = autoTarget(battle.magicCasting, id);
+      // Practice must be able to break its taught-spell shield even when a
+      // valid manual effect (e.g. a sideways Wind shift) is score-neutral.
+      if (!preview && taught) {
+        for (let row = battle.board.height - 1; row >= 0 && !preview; row--)
+          for (const direction of id === 'gale' ? ([-1, 1] as const) : ([1] as const)) {
+            const candidate = battle.magicCasting.preview(id, { bottomRow: row, direction });
+            if (!candidate.reason && candidate.resolution.changed) {
+              preview = candidate;
+              break;
+            }
+          }
+      }
+      if (preview) combat.castSpell(id, preview.target);
+    } else combat.castSpell(id);
   }
 }
 
@@ -470,7 +522,14 @@ export function simulateBattle(
   let overflows = 0;
   let seen = 0;
   let solverStop: FightResult['stopReason'] | null = null;
-  while (battle.status === 'ongoing' && ms < limitMs) {
+  while ((battle.status === 'ongoing' || battle.autoCastingBusy) && ms < limitMs) {
+    // Presentation time is real elapsed time, but it is not another placement
+    // or thinking window; terminal casts still finish their result frame.
+    if (battle.autoCastingBusy) {
+      battle.update(STEP);
+      ms += STEP;
+      continue;
+    }
     if (battle.board.active !== current) {
       current = battle.board.active;
       waited = 0;

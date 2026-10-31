@@ -1,3 +1,4 @@
+import { HAPTICS_KEY } from './touch';
 import { openWeavingEditor } from './weavingEditor';
 import { openWeavingTargeting } from './weavingTargeting';
 import { BOARD_SPELLS } from '../battle/magicCasting';
@@ -54,6 +55,7 @@ import { createHero, equip, heroClass, heroTitle, spendSkillPoints, useItem } fr
 import {
   EMPTY_PLAN,
   adjustEnhancement,
+  fireTrainingAttribute,
   adjustStat,
   skillPlanCost,
   type SkillPlan,
@@ -260,6 +262,7 @@ export class App {
     const get = (k: string): boolean => (k === key ? Boolean(on) : this.pref(k));
     const buttons = get(TOUCH_BUTTONS_KEY);
     document.body.classList.toggle('touch-buttons', buttons);
+    document.body.classList.toggle('haptics-on', get(HAPTICS_KEY));
     document.body.classList.toggle('tap-walker', get(TAPPED_KEY) && !buttons);
   }
 
@@ -885,7 +888,12 @@ export class App {
     const adjust = (target: StepTarget, delta: 1 | -1): SkillPlan =>
       target.kind === 'stat'
         ? adjustStat(plan, target.stat, delta)
-        : adjustEnhancement(plan, target.spellId, target.attribute, delta);
+        : target.kind === 'fireTraining'
+          ? (() => {
+              const attribute = fireTrainingAttribute(hero, plan, delta);
+              return attribute ? adjustEnhancement(plan, 'fire', attribute, delta) : plan;
+            })()
+          : adjustEnhancement(plan, target.spellId, target.attribute, delta);
     this.dialog.show({
       title: 'Skills',
       body: skillsBody(
@@ -1074,6 +1082,13 @@ export class App {
           label: `Touch buttons: ${this.pref(TOUCH_BUTTONS_KEY) ? 'On' : 'Off'}`,
           onClick: () => {
             this.setPref(TOUCH_BUTTONS_KEY, !this.pref(TOUCH_BUTTONS_KEY));
+            this.openMenu();
+          },
+        },
+        {
+          label: `Vibration: ${this.pref(HAPTICS_KEY) ? 'On' : 'Off'}`,
+          onClick: () => {
+            this.setPref(HAPTICS_KEY, !this.pref(HAPTICS_KEY));
             this.openMenu();
           },
         },

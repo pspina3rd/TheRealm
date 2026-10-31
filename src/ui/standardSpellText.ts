@@ -1,10 +1,7 @@
 /** Current casting rules shared by learning and spellbook surfaces. */
 import { STANDARD_SPELLS } from '../battle/magicCasting';
-import { WEAVE_NAMES } from '../game/weaving';
 import type { CastSpell } from '../game/spells';
-export function standardName(id: string): string | null {
-  return id === 'shadow' ? 'Arcane' : (WEAVE_NAMES[id as keyof typeof WEAVE_NAMES] ?? null);
-}
+export { standardName } from '../game/spellNames';
 export function standardSpellText(id: string, cast: CastSpell): string | null {
   const element = STANDARD_SPELLS[id];
   if (!element) return null;

@@ -1,3 +1,5 @@
+import { LessonChallenge } from '../battle/lesson';
+import { standardName, standardSpellText } from './standardSpellText';
 import { autoTarget } from '../battle/autoCasting';
 import { canAfford } from '../game/hero';
 import { isSealed } from '../game/spells';
@@ -14,7 +16,7 @@ import type { Feedback } from './art/feedback';
 import { ELEMENT_ICONS, PALETTES, type IconId } from './art/icons';
 import { button, byId, el } from './dom';
 import { iconElement } from './iconDraw';
-import { ManaBars } from './manaBars';
+import { ManaBars, costIcons } from './manaBars';
 import { hiddenSpellSlot, levelPips, spellMeta } from './screens/widgets';
 import type { Atlas } from './art/atlas';
 import { hiddenSlots } from '../game/hidden';
@@ -63,6 +65,9 @@ export class HeroPanel {
     this.atlas = atlas;
     byId('battle-hp-icon').replaceChildren(iconElement('heart', 2, 'HP'));
     this.mana = new ManaBars(byId('battle-mana'));
+    this.spellList.addEventListener('scroll', () => this.updateAutoScrollHint());
+    if (typeof ResizeObserver !== 'undefined')
+      new ResizeObserver(() => this.updateAutoScrollHint()).observe(this.spellList);
   }
 
   play(feedback: Feedback): void {
@@ -110,6 +115,9 @@ export class HeroPanel {
 
     const combat = battle.combat;
     const automatic = battle.autoCastingEnabled;
+    const lesson = combat instanceof LessonChallenge ? combat : null;
+    byId('battle-view').classList.toggle('lesson-practice', Boolean(lesson));
+    this.spellList.classList.toggle('lesson-mode', Boolean(lesson));
     byId('battle-view').classList.toggle('casting-auto', automatic);
     this.spellList.classList.toggle('auto-mode', automatic);
     this.actions.hidden = !combat;
@@ -131,6 +139,9 @@ export class HeroPanel {
         : null,
       battle.autoCasts.map((c) => [c.id, c.rank]),
       hero.weaving,
+      hero.arcane,
+      hero.seal,
+      [...flags],
     ]);
     if (key === this.controlsKey) return;
     this.controlsKey = key;
@@ -158,6 +169,10 @@ export class HeroPanel {
       this.open = null;
       this.choices = [];
       this.renderAutomatic(battle, hero, ongoing, flags);
+    } else if (lesson) {
+      this.open = null;
+      this.spellList.classList.remove('menu-open');
+      this.renderLesson(battle, hero, lesson, ongoing);
     } else if (menu) {
       this.choices = menu.spells.map((id) => () => cast(id));
       const back = button('', () => this.setOpen(null), { title: 'Back (Esc)' });
@@ -271,6 +286,91 @@ export class HeroPanel {
     }
   }
 
+  private renderLesson(
+    battle: Battle,
+    hero: Hero,
+    lesson: LessonChallenge,
+    ongoing: boolean,
+  ): void {
+    const id = lesson.spellId;
+    const cast = heroSpell(hero, id);
+    if (!cast) return;
+    const reason = lesson.cannotCastReason(id);
+    const learningLevel = lesson.lent
+      ? 1
+      : Math.min(cast.level + 1, SPELLS[id]?.levels.length ?? cast.level);
+    const practice = button('', () => this.onCast(id), { disabled: !ongoing || reason !== null });
+    practice.className = 'practice-spell';
+    practice.dataset.action = id;
+    practice.append(
+      el('b', { text: `Practice ${standardName(id) ?? cast.name} · Lv ${cast.level}` }),
+      costIcons(cast.cost),
+      el('small', { className: 'practice-goal', text: `Win to learn Lv ${learningLevel}` }),
+      el('small', {
+        text:
+          reason === 'Not enough mana!'
+            ? 'Clear matching crystals to charge mana.'
+            : 'Aim and cast here · automatic in fights',
+      }),
+      el('small', { text: standardSpellText(id, cast) ?? castSummary(cast) }),
+    );
+    this.choices = [
+      () => {
+        if (ongoing && reason === null) this.onCast(id);
+      },
+    ];
+    this.spellList.style.minHeight = '';
+    this.spellList.style.gridAutoRows = '';
+    this.spellList.replaceChildren(practice);
+    const others = Object.keys(hero.spells).filter((other) => other !== id && SPELLS[other]);
+    if (others.length)
+      this.spellList.append(
+        button(
+          'Other spells',
+          () => {
+            const paused = battle.paused;
+            battle.paused = true;
+            const dialog = el('dialog', { className: 'support-spells' });
+            const close = (): void => {
+              battle.paused = paused;
+              dialog.close();
+              dialog.remove();
+            };
+            dialog.append(el('h2', { text: 'Other practice spells' }));
+            for (const other of others) {
+              const spell = heroSpell(hero, other);
+              if (!spell) continue;
+              dialog.append(
+                button(
+                  `${standardName(other) ?? spell.name} · Lv ${spell.level}`,
+                  () => {
+                    close();
+                    this.onCast(other);
+                  },
+                  { disabled: lesson.cannotCastReason(other) !== null },
+                ),
+              );
+            }
+            dialog.append(button('Back to practice', close));
+            dialog.addEventListener('cancel', (event) => {
+              event.preventDefault();
+              close();
+            });
+            document.body.append(dialog);
+            dialog.showModal();
+          },
+          { disabled: !ongoing },
+        ),
+      );
+  }
+
+  private updateAutoScrollHint(): void {
+    const hint = this.spellList.querySelector<HTMLElement>('.auto-scroll-hint');
+    if (hint)
+      hint.hidden =
+        this.spellList.scrollHeight - this.spellList.clientHeight - this.spellList.scrollTop <= 2;
+  }
+
   private renderAutomatic(
     battle: Battle,
     hero: Hero,
@@ -291,7 +391,13 @@ export class HeroPanel {
           : 'AUTO · Priority order · One chance per cleared line',
     });
     status.setAttribute('role', 'status');
-    status.append(el('small', { className: 'auto-charge-legend', text: 'Mana: held / cost' }));
+    status.append(
+      el('small', {
+        className: 'auto-charge-legend',
+        text: `Mana: held / cost · ${order.length} spell${order.length === 1 ? '' : 's'}`,
+      }),
+    );
+    status.append(el('small', { className: 'auto-scroll-hint', text: 'More spells below ↓' }));
     this.spellList.replaceChildren(status);
     for (const [priority, id] of order.entries()) {
       const cast = heroSpell(hero, id);
@@ -442,6 +548,7 @@ export class HeroPanel {
         ),
       );
     if (manual.childElementCount) this.actions.append(manual);
+    this.updateAutoScrollHint();
     this.spellList.style.minHeight = '';
     this.spellList.style.gridAutoRows = '';
     byId('battle-view').style.setProperty(

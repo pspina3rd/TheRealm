@@ -1,0 +1,20 @@
+[
+  {
+    "w": 360,
+    "h": 640,
+    "paidRequiredTraining": 2,
+    "separateEfficiency": true,
+    "spSpent": 6,
+    "rankRemainsOneUntilMentorLesson": true,
+    "errors": []
+  },
+  {
+    "w": 1100,
+    "h": 900,
+    "paidRequiredTraining": 2,
+    "separateEfficiency": true,
+    "spSpent": 6,
+    "rankRemainsOneUntilMentorLesson": true,
+    "errors": []
+  }
+]

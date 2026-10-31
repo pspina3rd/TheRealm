@@ -1,3 +1,4 @@
+import { standardName } from './standardSpellText';
 import { ENCOUNTER_DEFS } from '../data/encounters';
 import { LessonChallenge } from '../battle/lesson';
 import { spellName } from '../game/spells';
@@ -7,7 +8,7 @@ import type { Atlas } from './art/atlas';
 import type { CreatureId } from './art/creatures';
 import { ELEMENT_COLOR_OF, feedbackFor } from './art/feedback';
 import { drawAutoSpell } from './autoSpellAnimation';
-import { reducedMotion } from './touch';
+import { haptic, reducedMotion } from './touch';
 import { BoardView } from './boardView';
 import { byId, el } from './dom';
 import { HeroPanel } from './heroPanel';
@@ -127,7 +128,7 @@ export class BattleView {
     this.lessonHint.hidden = !lesson;
     const taughtSpell = lesson && SPELLS[lesson.spellId];
     this.lessonHint.textContent = lesson
-      ? `${lesson.lent ? 'Lent: ' : 'Taught: '}${taughtSpell ? spellName(taughtSpell) : lesson.spellId}${lesson.shield === 'up' ? ' · break the shield' : ''}`
+      ? `${lesson.lent ? 'Lent for practice: ' : 'Practice: '}${standardName(lesson.spellId) ?? (taughtSpell ? spellName(taughtSpell) : lesson.spellId)}${lesson.shield === 'up' ? ' · cast it to break the shield' : ''}`
       : '';
   }
 
@@ -139,8 +140,12 @@ export class BattleView {
     finished: boolean,
   ): void {
     this.renderFrame(battle);
+    let vibration = 0;
     for (const { seq, event } of battle.eventsSince(this.nextSeq)) {
       this.nextSeq = seq + 1;
+      if (event.kind === 'lines' && event.rows.length >= 4) vibration = Math.max(vibration, 32);
+      if (event.kind === 'autoSpell' && event.rank >= 3)
+        vibration = Math.max(vibration, event.rank === 4 ? 26 : 18);
       for (const feedback of feedbackFor(event)) {
         if (feedback.kind === 'beat' && battle.spec.kind === 'encounter') {
           const line = ENCOUNTER_DEFS[battle.spec.id]?.lines[feedback.beat];
@@ -153,6 +158,7 @@ export class BattleView {
         this.hero.play(feedback);
       }
     }
+    if (vibration) haptic(vibration);
     this.board.render(battle.board, battle, dtMs, timeMs, battle.paused || finished);
     if (battle.autoFrame) {
       const ctx = byId<HTMLCanvasElement>('board-canvas').getContext('2d');

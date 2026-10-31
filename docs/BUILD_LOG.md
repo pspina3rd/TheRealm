@@ -682,3 +682,49 @@ phone, landscape and desktop. Full automated suite, lint and build passed.
 - Final root checks passed: 1,264 tests (17 optional/report skips), lint,
   TypeScript, build and the main-App browser checks on both phones and desktop.
   Browser evidence: `docs/artifacts/charge-and-collapse/main-report.json`.
+
+## 2026-10-31 · All-school progression and lesson-to-combat follow-up
+
+- Preserved four independently paid levels for all seven primaries. New upgrade
+  contracts cover skill spending, lesson readiness, raising ranks, retained
+  enhancement counts and save recovery for each school.
+- Replaced the lesson's seven-icon selection with a dedicated named Practice
+  action and optional Other spells chooser. Before/during/after lesson guidance
+  explains manual practice versus earned-line AUTO casting in ordinary fights.
+  Actual current rank, next earned rank, cost and effect stay distinct.
+- Fire's training-only Power/Effect are grouped as Training; Efficiency remains
+  a separate immediate mana reduction. Required versus elective steps, staged
+  undo, next-rank effects/costs and the mentor step are explicit. No damage,
+  rank/span/hit rule, SP price, saved investment or other school upgrade was removed.
+- Repaired the simulator's legacy battle flags, class-default-spell assumption,
+  placement physics, automatic animation lifecycle and manual shield-target
+  policy. Genuine zero-spell gates and first lessons now exercise all six
+  initial schools and four classes; carried-item comparisons explain the
+  Lightning sample's attrition. This is bounded evidence, not campaign balance
+  acceptance or a complete traversed campaign.
+- Independent gameplay review returned a surplus-training undo edge and neutral
+  Wind lesson target omission; both were corrected and covered. Independent UI
+  review returned weak zero-mana text, manual/AUTO ambiguity, and clipped small-
+  phone controls. A fresh re-review passed 35 phone/desktop lesson cases,
+  including touch controls on/off, dialog recovery, paid Fire training, meters
+  and saved optional Vibration. Reports/evidence are linked from the playtest doc.
+- Optional vibration is off by default, saved, bounded and coalesced. Unsupported
+  browsers remain usable. Main casting/control paths retain their current rules.
+- Approved M2a reactions, class abilities and mentor synergy are being prepared
+  as inactive typed foundations. Those helpers do not activate new game rules;
+  runtime, teaching/UI and paired balance gates remain explicit separate work.
+
+The first follow-up validation completed with 1,294 automated tests passed and
+18 optional/report skips, plus build. Later M2a foundation tests are additional
+and do not qualify those mechanics for activation. Independent UI re-review
+found no remaining blocker in its scoped lesson/casting review; full campaign
+balance and human playthrough acceptance are still separate.
+
+Final combined checkpoint: 1,389 automated tests passed (18 optional/report
+skips), with format/lint/type checks and production build. The ordinary main-App
+casting browser regression and the lesson/upgrade browser flows pass. The
+crowded-book assertion follows the reviewed accessible-scroll design instead
+of requiring smaller text to force all seven cards into every initial viewport.
+The three M2a foundations have focused coverage (35 reactions, 46 class abilities,
+14 synergy) and documented typed handoffs; they remain unconnected to game
+runtime and do not satisfy the pending M2a teaching/UI/balance acceptance gates.

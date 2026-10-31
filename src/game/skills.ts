@@ -121,3 +121,32 @@ export function adjustEnhancement(
     },
   };
 }
+
+/** Fire's Power/Effect are training, not immediate burn bonuses. Keep their
+ * persisted counts and prices, but present one reversible training control. */
+export function fireTrainingAttribute(
+  hero: Pick<Hero, 'spells'>,
+  plan: SkillPlan,
+  delta: 1 | -1,
+): EnhancementId | null {
+  const known = knownSpell(hero, 'fire');
+  if (!known) return null;
+  const staged = plan.spells.fire ?? {};
+  const attributes = ['power', 'effect'] as const;
+  const spell = SPELLS.fire;
+  const step = spell && levelStep(spell, known.level);
+  if (!spell || !step) return null;
+  if (delta < 0) {
+    const stagedAttributes = [...attributes].reverse().filter((id) => (staged[id] ?? 0) > 0);
+    return (
+      stagedAttributes.find((id) => known.step[id] + (staged[id] ?? 0) > step.each) ??
+      stagedAttributes[0] ??
+      null
+    );
+  }
+  return (
+    [...attributes]
+      .sort((a, b) => known.step[a] + (staged[a] ?? 0) - known.step[b] - (staged[b] ?? 0))
+      .find((id) => canAddEnhancement(spell, known, staged, id)) ?? null
+  );
+}

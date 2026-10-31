@@ -8,12 +8,14 @@
  */
 import { Battle } from '../../src/battle/battle';
 import { createRng } from '../../src/core/rng';
-import { REGIONS } from '../../src/data/balance';
+import { MAP_RULES, REGIONS } from '../../src/data/balance';
+import type { BoardElement } from '../../src/core/boardMagic';
 import { ITEMS } from '../../src/data/items';
 import { NPCS } from '../../src/data/npcs';
 import { MAPS, STARTER_MAPS } from '../../src/data/maps';
 import { SHOPS } from '../../src/data/shops';
-import { ENHANCEMENT_IDS } from '../../src/data/spells';
+import { ENHANCEMENT_IDS, SPELLS, type EnhancementId } from '../../src/data/spells';
+import type { StatId } from '../../src/data/stats';
 import type { ChallengeSpec, ItemDef } from '../../src/data/types';
 import {
   describeInteraction,
@@ -22,14 +24,7 @@ import {
   resolveBattle,
   type Resolution,
 } from '../../src/game/encounter';
-import {
-  heroClass,
-  slotFor,
-  spendSkillPoints,
-  walkRegen,
-  useItem,
-  type Hero,
-} from '../../src/game/hero';
+import { slotFor, spendSkillPoints, walkRegen, useItem, type Hero } from '../../src/game/hero';
 import { lessonSpec, prepareLesson } from '../../src/game/lessons';
 import { dualChance, pieceWeights } from '../../src/game/pieceOdds';
 import { buy, cannotBuyReason } from '../../src/game/shop';
@@ -75,20 +70,41 @@ export function campaignEncounters(state: GameState): EntityDef[] {
   return activeEntities(state).filter((entity) => entity.kind !== 'mentor');
 }
 
-/** Spends earned points only: enhance the class primary, then defensive/offensive stats. */
-export function investEarnedPoints(hero: Hero): number {
+export interface InvestmentPolicy {
+  /** Known spells only, in priority order. Omit to favor the first learned primary. */
+  readonly spellPriority?: readonly string[];
+  readonly enhancementOrder?: readonly EnhancementId[];
+  /** Explicit ordering fills one stat before the next; omitted stats remain untouched. */
+  readonly statPriority?: readonly StatId[];
+}
+
+/** Spends earned points only; class choice never supplies or chooses a school. */
+export function investEarnedPoints(hero: Hero, policy: InvestmentPolicy = {}): number {
   const before = hero.skillPoints;
-  const spellId = heroClass(hero).spell;
+  const spells = (
+    policy.spellPriority ??
+    Object.keys(hero.spells)
+      .filter((id) => SPELLS[id]?.role === 'primary')
+      .slice(0, 1)
+  ).filter((id) => Object.hasOwn(hero.spells, id));
   const stats = ['strength', 'vitality', 'guard', 'focus', 'agility'] as const;
   while (hero.skillPoints > 0) {
-    const attribute = ENHANCEMENT_IDS.find((id) => canEnhance(hero, EMPTY_PLAN, spellId, id));
-    if (attribute) {
+    const enhancement = spells.flatMap((spellId) => {
+      const attribute = (policy.enhancementOrder ?? ENHANCEMENT_IDS).find((id) =>
+        canEnhance(hero, EMPTY_PLAN, spellId, id),
+      );
+      return attribute ? [{ spellId, attribute }] : [];
+    })[0];
+    if (enhancement) {
+      const { spellId, attribute } = enhancement;
       if (!spendSkillPoints(hero, { stats: {}, spells: { [spellId]: { [attribute]: 1 } } })) break;
       continue;
     }
-    const stat = [...stats]
-      .sort((a, b) => hero.stats[a] - hero.stats[b])
-      .find((id) => canRaiseStat(hero, EMPTY_PLAN, id));
+    const stat = (
+      policy.statPriority
+        ? [...policy.statPriority]
+        : [...stats].sort((a, b) => hero.stats[a] - hero.stats[b])
+    ).find((id) => canRaiseStat(hero, EMPTY_PLAN, id));
     if (!stat || !spendSkillPoints(hero, { stats: { [stat]: 1 }, spells: {} })) break;
   }
   return before - hero.skillPoints;
@@ -131,14 +147,20 @@ export function purchaseSupplies(
 
 /** Same area/charm/alignment weights and dual odds as the production battle controller. */
 export function progressionBattle(state: GameState, spec: ChallengeSpec, seed: number): Battle {
+  const rule = spec.kind === 'combat' ? MAP_RULES[state.mapId] : undefined;
   return new Battle(spec, state.hero, createRng(seed), {
+    boardMagic: spec.kind === 'combat' || spec.kind === 'lesson',
+    autoCast: spec.kind === 'combat',
+    autoCastPacingMs: 500,
+    storyFlags: state.flags,
     weights: pieceWeights(MAPS[state.mapId]!, state.hero),
     dualChance: dualChance(state.hero),
+    ...(rule ? { rule } : {}),
   });
 }
 
 /** Finds a route using only currently unlocked map crossings, without granting story flags. */
-function enterMap(state: GameState, target: string): boolean {
+export function enterMap(state: GameState, target: string): boolean {
   if (!MAPS[target]) throw new Error(`Unknown map: ${target}`);
   if (state.mapId === target) {
     finishDueScenes(state);
@@ -170,7 +192,7 @@ function enterMap(state: GameState, target: string): boolean {
 
 /** The benchmark dismisses dialogue, while retaining the production scene rewards. */
 function finishDueScenes(state: GameState): void {
-  for (const scene of dueScenes(state.flags)) finishScene(state, scene);
+  for (const scene of dueScenes(state.flags, state.mapId)) finishScene(state, scene);
 }
 
 /** Describes the locked flags on a concrete map route, without opening any of them. */
@@ -282,6 +304,9 @@ function resources(state: GameState): ResourceSnapshot {
 
 export interface CampaignOptions {
   readonly classId?: string;
+  /** Delay other mentor lessons until this offered school is actually won; grants nothing. */
+  readonly firstSchool?: BoardElement;
+  readonly investment?: InvestmentPolicy;
   readonly seed?: number;
   readonly pace?: number;
   readonly route?: readonly string[];
@@ -295,6 +320,8 @@ export interface CampaignOptions {
 /** Resource-conserving campaign with explicit, bounded policy choices and encounter traces. */
 export function runCampaign(options: CampaignOptions = {}): CampaignResult {
   const state = newGame(options.classId ?? 'ranger');
+  // The application enables board magic when creating/loading a playable game.
+  state.flags.add('boardMagicEnabled');
   const pace = options.pace ?? CAMPAIGN_PACES[0];
   const limit = options.battleLimitMs ?? 180_000;
   const improved = options.policy !== 'baseline';
@@ -401,7 +428,7 @@ export function runCampaign(options: CampaignOptions = {}): CampaignResult {
         } else if (result.won) won++;
         else lost++;
         spent += purchaseSupplies(state, resolution);
-        pointsSpent += investEarnedPoints(state.hero);
+        pointsSpent += investEarnedPoints(state.hero, options.investment);
         if (entity.kind === 'npc' && resolution.shopId)
           merchants.set(entity.id, { mapId: battleMap, entity, shopId: resolution.shopId });
       }
@@ -418,7 +445,7 @@ export function runCampaign(options: CampaignOptions = {}): CampaignResult {
     };
     const prepare = (entity: EntityDef) => {
       const before = resources(state);
-      pointsSpent += investEarnedPoints(state.hero);
+      pointsSpent += investEarnedPoints(state.hero, options.investment);
       // Menu healing consumes actual inventory; no battle-use cap is bypassed within fights.
       if (state.hero.hp < state.hero.maxHp * 0.65 && (state.hero.items.herb ?? 0) > 0)
         useItem(state.hero, 'herb');
@@ -461,6 +488,14 @@ export function runCampaign(options: CampaignOptions = {}): CampaignResult {
           let entity = mentorEntities(state).find((present) => present.mentorId === mentorId);
           if (!entity) break;
           const mentor = MENTORS[mentorId]!;
+          if (
+            options.firstSchool &&
+            !Object.keys(state.hero.spells).some(
+              (id) => SPELLS[id]?.category === options.firstSchool,
+            ) &&
+            mentor.element !== options.firstSchool
+          )
+            break;
           if (improved && itemsFor(state, mentor).length) {
             const before = resources(state);
             bringItems(state, mentor);

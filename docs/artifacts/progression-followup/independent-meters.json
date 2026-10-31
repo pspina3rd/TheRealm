@@ -1,0 +1,398 @@
+[
+  {
+    "w": 360,
+    "h": 640,
+    "records": [
+      {
+        "id": "natureConvert",
+        "text": "1. Nature · Lv 4\n20 / 12\nNo target",
+        "fill": "100%",
+        "now": "12",
+        "max": "12",
+        "valueText": "20 of 12 mana, charged",
+        "label": "20 / 12",
+        "readiness": "No target",
+        "font": "11px"
+      },
+      {
+        "id": "gale",
+        "text": "2. Wind · Lv 4\n0 / 12\nCharging",
+        "fill": "0%",
+        "now": "0",
+        "max": "12",
+        "valueText": "0 of 12 mana",
+        "label": "0 / 12",
+        "readiness": "Charging",
+        "font": "11px"
+      },
+      {
+        "id": "fire",
+        "text": "3. Fire · Lv 4\n6 / 12\nCharging",
+        "fill": "50%",
+        "now": "6",
+        "max": "12",
+        "valueText": "6 of 12 mana",
+        "label": "6 / 12",
+        "readiness": "Charging",
+        "font": "11px"
+      },
+      {
+        "id": "blizzard",
+        "text": "4. Ice · Lv 4\n14 / 14\nReady · next clear",
+        "fill": "100%",
+        "now": "14",
+        "max": "14",
+        "valueText": "14 of 14 mana, charged",
+        "label": "14 / 14",
+        "readiness": "Ready · next clear",
+        "font": "11px"
+      },
+      {
+        "id": "quake",
+        "text": "5. Gravity · Lv 4\n3 / 12\nCharging",
+        "fill": "25%",
+        "now": "3",
+        "max": "12",
+        "valueText": "3 of 12 mana",
+        "label": "3 / 12",
+        "readiness": "Charging",
+        "font": "11px"
+      },
+      {
+        "id": "thunder",
+        "text": "6. Lightning · Lv 4\n14 / 14\nNo target",
+        "fill": "100%",
+        "now": "14",
+        "max": "14",
+        "valueText": "14 of 14 mana, charged",
+        "label": "14 / 14",
+        "readiness": "No target",
+        "font": "11px"
+      },
+      {
+        "id": "shadow",
+        "text": "7. Arcane · Lv 4\n14 / 14\nReady · next clear",
+        "fill": "100%",
+        "now": "14",
+        "max": "14",
+        "valueText": "14 of 14 mana, charged",
+        "label": "14 / 14",
+        "readiness": "Ready · next clear",
+        "font": "11px"
+      }
+    ],
+    "manual": [
+      {
+        "text": "Arcane techniques · Opponent",
+        "x": 6,
+        "y": 484,
+        "width": 172.5,
+        "height": 46.5,
+        "top": 484,
+        "right": 178.5,
+        "bottom": 530.5,
+        "left": 6
+      },
+      {
+        "text": "Emberfall · Fire Lv 2 → Gravity Lv 1 · 8 fire + 6 earth",
+        "x": 181.5,
+        "y": 484,
+        "width": 172.5,
+        "height": 46.5,
+        "top": 484,
+        "right": 354,
+        "bottom": 530.5,
+        "left": 181.5
+      },
+      {
+        "text": "Support spells · Manual",
+        "x": 6,
+        "y": 533.5,
+        "width": 172.5,
+        "height": 46.5,
+        "top": 533.5,
+        "right": 178.5,
+        "bottom": 580,
+        "left": 6
+      }
+    ],
+    "board": {
+      "x": 12,
+      "y": 159.625,
+      "width": 153.1875,
+      "height": 306.375
+    },
+    "scroll": {
+      "height": 315,
+      "scrollHeight": 391,
+      "hintHidden": false,
+      "hint": "More spells below ↓",
+      "count": "Mana: held / cost · 7 spells"
+    },
+    "errors": []
+  },
+  {
+    "w": 390,
+    "h": 844,
+    "records": [
+      {
+        "id": "natureConvert",
+        "text": "1. Nature · Lv 4\n20 / 12\nNo target",
+        "fill": "100%",
+        "now": "12",
+        "max": "12",
+        "valueText": "20 of 12 mana, charged",
+        "label": "20 / 12",
+        "readiness": "No target",
+        "font": "11px"
+      },
+      {
+        "id": "gale",
+        "text": "2. Wind · Lv 4\n0 / 12\nCharging",
+        "fill": "0%",
+        "now": "0",
+        "max": "12",
+        "valueText": "0 of 12 mana",
+        "label": "0 / 12",
+        "readiness": "Charging",
+        "font": "11px"
+      },
+      {
+        "id": "fire",
+        "text": "3. Fire · Lv 4\n6 / 12\nCharging",
+        "fill": "50%",
+        "now": "6",
+        "max": "12",
+        "valueText": "6 of 12 mana",
+        "label": "6 / 12",
+        "readiness": "Charging",
+        "font": "11px"
+      },
+      {
+        "id": "blizzard",
+        "text": "4. Ice · Lv 4\n14 / 14\nReady · next clear",
+        "fill": "100%",
+        "now": "14",
+        "max": "14",
+        "valueText": "14 of 14 mana, charged",
+        "label": "14 / 14",
+        "readiness": "Ready · next clear",
+        "font": "11px"
+      },
+      {
+        "id": "quake",
+        "text": "5. Gravity · Lv 4\n3 / 12\nCharging",
+        "fill": "25%",
+        "now": "3",
+        "max": "12",
+        "valueText": "3 of 12 mana",
+        "label": "3 / 12",
+        "readiness": "Charging",
+        "font": "11px"
+      },
+      {
+        "id": "thunder",
+        "text": "6. Lightning · Lv 4\n14 / 14\nNo target",
+        "fill": "100%",
+        "now": "14",
+        "max": "14",
+        "valueText": "14 of 14 mana, charged",
+        "label": "14 / 14",
+        "readiness": "No target",
+        "font": "11px"
+      },
+      {
+        "id": "shadow",
+        "text": "7. Arcane · Lv 4\n14 / 14\nReady · next clear",
+        "fill": "100%",
+        "now": "14",
+        "max": "14",
+        "valueText": "14 of 14 mana, charged",
+        "label": "14 / 14",
+        "readiness": "Ready · next clear",
+        "font": "11px"
+      }
+    ],
+    "manual": [
+      {
+        "text": "Arcane techniques · Opponent",
+        "x": 6,
+        "y": 688,
+        "width": 187.5,
+        "height": 46.5,
+        "top": 688,
+        "right": 193.5,
+        "bottom": 734.5,
+        "left": 6
+      },
+      {
+        "text": "Emberfall · Fire Lv 2 → Gravity Lv 1 · 8 fire + 6 earth",
+        "x": 196.5,
+        "y": 688,
+        "width": 187.5,
+        "height": 46.5,
+        "top": 688,
+        "right": 384,
+        "bottom": 734.5,
+        "left": 196.5
+      },
+      {
+        "text": "Support spells · Manual",
+        "x": 6,
+        "y": 737.5,
+        "width": 187.5,
+        "height": 46.5,
+        "top": 737.5,
+        "right": 193.5,
+        "bottom": 784,
+        "left": 6
+      }
+    ],
+    "board": {
+      "x": 12,
+      "y": 214,
+      "width": 205.5,
+      "height": 411
+    },
+    "scroll": {
+      "height": 510,
+      "scrollHeight": 510,
+      "hintHidden": true,
+      "hint": "More spells below ↓",
+      "count": "Mana: held / cost · 7 spells"
+    },
+    "errors": []
+  },
+  {
+    "w": 1100,
+    "h": 900,
+    "records": [
+      {
+        "id": "natureConvert",
+        "text": "1. Nature · Lv 4\n20 / 12\n2 rows · 2 hits\nNo target",
+        "fill": "100%",
+        "now": "12",
+        "max": "12",
+        "valueText": "20 of 12 mana, charged",
+        "label": "20 / 12",
+        "readiness": "No target",
+        "font": "11px"
+      },
+      {
+        "id": "gale",
+        "text": "2. Wind · Lv 4\n0 / 12\n4 rows\nCharging",
+        "fill": "0%",
+        "now": "0",
+        "max": "12",
+        "valueText": "0 of 12 mana",
+        "label": "0 / 12",
+        "readiness": "Charging",
+        "font": "11px"
+      },
+      {
+        "id": "fire",
+        "text": "3. Fire · Lv 4\n6 / 12\n4 rows\nCharging",
+        "fill": "50%",
+        "now": "6",
+        "max": "12",
+        "valueText": "6 of 12 mana",
+        "label": "6 / 12",
+        "readiness": "Charging",
+        "font": "11px"
+      },
+      {
+        "id": "blizzard",
+        "text": "4. Ice · Lv 4\n14 / 14\n4 rows\nReady · next clear",
+        "fill": "100%",
+        "now": "14",
+        "max": "14",
+        "valueText": "14 of 14 mana, charged",
+        "label": "14 / 14",
+        "readiness": "Ready · next clear",
+        "font": "11px"
+      },
+      {
+        "id": "quake",
+        "text": "5. Gravity · Lv 4\n3 / 12\nWhole board\nCharging",
+        "fill": "25%",
+        "now": "3",
+        "max": "12",
+        "valueText": "3 of 12 mana",
+        "label": "3 / 12",
+        "readiness": "Charging",
+        "font": "11px"
+      },
+      {
+        "id": "thunder",
+        "text": "6. Lightning · Lv 4\n14 / 14\n2 rows · 2 hits\nNo target",
+        "fill": "100%",
+        "now": "14",
+        "max": "14",
+        "valueText": "14 of 14 mana, charged",
+        "label": "14 / 14",
+        "readiness": "No target",
+        "font": "11px"
+      },
+      {
+        "id": "shadow",
+        "text": "7. Arcane · Lv 4\n14 / 14\nOpponent · damage + drain\nReady · next clear",
+        "fill": "100%",
+        "now": "14",
+        "max": "14",
+        "valueText": "14 of 14 mana, charged",
+        "label": "14 / 14",
+        "readiness": "Ready · next clear",
+        "font": "11px"
+      }
+    ],
+    "manual": [
+      {
+        "text": "Arcane techniques · Opponent",
+        "x": 419,
+        "y": 758.9375,
+        "width": 294.5,
+        "height": 44,
+        "top": 758.9375,
+        "right": 713.5,
+        "bottom": 802.9375,
+        "left": 419
+      },
+      {
+        "text": "Emberfall · Fire Lv 2 → Gravity Lv 1 · 8 fire + 6 earth",
+        "x": 718.5,
+        "y": 758.9375,
+        "width": 294.5,
+        "height": 44,
+        "top": 758.9375,
+        "right": 1013,
+        "bottom": 802.9375,
+        "left": 718.5
+      },
+      {
+        "text": "Support spells · Manual",
+        "x": 419,
+        "y": 807.9375,
+        "width": 294.5,
+        "height": 44,
+        "top": 807.9375,
+        "right": 713.5,
+        "bottom": 851.9375,
+        "left": 419
+      }
+    ],
+    "board": {
+      "x": 87,
+      "y": 162,
+      "width": 300,
+      "height": 600
+    },
+    "scroll": {
+      "height": 255,
+      "scrollHeight": 255,
+      "hintHidden": true,
+      "hint": "More spells below ↓",
+      "count": "Mana: held / cost · 7 spells"
+    },
+    "errors": []
+  }
+]

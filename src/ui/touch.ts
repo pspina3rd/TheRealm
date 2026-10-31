@@ -13,10 +13,17 @@ export function reducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+export const HAPTICS_KEY = 'the-realm/haptics';
+let lastHaptic = -Infinity;
+
 /** A short buzz where the device supports it; never required. */
 export function haptic(ms: number): void {
+  if (!document.body.classList.contains('haptics-on') || document.hidden) return;
+  const now = performance.now();
+  if (now - lastHaptic < 90) return;
+  lastHaptic = now;
   try {
-    navigator.vibrate?.(ms);
+    navigator.vibrate?.(Math.max(0, Math.min(45, ms)));
   } catch {
     // Some browsers throw when vibration is blocked; feedback is optional.
   }
