@@ -353,6 +353,7 @@ describe('mentor encounters', () => {
     state.hero.spells = knownSpells('fire', 'kindle', 'wildfire', 'volcano');
     expect(describeInteraction(state, torva)).toEqual({
       kind: 'message',
+      actorId: 'torva',
       title: 'Torva',
       sprite: 'char.020',
       // She has taught: her After the lesson row (warm, toward a fire hero).

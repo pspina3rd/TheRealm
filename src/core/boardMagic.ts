@@ -239,6 +239,7 @@ export function resolveMagic(
     const hits = spell.rank >= 3 ? 2 : 1;
     if (spell.element === 'earth') fall((_x, y) => y >= top && y <= bottom, spell.rank >= 4);
     else if (spell.element === 'wind') {
+      // Wind pushes sideways; an obstruction retains its vertical anchoring.
       const dx = spell.direction ?? 1;
       for (let y = top; y <= bottom; y++)
         for (let i = 0; i < width; i++) {
@@ -246,7 +247,6 @@ export function resolveMagic(
             nx = x + dx;
           if (
             required(state.grid[y])[x] !== null &&
-            !state.obstructions[position(x, y)]?.anchored &&
             nx >= 0 &&
             nx < width &&
             required(state.grid[y])[nx] === null

@@ -54,6 +54,8 @@ export { FALL_HP_SHARE, HOME_FALL_HP_SHARE } from '../data/balance';
 
 /** Who is speaking in an interaction, for the conversation screen. */
 interface Speaker {
+  /** Stable task identity; a display name can change with story state. */
+  readonly actorId?: string;
   readonly title: string;
   /** Creature sprite key of the speaker. */
   readonly sprite: string;
@@ -185,6 +187,7 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
       (slot) => slot.state === 'hidden',
     );
     const speaker = {
+      actorId: mentor.id,
       title: mentor.name,
       sprite: mentor.sprite,
       text: mentorGreeting(state, mentor),
@@ -209,6 +212,7 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
     const prelude = preludeFor(enemy.id, state.talk);
     return {
       kind: 'challenge',
+      actorId: enemy.id,
       title: enemy.name,
       sprite: enemy.sprite,
       text: enemy.description,
@@ -221,7 +225,12 @@ export function describeInteraction(state: GameState, entity: EntityDef): Intera
 
   const npc = npcNow(npcFor(entity), state.flags);
   const attitude = attitudeOf(state.hero, npc, regardOf(state, npc.id));
-  const speaker = { title: npc.name, sprite: npc.sprite, ...(npc.inanimate ? {} : { attitude }) };
+  const speaker = {
+    actorId: npc.id,
+    title: npc.name,
+    sprite: npc.sprite,
+    ...(npc.inanimate ? {} : { attitude }),
+  };
   const shopId = shopFor(npc);
   if (shopId && npc.id !== 'stallKeeper') {
     const browse = {
@@ -498,6 +507,7 @@ export function lessonInteraction(
   const stakes = flowFor(spec) ? stakesCard(state, spec, []) : undefined;
   return {
     kind: 'challenge',
+    actorId: mentor.id,
     title: mentor.name,
     sprite: mentor.sprite,
     text: mentorGreeting(state, mentor),

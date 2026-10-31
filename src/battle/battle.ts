@@ -17,7 +17,7 @@ import {
   lineClearPoints,
 } from '../core/scoring';
 import { ENEMIES } from '../data/enemies';
-import type { ChallengeSpec } from '../data/types';
+import type { ChallengeSpec, EnemyMove } from '../data/types';
 import { featsOfLock, recordFeats } from '../game/feats';
 import { addMana, clearMana, type Hero } from '../game/hero';
 import { scaledEnemy } from '../game/scaling';
@@ -588,6 +588,24 @@ export class Battle implements BattleContext {
    * Pushes `count` rows up from the bottom, each with one random gap, in
    * stone or mold: every pushed row goes through here (see `RowPush`).
    */
+  /** Enemy material uses the same owner lifecycle regardless of how it appeared. */
+  ownEnemyCells(owner: string, cells: readonly (readonly [number, number])[]): void {
+    if (!this.board.magicEnabled) return;
+    const material = cells
+      .filter(([x, y]) => {
+        const tag = this.board.tagAt(x, y);
+        return (
+          this.board.grid[y]?.[x] === 'stone' &&
+          !this.board.obstructions[`${x},${y}`] &&
+          tag !== 'target' &&
+          tag !== 'protected' &&
+          tag !== 'ridge'
+        );
+      })
+      .map(([x, y]) => ({ x, y, strength: 1 }));
+    if (material.length) this.rewardMagic(this.interference.adopt(owner, material));
+  }
+
   pushRows(push: RowPush, count: number): number {
     const width = this.board.width;
     for (let i = 0; i < count; i++) {
@@ -598,6 +616,13 @@ export class Battle implements BattleContext {
         ),
       );
     }
+    if (push.source === 'curse' && push.owner && push.fill !== 'mold')
+      this.ownEnemyCells(
+        push.owner,
+        Array.from({ length: Math.min(count, this.board.height) }, (_, i) =>
+          Array.from({ length: width }, (_, x) => [x, this.board.height - 1 - i] as const),
+        ).flat(),
+      );
     if (count > 0) this.emit({ kind: 'rise', rows: count, source: push.source });
     return count;
   }
@@ -610,29 +635,43 @@ export class Battle implements BattleContext {
   /** Everything marked on the board ahead of time: the challenge's and the region rule's. */
   telegraphs(): readonly Telegraph[] {
     const move = this.combat?.nextMove;
-    const obstruction: Telegraph[] =
-      this.board.magicEnabled && move?.kind === 'obstruct'
-        ? [
-            {
-              kind: 'cells',
-              what: 'obstruction',
-              owner: this.combat?.enemy.id,
-              leadPieces: 0,
-              leadMs:
-                Math.max(0, (this.combat?.actMs ?? 0) - (this.combat?.gauge ?? 0)) +
-                (this.interference.effects[this.combat?.enemy.id ?? '']?.delayMs ?? 0),
-              cells: move.cells.map((c) => [c.x, c.y] as const),
-            },
-          ]
+    const lead = Math.max(0, (this.combat?.actMs ?? 0) - (this.combat?.gauge ?? 0));
+    const delay = this.interference.effects[this.combat?.enemy.id ?? '']?.delayMs ?? 0;
+    const warning = (incoming: EnemyMove, leadMs: number): Telegraph[] => {
+      const common = { owner: this.combat?.enemy.id, leadPieces: 0, leadMs };
+      if (incoming.kind === 'obstruct')
+        return [
+          {
+            ...common,
+            kind: 'cells',
+            what: 'obstruction',
+            cells: incoming.cells.map((c) => [c.x, c.y] as const),
+          },
+        ];
+      if (incoming.kind === 'petrify' && incoming.targets)
+        return [{ ...common, kind: 'cells', what: 'obstruction', cells: incoming.targets }];
+      if (incoming.kind === 'curse')
+        return [
+          {
+            ...common,
+            kind: 'rows',
+            what: 'rise',
+            rows:
+              incoming.frozenRows ??
+              (this.combat?.enraged
+                ? (this.combat.enemy.enrage?.curseRows ?? incoming.rows)
+                : incoming.rows),
+          },
+        ];
+      return [];
+    };
+    const obstruction =
+      this.board.magicEnabled && move
+        ? warning(move, lead + (this.combat?.delayedArrivals.length ? 0 : delay))
         : [];
-    const delayed: Telegraph[] = (this.combat?.delayedObstructions ?? []).map((pending) => ({
-      kind: 'cells',
-      what: 'obstruction',
-      owner: this.combat?.enemy.id,
-      leadPieces: 0,
-      leadMs: this.interference.effects[this.combat?.enemy.id ?? '']?.delayMs ?? 0,
-      cells: pending.cells.map((c) => [c.x, c.y] as const),
-    }));
+    const delayed: Telegraph[] = this.board.magicEnabled
+      ? (this.combat?.delayedArrivals ?? []).flatMap((pending) => warning(pending, delay))
+      : [];
     return [
       ...delayed,
       ...(this.challenge.telegraphs?.() ?? []),

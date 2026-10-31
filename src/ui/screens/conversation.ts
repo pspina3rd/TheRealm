@@ -1,3 +1,4 @@
+import { encounterIntent, encounterActor } from '../../game/encounterIntent';
 import { standardName, standardSpellText } from '../standardSpellText';
 import { costIcons } from '../manaBars';
 import { ELEMENT_NAMES } from '../../core/elements';
@@ -122,6 +123,21 @@ export function conversationBody(
         },
         iconElement('gift', 3, 'Offering'),
         chip(itemIcon(interaction.itemId), '?', ITEMS[interaction.itemId]?.name),
+      ),
+    );
+  }
+  if (interaction.kind === 'challenge') {
+    const purpose = encounterIntent(
+      interaction.spec,
+      interaction.actorId ?? encounterActor(interaction.title),
+    );
+    body.push(
+      el(
+        'div',
+        { className: 'encounter-purpose' },
+        el('b', { text: purpose.label }),
+        el('p', { text: purpose.goal }),
+        el('small', { text: purpose.pressure }),
       ),
     );
   }

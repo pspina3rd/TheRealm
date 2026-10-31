@@ -288,7 +288,7 @@ export const ENCOUNTER_DEFS: Readonly<Record<string, EncounterDef>> = {
         strainLamps: E.guard.strainLamps,
       },
     },
-    objective: 'Light all four ward lamps: two blue, two violet. A lamp only takes a pure line.',
+    objective: 'Light all displayed ward lamps. Each line must meet its lamp’s color requirement.',
     failText: 'The lamps gutter',
     strainText: `one more lamp with ${E.guard.strainPieces} extra pieces next time`,
     retry: 'wait',

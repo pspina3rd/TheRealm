@@ -78,12 +78,15 @@ describe('board magic resolution', () => {
     expect(b.completed[0]?.cells).toEqual(['neutral', null, 'neutral', 'neutral']);
     expect(b.state.obstructions['1,3']?.strength).toBe(1);
   });
-  it('moves a wind row once from its leading edge, respecting walls and anchors', () => {
+  it('pushes a wind row once, moving obstructions sideways while preserving their anchors', () => {
     const s = emptyMagic(5, 4);
     s.grid[3] = ['red', 'blue', null, 'stone', null];
     put(s, 3, 3);
     const a = resolveMagic(s, { spell: { element: 'wind', rank: 1, bottomRow: 3, direction: 1 } });
-    expect(a.state.grid[3]).toEqual([null, 'red', 'blue', 'stone', null]);
+    expect(a.state.grid[3]).toEqual([null, 'red', 'blue', null, 'stone']);
+    expect(a.state.obstructions['4,3']?.anchored).toBe(true);
+    expect(a.state.obstructions['4,3']?.strength).toBe(2);
+    expect(a.state.obstructions['3,3']).toBeUndefined();
   });
   it('requires fresh sequential contacts and respects marked sides', () => {
     const s = emptyMagic(4, 5);

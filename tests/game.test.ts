@@ -71,6 +71,7 @@ describe('describeInteraction', () => {
     state.flags.add(npcCompletionFlag(NPCS.kid!));
     expect(describeInteraction(state, entity('mossvale', 'mv-kid'))).toEqual({
       kind: 'message',
+      actorId: 'kid',
       title: 'Pip',
       sprite: NPCS.kid!.sprite,
       attitude: 'neutral',

@@ -755,20 +755,20 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     element: 'nature',
     lines: {
       intro: {
-        cold: 'Rot got into my mushroom rings. Replant them if you know how.',
-        plain: 'Rot ate my mushroom rings. Plant green crystals and the spawn takes again.',
-        warm: 'Rot ate my mushroom rings, friend. Help me plant them back? We share the pick.',
+        cold: 'Rot got into my mushroom rings. Clear it before it reaches the young caps.',
+        plain: 'Rot got into my mushroom rings. Clear the rot and save the young caps.',
+        warm: 'Rot got into my mushroom rings, friend. Help me save the young caps? We share the pick.',
       },
-      confide: 'Hazel taught me to braid caps into charms. Replant a ring and one is yours.',
+      confide: 'Hazel taught me to braid caps into charms. Save a ring and one is yours.',
       refuse: 'My rings, my spawn. Keep your boots out of them.',
-      accept: 'Green, and keep it tidy.',
+      accept: 'That pale one, guard it.',
       decline: 'The rot spreads while we talk.',
       win: {
         cold: 'It takes. Here, your share.',
         plain: "It takes! First pick's yours.",
         warm: 'Look, they spring up already! Take a good basket.',
       },
-      lose: 'Too thin. The rot will win that ring.',
+      lose: 'The rot is still there. We will lose that ring.',
     },
     // Their encounter (src/data/encounters.ts).
     challenge: encounter('forager'),

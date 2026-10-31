@@ -231,8 +231,10 @@ it('selected campaign enemies receive owned obstruction moves only in opt-in enc
   const enabled = new Battle({ kind: 'combat', enemyId: 'slime' }, createHero(), createRng(1), {
     boardMagic: true,
   });
-  const move = enabled.combat!.enemy.moves.find((m) => m.kind === 'obstruct')!;
-  enabled.combat!.nextMove = move;
+  enabled.combat!.replanForBoard();
+  const move = enabled.combat!.nextMove;
+  expect(move.kind).toBe('obstruct');
+  expect(move.kind === 'obstruct' && move.cells.length).toBeGreaterThan(0);
   expect(
     enabled
       .telegraphs()

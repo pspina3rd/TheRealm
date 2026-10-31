@@ -1,4 +1,6 @@
-import { HAPTICS_KEY } from './touch';
+import { LessonChallenge } from '../battle/lesson';
+import { encounterIntent, enemyMovePurpose } from '../game/encounterIntent';
+import { HAPTICS_KEY, supportsHaptics } from './touch';
 import { openWeavingEditor } from './weavingEditor';
 import { openWeavingTargeting } from './weavingTargeting';
 import { BOARD_SPELLS } from '../battle/magicCasting';
@@ -180,6 +182,7 @@ export class App {
     this.state.flags.add('boardMagicEnabled');
     this.world = new WorldView(byId<HTMLCanvasElement>('world-canvas'), atlas);
     this.battleView = new BattleView(atlas);
+    this.battleView.onPurpose = () => this.showEncounterPurpose();
     byId('hud-hp-icon').replaceChildren(iconElement('heart', 2, 'HP'));
     byId('hud-xp-icon').replaceChildren(iconElement('star', 2, 'Experience'));
     byId('hud-gil-icon').replaceChildren(iconElement('coin', 2, 'Gil'));
@@ -678,6 +681,79 @@ export class App {
    * Starts a battle; `line` is what the opponent says as it begins, and
    * `terms` the attitude an NPC offered it on.
    */
+  private showEncounterPurpose(): void {
+    const active = this.active;
+    if (
+      !active ||
+      active.finished ||
+      active.battle.status !== 'ongoing' ||
+      active.battle.autoCastingBusy
+    )
+      return;
+    const battle = active.battle;
+    const actorId = active.entity.kind === 'npc' ? active.entity.npcId : undefined;
+    const purpose = encounterIntent(battle.spec, actorId);
+    const paused = battle.paused;
+    battle.paused = true;
+    const rows = [
+      ['Your goal', purpose.goal],
+      ['The blocks', purpose.blocks],
+      ['The pressure', purpose.pressure],
+      ['Your options', purpose.counterplay],
+    ];
+    const lesson = battle.combat instanceof LessonChallenge ? battle.combat : null;
+    if (lesson?.practiceIntent) rows.push(['Practice target', lesson.practiceIntent.goal]);
+    if (battle.combat && !lesson) {
+      const move = battle.combat.nextMove;
+      const detail = enemyMovePurpose(move);
+      const plan = battle.combat.movePlan;
+      const ice = battle.interference.effects[battle.combat.enemy.id]?.delayMs ?? 0;
+      if (ice > 0)
+        rows.push([
+          'Arcane + Ice',
+          battle.combat.delayedArrivals.length
+            ? 'One batch is held. Other batches and attacks keep their normal timing.'
+            : 'The next obstruction batch will be delayed. Later batches and attacks keep their normal timing.',
+        ]);
+      rows.push([
+        `Next: ${move.name}`,
+        plan && (plan.intent === 'clogLanding' || plan.intent === 'blockWell')
+          ? plan.reason
+          : detail.goal,
+      ]);
+      rows.push(['Respond', detail.counterplay]);
+      if (move.kind === 'obstruct')
+        rows.push([
+          'Material',
+          move.cells
+            .map(
+              (cell) =>
+                `Row ${cell.y + 1}, column ${cell.x + 1}: ${cell.strength} clear${cell.strength === 1 ? '' : 's'} / strike${cell.strength === 1 ? '' : 's'}${cell.sequence?.length ? '; marked color contacts are another route' : ''}. Anchored against falling; Wind can slide it sideways.`,
+            )
+            .join(' '),
+        ]);
+    }
+    const close = (): void => {
+      this.dialog.close();
+      battle.paused = paused;
+      this.focusBattleBoard();
+    };
+    this.dialog.show({
+      title: purpose.label,
+      body: rows.map(([label, text]) =>
+        el('p', { className: 'purpose-row' }, el('b', { text: `${label}: ` }), text ?? ''),
+      ),
+      actions: [{ label: 'Back to board', onClick: close }],
+      onCancel: close,
+    });
+  }
+
+  private focusBattleBoard(): void {
+    const board = byId<HTMLCanvasElement>('board-canvas');
+    board.tabIndex = 0;
+    board.focus({ preventScroll: true });
+  }
+
   private startBattle(
     entity: EntityDef,
     spec: ChallengeSpec,
@@ -711,12 +787,14 @@ export class App {
       const foe = ENEMIES[spec.enemyId];
       const mentor = MENTORS[spec.mentorId];
       this.battleView.start(creature(foe?.sprite), hero, {
+        actorId: spec.mentorId,
         ...(foe?.tint ? { tint: foe.tint } : {}),
         ...(mentor ? { ally: creature(mentor.sprite), allyElement: mentor.element } : {}),
       });
     } else {
       const mentor = battle.assist && MENTORS[battle.assist.mentorId];
       this.battleView.start(portraitFor(entity), hero, {
+        ...(entity.kind === 'npc' ? { actorId: entity.npcId } : {}),
         ...(line ? { line } : {}),
         ...(mentor ? { ally: creature(mentor.sprite), allyElement: mentor.element } : {}),
       });
@@ -1086,7 +1164,10 @@ export class App {
           },
         },
         {
-          label: `Vibration: ${this.pref(HAPTICS_KEY) ? 'On' : 'Off'}`,
+          label: supportsHaptics()
+            ? `Vibration: ${this.pref(HAPTICS_KEY) ? 'On' : 'Off'}`
+            : 'Vibration: unavailable',
+          disabled: !supportsHaptics(),
           onClick: () => {
             this.setPref(HAPTICS_KEY, !this.pref(HAPTICS_KEY));
             this.openMenu();
@@ -1310,6 +1391,12 @@ export class App {
     const key = normalizeKey(event.key);
 
     if (this.active) {
+      if (
+        (event.key === 'Enter' || event.key === ' ') &&
+        event.target instanceof HTMLElement &&
+        event.target.closest('.board-objective')
+      )
+        return;
       const command = battleKey(event.key, event.repeat);
       if (command?.kind === 'input') {
         event.preventDefault();

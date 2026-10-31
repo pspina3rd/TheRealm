@@ -1,3 +1,4 @@
+import { enemyMovePurpose } from '../game/encounterIntent';
 import {
   learnSpell,
   gainXp,
@@ -56,7 +57,6 @@ let battle: Battle,
   testLevel = 1,
   testSpell = 'all',
   complete = false,
-  enemySequence = 0,
   lastBoard = '',
   lastNext = '';
 let seenAutoCasts = 0;
@@ -93,7 +93,7 @@ const badge = el('span', { className: 'mode-badge' }),
 const boardWell = el('section', { className: 'board-well' });
 const enemyMeter = el('progress', { className: 'enemy-meter' });
 enemyMeter.max = 1;
-enemyMeter.setAttribute('aria-label', 'Time until Slime places an obstruction');
+enemyMeter.setAttribute('aria-label', 'Time until the opponent’s declared move');
 const enemyIntent = el('span', { className: 'enemy-intent', text: 'Preparing stone' });
 const spellNodes = new Map<string, { price: HTMLElement; pool: HTMLProgressElement }>();
 board.setAttribute('aria-label', 'Battle board');
@@ -433,7 +433,6 @@ function reset(index = -1): void {
   lastBoard = '';
   lastNext = '';
   seenAutoCasts = 0;
-  enemySequence = 0;
   if (index === -1) state.hero.spells = structuredClone(liveBook);
   else {
     state.hero.spells = {};
@@ -499,48 +498,26 @@ function reset(index = -1): void {
     battle.board.loadRows([
       '.r........',
       '..b.......',
-      '..#.......',
-      '.......#..',
+      '..r.......',
+      '.......b..',
       '..........',
       'rrrr..rrrr',
       'rrrr..rrrr',
     ]);
-    for (const [x, y, strength] of [
-      [2, 15, 3],
-      [7, 16, 2],
-    ] as const)
-      battle.board.obstructions[`${x},${y}`] = {
-        id: `initial:${x}:${y}`,
-        owner: 'slime',
-        strength,
-        anchored: true,
-        sequence: [],
-        step: 0,
-        contacts: [],
-      };
     battle.board.replaceActive('O', { x: 3 });
   }
-  // The opponent's authored next placement is visible before its clock starts.
-  required(battle.combat).nextMove = {
-    kind: 'obstruct',
-    name: 'Set an obstruction',
-    cells: incoming(),
-  };
+  // Normal play uses the same frozen, purposeful declaration as the main game.
+  required(battle.combat).replanForBoard();
+  if (index === 6)
+    required(battle.combat).nextMove = {
+      kind: 'obstruct',
+      name: 'Practice: redirect this block',
+      cells: [{ x: 4, y: 18, strength: 2 }],
+    };
   renderPalette();
   inputs.lockout();
   refresh();
   resize();
-}
-function incoming(): { x: number; y: number; strength: number }[] {
-  return exercise === 6
-    ? [{ x: 4, y: 18, strength: 2 }]
-    : [
-        {
-          x: 1 + ((enemySequence * 3) % 8),
-          y: 12 + (enemySequence % 3),
-          strength: 1 + (enemySequence % 3),
-        },
-      ];
 }
 function refresh(): void {
   if (!battle) return;
@@ -691,15 +668,27 @@ function refresh(): void {
     lastNext = next.name;
   }
   const effect = battle.interference.effects.slime;
-  enemyClock.textContent = `Next block: ${Math.max(0, (required(battle.combat).actMs - required(battle.combat).gauge + (effect?.delayMs ?? 0)) / 1000).toFixed(1)}s`;
-  enemyMeter.value = Math.min(
-    1,
-    required(battle.combat).gauge / (required(battle.combat).actMs + (effect?.delayMs ?? 0)),
-  );
-  enemyIntent.textContent = effect?.nature
-    ? 'Next send: blank block'
-    : `Preparing stone · ${incoming()[0]?.strength ?? 1} hit${incoming()[0]?.strength === 1 ? '' : 's'}`;
+  const combat = required(battle.combat);
+  const declared = combat.nextMove;
+  const delay =
+    !combat.delayedArrivals.length && ['obstruct', 'curse', 'petrify'].includes(declared.kind)
+      ? (effect?.delayMs ?? 0)
+      : 0;
+  enemyClock.textContent = `${declared.name}: ${Math.max(0, (combat.actMs - combat.gauge + delay) / 1000).toFixed(1)}s`;
+  enemyMeter.value = Math.min(1, combat.gauge / (combat.actMs + delay));
+  const purpose = enemyMovePurpose(declared);
+  enemyIntent.textContent =
+    declared.kind === 'obstruct'
+      ? `${combat.movePlan?.label ?? 'Practice placement'} · ${effect?.nature ? 'blank material' : `${declared.cells[0]?.strength ?? 1} clear / strike`}`
+      : purpose.goal;
+  enemyIntent.title =
+    combat.movePlan && combat.movePlan.intent !== 'authored'
+      ? combat.movePlan.reason
+      : purpose.counterplay;
   effects.textContent = [
+    effect?.delayMs
+      ? `${combat.delayedArrivals.length ? 'Ice holds one batch' : 'Ice delays next batch only'} · ${(effect.delayMs / 1000).toFixed(1)}s`
+      : '',
     effect?.nature ? `${effect.nature} blank sends` : '',
     effect?.wind ? `${effect.wind} shifted sends` : '',
     effect?.gravity ? `${effect.gravity} unanchored moves` : '',
@@ -1073,14 +1062,7 @@ function frame(now: number): void {
   previous = now;
   inputs.tick(now);
   if (mode === 'play' && (battle.status === 'ongoing' || battle.autoCastingBusy)) {
-    const before = battle.interference.placements.slime ?? 0;
-    required(battle.combat).nextMove = {
-      kind: 'obstruct',
-      name: 'Set an obstruction',
-      cells: incoming(),
-    };
     battle.update(dt);
-    if ((battle.interference.placements.slime ?? 0) > before) enemySequence++;
     refresh();
   }
   const hasTarget = !needsRow() || target !== null;

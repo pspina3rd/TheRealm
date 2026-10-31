@@ -1,10 +1,10 @@
 # Mana Crystals
 
 A falling-block fantasy RPG. Walk an overworld, visit villages and towns,
-and descend into dungeons. **Every interaction is a battle**: monsters fight
+and descend into dungeons. **Every encounter uses the falling-block board**: monsters fight
 you with magic, villagers bring you their trouble (a choked well, a jammed
-tower, grey herb beds), a shopkeeper haggles and sages set puzzles, all
-played out on a falling-block board.
+tower, overgrown herb beds), shopkeepers negotiate and sages set puzzles.
+Their goals differ; helping someone does not turn them into an enemy.
 
 **The story.** Something vast stirs under the realm: the Moon Wyrm, coiled
 around a moon-crystal deep in the Moon Caves, drinks the moonlight while
@@ -393,3 +393,15 @@ standard spells are read-only AUTO cards, not seven manual category buttons.
 See the [casting playtest instructions](docs/BOARD_MAGIC_PLAYTEST.md) and the
 [independent review records](docs/reviews/CASTING_UI_REVIEW.md) for corrected
 behavior and the limits of the reviewed scope.
+
+### iPhone testing
+
+Pull `GetPutTaco`, run `npm install`, then `npm run dev:phone` on your Mac.
+Connect the iPhone to the same Wi-Fi and open Vite’s **Network** URL in Safari.
+Use **Share → Add to Home Screen** to launch it from an app icon. Keep the Mac
+awake with the server running for this local test.
+
+The production build includes an install manifest, iPhone icon and optional
+offline support on HTTPS hosting. No App Store/TestFlight build is needed.
+See [iPhone testing and installation](docs/IPHONE_TESTING.md) for local-network,
+HTTPS/offline and save-location details. This does not publish an HTTPS site.

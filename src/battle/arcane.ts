@@ -94,15 +94,31 @@ export class ArcaneInterference {
     cells: readonly ObstructionPlacement[],
     intent: PlacementIntent = 'hostile',
   ): MagicResolution {
+    return this.deliver(owner, cells, intent, false);
+  }
+  /** An enemy transformation/pushed row has already introduced raw stone.
+   * Apply the same owner modifiers and one-batch clock as a targeted arrival. */
+  adopt(owner: string, cells: readonly ObstructionPlacement[]): MagicResolution {
+    return this.deliver(owner, cells, 'hostile', true);
+  }
+  private deliver(
+    owner: string,
+    cells: readonly ObstructionPlacement[],
+    intent: PlacementIntent,
+    existing: boolean,
+  ): MagicResolution {
     const before = this.checkpoint();
     const e = this.effect(owner),
       state = this.board.magicState();
+    const originalKey = JSON.stringify(state);
     const fresh: [number, number][] = [];
     // Allies and player-applied Arcane effects may deliberately help the board.
     let allowClears = intent === 'helpful' || e.gravity > 0 || e.red > 0;
     for (const cell of cells) {
       let { x } = cell;
       const { y } = cell;
+      const adopting =
+        existing && state.grid[y]?.[x] === 'stone' && !state.obstructions[position(x, y)];
       if (
         !Number.isInteger(x) ||
         !Number.isInteger(y) ||
@@ -110,14 +126,24 @@ export class ArcaneInterference {
         y < 0 ||
         y >= this.board.height ||
         x >= this.board.width ||
-        required(state.grid[y])[x] !== null
+        (required(state.grid[y])[x] !== null && !adopting)
       )
         continue;
       const neutral = e.nature > 0;
 
       if (e.wind > 0) {
         const nx = x + e.direction;
-        if (nx >= 0 && nx < this.board.width && required(state.grid[y])[nx] === null) x = nx;
+        const hitsActive = this.board.active?.cells.some(
+          ([dx, dy]) =>
+            required(this.board.active).x + dx === nx && required(this.board.active).y + dy === y,
+        );
+        if (
+          nx >= 0 &&
+          nx < this.board.width &&
+          required(state.grid[y])[nx] === null &&
+          (!adopting || !hitsActive)
+        )
+          x = nx;
       }
       if (
         this.board.active?.cells.some(
@@ -132,10 +158,17 @@ export class ArcaneInterference {
       // a completed row on the player's next lock. Validate the whole batch.
       if (
         intent === 'hostile' &&
+        !adopting &&
         !playerAffected &&
         required(state.grid[y]).every((c, column) => column === x || c !== null)
       )
         continue;
+      const previousTag = adopting ? (state.tags[y]?.[cell.x] ?? null) : null;
+      if (adopting) {
+        required(state.grid[y])[cell.x] = null;
+        required(state.tags[y])[cell.x] = null;
+      }
+      if (!neutral && adopting) required(state.tags[y])[x] = previousTag;
       if (playerAffected) allowClears = true;
       if (neutral) e.nature--;
       if (e.wind > 0) e.wind--;
@@ -163,15 +196,25 @@ export class ArcaneInterference {
         );
       })
     ) {
-      this.restore(before);
-      return {
-        state: this.board.magicState(),
-        completed: [],
-        rows: [],
-        collapsedRows: [],
-        removed: [],
-        changed: false,
-      };
+      if (existing) {
+        // A falling active piece is temporary support: keep adopted material
+        // at its safe source until a physical lock can settle it.
+        result.state = state;
+        result.completed = [];
+        result.rows = [];
+        result.collapsedRows = [];
+        result.removed = [];
+      } else {
+        this.restore(before);
+        return {
+          state: this.board.magicState(),
+          completed: [],
+          rows: [],
+          collapsedRows: [],
+          removed: [],
+          changed: false,
+        };
+      }
     }
     this.board.adoptMagic(result.state);
     if (fresh.length === 0) return result;
@@ -184,6 +227,7 @@ export class ArcaneInterference {
       result.state = this.board.magicState();
     }
     this.sync();
+    result.changed = originalKey !== JSON.stringify(result.state);
     return result;
   }
   /** Delays obstruction delivery only; the opponent's other actions keep their own clock. */

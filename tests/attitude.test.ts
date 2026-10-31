@@ -349,6 +349,7 @@ describe('encounters on terms', () => {
     const npc = NPCS.farmer!;
     expect(describeInteraction(stateFor(npc, 'hostile'), entityOf('farmer'))).toEqual({
       kind: 'message',
+      actorId: npc.id,
       title: npc.name,
       sprite: npc.sprite,
       attitude: 'hostile',

@@ -46,8 +46,8 @@ export type BattleEvent =
   | { readonly kind: 'crit' }
   /** The enemy used a move (its name is shown as a banner, as in classic RPGs). */
   | { readonly kind: 'enemyMove'; readonly move: EnemyMove }
-  /** The enemy's move fizzled in the hero's Mist. */
-  | { readonly kind: 'fizzle'; readonly move: EnemyMove }
+  /** A move was prevented by Mist or by its declared target being countered/empty. */
+  | { readonly kind: 'fizzle'; readonly move: EnemyMove; readonly reason?: 'countered' | 'empty' }
   /** A mentor tossed the hero a piece in their element's colour (a lesson). */
   | { readonly kind: 'toss'; readonly element: Element; readonly piece: PieceName }
   | { readonly kind: 'enemyHeal'; readonly amount: number }
@@ -120,6 +120,8 @@ export type PushSource = 'curse' | 'rising' | 'send' | 'tug' | 'tide';
 
 /** What kind of push it is: who sends it, and what the rows are made of. */
 export interface RowPush {
+  /** Present only for enemy-created rubble, never a merchant or environment push. */
+  readonly owner?: string;
   readonly source: PushSource;
   /** A boss's move (a boss's curse), as opposed to a region rule or an encounter's script. */
   readonly boss?: boolean;
@@ -203,6 +205,7 @@ export interface BattleContext {
     cells: readonly ObstructionPlacement[],
     intent?: PlacementIntent,
   ): void;
+  ownEnemyCells?(owner: string, cells: readonly (readonly [number, number])[]): void;
   castBoardSpell?(id: string, target: MagicTarget): void;
   readonly board: Board;
   readonly hero: Hero;

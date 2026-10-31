@@ -1,3 +1,4 @@
+import { encounterIntent } from '../game/encounterIntent';
 import { standardName } from './standardSpellText';
 import { ENCOUNTER_DEFS } from '../data/encounters';
 import { LessonChallenge } from '../battle/lesson';
@@ -29,7 +30,9 @@ export class BattleView {
   private readonly stage: Stage;
   private readonly pauseButton = byId<HTMLButtonElement>('pause-button');
   private nextSeq = 0;
-  private readonly objective = el('div', { className: 'board-objective' });
+  private readonly objective = el('button', { className: 'board-objective' });
+  onPurpose: () => void = () => {};
+  private actorId?: string;
   private readonly objectiveText = el('b');
   private readonly counter = el('span', { className: 'objective-counter' });
   private readonly lamps = el('span', { className: 'frame-lamps' });
@@ -50,10 +53,12 @@ export class BattleView {
     this.atlas = atlas;
     this.hero = new HeroPanel(atlas);
     this.stage = new Stage(byId<HTMLCanvasElement>('stage-canvas'), atlas);
+    this.objective.type = 'button';
+    this.objective.addEventListener('click', () => this.onPurpose());
     this.objective.append(this.objectiveText, this.counter, this.lamps);
     byId('board-canvas').parentElement?.prepend(this.objective);
     this.helper.after(this.lessonHint);
-    this.objective.setAttribute('aria-label', 'Battle objective');
+    this.objective.setAttribute('aria-label', 'Encounter goal and block details');
   }
 
   /** Flashes the mentor's portrait when they toss a piece. */
@@ -67,8 +72,13 @@ export class BattleView {
    * Resets the screen for a new battle. In a lesson, `options` carry the
    * foe's colour and the mentor, whose portrait sits by the next piece.
    */
-  start(opponent: CreatureId | null, heroSprite: CreatureId, options: StageOptions = {}): void {
+  start(
+    opponent: CreatureId | null,
+    heroSprite: CreatureId,
+    options: StageOptions & { actorId?: string } = {},
+  ): void {
     this.nextSeq = 0;
+    this.actorId = options.actorId;
     this.frameKey = '';
     this.board.reset();
     this.hero.reset();
@@ -83,6 +93,10 @@ export class BattleView {
 
   private renderFrame(battle: Battle): void {
     const objective = battle.objective;
+    this.objective.disabled = battle.status !== 'ongoing' || battle.autoCastingBusy;
+    const purpose = encounterIntent(battle.spec, this.actorId);
+    this.objective.dataset.role = purpose.role;
+    this.objective.title = `${purpose.goal} ${purpose.pressure} Select for block details.`;
     const def = battle.spec.kind === 'encounter' ? ENCOUNTER_DEFS[battle.spec.id] : undefined;
     const boardFrame = this.objective.parentElement;
     if (!boardFrame) return;
@@ -98,11 +112,14 @@ export class BattleView {
       lesson?.shield,
       lesson?.lent,
       battle.telegraphs(),
+      battle.combat?.nextMove,
     ]);
     if (key === this.frameKey) return;
     this.frameKey = key;
     this.objectiveText.textContent = objective.label;
     this.counter.textContent = [
+      `${purpose.label} · Details`,
+      battle.combat?.delayedArrivals.length ? 'Ice: one batch held' : '',
       objective.counter,
       objective.piecesLeft !== null && Number.isFinite(objective.piecesLeft)
         ? `${objective.piecesLeft} pieces`

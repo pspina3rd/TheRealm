@@ -728,3 +728,28 @@ of requiring smaller text to force all seven cards into every initial viewport.
 The three M2a foundations have focused coverage (35 reactions, 46 class abilities,
 14 synergy) and documented typed handoffs; they remain unconnected to game
 runtime and do not satisfy the pending M2a teaching/UI/balance acceptance gates.
+
+## 2026-10-31 · Encounter purpose and iPhone installation
+
+- Enemy obstruction choices now declare a safe, specific purpose and retain their
+  announced footprint. Curse and Petrify material share owner counterplay with
+  other obstructions. Wind can move anchored obstructions sideways while their
+  vertical anchoring remains intact.
+- Mentor practice uses school-specific examples at the actual available rank.
+  Cooperative tasks, contests, trials and combat expose their own goals before
+  acceptance and through a paused Details view. Authored task layouts remain.
+- Independent gameplay and UI reviews returned corrections, then passed their
+  scoped re-reviews; see `reviews/ENCOUNTER_INTENT_REVIEW.md` and
+  `reviews/ENCOUNTER_INTENT_UI_REVIEW.md`. Desktop and two phone viewport sizes
+  were checked. Physical iPhone/Safari acceptance remains outstanding.
+- Added `dev:phone`, Home Screen icons/manifest, production offline caching and
+  `IPHONE_TESTING.md`. The production build passed an actual browser offline
+  reload under a subfolder with its save intact. No HTTPS deployment was created;
+  LAN testing still requires the Mac and server to remain available.
+- Final checks: format, lint, types, 1,512 tests passed (18 optional/report skips),
+  production build, main casting/workshop browser regressions, 24 encounter UI
+  cases, and production install/offline smoke. The bounded current-progression
+  simulation also passed; this does not constitute full campaign acceptance.
+- The proposed bottom-first spell targeting and further Gravity targeting work
+  remain explicit follow-ups in `ENCOUNTER_PURPOSE.md`; this checkpoint does not
+  claim those standard auto-target priorities have changed.

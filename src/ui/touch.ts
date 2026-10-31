@@ -14,6 +14,9 @@ export function reducedMotion(): boolean {
 }
 
 export const HAPTICS_KEY = 'the-realm/haptics';
+export function supportsHaptics(): boolean {
+  return typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
+}
 let lastHaptic = -Infinity;
 
 /** A short buzz where the device supports it; never required. */

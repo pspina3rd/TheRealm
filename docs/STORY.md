@@ -263,7 +263,7 @@ New with the encounter boards (docs/ENCOUNTER_DESIGN.md). These are drafts for t
 
 | Moment | Line |
 | --- | --- |
-| On the frame | • Light all four ward lamps: two blue, two violet. A lamp only takes a pure line. |
+| On the frame | • Light all displayed ward lamps. Each line must meet its lamp’s color requirement. |
 | Stakes card: if you fail | • The lamps gutter |
 | Stakes card: each strain step | • one more lamp with 4 extra pieces next time |
 | As the try starts | • "Both colours. Don't mess up the ratio." |

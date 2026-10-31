@@ -143,6 +143,13 @@ export function feedbackFor(event: BattleEvent): Feedback[] {
     case 'enemyMove':
       return [{ kind: 'banner', text: event.move.name }];
     case 'fizzle':
+      if (event.reason)
+        return [
+          {
+            kind: 'banner',
+            text: event.reason === 'countered' ? 'Placement blocked' : 'No target',
+          },
+        ];
       return [
         { kind: 'icon', target: 'enemy', icon: 'water' },
         { kind: 'float', target: 'enemy', text: 'Miss', color: ELEMENT_COLOR_OF.water },

@@ -11,6 +11,12 @@ import type { Hero } from '../game/hero';
 import { heroHelpChance, scaledFoe, type LessonSpec } from '../game/lessons';
 import { castSpellFor, heroSpell, newKnownSpell, spellName, type CastSpell } from '../game/spells';
 import { CombatChallenge } from './combat';
+import {
+  lessonPracticeIntent,
+  prepareLessonPractice,
+  type LessonPracticeIntent,
+  type LessonPracticeRequest,
+} from './lessonPractice';
 import type { BattleContext, Objective } from './types';
 
 /** Where a lesson's shield stands: not yet raised, up, or broken by the taught spell. */
@@ -47,7 +53,7 @@ export class LessonChallenge extends CombatChallenge {
     const mentor = MENTORS[spec.mentorId];
     const foe = ENEMIES[spec.enemyId];
     if (!mentor || !foe) throw new Error(`Unknown lesson: ${spec.mentorId}/${spec.enemyId}`);
-    super(ctx, scaledFoe(foe, spec.difficulty, ctx.hero.level));
+    super(ctx, scaledFoe(foe, spec.difficulty, ctx.hero.level), { practice: true });
     this.mentor = mentor;
     this.spellId = spec.spellId;
     this.helpChance = heroHelpChance(ctx.hero, mentor, spec.difficulty);
@@ -128,43 +134,28 @@ export class LessonChallenge extends CombatChallenge {
 
   override onLock(result: LockResult): void {
     super.onLock(result);
+    if (this.status() === 'ongoing' && this.shield === 'up' && !this.practiceIntent?.target) {
+      this.prepareMagicTargets();
+    }
     if (this.status() === 'ongoing' && this.ctx.rng.next() < this.helpChance) this.toss();
   }
 
   /** Give board-spell lessons a usable target, including when a clear raises the shield. */
   private prepareMagicTargets(): void {
-    const board = this.ctx.board;
-    if (!board.magicEnabled) return;
-    const hasObstruction = Object.values(board.obstructions).some((o) => o.owner === this.enemy.id);
-    if (!hasObstruction) {
-      for (let y = board.height - 2; y >= 4; y--) {
-        const row = board.grid[y];
-        const x = row?.findIndex((cell) => cell === null) ?? -1;
-        if (row && x >= 0) {
-          row[x] = 'stone';
-          board.obstructions[`${x},${y}`] = {
-            id: `lesson:${this.enemy.id}:${y}`,
-            owner: this.enemy.id,
-            strength: 1,
-            anchored: true,
-            sequence: [],
-            step: 0,
-            contacts: [],
-          };
-          break;
-        }
-      }
-    }
-    // A loose colored square is a target for Fire, Wind and Gravity as well.
-    for (let y = board.height - 3; y >= 4; y--) {
-      const row = board.grid[y],
-        below = board.grid[y + 1];
-      const x = row?.findIndex((cell, x) => cell === null && below?.[x] === null) ?? -1;
-      if (row && x >= 0) {
-        row[x] = colorOfElement(this.mentor.element);
-        break;
-      }
-    }
+    prepareLessonPractice(this.ctx.board, this.practiceRequest);
+  }
+
+  private get practiceRequest(): LessonPracticeRequest {
+    return {
+      spellId: this.spellId,
+      rank: this.spellFor(this.spellId)?.level ?? 1,
+      owner: `lesson:${this.mentor.id}:${this.spellId}`,
+    };
+  }
+
+  /** Current board purpose and safe target; reading this never changes the board. */
+  get practiceIntent(): LessonPracticeIntent | null {
+    return lessonPracticeIntent(this.ctx.board, this.practiceRequest);
   }
 
   override objective(): Objective {

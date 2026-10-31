@@ -122,7 +122,12 @@ export type EnemyMove =
   /** Physical or magical hit; damage is `power + enemy atk - hero defence`. */
   | { readonly kind: 'attack'; readonly name: string; readonly power: number }
   /** Pushes stone rows up from the bottom of the board. */
-  | { readonly kind: 'curse'; readonly name: string; readonly rows: number }
+  | {
+      readonly kind: 'curse';
+      readonly name: string;
+      readonly rows: number;
+      readonly frozenRows?: number;
+    }
   /** Doubles gravity speed for the hero's next `pieces` pieces. */
   | { readonly kind: 'haste'; readonly name: string; readonly pieces: number }
   /** Restores the enemy's HP. */
@@ -134,7 +139,12 @@ export type EnemyMove =
   /** Seals a column (never a spawn column) so no piece can enter it for `pieces` pieces. */
   | { readonly kind: 'seal'; readonly name: string; readonly pieces: number }
   /** Turns `cells` random crystals on the board to stone. */
-  | { readonly kind: 'petrify'; readonly name: string; readonly cells: number }
+  | {
+      readonly kind: 'petrify';
+      readonly name: string;
+      readonly cells: number;
+      readonly targets?: readonly (readonly [number, number])[];
+    }
   /** Makes pieces fall `QUICKEN_SPEED` times faster for `ms` milliseconds. */
   | { readonly kind: 'quicken'; readonly name: string; readonly ms: number };
 

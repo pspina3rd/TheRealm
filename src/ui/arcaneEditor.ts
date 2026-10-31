@@ -1,5 +1,7 @@
 import {
   ARCANE_ELEMENTS,
+  ARCANE_PURPOSE,
+  arcaneTechniqueName,
   ARCANE_BASE,
   ARCANE_UPGRADE_COSTS,
   arcaneCap,
@@ -35,12 +37,13 @@ export function openArcaneEditor(
         'section',
         { className: 'arcane-editor-row' },
         el('h3', {
-          text: `Arcane + ${element === 'earth' ? 'Gravity' : element === 'water' ? 'Ice' : element} · ${rank ? `rank ${rank}` : 'not created'}`,
+          text: `${arcaneTechniqueName(element)} · ${rank ? `rank ${rank}` : 'not created'}`,
         }),
         el('p', {
           text: `Requires Shadow Drain and ${ARCANE_BASE[element]} at rank 2. Current rank cap: ${cap}.`,
         }),
       );
+      row.append(el('p', { className: 'arcane-purpose', text: ARCANE_PURPOSE[element] }));
       row.append(
         button(
           rank === 0
@@ -105,10 +108,11 @@ export function openArcaneChooser(
     if (rank < 1) continue;
     count++;
     dialog.append(
-      button(`Arcane + ${e} · rank ${rank}`, () => {
+      button(`${arcaneTechniqueName(e)} · rank ${rank}`, () => {
         close();
         openMagicTargeting(battle, `arcane:${e}`, onConfirm, onDone);
       }),
+      el('small', { className: 'arcane-purpose', text: ARCANE_PURPOSE[e] }),
     );
   }
   if (count === 0)

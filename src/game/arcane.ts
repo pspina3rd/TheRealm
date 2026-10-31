@@ -1,3 +1,4 @@
+import { standardName } from './spellNames';
 import type { BoardElement } from '../core/boardMagic';
 import type { Hero } from './hero';
 export const ARCANE_ELEMENTS: readonly BoardElement[] = [
@@ -15,6 +16,19 @@ export const ARCANE_BASE: Readonly<Record<BoardElement, string>> = {
   lightning: 'thunder',
   nature: 'natureConvert',
   earth: 'quake',
+};
+export function arcaneTechniqueName(element: BoardElement): string {
+  return `Arcane + ${standardName(ARCANE_BASE[element]) ?? element}`;
+}
+export const ARCANE_PURPOSE: Readonly<Record<BoardElement, string>> = {
+  fire: 'Lets red contacts answer this opponent’s marked color requirements for the affected batches.',
+  water:
+    'Delays the next obstruction batch only. Later batches and ordinary attacks keep their normal timing.',
+  wind: 'Shifts the next affected obstruction blocks sideways if there is room.',
+  lightning: 'Weakens this opponent’s existing obstructions, leaving at least one durability.',
+  nature: 'Makes the next affected obstruction blocks arrive as harmless, colorless blanks.',
+  earth:
+    'Removes this opponent’s vertical anchoring for the affected placement batches, allowing their blocks to fall.',
 };
 export const ARCANE_UPGRADE_COSTS = [6, 12, 20] as const;
 export function arcaneUnlocked(flags: ReadonlySet<string>): boolean {

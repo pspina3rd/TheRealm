@@ -1,3 +1,9 @@
+import { isCrystal } from '../core/pieces';
+import {
+  planEnemyMove,
+  frozenObstructionStillLegal,
+  type PlannedEnemyMove,
+} from './obstructionIntent';
 import { boardMagicEnemy } from './magicEncounters';
 import { STANDARD_SPELLS, BOARD_SPELLS, type MagicTarget } from './magicCasting';
 import type { LockResult } from '../core/board';
@@ -76,6 +82,8 @@ export {
   MAX_WARD,
   SPELL_LEVEL_BONUS,
 } from '../data/balance';
+
+type EnemyArrival = Extract<EnemyMove, { kind: 'obstruct' | 'curse' | 'petrify' }>;
 
 export { PIECE_MS } from '../core/scoring';
 
@@ -161,17 +169,86 @@ export class CombatChallenge implements Challenge {
   exposed = 0;
 
   protected readonly ctx: BattleContext;
+  private readonly practice: boolean;
+  private selectedPlan: PlannedEnemyMove | null = null;
 
   /** `enemy` is an id in `ENEMIES`, or a definition (e.g. a lesson's scaled foe). */
-  constructor(ctx: BattleContext, enemy: string | EnemyDef) {
+  constructor(ctx: BattleContext, enemy: string | EnemyDef, options: { practice?: boolean } = {}) {
     const def = typeof enemy === 'string' ? ENEMIES[enemy] : enemy;
     if (!def) throw new Error(`Unknown enemy: ${String(enemy)}`);
     this.ctx = ctx;
-    this.enemy = ctx.board.magicEnabled
-      ? boardMagicEnemy(def, ctx.board.width, ctx.board.height)
-      : def;
+    this.practice = options.practice === true;
+    this.enemy =
+      ctx.board.magicEnabled && !this.practice
+        ? boardMagicEnemy(def, ctx.board.width, ctx.board.height)
+        : def;
     this.enemyHp = def.hp;
-    this.nextMove = ctx.rng.pick(this.enemy.moves);
+    this.nextMove = this.planNextMove();
+  }
+
+  /** The frozen declaration shown to the player, not a fresh per-frame decision. */
+  get movePlan(): PlannedEnemyMove | null {
+    return this.selectedPlan?.move === this.nextMove ? this.selectedPlan : null;
+  }
+
+  private get tactical(): boolean {
+    return this.ctx.board.magicEnabled && !this.practice && !this.enemy.boss;
+  }
+
+  private planNextMove(previousMove?: EnemyMove): EnemyMove {
+    if (!this.tactical) {
+      this.selectedPlan = null;
+      return this.freezeMaterialTarget(this.ctx.rng.pick(this.enemy.moves));
+    }
+    this.selectedPlan = planEnemyMove(this.enemy, this.ctx.board, this.ctx.rng, {
+      previousMove,
+      filterLegacy: true,
+      enemyHp: this.enemyHp,
+      heroMana: Object.values(this.ctx.hero.mana).reduce((n, amount) => n + amount, 0),
+      fogPieces: this.ctx.fogPieces,
+      hastePieces: this.ctx.hastePieces,
+      quickenMs: this.ctx.quickenMs,
+      reservedCells: this.delayedObstructions.flatMap((move) =>
+        move.cells.map(({ x, y }) => [x, y] as const),
+      ),
+    });
+    const move = this.freezeMaterialTarget(this.selectedPlan.move);
+    this.selectedPlan = { ...this.selectedPlan, move };
+    return move;
+  }
+
+  private freezeMaterialTarget(move: EnemyMove): EnemyMove {
+    if (!this.ctx.board.magicEnabled || move.kind !== 'petrify' || move.targets) return move;
+    const candidates: (readonly [number, number])[] = [];
+    this.ctx.board.grid.forEach((row, y) =>
+      row.forEach((cell, x) => {
+        if (
+          isCrystal(cell) &&
+          this.ctx.board.tagAt(x, y) !== 'protected' &&
+          this.ctx.board.tagAt(x, y) !== 'target'
+        )
+          candidates.push([x, y]);
+      }),
+    );
+    const targets: (readonly [number, number])[] = [];
+    while (targets.length < move.cells && candidates.length) {
+      const target = candidates.splice(this.ctx.rng.int(candidates.length), 1)[0];
+      if (target) targets.push(Object.freeze(target));
+    }
+    return Object.freeze({ ...move, targets: Object.freeze(targets) });
+  }
+
+  /** Explicit fixture setup, before play; normal turns declare once after acting. */
+  replanForBoard(): void {
+    this.nextMove = this.planNextMove();
+  }
+
+  private deliverObstruction(move: Extract<EnemyMove, { kind: 'obstruct' }>): void {
+    if (!frozenObstructionStillLegal(move, this.ctx.board)) {
+      this.ctx.emit({ kind: 'fizzle', move, reason: 'countered' });
+      return;
+    }
+    this.ctx.placeObstructions?.(this.enemy.id, move.cells);
   }
 
   /**
@@ -301,9 +378,15 @@ export class CombatChallenge implements Challenge {
   }
 
   /** Fills the enemy's gauge in real time; it moves each time the gauge is full. */
-  private pendingObstructions: Extract<EnemyMove, { kind: 'obstruct' }>[] = [];
+  private pendingObstructions: EnemyArrival[] = [];
 
   get delayedObstructions(): readonly Extract<EnemyMove, { kind: 'obstruct' }>[] {
+    return this.pendingObstructions.filter(
+      (move): move is Extract<EnemyMove, { kind: 'obstruct' }> => move.kind === 'obstruct',
+    );
+  }
+
+  get delayedArrivals(): readonly EnemyArrival[] {
     return this.pendingObstructions;
   }
 
@@ -313,7 +396,7 @@ export class CombatChallenge implements Challenge {
       this.ctx.interference.elapse(this.enemy.id, dtMs);
       if (this.ctx.interference.effect(this.enemy.id).delayMs <= 0) {
         const move = this.pendingObstructions.shift();
-        if (move) this.ctx.placeObstructions?.(this.enemy.id, move.cells);
+        if (move) this.enemyAct(move, true);
       }
     }
     if (this.status() !== 'ongoing') return;
@@ -622,24 +705,52 @@ export class CombatChallenge implements Challenge {
   private takeTurn(): void {
     if (this.status() !== 'ongoing') return;
     const move = this.nextMove;
-    this.nextMove = this.ctx.rng.pick(this.enemy.moves);
+    if (!this.tactical) this.nextMove = this.planNextMove();
     if (this.mist > 0) {
       this.mist--;
       this.ctx.emit({ kind: 'fizzle', move });
     } else this.enemyAct(move);
+    if (this.tactical && this.status() === 'ongoing') this.nextMove = this.planNextMove(move);
   }
 
-  private enemyAct(move: EnemyMove): void {
-    this.ctx.emit({ kind: 'enemyMove', move });
+  private enemyAct(original: EnemyMove, delivered = false): void {
+    const move = delivered ? original : this.freezeMaterialTarget(original);
+    if (!delivered) this.ctx.emit({ kind: 'enemyMove', move });
+    if (
+      move.kind === 'petrify' &&
+      move.targets &&
+      !move.targets.some(([x, y]) => isCrystal(this.ctx.board.grid[y]?.[x] ?? null))
+    ) {
+      this.ctx.emit({ kind: 'fizzle', move, reason: 'empty' });
+      return;
+    }
+    if (
+      !delivered &&
+      this.ctx.board.magicEnabled &&
+      (move.kind === 'obstruct' || move.kind === 'curse' || move.kind === 'petrify') &&
+      (this.ctx.interference?.effect(this.enemy.id).delayMs ?? 0) > 0 &&
+      this.pendingObstructions.length === 0
+    ) {
+      if (move.kind !== 'obstruct' || frozenObstructionStillLegal(move, this.ctx.board))
+        this.pendingObstructions.push(
+          move.kind === 'curse'
+            ? Object.freeze({
+                ...move,
+                frozenRows: this.enraged ? (this.enemy.enrage?.curseRows ?? move.rows) : move.rows,
+              })
+            : move,
+        );
+      else this.ctx.emit({ kind: 'fizzle', move, reason: 'countered' });
+      return;
+    }
     switch (move.kind) {
       case 'obstruct':
         if (!this.ctx.board.magicEnabled) break;
-        if (
-          (this.ctx.interference?.effect(this.enemy.id).delayMs ?? 0) > 0 &&
-          this.pendingObstructions.length === 0
-        )
-          this.pendingObstructions.push(move);
-        else this.ctx.placeObstructions?.(this.enemy.id, move.cells);
+        if (!frozenObstructionStillLegal(move, this.ctx.board)) {
+          this.ctx.emit({ kind: 'fizzle', move, reason: 'countered' });
+          break;
+        }
+        this.deliverObstruction(move);
         break;
       case 'attack': {
         const fury = this.enraged ? (this.enemy.enrage?.atk ?? 0) : 0;
@@ -654,8 +765,13 @@ export class CombatChallenge implements Challenge {
         break;
       }
       case 'curse': {
-        const rows = this.enraged ? (this.enemy.enrage?.curseRows ?? move.rows) : move.rows;
-        this.ctx.pushRows({ source: 'curse', boss: this.enemy.boss === true }, rows);
+        const rows =
+          move.frozenRows ??
+          (this.enraged ? (this.enemy.enrage?.curseRows ?? move.rows) : move.rows);
+        this.ctx.pushRows(
+          { source: 'curse', boss: this.enemy.boss === true, owner: this.enemy.id },
+          rows,
+        );
         this.ctx.emit({ kind: 'curse', rows });
         if (this.ctx.board.toppedOut) this.overflow();
         break;
@@ -690,7 +806,20 @@ export class CombatChallenge implements Challenge {
         break;
       }
       case 'petrify': {
-        const cells = this.ctx.board.petrify(move.cells);
+        const cells = move.targets
+          ? move.targets
+              .filter(([x, y]) => isCrystal(this.ctx.board.grid[y]?.[x] ?? null))
+              .map(([x, y]) => {
+                const row = this.ctx.board.grid[y];
+                if (row) row[x] = 'stone';
+                return [x, y] as [number, number];
+              })
+          : this.ctx.board.petrify(move.cells);
+        if (!cells.length) {
+          this.ctx.emit({ kind: 'fizzle', move, reason: 'empty' });
+          break;
+        }
+        this.ctx.ownEnemyCells?.(this.enemy.id, cells);
         this.ctx.emit({ kind: 'petrify', cells });
         break;
       }

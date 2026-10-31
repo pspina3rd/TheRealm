@@ -52,7 +52,7 @@ describe('Battle.pushRows: the one way rows enter the board', () => {
     const curse = { kind: 'curse', name: 'Hex', rows: 2 } as const;
     combat.nextMove = curse;
     combat.update(combat.actMs);
-    expect(seen).toEqual([{ source: 'curse', boss: false }]);
+    expect(seen).toEqual([{ source: 'curse', boss: false, owner: 'goblin' }]);
     expect(fight.board.grid[19]!.filter((c) => c === 'stone')).toHaveLength(9);
 
     const well = encounter('elder');

@@ -206,3 +206,13 @@ describe('feedbackFor', () => {
     expect(feedbackFor({ kind: 'price', multiplier: 0.85 })[0]).toMatchObject({ text: '85%' });
   });
 });
+
+it('shows a countered or empty declaration without implying a Mist spell', () => {
+  const move = { kind: 'obstruct', name: 'Goo', cells: [] } as const;
+  expect(feedbackFor({ kind: 'fizzle', move, reason: 'countered' })).toEqual([
+    { kind: 'banner', text: 'Placement blocked' },
+  ]);
+  expect(feedbackFor({ kind: 'fizzle', move, reason: 'empty' })).toEqual([
+    { kind: 'banner', text: 'No target' },
+  ]);
+});
