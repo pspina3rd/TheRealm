@@ -38,6 +38,18 @@ function prepare(battle: Battle, lines: number, target = '..rr......') {
     ],
   });
 }
+function pinClear(battle: Battle): void {
+  battle.board.grid[19]![0] = 'stone';
+  battle.board.obstructions['0,19'] = {
+    id: 'pinned-fixture',
+    owner: 'slime',
+    strength: 3,
+    anchored: true,
+    sequence: [],
+    step: 0,
+    contacts: [],
+  };
+}
 function price(id: string, level = 1) {
   return castSpellFor(SPELLS[id]!, { ...newKnownSpell(), level }).cost;
 }
@@ -99,6 +111,9 @@ describe('line-driven standard autocasting', () => {
   it('does not gain recursive cast opportunities from automatic spell clears', () => {
     const { battle } = fixture({ blizzard: 1 });
     prepare(battle, 1);
+    // A durable row stays pinned: the second clear must come from Ice,
+    // rather than from the newly supported physical cascade.
+    pinClear(battle);
     battle.board.grid[8] = [
       'blue',
       'blue',
@@ -217,6 +232,9 @@ describe('all learned standard spell ranks in earned-line casting', () => {
     ({ id, rank }) => {
       const { battle, hero } = fixture({ [id]: rank }, 500);
       prepare(battle, 1);
+      // Keep this clear pinned so Gravity/Wind have a useful overhang after
+      // the earned line; ordinary fully cleared rows now release their stack.
+      if (id === 'quake' || id === 'gale' || id === 'blizzard') pinClear(battle);
       if (id === 'thunder' || id === 'natureConvert')
         battle.interference.place('slime', [{ x: 8, y: 8, strength: 3 }]);
       if (id === 'blizzard')

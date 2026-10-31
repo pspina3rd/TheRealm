@@ -138,6 +138,35 @@ try {
       });
       await page.locator('.equipped-weaving').waitFor();
       assert.equal(await page.locator('.auto-standard').count(), 7);
+      const charge = await page
+        .locator('[data-spell=fire] [role=progressbar]')
+        .evaluate((meter) => ({
+          held: meter.getAttribute('aria-valuenow'),
+          cost: meter.getAttribute('aria-valuemax'),
+          height: meter.getBoundingClientRect().height,
+          fill: meter.querySelector('.spell-charge-fill').style.width,
+          labelSize: parseFloat(
+            getComputedStyle(meter.querySelector('.spell-charge-label')).fontSize,
+          ),
+        }));
+      assert.equal(charge.held, '12');
+      assert.equal(charge.cost, '12');
+      assert.equal(charge.fill, '100%');
+      assert(
+        charge.height >= 14 && charge.labelSize >= 11,
+        'Charge must remain legible on phones.',
+      );
+      if (touch) {
+        const fits = await page
+          .locator('#spell-list')
+          .evaluate((rail) =>
+            [...rail.querySelectorAll('.auto-standard')].every(
+              (card) => card.getBoundingClientRect().bottom <= rail.getBoundingClientRect().bottom,
+            ),
+          );
+        assert(fits, 'All seven readiness cards fit the portrait rail.');
+      }
+
       const manualBounds = await page.locator('.manual-spells').boundingBox();
       assert(
         manualBounds.y >= 0 && manualBounds.y + manualBounds.height <= height,
@@ -214,6 +243,7 @@ try {
         oldSaveWithoutRolloutFlag: true,
         noManualStandardSelection: true,
         actualRanksVisible: true,
+        readableManaChargeMeters: true,
         earnedLineCast: true,
         seventhPrimaryArcaneAutomatic: true,
         actualManaPaid: true,

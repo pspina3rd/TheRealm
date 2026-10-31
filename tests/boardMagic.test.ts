@@ -172,3 +172,66 @@ it('conversion removes obstruction hazards and preserves neutral mana semantics'
   expect(result.state.tags[3]![1]).toBeNull();
   expect(result.removed).toContainEqual({ cell: 'stone', tag: 'hazard', cause: 'spell' });
 });
+
+it('settles released stacks all the way after a line clear, preserving their order and tags', () => {
+  const state = emptyMagic(3, 7);
+  state.grid[6] = ['red', 'blue', 'green'];
+  state.grid[2]![0] = 'gold';
+  state.tags[2]![0] = 'target';
+  state.grid[1]![0] = 'cyan';
+  // A block below the cleared row is not released by that clear.
+  const result = resolveMagic(state);
+  expect(result.state.grid[6]![0]).toBe('gold');
+  expect(result.state.tags[6]![0]).toBe('target');
+  expect(result.state.grid[5]![0]).toBe('cyan');
+  expect(result.completed).toHaveLength(1);
+  expect(state.grid[2]![0]).toBe('gold');
+});
+
+it('resolves subsequent completed rows after released blocks land', () => {
+  const state = emptyMagic(3, 7);
+  state.grid[6] = ['red', 'blue', 'green'];
+  state.grid[1]![0] = 'gold';
+  state.grid[2]![1] = 'cyan';
+  state.grid[3]![2] = 'violet';
+  const result = resolveMagic(state);
+  expect(result.completed).toHaveLength(2);
+  expect(result.state.grid.flat().every((cell) => cell === null)).toBe(true);
+  expect(resolveMagic(result.state).completed).toHaveLength(0);
+});
+
+it('does not apply free Gravity to untouched overhangs or move blocks without a clear', () => {
+  const state = emptyMagic(3, 7);
+  state.grid[5] = ['red', 'blue', 'green'];
+  state.grid[6]![0] = 'gold';
+  state.grid[1]![1] = 'cyan';
+  const result = resolveMagic(state);
+  expect(result.state.grid[6]![0]).toBe('gold');
+  expect(result.state.grid[6]![1]).toBe('cyan');
+  const noClear = emptyMagic(3, 7);
+  noClear.grid[1]![1] = 'cyan';
+  expect(resolveMagic(noClear).state.grid[1]![1]).toBe('cyan');
+});
+
+it('clears a released cascade even when its colors match the previously cleared row', () => {
+  const state = emptyMagic(3, 7);
+  state.grid[6] = ['red', 'red', 'red'];
+  state.grid[1]![0] = 'red';
+  state.grid[2]![1] = 'red';
+  state.grid[3]![2] = 'red';
+  const result = resolveMagic(state);
+  expect(result.completed).toHaveLength(2);
+  expect(result.state.grid.flat().every((cell) => cell === null)).toBe(true);
+  expect(result.state.latchedRows).toEqual([]);
+});
+
+it('stops released cells on an anchored obstruction without falling through it', () => {
+  const state = emptyMagic(3, 7);
+  state.grid[3] = ['red', 'blue', 'green'];
+  state.grid[1]![0] = 'gold';
+  put(state, 0, 4);
+  const result = resolveMagic(state);
+  expect(result.state.grid[3]![0]).toBe('gold');
+  expect(result.state.obstructions['0,4']?.anchored).toBe(true);
+  expect(result.state.grid[4]![0]).toBe('stone');
+});

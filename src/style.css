@@ -2222,7 +2222,7 @@ dialog.interlude .actions {
 .auto-standard {
   border: 1px solid #57617c;
   border-radius: 6px;
-  padding: 5px;
+  padding: 3px;
   background: #171e33;
   min-width: 0;
 }
@@ -2350,4 +2350,132 @@ dialog.interlude .actions {
   top: 0;
   background: #171e33;
   z-index: 1;
+}
+
+/* Charge is readable at a glance, including the narrow portrait spell rail. */
+.spell-charge {
+  display: flex;
+  gap: 3px;
+  margin: 2px 0;
+}
+.spell-charge-track {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 16px;
+  overflow: hidden;
+  border: 1px solid #8194b6;
+  border-radius: 4px;
+  background: #080e1c;
+  color: white;
+}
+.spell-charge-fill {
+  display: block;
+  height: 100%;
+  background: #47628e;
+}
+.charge-fire .spell-charge-fill {
+  background: #943c28;
+}
+.charge-water .spell-charge-fill {
+  background: #235e96;
+}
+.charge-earth .spell-charge-fill {
+  background: #795521;
+}
+.charge-wind .spell-charge-fill {
+  background: #246b63;
+}
+.charge-lightning .spell-charge-fill {
+  background: #75611f;
+}
+.charge-nature .spell-charge-fill {
+  background: #38662e;
+}
+.charge-arcane .spell-charge-fill {
+  background: #694797;
+}
+.spell-charge-label {
+  position: absolute;
+  inset: 0;
+  text-align: center;
+  font-size: 12px;
+  line-height: 14px;
+  font-weight: 700;
+  text-shadow: 0 1px 2px #000;
+}
+.auto-standard[data-readiness='ready'] {
+  border-color: #a7d6ae;
+}
+.auto-standard[data-readiness='ready'] .spell-charge-track {
+  border-color: #a7d6ae;
+}
+@media (max-width: 760px) {
+  .casting-auto .spell-held-cost,
+  .casting-auto .spell-reach {
+    display: none;
+  }
+  .casting-auto .spell-charge {
+    margin: 3px 0;
+  }
+  .casting-auto .auto-standard small {
+    font-size: 10px;
+  }
+}
+
+.auto-charge-legend {
+  display: block;
+  color: #bdcce3;
+  font-size: 11px;
+}
+.auto-standard .spell-readiness {
+  font-size: 11px;
+  font-weight: 600;
+}
+.auto-standard[data-readiness='ready'] .spell-readiness {
+  color: #bde9c3;
+}
+@media (max-width: 760px) {
+  .casting-auto .auto-standard .spell-readiness {
+    font-size: 11px;
+  }
+}
+
+/* The meter replaces duplicate cost prose; desktop controls remain below a bounded rail. */
+.auto-standard .spell-held-cost {
+  display: none;
+}
+@media (min-width: 761px) {
+  .casting-auto .spells.auto-mode {
+    max-height: 270px;
+    overflow-y: auto;
+    flex-shrink: 1;
+    min-height: 100px;
+  }
+}
+@media (max-width: 760px) {
+  .casting-auto .spells.auto-mode {
+    gap: 2px;
+  }
+  .casting-auto .auto-standard {
+    padding: 2px;
+  }
+  .casting-auto .spell-charge {
+    margin: 1px 0;
+  }
+  .casting-auto .spell-charge-track {
+    height: 14px;
+  }
+  .casting-auto .spell-charge-label {
+    font-size: 11px;
+    line-height: 12px;
+  }
+  .casting-auto .auto-standard .spell-readiness {
+    line-height: 1;
+  }
+}
+
+/* Each automatic card owns its mana display; avoid a competing second set of bars. */
+.casting-auto .hero-panel .mana-bars {
+  display: none;
 }

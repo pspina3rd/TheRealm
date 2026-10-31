@@ -291,6 +291,7 @@ export class HeroPanel {
           : 'AUTO · Priority order · One chance per cleared line',
     });
     status.setAttribute('role', 'status');
+    status.append(el('small', { className: 'auto-charge-legend', text: 'Mana: held / cost' }));
     this.spellList.replaceChildren(status);
     for (const [priority, id] of order.entries()) {
       const cast = heroSpell(hero, id);
@@ -328,9 +329,43 @@ export class HeroPanel {
         'article',
         { className: `auto-standard${current ? ' casting-now' : ''}` },
         el('b', { text: `${priority + 1}. ${nameOf(id)} · Lv ${cast.level}` }),
-        el('small', { text: amounts }),
-        el('small', { text: `${reach} · ${readiness}` }),
+        el('small', { className: 'spell-held-cost', text: amounts }),
+        el('small', { className: 'spell-reach', text: reach }),
+        el('small', {
+          className: 'spell-readiness',
+          text:
+            readiness === 'Waiting for mana'
+              ? 'Charging'
+              : readiness === 'No useful target'
+                ? 'No target'
+                : readiness === 'Ready'
+                  ? 'Ready · next clear'
+                  : readiness,
+        }),
       );
+      const charge = el('div', { className: 'spell-charge' });
+      for (const [pool, cost] of Object.entries(cast.cost)) {
+        const held = hero.mana[pool as keyof typeof hero.mana];
+        const meter = el('div', { className: `spell-charge-track charge-${pool}` });
+        meter.setAttribute('role', 'progressbar');
+        meter.setAttribute('aria-label', `${nameOf(id)} ${pool} mana`);
+        meter.setAttribute('aria-valuemin', '0');
+        meter.setAttribute('aria-valuemax', String(cost));
+        meter.setAttribute('aria-valuenow', String(Math.min(held, cost)));
+        meter.setAttribute(
+          'aria-valuetext',
+          `${held} of ${cost} mana${held >= cost ? ', charged' : ''}`,
+        );
+        const fill = el('span', { className: 'spell-charge-fill' });
+        fill.style.width = `${cost > 0 ? Math.min(1, held / cost) * 100 : 100}%`;
+        meter.append(
+          fill,
+          el('span', { className: 'spell-charge-label', text: `${held} / ${cost}` }),
+        );
+        charge.append(meter);
+      }
+      card.insertBefore(charge, card.children[1] ?? null);
+      card.dataset.readiness = current ? 'casting' : readiness === 'Ready' ? 'ready' : 'waiting';
       card.dataset.spell = id;
       card.setAttribute(
         'aria-label',

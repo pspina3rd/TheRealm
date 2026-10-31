@@ -168,3 +168,19 @@ Lightning/Nature use 1 row × 1 hit, 2 rows × 1 hit, 1 row × 2 hits, and
 2 rows × 2 hits. Higher-rank hits animate separately, with the intermediate
 obstruction strength visible between them. Four steady rank pips and per-row
 target ticks identify the tier and area without extra flashing.
+
+## October 31 follow-up: charge visibility and released blocks
+
+Automatic cards now have colored mana charge bars labeled **held / cost**.
+The bar caps visually at full while the number retains any surplus. **Charging**,
+**Ready · next clear**, **No target**, **Sealed**, and **Casting** distinguish mana
+from actual eligibility. A full bar alone does not promise a cast. Level remains
+explicit and does not change with the bar. The portrait rail fits seven cards at
+360×640 and 390×844; redundant legacy mana bars are hidden in automatic combat.
+
+When a fully cleared row releases the blocks above it, those blocks now finish
+falling to their next support. This may complete another row, resolved once with
+its normal rewards. Untouched overhangs, boards without a clear, and rows pinned
+by surviving durable obstructions keep their existing behavior. Gravity remains
+useful for those unsupported overhangs. Automatic spell-created clears still do
+not generate more automatic casting opportunities.

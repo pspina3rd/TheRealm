@@ -36,6 +36,24 @@ describe('automatic and custom casting affordances', () => {
     );
     expect(document.querySelector('[data-spell=quake]')?.textContent).toContain('Gravity · Lv 1');
     expect(document.querySelectorAll('#spell-list button')).toHaveLength(0);
+    const fireMeter = document.querySelector('[data-spell=fire] [role=progressbar]')!;
+    expect(fireMeter.getAttribute('aria-valuenow')).toBe('0');
+    expect(fireMeter.getAttribute('aria-valuemax')).toBe('8');
+    hero.mana.fire = 4;
+    panel.render(battle, new Set());
+    expect(
+      document.querySelector<HTMLElement>('[data-spell=fire] .spell-charge-fill')?.style.width,
+    ).toBe('50%');
+    hero.mana.fire = 12;
+    panel.render(battle, new Set());
+    expect(
+      document.querySelector<HTMLElement>('[data-spell=fire] .spell-charge-fill')?.style.width,
+    ).toBe('100%');
+    expect(
+      document
+        .querySelector('[data-spell=fire] [role=progressbar]')
+        ?.getAttribute('aria-valuetext'),
+    ).toBe('12 of 8 mana, charged');
     expect(panel.pick(1)).toBe(false);
     (document.querySelector('[data-spell=fire]') as HTMLElement).click();
     expect(cast).not.toHaveBeenCalled();

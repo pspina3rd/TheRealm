@@ -657,3 +657,28 @@ phone, landscape and desktop. Full automated suite, lint and build passed.
 - UI/UX and gameplay AI-agent reviews returned findings, received corrections and
   performed independent re-reviews. Reports distinguish scoped passes from human
   or PM approval, novice comprehension, balance preferences and campaign proof.
+
+## 2026-10-31 · Readable charge meters and complete post-clear drops
+
+- Replaced tiny readiness arithmetic with per-primary-school charge meters,
+  actual held/cost numbers, explicit rank and discrete eligibility states.
+  Kept all seven cards visible on the small-phone rail and bounded desktop cards
+  so custom/advanced actions remain reachable.
+- Blocks released by fully cleared rows finish falling with their tags and spell
+  animation traces intact. Subsequent completed rows resolve in the same pass.
+  Unaffected overhangs and durable pinned-row rules are preserved.
+- Independent gameplay review returned an identical-color cascade defect:
+  stale row signatures suppressed newly formed rows. Re-latch only rows that
+  actually survive a clear; the exact returned reproduction is now covered.
+- The UI reviewer supplied compact meter/readiness guidance, but hit its usage
+  limit before a fresh independent browser verdict. Root-agent browser checks
+  cover the main App on small/large phones and desktop; no independent UI pass
+  is claimed for this follow-up.
+- Gameplay re-review found no remaining mechanical blocker after that correction:
+  106 focused board/automatic-casting/visual-trace tests passed independently,
+  plus 200 deterministic boards checked for cell conservation and stable
+  re-resolution without duplicate rewards. This verdict covers board mechanics
+  and reward handling, not new meter usability or campaign balance.
+- Final root checks passed: 1,264 tests (17 optional/report skips), lint,
+  TypeScript, build and the main-App browser checks on both phones and desktop.
+  Browser evidence: `docs/artifacts/charge-and-collapse/main-report.json`.

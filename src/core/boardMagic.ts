@@ -201,6 +201,7 @@ export function resolveMagic(
     const next = emptyMagic(width, height);
     next.latchedRows = state.latchedRows;
     const nextActors = new Map<string, MagicVisualBlock>();
+    const displaced = new Set<string>();
     let ny = height - 1;
     for (let y = height - 1; y >= 0; y--) {
       if (collapse.has(y)) continue;
@@ -215,7 +216,10 @@ export function resolveMagic(
         }
         const o = state.obstructions[position(x, y)];
         if (o) next.obstructions[position(x, ny)] = o;
-        if (y !== ny && required(state.grid[y])[x] !== null) fresh.add(position(x, ny));
+        if (y !== ny && required(state.grid[y])[x] !== null) {
+          fresh.add(position(x, ny));
+          displaced.add(position(x, ny));
+        }
       }
       ny--;
     }
@@ -224,6 +228,10 @@ export function resolveMagic(
     state.tags = next.tags;
     state.obstructions = next.obstructions;
     state.pendingRows = next.pendingRows;
+    // Clearing a row releases the blocks above it. Finish their descent rather
+    // than leaving them floating after the initial whole-row shift. Unaffected
+    // overhangs still require Gravity; anchored obstructions stay supported.
+    fall((x, y) => displaced.has(position(x, y)), false);
   };
   const spell = options.spell;
   if (spell) {
@@ -369,6 +377,11 @@ export function resolveMagic(
       if (required(state.grid[y]).every((c) => c === null)) collapse.add(y);
       else if (!state.pendingRows.includes(y)) state.pendingRows.push(y);
     }
+    // Latch only rows that actually survived this clear. A released cascade
+    // may form an identical color pattern, but it is a new completed row.
+    state.latchedRows = state.grid.flatMap((row, y) =>
+      row.every((c) => c !== null) ? [required(signatures[y])] : [],
+    );
     if (collapse.size) collapseRows(collapse);
   }
   result.changed = JSON.stringify(input) !== JSON.stringify(state);
