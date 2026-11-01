@@ -19,7 +19,7 @@ final class BattleScene: SKScene {
             let colors = state.obstructions[key]?.sequence?.map { $0.color }.joined(separator: ",") ?? ""
             return "\(key):\(strength):\(colors)"
         }.joined(separator: ";")
-        let key = "\(size)|\(state.grid)|\(String(describing:state.active))|\(state.ghostY)|\(obstacleKey)|\(state.paused)"
+        let key = "\(size)|\(state.grid)|\(String(describing:state.active))|\(state.ghostY)|\(obstacleKey)|\(state.paused)|\(state.ready)"
         if key != previousKey {
             previousKey = key; boardLayer.removeAllChildren()
             let cell = size.width / CGFloat(state.width)
@@ -45,7 +45,7 @@ final class BattleScene: SKScene {
                     }
                 }
             }
-            if let piece = state.active, !state.paused {
+            if let piece = state.active, (!state.paused || state.ready) {
                 for (index, offset) in piece.cells.enumerated() where offset.count == 2 {
                     let column = (piece.x ?? 0) + offset[0]
                     let ghostRow = state.ghostY + offset[1]

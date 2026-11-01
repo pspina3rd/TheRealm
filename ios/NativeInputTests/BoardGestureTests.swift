@@ -48,6 +48,11 @@ final class BoardGestureTests: XCTestCase {
         g.begin(id:3,x:100,y:100,time:0.4)
         XCTAssertEqual(g.end(id:3,x:100,y:100,time:0.5),[.rotate])
     }
+    func testLateCancellationCannotConsumeANewTouch() {
+        var g=BoardGesture();g.begin(id:1,x:100,y:100,time:0);g.cancelAll()
+        g.begin(id:2,x:100,y:100,time:0.2);g.cancel(id:1)
+        XCTAssertEqual(g.end(id:2,x:100,y:100,time:0.3),[.rotate])
+    }
     func testAmbiguousDiagonalDoesNotRotateOrDrop() {
         var g=BoardGesture();g.begin(id:1,x:100,y:100,time:0)
         XCTAssertEqual(g.move(id:1,x:125,y:125,time:0.1),[])

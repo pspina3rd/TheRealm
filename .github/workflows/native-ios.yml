@@ -47,9 +47,18 @@ jobs:
       - name: Build and exercise native iPhone gestures
         run: |
           xcodebuild test -project ios/ManaCrystalsPlaytest.xcodeproj -scheme ManaCrystalsPlaytest -destination "platform=iOS Simulator,id=$NATIVE_DEVICE" -derivedDataPath "$RUNNER_TEMP/NativeDerivedData" -resultBundlePath "$RUNNER_TEMP/NativePlaytest.xcresult" CODE_SIGNING_ALLOWED=NO
+      - name: Export native test screenshots
+        if: always()
+        run: |
+          if [ -d "$RUNNER_TEMP/NativePlaytest.xcresult" ]; then
+            mkdir -p "$RUNNER_TEMP/NativeScreenshots"
+            xcrun xcresulttool export attachments --path "$RUNNER_TEMP/NativePlaytest.xcresult" --output-path "$RUNNER_TEMP/NativeScreenshots"
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: native-iphone-test-results
-          path: ${{ runner.temp }}/NativePlaytest.xcresult
+          path: |
+            ${{ runner.temp }}/NativePlaytest.xcresult
+            ${{ runner.temp }}/NativeScreenshots
           if-no-files-found: ignore

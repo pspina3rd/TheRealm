@@ -62,7 +62,8 @@ public struct BoardGesture {
     /// A lock or spell spends this touch; lifting cannot affect the next piece.
     public mutating func invalidate() { if mode != .idle { mode = .spent } }
     public mutating func cancel(id: Int) {
-        fingers.remove(id); mode = fingers.isEmpty ? .idle : .spent
+        guard fingers.remove(id) != nil else { return }
+        mode = fingers.isEmpty ? .idle : .spent
         if fingers.isEmpty { primary = nil }
     }
     public mutating func cancelAll() { fingers.removeAll(); primary = nil; mode = .idle }
