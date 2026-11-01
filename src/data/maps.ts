@@ -1,3 +1,4 @@
+import { withMentorApproaches } from './mentorApproaches';
 import type { MapDef } from '../world/map';
 import { CAMPAIGN_MAPS } from './campaignMaps';
 import { CAMPAIGN_FLAGS as C } from './campaignFlags';
@@ -7,7 +8,7 @@ import { FINALE_FLAG, WARD_AFTER_WYRM } from './story';
  * All maps. Rows are drawn with the legend in `src/world/tiles.ts`.
  * Coordinates are `(x, y)` tile positions with `(0, 0)` at the top left.
  */
-export const MAPS: Readonly<Record<string, MapDef>> = {
+export const MAPS: Readonly<Record<string, MapDef>> = withMentorApproaches({
   ...CAMPAIGN_MAPS,
   overworld: {
     id: 'overworld',
@@ -44,7 +45,7 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
       '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^=^^^^^^^^^',
     ],
     warps: [
-      { x: 5, y: 5, to: { map: 'mossvale', x: 9, y: 13 } },
+      { x: 5, y: 5, to: { map: 'mossvale', x: 17, y: 24 } },
       { x: 22, y: 11, to: { map: 'brightwater', x: 12, y: 18 } },
       {
         x: 34,
@@ -111,38 +112,81 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
     theme: 'town',
     music: 'music.village',
     tiles: [
-      'TTTTTTTTTTTTTTTTTTTT',
-      'T..................T',
-      'T..................T',
-      'T.hhhh......hhhh...T',
-      'T.hhhh......hhhh...T',
-      'T.hhDh......hhDh...T',
-      'T..................T',
-      'T.....ff..ff.......T',
-      'T..,..............,T',
-      'T.......====.......T',
-      'T........==..|||...T',
-      'T........==...,....T',
-      'T........==........T',
-      'T........==........T',
-      'TTTTTTTTT==TTTTTTTTT',
+      'TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT',
+      'T..............................T',
+      'T..............................T',
+      'T..............................T',
+      'T..hhhh.......hhhh......hhhh...T',
+      'T..hhhh.......hhhh......hhhh...T',
+      'T..hhDh.......hhDh......hhDh...T',
+      'T....=..........===.......=....T',
+      'T....=..........===.......=....T',
+      'T...=========================..T',
+      'T................==............T',
+      'T................==..fffffffff.T',
+      'T................==..f.,,,,,,..T',
+      'T................==..f.,,,,,,..T',
+      'T................==..f.,,,,,,..T',
+      'T................==..ffff.ffff.T',
+      'T................==............T',
+      'T................==............T',
+      'T...TT...........==............T',
+      'T...TT...........==............T',
+      'T...TT======================...T',
+      'T...TT...........==............T',
+      'T.......|||......==............T',
+      'T................==............T',
+      'T................==............T',
+      'TTTTTTTTTTTTTTTTT==TTTTTTTTTTTTT',
     ],
     warps: [
-      { x: 9, y: 14, to: { map: 'overworld', x: 5, y: 6 } },
-      { x: 10, y: 14, to: { map: 'overworld', x: 5, y: 6 } },
+      { x: 17, y: 25, to: { map: 'overworld', x: 5, y: 6 } },
+      { x: 18, y: 25, to: { map: 'overworld', x: 5, y: 6 } },
     ],
     entities: [
-      { id: 'mv-elder', kind: 'npc', npcId: 'elder', x: 6, y: 6 },
-      { id: 'mv-farmer', kind: 'npc', npcId: 'farmer', x: 8, y: 8 },
-      { id: 'mv-kid', kind: 'npc', npcId: 'kid', x: 15, y: 6 },
-      { id: 'mv-stall', kind: 'npc', npcId: 'stallKeeper', x: 14, y: 11 },
+      { id: 'mv-elder', kind: 'npc', npcId: 'elder', x: 12, y: 12 },
+      { id: 'mv-farmer', kind: 'npc', npcId: 'farmer', x: 25, y: 13 },
+      { id: 'mv-kid', kind: 'npc', npcId: 'kid', x: 26, y: 19 },
+      { id: 'mv-stall', kind: 'npc', npcId: 'stallKeeper', x: 9, y: 23 },
+      {
+        id: 'mv-baker-door',
+        kind: 'inspect',
+        x: 5,
+        y: 6,
+        title: 'The baker’s house',
+        text: 'You knock. No answer. Through the shutters, you hear slow breathing. The oven is cold.',
+        flag: 'opening:house:baker',
+        sets: ['opening:houseVisited'],
+      },
+      {
+        id: 'mv-millers-door',
+        kind: 'inspect',
+        x: 16,
+        y: 6,
+        title: 'The Millers’ house',
+        text: 'The door is barred. You call through it. Both Millers are breathing, but neither stirs.',
+        flag: 'opening:house:millers',
+        sets: ['opening:houseVisited'],
+      },
+      {
+        id: 'mv-tess-door',
+        kind: 'inspect',
+        x: 26,
+        y: 6,
+        title: 'Tess’s house',
+        text: 'Tess is asleep in her chair. Her cat paws at an untouched bowl. She does not wake when you call.',
+        flag: 'opening:house:tess',
+        sets: ['opening:houseVisited'],
+      },
     ],
     decor: [
-      { object: 'house.gray', x: 2, y: 5 },
-      { object: 'door', x: 4, y: 5 },
-      { object: 'house.blue', x: 12, y: 5 },
-      { object: 'door', x: 14, y: 5 },
-      { object: 'stall', x: 13, y: 10 },
+      { object: 'house.gray', x: 3, y: 6 },
+      { object: 'door', x: 5, y: 6 },
+      { object: 'house.blue', x: 14, y: 6 },
+      { object: 'door', x: 16, y: 6 },
+      { object: 'house.gray', x: 24, y: 6 },
+      { object: 'door', x: 26, y: 6 },
+      { object: 'stall', x: 8, y: 22 },
     ],
   },
   brightwater: {
@@ -639,6 +683,8 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
         y: 1,
         to: { map: 'caves1', x: 2, y: 2 },
         requiresFlag: 'cavePass',
+        requiresAnyFlag: ['scene:refusal', 'opening:legacyJourney'],
+        missingAnyText: 'Speak with Rowan about the sleepers before entering the Moon Caves.',
         lockedText: 'A seal bars the Moon Caves. Captain Vale in Brightwater holds the pass.',
       },
     ],
@@ -657,10 +703,10 @@ export const MAPS: Readonly<Record<string, MapDef>> = {
       { object: 'orb.red', x: 18, y: 4 },
     ],
   },
-};
+});
 
 /** The starter lands, where a beginner's walking heals further (see `walkRegen`). */
 export const STARTER_MAPS: ReadonlySet<string> = new Set(['mossvale', 'overworld']);
 
 /** Where a new game begins. */
-export const START = { map: 'mossvale', x: 9, y: 12 } as const;
+export const START = { map: 'mossvale', x: 18, y: 20 } as const;

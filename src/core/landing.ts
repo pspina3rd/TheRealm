@@ -31,6 +31,7 @@ export interface Landing {
   readonly fullRows: readonly number[];
   /** Where the piece's cells locked, as [x, y], before clears. */
   readonly placed: readonly (readonly [number, number])[];
+  readonly placedColors?: readonly Cell[];
 }
 
 /** The parts of a board a landing needs. */
@@ -79,7 +80,19 @@ export function landingOf(
     placed.push([x + cx, y + cy]);
   });
   if (!board.clearsEnabled)
-    return { name, cells, x, y, grid, tags, lines: 0, clearedRows: [], fullRows: [], placed };
+    return {
+      name,
+      cells,
+      x,
+      y,
+      grid,
+      tags,
+      lines: 0,
+      clearedRows: [],
+      fullRows: [],
+      placed,
+      placedColors: colors,
+    };
   const full = grid.map((row) => row.every((cell) => cell !== null));
   const clearedRows: ClearedRow[] = [];
   const fullRows: number[] = [];
@@ -107,6 +120,7 @@ export function landingOf(
     clearedRows,
     fullRows,
     placed,
+    placedColors: colors,
   };
 }
 

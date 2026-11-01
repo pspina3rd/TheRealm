@@ -753,3 +753,42 @@ runtime and do not satisfy the pending M2a teaching/UI/balance acceptance gates.
 - The proposed bottom-first spell targeting and further Gravity targeting work
   remain explicit follow-ups in `ENCOUNTER_PURPOSE.md`; this checkpoint does not
   claim those standard auto-target priorities have changed.
+
+## 2026-10-31 · Opening progression and interrupted touch
+
+- Kept Rowan's intentional Quake reward: the player chooses by whom they visit
+  and help. Corrected an attempted removal before publication. Rowan remains
+  available after choosing another school, using the essential-NPC terms rule.
+- Expanded Mossvale into distinct places, with three inspectable sleeping
+  households and a single immediate lead. Investigation plus the well earns
+  the Focus Stone/call in town. Vesper waits beyond the earned call and
+  Brightwater, including alternate regional routes. Moon Caves entry prevents
+  bypassing that opening while keeping regional school choice open.
+- Regional work opens physical mentor approaches; teachers stay home through
+  their first lesson. Existing completed work retains access. Closed entrances
+  permit outward egress for old interior saves. Version 15 preserves legitimate
+  historical journeys without fabricating visits or awarding items.
+- Bean's demo now visibly plants four sprouts immediately. Other colors and
+  paths do not score; later clears cannot recount seeds. Finishing the goal
+  ends the task, with the optional herb bonus disclosed for efficient planting.
+  Offers and headers use concrete tasks; repeated developer-facing role prose
+  was removed, with detailed consequences available on demand.
+- Independent gameplay review returned order, continuity, hostile-term and
+  compatibility issues; presentation review returned obscured labels. Those
+  corrections were applied. Presentation passed fresh phone/desktop captures.
+  The final cave boundary was coordinator-verified after the gameplay reviewer
+  reached its usage limit; see the review's explicit verification boundary.
+- Reproduced interrupted-touch failures before the fix: lost capture, omitted
+  ending events and window blur left a stale finger in the recognizer. Added
+  cancellation and fresh-primary recovery, preserving genuine multi-touch
+  cancellation and piece lockout. Gestures begun during paused/spell playback
+  are ignored. Actual App phone-size checks cover Slime Goo arrival, zero spells,
+  rank-one Fire after two earned lines, interrupted capture, blur and buttons.
+- Format, lint, types and 1,557 tests passed (25 optional/report skips). Seven
+  bounded zero-spell regional-task simulations passed separately. Production
+  build, main casting and phone install/offline checks accompany release.
+  Physical iPhone confirmation and full campaign/player acceptance remain open.
+
+Details: [opening progression](OPENING_PROGRESSION.md),
+[gameplay review](reviews/OPENING_PROGRESSION_REVIEW.md), and
+[presentation review](reviews/OPENING_PRESENTATION_REVIEW.md).

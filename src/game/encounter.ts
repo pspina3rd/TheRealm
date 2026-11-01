@@ -180,6 +180,11 @@ function mentorFor(entity: EntityDef): MentorDef {
  * said is counted in `state.talk`, so each call rotates the speaker's lines.
  */
 export function describeInteraction(state: GameState, entity: EntityDef): Interaction {
+  if (entity.kind === 'inspect') {
+    state.flags.add(entity.flag);
+    for (const flag of entity.sets ?? []) state.flags.add(flag);
+    return { kind: 'message', title: entity.title, sprite: '', text: entity.text };
+  }
   if (entity.kind === 'mentor') {
     const mentor = mentorFor(entity);
     const lessons = lessonsFor(state, mentor);
@@ -347,6 +352,7 @@ function resolveLesson(
   const spec = battle.spec;
   if (spec.kind !== 'lesson') throw new Error('Expected a lesson');
   const flow = flowFor(spec);
+  if (won) state.flags.add(`taught:mentor:${mentor.id}`);
   return {
     won,
     gains: [

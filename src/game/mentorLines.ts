@@ -52,7 +52,10 @@ export function mentorMoment(state: GameState, mentor: MentorDef): MentorMoment 
 export function mentorGreeting(state: GameState, mentor: MentorDef): string {
   const moment = mentorMoment(state, mentor);
   const met = lastMet(state.flags, mentor);
-  if (met !== undefined) state.flags.delete(met);
+  if (met !== undefined) {
+    state.flags.add(`access:mentor:${mentor.id}`); // Preserve an older save’s established access when its meeting flag moves.
+    state.flags.delete(met);
+  }
   state.flags.add(metFlag(mentor.id, mentor.route.indexOf(mentorPlace(mentor, state))));
   const key = `${mentor.id}.${moment}`;
   if (moment === 'motive') return pickVariant(variantsOf(mentor.motive), state.talk, key);

@@ -131,7 +131,7 @@ try {
           assert.match(body, /rot/i);
           assert(!/Plant green/.test(body));
         }
-        if (actor === 'elder') assert.match(body, /Rowan is helping/);
+        if (actor === 'elder') assert.match(body, /Mold rises/);
         assert.equal(await page.evaluate(() => window.intentQA.active.battle.paused), true);
         await page.screenshot({ path: `${out}/${width}-${actor}-details.png` });
         if (actor === 'kid') await page.keyboard.press('Escape');

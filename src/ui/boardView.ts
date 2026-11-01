@@ -123,6 +123,8 @@ export class BoardView {
     ctx.fillStyle = '#0a0c17';
     ctx.fillRect(-10, 0, w + 20, h);
     this.drawZones(board, status);
+    const planting = status.spec?.kind === 'encounter' && ENCOUNTER_DEFS[status.spec.id]?.spec;
+    const beds = planting && planting.verb === 'plant' ? planting.params.zones : null;
     const visible = status.rule?.id === 'dark' ? visibleCells(board) : null;
     ctx.strokeStyle = '#1d2238';
     for (let y = 0; y < board.height; y++) {
@@ -135,6 +137,8 @@ export class BoardView {
           ctx.strokeRect(x * CELL + 2, y * CELL + 2, CELL - 4, CELL - 4);
           ctx.strokeStyle = '#1d2238';
         }
+        if (cell && beds?.[x] === cell)
+          drawIcon(ctx, 'herb', x * CELL + 9, y * CELL + 8, { scale: 1 });
         const obstruction = board.obstructions[`${x},${y}`];
         if (obstruction && (!visible || visible[y]?.[x]))
           drawObstruction(ctx, obstruction, x * CELL, y * CELL, timeMs);
@@ -214,6 +218,13 @@ export class BoardView {
         ctx.fillStyle = CRYSTAL_HEX[color];
         ctx.fillRect(x * CELL + 8, board.height * CELL - 5, CELL - 16, 3);
       });
+      ctx.font = 'bold 11px system-ui';
+      ctx.textAlign = 'center';
+      for (let x = 0; x < board.width; x += 2) {
+        const bed = verb.params.zones[x];
+        ctx.fillStyle = bed ? '#9eeeb4' : '#8b91a5';
+        ctx.fillText(bed ? 'BED' : 'PATH', (x + 1) * CELL, 38);
+      }
     } else if (verb?.verb === 'build') {
       for (const area of verb.params.outline) {
         const x = area.cols[0] * CELL;

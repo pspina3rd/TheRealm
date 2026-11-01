@@ -86,14 +86,13 @@ describe('the opening', () => {
 });
 
 describe('the Refusal', () => {
-  it('plays the first time the hero leaves Mossvale, before Vision 1, and only once', () => {
+  it('plays after investigating the sleepers and clearing Rowan’s well, before departure, once', () => {
     const state = newGame('knight');
     finishScene(state, OPENING);
     expect(dueScenes(state.flags)).toEqual([]);
-    const vision = leaveMossvale(state);
-    expect(vision?.id).toBe('vision1');
-    // The app plays the due scenes, then the vision.
-    expect(dueScenes(state.flags)).toEqual([REFUSAL]);
+    state.flags.add('npc:elder');
+    state.flags.add('opening:houseVisited');
+    expect(dueScenes(state.flags, 'mossvale')).toEqual([REFUSAL]);
     const pages = scenePages(REFUSAL, state.hero);
     expect(pages.map((p) => p.speaker?.name)).toEqual([
       'Lance',
@@ -103,6 +102,7 @@ describe('the Refusal', () => {
     ]);
     expect(pages[0]!.text).toContain('"My post is here. A knight doesn\'t leave his post."');
     finishScene(state, REFUSAL);
+    expect(leaveMossvale(state)?.id).toBe('vision1');
     travel(state, { map: 'mossvale', x: 10, y: 10 });
     expect(arrive(state, 'overworld')).toBeNull();
     expect(leaveMossvale(state)).toBeNull();
@@ -127,8 +127,9 @@ describe('the Refusal', () => {
       if (worn) equip(before.hero, 'wellStone');
       const state = asVersion(before, 8);
       expect(state.flags.has(receivedFlag('wellStone'))).toBe(true);
-      leaveMossvale(state);
-      expect(dueScenes(state.flags)).toEqual([REFUSAL]);
+      state.flags.add('npc:elder');
+      state.flags.add('opening:houseVisited');
+      expect(dueScenes(state.flags, 'mossvale')).toEqual([REFUSAL]);
       expect(scenePages(REFUSAL, state.hero)).toHaveLength(4);
       expect(finishScene(state, REFUSAL)).toEqual([]);
       expect(itemCount(state.hero, 'wellStone')).toBe(worn ? 0 : 1);
@@ -151,6 +152,7 @@ describe('the Refusal', () => {
   it('gives an old save past the Refusal that never had the stone one, once', () => {
     const old = newGame('knight'); // knows Quake: his well would have paid the stone
     leaveMossvale(old);
+    old.flags.add('vision:1'); // Historical pre-scenes save, before the new departure conditions.
     const loaded = asVersion(old, 8);
     expect(dueScenes(loaded.flags)).toEqual([]);
     expect(itemCount(loaded.hero, 'wellStone')).toBe(1);
@@ -247,8 +249,9 @@ describe('save version 9 (scenes)', () => {
     const home = asVersion(newGame(), 8);
     expect(home.flags.has(OPENING.flag)).toBe(true);
     expect(dueScenes(home.flags)).toEqual([]);
-    leaveMossvale(home);
-    expect(dueScenes(home.flags)).toEqual([REFUSAL]);
+    home.flags.add('npc:elder');
+    home.flags.add('opening:houseVisited');
+    expect(dueScenes(home.flags, 'mossvale')).toEqual([REFUSAL]);
     // Past Mossvale: no opening, no Refusal.
     const road = newGame();
     leaveMossvale(road);
@@ -282,15 +285,17 @@ describe('the mentors’ new rows', () => {
     expect(mentorMoment(state, torva)).toBe('motive');
     expect(mentorGreeting(state, torva)).toBe(torva.motive);
     expect(state.flags.has(metFlag('torva', 0))).toBe(true);
+    learnSpell(state.hero, 'fire');
+    state.flags.add('taught:mentor:torva');
     state.victories = torva.moveEvery; // she moves on to the ridge road
     expect(mentorMoment(state, torva)).toBe('arrives');
     expect(mentorGreeting(state, torva)).toBe(first(state, 'arrives'));
     expect(state.flags.has(metFlag('torva', 0))).toBe(false);
     expect(state.flags.has(metFlag('torva', 1))).toBe(true);
     // Said once per stop; home is never "somewhere new".
-    expect(mentorMoment(state, torva)).toBe('motive');
+    expect(mentorMoment(state, torva)).toBe('afterLesson');
     state.victories = 0;
-    expect(mentorMoment(state, torva)).toBe('motive');
+    expect(mentorMoment(state, torva)).toBe('afterLesson');
   });
 
   it('first met away from home, a mentor still says why they teach', () => {

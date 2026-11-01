@@ -1,3 +1,4 @@
+import { REFUSAL } from '../src/data/story';
 import { learnSpell as learnFixtureSpell } from '../src/game/hero';
 import { describe, expect, it } from 'vitest';
 import { createRng } from '../src/core/rng';
@@ -23,6 +24,9 @@ function finishDue(state: GameState): void {
 /** Prepared combat inputs earn Chapter One; this fixture does not claim a full playthrough. */
 function afterWyrm(): GameState {
   const state = newGame('mage');
+  finishDue(state);
+  state.flags.add('npc:elder');
+  state.flags.add('opening:houseVisited');
   finishDue(state);
   travel(state, { map: 'overworld', x: 15, y: 19 });
   arrive(state, 'mossvale');
@@ -86,7 +90,7 @@ describe('unified campaign and stakes save migration', () => {
     const pages = scenePages(scene, state.hero);
     // Viewing pages does not complete the scene; reload starts it again.
     const loaded = deserialize(serialize(state))!;
-    expect(SAVE_VERSION).toBe(14);
+    expect(SAVE_VERSION).toBe(15);
     expect(loaded).toEqual(state);
     expect(scenePages(dueScenes(loaded.flags, loaded.mapId)[0]!, loaded.hero)).toEqual(pages);
     finishScene(loaded, scene);
@@ -108,7 +112,7 @@ describe('unified campaign and stakes save migration', () => {
     const loaded = deserialize(JSON.stringify(old))!;
     expect(loaded.mapId).toBe('sunkenArchive');
     expect(loaded.respawn).toEqual(state.respawn);
-    expect(loaded.flags).toEqual(state.flags);
+    expect(loaded.flags).toEqual(new Set([...state.flags, 'opening:legacyJourney']));
     expect(loaded).toMatchObject({
       day: 0,
       regard: {},
@@ -157,9 +161,7 @@ describe('unified campaign and stakes save migration', () => {
       expect(state.hero.items.wellStone).toBe(1);
       removeItem(state.hero, 'wellStone');
       const loaded = deserialize(JSON.stringify(asVersion(state, version)))!;
-      const refusal = dueScenes(new Set(['vision:1']), 'overworld').find(
-        (s) => s.id === 'refusal',
-      )!;
+      const refusal = REFUSAL;
       expect(finishScene(loaded, refusal)).toEqual([]);
       expect(loaded.hero.items.wellStone).toBeUndefined();
       expect(loaded.flags.has('got:wellStone')).toBe(true);

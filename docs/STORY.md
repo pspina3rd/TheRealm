@@ -28,14 +28,14 @@ A new game starts by picking a class; the hero wakes in Mossvale Village. Class 
 
 ### Opening: the night the stone dims
 
-Shown once on a new game, after class select and before the hero has control in Mossvale: one interlude a beat. Beat 4 is said by the hero, in their class's words.
+Shown once on a new game, after class select and before the hero has control in Mossvale: one short interlude per beat. The shuttered houses can then be inspected on the map. Beat 4 is said by the hero, in their class's words.
 
 | Beat | Stage direction | Line |
 | --- | --- | --- |
-| 1 | *Night over Sevenstones. Seven standing crystals ring the land, each glowing its own colour: red, blue, gold, green, orange, violet, cyan.* | — |
-| 2 | *The violet stone flickers and goes grey. The other six burn a little lower, like candles in a draught.* | — |
+| 1 | *Sevenstones at night. Seven crystals glow around the land.* | — |
+| 2 | *The violet crystal goes dark. The other six dim.* | — |
 | 3 | *Far beneath the stones, something enormous breathes in. Every lamp in every village dims at once.* | *A voice too deep to be heard, only felt:* "Sleep." |
-| 4 | *Mossvale at dawn. As always, you're first up, lighting the lane lamps. Bean is already in her rows and Ordor is unbarring his stall. But the baker's shutters stay closed, and so do the Millers' and old Tess's. Three houses, and no one stirs.* | *(class line, below)* |
+| 4 | *Dawn in Mossvale. You light the lane lamps. Bean tends her beds; Ordor opens his stall. Three houses stay shuttered. No one inside will wake.* | *(class line, below)* |
 | 5 | *At the well, Elder Rowan hauls up a bucket. The water inside is violet.* | Rowan: "Three houses still abed, and the well's gone purple. Something's wrong, kid." |
 
 ### Opening: class lines (beat 4)
@@ -83,10 +83,10 @@ Earth · Dig (the well) · Reward: the Quake spell (or 40 gil if known); Friendl
 
 | Moment | Hostile / Wary | Neutral | Friendly / Devoted |
 | --- | --- | --- | --- |
-| Greeting | • "You're blocking my light, stranger. If you're here to stare at a dry well, do it somewhere else."<br>• "Unless you brought a ladder and a long wire brush, I don't have much to say to you." | • "Purple scum’s back in the shaft. Tastes like pennies and ruins the tea. I’d climb down myself, but my knees give out past the third rung."<br>• "Ever seen well-water turn violet overnight? Means the deep mold is creeping up again. Nasty stuff." | • "Ah, good. A young set of shoulders. Take a look down there—the mold's choking the main pipe again, but seeing you gives me half a mind to think we can fix it."<br>• "Pull up a stool, kid. Well’s acting up, but at least the company’s improved." |
+| Greeting | • "You're blocking my light, stranger. If you're here to stare at a dry well, do it somewhere else."<br>• "Unless you brought a ladder and a long wire brush, I don't have much to say to you." | • "Mold's choking our water pipe. My knees won't take the ladder anymore. Can you help?"<br>• "Water's violet again. Same mold, coming up from below." | • "Ah, good. A young set of shoulders. Take a look down there—the mold's choking the main pipe again, but seeing you gives me half a mind to think we can fix it."<br>• "Pull up a stool, kid. Well’s acting up, but at least the company’s improved." |
 | Confides (Devoted only) | • "You've got a mean look to you, but you aren't stupid. That mold in the water? It isn't pond rot. It's coming up from the deep caves." | • "Forty years ago I hit granite trying to dig this hole. Had to crack the rock with a rune stone I found in the dirt. Still keep it on the mantle."<br>• "Truth is, the spores aren't just here. Hazel says her meadows are going pale too. Something’s turning underneath us." | • *Rowan glances down the shaft and lowers his voice.* "Forty years back I hit rock digging this well and cracked it with that old stone. Something breathed down there. I've wondered ever since if I let it out. Clear the shaft, and take my last Ether for the road." |
 | Refuses (Hostile only) | • "I’ll drink mud before I let you mess around with my timbering."<br>• "Walk off. I’ve dealt with stubborn wells before, and I’ll deal with this one without you." | • "Thanks, but no. I know every loose brick in this pit, and I'd rather not have a stranger knocking them loose."<br>• "Appreciate it, but I’ll scrape it myself when my boy gets back from town." | • "Don't you worry about an old man's bucket, traveler. You've got bigger roads to walk." |
-| Takes on the task | • "Don't touch the iron winch. It's rusted through and it'll snap your wrist." | • "Work from the outside in. If you smash the center clusters first, the whole bloom drops into the drinking supply."<br>• "Watch your eyes. That dust stings like hell if it gets under your eyelids." | • "Take your time down there. The stone’s old, but it holds if you treat it right." |
+| Takes on the task | • "Don't touch the iron winch. It's rusted through and it'll snap your wrist." | • "Fill the gaps. Each full row clears a layer of mold."<br>• "Watch the rim. We lose the well if the mold reaches it." | • "Take your time down there. The stone’s old, but it holds if you treat it right." |
 | You walk away | • "Right. Didn't think so." | • "Guess I'm fetching the long rake then."<br>• "No harm done. We've still got a barrel of rain-catch out back." | • "Catch you later then. Don't be a stranger!" |
 | You succeed | • "Huh. It’s running. Here’s your coin—now get going before something else breaks."<br>• "Look at that. Didn't cave in after all. Take your cut." | • "Hear that sloshing? That’s clean water, pure and simple. Here—take the old rune stone like I promised. Better in your hands than gathering dust."<br>• "First bucket’s clean! Tastes like sweet granite. You earned your pay today, kid." | • "Listen to that flow! Like mountain runoff! I owe you big for this—take the Focus Stone, and you drink free in Mossvale as long as I’m breathing."<br>• "Ah, you're a miracle worker! The whole street’s gonna be washing their faces tonight!" |
 | You succeed, already knowing the spell | • "Water's clear. You already know how to shake the earth, so take this raw stone from the first dig instead." | • "The spring's back! Since you're already familiar with the Quake spell, take a piece of the original quartz vein as a reward." | • "Pure water again! You're already a master of the earth magic, so keep this raw well-stone—a little piece of Mossvale history for your journey!" |
@@ -99,13 +99,13 @@ Nature · Plant (the herb beds) · Reward: 2× Herb; Friendly bonus: 1× Herb; D
 
 | Moment | Hostile / Wary | Neutral | Friendly / Devoted |
 | --- | --- | --- | --- |
-| Greeting | • "Watch where you place those boots! The blight took half my crop already; I don't need you tramping on the rest."<br>• "If you're looking for hand-outs, keep walking. My beds are bare." | • "Look at these rows—pale as bone. The blight took the sweet-leaf overnight. Help me seed green crystals into the soil and we'll split the yield."<br>• "Ground's went sour. Needs green mana to wake the sprouts up again. Care to do some planting?" | • "Ah, hello dear! You caught me at a bad time—the blight got into my herb beds. Lend a hand with the seeding and I'll make sure you leave with a full satchel?"<br>• "Always a pleasure! Soil's stiff today, but a bit of good green energy will set these sprouts right." |
+| Greeting | • "Watch where you place those boots! The blight took half my crop already; I don't need you tramping on the rest."<br>• "If you're looking for hand-outs, keep walking. My beds are bare." | • "Blight took my sweet-leaf. Help me plant these beds? I'll share the herbs."<br>• "Soil's gone sour. Green seeds might take. Lend a hand?" | • "Ah, hello dear! You caught me at a bad time—the blight got into my herb beds. Lend a hand with the seeding and I'll make sure you leave with a full satchel?"<br>• "Always a pleasure! Soil's stiff today, but a bit of good green energy will set these sprouts right." |
 | Confides (Devoted only) | • "You've got dirt on your hands, but at least you work. Don't tell Ordor: the rot isn't weather. It's coming up through the root lines from the deep caves." | • "Don't tell Ordor, but I braid charms from the very first sprouts that take. Help me replant these beds and I'll weave one for your pack."<br>• "Hazel says the grove roots are bleeding sap down south. Something down in the dark is poisoning the soil." | • "You've got a gentle touch with the sprouts, love. Replant these rows and I'll give you a Grove Charm I braided from the first harvest." |
 | Refuses (Hostile only) | • "I'd rather let the weeds win than have you tramping through my garden."<br>• "Hands off my seed bags. Move along." | • "My beds, my seed. I'll tend them myself when the sun dips."<br>• "Thanks, but no. Soil needs patience, not clumsy hands." | • "Oh, don't worry your head over my little garden, dear. I'll get it sorted." |
-| Takes on the task | • "Green crystals only, and drop them deep into the furrow. Don't waste 'em." | • "Space them evenly in the rows, mind. Give the roots room to breathe."<br>• "Soft touch now—don't smother the shoots before they wake." | • "Just tuck them gently into the black dirt, love. They'll do the rest." |
+| Takes on the task | • "Green crystals only, and drop them deep into the furrow. Don't waste 'em." | • "Green seeds go in the green beds."<br>• "Stand the green piece upright. It'll fit between the paths." | • "Green seeds in the green beds, love." |
 | You walk away | • "Right. Weeds won't pull themselves anyway." | • "Suit yourself. The soil waits for no one."<br>• "No matter. I'll go fetch my hand-spade." | • "Take care out there, dear! Come back when you've a mind to garden." |
 | You succeed | • "Hmph. They took. Here's your share—now out of my garden."<br>• "Roots caught hold. Take your bundle and go." | • "Look at that green come up! First cut's yours—take a good bundle for the road."<br>• "Soil's rich again! Here's your share of the sweet-leaf." | • "Oh, look at them bloom! Beautiful! Take a generous bundle, love, and my blessings!"<br>• "You've got a farmer's heart! Take these fresh herbs—they'll keep you hale on the road." |
-| You fail | • "Too thin! You drowned the seed. Get out." | • "Planted 'em too shallow. The birds'll have 'em before dusk. We'll have to re-plow."<br>• "No growth. The blight's still holding the dirt." | • "Ah, don't fret, love. Soil can be stubborn. We'll turn the bed and try again." |
+| You fail | • "Too thin! You drowned the seed. Get out." | • "Not enough took root. Let's try the beds again."<br>• "No growth. The blight's still holding the dirt." | • "Ah, don't fret, love. Soil can be stubborn. We'll turn the bed and try again." |
 | Afterwards | • "Beds are green. That's all that matters." | • "Herbs are growing lush again. Smells like spring."<br>• "Rows are holding strong. Thanks for the hand." | • "Come by anytime you need fresh herbs, dear! You're always welcome in my garden."<br>• "The first cut is always reserved for you!" |
 
 ### Pip
@@ -139,22 +139,22 @@ Nature · Shop: browse at list price; Haggle (once a day) for a discount
 
 ## The Refusal
 
-Shown once, the first time the hero leaves Mossvale, just before Vision 1. The rune stone of R4 is Rowan's Focus Stone: the hero receives it here (unless they already have one), and his well pays coin instead.
+Shown once, the after investigating a sleeping household and clearing Rowan’s well in Mossvale, just before Vision 1. The rune stone of R4 is Rowan's Focus Stone: the hero receives it here (unless they already have one), and his well pays coin instead.
 
 ### The Refusal: beats R1–R4
 
 | Beat | Stage direction | Line |
 | --- | --- | --- |
-| R1 | *The stile at the village edge. Beyond it, the road to Sevenstones runs grey under a dim sky. You stop.* | *(class line, below)* |
-| R2 | *A gust, and a woman drops out of the sky with a satchel full of letters. Kestrel.* | Kestrel: "Two letters. One from Selene at Moonfall, 'to whoever's still awake in Mossvale'. And one for Elder Rowan, from the inn at Brightwater." |
+| R1 | *The well runs clear. The houses stay silent. Beyond the rooftops, the road leads to Brightwater.* | *(class line, below)* |
+| R2 | *A courier lands beside Rowan, wind tugging at her satchel. Kestrel.* | Kestrel: "Two letters. One from Selene at Moonfall, 'to whoever's still awake in Mossvale'. And one for Elder Rowan, from the inn at Brightwater." |
 | R3 | *Rowan reads his, then reads it again. His hands shake.* | Rowan: "My boy, Hareguy. Asleep three weeks at the inn, and they can't wake him. I can't make that road on these knees, kid." |
-| R4 | *He presses the old rune stone into your palm.* | Rowan: "Found this the year I dug the well. Never knew what it was for. Maybe it was for this." |
+| R4 | *He presses the old rune stone into your palm.* | Rowan: "Found this the year I dug the well. Cracked the bedrock with it. Take it, kid." |
 
 ### The Refusal: class lines (R1)
 
 | Class | Line |
 | --- | --- |
-| **Fern** | • "Never went past the second ridge. Never needed to." |
+| **Fern** | • "Those houses need someone watching over them." |
 | **Lance** | • "My post is here. A knight doesn't leave his post." |
 | **Ares** | • "My books are here. Whatever's out there isn't in them." |
 | **Vex** | • "Not my village. Not my problem. Right?" |
@@ -205,7 +205,7 @@ New with the encounter boards (docs/ENCOUNTER_DESIGN.md). These are drafts for t
 
 | Moment | Line |
 | --- | --- |
-| On the frame | • Scrape down to the pipe before the mold climbs over the lip. |
+| On the frame | • Clear rows to reach the marked pipe. Keep mold below the rim. |
 | Stakes card: if you fail | • The mold spreads |
 | Stakes card: each strain step | • one row worse next time |
 | As the try starts | • "Lip's your limit, kid. Mold over the lip and it's in the tea." |
@@ -217,7 +217,7 @@ New with the encounter boards (docs/ENCOUNTER_DESIGN.md). These are drafts for t
 
 | Moment | Line |
 | --- | --- |
-| On the frame | • Build my tower up to the spinner. Ugly ones go in the toy box! |
+| On the frame | • Fill the blue outline. Put spare pieces in the brown box. |
 | Stakes card: if you fail | • The tower leans |
 | Stakes card: each strain step | • a cracked block next time |
 | As the try starts | • "Next is a square! Then a squiggly one, ew!" |
@@ -229,19 +229,19 @@ New with the encounter boards (docs/ENCOUNTER_DESIGN.md). These are drafts for t
 
 | Moment | Line |
 | --- | --- |
-| On the frame | • Plant {target} sprouts in the furrows before sundown. |
+| On the frame | • Land green crystals in green beds. Grow {target} sprouts. |
 | Stakes card: if you fail | • The beds stay grey |
-| Stakes card: each strain step | • two more sprouts next time |
-| As the try starts | • "The seed's the green S, love. The red one only looks like it." |
-| At the hazard | • "Upright, it fits the furrow." |
-| Nearly done | • "Last row before dark!" |
-| After the win line | • "Green you clear goes to your own green magic, too. Now go haggle Ordor, he's been crowing all week." |
+| Stakes card: each strain step | • one more sprout next time |
+| As the try starts | • "Green seeds in the green beds. Watch." |
+| At the hazard | • "Those have taken root." |
+| Nearly done | • "Just a few more sprouts." |
+| After the win line | • "Clear a full row to earn mana. Ordor's at his stall if you need supplies." |
 
 ### The Stall (Shopkeeper Ordor)
 
 | Moment | Line |
 | --- | --- |
-| On the frame | • Big clears push his price down. Singles won’t move him. |
+| On the frame | • Clear 2 or more rows at once to lower the price. |
 | Stakes card: if you fail | • Red prices on the slate |
 | Stakes card: each strain step | • he starts higher next time |
 | As the try starts | • "A single? I didn't feel it." |
@@ -252,7 +252,7 @@ New with the encounter boards (docs/ENCOUNTER_DESIGN.md). These are drafts for t
 
 | Moment | Line |
 | --- | --- |
-| On the frame | • Clear the rot before it reaches the young caps. |
+| On the frame | • Clear rows containing rot to remove it; clear young caps to save them. |
 | Stakes card: if you fail | • A brown patch where the ring was |
 | Stakes card: each strain step | • three more rot next time |
 | As the try starts | • "That pale one, guard it." |

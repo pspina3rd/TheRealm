@@ -147,9 +147,9 @@ describe('dialogue rotation in encounters', () => {
 describe('the Moon Wyrm’s visions', () => {
   it('shows each vision once, on leaving Mossvale or entering the quarry and the peaks', () => {
     const none = new Set<string>();
-    expect(visionOnWarp('mossvale', 'overworld', none)?.id).toBe('vision1');
-    expect(visionOnWarp('overworld', 'quarry', none)?.id).toBe('vision2');
-    expect(visionOnWarp('overworld', 'peaks', none)?.id).toBe('vision3');
+    expect(visionOnWarp('mossvale', 'overworld', new Set(['got:wellStone']))?.id).toBe('vision1');
+    expect(visionOnWarp('overworld', 'quarry', new Set(['vision:1']))?.id).toBe('vision2');
+    expect(visionOnWarp('overworld', 'peaks', new Set(['vision:2']))?.id).toBe('vision3');
     expect(visionOnWarp('overworld', 'grove', none)).toBeNull();
     expect(visionOnWarp('mossvale', 'mossvale', none)).toBeNull();
     expect(visionOnWarp('mossvale', 'overworld', new Set(['vision:1']))).toBeNull();
@@ -157,11 +157,12 @@ describe('the Moon Wyrm’s visions', () => {
 
   it('marks the vision seen and the map reached on arrival, rotating the Wyrm’s words', () => {
     const state = newGame();
+    state.flags.add('got:wellStone');
     travel(state, { map: 'overworld', x: 5, y: 6 });
     const first = arrive(state, 'mossvale');
     expect(first).toEqual({ id: 'vision1', text: variantsOf(VISIONS[0]!.lines)[0] });
     expect(state.flags).toEqual(
-      new Set([reachedFlag('overworld'), 'vision:1', 'pending:vision1:0']),
+      new Set(['got:wellStone', reachedFlag('overworld'), 'vision:1', 'pending:vision1:0']),
     );
     // Closed on the vision, the game shows the same words again, without
     // moving the rotation; dismissed, never.
@@ -171,7 +172,7 @@ describe('the Moon Wyrm’s visions', () => {
     dismissVision(state, 'vision1');
     dismissVision(state, 'vision1');
     expect(pendingVision(state)).toBeNull();
-    expect(state.flags).toEqual(new Set([reachedFlag('overworld'), 'vision:1']));
+    expect(state.flags).toEqual(new Set(['got:wellStone', reachedFlag('overworld'), 'vision:1']));
     travel(state, { map: 'mossvale', x: 9, y: 13 });
     expect(arrive(state, 'overworld')).toBeNull();
     travel(state, { map: 'overworld', x: 5, y: 6 });
@@ -199,9 +200,11 @@ describe('the Moon Wyrm’s visions', () => {
 
 describe('Vesper, one step ahead', () => {
   it('waits at the newest step of the story, nowhere before the first vision or after the Wyrm', () => {
-    const at = (...flags: string[]) => vesperStop(new Set(flags))?.npcId ?? null;
+    const at = (...flags: string[]) =>
+      vesperStop(new Set(['scene:refusal', 'reached:brightwater', ...flags]))?.npcId ?? null;
     expect(at()).toBeNull();
-    expect(at('vision:1')).toBe('vesperRoad');
+    expect(vesperStop(new Set(['vision:1']))).toBeNull();
+    expect(at('vision:1', 'scene:refusal', 'reached:brightwater')).toBe('vesperRoad');
     expect(at('vision:1', 'vision:2')).toBe('vesperRidge');
     expect(at('vision:3', 'vision:1', 'vision:2')).toBe('vesperPeaks');
     expect(at('vision:1', 'vision:2', 'vision:3', reachedFlag('ruins'))).toBe('vesperRuins');
@@ -211,12 +214,14 @@ describe('Vesper, one step ahead', () => {
   it('stands on one map at a time, as someone the hero can walk into', () => {
     const state = newGame();
     state.flags.add('vision:1');
+    state.flags.add('scene:refusal');
+    state.flags.add('reached:brightwater');
     expect(vesperEntities(state)).toEqual([]);
     travel(state, { map: 'overworld', x: 5, y: 6 });
     const [vesper] = vesperEntities(state);
-    expect(vesper).toMatchObject({ kind: 'npc', npcId: 'vesperRoad', x: 8, y: 6 });
+    expect(vesper).toMatchObject({ kind: 'npc', npcId: 'vesperRoad', x: 29, y: 17 });
     expect(activeEntities(state)).toContainEqual(vesper);
-    expect(vesperEntities({ ...state, x: 8, y: 6 })).toEqual([]);
+    expect(vesperEntities({ ...state, x: 29, y: 17 })).toEqual([]);
     state.flags.add('vision:2');
     expect(vesperEntities(state)).toEqual([]);
   });
@@ -250,6 +255,8 @@ describe('Vesper, one step ahead', () => {
   it('refuses a Hostile hero, deals otherwise, and has words for afterwards', () => {
     const state = newGame();
     state.flags.add('vision:1');
+    state.flags.add('scene:refusal');
+    state.flags.add('reached:brightwater');
     travel(state, { map: 'overworld', x: 5, y: 6 });
     const vesper = vesperEntities(state)[0]!;
     const npc = NPCS.vesperRoad!;
@@ -272,6 +279,8 @@ describe('Vesper, one step ahead', () => {
 
     const hostile = newGame();
     hostile.flags.add('vision:1');
+    hostile.flags.add('scene:refusal');
+    hostile.flags.add('reached:brightwater');
     hostile.hero.spells = Object.fromEntries(
       weakTo('arcane').map((e) => [
         Object.values(SPELLS).find((s) => s.category === e && s.role === 'primary')!.id,
@@ -307,7 +316,9 @@ describe('save version 8 (story)', () => {
     const state = newGame();
     state.talk = { 'elder.intro': 3 };
     state.flags.add('vision:1');
-    expect(SAVE_VERSION).toBe(14);
+    state.flags.add('scene:refusal');
+    state.flags.add('reached:brightwater');
+    expect(SAVE_VERSION).toBe(15);
     const loaded = deserialize(serialize(state))!;
     expect(loaded.talk).toEqual({ 'elder.intro': 3 });
     expect(loaded.flags.has('vision:1')).toBe(true);
@@ -329,6 +340,7 @@ describe('save version 8 (story)', () => {
         'scene:opening',
         'scene:refusal',
         'got:wellStone',
+        'opening:legacyJourney',
       ]),
     );
     const caves = newGame();

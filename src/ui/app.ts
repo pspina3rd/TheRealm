@@ -1,3 +1,4 @@
+import { openingLead } from '../game/opening';
 import { LessonChallenge } from '../battle/lesson';
 import { encounterIntent, enemyMovePurpose } from '../game/encounterIntent';
 import { HAPTICS_KEY, supportsHaptics } from './touch';
@@ -457,6 +458,7 @@ export class App {
 
   private talk(entity: EntityDef, given: readonly Gain[] = []): void {
     const interaction = describeInteraction(this.state, entity);
+    this.renderHud();
     this.save(); // who said what, so lines keep rotating after a reload
     // Monsters attack on contact (a boss has its say first); people talk first.
     if (entity.kind === 'monster' && interaction.kind === 'challenge') {
@@ -517,7 +519,10 @@ export class App {
             : []),
           {
             label: interaction.kind === 'message' && interaction.browse ? 'Leave' : 'OK',
-            onClick: () => this.dialog.close(),
+            onClick: () => {
+              this.dialog.close();
+              this.playScenes();
+            },
           },
         ],
       });
@@ -1267,6 +1272,9 @@ export class App {
     byId('hud-xp').title = `${hero.xp} / ${hero.nextXp} XP`;
     byId('hud-gil').textContent = String(hero.gil);
     byId('hud-place').textContent = currentMap(this.state).name;
+    const lead = byId('world-goal');
+    lead.textContent = openingLead(this.state);
+    lead.hidden = !lead.textContent;
     const menu = byId('menu-button');
     if (hero.skillPoints > 0) menu.dataset.points = String(hero.skillPoints);
     else delete menu.dataset.points;
@@ -1346,6 +1354,15 @@ export class App {
       (action) => {
         if (!this.dialog.isOpen) this.battleInput(action);
       },
+      () =>
+        Boolean(
+          this.active &&
+          !this.active.finished &&
+          !this.dialog.isOpen &&
+          !this.active.battle.paused &&
+          !this.active.battle.autoCastingBusy &&
+          !this.active.battle.demoPlaying,
+        ),
     );
 
     // The d-pad walks while held; a keyboard press on it takes one step.

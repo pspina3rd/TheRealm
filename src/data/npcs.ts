@@ -29,6 +29,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
   // ---------------------------------------------------------- Mossvale ---
   elder: {
     id: 'elder',
+    essential: true,
     name: 'Elder Rowan',
     sprite: 'char.038',
     element: 'earth',
@@ -39,8 +40,8 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
           "Unless you brought a ladder and a long wire brush, I don't have much to say to you.",
         ],
         plain: [
-          'Purple scum’s back in the shaft. Tastes like pennies and ruins the tea. I’d climb down myself, but my knees give out past the third rung.',
-          'Ever seen well-water turn violet overnight? Means the deep mold is creeping up again. Nasty stuff.',
+          "Mold's choking our water pipe. My knees won't take the ladder anymore. Can you help?",
+          "Water's violet again. Same mold, coming up from below.",
         ],
         warm: [
           "Ah, good. A young set of shoulders. Take a look down there—the mold's choking the main pipe again, but seeing you gives me half a mind to think we can fix it.",
@@ -69,8 +70,8 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       accept: {
         cold: "Don't touch the iron winch. It's rusted through and it'll snap your wrist.",
         plain: [
-          'Work from the outside in. If you smash the center clusters first, the whole bloom drops into the drinking supply.',
-          'Watch your eyes. That dust stings like hell if it gets under your eyelids.',
+          'Fill the gaps. Each full row clears a layer of mold.',
+          'Watch the rim. We lose the well if the mold reaches it.',
         ],
         warm: 'Take your time down there. The stone’s old, but it holds if you treat it right.',
       },
@@ -124,14 +125,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     },
     // The well (src/data/encounters.ts).
     challenge: encounter('elder'),
-    rewards: [
-      {
-        kind: 'spell',
-        spellId: 'quake',
-        // His rune stone, the Focus Stone, is given in the Refusal instead.
-        instead: { kind: 'gil', amount: 40 },
-      },
-    ],
+    rewards: [{ kind: 'spell', spellId: 'quake', instead: { kind: 'gil', amount: 40 } }],
     bonus: { kind: 'item', itemId: 'ether', count: 1 },
     // His last Ether, as his Devoted confidence says.
     secret: { kind: 'item', itemId: 'ether', count: 1 },
@@ -166,8 +160,8 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
           "If you're looking for hand-outs, keep walking. My beds are bare.",
         ],
         plain: [
-          "Look at these rows—pale as bone. The blight took the sweet-leaf overnight. Help me seed green crystals into the soil and we'll split the yield.",
-          "Ground's went sour. Needs green mana to wake the sprouts up again. Care to do some planting?",
+          "Blight took my sweet-leaf. Help me plant these beds? I'll share the herbs.",
+          "Soil's gone sour. Green seeds might take. Lend a hand?",
         ],
         warm: [
           "Ah, hello dear! You caught me at a bad time—the blight got into my herb beds. Lend a hand with the seeding and I'll make sure you leave with a full satchel?",
@@ -196,10 +190,10 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       accept: {
         cold: "Green crystals only, and drop them deep into the furrow. Don't waste 'em.",
         plain: [
-          'Space them evenly in the rows, mind. Give the roots room to breathe.',
-          "Soft touch now—don't smother the shoots before they wake.",
+          'Green seeds go in the green beds.',
+          "Stand the green piece upright. It'll fit between the paths.",
         ],
-        warm: "Just tuck them gently into the black dirt, love. They'll do the rest.",
+        warm: 'Green seeds in the green beds, love.',
       },
       decline: {
         cold: "Right. Weeds won't pull themselves anyway.",
@@ -226,7 +220,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
       lose: {
         cold: 'Too thin! You drowned the seed. Get out.',
         plain: [
-          "Planted 'em too shallow. The birds'll have 'em before dusk. We'll have to re-plow.",
+          "Not enough took root. Let's try the beds again.",
           "No growth. The blight's still holding the dirt.",
         ],
         warm: "Ah, don't fret, love. Soil can be stubborn. We'll turn the bed and try again.",
@@ -773,11 +767,13 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     // Their encounter (src/data/encounters.ts).
     challenge: encounter('forager'),
     rewards: [
+      { kind: 'flag', flag: 'access:mentor:hazel' },
       { kind: 'item', itemId: 'herb', count: 2 },
       { kind: 'gil', amount: 15 },
     ],
     bonus: { kind: 'item', itemId: 'herb', count: 1 },
     secret: { kind: 'item', itemId: 'groveCharm', count: 1 },
+    essential: true,
     repeatable: true,
   },
 
@@ -806,11 +802,13 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     },
     challenge: { kind: 'barter', wants: { blue: 8 }, pieceLimit: 21 },
     rewards: [
+      { kind: 'flag', flag: 'access:mentor:maren' },
       { kind: 'gil', amount: 25 },
       { kind: 'item', itemId: 'ether', count: 1 },
     ],
     bonus: { kind: 'item', itemId: 'herb', count: 1 },
     secret: { kind: 'item', itemId: 'tideCharm', count: 1 },
+    essential: true,
     repeatable: true,
   },
 
@@ -844,6 +842,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     },
     challenge: { kind: 'barter', wants: { orange: 10, violet: 6 }, pieceLimit: 28 },
     rewards: [
+      { kind: 'flag', flag: 'access:mentor:dorn' },
       { kind: 'flag', flag: 'ridgeCleared' },
       { kind: 'gil', amount: 40 },
     ],
@@ -884,6 +883,7 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     },
     challenge: { kind: 'barter', wants: { red: 10, orange: 6 }, pieceLimit: 28 },
     rewards: [
+      { kind: 'flag', flag: 'access:mentor:torva' },
       { kind: 'flag', flag: 'peakGate' },
       { kind: 'item', itemId: 'ether', count: 1 },
     ],
@@ -970,11 +970,13 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     },
     challenge: { kind: 'barter', wants: { gold: 10 }, pieceLimit: 28 },
     rewards: [
+      { kind: 'flag', flag: 'access:mentor:rook' },
       { kind: 'item', itemId: 'ether', count: 2 },
       { kind: 'gil', amount: 30 },
     ],
     bonus: { kind: 'item', itemId: 'herb', count: 2 },
     secret: { kind: 'item', itemId: 'stormCharm', count: 1 },
+    essential: true,
     repeatable: true,
   },
 
@@ -1004,11 +1006,13 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     },
     challenge: { kind: 'barter', wants: { cyan: 10 }, pieceLimit: 28 },
     rewards: [
+      { kind: 'flag', flag: 'access:mentor:kestrel' },
       { kind: 'gil', amount: 50 },
       { kind: 'item', itemId: 'herb', count: 1 },
     ],
     bonus: { kind: 'item', itemId: 'ether', count: 1 },
     secret: { kind: 'item', itemId: 'phoenixFeather', count: 1 },
+    essential: true,
     repeatable: true,
   },
   eyrieInn: {
@@ -1063,11 +1067,13 @@ export const NPCS: Readonly<Record<string, NpcDef>> = {
     },
     challenge: { kind: 'barter', wants: { violet: 10 }, pieceLimit: 28 },
     rewards: [
+      { kind: 'flag', flag: 'access:mentor:selene' },
       { kind: 'item', itemId: 'ether', count: 2 },
       { kind: 'gil', amount: 30 },
     ],
     bonus: { kind: 'item', itemId: 'herb', count: 2 },
     secret: { kind: 'item', itemId: 'moonShard', count: 1 },
+    essential: true,
     repeatable: true,
   },
 

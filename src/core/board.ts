@@ -152,6 +152,8 @@ export interface LockResult {
   readonly holesMade: number;
   /** Where the piece's cells locked, as [x, y] before any line cleared (cells above the top left out). */
   readonly placed: readonly (readonly [number, number])[];
+  /** Colors of newly locked cells, index-matched to placed, captured before clears. */
+  readonly placedColors?: readonly Cell[];
   /** Tagged cells the cleared lines took, by tag. */
   readonly clearedTags: TagTally;
   /** The cleared lines' cells and tags, top to bottom (index-matched to `rows`). */
@@ -575,6 +577,7 @@ export class Board {
     const holesBefore = this.holes();
 
     const placed: [number, number][] = [];
+    const placedColors: Cell[] = [];
     piece.cells.forEach(([cx, cy], i) => {
       const x = piece.x + cx;
       const y = piece.y + cy;
@@ -583,6 +586,7 @@ export class Board {
         (this.grid[y] as Cell[])[x] = piece.colors[i] ?? piece.color;
         this.setTag(x, y, null);
         placed.push([x, y]);
+        placedColors.push(piece.colors[i] ?? piece.color);
       }
     });
     this.piecesPlaced++;
@@ -604,6 +608,7 @@ export class Board {
       toppedOut: this.toppedOut,
       holesMade,
       placed,
+      placedColors,
       clearedTags: cleared.clearedTags,
       clearedRows: cleared.clearedRows,
     };

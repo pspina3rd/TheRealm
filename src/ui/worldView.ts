@@ -1,12 +1,14 @@
+import { NPCS } from '../data/npcs';
 import type { Element } from '../core/elements';
 import { regionFixed } from '../game/encounterFlow';
+import { MAPS } from '../data/maps';
 import { MENTORS } from '../data/mentors';
 import { entityAttitude, entitySprite } from '../game/encounter';
 import { heroClass } from '../game/hero';
 import { seeksHero } from '../game/hidden';
 import { lessonsFor } from '../game/lessons';
 import type { EntityDef, MapDef, MentorEntity } from '../world/map';
-import { mapHeight, mapWidth, warpStirs } from '../world/map';
+import { mapHeight, mapWidth, passageOpen, warpUnlocked, warpStirs } from '../world/map';
 import { activeEntities, currentMap, type GameState } from '../world/state';
 import type { Atlas } from './art/atlas';
 import { ELEMENT_COLOR_OF } from './art/feedback';
@@ -61,6 +63,7 @@ export class WorldView {
   private props: PlacedObject[] = [];
   /** Marks drawn over everything this frame (mentors' scrolls). */
   private overlays: (() => void)[] = [];
+  private labels: (() => void)[] = [];
   /** The camera's top-left corner last frame, in map pixels. */
   private camX = 0;
   private camY = 0;
@@ -96,6 +99,7 @@ export class WorldView {
     ctx.fillRect(0, 0, viewW, viewH);
     this.drawGround(map, camX, camY, timeMs);
     this.drawTarget(camX, camY, timeMs);
+    this.labels.push(() => this.drawWaymarks(map, state.flags, camX, camY));
 
     const heroSortY = (this.heroY + 1) * TILE + 0.25;
     const heroCenterX = (this.heroX + 0.5) * TILE;
@@ -130,6 +134,7 @@ export class WorldView {
     );
     if (ctx.canvas.title !== description) ctx.canvas.title = description;
     this.drawStirringSeals(map, state.flags, camX, camY, timeMs);
+    this.drawApproaches(state, map, camX, camY);
     for (const entity of activeEntities(state)) {
       drawables.push(this.entityDrawable(entity, camX, camY, timeMs));
       if (entity.kind === 'mentor') this.drawMentorMark(state, entity, camX, camY, timeMs);
@@ -157,6 +162,8 @@ export class WorldView {
     drawables.sort((a, b) => a.sortY - b.sortY).forEach((d) => d.draw());
     this.overlays.forEach((draw) => draw());
     this.overlays = [];
+    this.labels.forEach((draw) => draw());
+    this.labels = [];
   }
 
   /** The map tile under a point on screen (client coordinates), as of the last frame. */
@@ -186,6 +193,72 @@ export class WorldView {
     ctx.restore();
   }
 
+  private drawApproaches(state: GameState, map: MapDef, camX: number, camY: number): void {
+    const { ctx } = this;
+    ctx.save();
+    ctx.font = 'bold 12px system-ui';
+    ctx.textAlign = 'center';
+    for (const gate of map.passages ?? []) {
+      const open = passageOpen(gate, state);
+      const x = gate.x * TILE - camX,
+        y = gate.y * TILE - camY;
+      ctx.fillStyle = open ? '#4e7968' : '#544c62';
+      ctx.fillRect(x, y, TILE, TILE);
+      drawIcon(ctx, open ? 'boot' : 'lock', x + 4, y + 4, { scale: 2 });
+      const label = open
+        ? `${MENTORS[gate.mentorId]?.name ?? 'Teacher'} →`
+        : `Help ${NPCS[gate.taskId]?.name ?? gate.taskId}`;
+      if (x + TILE >= 0 && x <= ctx.canvas.width && y + TILE >= 0 && y <= ctx.canvas.height)
+        this.labels.push(() => {
+          ctx.save();
+          ctx.font = 'bold 12px system-ui';
+          ctx.textAlign = 'center';
+          const w = ctx.measureText(label).width + 12;
+          const center = Math.max(w / 2 + 2, Math.min(ctx.canvas.width - w / 2 - 2, x + TILE / 2));
+          const top = Math.max(2, Math.min(ctx.canvas.height - 22, y - 21));
+          ctx.fillStyle = '#10182bea';
+          ctx.fillRect(center - w / 2, top, w, 20);
+          ctx.fillStyle = open ? '#a5e9bf' : '#f5d77b';
+          ctx.fillText(label, center, top + 14);
+          ctx.restore();
+        });
+    }
+    ctx.restore();
+  }
+
+  /** Permanent destination labels work without hover, including on touch screens. */
+  private drawWaymarks(map: MapDef, flags: ReadonlySet<string>, camX: number, camY: number): void {
+    const { ctx } = this;
+    const labeled = new Set<string>();
+    ctx.save();
+    ctx.font = 'bold 12px system-ui';
+    ctx.textAlign = 'center';
+    for (const warp of map.warps) {
+      if (!warpUnlocked(warp, flags) || (warp.closesWith && flags.has(warp.closesWith.flag)))
+        continue;
+      const x = warp.x * TILE - camX + TILE / 2,
+        y = warp.y * TILE - camY;
+      if (
+        x < 0 ||
+        x > ctx.canvas.width ||
+        y < 0 ||
+        y > ctx.canvas.height ||
+        labeled.has(warp.to.map)
+      )
+        continue;
+      labeled.add(warp.to.map);
+      const label = `→ ${MAPS[warp.to.map]?.name ?? warp.to.map}`;
+      const width = ctx.measureText(label).width + 12;
+      const center = Math.max(width / 2 + 2, Math.min(ctx.canvas.width - width / 2 - 2, x));
+      const top = Math.max(2, y - 20);
+      ctx.fillStyle = '#10182bea';
+      ctx.fillRect(center - width / 2, top, width, 20);
+      ctx.fillStyle = '#f5d77b';
+      ctx.fillText(label, center, top + 14);
+    }
+    ctx.restore();
+  }
+
   private drawGround(map: MapDef, camX: number, camY: number, timeMs: number): void {
     const firstX = Math.max(0, Math.floor(camX / TILE));
     const firstY = Math.max(0, Math.floor(camY / TILE));
@@ -201,6 +274,15 @@ export class WorldView {
   }
 
   private entityDrawable(entity: EntityDef, camX: number, camY: number, timeMs: number): Drawable {
+    if (entity.kind === 'inspect')
+      return {
+        sortY: (entity.y + 1) * TILE,
+        draw: () =>
+          drawIcon(this.ctx, 'eye', entity.x * TILE - camX + 4, entity.y * TILE - camY - 12, {
+            scale: 2,
+            alpha: 0.85,
+          }),
+      };
     const id = spriteOf(entitySprite(entity) ?? '');
     // Monsters shuffle on the spot; townsfolk stand still facing you.
     const region = mapFrame(id, 'down', entity.kind === 'monster', timeMs + entity.x * 137);

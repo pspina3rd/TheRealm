@@ -2611,3 +2611,33 @@ button.board-objective:disabled {
 .purpose-row {
   line-height: 1.45;
 }
+
+.stakes-card summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: list-item;
+  align-content: center;
+  color: #c1cbe3;
+}
+.stakes-card[open] .stakes-row {
+  margin-top: 8px;
+}
+.offer-reward {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  color: #c1cbe3;
+}
+
+.world-goal {
+  margin: 0 0 8px;
+  padding: 6px 10px;
+  color: #efe6c3;
+  font-size: 14px;
+  line-height: 1.4;
+  border-left: 3px solid #bca96e;
+}
+.offer-risk {
+  color: #d8bba8;
+}

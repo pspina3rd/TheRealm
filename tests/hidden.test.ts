@@ -311,14 +311,21 @@ describe('a mentor who noticed seeks the hero out', () => {
   });
 
   it('waits on the hero’s map, or the open stop fewest crossings away', () => {
+    const discovered = (map: string) => {
+      const state = noticed(map);
+      learnSpell(state.hero, 'thunder');
+      state.flags.add('access:mentor:rook');
+      state.flags.add('taught:mentor:rook');
+      return state;
+    };
     // Rook's open stops the hero can reach: north-east peaks (overworld) and the Brightwater fountain.
-    expect(mentorPlace(rook, noticed('brightwater'))).toMatchObject({ map: 'brightwater' });
-    expect(mentorPlace(rook, noticed('mossvale'))).toMatchObject({ map: 'overworld' });
-    expect(mentorEntities(noticed('brightwater'))).toContainEqual(
+    expect(mentorPlace(rook, discovered('brightwater'))).toMatchObject({ map: 'brightwater' });
+    expect(mentorPlace(rook, discovered('mossvale'))).toMatchObject({ map: 'overworld' });
+    expect(mentorEntities(discovered('brightwater'))).toContainEqual(
       expect.objectContaining({ mentorId: 'rook', x: 17, y: 12 }),
     );
     // Without the feat, Rook keeps to his route (home, the storm beacon).
-    const state = noticed('brightwater');
+    const state = discovered('brightwater');
     state.hero.feats = {};
     expect(mentorPlace(rook, state)).toMatchObject({ map: 'peaks', x: 17, y: 4 });
   });

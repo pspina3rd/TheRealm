@@ -94,6 +94,12 @@ export function lineColor(line: CellTally): string {
 
 export function feedbackFor(event: BattleEvent): Feedback[] {
   switch (event.kind) {
+    case 'planted':
+      return [
+        { kind: 'flashCells', cells: event.cells },
+        { kind: 'icon', target: 'board', icon: 'herb', row: event.cells[0]?.[1] },
+        { kind: 'banner', text: `+${event.cells.length} sprouts` },
+      ];
     case 'lines':
       return [{ kind: 'flashRows', rows: event.rows, colors: event.lines.map(lineColor) }];
     case 'mana':

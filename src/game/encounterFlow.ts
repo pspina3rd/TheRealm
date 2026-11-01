@@ -42,6 +42,7 @@ export interface StakesCard {
   readonly win: string;
   readonly rewards?: readonly Reward[];
   readonly great?: Reward;
+  readonly greatCondition?: string;
   readonly regard?: {
     readonly current: number;
     readonly after: number;
@@ -178,6 +179,9 @@ export function stakesCard(
     win: `${def.spec.verb === 'duel' && !rewardText ? 'Lower shop prices until you leave town (an Even keeps prices unchanged). ' : ''}${rewardText ? rewardText + '. ' : ''}${def.world.win.text}.`,
     rewards: paidRewards,
     ...(def.great ? { great: def.great } : {}),
+    ...(def.spec.verb === 'plant'
+      ? { greatCondition: `Finish within ${def.spec.params.greatPieceLimit} drops.` }
+      : {}),
     regard: { current, after, warmer: next !== attitude ? next : null },
     objective:
       def.objective.replace('{target}', String(target)) +

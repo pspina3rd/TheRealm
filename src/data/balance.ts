@@ -236,8 +236,8 @@ export const ENCOUNTERS = {
     pieceLimit: 24,
     /** Sprouts to plant… */
     target: 19,
-    /** …and the Great mark (+1 Herb). */
-    great: 22,
+    /** Bonus herb for finishing within this many player pieces. */
+    greatPieceLimit: 12,
     /** Controlled queue: one S in every 2 pieces. */
     supplyWindow: 2,
     /** What a wrong colour in a furrow scores at Mossvale (−1 from Twitch on). */

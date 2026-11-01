@@ -49,45 +49,37 @@ const TASK_GOALS: Readonly<Record<string, string>> = {
 
 const VERB_INTENTS = {
   dig: {
-    blocks:
-      'The mold and debris cover the marked pipe. The pipe is the objective, not an enemy block.',
-    pressure:
-      'Mold rises from the well; new buried holes bring the next rise sooner. Rowan is helping clear it.',
+    blocks: 'The pipe is marked beneath the mold.',
+    pressure: 'Mold rises after several drops. New buried gaps make it rise sooner.',
     counterplay: 'Clear the pipe’s row before debris crosses the lip. Watch the warned rising row.',
   },
   build: {
-    blocks:
-      'The outline is Pip’s tower; the spare area is his toy box. Supplied pieces are building material.',
-    pressure:
-      'Misplaced pieces crack or unbalance the tower. Pip is not placing hostile obstructions.',
+    blocks: 'Blue outline: tower. Brown box: spare pieces.',
+    pressure: 'Pieces outside the outline or spare box crack the tower.',
     counterplay: 'Fit pieces inside the outline; put unsuitable pieces in the spare area.',
   },
   plant: {
-    blocks: 'Colored furrows want matching crystals. Inert soil ridges and paths are not crops.',
-    pressure:
-      'Sundown limits the available pieces. Bean supplies planting material rather than attacking the board.',
+    blocks: 'Green columns are planting beds. Brown blocks are soil; dark columns are paths.',
+    pressure: 'Plant enough sprouts within the piece limit.',
     counterplay:
-      'Clear lines with matching colors in their furrows; use the zone markers to plan placements.',
+      'Land green crystals in green columns: each takes root immediately. Other colors and paths give no sprouts.',
   },
   contain: {
-    blocks:
-      'Marked rot is the hazard; young caps are protected. These have different roles even in the same row.',
+    blocks: 'Marked rot spreads. Small mushrooms are the crop to save.',
     pressure:
       'Rot spreads into adjacent crystals and can kill young caps. Wren wants the caps saved.',
     counterplay:
       'Clear the rot and save enough young caps. The preview marks where rot can spread next.',
   },
   duel: {
-    blocks:
-      'Incoming rows are the merchant’s counter-offer in a price contest, not a physical attack.',
+    blocks: 'Incoming rows push your stack upward.',
     pressure:
       'The merchant defends the asking price with warned sends. Your clears can cancel pending rows.',
     counterplay:
       'Use multi-line clears to send rows and improve the price; singles do not send rows.',
   },
   charge: {
-    blocks:
-      'Each lamp requests a color threshold. Only crystals of that color count toward its charge.',
+    blocks: 'Each lamp shows the color needed in one cleared row.',
     pressure:
       'Wind threatens lit lamps. Vale is protecting the wards, not sabotaging your progress.',
     counterplay:
@@ -106,7 +98,7 @@ export function encounterIntent(spec: ChallengeSpec, actorId?: string): Encounte
         : '';
     return {
       role: def.spec.verb === 'duel' ? 'contest' : 'cooperate',
-      label: def.spec.verb === 'duel' ? 'Price contest' : 'Working together',
+      label: def.title,
       goal:
         def.spec.verb === 'charge'
           ? `Light all ${def.spec.params.lamps.length + spec.strain * def.spec.params.strainLamps} ward lamps. Each clear needs at least ${def.spec.params.purity} crystals of its lamp’s color.`

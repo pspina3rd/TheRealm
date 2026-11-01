@@ -250,7 +250,8 @@ describe('dialogue', () => {
       expect(new Set(moods).size, npc.id).toBe(3);
       expect(confide, npc.id).toBeTruthy();
       // Only NPCs who can refuse need a refusal.
-      expect(Boolean(refuse), npc.id).toBe(!npc.essential);
+      if (!npc.essential) expect(Boolean(refuse), npc.id).toBe(true);
+      else expect(dealTerms(npc, 'hostile'), npc.id).toBe('wary');
     }
   });
 });

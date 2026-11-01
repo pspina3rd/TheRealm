@@ -79,10 +79,18 @@ describe('maps', () => {
 
       it('places entities on walkable tiles away from warps', () => {
         for (const entity of map.entities) {
-          expect(tileAt(map, entity.x, entity.y).walkable, entity.id).toBe(true);
+          expect(
+            entity.kind === 'inspect' || tileAt(map, entity.x, entity.y).walkable,
+            entity.id,
+          ).toBe(true);
+          if (entity.kind === 'inspect') {
+            expect(entity.text.length).toBeGreaterThan(0);
+            expect(entity.flag).toBeTruthy();
+          }
           expect(warpAt(map, entity.x, entity.y), entity.id).toBeUndefined();
           if (entity.kind === 'npc') expect(NPCS[entity.npcId], entity.npcId).toBeDefined();
-          else expect(ENEMIES[entity.enemyId], entity.enemyId).toBeDefined();
+          else if (entity.kind === 'monster')
+            expect(ENEMIES[entity.enemyId], entity.enemyId).toBeDefined();
         }
       });
     });
@@ -319,12 +327,15 @@ function flagsOn(maps: ReadonlySet<string>, flags: ReadonlySet<string>): string[
         (entity.untilFlag && flags.has(entity.untilFlag))
       )
         return [];
+      if (entity.kind === 'inspect') return [entity.flag, ...(entity.sets ?? [])];
       if (entity.kind === 'npc') {
-        return (NPCS[entity.npcId]?.rewards ?? []).flatMap((r) =>
-          r.kind === 'flag' ? [r.flag] : [],
-        );
+        const npc = NPCS[entity.npcId];
+        return [
+          ...(npc?.rewards ?? []).flatMap((r) => (r.kind === 'flag' ? [r.flag] : [])),
+          ...(npc && !npc.repeatable ? [npc.completionFlag ?? `npc:${npc.id}`] : []),
+        ];
       }
-      return entity.boss
+      return entity.kind === 'monster' && entity.boss
         ? [defeatedFlag(entity.id), ...(ENEMIES[entity.enemyId]?.finale ? ['wyrmBeaten'] : [])]
         : [];
     }),

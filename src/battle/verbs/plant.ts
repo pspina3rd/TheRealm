@@ -1,4 +1,4 @@
-import type { ClearedRow, LockResult, Supply } from '../../core/board';
+import type { LockResult, Supply } from '../../core/board';
 import type { Grid, Landing, TagGrid } from '../../core/landing';
 import type { Cell, CrystalColor } from '../../core/pieces';
 import {
@@ -16,24 +16,18 @@ export interface PlantParams {
   /** Columns with an inert soil ridge at row 1 (never scores). */
   readonly ridges: readonly number[];
   readonly target: number;
-  /** A Great at this score or more. */
-  readonly great: number;
+  /** Bonus for finishing within this many player pieces. */
+  readonly greatPieceLimit: number;
   readonly pieceLimit: number;
   /** The controlled queue's guaranteed supply. */
   readonly supply: Supply;
-  /** What a wrong colour in a zone scores (0 at Mossvale, −1 from Twitch on). */
+  /** Reserved for later planting tasks; wrong colors at Mossvale score nothing. */
   readonly wrongColour: number;
   /** Target added per strain step. */
   readonly strainTarget: number;
 }
 
-/**
- * PLANT (Bean's herb beds): in each cleared line, a crystal of its zone's
- * colour scores +1 (a dual half counts: it's a crystal of that colour),
- * a wrong colour scores `wrongColour`, paths and ridges score nothing. It
- * ends at sundown (the piece limit): a win at the target or more, a Great
- * at `great`. Fail: below target at sundown, or a top-out.
- */
+/** Green crystals take root as they land in their marked beds. Line clears are separate. */
 export class PlantChallenge implements Challenge {
   readonly preroll = true;
   score = 0;
@@ -54,44 +48,43 @@ export class PlantChallenge implements Challenge {
     }
   }
 
-  /** What one cleared row scores. */
-  rowScore(row: ClearedRow): number {
-    return row.cells.reduce<number>((sum, cell, x) => {
-      const want = this.params.zones[x];
-      if (!want || cell === null || row.tags[x] === 'ridge') return sum;
-      return sum + (cell === want ? 1 : this.params.wrongColour);
-    }, 0);
+  /** Only newly placed seeds count; clears never recount the standing crop. */
+  private planted(
+    placed: LockResult['placed'],
+    colors: readonly Cell[],
+  ): readonly (readonly [number, number])[] {
+    return placed.filter(([x], i) => this.params.zones[x] && colors[i] === this.params.zones[x]);
   }
 
-  /** True when the score reached the Great mark. */
+  /** Efficient planting earns the bonus without prolonging a finished task. */
   get great(): boolean {
-    return this.score >= this.params.great;
+    return this.score >= this.target && this.ctx.board.piecesPlaced <= this.params.greatPieceLimit;
   }
 
   onLock(result: LockResult): void {
-    const gained = result.clearedRows.reduce((sum, row) => sum + this.rowScore(row), 0);
-    this.score += gained;
-    if (gained > 0) this.ctx.emit({ kind: 'beat', beat: 'hazard' });
+    const cells = this.planted(result.placed, result.placedColors ?? []);
+    this.score += cells.length;
+    if (cells.length) this.ctx.emit({ kind: 'planted', cells });
   }
 
   update(): void {}
 
   status(): BattleStatus {
     if (this.ctx.board.toppedOut) return 'lost';
-    if (piecesLeft(this.ctx, this.params.pieceLimit) > 0) return 'ongoing';
-    return this.score >= this.target ? 'won' : 'lost';
+    if (this.score >= this.target) return 'won';
+    return piecesLeft(this.ctx, this.params.pieceLimit) > 0 ? 'ongoing' : 'lost';
   }
 
   objective(): Objective {
     return {
-      label: 'Plant sprouts',
+      label: 'Land green crystals in the green beds',
       progress: Math.min(1, this.score / this.target),
       piecesLeft: piecesLeft(this.ctx, this.params.pieceLimit),
       counter: `Sprouts ${this.score}/${this.target}`,
     };
   }
 
-  /** Wanted cells standing in their zones, waiting for a clear, and wrong ones in the way. */
+  /** Keep planting beds usable; wrong colors crowd out future seeds. */
   private standing(grid: Grid, tags: TagGrid): number {
     let worth = 0;
     grid.forEach((row, y) =>
@@ -106,7 +99,7 @@ export class PlantChallenge implements Challenge {
 
   /** Planting's worth: sprouts scored now count most; wanted colour in a furrow next. */
   hint(landing: Landing): number {
-    const scored = landing.clearedRows.reduce((sum, row) => sum + this.rowScore(row), 0);
+    const scored = this.planted(landing.placed, landing.placedColors ?? []).length;
     return 8 * scored + this.standing(landing.grid, landing.tags);
   }
 }

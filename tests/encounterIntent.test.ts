@@ -40,8 +40,8 @@ describe('authored purpose for every kind of encounter', () => {
     const task = (id: string) =>
       encounterIntent({ kind: 'encounter', id, strain: 0, assisted: false, demo: false });
     expect(task('elder').role).toBe('cooperate');
-    expect(task('elder').pressure).toContain('Rowan is helping');
-    expect(task('kid').pressure).toContain('not placing hostile');
+    expect(task('elder').pressure).toContain('Mold rises');
+    expect(task('kid').pressure).toContain('crack the tower');
     expect(task('forager').goal).toContain('rot');
     expect(task('forager').goal).not.toContain('Plant');
     expect(task('stallKeeper').role).toBe('contest');

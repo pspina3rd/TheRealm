@@ -60,6 +60,9 @@ export function bindBoardGestures(
     if (event.pointerType === 'mouse' && event.button !== 0) return;
     event.preventDefault();
     touch = event.pointerType === 'touch';
+    // A new primary touch proves the previous touch sequence ended, even
+    // when Safari omitted its final up/cancel event during an interruption.
+    if (event.isPrimary && recognizer.active) recognizer.cancelAll();
     recognizer.cellPx = canvas.getBoundingClientRect().width / Math.max(1, columns());
     // Keep the moves coming even if the finger slides off the board.
     try {
@@ -84,6 +87,11 @@ export function bindBoardGestures(
     run(recognizer.up(event.pointerId, event.clientX, event.clientY, event.timeStamp));
   });
   canvas.addEventListener('pointercancel', (event) => recognizer.cancel(event.pointerId));
+  canvas.addEventListener('lostpointercapture', (event) => recognizer.cancel(event.pointerId));
+  window.addEventListener('blur', () => recognizer.cancelAll());
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) recognizer.cancelAll();
+  });
   canvas.addEventListener('contextmenu', (event) => event.preventDefault());
   return {
     tick: (timeMs) => {

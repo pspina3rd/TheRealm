@@ -15,6 +15,7 @@ export type BattleStatus = 'ongoing' | 'won' | 'lost';
  * effects, floating numbers). Events carry data, not text.
  */
 export type BattleEvent =
+  | { readonly kind: 'planted'; readonly cells: readonly (readonly [number, number])[] }
   /** Lines cleared: their board rows (before collapsing) and contents. */
   | {
       readonly kind: 'lines';

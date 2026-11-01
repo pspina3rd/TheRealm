@@ -319,12 +319,6 @@ describe('PLANT (Bean’s herb beds)', () => {
     const battle = encounter('farmer', strain);
     return { battle, plant: battle.challenge as PlantChallenge };
   };
-  const cleared = (cells: Cell[], tags: ('ridge' | null)[] = []) => ({
-    ...EMPTY_LOCK,
-    linesCleared: 1,
-    clearedRows: [{ cells, tags }],
-  });
-
   it('lays soil ridges (neutral) in each furrow’s left column, and slots an S into every window of pieces', () => {
     const { battle } = bean();
     for (const x of [0, 4, 8]) {
@@ -334,42 +328,64 @@ describe('PLANT (Bean’s herb beds)', () => {
     expect(battle.board.supply).toEqual({ window: ENCOUNTERS.farmer.supplyWindow, pieces: ['S'] });
   });
 
-  it('scores green in furrows only: other colours, paths and ridges score nothing', () => {
-    const { plant } = bean();
-    const line: Cell[] = [
-      'green',
-      'green',
-      'green',
-      'green',
-      'red',
-      'green',
-      'gold',
-      'green',
-      'neutral',
-      'green',
-    ];
-    const tags = [null, null, null, null, null, null, null, null, 'ridge', null] as const;
-    expect(plant.rowScore({ cells: line, tags: [...tags] })).toBe(4);
+  it('plants immediately without requiring a completed line', () => {
+    const { battle, plant } = bean();
+    battle.board.replaceActive('S');
+    drop(battle, 1, 0);
+    expect(battle.lines).toBe(0);
+    expect(plant.score).toBe(4);
+    expect(
+      battle.events.some(({ event }) => event.kind === 'planted' && event.cells.length === 4),
+    ).toBe(true);
+    expect(Object.values(battle.hero.mana).every((mana) => mana === 0)).toBe(true);
+    expect(plant.status()).toBe('ongoing');
   });
 
-  it('counts sprouts as lines clear, and ends at sundown: a win at the target, a Great beyond', () => {
-    const { target, great } = ENCOUNTERS.farmer;
+  it('ignores wrong colors and paths, and counts only the green half of a dual piece', () => {
+    const { plant } = bean();
+    plant.onLock({
+      ...EMPTY_LOCK,
+      placed: [
+        [0, 19],
+        [1, 19],
+        [2, 19],
+        [4, 19],
+      ],
+      placedColors: ['green', 'red', 'green', 'green'],
+    });
+    expect(plant.score).toBe(2);
+    // Clearing previously planted seeds cannot count them a second time.
+    plant.onLock({
+      ...EMPTY_LOCK,
+      linesCleared: 1,
+      clearedRows: [{ cells: Array<Cell>(10).fill('green'), tags: [] }],
+    });
+    expect(plant.score).toBe(2);
+  });
+
+  it('counts new seeds even when their placement also clears a row', () => {
     const { battle, plant } = bean();
-    plant.onLock(cleared(Array<Cell>(10).fill('green')));
-    expect(plant.score).toBe(6);
-    expect(battle.events.at(-1)?.event).toEqual({ kind: 'beat', beat: 'hazard' });
-    plant.onLock(EMPTY_LOCK);
+    battle.board.loadRows(['gggggggg..', 'gggggggg..']);
+    battle.board.replaceActive('O', { color: 'green' });
+    drop(battle, 0, 8);
+    expect(battle.lines).toBe(2);
+    expect(plant.score).toBe(4);
+  });
+
+  it('finishes at the target and rewards efficient planting; sundown and top-out still fail', () => {
+    const { target, greatPieceLimit, pieceLimit } = ENCOUNTERS.farmer;
+    const { battle, plant } = bean();
+    plant.score = 6;
     expect(plant.objective()).toMatchObject({
       counter: `Sprouts 6/${target}`,
       progress: 6 / target,
     });
-    expect(plant.status()).toBe('ongoing');
-    battle.board.piecesPlaced = ENCOUNTERS.farmer.pieceLimit;
+    battle.board.piecesPlaced = pieceLimit;
     expect(plant.status()).toBe('lost');
     plant.score = target;
     expect(plant.status()).toBe('won');
     expect(plant.great).toBe(false);
-    plant.score = great;
+    battle.board.piecesPlaced = greatPieceLimit;
     expect(plant.great).toBe(true);
     battle.board.toppedOut = true;
     expect(plant.status()).toBe('lost');
@@ -391,7 +407,7 @@ describe('PLANT (Bean’s herb beds)', () => {
     ] as const;
     const s = landingOf(board, 'S', upright, 0, ['green', 'green', 'green', 'green'])!;
     const z = landingOf(board, 'Z', upright, 0, ['red', 'red', 'red', 'red'])!;
-    expect(plant.hint(s)).toBe(4);
+    expect(plant.hint(s)).toBeGreaterThan(plant.hint(z));
     expect(plant.hint(z)).toBe(-6);
     board.grid[19] = [
       'neutral',
@@ -418,7 +434,7 @@ describe('PLANT (Bean’s herb beds)', () => {
       ['green', 'green', 'green', 'green'],
     )!;
     expect(fill.lines).toBe(1);
-    expect(plant.hint(fill)).toBeGreaterThan(8 * 3);
+    expect(plant.hint(fill)).toBeGreaterThan(0);
   });
 
   it('seats Bean’s demo S flush on the ridge', () => {
@@ -432,6 +448,8 @@ describe('PLANT (Bean’s herb beds)', () => {
       'green',
     ]);
     expect(battle.board.holes()).toBe(0);
+    expect((battle.challenge as PlantChallenge).score).toBe(4);
+    expect(battle.board.piecesPlaced).toBe(1);
   });
 });
 

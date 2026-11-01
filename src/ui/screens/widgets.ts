@@ -1,3 +1,4 @@
+import { MENTORS } from '../../data/mentors';
 import { standardName, standardSpellText } from '../standardSpellText';
 import { castSpellFor, newKnownSpell } from '../../game/spells';
 /** Small visual building blocks shared by the menu, shop, conversation and results screens. */
@@ -173,6 +174,16 @@ export function rewardIcons(rewards: readonly Reward[]): HTMLElement[] {
       case 'shop':
         return [chip('coin', '', 'Opens the shop')];
       case 'flag': {
+        if (reward.flag.startsWith('access:mentor:')) {
+          const mentor = MENTORS[reward.flag.slice('access:mentor:'.length)];
+          return [
+            chip(
+              FLAG_ICONS[reward.flag] ?? { icon: 'lock', palette: PALETTES.open },
+              `Path to ${mentor?.name ?? 'teacher'}`,
+              'Opens the route to this teacher',
+            ),
+          ];
+        }
         const flag = FLAG_ICONS[reward.flag];
         return [
           flag
@@ -188,6 +199,13 @@ export function rewardIcons(rewards: readonly Reward[]): HTMLElement[] {
 export function gainRows(gains: readonly Gain[]): HTMLElement[] {
   return gains.map((gain) => {
     switch (gain.kind) {
+      case 'route':
+        return el(
+          'div',
+          { className: 'gain' },
+          iconElement({ icon: 'lock', palette: PALETTES.open }, 2),
+          el('span', { text: `Path to ${MENTORS[gain.mentorId]?.name ?? gain.mentorId} opened` }),
+        );
       case 'xp':
         return el('div', { className: 'gain' }, chip('star', `+${gain.amount}`, 'Experience'));
       case 'level':

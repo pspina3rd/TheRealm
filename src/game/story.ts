@@ -40,7 +40,10 @@ export function visionOnWarp(
 ): VisionDef | null {
   if (from === to) return null;
   const due = VISIONS.find(
-    (vision) => !flags.has(vision.flag) && (vision.leaves === from || vision.enters === to),
+    (vision) =>
+      !flags.has(vision.flag) &&
+      (!vision.requiresFlags || vision.requiresFlags.every((flag) => flags.has(flag))) &&
+      (vision.leaves === from || vision.enters === to),
   );
   return due ?? null;
 }
@@ -115,8 +118,19 @@ export function preludeFor(enemyId: string, memory: LineMemory): string | null {
  * or once the Moon Wyrm has fallen.
  */
 export function vesperStop(flags: ReadonlySet<string>): VesperStop | null {
-  if (flags.has(FINALE_FLAG)) return null;
-  const open = VESPER_ROUTE.filter((stop) => flags.has(stop.requiresFlag));
+  if (
+    flags.has(FINALE_FLAG) ||
+    (!flags.has('opening:legacyJourney') &&
+      (!flags.has('scene:refusal') || !flags.has(reachedFlag('brightwater'))))
+  )
+    return null;
+  const open = VESPER_ROUTE.filter(
+    (stop) =>
+      flags.has(stop.requiresFlag) &&
+      (flags.has('opening:legacyJourney') ||
+        !stop.requiresFlags ||
+        stop.requiresFlags.every((flag) => flags.has(flag))),
+  );
   return open.at(-1) ?? null;
 }
 
@@ -288,7 +302,10 @@ export function migrateScenes(flags: Set<string>, hero: Hero): void {
     }
   }
   for (const scene of CHAPTER_ONE_SCENES) {
-    if (!flags.has(scene.flag) && (!scene.dueWith || flags.has(scene.dueWith))) {
+    if (
+      !flags.has(scene.flag) &&
+      (scene.id === 'refusal' ? flags.has('vision:1') : !scene.dueWith || flags.has(scene.dueWith))
+    ) {
       completeScene(flags, hero, scene);
     }
   }

@@ -405,3 +405,5 @@ The production build includes an install manifest, iPhone icon and optional
 offline support on HTTPS hosting. No App Store/TestFlight build is needed.
 See [iPhone testing and installation](docs/IPHONE_TESTING.md) for local-network,
 HTTPS/offline and save-location details. This does not publish an HTTPS site.
+
+Opening and teacher access: [current progression](docs/OPENING_PROGRESSION.md).

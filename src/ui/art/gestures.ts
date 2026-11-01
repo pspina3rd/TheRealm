@@ -165,6 +165,12 @@ export class GestureRecognizer {
     if (this.fingers.size === 0) this.reset();
   }
 
+  /** A system interruption ended every pointer; no release action should be synthesized. */
+  cancelAll(): void {
+    this.fingers.clear();
+    this.reset();
+  }
+
   /** Ends the current gesture early (e.g. the piece locked): the rest of the touch does nothing. */
   lockout(): void {
     if (this.mode !== 'idle') this.mode = 'spent';

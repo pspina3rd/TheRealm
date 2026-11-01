@@ -3,6 +3,7 @@ import { addItem, learnSpell, type Hero } from './hero';
 
 /** Something the hero gained or lost, for the results screen to show as icons. */
 export type Gain =
+  | { readonly kind: 'route'; readonly mentorId: string }
   | { readonly kind: 'xp'; readonly amount: number }
   /** Reached a new level, earning skill points. */
   | { readonly kind: 'level'; readonly level: number; readonly points: number }
@@ -57,6 +58,8 @@ export function grantRewards(
           gains.push({ kind: 'spell', spellId: reward.spellId });
         break;
       case 'flag':
+        if (!flags.has(reward.flag) && reward.flag.startsWith('access:mentor:'))
+          gains.push({ kind: 'route', mentorId: reward.flag.slice('access:mentor:'.length) });
         flags.add(reward.flag);
         break;
       case 'shop':

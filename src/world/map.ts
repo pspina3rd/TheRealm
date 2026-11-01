@@ -24,6 +24,9 @@ export interface Warp {
   readonly to: Location;
   /** If set, the warp is blocked until the hero has this flag. */
   readonly requiresFlag?: string;
+  /** One of these earned alternatives must also hold (e.g. current or historical journey). */
+  readonly requiresAnyFlag?: readonly string[];
+  readonly missingAnyText?: string;
   /** Shown when a locked warp is bumped. */
   readonly lockedText?: string;
   /** A completed story can close a former route while retaining its earned keys. */
@@ -33,6 +36,13 @@ export interface Warp {
    * and bumping it shows `text` (rotating) instead of `lockedText`.
    */
   readonly stirs?: { readonly flag: string; readonly text: Variants };
+}
+
+export function warpUnlocked(warp: Warp, flags: ReadonlySet<string>): boolean {
+  return (
+    (!warp.requiresFlag || flags.has(warp.requiresFlag)) &&
+    (!warp.requiresAnyFlag || warp.requiresAnyFlag.some((flag) => flags.has(flag)))
+  );
 }
 
 /** True when a locked warp's seal is stirring (see `Warp.stirs`). */
@@ -69,8 +79,17 @@ export interface MentorEntity extends EntityBase {
   readonly mentorId: string;
 }
 
-/** Someone a map places: a person or a monster. */
-export type MapEntity = NpcEntity | MonsterEntity;
+/** A place or object the player can examine, without inventing another NPC. */
+export interface InspectEntity extends EntityBase {
+  readonly kind: 'inspect';
+  readonly title: string;
+  readonly text: string;
+  readonly flag: string;
+  readonly sets?: readonly string[];
+}
+
+/** People, monsters and inspectable places authored on the map. */
+export type MapEntity = NpcEntity | MonsterEntity | InspectEntity;
 
 /** Anyone the hero can walk into. */
 export type EntityDef = MapEntity | MentorEntity;
@@ -98,9 +117,55 @@ export interface DecorDef {
   readonly y: number;
 }
 
+/** A task opens this physical entrance. Existing saves can prove the same completed work. */
+export interface MentorPassage {
+  readonly x: number;
+  readonly y: number;
+  readonly mentorId: string;
+  readonly taskId: string;
+  readonly requiresFlag: string;
+  readonly text: string;
+  readonly interior: {
+    readonly left: number;
+    readonly right: number;
+    readonly top: number;
+    readonly bottom: number;
+  };
+}
+
+/** Existing saves inside an added boundary can leave; this never opens entry or grants rewards. */
+export function passageMayExit(
+  gate: MentorPassage,
+  state: { readonly x: number; readonly y: number },
+): boolean {
+  return (
+    (state.x === gate.x && state.y === gate.y) ||
+    (state.x >= gate.interior.left &&
+      state.x <= gate.interior.right &&
+      state.y >= gate.interior.top &&
+      state.y <= gate.interior.bottom)
+  );
+}
+
+export function passageOpen(
+  gate: MentorPassage,
+  state: {
+    readonly flags: ReadonlySet<string>;
+    readonly encounters?: Readonly<Record<string, { readonly wins: number }>>;
+  },
+): boolean {
+  return (
+    state.flags.has(gate.requiresFlag) ||
+    state.flags.has(`npc:${gate.taskId}`) ||
+    (state.encounters?.[gate.taskId]?.wins ?? 0) > 0 ||
+    [...state.flags].some((flag) => flag.startsWith(`met:${gate.mentorId}:`))
+  );
+}
+
 export interface MapDef {
   readonly id: string;
   readonly name: string;
+  readonly passages?: readonly MentorPassage[];
   readonly theme: ThemeId;
   /** Audio key for background music, resolved by the audio layer. */
   readonly music?: string;

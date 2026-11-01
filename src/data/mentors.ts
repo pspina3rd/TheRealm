@@ -398,7 +398,7 @@ export const MENTORS: Readonly<Record<string, MentorDef>> = {
       { map: 'cliffs', x: 16, y: 6, landmark: 'eyrie' },
       { map: 'peaks', x: 5, y: 12, landmark: 'high pass' },
       { map: 'overworld', x: 17, y: 18, landmark: 'south road' },
-      { map: 'mossvale', x: 12, y: 12, landmark: 'village gate' },
+      { map: 'mossvale', x: 16, y: 23, landmark: 'village gate' },
       { map: 'brightwater', x: 19, y: 2, landmark: 'north houses' },
       { map: 'overworld', x: 30, y: 12, landmark: 'east road' },
     ],

@@ -1014,6 +1014,48 @@ export const ITEM_ICONS: Readonly<Record<string, IconSpec>> = {
 
 /** Story flags an NPC can grant, as reward icons: what opens, not a padlock. */
 export const FLAG_ICONS: Readonly<Record<string, IconSpec & { readonly label: string }>> = {
+  'access:mentor:torva': {
+    icon: 'lock',
+    palette: PALETTES.open,
+    badge: ELEMENT_ICONS['fire'],
+    label: 'Path to Torva',
+  },
+  'access:mentor:maren': {
+    icon: 'lock',
+    palette: PALETTES.open,
+    badge: ELEMENT_ICONS['water'],
+    label: 'Path to Maren',
+  },
+  'access:mentor:rook': {
+    icon: 'lock',
+    palette: PALETTES.open,
+    badge: ELEMENT_ICONS['lightning'],
+    label: 'Path to Rook',
+  },
+  'access:mentor:hazel': {
+    icon: 'lock',
+    palette: PALETTES.open,
+    badge: ELEMENT_ICONS['nature'],
+    label: 'Path to Hazel',
+  },
+  'access:mentor:dorn': {
+    icon: 'lock',
+    palette: PALETTES.open,
+    badge: ELEMENT_ICONS['earth'],
+    label: 'Path to Dorn',
+  },
+  'access:mentor:selene': {
+    icon: 'lock',
+    palette: PALETTES.open,
+    badge: ELEMENT_ICONS['arcane'],
+    label: 'Path to Selene',
+  },
+  'access:mentor:kestrel': {
+    icon: 'lock',
+    palette: PALETTES.open,
+    badge: ELEMENT_ICONS['wind'],
+    label: 'Path to Kestrel',
+  },
   'campaign:drain': {
     icon: 'drop',
     palette: elementPalette('water'),

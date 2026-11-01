@@ -1,6 +1,8 @@
 import {
   DIRECTION_DELTAS,
   tileAt,
+  passageOpen,
+  passageMayExit,
   warpAt,
   warpStirs,
   type Direction,
@@ -34,6 +36,10 @@ export function step(state: GameState, direction: Direction): StepResult {
   const y = state.y + dy;
   const map = currentMap(state);
 
+  const gate = map.passages?.find((gate) => gate.x === x && gate.y === y);
+  if (gate && !passageOpen(gate, state) && !passageMayExit(gate, state))
+    return { kind: 'locked', text: gate.text };
+
   const entity = activeEntities(state).find((e) => e.x === x && e.y === y);
   if (entity) return { kind: 'interact', entity };
 
@@ -51,6 +57,11 @@ export function step(state: GameState, direction: Direction): StepResult {
         : warp.lockedText;
       return { kind: 'locked', text: text ?? 'The way is sealed.' };
     }
+    if (warp.requiresAnyFlag && !warp.requiresAnyFlag.some((flag) => state.flags.has(flag)))
+      return {
+        kind: 'locked',
+        text: warp.missingAnyText ?? warp.lockedText ?? 'The way is sealed.',
+      };
     return { kind: 'warp', to: warp.to };
   }
 

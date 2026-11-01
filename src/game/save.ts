@@ -46,11 +46,12 @@ export const CORRUPT_KEY = `${SAVE_KEY}.corrupt`;
  *   stakes (day, regard, encounter records, haggle prices and spell seals).
  * - 11 unifies both version-10 formats. Missing stakes start at zero;
  *   campaign progress and earned scenes remain intact in either format.
+ * - 15 preserves established journeys when opening triggers and mentor approaches change.
  * - 14 separates custom Weaving recipes and preserves empty spellbooks.
  * - 13 adds opponent Arcane ranks without changing committed-try recovery.
  * - 12 persists committed M1 tries, settling interrupted tries as a failure on load.
  */
-export const SAVE_VERSION = 14;
+export const SAVE_VERSION = 15;
 const recoveredLoads = new WeakSet<GameState>();
 /** Older versions `deserialize` can still upgrade. */
 const MIGRATABLE_VERSIONS: readonly number[] = [
@@ -67,6 +68,7 @@ const MIGRATABLE_VERSIONS: readonly number[] = [
   11,
   12,
   13,
+  14,
   SAVE_VERSION,
 ];
 const FACINGS: readonly Direction[] = ['up', 'down', 'left', 'right'];
@@ -178,6 +180,10 @@ export function deserialize(json: string): GameState | null {
     const hero = sanitizeHero(migrateHero(data.hero as StoredHero), version);
     if (!hero) return null;
     if ((data.version as number) < 9) migrateScenes(flags, hero);
+    // Historical progress remains valid without inventing a Brightwater visit
+    // or granting the Focus Stone again. Fresh saves earn the revised opening.
+    if (version < 15 && (flags.has('vision:1') || flags.has('scene:refusal')))
+      flags.add('opening:legacyJourney');
     // Stakes-only version 10 did not include the campaign. Its location
     // cannot establish descent; only the earned scene milestone can.
     const allowCampaign = version >= 10 && flags.has(CAMPAIGN_FLAGS.descent);

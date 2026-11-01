@@ -93,13 +93,17 @@ export function conversationBody(
   onLesson: (lesson: Lesson) => void = () => {},
   given: readonly Gain[] = [],
 ): HTMLElement[] {
-  const body = [speech(atlas, interaction.sprite, interaction.text, interaction.attitude)];
+  const body = [
+    interaction.sprite
+      ? speech(atlas, interaction.sprite, interaction.text, interaction.attitude)
+      : el('p', { className: 'inspection-text' }, ...lineNodes(interaction.text)),
+  ];
   if (given.length > 0) body.push(el('div', { className: 'gains' }, ...gainRows(given)));
   if (interaction.kind === 'lessons') {
     body.push(
       el('p', {
         className: 'lesson-mode-note',
-        text: 'Lessons lend the spell for hands-on practice. Once learned, standard spells cast automatically after cleared lines in fights when charged.',
+        text: 'Pick a spell to try. Win the lesson to learn it.',
       }),
     );
     body.push(
@@ -131,22 +135,33 @@ export function conversationBody(
       interaction.spec,
       interaction.actorId ?? encounterActor(interaction.title),
     );
-    body.push(
-      el(
-        'div',
-        { className: 'encounter-purpose' },
-        el('b', { text: purpose.label }),
-        el('p', { text: purpose.goal }),
-        el('small', { text: purpose.pressure }),
-      ),
-    );
+    body.push(el('div', { className: 'encounter-purpose' }, el('p', { text: purpose.goal })));
   }
   if (interaction.kind === 'challenge' && interaction.stakes) {
     const stakes = interaction.stakes;
+    if (stakes.rewards?.length)
+      body.push(
+        el(
+          'div',
+          { className: 'offer-reward' },
+          el('span', { text: 'Reward' }),
+          ...rewardIcons(stakes.rewards),
+        ),
+      );
+    body.push(
+      el('small', {
+        className: 'offer-risk',
+        text:
+          interaction.spec.kind === 'lesson' && interaction.spec.difficulty > 1
+            ? 'Fail: regard falls and this spell is sealed.'
+            : 'Fail: regard falls.',
+      }),
+    );
     body.push(
       el(
-        'section',
+        'details',
         { className: 'stakes-card' },
+        el('summary', { text: 'Rewards & risks' }),
         ...[
           [
             'Win',
@@ -174,6 +189,9 @@ export function conversationBody(
                       { className: 'stakes-great' },
                       ' Great: ',
                       ...rewardIcons([stakes.great]),
+                      ...(stakes.greatCondition
+                        ? [el('span', { text: stakes.greatCondition })]
+                        : []),
                     ),
                   ]
                 : []),

@@ -127,13 +127,13 @@ describe('attainable Chapter One resources', () => {
   it('applies canonical warp arrivals and dismisses their visions while preserving dialogue memory', () => {
     const { state } = runCampaign({ route: ['overworld'], battleLimitMs: 1 });
     expect(state.flags.has(reachedFlag('overworld'))).toBe(true);
-    expect(state.flags.has('vision:1')).toBe(true);
-    expect(state.talk[WYRM_VOICE]).toBeGreaterThan(0);
+    expect(state.flags.has('vision:1')).toBe(false);
+    expect(state.talk[WYRM_VOICE] ?? 0).toBe(0);
     expect(pendingVision(state)).toBeNull();
     expect(state.flags.has('wyrmBeaten')).toBe(false);
-    expect(state.flags.has('scene:refusal')).toBe(true);
-    expect(state.flags.has('got:wellStone')).toBe(true);
-    expect(state.hero.items.wellStone).toBe(1);
+    expect(state.flags.has('scene:refusal')).toBe(false);
+    expect(state.flags.has('got:wellStone')).toBe(false);
+    expect(state.hero.items.wellStone).toBeUndefined();
   });
 
   it('plays every recorded puzzle through legal controls, and reports exhausted solver budgets', () => {

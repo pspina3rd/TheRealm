@@ -17,11 +17,12 @@ import type { Element } from '../core/elements';
 import { MAPS } from '../data/maps';
 import { MENTORS, type MentorDef, type MentorStop } from '../data/mentors';
 import { seeksHero } from '../game/hidden';
-import type { Location, MentorEntity } from './map';
+import { warpUnlocked, passageOpen, type Location, type MentorEntity } from './map';
 import type { GameState } from './state';
 
 /** What a mentor's place depends on. */
-type Whereabouts = Pick<GameState, 'hero' | 'mapId' | 'x' | 'y' | 'flags' | 'victories'>;
+type Whereabouts = Pick<GameState, 'hero' | 'mapId' | 'x' | 'y' | 'flags' | 'victories'> &
+  Partial<Pick<GameState, 'encounters'>>;
 
 /** The stops on a mentor's route the hero's story has opened, home first. */
 export function openStops(mentor: MentorDef, flags: ReadonlySet<string>): MentorStop[] {
@@ -57,7 +58,7 @@ export function mapDistance(from: string, to: string, flags?: ReadonlySet<string
     const steps = seen.get(map) ?? 0;
     if (map === to) return steps;
     for (const warp of MAPS[map]?.warps ?? []) {
-      const locked = flags && warp.requiresFlag && !flags.has(warp.requiresFlag);
+      const locked = flags && !warpUnlocked(warp, flags);
       if (!locked && !seen.has(warp.to.map)) {
         seen.set(warp.to.map, steps + 1);
         queue.push(warp.to.map);
@@ -89,6 +90,12 @@ export function seekingStop(
  */
 export function mentorPlace(mentor: MentorDef, state: Whereabouts): MentorStop {
   const hero = { map: state.mapId, x: state.x, y: state.y };
+  // Discover a school in its own region before its teacher joins the roaming cast.
+  // Learning a spell opens travel; simply talking must not move the teacher mid-offer.
+  const discovered = state.flags.has(`taught:mentor:${mentor.id}`);
+  const gate = MAPS[mentor.route[0].map]?.passages?.find((gate) => gate.mentorId === mentor.id);
+  if (!discovered || (gate && !passageOpen(gate, state)))
+    return mentorStop(mentor, state.flags, 0, hero);
   return seeksHero(mentor, state)
     ? seekingStop(mentor, state.flags, hero)
     : mentorStop(mentor, state.flags, state.victories, hero);

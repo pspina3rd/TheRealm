@@ -17,6 +17,7 @@ export interface VisionDef {
   /** ...or on the first warp into this one. */
   readonly enters?: string;
   readonly lines: Variants;
+  readonly requiresFlags?: readonly string[];
 }
 
 export const VISIONS: readonly VisionDef[] = [
@@ -24,6 +25,7 @@ export const VISIONS: readonly VisionDef[] = [
     id: 'vision1',
     flag: 'vision:1',
     leaves: 'mossvale',
+    requiresFlags: ['got:wellStone'],
     lines: [
       '*A heavy sky turns pitch black in your mind.* "You clear spores and patch wells, little creature. Do you truly think you can mend a world that is falling asleep?"',
       '*A low frequency hum vibrates in your bones.* "Every breath you take on the surface draws air from my cavern. Come down and claim it back."',
@@ -33,6 +35,7 @@ export const VISIONS: readonly VisionDef[] = [
     id: 'vision2',
     flag: 'vision:2',
     enters: 'quarry',
+    requiresFlags: ['vision:1'],
     lines: [
       '*The cavern rock groans beneath your boots.* "Dig deeper, break the stone. Every rock you shift brings your heart closer to my coil."',
       '*A glowing blue eye reflects in a dark puddle.* "Your iron blades and small spells... they are toys forgotten in the mud."',
@@ -42,6 +45,7 @@ export const VISIONS: readonly VisionDef[] = [
     id: 'vision3',
     flag: 'vision:3',
     enters: 'peaks',
+    requiresFlags: ['vision:2'],
     lines: [
       '*Lightning strikes the mountain beacon, forming glowing wyrm runes.* "They lock the iron gates to keep me out... or to keep you caged with your fear?"',
       '*Cold wind whispers through the peaks.* "The moon above is just my pale reflection. The real light lives in the dark."',
@@ -66,6 +70,7 @@ export function reachedFlag(mapId: string): string {
 export interface VesperStop extends Location {
   readonly npcId: string;
   readonly requiresFlag: string;
+  readonly requiresFlags?: readonly string[];
 }
 
 /**
@@ -75,7 +80,14 @@ export interface VesperStop extends Location {
  * hero reaches the Moonfall Ruins.
  */
 export const VESPER_ROUTE: readonly VesperStop[] = [
-  { npcId: 'vesperRoad', map: 'overworld', x: 8, y: 6, requiresFlag: 'vision:1' },
+  {
+    npcId: 'vesperRoad',
+    map: 'overworld',
+    x: 29,
+    y: 17,
+    requiresFlag: 'vision:1',
+    requiresFlags: ['reached:brightwater', 'scene:refusal'],
+  },
   { npcId: 'vesperRidge', map: 'quarry', x: 29, y: 14, requiresFlag: 'vision:2' },
   { npcId: 'vesperPeaks', map: 'peaks', x: 3, y: 4, requiresFlag: 'vision:3' },
   { npcId: 'vesperRuins', map: 'ruins', x: 12, y: 2, requiresFlag: reachedFlag('ruins') },
@@ -203,12 +215,10 @@ export const OPENING: SceneDef = {
   flag: 'scene:opening',
   beats: [
     {
-      stage:
-        '*Night over Sevenstones. Seven standing crystals ring the land, each glowing its own colour: red, blue, gold, green, orange, violet, cyan.*',
+      stage: '*Sevenstones at night. Seven crystals glow around the land.*',
     },
     {
-      stage:
-        '*The violet stone flickers and goes grey. The other six burn a little lower, like candles in a draught.*',
+      stage: '*The violet crystal goes dark. The other six dim.*',
     },
     {
       stage:
@@ -217,7 +227,7 @@ export const OPENING: SceneDef = {
     },
     {
       stage:
-        "*Mossvale at dawn. As always, you're first up, lighting the lane lamps. Bean is already in her rows and Ordor is unbarring his stall. But the baker's shutters stay closed, and so do the Millers' and old Tess's. Three houses, and no one stirs.*",
+        '*Dawn in Mossvale. You light the lane lamps. Bean tends her beds; Ordor opens his stall. Three houses stay shuttered. No one inside will wake.*',
       who: 'hero',
       classLines: {
         ranger:
@@ -245,23 +255,25 @@ export const OPENING: SceneDef = {
  */
 export const REFUSAL: SceneDef = {
   id: 'refusal',
-  title: 'The Mossvale stile',
+  title: 'At Rowan’s well',
   flag: 'scene:refusal',
-  dueWith: 'vision:1',
+  dueWith: 'npc:elder',
+  map: 'mossvale',
+  requiresFlags: ['opening:houseVisited'],
   beats: [
     {
       stage:
-        '*The stile at the village edge. Beyond it, the road to Sevenstones runs grey under a dim sky. You stop.*',
+        '*The well runs clear. The houses stay silent. Beyond the rooftops, the road leads to Brightwater.*',
       who: 'hero',
       classLines: {
-        ranger: 'Never went past the second ridge. Never needed to.',
+        ranger: 'Those houses need someone watching over them.',
         knight: "My post is here. A knight doesn't leave his post.",
         mage: "My books are here. Whatever's out there isn't in them.",
         rogue: 'Not my village. Not my problem. Right?',
       },
     },
     {
-      stage: '*A gust, and a woman drops out of the sky with a satchel full of letters. Kestrel.*',
+      stage: '*A courier lands beside Rowan, wind tugging at her satchel. Kestrel.*',
       line: "\"Two letters. One from Selene at Moonfall, 'to whoever's still awake in Mossvale'. And one for Elder Rowan, from the inn at Brightwater.\"",
       who: 'kestrel',
     },
@@ -272,7 +284,7 @@ export const REFUSAL: SceneDef = {
     },
     {
       stage: '*He presses the old rune stone into your palm.*',
-      line: '"Found this the year I dug the well. Never knew what it was for. Maybe it was for this."',
+      line: '"Found this the year I dug the well. Cracked the bedrock with it. Take it, kid."',
       who: ROWAN,
       gives: 'wellStone',
     },

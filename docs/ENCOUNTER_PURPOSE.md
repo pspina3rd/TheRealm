@@ -11,7 +11,7 @@ board and restores the prior pause state.
 | --------------------- | ------------------------------------------------------------------- | ---------------------------------------------------------- |
 | Rowan’s well          | Debris covers the marked pipe                                       | Rising mold, not Rowan attacking                           |
 | Pip’s tower           | Supplied pieces fit an outline; unsuitable pieces have a spare area | Cracks and imbalance from misplaced pieces                 |
-| Bean’s herb beds      | Matching colors in the furrows are crops; ridges/paths are not      | Limited pieces before sundown                              |
+| Bean’s herb beds      | Green seeds take root on landing in marked beds; paths do not score | Limited pieces; efficient planting earns the bonus         |
 | Wren’s mushroom ring  | Rot is hazardous; young caps are protected                          | Rot spreads toward the caps                                |
 | Ordor’s price contest | Incoming rows are counter-offers; clears improve the price          | Warned sends and the rival’s price strategy                |
 | Vale’s ward lamps     | Each displayed lamp needs the actual color threshold                | Wind can snuff a lamp; strain can add lamps                |
@@ -94,3 +94,5 @@ to standard auto-target priorities (bottom-first clearing and Gravity selection)
 is not activated by this change; existing standard spell targeting still uses
 its current usefulness heuristic. M2a reactions/class abilities/synergy remain
 inactive foundations, not part of this correction.
+
+The opening and teacher approach update is documented in [OPENING_PROGRESSION.md](OPENING_PROGRESSION.md). Player-facing task headers replace the earlier generic cooperation label.

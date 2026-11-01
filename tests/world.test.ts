@@ -17,8 +17,8 @@ describe('map helpers', () => {
   const map = MAPS.mossvale!;
 
   it('reports size and tiles, with void outside the map', () => {
-    expect(mapWidth(map)).toBe(20);
-    expect(mapHeight(map)).toBe(15);
+    expect(mapWidth(map)).toBe(32);
+    expect(mapHeight(map)).toBe(26);
     expect(tileAt(map, 0, 0).name).toBe('tree');
     expect(tileAt(map, -1, 0)).toBe(VOID_TILE);
     expect(tileFor('?')).toBe(VOID_TILE);
@@ -37,7 +37,7 @@ describe('map helpers', () => {
   });
 
   it('finds warps by position', () => {
-    expect(warpAt(map, 9, 14)?.to.map).toBe('overworld');
+    expect(warpAt(map, 17, 25)?.to.map).toBe('overworld');
     expect(warpAt(map, 1, 1)).toBeUndefined();
   });
 });
@@ -107,18 +107,18 @@ describe('step', () => {
 
   it('returns an interaction when bumping an entity, without moving', () => {
     const state = newGame();
-    state.x = 6;
-    state.y = 7; // just below Elder Rowan
+    state.x = 12;
+    state.y = 13; // just below Elder Rowan
     const result = step(state, 'up');
     expect(result.kind).toBe('interact');
     expect(result.kind === 'interact' && result.entity.id).toBe('mv-elder');
-    expect(state.y).toBe(7);
+    expect(state.y).toBe(13);
   });
 
   it('returns a warp without moving', () => {
     const state = newGame();
-    state.x = 9;
-    state.y = 13;
+    state.x = 17;
+    state.y = 24;
     expect(step(state, 'down')).toEqual({ kind: 'warp', to: { map: 'overworld', x: 5, y: 6 } });
     expect(state.mapId).toBe('mossvale');
   });

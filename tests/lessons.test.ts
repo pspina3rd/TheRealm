@@ -176,6 +176,9 @@ describe('lesson foes', () => {
       enemyId: 'galeWisp',
       difficulty: 1,
     });
+    learnSpell(state.hero, 'gale');
+    state.flags.add('access:mentor:kestrel');
+    state.flags.add('taught:mentor:kestrel');
     state.victories = 15; // Kestrel moves every 3 wins: stop 5, the east road
     expect(lessonSpec(state, 'kestrel', lesson).enemyId).toBe('goblin');
     expect(() => lessonSpec(state, 'nobody', lesson)).toThrow('Unknown mentor');
@@ -286,8 +289,29 @@ describe('mentor movement', () => {
     expect(mentorStop(k, new Set(), 3, pass)).toBe(k.route[0]);
     expect(mentorStop(k, new Set(), 0, k.route[0])).toBe(k.route[5]);
     const state = { ...newGame('ranger'), victories: 3, mapId: 'peaks', x: pass.x, y: pass.y };
-    expect(mentorEntities(state).map((e) => e.mentorId)).toEqual([]);
+    expect(mentorEntities(state).map((e) => e.mentorId)).toEqual(['rook']);
+    learnSpell(state.hero, 'gale');
+    state.flags.add('access:mentor:kestrel');
+    state.flags.add('taught:mentor:kestrel');
     expect(mentorPlace(k, { ...state, x: pass.x + 1 })).toBe(pass);
+  });
+
+  it('keeps every undiscovered school in its own region regardless of village grinding', () => {
+    for (const victories of [0, 3, 12, 40, 90]) {
+      const state = { ...newGame(), victories };
+      for (const m of Object.values(MENTORS)) expect(mentorPlace(m, state)).toBe(m.route[0]);
+      expect(mentorEntities(state)).toEqual([]);
+    }
+  });
+
+  it('a greeting alone does not move the teacher before the chosen lesson starts', () => {
+    const state = { ...newGame(), victories: 12 };
+    state.flags.add('met:torva:0');
+    expect(mentorPlace(mentor('torva'), state)).toBe(mentor('torva').route[0]);
+    learnSpell(state.hero, 'fire');
+    state.flags.add('access:mentor:torva');
+    state.flags.add('taught:mentor:torva');
+    expect(mentorPlace(mentor('torva'), state)).toBe(mentorStop(mentor('torva'), state.flags, 12));
   });
 
   it('knows home', () => {
@@ -306,6 +330,9 @@ describe('mentor movement', () => {
     ]);
     travel(state, { map: 'overworld', x: 5, y: 6 });
     state.victories = 4;
+    learnSpell(state.hero, 'quake');
+    state.flags.add('access:mentor:dorn');
+    state.flags.add('taught:mentor:dorn');
     expect(
       activeEntities(state)
         .filter((e) => e.kind === 'mentor')
@@ -385,6 +412,8 @@ describe('mentor encounters', () => {
   it('resolves a lost lesson into a seal, without falling', () => {
     const state = newGame('ranger');
     learnSpell(state.hero, 'fire');
+    state.flags.add('access:mentor:torva');
+    state.flags.add('taught:mentor:torva');
     const spec = lessonSpec(state, 'torva', { spellId: 'fire', level: 2, difficulty: 2 });
     const battle = makeBattle(spec, state.hero);
     state.hero.hp = 0;

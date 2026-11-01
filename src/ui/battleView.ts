@@ -118,7 +118,7 @@ export class BattleView {
     this.frameKey = key;
     this.objectiveText.textContent = objective.label;
     this.counter.textContent = [
-      `${purpose.label} · Details`,
+      'Details',
       battle.combat?.delayedArrivals.length ? 'Ice: one batch held' : '',
       objective.counter,
       objective.piecesLeft !== null && Number.isFinite(objective.piecesLeft)

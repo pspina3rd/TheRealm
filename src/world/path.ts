@@ -1,4 +1,13 @@
-import { DIRECTION_DELTAS, mapHeight, mapWidth, tileAt, warpAt, type Direction } from './map';
+import {
+  DIRECTION_DELTAS,
+  mapHeight,
+  mapWidth,
+  passageOpen,
+  passageMayExit,
+  tileAt,
+  warpAt,
+  type Direction,
+} from './map';
 import { activeEntities, currentMap, type GameState } from './state';
 
 /**
@@ -68,6 +77,8 @@ export function pathTo(state: GameState, x: number, y: number): Direction[] | nu
   const map = currentMap(state);
   const occupied = new Set(activeEntities(state).map((e) => `${e.x},${e.y}`));
   return findPath([state.x, state.y], [x, y], mapWidth(map), mapHeight(map), (px, py) => {
+    const gate = map.passages?.find((gate) => gate.x === px && gate.y === py);
+    if (gate && !passageOpen(gate, state) && !passageMayExit(gate, state)) return 'stop';
     if (occupied.has(`${px},${py}`)) return 'stop';
     if (!tileAt(map, px, py).walkable) return 'blocked';
     return warpAt(map, px, py) ? 'stop' : 'open';
