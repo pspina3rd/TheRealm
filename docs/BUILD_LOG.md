@@ -792,3 +792,23 @@ runtime and do not satisfy the pending M2a teaching/UI/balance acceptance gates.
 Details: [opening progression](OPENING_PROGRESSION.md),
 [gameplay review](reviews/OPENING_PROGRESSION_REVIEW.md), and
 [presentation review](reviews/OPENING_PRESENTATION_REVIEW.md).
+
+## 2026-11-01 · Native iPhone controls prototype
+
+- Added a standalone Slime battle using UIKit touches, SpriteKit rendering and
+  the existing production battle rules in JavaScriptCore. No browser, Node
+  installation or movement buttons are required to run the Xcode project.
+- Zero spells is the default. The isolated test settings support six starting
+  schools at all four ranks, with zero starting mana. Campaign saves and the
+  full story remain in the web game; this is a controls prototype.
+- Covered interrupted touches, stale piece gestures, native background/resume
+  and production manual pause limits. The app is named **Crystals Test** to
+  distinguish it from an installed web shortcut.
+- Apple JavaScriptCore and native input tests, the iPhone 15 Pro Simulator
+  launch/gesture/background UI test, and the existing web CI passed. Native
+  validation: [run 41322483975](https://github.com/pspina3rd/TheRealm/actions/runs/41322483975).
+- Physical iPhone thumb feel and installation still need verification. Xcode
+  setup comes first, then direct device testing; TestFlight signing and
+  distribution come later. No TestFlight build has been published.
+
+Setup: [native iPhone guide](../ios/README.md).

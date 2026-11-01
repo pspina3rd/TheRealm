@@ -1,5 +1,9 @@
 # Test Mana Crystals on an iPhone 15 Pro
 
+For the **native Crystals Test app**, use [the Xcode guide](../ios/README.md).
+That prototype tests native battle gestures without Safari. The instructions
+below cover the existing web game.
+
 The game runs in Safari and can be added to the Home Screen. App Store or
 TestFlight distribution is not required. This change does not publish the game
 or create an external hosting account.

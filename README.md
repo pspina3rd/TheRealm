@@ -19,6 +19,9 @@ story interpretations remain proposals and its combat still needs tuning.
 
 ## Quick start
 
+For the native iPhone controls prototype, follow [the Xcode guide](ios/README.md).
+It runs a standalone Slime battle; the full campaign remains in the web game.
+
 Requires Node.js 20 or newer.
 
 ```bash
