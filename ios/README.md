@@ -1,6 +1,8 @@
 # Mana Crystals — native iPhone playtest
 
-This first milestone is a native Slime battle to test the feel of the controls.
+The phone app is named **Crystals Test**, so it is easy to distinguish from the
+Safari Home Screen shortcut. This first milestone is a native Slime battle to
+test the feel of the controls.
 SpriteKit draws the board and UIKit receives touches. The existing battle rules
 run locally in Apple's JavaScriptCore. There is no browser, HTML view, web
 server, npm installation, CocoaPods or downloaded Swift dependency to run it.

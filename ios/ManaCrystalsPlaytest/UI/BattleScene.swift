@@ -160,8 +160,8 @@ final class NativeBoardView: SKView {
 
 
 final class NextPiecesView: UIView {
-    var pieces: [NativePiece] = [] { didSet { setNeedsDisplay() } }
-    var lines = 0 { didSet { setNeedsDisplay() } }
+    var pieces: [NativePiece] = [] { didSet { if pieces != oldValue { setNeedsDisplay() } } }
+    var lines = 0 { didSet { if lines != oldValue { setNeedsDisplay() } } }
     override var intrinsicContentSize: CGSize { CGSize(width:240,height:30) }
     override func draw(_ rect: CGRect) {
         let attributes: [NSAttributedString.Key:Any] = [.font:UIFont.monospacedSystemFont(ofSize:12,weight:.medium),.foregroundColor:UIColor.lightGray]

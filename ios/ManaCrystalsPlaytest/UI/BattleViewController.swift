@@ -21,6 +21,7 @@ final class BattleViewController: UIViewController {
     private var lastFrame=0.0
     private var school="none", rank=1
     private var reportedError=false
+    private var hudKey=""
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask { .portrait }
     override var preferredScreenEdgesDeferringSystemGestures: UIRectEdge { .bottom }
 
@@ -106,9 +107,17 @@ final class BattleViewController: UIViewController {
     }
     private func adopt(_ next:BattleState) {
         if next.pieceID != state?.pieceID || !next.acceptsTouch {gesture.invalidate()}
-        state=next;scene.render(next)
+        if state?.paused != next.paused {lastFrame=0}
+        state=next
+        clock?.isPaused=next.paused || (next.status != "ongoing" && !next.busy)
+        scene.render(next)
         if next.paused && !next.ready {board.accessibilityValue="Paused"}
         else if let piece=next.active {board.accessibilityValue="\(piece.name), column \((piece.x ?? 0)+1), row \((piece.y ?? 0)+1)"}
+        let spellKey=next.spells.map { "\($0.id):\($0.rank):\($0.mana):\($0.cost)" }.joined(separator:";")
+        let nextKey=next.next.map { $0.name + $0.colors.joined() }.joined()
+        let newHUDKey="\(next.heroHP):\(next.enemyHP):\(next.paused):\(next.ready):\(next.busy):\(next.status):\(next.lines):\(next.pausesLeft):\(spellKey):\(nextKey):\(next.enemyMove):\(Int(ceil(next.enemyRemainingMs/1000)))"
+        guard newHUDKey != hudKey else{return}
+        hudKey=newHUDKey
         health.text="YOU \(next.heroHP)/\(next.heroMaxHP)   SLIME \(next.enemyHP)/\(next.enemyMaxHP)"
         pause.setImage(UIImage(systemName:next.paused ? "play.fill":"pause.fill"),for:.normal)
         pause.accessibilityLabel=next.paused ? "Resume":"Pause"

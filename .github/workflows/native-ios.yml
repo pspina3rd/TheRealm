@@ -45,8 +45,9 @@ jobs:
           xcrun simctl boot "$NATIVE_DEVICE"
           xcrun simctl bootstatus "$NATIVE_DEVICE" -b
       - name: Build and exercise native iPhone gestures
+        timeout-minutes: 12
         run: |
-          xcodebuild test -project ios/ManaCrystalsPlaytest.xcodeproj -scheme ManaCrystalsPlaytest -destination "platform=iOS Simulator,id=$NATIVE_DEVICE" -derivedDataPath "$RUNNER_TEMP/NativeDerivedData" -resultBundlePath "$RUNNER_TEMP/NativePlaytest.xcresult" CODE_SIGNING_ALLOWED=NO
+          xcodebuild test -test-timeouts-enabled YES -default-test-execution-time-allowance 90 -maximum-test-execution-time-allowance 120 -project ios/ManaCrystalsPlaytest.xcodeproj -scheme ManaCrystalsPlaytest -destination "platform=iOS Simulator,id=$NATIVE_DEVICE" -derivedDataPath "$RUNNER_TEMP/NativeDerivedData" -resultBundlePath "$RUNNER_TEMP/NativePlaytest.xcresult" CODE_SIGNING_ALLOWED=NO
       - name: Export native test screenshots
         if: always()
         run: |

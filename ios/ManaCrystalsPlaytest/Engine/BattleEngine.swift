@@ -1,7 +1,7 @@
 import Foundation
 import JavaScriptCore
 
-public struct NativePiece: Decodable {
+public struct NativePiece: Decodable, Equatable {
     public let name: String
     public let x: Int?, y: Int?
     public let cells: [[Int]]
