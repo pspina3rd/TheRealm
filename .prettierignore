@@ -5,3 +5,7 @@ package-lock.json
 
 # The author's story script, kept exactly as written
 docs/STORY.md
+
+ios/ManaCrystalsPlaytest/Engine/battle-engine.js
+ios/.build/
+ios/build/

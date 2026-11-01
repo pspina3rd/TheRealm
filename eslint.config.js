@@ -4,7 +4,17 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['dist', 'coverage', 'node_modules', '.claude'] },
+  {
+    ignores: [
+      'dist',
+      'coverage',
+      'node_modules',
+      '.claude',
+      'ios/**/battle-engine.js',
+      'ios/.build',
+      'ios/build',
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.strict,
   {

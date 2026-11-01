@@ -19,7 +19,8 @@
     "check": "npm run format:check && npm run lint && npm run typecheck && npm test",
     "sim:progression": "SIM_PROGRESSION=1 vitest run tests/sim/progression.test.ts",
     "dev:phone": "vite --host 0.0.0.0",
-    "preview:phone": "vite preview --host 0.0.0.0"
+    "preview:phone": "vite preview --host 0.0.0.0",
+    "build:native": "node tools/build-native.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -1,0 +1,55 @@
+name: Native iOS playtest
+
+on:
+  push:
+    branches: [GetPutTaco]
+    paths:
+      - 'ios/**'
+      - 'src/**'
+      - 'tools/build-native.mjs'
+      - 'package*.json'
+      - '.github/workflows/native-ios.yml'
+  pull_request:
+    paths:
+      - 'ios/**'
+      - 'src/**'
+      - 'tools/build-native.mjs'
+      - 'package*.json'
+      - '.github/workflows/native-ios.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    runs-on: macos-15
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Verify the committed offline battle rules
+        run: |
+          npm run build:native
+          git diff --exit-code -- ios/ManaCrystalsPlaytest/Engine/battle-engine.js
+      - name: Native gestures and Apple JavaScriptCore tests
+        run: swift test --package-path ios
+      - name: Create iPhone 15 Pro simulator
+        run: |
+          NATIVE_RUNTIME=$(xcrun simctl list runtimes -j | python3 -c 'import json,sys; r=[r for r in json.load(sys.stdin)["runtimes"] if r["isAvailable"] and r["identifier"].startswith("com.apple.CoreSimulator.SimRuntime.iOS-")]; print(sorted(r,key=lambda x:[int(v) for v in x["version"].split(".")])[-1]["identifier"])')
+          NATIVE_DEVICE=$(xcrun simctl create ManaCrystalsPhone com.apple.CoreSimulator.SimDeviceType.iPhone-15-Pro "$NATIVE_RUNTIME")
+          echo "NATIVE_DEVICE=$NATIVE_DEVICE" >> "$GITHUB_ENV"
+          xcrun simctl boot "$NATIVE_DEVICE"
+          xcrun simctl bootstatus "$NATIVE_DEVICE" -b
+      - name: Build and exercise native iPhone gestures
+        run: |
+          xcodebuild test -project ios/ManaCrystalsPlaytest.xcodeproj -scheme ManaCrystalsPlaytest -destination "platform=iOS Simulator,id=$NATIVE_DEVICE" -derivedDataPath "$RUNNER_TEMP/NativeDerivedData" -resultBundlePath "$RUNNER_TEMP/NativePlaytest.xcresult" CODE_SIGNING_ALLOWED=NO
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-iphone-test-results
+          path: ${{ runner.temp }}/NativePlaytest.xcresult
+          if-no-files-found: ignore

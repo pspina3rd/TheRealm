@@ -7,3 +7,11 @@ coverage
 # Agent worktrees (local only)
 .claude/worktrees/
 tests/sim/tmp/
+
+# Local Xcode and Swift build output
+ios/.build/
+ios/build/
+**/xcuserdata/
+*.xcuserstate
+*.xcresult/
+DerivedData/
