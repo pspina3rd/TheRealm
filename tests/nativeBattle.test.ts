@@ -10,6 +10,7 @@ type State = {
   status: string;
   active: { x: number; y: number; cells: number[][] };
   enemyRemainingMs: number;
+  pausesLeft: number;
   spells: { id: string; rank: number; mana: number }[];
 };
 function engine() {
@@ -62,6 +63,22 @@ describe('bundled native battle boundary', () => {
       paused.active,
     );
     expect(send({ type: 'step', ms: 10000 }).state.enemyRemainingMs).toBe(paused.enemyRemainingMs);
+  });
+  it('preserves manual pause limits while allowing safe system suspension', () => {
+    const send = engine();
+    send({ type: 'start', seed: 73 });
+    send({ type: 'begin' });
+    for (let remaining = 2; remaining >= 0; remaining--) {
+      const paused = send({ type: 'pause', paused: true }).state;
+      expect(paused.paused).toBe(true);
+      expect(paused.pausesLeft).toBe(remaining);
+      send({ type: 'pause', paused: false });
+    }
+    expect(send({ type: 'pause', paused: true }).state.paused).toBe(false);
+    const system = send({ type: 'pause', paused: true, system: true }).state;
+    expect(system.paused).toBe(true);
+    expect(system.pausesLeft).toBe(0);
+    expect(send({ type: 'pause', paused: false }).state.paused).toBe(false);
   });
   it('rejects unsupported prototype modes and malformed input without destroying the battle', () => {
     const send = engine(),

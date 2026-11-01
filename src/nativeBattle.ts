@@ -67,6 +67,7 @@ function snapshot() {
     enemyRemainingMs: b.combat ? Math.max(0, b.combat.actMs - b.combat.gauge) : 0,
     lines: b.lines,
     score: b.score,
+    pausesLeft: b.pausesLeft,
     spells: Object.keys(b.hero.spells)
       .filter((id) => STANDARD_SPELLS[id])
       .map((id) => {
@@ -152,7 +153,8 @@ export function dispatch(json: string): string {
         }
       } else if (r.type === 'pause') {
         if (typeof r.paused !== 'boolean') throw new Error('Invalid pause state.');
-        b.paused = r.paused;
+        if (r.system === true) b.paused = r.paused;
+        else if (r.paused !== b.paused) b.togglePause();
       } else if (r.type === 'input') {
         const actions: readonly string[] = ['left', 'right', 'rotate', 'softDrop', 'hardDrop'];
         if (!actions.includes(String(r.action))) throw new Error('Invalid battle action.');

@@ -107,11 +107,13 @@ final class BattleViewController: UIViewController {
     private func adopt(_ next:BattleState) {
         if next.pieceID != state?.pieceID || !next.acceptsTouch {gesture.invalidate()}
         state=next;scene.render(next)
-        if let piece=next.active {board.accessibilityValue="\(piece.name), column \((piece.x ?? 0)+1), row \((piece.y ?? 0)+1)"}
+        if next.paused && !next.ready {board.accessibilityValue="Paused"}
+        else if let piece=next.active {board.accessibilityValue="\(piece.name), column \((piece.x ?? 0)+1), row \((piece.y ?? 0)+1)"}
         health.text="YOU \(next.heroHP)/\(next.heroMaxHP)   SLIME \(next.enemyHP)/\(next.enemyMaxHP)"
         pause.setImage(UIImage(systemName:next.paused ? "play.fill":"pause.fill"),for:.normal)
         pause.accessibilityLabel=next.paused ? "Resume":"Pause"
-        pause.isEnabled = !next.ready && next.status == "ongoing"
+        pause.isEnabled = !next.ready && next.status == "ongoing" && (next.paused || next.pausesLeft > 0)
+        pause.accessibilityValue="\(next.pausesLeft) pauses remaining"
         if next.status != "ongoing" {status.text=next.status == "won" ? "Slime defeated · Tap settings to play again":"Battle over · Tap settings to try again"}
         else if next.ready {status.text="Drag to move · Tap to rotate · Flick ↓ to drop"}
         else if next.paused {status.text="Paused"}
@@ -119,9 +121,9 @@ final class BattleViewController: UIViewController {
             let name=Self.names[spell.id] ?? spell.id
             status.text="\(name) \(spell.rank) · \(spell.mana)/\(spell.cost) mana · \(next.busy ? "CASTING":"AUTO")"
         } else {status.text="\(next.enemyMove) · \(Int(ceil(next.enemyRemainingMs/1000)))s"}
-        preview.pieces=next.next;preview.lines=next.lines
+        preview.pieces=next.paused && !next.ready ? [] : next.next;preview.lines=next.lines
     }
-    func suspend() {gesture.cancelAll();lastFrame=0;send(["type":"pause","paused":true])}
+    func suspend() {gesture.cancelAll();lastFrame=0;send(["type":"pause","paused":true,"system":true])}
     @objc private func togglePause() {gesture.cancelAll();send(["type":"pause","paused":!(state?.paused ?? false)])}
     @objc private func showOptions() {
         suspend()

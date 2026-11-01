@@ -33,7 +33,8 @@ final class BattleEngineTests:XCTestCase {
     func testBackgroundPauseCannotRotateOrAdvanceEnemy() throws {
         let engine=try BattleEngine()
         _=try engine.send(["type":"start","seed":73]);try engine.send(["type":"begin"])
-        let paused=try engine.send(["type":"pause","paused":true])
+        let paused=try engine.send(["type":"pause","paused":true,"system":true])
+        XCTAssertEqual(paused.pausesLeft,3)
         let ignored=try engine.send(["type":"input","action":"rotate","pieceID":paused.pieceID])
         let later=try engine.send(["type":"step","ms":10000])
         XCTAssertEqual(ignored.active?.cells,paused.active?.cells)

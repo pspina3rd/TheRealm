@@ -32,7 +32,7 @@ public struct BattleState: Decodable {
     public let obstructions: [String: NativeObstruction]
     public let active: NativePiece?
     public let next: [NativePiece]
-    public let heroHP: Int, heroMaxHP: Int, lines: Int, score: Int
+    public let heroHP: Int, heroMaxHP: Int, lines: Int, score: Int, pausesLeft: Int
     public let enemyHP: Int, enemyMaxHP: Int
     public let enemyMove: String, enemyRemainingMs: Double
     public let spells: [NativeSpell]

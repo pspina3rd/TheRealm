@@ -14,6 +14,9 @@ final class BattleScene: SKScene {
     }
 
     func render(_ state: BattleState) {
+        if state.paused && !state.ready {
+            boardLayer.removeAllChildren();effectLayer.removeAllChildren();previousKey="paused";return
+        }
         let obstacleKey = state.obstructions.keys.sorted().map { key in
             let strength = state.obstructions[key]?.strength ?? 0
             let colors = state.obstructions[key]?.sequence?.map { $0.color }.joined(separator: ",") ?? ""
