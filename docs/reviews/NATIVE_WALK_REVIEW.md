@@ -16,3 +16,17 @@ The four heroes use licensed 192×192 character sheets (026, 019, 016, 004), wit
 - Ground, buildings, camera and markers remain retained, with no per-step flashes or gaps.
 
 Local verification: six retained native world rendering tests passed. UIKit/SpriteKit compilation and visual criteria remain pending the next Apple workflow/capture. This source review does not claim physical iPhone acceptance.
+
+## Recorded simulator evidence
+
+Apple run 41489327715 passed both native UI tests, including held movement,
+relaunch and background recovery. The walking source is unchanged by the later
+menu-header correction. Its recorded northward movement shows different authored
+leg poses, rather than a fixed pose sliding across the map; see the
+[pose contact sheet](artifacts/NATIVE_WALK_POSES.png). The initial resting pose
+uses the authored standing frame.
+
+A bounded 8.5-second world segment decoded 38 original recording frames, with no
+low-ground-content gaps; see the [frame review](artifacts/NATIVE_FOLLOWUP_WALK_FRAME_REVIEW.json).
+This does not establish physical-device frame rate or acceptance of every route,
+hero, direction and accessibility setting. Physical iPhone feel remains a retest.

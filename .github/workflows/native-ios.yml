@@ -22,9 +22,9 @@ permissions:
 
 jobs:
   native:
-    # Pin Intel: the macos-15 arm64 pool can fail before acquiring a runner.
-    # UIKit/SpriteKit and the iPhone simulator remain tested on Apple's tooling.
-    runs-on: macos-15-intel
+    # Use the current Apple Silicon image. Intel XCTest repeatedly failed
+    # during test-service bootstrap before any app tests could execute.
+    runs-on: macos-26
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4

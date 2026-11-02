@@ -1,0 +1,11 @@
+{
+  "source_run": 41489327715,
+  "source_sha": "3c262ab038302fa4a7506253206d8f20fe57183c",
+  "walking_code_unchanged_in_layout_fix": true,
+  "clip_start_seconds": 457.1,
+  "clip_duration_seconds": 8.5,
+  "decoded_original_frames": 38,
+  "minimum_ground_fraction": 0.6852392156862745,
+  "frames_below_30_percent_ground": [],
+  "scope": "Original frames in one recorded world movement segment; ground retention plus separate sampled pose contact sheet. Not full gameplay or physical iPhone acceptance."
+}

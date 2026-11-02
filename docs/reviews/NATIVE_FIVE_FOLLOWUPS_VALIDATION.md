@@ -36,3 +36,29 @@ continuing to progress. An independent reviewer approved bounded allowances of
 individual assertion waits unchanged. Relaunch completion remains unverified.
 If the termination request stalls again, investigate it rather than extending
 the limits further.
+
+## Visual correction checkpoint
+
+Run 41489327715 passed 23 native engine/gesture checks and both UI tests. Visual
+review still rejected the map header: its instruction label was ellipsized.
+The native menu author replaced ambiguous Auto Layout fitting with explicit
+wrapped-width measurement; independent source re-review accepted the correction.
+The UI test now checks rendered instruction height and the map's square frame.
+Corrected source is `7c2623596b15ea18853d5dfb81e818da08e94a80`.
+
+Run 41493333486 attempt 1 compiled the corrected app and passed the engine/gesture
+checks, but its XCTest runner was killed before starting test execution. The
+result bundle reports: “Early unexpected exit, operation never finished
+bootstrapping … Test crashed with signal kill before starting test execution.”
+No test screenshots were produced. Attempt 2 is retrying the same source, without
+changing app behavior, assertions or time limits.
+
+## Runner fallback after bootstrap failures
+
+The unchanged retry of run 41493333486 also failed before any tests or screenshots:
+“The test runner failed to initialize for UI testing … Timed out waiting for AX
+loaded notification.” Both attempts compiled the corrected native app and passed
+the Apple engine/gesture checks. Validation now uses the officially supported
+`macos-26` Apple Silicon image, with the same assertions and bounded allowances.
+The hosted macos-15 arm64 pool previously failed to acquire a runner; Intel then
+proved unreliable for XCTest initialization. Fresh layout evidence remains open.
