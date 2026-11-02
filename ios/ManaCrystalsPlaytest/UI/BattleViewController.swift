@@ -137,7 +137,7 @@ final class BattleViewController: UIViewController {
         else if let piece=next.active {board.accessibilityValue="\(piece.name), column \((piece.x ?? 0)+1), row \((piece.y ?? 0)+1)"}
         let spellKey=next.spells.map { "\($0.id):\($0.rank):\($0.mana):\($0.cost)" }.joined(separator:";")
         let nextKey=next.next.map { $0.name + $0.colors.joined() }.joined()
-        let objectiveKey="\(next.objective?.label ?? ""):\(next.objective?.counter ?? ""):\(next.objective?.piecesLeft ?? -1)"
+        let objectiveKey="\(next.effect?.school ?? ""):\(next.effect?.rank ?? 0):\(next.objective?.label ?? ""):\(next.objective?.counter ?? ""):\(next.objective?.piecesLeft ?? -1)"
         let newHUDKey="\(objectiveKey):\(next.heroHP):\(next.enemyHP):\(next.paused):\(next.ready):\(next.busy):\(next.status):\(next.lines):\(next.pausesLeft):\(spellKey):\(nextKey):\(next.enemyMove):\(Int(ceil(next.enemyRemainingMs/1000)))"
         guard newHUDKey != hudKey else{return}
         hudKey=newHUDKey
@@ -154,7 +154,12 @@ final class BattleViewController: UIViewController {
             let name=Self.names[spell.id] ?? spell.id
             status.text="\(name) \(spell.rank) · \(spell.mana)/\(spell.cost) mana · \(next.busy ? "CASTING":"AUTO")"
         } else {status.text="\(next.enemyMove) · \(Int(ceil(next.enemyRemainingMs/1000)))s"}
-        if campaign && next.status == "ongoing" && !next.ready {status.text=[next.objective?.label,next.objective?.counter,next.objective?.piecesLeft.map { "\($0) pieces left" }].compactMap{$0}.joined(separator:" · ")}
+        if campaign && next.status == "ongoing" && !next.ready {
+            if next.paused {status.text="Paused"}
+            else if let effect=next.effect {status.text="\(Self.names[effect.school] ?? effect.school) · Level \(effect.rank)"}
+            else if next.objective?.label == next.title && next.enemyMaxHP>0 {status.text="\(next.enemyMove) · \(Int(ceil(next.enemyRemainingMs/1000)))s"}
+            else {status.text=[next.objective?.label,next.objective?.counter,next.objective?.piecesLeft.map { "\($0) pieces left" }].compactMap{$0}.joined(separator:" · ")}
+        }
         preview.pieces=next.paused && !next.ready ? [] : next.next;preview.lines=next.lines
     }
     func suspend() {gesture.cancelAll();lastFrame=0;send(["type":"pause","paused":true,"system":true]);onCheckpoint?()}

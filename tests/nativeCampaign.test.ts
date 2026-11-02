@@ -5,6 +5,8 @@ import { campaignDispatch } from '../src/native/campaign';
 import { dispatch, currentNativeBattle } from '../src/nativeBattle';
 import { newGame } from '../src/world/state';
 import { serialize, deserialize } from '../src/game/save';
+import { MAPS } from '../src/data/maps';
+import { tileAt, type Direction } from '../src/world/map';
 import { HOMETOWNS } from '../src/data/hometowns';
 
 function send(r: Record<string, unknown>) {
@@ -85,6 +87,50 @@ describe('native campaign boundary', () => {
     expect(state.save).toBeTruthy();
     state = send({ type: 'load', save: state.save });
     expect(state.world.heroY).toBe(22);
+  });
+  it('uses an item from a paused native battle without leaving the controls stuck', () => {
+    const fixtureState = fixture(),
+      map = MAPS.grove!;
+    const foe = map.entities.find((entity) => entity.kind === 'monster')!;
+    const approach = (
+      [
+        [0, 1, 'up'],
+        [0, -1, 'down'],
+        [1, 0, 'left'],
+        [-1, 0, 'right'],
+      ] as const
+    ).find(([dx, dy]) => tileAt(map, foe.x + dx, foe.y + dy).walkable)!;
+    fixtureState.mapId = 'grove';
+    fixtureState.x = foe.x + approach[0];
+    fixtureState.y = foe.y + approach[1];
+    fixtureState.hero.items.herb = 1;
+    fixtureState.hero.hp = 1;
+    send({ type: 'load', save: serialize(fixtureState) });
+    let state = send({ type: 'move', direction: approach[2] as Direction });
+    state = choose(state, 'Begin');
+    expect(state.mode).toBe('battle');
+    state = send({ type: 'battleMenu' });
+    const item = state.panel.actions.find((a: { label: string }) => a.label === 'Use Herb');
+    expect(item).toBeDefined();
+    state = send({ type: 'action', id: item.id });
+    expect(state.panel).toBeNull();
+    expect(currentNativeBattle()?.hero.hp).toBeGreaterThan(1);
+    const battle = JSON.parse(dispatch(JSON.stringify({ type: 'snapshot' }))).state;
+    expect(battle.ready).toBe(false);
+  });
+  it('marks only the selected alternative hometown on the native overview', () => {
+    send({ type: 'start', classId: 'mage' });
+    for (let i = 0; i < 30; i++) {
+      const next = send({ type: 'snapshot' });
+      if (!next.panel) break;
+      send({ type: 'action', id: next.panel.actions[0].id });
+    }
+    const state = choose(send({ type: 'menu' }), 'World map');
+    const names = state.overview.sites.map((site: { name: string }) => site.name);
+    expect(names).toContain('Merehaven');
+    expect(names).toContain('Mossvale');
+    expect(names).not.toContain('Cairnwick');
+    expect(names).not.toContain('Bramblecross');
   });
   it('runs the committed offline bundle without DOM or browser globals', () => {
     const context = vm.createContext({});

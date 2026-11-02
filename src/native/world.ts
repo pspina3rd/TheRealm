@@ -1,6 +1,7 @@
 import { required } from '../core/required';
 import { MAPS } from '../data/maps';
-import { HOMETOWNS } from '../data/hometowns';
+import { hometownMap } from '../world/hometowns';
+import { HOMETOWNS, hometownOf } from '../data/hometowns';
 import { regionFixed } from '../game/encounterFlow';
 import { SURFACE_SITES, SURFACE_STONES } from '../data/surfaceLayout';
 import { heroClass } from '../game/hero';
@@ -115,9 +116,10 @@ export function worldSnapshot(state: GameState) {
 
 /** Compact terrain for the native map sheet; selecting the map never moves the hero. */
 export function overviewSnapshot(state: GameState) {
-  const map = state.mapId === 'overworld' ? currentMap(state) : null;
+  const map = hometownMap(required(MAPS.overworld), state.flags);
+  const home = hometownOf(state.flags);
   return {
-    tiles: (map ?? required(MAPS.overworld)).tiles,
+    tiles: map.tiles,
     x:
       state.mapId === 'overworld'
         ? state.x
@@ -127,7 +129,11 @@ export function overviewSnapshot(state: GameState) {
         ? state.y
         : (SURFACE_SITES[state.mapId as keyof typeof SURFACE_SITES]?.y ?? SURFACE_SITES.mossvale.y),
     sites: Object.entries(SURFACE_SITES)
-      .filter(([id]) => !['innerWard', 'upwardRoad', 'sunkenArchive'].includes(id))
+      .filter(
+        ([id]) =>
+          !['innerWard', 'upwardRoad', 'sunkenArchive'].includes(id) &&
+          (!HOMETOWNS.some((town) => town.map === id) || id === home.map || id === 'mossvale'),
+      )
       .map(([id, point]) => ({
         x: point.x,
         y: point.y,

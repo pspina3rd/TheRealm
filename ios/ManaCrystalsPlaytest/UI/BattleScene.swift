@@ -62,7 +62,7 @@ final class BattleScene: SKScene {
                     }
                     if let tags=state.tags,row < tags.count,column < tags[row].count,let tag=tags[row][column] {
                         let mark=SKShapeNode(rect:rect.insetBy(dx:cell*0.2,dy:cell*0.2),cornerRadius:3)
-                        mark.strokeColor=tag=="target" ? .systemYellow:.systemGreen;mark.lineWidth=2;mark.zPosition=5;boardLayer.addChild(mark)
+                        mark.strokeColor=tag=="target" ? .systemYellow : (tag=="protected" ? .systemTeal : tag=="ridge" ? .systemBrown : .systemPurple);mark.lineWidth=2;mark.zPosition=5;boardLayer.addChild(mark)
                     }
                 }
             }
@@ -78,6 +78,16 @@ final class BattleScene: SKScene {
             }
         }
         effectLayer.removeAllChildren()
+        let cell=size.width/CGFloat(state.width)
+        for warning in state.telegraphs ?? [] {
+            for spot in warning.cells ?? [] where spot.count==2 {
+                let rect=CGRect(x:CGFloat(spot[0])*cell,y:size.height-CGFloat(spot[1]+1)*cell,width:cell,height:cell).insetBy(dx:2,dy:2)
+                let mark=SKShapeNode(rect:rect,cornerRadius:3);mark.strokeColor = .systemPurple;mark.lineWidth=2;mark.fillColor=UIColor.systemPurple.withAlphaComponent(0.12);effectLayer.addChild(mark)
+            }
+            if let rows=warning.rows,rows>0 {
+                let band=SKShapeNode(rect:CGRect(x:0,y:0,width:size.width,height:CGFloat(rows)*cell));band.fillColor=UIColor.systemPurple.withAlphaComponent(0.12);band.strokeColor = .systemPurple;effectLayer.addChild(band)
+            }
+        }
         if let effect = state.effect { drawEffect(effect, state: state) }
     }
 

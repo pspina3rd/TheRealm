@@ -33,6 +33,7 @@ public struct BattleState: Decodable {
     public let canCorrect: Bool?
     public let tags: [[String?]]?
     public let verb: NativeVerb?
+    public let telegraphs: [NativeTelegraph]?
     public let grid: [[String?]]
     public let obstructions: [String: NativeObstruction]
     public let active: NativePiece?
@@ -145,3 +146,10 @@ public struct NativeVerb: Decodable { public let verb: String; public let params
 
 public struct CampaignSite:Decodable { public let x:Int,y:Int; public let name:String }
 public struct CampaignOverview:Decodable { public let tiles:[String]; public let x:Int,y:Int; public let sites:[CampaignSite] }
+
+public struct NativeTelegraph:Decodable {
+    public let kind:String
+    public let cells:[[Int]]?
+    public let rows:Int?
+    public let leadPieces:Int
+}

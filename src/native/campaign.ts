@@ -74,6 +74,7 @@ import {
   adjustStat,
   adjustEnhancement,
 } from '../game/skills';
+import type { Gain } from '../game/rewards';
 import { spellName } from '../game/spells';
 import type { Attitude } from '../game/attitude';
 import { worldSnapshot, overviewSnapshot } from './world';
@@ -263,10 +264,42 @@ function finishBattle(): void {
       : scenes();
   message(
     resolution.won ? 'Encounter complete' : 'Try again',
-    resolution.speech ??
-      (resolution.fell ? 'You wake at your last resting place.' : 'Your progress is saved.'),
+    [
+      resolution.speech ?? (resolution.fell ? 'You wake at your last resting place.' : ''),
+      ...resolution.gains.map(gainText),
+    ]
+      .filter(Boolean)
+      .join('\n'),
     after,
   );
+}
+function gainText(gain: Gain): string {
+  switch (gain.kind) {
+    case 'xp':
+      return `+${gain.amount} XP`;
+    case 'gil':
+      return `${gain.amount >= 0 ? '+' : ''}${gain.amount} gil`;
+    case 'item':
+      return `${gain.count >= 0 ? '+' : ''}${gain.count} ${ITEMS[gain.itemId]?.name ?? gain.itemId}`;
+    case 'level':
+      return `Level ${gain.level} · +${gain.points} skill points`;
+    case 'spell':
+      return `Learned ${spellName(required(SPELLS[gain.spellId]), state().hero.spells[gain.spellId]?.level)}`;
+    case 'spellLevel':
+      return `${spellName(required(SPELLS[gain.spellId]), gain.level)} · Level ${gain.level}`;
+    case 'seal':
+      return `${spellName(required(SPELLS[gain.spellId]))} sealed`;
+    case 'unseal':
+      return `${spellName(required(SPELLS[gain.spellId]))} unsealed`;
+    case 'route':
+      return `${MENTORS[gain.mentorId]?.name ?? gain.mentorId} can travel again`;
+    case 'regard':
+      return gain.delta > 0 ? 'Regard improved' : gain.delta < 0 ? 'Regard fell' : '';
+    case 'strain':
+      return `Retry strain ${gain.level}`;
+    case 'price':
+      return `Shop prices ${Math.round(gain.multiplier * 100)}%`;
+  }
 }
 function shop(id: string, multiplier: number, attitude: Attitude): void {
   const def = required(SHOPS[id]);
@@ -727,7 +760,7 @@ export function campaignDispatch(json: string): string {
         hp: game?.hero.hp ?? 0,
         maxHP: game?.hero.maxHp ?? 0,
         panel,
-        world: cachedWorld,
+        world: battleInfo ? null : cachedWorld,
         walking: walking.length > 0,
         overview,
         save,
