@@ -232,21 +232,34 @@ private final class CampaignPanelController: UITableViewController {
     }
     private func buildHeader(width:CGFloat) {
         guard width>0 else{return};headerWidth=width
-        let title=UILabel();title.tag=701;title.numberOfLines=0;title.text=panel.title;title.textAlignment = .center
+        // UITableView sizes its header by frame, not Auto Layout. Measure each
+        // wrapped label at the final column width before assigning that frame;
+        // fitting a one-point placeholder can compress prose to a single line.
+        let contentWidth=max(1,width-56)
+        let container=UIView(frame:CGRect(x:0,y:0,width:width,height:0));container.backgroundColor = .clear
+        var y:CGFloat=24
+        func append(_ label:UILabel,gap:CGFloat=16) {
+            label.numberOfLines=0;label.lineBreakMode = .byWordWrapping
+            label.preferredMaxLayoutWidth=contentWidth
+            let height=ceil(label.sizeThatFits(CGSize(width:contentWidth,height:.greatestFiniteMagnitude)).height)
+            label.frame=CGRect(x:28,y:y,width:contentWidth,height:height)
+            container.addSubview(label);y += height+gap
+        }
+        let title=UILabel();title.tag=701;title.text=panel.title;title.textAlignment = .center
         title.textColor=TomeTheme.ink;title.font=UIFontMetrics(forTextStyle:.title1).scaledFont(for:TomeTheme.font(27));title.adjustsFontForContentSizeCategory=true;title.accessibilityTraits.insert(.header)
-        let rule=UIView();rule.backgroundColor=TomeTheme.gold.withAlphaComponent(0.65);rule.heightAnchor.constraint(equalToConstant:1).isActive=true;rule.isAccessibilityElement=false
-        let text=UILabel();text.numberOfLines=0;text.text=panel.text;text.font=UIFontMetrics(forTextStyle:.body).scaledFont(for:TomeTheme.font(17));text.adjustsFontForContentSizeCategory=true;text.textColor=TomeTheme.ink
-        let stack=UIStackView(arrangedSubviews:[title,rule,text]);stack.axis = .vertical;stack.spacing=16;stack.translatesAutoresizingMaskIntoConstraints=false
+        append(title)
+        let rule=UIView(frame:CGRect(x:28,y:y,width:contentWidth,height:1));rule.backgroundColor=TomeTheme.gold.withAlphaComponent(0.65);rule.isAccessibilityElement=false
+        container.addSubview(rule);y += 17
+        let text=UILabel();text.accessibilityIdentifier="campaign-panel-text";text.text=panel.text;text.font=UIFontMetrics(forTextStyle:.body).scaledFont(for:TomeTheme.font(17));text.adjustsFontForContentSizeCategory=true;text.textColor=TomeTheme.ink
+        append(text)
         if let overview=overview {
             let map=UIImageView(image:Self.mapImage(overview));map.contentMode = .scaleAspectFit
             map.layer.borderColor=TomeTheme.gold.cgColor;map.layer.borderWidth=1;map.layer.cornerRadius=4;map.clipsToBounds=true
-            map.heightAnchor.constraint(equalTo:map.widthAnchor).isActive=true
-            map.isAccessibilityElement=true;map.accessibilityLabel="Map of Sevenstones. Current position, \(overview.x), \(overview.y). North is up."
-            stack.addArrangedSubview(map)
+            map.frame=CGRect(x:28,y:y,width:contentWidth,height:contentWidth)
+            map.isAccessibilityElement=true;map.accessibilityIdentifier="campaign-panel-map";map.accessibilityLabel="Map of Sevenstones. Current position, \(overview.x), \(overview.y). North is up."
+            container.addSubview(map);y += contentWidth+16
         }
-        let container=UIView(frame:CGRect(x:0,y:0,width:width,height:1));container.backgroundColor = .clear;container.addSubview(stack)
-        NSLayoutConstraint.activate([stack.leadingAnchor.constraint(equalTo:container.leadingAnchor,constant:28),stack.trailingAnchor.constraint(equalTo:container.trailingAnchor,constant:-28),stack.topAnchor.constraint(equalTo:container.topAnchor,constant:24),stack.bottomAnchor.constraint(equalTo:container.bottomAnchor,constant:-20)])
-        container.frame.size.height=container.systemLayoutSizeFitting(CGSize(width:width,height:0),withHorizontalFittingPriority:.required,verticalFittingPriority:.fittingSizeLevel).height
+        container.frame.size.height=y+4
         tableView.tableHeaderView=container
     }
     private static func mapImage(_ data:CampaignOverview)->UIImage {

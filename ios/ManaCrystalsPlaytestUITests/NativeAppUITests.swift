@@ -70,6 +70,13 @@ extension NativeAppUITests {
         let menuShot=XCTAttachment(screenshot:app.screenshot());menuShot.name="Parchment campaign menu";menuShot.lifetime = .keepAlways;add(menuShot)
         app.staticTexts["World map"].tap()
         XCTAssertTrue(app.staticTexts.containing(NSPredicate(format:"label CONTAINS %@","Reach the stones through Mossvale")).firstMatch.waitForExistence(timeout:5))
+        // The complete accessibility label also existed when visible prose was
+        // ellipsized. Verify the actual known two-line instruction layout.
+        let instructions=app.staticTexts["campaign-panel-text"]
+        XCTAssertGreaterThan(instructions.frame.height,32)
+        let overview=app.images["campaign-panel-map"]
+        XCTAssertTrue(overview.exists)
+        XCTAssertEqual(overview.frame.width,overview.frame.height,accuracy:1)
         let shot=XCTAttachment(screenshot:app.screenshot());shot.name="Native campaign world map";shot.lifetime = .keepAlways;add(shot)
         app.terminate();app.launchArguments=[];app.launch()
         XCTAssertTrue(app.buttons["Continue campaign"].waitForExistence(timeout:10));app.buttons["Continue campaign"].tap()
