@@ -1,6 +1,7 @@
 import type { Element } from '../core/elements';
 import type { Variants } from '../data/types';
 import { tileFor, type TileDef } from './tiles';
+import { buildingBlocks } from './buildings';
 
 export type Direction = 'up' | 'down' | 'left' | 'right';
 
@@ -189,8 +190,11 @@ export function mapHeight(map: MapDef): number {
   return map.tiles.length;
 }
 
+const BUILDING_TILE: TileDef = { name: 'building', walkable: false };
+
 export function tileAt(map: MapDef, x: number, y: number): TileDef {
-  return tileFor(map.tiles[y]?.[x]);
+  const tile = tileFor(map.tiles[y]?.[x]);
+  return tile.walkable && buildingBlocks(map, x, y) ? BUILDING_TILE : tile;
 }
 
 export function warpAt(map: MapDef, x: number, y: number): Warp | undefined {

@@ -210,5 +210,5 @@ it('does not expose the other alternate hometown roads or relocate mentor stops'
       .map((mentor) => mentor.route[0].map)
       .sort(),
   ).toEqual(['forge', 'lake', 'peaks', 'grove', 'quarry', 'ruins', 'cliffs'].sort());
-  expect(MAPS.mossvale!.name).toBe('Mossvale Village');
+  expect(MAPS.mossvale!.name).toBe('Mossvale');
 });

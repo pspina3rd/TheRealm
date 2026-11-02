@@ -125,8 +125,8 @@ const OUTDOOR_TILES: Readonly<Record<string, TileRecipe>> = {
   T: { objects: TREES },
   '~': { terrain: 'water' },
   '^': { objects: ['boulder.a', 'boulder.b', 'boulder.c'] },
-  M: { terrain: 'path', objects: ['house.red'] },
-  W: { terrain: 'path', objects: ['house.blue'] },
+  M: { terrain: 'path', objects: ['settlement.red'] },
+  W: { terrain: 'path', objects: ['settlement.blue'] },
   C: { terrain: 'path', objects: ['cave.mouth'] },
   R: { terrain: 'path', objects: ['ruins.arch'] },
 };

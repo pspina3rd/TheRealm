@@ -205,12 +205,18 @@ export function withExpandedSurface(base: Record<string, MapDef>): Record<string
       ...map,
       warps: map.warps.map((warp) => {
         if (warp.to.map.startsWith('caves')) return warp;
+        // These entrances sit in a building facade: arrive on the street below its door.
+        const doorstep = id === 'forge' || id === 'cliffs';
         return {
           ...warp,
           to: {
             map: 'overworld',
-            x: point.x + (warp.x === 0 ? -2 : warp.x >= required(map.tiles[0]).length - 1 ? 2 : 0),
-            y: point.y + (warp.y === 0 ? -2 : warp.y >= map.tiles.length - 1 ? 2 : 0),
+            x: doorstep
+              ? point.x
+              : point.x + (warp.x === 0 ? -2 : warp.x >= required(map.tiles[0]).length - 1 ? 2 : 0),
+            y: doorstep
+              ? point.y + 1
+              : point.y + (warp.y === 0 ? -2 : warp.y >= map.tiles.length - 1 ? 2 : 0),
           },
         };
       }),

@@ -111,7 +111,7 @@ const BASE_MAPS: Record<string, MapDef> = {
   },
   mossvale: {
     id: 'mossvale',
-    name: 'Mossvale Village',
+    name: 'Mossvale',
     theme: 'town',
     music: 'music.village',
     tiles: [
@@ -194,7 +194,7 @@ const BASE_MAPS: Record<string, MapDef> = {
   },
   brightwater: {
     id: 'brightwater',
-    name: 'Brightwater Town',
+    name: 'Brightwater',
     theme: 'town',
     music: 'music.town',
     tiles: [

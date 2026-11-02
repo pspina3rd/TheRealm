@@ -66,6 +66,8 @@ extension NativeAppUITests {
         expectation(for:moved,evaluatedWith:nil);waitForExpectations(timeout:5)
         app.buttons["campaign-menu"].tap()
         XCTAssertTrue(app.tables["campaign-dialog"].waitForExistence(timeout:5))
+        XCTAssertTrue(app.staticTexts["World map"].isHittable)
+        let menuShot=XCTAttachment(screenshot:app.screenshot());menuShot.name="Parchment campaign menu";menuShot.lifetime = .keepAlways;add(menuShot)
         app.staticTexts["World map"].tap()
         XCTAssertTrue(app.staticTexts.containing(NSPredicate(format:"label CONTAINS %@","Reach the stones through Mossvale")).firstMatch.waitForExistence(timeout:5))
         let shot=XCTAttachment(screenshot:app.screenshot());shot.name="Native campaign world map";shot.lifetime = .keepAlways;add(shot)

@@ -1,5 +1,6 @@
 import type { Region } from './images';
 import { PROP_ATLAS } from './propAtlas';
+import { BUILDING_FOOTPRINTS } from '../../world/buildings';
 
 /**
  * Standalone props drawn in the depth-sorted object layer (trees, houses,
@@ -51,7 +52,11 @@ const caves = (x: number, y: number, w: number, h: number): Region => ({
 /** A region prop from the packed props sheet (see `tools/import_art.py`). */
 const prop = (name: keyof typeof PROP_ATLAS, width = 1, offsetY = 0): ObjectArt => {
   const [x, y, w, h] = PROP_ATLAS[name];
-  return { region: { image: 'props', x, y, w, h }, width, offsetY };
+  return {
+    region: { image: 'props', x, y, w, h },
+    width: BUILDING_FOOTPRINTS[name]?.width ?? width,
+    offsetY,
+  };
 };
 
 const WINDOW = village(834, 18, 28, 28);
@@ -62,7 +67,7 @@ const FRONT_DOOR = village(0, 280, 32, 38);
 function cottage(y: number): ObjectArt {
   return {
     region: village(864, y, 128, 156),
-    width: 4,
+    width: BUILDING_FOOTPRINTS['house.blue']?.width ?? 4,
     height: 188,
     details: [
       { region: village(864, 464, 128, 32), x: 0, y: 156 },
@@ -72,6 +77,37 @@ function cottage(y: number): ObjectArt {
       { region: FRONT_DOOR, x: 64, y: 150 },
     ],
   };
+}
+
+function settlement(blue: boolean): ObjectArt {
+  const gable = village(768, blue ? 192 : 128, 64, 64);
+  return {
+    // Only baseParts are drawn; region supplies the full composition bounds.
+    region: village(768, 128, 160, 64),
+    width: 5,
+    height: 128,
+    baseParts: [
+      { region: gable, x: 48, y: 0 },
+      { region: gable, x: 0, y: 32 },
+      { region: gable, x: 96, y: 32 },
+      { region: village(864, 464, 64, 16), x: 0, y: 96 },
+      { region: village(864, 464, 64, 16), x: 96, y: 96 },
+    ],
+    details: [
+      { region: FRONT_DOOR, x: 16, y: 74 },
+      { region: FRONT_DOOR, x: 112, y: 74 },
+      // Fence wings frame an open central street, not an individual house door.
+      { region: village(224, 320, 32, 64), x: 32, y: 64 },
+      { region: village(288, 320, 32, 64), x: 96, y: 64 },
+      { region: village(226, 110, 28, 48), x: 132, y: 80 },
+    ],
+  };
+}
+
+/** The final atlas course is an alternate door, not another storey. */
+function mushroomHouse(name: 'mush.house' | 'mush.house.blue'): ObjectArt {
+  const art = prop(name, 6);
+  return { ...art, region: { ...art.region, h: 170 } };
 }
 
 const tower = prop('tower', 3);
@@ -88,10 +124,15 @@ export const OBJECTS = {
   'ruins.arch': { region: grass(806, 578, 84, 62) },
   sign: { region: village(226, 110, 28, 48) },
 
+  // A settlement symbol: several gabled homes behind an open, signposted gateway.
+  // The central lane marks the town warp; this is a map symbol, not a house door.
+  'settlement.red': settlement(false),
+  'settlement.blue': settlement(true),
+
   // Settlements (4-tile-wide houses sit on a 4×3 footprint)
   'house.red': {
     region: village(864, 292, 128, 220),
-    width: 4,
+    width: BUILDING_FOOTPRINTS['house.red']?.width ?? 4,
     baseParts: [
       { region: village(896, 292, 96, 32), x: 32, y: 0 },
       { region: village(864, 324, 128, 188), x: 0, y: 32 },
@@ -146,8 +187,8 @@ export const OBJECTS = {
       { region: WINDOW, x: 34, y: 86 },
     ],
   },
-  'mush.house': prop('mush.house', 6),
-  'mush.house.blue': prop('mush.house.blue', 6),
+  'mush.house': mushroomHouse('mush.house'),
+  'mush.house.blue': mushroomHouse('mush.house.blue'),
   'mush.tree.red': prop('mush.tree.red', 3),
   'mush.tree.blue': prop('mush.tree.blue', 3),
   'tree.green.a': prop('tree.green.a', 1, 4),

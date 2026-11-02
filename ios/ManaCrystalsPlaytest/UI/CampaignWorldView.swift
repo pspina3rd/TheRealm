@@ -38,6 +38,11 @@ private final class CampaignWorldScene:SKScene {
     private var mapID=""
     private var previousHero:(Int,Int)?
     private var cameraTarget:CGPoint?
+    private var standingTexture:SKTexture?
+    private var walkingTextures:[SKTexture]=[]
+    private var gaitTime:TimeInterval=0
+    private var lastFrameTime:TimeInterval?
+    private var lastMovingFrame:TimeInterval?
     override init(size:CGSize){super.init(size:size);addChild(content)}
     required init?(coder:NSCoder){fatalError("Use init(size:)")}
     func tile(at point:CGPoint)->(Int,Int) {
@@ -59,6 +64,7 @@ private final class CampaignWorldScene:SKScene {
         if changedMap {
             content.removeAllActions();content.removeAllChildren()
             nodes.removeAll();stoneNodes.removeAll();mapID=state.mapId;cameraTarget=nil
+            standingTexture=nil;walkingTextures=[];gaitTime=0;lastMovingFrame=nil
         }
         let camera=CGPoint(x:-state.camX,y:state.height+state.camY)
         let duration=UIAccessibility.isReduceMotionEnabled ? 0:0.125
@@ -75,16 +81,19 @@ private final class CampaignWorldScene:SKScene {
             let created=nodes[sprite.id]==nil
             if let existing=nodes[sprite.id] {node=existing}
             else {node=SKSpriteNode();node.anchorPoint=CGPoint(x:0,y:1);nodes[sprite.id]=node;content.addChild(node)}
-            if sprite.id != "hero" || moved || node.action(forKey:"stride")==nil {node.texture=NativeAtlas.shared.texture(sprite)}
+            if sprite.id=="hero" {
+                standingTexture=NativeAtlas.shared.texture(sprite)
+                walkingTextures=NativeAtlas.shared.walker(sprite.source,row:Int(sprite.sy)/48)
+                // Repeated state reads must not replace an in-flight walking frame.
+                if node.action(forKey:"walk")==nil {node.texture=standingTexture}
+            } else {node.texture=NativeAtlas.shared.texture(sprite)}
             node.size=CGSize(width:sprite.width,height:sprite.height)
             node.alpha=sprite.alpha;node.zPosition=CGFloat(index)
             let position=CGPoint(x:sprite.x+state.camX,y:-sprite.y-state.camY)
             if sprite.id=="hero" && !created && canGlide && moved {
                 node.run(.move(to:position,duration:duration),withKey:"walk")
-                let row=Int(sprite.sy)/48,frames=NativeAtlas.shared.walker(sprite.source,row:row)
-                if frames.count==4 && !UIAccessibility.isReduceMotionEnabled {node.run(.animate(with:frames,timePerFrame:0.04),withKey:"stride")}
             } else if sprite.id != "hero" || created || !canGlide {
-                node.removeAction(forKey:"walk");node.removeAction(forKey:"stride");node.position=position
+                node.removeAction(forKey:"walk");node.position=position;node.texture=NativeAtlas.shared.texture(sprite)
             }
             // A repeated read-only snapshot leaves an in-flight hero step alone.
         }
@@ -104,5 +113,22 @@ private final class CampaignWorldScene:SKScene {
         }
         for id in Array(stoneNodes.keys) where !visibleStones.contains(id) {stoneNodes[id]?.removeFromParent();stoneNodes.removeValue(forKey:id)}
         previousHero=(state.heroX,state.heroY)
+    }
+    override func update(_ currentTime:TimeInterval) {
+        let delta=lastFrameTime.map {min(0.05,max(0,currentTime-$0))} ?? 0
+        lastFrameTime=currentTime
+        guard let hero=nodes["hero"] else{return}
+        guard !UIAccessibility.isReduceMotionEnabled,
+              hero.action(forKey:"walk") != nil,walkingTextures.count==4 else {
+            hero.texture=standingTexture
+            return
+        }
+        // The authored sheets are four frames at 8fps, shared with the web renderer.
+        // Keep the phase across adjacent grid steps; don't rush a whole cycle per tile.
+        // A genuine stop starts the next walk with a visible stepping pose.
+        if lastMovingFrame.map({currentTime-$0>0.08}) ?? true {gaitTime=0}
+        gaitTime += delta
+        lastMovingFrame=currentTime
+        hero.texture=walkingTextures[(1+Int(gaitTime*8)) % 4]
     }
 }

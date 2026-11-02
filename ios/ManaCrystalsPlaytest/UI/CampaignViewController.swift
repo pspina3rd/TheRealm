@@ -19,8 +19,9 @@ final class CampaignViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(red:0.035,green:0.045,blue:0.085,alpha:1)
-        location.textColor = .white; location.font = .systemFont(ofSize:15,weight:.semibold);location.numberOfLines=2
-        menuButton.setImage(UIImage(systemName:"line.3.horizontal"),for:.normal);menuButton.tintColor = .white
+        location.textColor = TomeTheme.paper; location.font = UIFontMetrics(forTextStyle:.subheadline).scaledFont(for:TomeTheme.font(15));location.adjustsFontForContentSizeCategory=true;location.numberOfLines=2
+        menuButton.setImage(UIImage(systemName:"book.closed"),for:.normal);menuButton.tintColor = TomeTheme.gold
+        menuButton.layer.borderColor=TomeTheme.gold.withAlphaComponent(0.65).cgColor;menuButton.layer.borderWidth=1;menuButton.layer.cornerRadius=6
         menuButton.accessibilityLabel="Campaign menu";menuButton.accessibilityIdentifier="campaign-menu"
         menuButton.addTarget(self,action:#selector(menu),for:.touchUpInside)
         let header=UIStackView(arrangedSubviews:[location,menuButton]);header.spacing=8;header.alignment = .center
@@ -155,8 +156,7 @@ final class CampaignViewController: UIViewController {
             let controller=CampaignPanelController(panel:panel)
             controller.overview=next.overview
             controller.onChoice={ [weak self] id in self?.send(["type":"action","id":id]) }
-            controller.isModalInPresentation=true;controller.modalPresentationStyle = .pageSheet
-            if let sheet=controller.sheetPresentationController {sheet.detents=[.medium(),.large()];sheet.prefersGrabberVisible=false}
+            controller.isModalInPresentation=true;controller.modalPresentationStyle = .fullScreen
             panelController=controller
             ((battleController as UIViewController?) ?? self).present(controller,animated:true)
         } else if let controller=panelController {
@@ -171,54 +171,124 @@ final class CampaignViewController: UIViewController {
     }
     func suspend() {direction=nil;world.cancelMovement();send(["type":"stopWalking"]);battleController?.suspend();checkpoint()}
     private func fail(_ error:Error) {
-        direction=nil;tomeController?.resetSubmission()
+        direction=nil;tomeController?.resetSubmission();panelController?.resetSubmission()
         let alert=UIAlertController(title:"Campaign paused",message:error.localizedDescription,preferredStyle:.alert)
         alert.addAction(UIAlertAction(title:"OK",style:.default))
         ((tomeController as UIViewController?) ?? panelController ?? battleController ?? self).present(alert,animated:true)
     }
 }
 
+/// Campaign actions read as entries in the same in-world book as the story.
+/// The table stays native so VoiceOver, large text and scrolling retain system behavior.
 private final class CampaignPanelController: UITableViewController {
     private var panel:CampaignPanel
+    private var headerWidth:CGFloat=0
+    private var submitting=false
+    private var renderedPanel:CampaignPanel?
+    private var renderedOverview:CampaignOverview?
     var overview:CampaignOverview?
     var onChoice:((String)->Void)?
     init(panel:CampaignPanel) {self.panel=panel;super.init(style:.insetGrouped)}
     required init?(coder:NSCoder){fatalError("Use init(panel:)")}
-    override func viewDidLoad() {super.viewDidLoad();tableView.accessibilityIdentifier="campaign-dialog";tableView.estimatedRowHeight=64;tableView.rowHeight=UITableView.automaticDimension;update(panel)}
+    override var supportedInterfaceOrientations:UIInterfaceOrientationMask{.portrait}
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        tableView.accessibilityIdentifier="campaign-dialog"
+        tableView.backgroundView=TomePaperView();tableView.backgroundColor = TomeTheme.paper
+        tableView.separatorStyle = .none;tableView.estimatedRowHeight=60
+        tableView.rowHeight=UITableView.automaticDimension;tableView.sectionHeaderHeight=8;tableView.sectionFooterHeight=16
+        tableView.contentInset=UIEdgeInsets(top:8,left:8,bottom:16,right:8)
+        tableView.indicatorStyle = .black
+        update(panel)
+    }
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let width=tableView.bounds.width-tableView.adjustedContentInset.left-tableView.adjustedContentInset.right
+        if abs(width-headerWidth)>0.5 {buildHeader(width:width)}
+    }
+    override func traitCollectionDidChange(_ previousTraitCollection:UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if previousTraitCollection?.preferredContentSizeCategory != traitCollection.preferredContentSizeCategory {
+            headerWidth=0;tableView.reloadData();view.setNeedsLayout()
+        }
+    }
+    func resetSubmission() {submitting=false}
+    private func unchanged(_ next:CampaignPanel)->Bool {
+        guard let old=renderedPanel,old.title==next.title,old.text==next.text,old.actions.count==next.actions.count,
+              zip(old.actions,next.actions).allSatisfy({ $0.id==$1.id && $0.label==$1.label && $0.enabled==$1.enabled }) else{return false}
+        switch (renderedOverview,overview) {
+        case (nil,nil):return true
+        case let (a?,b?):return a.x==b.x && a.y==b.y && a.tiles==b.tiles && a.sites.count==b.sites.count && zip(a.sites,b.sites).allSatisfy({$0.x==$1.x && $0.y==$1.y && $0.name==$1.name})
+        default:return false
+        }
+    }
     func update(_ panel:CampaignPanel) {
-        self.panel=panel;loadViewIfNeeded()
-        let header=UILabel();header.numberOfLines=0;header.text="\(panel.title)\n\n\(panel.text)";header.font = .preferredFont(forTextStyle:.body);header.adjustsFontForContentSizeCategory=true
-        let width=max(200,view.bounds.width-40);let size=header.sizeThatFits(CGSize(width:width,height:.greatestFiniteMagnitude))
-        let container=UIView(frame:CGRect(x:0,y:0,width:width+40,height:size.height+36));header.frame=CGRect(x:20,y:18,width:width,height:size.height);container.addSubview(header)
+        submitting=false
+        if isViewLoaded && unchanged(panel) {return}
+        self.panel=panel;loadViewIfNeeded();renderedPanel=panel;renderedOverview=overview
+        buildHeader(width:tableView.bounds.width-tableView.adjustedContentInset.left-tableView.adjustedContentInset.right)
+        tableView.reloadData();tableView.setContentOffset(CGPoint(x:0,y:-tableView.adjustedContentInset.top),animated:false)
+        UIAccessibility.post(notification:.screenChanged,argument:tableView.tableHeaderView?.viewWithTag(701))
+    }
+    private func buildHeader(width:CGFloat) {
+        guard width>0 else{return};headerWidth=width
+        let title=UILabel();title.tag=701;title.numberOfLines=0;title.text=panel.title;title.textAlignment = .center
+        title.textColor=TomeTheme.ink;title.font=UIFontMetrics(forTextStyle:.title1).scaledFont(for:TomeTheme.font(27));title.adjustsFontForContentSizeCategory=true;title.accessibilityTraits.insert(.header)
+        let rule=UIView();rule.backgroundColor=TomeTheme.gold.withAlphaComponent(0.65);rule.heightAnchor.constraint(equalToConstant:1).isActive=true;rule.isAccessibilityElement=false
+        let text=UILabel();text.numberOfLines=0;text.text=panel.text;text.font=UIFontMetrics(forTextStyle:.body).scaledFont(for:TomeTheme.font(17));text.adjustsFontForContentSizeCategory=true;text.textColor=TomeTheme.ink
+        let stack=UIStackView(arrangedSubviews:[title,rule,text]);stack.axis = .vertical;stack.spacing=16;stack.translatesAutoresizingMaskIntoConstraints=false
         if let overview=overview {
             let map=UIImageView(image:Self.mapImage(overview));map.contentMode = .scaleAspectFit
-            map.frame=CGRect(x:20,y:container.bounds.height,width:width,height:width)
-            container.addSubview(map);container.frame.size.height += width+12
+            map.layer.borderColor=TomeTheme.gold.cgColor;map.layer.borderWidth=1;map.layer.cornerRadius=4;map.clipsToBounds=true
+            map.heightAnchor.constraint(equalTo:map.widthAnchor).isActive=true
+            map.isAccessibilityElement=true;map.accessibilityLabel="Map of Sevenstones. Current position, \(overview.x), \(overview.y). North is up."
+            stack.addArrangedSubview(map)
         }
-        tableView.tableHeaderView=container;tableView.reloadData();tableView.setContentOffset(.zero,animated:false)
-        UIAccessibility.post(notification:.screenChanged,argument:header)
+        let container=UIView(frame:CGRect(x:0,y:0,width:width,height:1));container.backgroundColor = .clear;container.addSubview(stack)
+        NSLayoutConstraint.activate([stack.leadingAnchor.constraint(equalTo:container.leadingAnchor,constant:28),stack.trailingAnchor.constraint(equalTo:container.trailingAnchor,constant:-28),stack.topAnchor.constraint(equalTo:container.topAnchor,constant:24),stack.bottomAnchor.constraint(equalTo:container.bottomAnchor,constant:-20)])
+        container.frame.size.height=container.systemLayoutSizeFitting(CGSize(width:width,height:0),withHorizontalFittingPriority:.required,verticalFittingPriority:.fittingSizeLevel).height
+        tableView.tableHeaderView=container
     }
     private static func mapImage(_ data:CampaignOverview)->UIImage {
         let format=UIGraphicsImageRendererFormat();format.scale=2
         return UIGraphicsImageRenderer(size:CGSize(width:512,height:512),format:format).image { renderer in
             let ctx=renderer.cgContext
+            TomeTheme.paper.setFill();ctx.fill(CGRect(x:0,y:0,width:512,height:512))
+            let colors: [Character:UIColor]=[
+                "~":UIColor(red:0.34,green:0.53,blue:0.58,alpha:1),
+                "T":UIColor(red:0.24,green:0.37,blue:0.26,alpha:1),
+                "^":UIColor(red:0.48,green:0.45,blue:0.39,alpha:1),
+                "=":UIColor(red:0.62,green:0.48,blue:0.32,alpha:1),
+                "o":TomeTheme.paper,"!":UIColor(red:0.62,green:0.25,blue:0.18,alpha:1),
+                "B":TomeTheme.gold,"L":UIColor(red:0.72,green:0.45,blue:0.23,alpha:1)]
             for (y,row) in data.tiles.enumerated() {for (x,tile) in row.enumerated() {
-                let colors: [Character:UIColor]=["~":.systemBlue,"T":UIColor(red:0.16,green:0.32,blue:0.23,alpha:1),"^":.systemGray,"=":.systemBrown,"o":.lightGray,"!":.systemRed,"B":.systemYellow,"L":.systemOrange]
-                ctx.setFillColor((colors[tile] ?? UIColor(red:0.48,green:0.6,blue:0.4,alpha:1)).cgColor);ctx.fill(CGRect(x:CGFloat(x*2),y:CGFloat(y*2),width:2,height:2))
+                ctx.setFillColor((colors[tile] ?? UIColor(red:0.60,green:0.65,blue:0.44,alpha:1)).cgColor);ctx.fill(CGRect(x:CGFloat(x*2),y:CGFloat(y*2),width:2,height:2))
             }}
             for site in data.sites {
-                ctx.setFillColor(UIColor.white.cgColor);ctx.fillEllipse(in:CGRect(x:CGFloat(site.x*2-3),y:CGFloat(site.y*2-3),width:6,height:6))
-                (site.name as NSString).draw(at:CGPoint(x:CGFloat(max(0,min(390,site.x*2-15))),y:CGFloat(site.y*2+5)),withAttributes:[.font:UIFont.systemFont(ofSize:10,weight:.bold),.foregroundColor:UIColor.white,.backgroundColor:UIColor.black.withAlphaComponent(0.7)])
+                ctx.setFillColor(TomeTheme.paper.cgColor);ctx.fillEllipse(in:CGRect(x:CGFloat(site.x*2-3),y:CGFloat(site.y*2-3),width:6,height:6))
+                (site.name as NSString).draw(at:CGPoint(x:CGFloat(max(0,min(390,site.x*2-15))),y:CGFloat(site.y*2+5)),withAttributes:[.font:TomeTheme.font(10),.foregroundColor:TomeTheme.ink,.backgroundColor:TomeTheme.paper.withAlphaComponent(0.92)])
             }
-            ctx.setFillColor(UIColor.systemYellow.cgColor);ctx.fillEllipse(in:CGRect(x:CGFloat(data.x*2-4),y:CGFloat(data.y*2-4),width:8,height:8))
+            let marker=CGRect(x:CGFloat(data.x*2-5),y:CGFloat(data.y*2-5),width:10,height:10)
+            ctx.setFillColor(TomeTheme.gold.cgColor);ctx.fillEllipse(in:marker);ctx.setStrokeColor(TomeTheme.ink.cgColor);ctx.setLineWidth(2);ctx.strokeEllipse(in:marker)
         }
     }
     override func tableView(_ tableView:UITableView,numberOfRowsInSection section:Int)->Int {panel.actions.count}
     override func tableView(_ tableView:UITableView,cellForRowAt indexPath:IndexPath)->UITableViewCell {
         let choice=panel.actions[indexPath.row],cell=UITableViewCell(style:.default,reuseIdentifier:nil)
-        cell.textLabel?.text=choice.label;cell.textLabel?.numberOfLines=0;cell.textLabel?.font = .preferredFont(forTextStyle:.body)
-        cell.textLabel?.textColor=choice.enabled ? .systemBlue:.secondaryLabel;cell.isUserInteractionEnabled=choice.enabled;cell.accessibilityIdentifier="campaign-choice-\(indexPath.row)";return cell
+        cell.backgroundColor=TomeTheme.paper.withAlphaComponent(0.72)
+        cell.contentView.layer.borderWidth=1;cell.contentView.layer.borderColor=TomeTheme.gold.withAlphaComponent(0.55).cgColor;cell.contentView.layer.cornerRadius=5
+        cell.contentView.directionalLayoutMargins=NSDirectionalEdgeInsets(top:15,leading:18,bottom:15,trailing:18)
+        cell.textLabel?.text=choice.label;cell.textLabel?.numberOfLines=0;cell.textLabel?.font=UIFontMetrics(forTextStyle:.body).scaledFont(for:TomeTheme.font(18));cell.textLabel?.adjustsFontForContentSizeCategory=true
+        cell.textLabel?.textColor=choice.enabled ? TomeTheme.ink:TomeTheme.ink.withAlphaComponent(0.45)
+        cell.isUserInteractionEnabled=choice.enabled;cell.accessibilityIdentifier="campaign-choice-\(indexPath.row)";cell.accessibilityTraits.insert(.button)
+        if !choice.enabled {cell.accessibilityTraits.insert(.notEnabled)}
+        let selected=UIView();selected.backgroundColor=TomeTheme.gold.withAlphaComponent(0.3);cell.selectedBackgroundView=selected
+        cell.contentView.heightAnchor.constraint(greaterThanOrEqualToConstant:52).isActive=true
+        return cell
     }
-    override func tableView(_ tableView:UITableView,didSelectRowAt indexPath:IndexPath) {onChoice?(panel.actions[indexPath.row].id)}
+    override func tableView(_ tableView:UITableView,willSelectRowAt indexPath:IndexPath)->IndexPath? {panel.actions[indexPath.row].enabled && !submitting ? indexPath:nil}
+    override func tableView(_ tableView:UITableView,didSelectRowAt indexPath:IndexPath) {
+        guard !submitting,panel.actions[indexPath.row].enabled else{return}
+        submitting=true;onChoice?(panel.actions[indexPath.row].id)
+    }
 }
-
