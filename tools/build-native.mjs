@@ -2,7 +2,7 @@ import { rolldown } from 'rolldown';
 import { mkdir, writeFile } from 'node:fs/promises';
 const directory = 'ios/ManaCrystalsPlaytest/Engine';
 await mkdir(directory, { recursive: true });
-const bundle = await rolldown({ input: 'src/nativeBattle.ts', platform: 'neutral' });
+const bundle = await rolldown({ input: 'src/nativeApp.ts', platform: 'neutral' });
 try {
   const { output } = await bundle.generate({
     format: 'iife',

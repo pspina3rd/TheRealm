@@ -22,10 +22,24 @@ final class BattleScene: SKScene {
             let colors = state.obstructions[key]?.sequence?.map { $0.color }.joined(separator: ",") ?? ""
             return "\(key):\(strength):\(colors)"
         }.joined(separator: ";")
-        let key = "\(size)|\(state.grid)|\(String(describing:state.active))|\(state.ghostY)|\(obstacleKey)|\(state.paused)|\(state.ready)"
+        let key = "\(size)|\(state.grid)|\(String(describing:state.active))|\(state.ghostY)|\(obstacleKey)|\(state.paused)|\(state.ready)|\(String(describing:state.tags))"
         if key != previousKey {
             previousKey = key; boardLayer.removeAllChildren()
             let cell = size.width / CGFloat(state.width)
+            if let zones=state.verb?.params.zones {
+                for (column,color) in zones.enumerated() {
+                    guard let color=color else{continue}
+                    let band=SKShapeNode(rect:CGRect(x:CGFloat(column)*cell,y:0,width:cell,height:size.height))
+                    band.fillColor=Self.color(color).withAlphaComponent(0.12);band.strokeColor = .clear;boardLayer.addChild(band)
+                }
+            }
+            for area in state.verb?.params.outline ?? [] where area.cols.count==2 && area.rows.count==2 {
+                let rect=CGRect(x:CGFloat(area.cols[0])*cell,y:CGFloat(area.rows[0]-1)*cell,width:CGFloat(area.cols[1]-area.cols[0]+1)*cell,height:CGFloat(area.rows[1]-area.rows[0]+1)*cell)
+                let outline=SKShapeNode(rect:rect.insetBy(dx:1,dy:1));outline.strokeColor = .cyan;outline.lineWidth=2;outline.fillColor=UIColor.cyan.withAlphaComponent(0.07);boardLayer.addChild(outline)
+            }
+            if let lip=state.verb?.params.lip {
+                let line=SKShapeNode(rect:CGRect(x:0,y:CGFloat(lip)*cell,width:size.width,height:2));line.fillColor = .systemOrange;line.strokeColor = .clear;boardLayer.addChild(line)
+            }
             for row in 0..<state.height {
                 for column in 0..<state.width {
                     let rect = CGRect(x: CGFloat(column) * cell, y: size.height - CGFloat(row + 1) * cell, width: cell, height: cell)
@@ -45,6 +59,10 @@ final class BattleScene: SKScene {
                                 boardLayer.addChild(edge)
                             }
                         }
+                    }
+                    if let tags=state.tags,row < tags.count,column < tags[row].count,let tag=tags[row][column] {
+                        let mark=SKShapeNode(rect:rect.insetBy(dx:cell*0.2,dy:cell*0.2),cornerRadius:3)
+                        mark.strokeColor=tag=="target" ? .systemYellow:.systemGreen;mark.lineWidth=2;mark.zPosition=5;boardLayer.addChild(mark)
                     }
                 }
             }

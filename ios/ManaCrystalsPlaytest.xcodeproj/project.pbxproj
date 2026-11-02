@@ -5,6 +5,28 @@
 	};
 	"objectVersion" = "56";
 	"objects" = {
+        "CA0000000000000000000001" = {
+            "isa" = "PBXFileReference";
+            "lastKnownFileType" = "sourcecode.swift";
+            "path" = "ManaCrystalsPlaytest/UI/CampaignViewController.swift";
+            "sourceTree" = "<group>";
+        };
+        "CA0000000000000000000002" = {
+            "isa" = "PBXBuildFile";
+            "fileRef" = "CA0000000000000000000001";
+        };
+        "CA0000000000000000000003" = {
+            "isa" = "PBXFileReference";
+            "lastKnownFileType" = "folder";
+            "name" = "assets";
+            "path" = "../public/assets";
+            "sourceTree" = "<group>";
+        };
+        "CA0000000000000000000004" = {
+            "isa" = "PBXBuildFile";
+            "fileRef" = "CA0000000000000000000003";
+        };
+
 		"7508EF28938C079BDC9AE35F" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -100,6 +122,8 @@
 			"isa" = "PBXGroup";
 			"children" = (
 				"7508EF28938C079BDC9AE35F",
+                "CA0000000000000000000001",
+                "CA0000000000000000000003",
 				"9B0FB666F91E1A620B9AA94A",
 				"058AE90CF01E498945FD0424",
 				"008C7A679EA21285E9B54A04",
@@ -116,6 +140,7 @@
 			"buildActionMask" = "2147483647";
 			"files" = (
 				"78BF6A898DFA54771A86F83D",
+                "CA0000000000000000000002",
 				"E4D9E457324CD9F054326E37",
 				"2B7E473635CA92856021CB4F",
 				"0B1F8239DA5D2BE8EC3E6894",
@@ -136,6 +161,7 @@
 			"buildActionMask" = "2147483647";
 			"files" = (
 				"97E9053FAC3CFB7C353A9908",
+                "CA0000000000000000000004",
 				"E0D4441ED984B76383377EAA",
 			);
 			"runOnlyForDeploymentPostprocessing" = "0";

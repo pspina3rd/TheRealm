@@ -10,7 +10,10 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let scene=scene as? UIWindowScene else { return }
         let window=UIWindow(windowScene:scene)
-        window.rootViewController=BattleViewController();window.makeKeyAndVisible();self.window=window
+        window.rootViewController=ProcessInfo.processInfo.arguments.contains("--battle-playtest") ? BattleViewController() : CampaignViewController();window.makeKeyAndVisible();self.window=window
     }
-    func sceneWillResignActive(_ scene: UIScene) { (window?.rootViewController as? BattleViewController)?.suspend() }
+    func sceneWillResignActive(_ scene: UIScene) {
+        (window?.rootViewController as? BattleViewController)?.suspend()
+        (window?.rootViewController as? CampaignViewController)?.suspend()
+    }
 }

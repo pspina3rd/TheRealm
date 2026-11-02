@@ -28,6 +28,11 @@ public struct BattleState: Decodable {
     public let pieceID: Int, version: Int, width: Int, height: Int, ghostY: Int
     public let ready: Bool, paused: Bool, busy: Bool
     public let status: String
+    public let title: String?
+    public let objective: NativeObjective?
+    public let canCorrect: Bool?
+    public let tags: [[String?]]?
+    public let verb: NativeVerb?
     public let grid: [[String?]]
     public let obstructions: [String: NativeObstruction]
     public let active: NativePiece?
@@ -84,3 +89,59 @@ public final class BattleEngine {
         return state
     }
 }
+
+public struct CampaignChoice: Decodable { public let id: String, label: String; public let enabled: Bool }
+public struct CampaignPanel: Decodable { public let title: String, text: String; public let actions: [CampaignChoice] }
+public struct CampaignSprite: Decodable {
+    public let source: String
+    public let sx: Double, sy: Double, sw: Double, sh: Double
+    public let x: Double, y: Double, width: Double, height: Double, alpha: Double
+}
+public struct CampaignMarker: Decodable { public let x: Double, y: Double; public let element: String; public let lit: Bool }
+public struct CampaignWorld: Decodable {
+    public let width: Double, height: Double, camX: Double, camY: Double
+    public let heroX: Int, heroY: Int
+    public let sprites: [CampaignSprite]
+    public let markers: [CampaignMarker]
+}
+public struct CampaignState: Decodable {
+    public let mode: String, mapId: String, location: String, heroName: String
+    public let hp: Int, maxHP: Int
+    public let walking: Bool
+    public let panel: CampaignPanel?
+    public let overview: CampaignOverview?
+    public let world: CampaignWorld?
+    public let save: String?
+}
+private struct CampaignEnvelope: Decodable { let ok: Bool; let state: CampaignState?; let error: String? }
+extension BattleEngine {
+    public func campaign(_ command: [String:Any]) throws -> CampaignState {
+        let data = try JSONSerialization.data(withJSONObject: command)
+        guard let json=String(data:data,encoding:.utf8) else { throw BattleEngineError.unavailable("Invalid campaign command.") }
+        context.exception=nil
+        guard let function=context.objectForKeyedSubscript("ManaCrystalsNative")?.objectForKeyedSubscript("campaignDispatch"), !function.isUndefined,
+              let reply=function.call(withArguments:[json])?.toString(), context.exception == nil else {
+            throw BattleEngineError.unavailable(context.exception?.toString() ?? "The campaign rules are missing.")
+        }
+        let envelope=try JSONDecoder().decode(CampaignEnvelope.self,from:Data(reply.utf8))
+        guard envelope.ok,let state=envelope.state else { throw BattleEngineError.unavailable(envelope.error ?? "The campaign could not continue.") }
+        return state
+    }
+}
+
+public struct NativeObjective: Decodable {
+    public let label: String
+    public let counter: String?
+    public let piecesLeft: Int?
+}
+public struct NativeArea: Decodable { public let cols: [Int], rows: [Int] }
+public struct NativeVerbParams: Decodable {
+    public let zones: [String?]?
+    public let outline: [NativeArea]?
+    public let spare: NativeArea?
+    public let lip: Int?
+}
+public struct NativeVerb: Decodable { public let verb: String; public let params: NativeVerbParams }
+
+public struct CampaignSite:Decodable { public let x:Int,y:Int; public let name:String }
+public struct CampaignOverview:Decodable { public let tiles:[String]; public let x:Int,y:Int; public let sites:[CampaignSite] }

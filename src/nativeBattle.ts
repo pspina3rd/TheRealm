@@ -6,6 +6,7 @@ import { STANDARD_SPELLS } from './battle/magicCasting';
 import { createHero } from './game/hero';
 import { newKnownSpell, castSpellFor } from './game/spells';
 import { SPELLS } from './data/spells';
+import { encounterOf } from './data/encounters';
 import { PIECES } from './core/pieces';
 import { cellColors } from './core/board';
 import { createRng } from './core/rng';
@@ -28,8 +29,20 @@ let battle: Battle | null = null;
 let previousPiece: Battle['board']['active'] = null;
 let pieceID = 0;
 let ready = true;
+let beforeInput: (() => boolean) | null = null;
+export function attachCampaignBattle(next: Battle, commit: () => boolean): void {
+  battle = next;
+  previousPiece = null;
+  pieceID = 0;
+  ready = true;
+  beforeInput = commit;
+  next.paused = true;
+}
+export function currentNativeBattle(): Battle | null {
+  return battle;
+}
 
-function snapshot() {
+export function battleSnapshot() {
   const b = required(battle, 'Start a battle first.');
   if (b.board.active !== previousPiece) {
     previousPiece = b.board.active;
@@ -37,6 +50,13 @@ function snapshot() {
   }
   return {
     version: 1,
+    title: b.combat?.enemy.name ?? (b.spec.kind === 'encounter' ? 'Puzzle' : 'Challenge'),
+    objective: b.objective,
+    tags: b.board.tags,
+    verb: b.spec.kind === 'encounter' ? encounterOf(b.spec.id)?.spec : null,
+    telegraphs: b.telegraphs(),
+    canCorrect: b.canCorrect,
+    correctionsRemaining: b.correctionsRemaining,
     pieceID,
     ready,
     status: b.status,
@@ -68,10 +88,10 @@ function snapshot() {
     lines: b.lines,
     score: b.score,
     pausesLeft: b.pausesLeft,
-    spells: Object.keys(b.hero.spells)
+    spells: Object.keys(b.magicCasting.book())
       .filter((id) => STANDARD_SPELLS[id])
       .map((id) => {
-        const known = required(b.hero.spells[id]),
+        const known = required(b.magicCasting.book()[id]),
           spell = required(SPELLS[id]),
           cast = castSpellFor(spell, known);
         const element = required(STANDARD_SPELLS[id]);
@@ -128,6 +148,7 @@ export function dispatch(json: string): string {
         !Number.isInteger(seed)
       )
         throw new Error('Invalid test school, rank, or seed.');
+      beforeInput = null;
       const hero = createHero();
       if (school !== 'none')
         hero.spells[String(school)] = { ...newKnownSpell(), level: Number(rank) };
@@ -159,12 +180,13 @@ export function dispatch(json: string): string {
         const actions: readonly string[] = ['left', 'right', 'rotate', 'softDrop', 'hardDrop'];
         if (!actions.includes(String(r.action))) throw new Error('Invalid battle action.');
         // The renderer's old piece can never command a newly spawned piece.
-        snapshot();
-        if (r.pieceID === pieceID && !b.paused && !b.autoCastingBusy && b.status === 'ongoing')
-          b.input(r.action as BattleAction);
+        battleSnapshot();
+        if (r.pieceID === pieceID && !b.paused && !b.autoCastingBusy && b.status === 'ongoing') {
+          if (!beforeInput || beforeInput()) b.input(r.action as BattleAction);
+        }
       } else if (r.type !== 'snapshot') throw new Error('Unknown native request.');
     }
-    return JSON.stringify({ ok: true, state: snapshot() });
+    return JSON.stringify({ ok: true, state: battleSnapshot() });
   } catch (error) {
     return JSON.stringify({
       ok: false,

@@ -41,3 +41,23 @@ final class BattleEngineTests:XCTestCase {
         XCTAssertEqual(later.enemyRemainingMs,paused.enemyRemainingMs)
     }
 }
+
+extension BattleEngineTests {
+    func testCampaignOpensAllFourHometownsWithoutBrowserAPIs() throws {
+        let engine=try BattleEngine()
+        for (hero,home) in [("ranger","mossvale"),("knight","redrockVillage"),("mage","glasswaterVillage"),("rogue","thornwoodVillage")] {
+            var state=try engine.campaign(["type":"start","classId":hero])
+            XCTAssertEqual(state.mapId,home);XCTAssertEqual(state.mode,"world")
+            XCTAssertFalse(state.world?.sprites.isEmpty ?? true)
+            for _ in 0..<30 {
+                guard let choice=state.panel?.actions.first else{break}
+                state=try engine.campaign(["type":"action","id":choice.id])
+            }
+            XCTAssertNil(state.panel)
+            let saved=try engine.campaign(["type":"checkpoint"])
+            XCTAssertNotNil(saved.save)
+            let restored=try engine.campaign(["type":"load","save":try XCTUnwrap(saved.save)])
+            XCTAssertEqual(restored.mapId,home);XCTAssertEqual(restored.heroName,state.heroName)
+        }
+    }
+}
