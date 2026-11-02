@@ -558,6 +558,10 @@ describe('save migration from version 3 (stats)', () => {
 
   it('keeps version 4 stats and points as saved', () => {
     const state = newGame('rogue');
+    // Version 4 heroes of every class began in Mossvale.
+    state.flags.delete('home:thornwoodVillage');
+    state.mapId = 'mossvale';
+    state.respawn = { ...START };
     learnSpell(state.hero, 'thunder');
     state.hero.skillPoints = 3;
     state.hero.stats.luck = 4;
@@ -624,7 +628,7 @@ describe('save migration to version 7 (feats)', () => {
   it('saves the hero’s board feats', () => {
     const state = newGame();
     state.hero.feats = { 'pure.lightning': 3, hastedClear: 1 };
-    expect(SAVE_VERSION).toBe(15);
+    expect(SAVE_VERSION).toBe(16);
     expect(deserialize(serialize(state))!.hero.feats).toEqual(state.hero.feats);
   });
 

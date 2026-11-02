@@ -5,6 +5,7 @@
  * boss fight, and where Vesper waits. Everything here is derived from
  * saved flags, so it is deterministic and survives a reload.
  */
+import { hometownOf, hometownText, storyMap } from '../data/hometowns';
 import { MAPS } from '../data/maps';
 import { MENTORS } from '../data/mentors';
 import { NPCS } from '../data/npcs';
@@ -43,7 +44,13 @@ export function visionOnWarp(
     (vision) =>
       !flags.has(vision.flag) &&
       (!vision.requiresFlags || vision.requiresFlags.every((flag) => flags.has(flag))) &&
-      (vision.leaves === from || vision.enters === to),
+      ((vision.leaves !== undefined && storyMap(vision.leaves, flags) === from) ||
+        vision.enters === to ||
+        // A hero already living in this region still receives its next vision
+        // on the road out, after the departure vision, without doubling a scene.
+        (vision.enters === from &&
+          hometownOf(flags).region === from &&
+          to !== hometownOf(flags).map)),
   );
   return due ?? null;
 }
@@ -198,7 +205,7 @@ export function dueScenes(flags: ReadonlySet<string>, mapId?: string): SceneDef[
     (scene) =>
       !flags.has(scene.flag) &&
       (!scene.dueWith || flags.has(scene.dueWith)) &&
-      (!scene.map || scene.map === mapId) &&
+      (!scene.map || storyMap(scene.map, flags) === mapId) &&
       (!scene.requiresFlags || scene.requiresFlags.every((flag) => flags.has(flag))) &&
       (!scene.untilFlag || !flags.has(scene.untilFlag)),
   );
@@ -247,8 +254,9 @@ export function finishScene(state: GameState, scene: SceneDef): string[] {
   if (state.flags.has(scene.flag)) return [];
   const given = completeScene(state.flags, state.hero, scene);
   if (scene.to) {
-    travel(state, scene.to);
-    state.flags.add(reachedFlag(scene.to.map));
+    const to = { ...scene.to, map: storyMap(scene.to.map, state.flags) };
+    travel(state, to);
+    state.flags.add(reachedFlag(to.map));
   }
   return given;
 }
@@ -269,7 +277,11 @@ function speakerOf(who: string | undefined, hero: Hero): ScenePage['speaker'] {
 }
 
 /** A scene's beats as interludes for this hero, the class lines in their class's words. */
-export function scenePages(scene: SceneDef, hero: Hero): ScenePage[] {
+export function scenePages(
+  scene: SceneDef,
+  hero: Hero,
+  flags: ReadonlySet<string> = new Set(),
+): ScenePage[] {
   const classId = heroClass(hero).id;
   const taught = new Set(mentorsTaught(hero).map((mentor) => mentor.id));
   return scene.beats
@@ -278,7 +290,7 @@ export function scenePages(scene: SceneDef, hero: Hero): ScenePage[] {
       const classLine = beat.classLines?.[classId];
       const line = classLine === undefined ? beat.line : `"${classLine}"`;
       return {
-        text: line === undefined ? beat.stage : `${beat.stage} ${line}`,
+        text: hometownText(line === undefined ? beat.stage : `${beat.stage} ${line}`, flags),
         speaker: speakerOf(beat.who, hero),
       };
     });

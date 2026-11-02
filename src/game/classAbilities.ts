@@ -1,3 +1,4 @@
+import { HOMETOWN_MAPS } from '../data/hometowns';
 /**
  * Pure awakening/trade transitions. The caller owns Hero, derived-stat
  * refresh, persistence and the feature gate; importing this module enables
@@ -118,7 +119,7 @@ export function awakenClassAbility(
   progress: ClassAbilityProgress,
   lesson: AwakeningLesson,
 ): AbilityProgressTransition {
-  if (lesson.mapId === 'mossvale' || !lesson.mapId || !lesson.mentorId) {
+  if (HOMETOWN_MAPS.has(lesson.mapId ?? '') || !lesson.mapId || !lesson.mentorId) {
     return unchanged(progress);
   }
   return applyAwakening(progress);

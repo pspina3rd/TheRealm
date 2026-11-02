@@ -1,3 +1,5 @@
+import { withHometowns } from './hometownMaps';
+import { HOMETOWN_MAPS } from './hometowns';
 import { withMentorApproaches } from './mentorApproaches';
 import type { MapDef } from '../world/map';
 import { CAMPAIGN_MAPS } from './campaignMaps';
@@ -8,7 +10,7 @@ import { FINALE_FLAG, WARD_AFTER_WYRM } from './story';
  * All maps. Rows are drawn with the legend in `src/world/tiles.ts`.
  * Coordinates are `(x, y)` tile positions with `(0, 0)` at the top left.
  */
-export const MAPS: Readonly<Record<string, MapDef>> = withMentorApproaches({
+const BASE_MAPS: Record<string, MapDef> = {
   ...CAMPAIGN_MAPS,
   overworld: {
     id: 'overworld',
@@ -703,10 +705,14 @@ export const MAPS: Readonly<Record<string, MapDef>> = withMentorApproaches({
       { object: 'orb.red', x: 18, y: 4 },
     ],
   },
-});
+};
+
+export const MAPS: Readonly<Record<string, MapDef>> = withMentorApproaches(
+  withHometowns(BASE_MAPS),
+);
 
 /** The starter lands, where a beginner's walking heals further (see `walkRegen`). */
-export const STARTER_MAPS: ReadonlySet<string> = new Set(['mossvale', 'overworld']);
+export const STARTER_MAPS: ReadonlySet<string> = new Set([...HOMETOWN_MAPS, 'overworld']);
 
 /** Where a new game begins. */
 export const START = { map: 'mossvale', x: 18, y: 20 } as const;

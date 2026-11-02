@@ -8,14 +8,17 @@ Their goals differ; helping someone does not turn them into an enemy.
 
 **The story.** Something vast stirs under the realm: the Moon Wyrm, coiled
 around a moon-crystal deep in the Moon Caves, drinks the moonlight while
-spores choke Mossvale's well and the lake clouds over. You wake in
-Mossvale, mend what you can, and learn magic from seven mentors on the
+spores choke your hometown's well and the lake clouds over. Your chosen hero
+begins in Mossvale, Redrock Village, Glasswater Village, or Thornwood Village,
+mends what they can, and learns magic from seven mentors on the
 road down, after Elder Rowan's son falls into a sleep no one can wake him
 from. The Wyrm speaks to you in visions as you go, and its thrall,
 Vesper, is always one step ahead of you. The first-half words are the author's
 own, from [docs/STORY.md](docs/STORY.md). A first playable continuation now
 follows the [working second-half script](docs/DIALOGUE_DRAFT.md); its new
 story interpretations remain proposals and its combat still needs tuning.
+The four openings share the same neighbors and main journey; see
+[hometowns](docs/HOMETOWNS.md). Existing saves retain their original home.
 
 ## Quick start
 

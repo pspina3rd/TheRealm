@@ -7,6 +7,12 @@ new interpretations are not approved final script. The monomyth is the
 underlying narrative framework. [Campaign QA](CAMPAIGN_QA.md) distinguishes
 implemented progression from unverified pacing and tentative mechanics.
 
+The [four hometown openings](HOMETOWNS.md) place the same opening cast and
+events in the selected protagonist's home. Fern begins in Mossvale, Lance
+in Redrock Village, Ares in Glasswater Village, and Vex in Thornwood Village.
+Regional mentors retain their established homes. The shared main journey
+and its major beats remain the same; older saves keep their Mossvale origin.
+
 A proposed [second-half outline](STORY_OUTLINE_DRAFT.md) is available for
 review. Its new names, lore, and mechanisms are draft proposals;
 they are not approved canon or implemented game content.

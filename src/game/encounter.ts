@@ -3,7 +3,7 @@ import { HaggleChallenge } from '../battle/haggle';
 import type { Battle } from '../battle/battle';
 import type { Rng } from '../core/rng';
 import { ENEMIES } from '../data/enemies';
-import { START } from '../data/maps';
+import { hometownOf } from '../data/hometowns';
 import { MENTORS, type MentorDef } from '../data/mentors';
 import { NPCS } from '../data/npcs';
 import type { ChallengeSpec, NpcDef, Reward } from '../data/types';
@@ -418,7 +418,8 @@ function resolveCombat(
   } else {
     const lost = Math.floor(hero.gil / 2);
     hero.gil -= lost;
-    const share = state.respawn.map === START.map ? HOME_FALL_HP_SHARE : FALL_HP_SHARE;
+    const share =
+      state.respawn.map === hometownOf(state.flags).map ? HOME_FALL_HP_SHARE : FALL_HP_SHARE;
     hero.hp = Math.max(1, Math.ceil(hero.maxHp * share));
     travel(state, state.respawn);
     if (lost > 0) gains.push({ kind: 'gil', amount: -lost });

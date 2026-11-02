@@ -14,6 +14,11 @@ const ZERO = { day: 0, regard: {}, regardPeak: {}, encounters: {}, prices: {} };
 /** A save of a game with stakes in play, as `version` would have written it. */
 function saveAt(version: number): Record<string, unknown> {
   const state = newGame('mage');
+  if (version < 16) {
+    state.flags.delete('home:glasswaterVillage');
+    state.mapId = 'mossvale';
+    state.respawn = { map: 'mossvale', x: 18, y: 20 };
+  }
   state.day = 3;
   beginTry(state, 'elder');
   settle(
@@ -37,7 +42,7 @@ function saveAt(version: number): Record<string, unknown> {
 
 describe('save version 14 (committed tries and unified campaign stakes)', () => {
   it('is the current version', () => {
-    expect(SAVE_VERSION).toBe(15);
+    expect(SAVE_VERSION).toBe(16);
   });
 
   for (let version = 1; version < 10; version++) {

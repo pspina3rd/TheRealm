@@ -1,3 +1,4 @@
+import { HOMETOWN_MAPS } from '../data/hometowns';
 /**
  * Bounded, pure per-battle class ability state. These functions only return
  * decisions/intents; no Board, Battle, scoring, input or feature gate is changed.
@@ -127,7 +128,7 @@ export function createClassAbilityState(
     active:
       classId !== null &&
       scope.awakened &&
-      scope.mapId !== 'mossvale' &&
+      !HOMETOWN_MAPS.has(scope.mapId ?? '') &&
       scope.board === 'standard',
     npcEncounter: scope.encounter === 'npc',
     rules: {

@@ -4,7 +4,9 @@ import { ELEMENTS, emptyCounts, type Element } from '../core/elements';
 import { CLASSES, DEFAULT_CLASS } from '../data/classes';
 import { ITEMS } from '../data/items';
 import { CAMPAIGN_FLAGS, CAMPAIGN_MAP_IDS } from '../data/campaignFlags';
-import { MAPS, START } from '../data/maps';
+import { HOMETOWN_MAPS, hometownOf } from '../data/hometowns';
+import { hometownMap } from '../world/hometowns';
+import { MAPS } from '../data/maps';
 import { ENHANCEMENT_IDS, SPELLS } from '../data/spells';
 import { STATS, STAT_IDS } from '../data/stats';
 import type { FeatId } from '../data/types';
@@ -46,12 +48,13 @@ export const CORRUPT_KEY = `${SAVE_KEY}.corrupt`;
  *   stakes (day, regard, encounter records, haggle prices and spell seals).
  * - 11 unifies both version-10 formats. Missing stakes start at zero;
  *   campaign progress and earned scenes remain intact in either format.
+ * - 16 records alternate hometowns; existing journeys keep Mossvale.
  * - 15 preserves established journeys when opening triggers and mentor approaches change.
  * - 14 separates custom Weaving recipes and preserves empty spellbooks.
  * - 13 adds opponent Arcane ranks without changing committed-try recovery.
  * - 12 persists committed M1 tries, settling interrupted tries as a failure on load.
  */
-export const SAVE_VERSION = 15;
+export const SAVE_VERSION = 16;
 const recoveredLoads = new WeakSet<GameState>();
 /** Older versions `deserialize` can still upgrade. */
 const MIGRATABLE_VERSIONS: readonly number[] = [
@@ -69,6 +72,7 @@ const MIGRATABLE_VERSIONS: readonly number[] = [
   12,
   13,
   14,
+  15,
   SAVE_VERSION,
 ];
 const FACINGS: readonly Direction[] = ['up', 'down', 'left', 'right'];
@@ -174,9 +178,11 @@ export function deserialize(json: string): GameState | null {
     }
     const victories = count(data.victories) ? data.victories : 0;
     const flags = migrateFlags(data.flags.filter((f): f is string => typeof f === 'string'));
-    const mapId = String(data.mapId);
-    if ((data.version as number) < 8) migrateStory(flags, mapId, victories);
     const version = data.version as number;
+    // A class never relocates an existing adventure. Only version 16 new games choose a home.
+    if (version < 16) for (const flag of flags) if (flag.startsWith('home:')) flags.delete(flag);
+    const mapId = String(data.mapId);
+    if (version < 8) migrateStory(flags, mapId, victories);
     const hero = sanitizeHero(migrateHero(data.hero as StoredHero), version);
     if (!hero) return null;
     if ((data.version as number) < 9) migrateScenes(flags, hero);
@@ -187,7 +193,9 @@ export function deserialize(json: string): GameState | null {
     // Stakes-only version 10 did not include the campaign. Its location
     // cannot establish descent; only the earned scene milestone can.
     const allowCampaign = version >= 10 && flags.has(CAMPAIGN_FLAGS.descent);
-    const respawn = standable(data.respawn, flags, allowCampaign) ? data.respawn : { ...START };
+    const respawn = standable(data.respawn, flags, allowCampaign)
+      ? data.respawn
+      : { ...hometownOf(flags).start };
     const here = { map: data.mapId, x: data.x, y: data.y };
     const spot = standable(here, flags, allowCampaign) ? here : respawn;
     const state: GameState = {
@@ -244,7 +252,10 @@ function standable(
 ): at is Location {
   if (!record(at) || typeof at.map !== 'string' || !Object.hasOwn(MAPS, at.map)) return false;
   if (!allowCampaign && CAMPAIGN_MAP_IDS.has(at.map)) return false;
-  const map = MAPS[at.map];
+  if (HOMETOWN_MAPS.has(at.map) && at.map !== 'mossvale' && at.map !== hometownOf(flags).map)
+    return false;
+  const authored = MAPS[at.map];
+  const map = authored && hometownMap(authored, flags);
   const { x, y } = at;
   return (
     !!map &&

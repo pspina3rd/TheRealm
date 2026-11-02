@@ -14,6 +14,7 @@
  * earlier stop on a tie), never on the hero's own tile.
  */
 import type { Element } from '../core/elements';
+import { hometownMap } from './hometowns';
 import { MAPS } from '../data/maps';
 import { MENTORS, type MentorDef, type MentorStop } from '../data/mentors';
 import { seeksHero } from '../game/hidden';
@@ -57,7 +58,9 @@ export function mapDistance(from: string, to: string, flags?: ReadonlySet<string
   for (let map = queue.shift(); map !== undefined; map = queue.shift()) {
     const steps = seen.get(map) ?? 0;
     if (map === to) return steps;
-    for (const warp of MAPS[map]?.warps ?? []) {
+    const authored = MAPS[map];
+    const current = authored && flags ? hometownMap(authored, flags) : authored;
+    for (const warp of current?.warps ?? []) {
       const locked = flags && !warpUnlocked(warp, flags);
       if (!locked && !seen.has(warp.to.map)) {
         seen.set(warp.to.map, steps + 1);

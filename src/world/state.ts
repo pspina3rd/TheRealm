@@ -1,5 +1,7 @@
 import type { PendingAttempt } from '../game/encounterFlow';
-import { MAPS, START } from '../data/maps';
+import { hometownForClass } from '../data/hometowns';
+import { hometownMap } from './hometowns';
+import { MAPS } from '../data/maps';
 import { createHero, type Hero } from '../game/hero';
 import type { Direction, EntityDef, Location, MapDef } from './map';
 import { mentorEntities } from './mentors';
@@ -39,15 +41,17 @@ export interface GameState {
 }
 
 export function newGame(classId?: string, heroName?: string): GameState {
+  const hero = createHero(classId, heroName);
+  const home = hometownForClass(hero.classId);
   return {
-    hero: createHero(classId, heroName),
-    mapId: START.map,
-    x: START.x,
-    y: START.y,
+    hero,
+    mapId: home.map,
+    x: home.start.x,
+    y: home.start.y,
     facing: 'down',
-    flags: new Set(),
+    flags: new Set(home.map === 'mossvale' ? [] : [`home:${home.map}`]),
     cleared: new Set(),
-    respawn: { ...START },
+    respawn: { ...home.start },
     victories: 0,
     talk: {},
     day: 0,
@@ -62,7 +66,7 @@ export function newGame(classId?: string, heroName?: string): GameState {
 export function currentMap(state: GameState): MapDef {
   const map = MAPS[state.mapId];
   if (!map) throw new Error(`Unknown map: ${state.mapId}`);
-  return map;
+  return hometownMap(map, state.flags);
 }
 
 export function defeatedFlag(entityId: string): string {

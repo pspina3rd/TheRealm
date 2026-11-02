@@ -1,3 +1,4 @@
+import { HOMETOWN_MAPS } from '../data/hometowns';
 import type { CellTally, LockResult } from '../core/board';
 import {
   colorOfElement,
@@ -78,7 +79,7 @@ export function reactionLines(result: Pick<LockResult, 'rows' | 'lines'>): React
 export function advanceReactions(state: ReactionState, input: ReactionLock): ReactionStep {
   if (input.source !== 'lock') return { state, reaction: null };
   const lock = state.lock + 1;
-  if (!input.enabled || input.mapId === 'mossvale' || input.kind === 'npc')
+  if (!input.enabled || HOMETOWN_MAPS.has(input.mapId ?? '') || input.kind === 'npc')
     return { state: { ...state, lock, primer: null }, reaction: null };
 
   const alignment = input.alignment ?? emptyCounts();

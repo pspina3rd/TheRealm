@@ -54,6 +54,7 @@ import { mentorOf, mentorPlace } from '../world/mentors';
 import { MAPS } from '../data/maps';
 import { ELEMENT_NAMES, type Element } from '../core/elements';
 import { SPELLS } from '../data/spells';
+import { hometownForClass, hometownText } from '../data/hometowns';
 import { createHero, equip, heroClass, heroTitle, spendSkillPoints, useItem } from '../game/hero';
 import {
   EMPTY_PLAN,
@@ -477,7 +478,7 @@ export class App {
   ): void {
     const body = conversationBody(
       this.atlas,
-      interaction,
+      { ...interaction, text: hometownText(interaction.text, this.state.flags) },
       (lesson) => {
         if (interaction.kind === 'lessons') {
           this.showInteraction(entity, lessonInteraction(this.state, interaction.mentorId, lesson));
@@ -621,7 +622,7 @@ export class App {
       else this.dialog.close();
       return;
     }
-    const pages = scenePages(scene, this.state.hero);
+    const pages = scenePages(scene, this.state.hero, this.state.flags);
     const show = (i: number): void => {
       const page = pages[i];
       if (page) {
@@ -672,7 +673,11 @@ export class App {
               ),
             ]
           : []),
-        el('p', { className: 'interlude-text' }, ...lineNodes(text)),
+        el(
+          'p',
+          { className: 'interlude-text' },
+          ...lineNodes(hometownText(text, this.state.flags)),
+        ),
         el('p', { className: 'interlude-hint', text: 'Tap or press Enter' }),
       ],
       then ?? (() => this.dialog.close()),
@@ -800,7 +805,7 @@ export class App {
       const mentor = battle.assist && MENTORS[battle.assist.mentorId];
       this.battleView.start(portraitFor(entity), hero, {
         ...(entity.kind === 'npc' ? { actorId: entity.npcId } : {}),
-        ...(line ? { line } : {}),
+        ...(line ? { line: hometownText(line, this.state.flags) } : {}),
         ...(mentor ? { ally: creature(mentor.sprite), allyElement: mentor.element } : {}),
       });
     }
@@ -858,7 +863,15 @@ export class App {
         : [];
     this.dialog.show({
       title: resolution.won ? 'Victory!' : 'Defeat',
-      body: resultsBody(this.atlas, resolution, speaker),
+      body: resultsBody(
+        this.atlas,
+        {
+          ...resolution,
+          speech:
+            resolution.speech === null ? null : hometownText(resolution.speech, this.state.flags),
+        },
+        speaker,
+      ),
       actions: [...retry, { label: 'Continue', onClick: proceed }],
       onCancel: proceed,
       guardMs: RESULT_GUARD_MS,
@@ -1058,7 +1071,7 @@ export class App {
     if (!shop) return;
     const render = (): void =>
       this.dialog.show({
-        title: shop.name,
+        title: hometownText(shop.name, this.state.flags),
         body: shopBody(
           this.atlas,
           this.state,
@@ -1209,6 +1222,7 @@ export class App {
           'span',
           {},
           el('b', { text: `${cls.name} · ${cls.heroName}` }),
+          el('small', { text: `Home: ${hometownForClass(cls.id).name}` }),
           el('small', { text: cls.description }),
           el('small', { text: 'Starts with no spells. Choose what to learn.' }),
           el(
@@ -1286,10 +1300,11 @@ export class App {
 
   /** A short banner over the map: a place name, or a notice with an icon. */
   private say(text: string, icon?: IconId | IconSpec): void {
+    text = hometownText(text, this.state.flags);
     const banner = byId('world-banner');
     banner.replaceChildren(
       ...(icon ? [iconElement(icon, 2)] : []),
-      el('span', {}, ...lineNodes(text)),
+      el('span', {}, ...lineNodes(hometownText(text, this.state.flags))),
     );
     banner.classList.remove('show');
     void banner.offsetWidth; // restart the fade

@@ -24,6 +24,10 @@ function finishDue(state: GameState): void {
 /** Prepared combat inputs earn Chapter One; this fixture does not claim a full playthrough. */
 function afterWyrm(): GameState {
   const state = newGame('mage');
+  // Historical save formats predate character-specific homes.
+  state.flags.delete('home:glasswaterVillage');
+  state.mapId = 'mossvale';
+  state.respawn = { ...START };
   finishDue(state);
   state.flags.add('npc:elder');
   state.flags.add('opening:houseVisited');
@@ -90,7 +94,7 @@ describe('unified campaign and stakes save migration', () => {
     const pages = scenePages(scene, state.hero);
     // Viewing pages does not complete the scene; reload starts it again.
     const loaded = deserialize(serialize(state))!;
-    expect(SAVE_VERSION).toBe(15);
+    expect(SAVE_VERSION).toBe(16);
     expect(loaded).toEqual(state);
     expect(scenePages(dueScenes(loaded.flags, loaded.mapId)[0]!, loaded.hero)).toEqual(pages);
     finishScene(loaded, scene);

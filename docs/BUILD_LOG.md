@@ -812,3 +812,27 @@ Details: [opening progression](OPENING_PROGRESSION.md),
   distribution come later. No TestFlight build has been published.
 
 Setup: [native iPhone guide](../ios/README.md).
+
+## 2026-11-01 · Four protagonist hometowns
+
+- Implemented the accepted starts: Fern/Mossvale, Lance/Redrock Village,
+  Ares/Glasswater Village and Vex/Thornwood Village. The shared opening cast
+  lives in the selected home; the seven mentors retain their regional homes
+  and approach challenges. Rowan still teaches Quake through the well.
+- Connected each opening to its regional road, with a route to Sevenstones
+  that does not force a level-one hero through a regional monster. Kept the
+  same main story and boss order. Departure, visions, return-home scenes,
+  recovery, dialogue place names and shop headings follow the selected home.
+- Save version 16 preserves the chosen origin while away. Older adventures
+  retain Mossvale, progress and rewards rather than relocating by class.
+- Full checks passed: 1,609 tests, with 25 existing optional skips. Added 29
+  hometown regressions and checked all four real hero selections/openings in
+  desktop and phone browser layouts. Production build passed. A final map
+  composition cleanup and vision-return guard passed 146 focused regressions.
+- Confirmed the team branch remained at `f1b14e6`; authored dialogue and
+  mentor definitions were preserved. The native app is still the separate
+  Slime controls prototype; this campaign update does not port the story to it.
+
+Design and compatibility: [hometowns](HOMETOWNS.md). Browser reproduction:
+`node tools/hometown-smoke.mjs` against the development server on port 5191
+(override with `BASE`, and supply Playwright through `PLAYWRIGHT_MODULE` if needed).

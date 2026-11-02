@@ -47,8 +47,8 @@ describe('game state', () => {
     const state = newGame('mage', 'Ren');
     expect(state.hero.name).toBe('Ren');
     expect(state.hero.classId).toBe('mage');
-    expect([state.mapId, state.x, state.y]).toEqual([START.map, START.x, START.y]);
-    expect(currentMap(state).id).toBe(START.map);
+    expect([state.mapId, state.x, state.y]).toEqual(['glasswaterVillage', 18, 20]);
+    expect(currentMap(state).id).toBe('glasswaterVillage');
   });
 
   it('throws for unknown maps', () => {

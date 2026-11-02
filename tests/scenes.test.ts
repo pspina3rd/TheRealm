@@ -88,6 +88,9 @@ describe('the opening', () => {
 describe('the Refusal', () => {
   it('plays after investigating the sleepers and clearing Rowan’s well, before departure, once', () => {
     const state = newGame('knight');
+    // This regression covers an existing knight's original Mossvale journey.
+    state.flags.delete('home:redrockVillage');
+    state.mapId = 'mossvale';
     finishScene(state, OPENING);
     expect(dueScenes(state.flags)).toEqual([]);
     state.flags.add('npc:elder');

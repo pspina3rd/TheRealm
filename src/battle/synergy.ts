@@ -1,3 +1,4 @@
+import { HOMETOWN_MAPS } from '../data/hometowns';
 import type { Element } from '../core/elements';
 import { JOINT_SPELLS, SYNERGY, isSynergyMentor } from '../data/synergy';
 import type { SynergyMentorId, SynergyRuleId } from '../data/synergy';
@@ -26,7 +27,7 @@ export function createSynergy(encounter: SynergyEncounter): SynergyState | null 
   if (
     encounter.kind !== 'lesson' ||
     !encounter.enabled ||
-    encounter.mapId === 'mossvale' ||
+    HOMETOWN_MAPS.has(encounter.mapId) ||
     !isSynergyMentor(encounter.mentorId) ||
     !Number.isSafeInteger(encounter.difficulty) ||
     encounter.difficulty < 1

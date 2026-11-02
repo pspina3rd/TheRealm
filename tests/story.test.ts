@@ -318,7 +318,7 @@ describe('save version 8 (story)', () => {
     state.flags.add('vision:1');
     state.flags.add('scene:refusal');
     state.flags.add('reached:brightwater');
-    expect(SAVE_VERSION).toBe(15);
+    expect(SAVE_VERSION).toBe(16);
     const loaded = deserialize(serialize(state))!;
     expect(loaded.talk).toEqual({ 'elder.intro': 3 });
     expect(loaded.flags.has('vision:1')).toBe(true);
