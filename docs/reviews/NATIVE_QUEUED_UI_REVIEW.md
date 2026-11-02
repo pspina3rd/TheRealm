@@ -60,3 +60,12 @@ re-review accepts this correction while requiring a new Apple screenshot, a
 geometry assertion that the known instruction text occupies multiple lines, and
 map aspect-ratio verification. Width and Dynamic Type invalidation remain in
 place; an enlarged header can scroll with the existing table.
+
+## Final integration evidence
+
+Root verified the correction in Apple run 41519074346 on the current macos-26
+Apple Silicon runner. Both UI tests passed, including the rendered prose-height
+and square map assertions. Fresh screenshots visibly show the complete map
+instruction on two lines, parchment campaign actions and the square overview.
+The prior source approval's Apple/visual conditions are fulfilled. Physical
+iPhone feel remains a retest; full web/native visual parity is separate.

@@ -1,7 +1,7 @@
 # Original native playtest fixes — review record
 
 Scope is limited to the user's original two requests. The five later observations
-are queued in [the follow-up queue](../NATIVE_TOUCH_FOLLOWUP_QUEUE.md).
+are completed in [the follow-up tracker](../NATIVE_TOUCH_FOLLOWUP_QUEUE.md).
 
 ## Movement and touches
 
@@ -48,5 +48,6 @@ in those segments. The [frame review](artifacts/NATIVE_MOVEMENT_FRAME_REVIEW.jso
 records the sampling bounds and limitations. This is evidence for this simulator
 run, not a guarantee about every physical-device frame.
 
-Ready for the player's iPhone retest. The five later observations remain queued;
-source review, simulator success and a device retest are separate gates.
+Ready for the player's iPhone retest. The five later observations are also
+implemented and validated; see the follow-up tracker. Source review, simulator
+success and a device retest remain separate gates.

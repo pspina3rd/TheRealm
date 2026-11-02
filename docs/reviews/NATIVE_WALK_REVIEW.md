@@ -1,6 +1,6 @@
 # Native walking animation review
 
-Implementation: `2793cb3`. Independent source review: queued_ui_review, approved pending Apple compile and movement capture.
+Implementation: `2793cb3`. Independent source review: queued_ui_review, approved; Apple integration and movement capture are recorded below.
 
 The four heroes use licensed 192×192 character sheets (026, 019, 016, 004), with 48px frames. Rows are down, left, right, up. Standing uses the same frame 0 as the shared renderer. The native gait advances at 8fps while the retained hero node moves, preserving its phase across adjacent grid steps. It returns to standing when the movement action ends. Map changes reset the gait. Reduce Motion uses standing frames and immediate position changes.
 
@@ -15,7 +15,7 @@ The four heroes use licensed 192×192 character sheets (026, 019, 016, 004), wit
 - With Reduce Motion enabled, standing artwork stays legible and there is no interpolated travel or gait animation.
 - Ground, buildings, camera and markers remain retained, with no per-step flashes or gaps.
 
-Local verification: six retained native world rendering tests passed. UIKit/SpriteKit compilation and visual criteria remain pending the next Apple workflow/capture. This source review does not claim physical iPhone acceptance.
+Local verification: six retained native world rendering tests passed. Apple compilation, UI flows and the bounded movement capture passed; see the integration record and evidence below. This source review does not claim physical iPhone acceptance.
 
 ## Recorded simulator evidence
 

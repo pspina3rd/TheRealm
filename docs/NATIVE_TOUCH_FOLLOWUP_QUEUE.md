@@ -1,21 +1,27 @@
-# Native playtest follow-up queue
+# Native playtest follow-up status
 
-The original requests are implemented, corrected through independent source
-review, and passed Apple/simulator validation. They are ready for iPhone retesting:
+The original two requests were completed first:
 
 1. Remove movement flashing and prevent held-touch rotation from becoming a drop.
-2. Sprite character selection, in-world story tome, animated action/portraits,
-   narration/exposition shown rather than stage directions printed. Return or skip
-   safely without changing progression rewards.
+2. Sprite character selection and an in-world story tome with illustrated action,
+   animated portraits, narration, page controls and safe skipping.
 
-The original two are complete. These follow-ups are now being implemented and reviewed:
+All five subsequent requests are now implemented and reviewed:
 
-- Remove the redundant “Village” from Mossvale's displayed name.
-- Replace remaining platform-standard menus with the game's visual theme.
-- Align building collisions and visible footprints; make entrances understandable.
-- Give town entrances settlement visuals instead of a single house portal.
-- Use the available walking frames for characters instead of sliding sprites.
+- Mossvale and Brightwater display without redundant Village/Town suffixes.
+- Native campaign menus use the book theme, readable wrapping and scrolling.
+- Building ground collisions agree across direct movement, paths and save loading.
+- Town entrances depict settlements with open gateways.
+- World walking uses continuous authored poses and returns to standing.
 
-All five remain in the delivery scope. Each follows implementation → independent
-review → correction → re-review → Apple engine/simulator validation → updated
-device package. Source implementation alone is not delivery completion.
+Independent review returned collision insets, return landings, menu focus/scroll
+and visible prose clipping for correction. Corrections were re-reviewed; the
+clipping regression now checks actual text height and square map geometry.
+
+[Apple validation](https://github.com/pspina3rd/TheRealm/actions/runs/41519074346)
+passed native compilation, engine/gesture tests and both iPhone 15 Pro UI flows.
+Fresh menu/map screenshots were inspected. The updated Xcode source package is
+ready for physical iPhone retesting. See the [integration record](reviews/NATIVE_FIVE_FOLLOWUPS_VALIDATION.md).
+
+A separate finding remains: native block/effect rendering does not yet fully match
+the web presentation. These five fixes do not constitute full visual parity.
