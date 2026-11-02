@@ -1,6 +1,7 @@
 # Native playtest follow-up queue
 
-Finish and review the original requests first:
+The original requests are implemented, corrected through independent source
+review, and passed Apple/simulator validation. They are ready for iPhone retesting:
 
 1. Remove movement flashing and prevent held-touch rotation from becoming a drop.
 2. Sprite character selection, in-world story tome, animated action/portraits,

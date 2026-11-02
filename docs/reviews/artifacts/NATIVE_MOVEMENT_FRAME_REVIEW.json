@@ -1,0 +1,18 @@
+{
+  "source_run": 41472371022,
+  "clip_start_seconds": 137,
+  "clip_duration_seconds": 12,
+  "decoded_frames": 507,
+  "world_frame_runs": [[304, 424]],
+  "isolated_low_ground_color_gaps": [],
+  "scope": "Checks this recorded movement segment for brief full-ground disappearances; deliberate book transitions are excluded as separate runs. Physical iPhone acceptance still required.",
+  "movement_start_seconds": 144.051667,
+  "movement_end_seconds": 147.325,
+  "held_movement_review": {
+    "clip_start_seconds": 150,
+    "clip_duration_seconds": 12,
+    "decoded_frames": 221,
+    "world_frame_runs": [[73, 188]],
+    "isolated_low_ground_color_gaps": []
+  }
+}

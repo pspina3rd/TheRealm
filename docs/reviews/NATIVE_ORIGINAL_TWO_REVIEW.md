@@ -33,8 +33,20 @@ cup/rune prop. Corrections were applied. Source re-review approved the approach
 for Apple validation, with the final requirement to expose Skip for vision and
 prelude narration also applied.
 
-## Delivery gate
+## Validation and delivery
 
-The Apple engine/gesture suite, iPhone 15 Pro simulator flow and recorded movement
-sequence still need to be checked for this revision before a new device package
-is described as ready. Physical iPhone acceptance remains necessary after that.
+Apple run [41472371022](https://github.com/pspina3rd/TheRealm/actions/runs/41472371022)
+passed the engine/gesture suite, native build, and both iPhone 15 Pro UI tests.
+The UI flow opens a sprite's book, returns without starting a game, begins the
+adventure, turns opening pages, skips narration, reaches Rowan, enters/leaves
+his puzzle, walks, opens the world map, reloads a save and recovers after backgrounding.
+
+The actual book screenshot and simulator recording were inspected. Two recorded
+world segments were reviewed: 121 continuous world frames while approaching Rowan
+and 116 during held movement. No isolated ground-disappearance frames were found
+in those segments. The [frame review](artifacts/NATIVE_MOVEMENT_FRAME_REVIEW.json)
+records the sampling bounds and limitations. This is evidence for this simulator
+run, not a guarantee about every physical-device frame.
+
+Ready for the player's iPhone retest. The five later observations remain queued;
+source review, simulator success and a device retest are separate gates.
