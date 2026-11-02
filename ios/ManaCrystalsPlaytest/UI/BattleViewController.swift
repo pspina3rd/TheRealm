@@ -147,7 +147,7 @@ final class BattleViewController: UIViewController {
         pause.setImage(UIImage(systemName:next.paused ? "play.fill":"pause.fill"),for:.normal)
         pause.accessibilityLabel=next.paused ? "Resume":"Pause"
         if campaign && next.status != "ongoing" {pause.setImage(UIImage(systemName:"checkmark"),for:.normal);pause.accessibilityLabel="Return to campaign"}
-        pause.isEnabled = campaign && next.status != "ongoing" || !next.ready && next.status == "ongoing" && (next.paused || next.pausesLeft > 0)
+        pause.isEnabled = campaign && next.status != "ongoing" && !next.busy || !next.ready && next.status == "ongoing" && (next.paused || next.pausesLeft > 0)
         pause.accessibilityValue="\(next.pausesLeft) pauses remaining"
         if next.status != "ongoing" {status.text=campaign ? (next.status == "won" ? "Complete · Tap ✓ to continue":"Attempt over · Tap ✓ or correct in Battle actions") : (next.status == "won" ? "Slime defeated · Tap settings to play again":"Battle over · Tap settings to try again")}
         else if next.ready {status.text=campaign ? (next.objective?.label ?? "Drag to move · Tap to rotate · Flick ↓ to drop") : "Drag to move · Tap to rotate · Flick ↓ to drop"}
@@ -165,7 +165,7 @@ final class BattleViewController: UIViewController {
         preview.pieces=next.paused && !next.ready ? [] : next.next;preview.lines=next.lines
     }
     func suspend() {gesture.cancelAll();lastFrame=0;send(["type":"pause","paused":true,"system":true]);onCheckpoint?()}
-    @objc private func togglePause() {if campaign && state?.status != "ongoing" {onContinue?();return};gesture.cancelAll();send(["type":"pause","paused":!(state?.paused ?? false)])}
+    @objc private func togglePause() {if campaign && state?.status != "ongoing" {if state?.busy == false {onContinue?()};return};gesture.cancelAll();send(["type":"pause","paused":!(state?.paused ?? false)])}
     @objc private func showOptions() {
         suspend()
         if campaign {onOptions?();return}

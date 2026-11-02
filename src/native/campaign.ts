@@ -69,13 +69,14 @@ import { cannotBuyReason, priceFor, buy, sell, sellableItems } from '../game/sho
 import { useItem, cannotUseReason, slotFor, equip, spendSkillPoints } from '../game/hero';
 import {
   EMPTY_PLAN,
+  skillPlanCost,
   canRaiseStat,
   canEnhance,
   adjustStat,
   adjustEnhancement,
 } from '../game/skills';
 import type { Gain } from '../game/rewards';
-import { spellName } from '../game/spells';
+import { spellName, levelStep } from '../game/spells';
 import type { Attitude } from '../game/attitude';
 import { worldSnapshot, overviewSnapshot } from './world';
 
@@ -389,7 +390,7 @@ function skills(): void {
     `${hero.skillPoints} skill points. Spell ranks are earned through mentor lessons.`,
     [
       ...STAT_IDS.map((stat) => ({
-        label: `${STATS[stat].name} ${hero.stats[stat]} · ${STATS[stat].description}`,
+        label: `Train ${STATS[stat].name} ${hero.stats[stat]} → ${hero.stats[stat] + 1} · ${skillPlanCost(hero, adjustStat(EMPTY_PLAN, stat, 1))} SP · ${STATS[stat].description}`,
         enabled: canRaiseStat(hero, EMPTY_PLAN, stat),
         run: () => {
           spendSkillPoints(hero, adjustStat(EMPTY_PLAN, stat, 1));
@@ -412,7 +413,7 @@ function spellGrowth(id: string): void {
     `${hero.skillPoints} skill points. Train attributes, then revisit this spell's mentor for the next rank.`,
     [
       ...ENHANCEMENT_IDS.map((attribute) => ({
-        label: attribute,
+        label: `Train ${attribute} ${required(hero.spells[id]).step[attribute]} → ${required(hero.spells[id]).step[attribute] + 1} · ${levelStep(required(SPELLS[id]), required(hero.spells[id]).level)?.cost ?? '—'} SP`,
         enabled: canEnhance(hero, EMPTY_PLAN, id, attribute),
         run: () => {
           spendSkillPoints(hero, adjustEnhancement(EMPTY_PLAN, id, attribute, 1));

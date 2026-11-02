@@ -890,7 +890,9 @@ Map and verification limits: [overworld review](reviews/OVERWORLD_EXPANSION_REVI
   Committed interrupted attempts use the existing recovery rules. Native saves
   do not overwrite web saves. The Xcode project bundles the repository assets.
 - Shared tests, types/lint and the web build passed. Apple JavaScriptCore and
-  gesture unit tests passed on the first native candidate. iPhone simulator
-  UI checks are being run before calling this ready for device installation.
+  gesture unit tests passed. The iPhone 15 Pro simulator also passed the
+  opening, Rowan puzzle handoff/return, held movement, menu, save/relaunch and
+  background recovery checks. The development project is ready for installation
+  through Xcode; physical iPhone acceptance remains with the player.
 - Physical iPhone feel, visual polish and campaign pacing remain playtest work.
   The Slime fixture remains available only through a launch argument for tests.
