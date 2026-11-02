@@ -45,6 +45,7 @@ final class CampaignViewController: UIViewController {
             if let direction=self.direction {self.send(["type":"move","direction":direction])}
             else if self.state?.walking==true {self.send(["type":"walkStep"])}
         }
+        if let walker=walker {RunLoop.main.add(walker,forMode:.common)}
     }
     deinit {walker?.invalidate()}
     private func showTitle() {
