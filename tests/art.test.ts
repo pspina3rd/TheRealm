@@ -15,7 +15,7 @@ import {
   mapFrame,
 } from '../src/ui/art/creatures';
 import { IMAGES, type Region } from '../src/ui/art/images';
-import { OBJECTS } from '../src/ui/art/objects';
+import { OBJECTS, type ObjectArt } from '../src/ui/art/objects';
 import {
   TILE,
   backgroundFor,
@@ -52,7 +52,12 @@ describe('images', () => {
 
 describe('sprite regions', () => {
   it('keeps every prop inside its image', () => {
-    for (const [id, art] of Object.entries(OBJECTS)) expectInside(art.region, id);
+    for (const [id, object] of Object.entries(OBJECTS)) {
+      const art: ObjectArt = object;
+      expectInside(art.region, id);
+      for (const part of [...(art.baseParts ?? []), ...(art.details ?? [])])
+        expectInside(part.region, `${id} component`);
+    }
   });
 
   it('keeps every creature frame inside its image', () => {
@@ -184,6 +189,22 @@ describe('map art planning', () => {
     expect(placed.px).toBe(2 * TILE);
     expect(placed.py + house.region.h).toBe(6 * TILE);
     expect(placed.sortY).toBe(6 * TILE);
+  });
+
+  it('aligns assembled house entrances with the authored walk-up doors', () => {
+    for (const id of ['house.blue', 'house.gray', 'house.red'] as const) {
+      const art: ObjectArt = OBJECTS[id];
+      const house = placeObject(art, 3, 6);
+      const door = placeObject(OBJECTS.door, 5, 6);
+      const entry = house.details?.find(
+        (detail) =>
+          detail.region.image === 'village' && detail.region.x === 0 && detail.region.y === 280,
+      );
+      expect(entry, id).toBeDefined();
+      expect(entry?.px).toBe(door.px);
+      expect(entry?.py).toBe(door.py);
+      expect(house.py + (house.height ?? house.region.h)).toBe(7 * TILE);
+    }
   });
 
   it('chooses stable variants per cell', () => {

@@ -836,3 +836,18 @@ Setup: [native iPhone guide](../ios/README.md).
 Design and compatibility: [hometowns](HOMETOWNS.md). Browser reproduction:
 `node tools/hometown-smoke.mjs` against the development server on port 5191
 (override with `BASE`, and supply Playwright through `PLAYWRIGHT_MODULE` if needed).
+
+## 2026-11-01 · Finish modular building facades
+
+- Completed the cottage roof pieces with walls, windows, doors and foundations.
+  Added detail to the forge and corrected the tower's three stacked door
+  variants into upper windows and one ground entrance. Split the red house
+  crop to remove a neighboring chimney fragment. The opening bakery now uses
+  the taller red house for some silhouette variety.
+- Kept map collision, footprints, door positions and progression unchanged.
+  All sprite components share the building's depth and behind-player fade.
+- Format, lint, types, 1,610 tests and production build passed. All four
+  actual openings passed desktop/phone browser checks. Reviewed the rendered
+  comparison and map captures; broader architectural variety remains open.
+
+Evidence and review boundary: [building presentation](reviews/BUILDING_PRESENTATION_REVIEW.md).

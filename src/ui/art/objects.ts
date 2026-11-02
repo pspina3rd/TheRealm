@@ -12,6 +12,18 @@ export interface ObjectArt {
   /** Footprint width in tiles; the sprite is centred over it. */
   readonly width?: number;
   readonly offsetY?: number;
+  /** Full assembled height when the roof needs a separate wall course below it. */
+  readonly height?: number;
+  /** Modular details, relative to the assembled sprite's top-left corner. */
+  readonly details?: readonly ObjectDetail[];
+  /** Clean source pieces when an atlas rectangle also contains a neighboring sprite. */
+  readonly baseParts?: readonly ObjectDetail[];
+}
+
+export interface ObjectDetail {
+  readonly region: Region;
+  readonly x: number;
+  readonly y: number;
 }
 
 const grass = (x: number, y: number, w: number, h: number): Region => ({
@@ -42,6 +54,29 @@ const prop = (name: keyof typeof PROP_ATLAS, width = 1, offsetY = 0): ObjectArt 
   return { region: { image: 'props', x, y, w, h }, width, offsetY };
 };
 
+const WINDOW = village(834, 18, 28, 28);
+const ATTIC_WINDOW = WINDOW;
+const FRONT_DOOR = village(0, 280, 32, 38);
+
+/** The blue/gray source rectangles are roofs, not finished houses. */
+function cottage(y: number): ObjectArt {
+  return {
+    region: village(864, y, 128, 156),
+    width: 4,
+    height: 188,
+    details: [
+      { region: village(864, 464, 128, 32), x: 0, y: 156 },
+      { region: village(864, 508, 128, 4), x: 0, y: 184 },
+      { region: ATTIC_WINDOW, x: 50, y: 118 },
+      { region: WINDOW, x: 20, y: 154 },
+      { region: FRONT_DOOR, x: 64, y: 150 },
+    ],
+  };
+}
+
+const tower = prop('tower', 3);
+const [towerX, towerY] = PROP_ATLAS.tower;
+
 export const OBJECTS = {
   // Overworld
   'tree.light': { region: grass(400, 516, 64, 92), offsetY: 4 },
@@ -54,9 +89,22 @@ export const OBJECTS = {
   sign: { region: village(226, 110, 28, 48) },
 
   // Settlements (4-tile-wide houses sit on a 4×3 footprint)
-  'house.red': { region: village(864, 292, 128, 220), width: 4 },
-  'house.blue': { region: village(864, 708, 128, 156), width: 4 },
-  'house.gray': { region: village(864, 868, 128, 156), width: 4 },
+  'house.red': {
+    region: village(864, 292, 128, 220),
+    width: 4,
+    baseParts: [
+      { region: village(896, 292, 96, 32), x: 32, y: 0 },
+      { region: village(864, 324, 128, 188), x: 0, y: 32 },
+    ],
+    details: [
+      { region: ATTIC_WINDOW, x: 50, y: 118 },
+      { region: WINDOW, x: 20, y: 174 },
+      { region: WINDOW, x: 98, y: 174 },
+      { region: FRONT_DOOR, x: 64, y: 182 },
+    ],
+  },
+  'house.blue': cottage(708),
+  'house.gray': cottage(868),
   door: { region: village(0, 280, 32, 38) },
   stall: { region: village(256, 160, 96, 32), width: 3 },
   well: { region: village(386, 164, 62, 88), width: 2 },
@@ -70,14 +118,35 @@ export const OBJECTS = {
   ladder: { region: caves(864, 332, 32, 72), offsetY: 8 },
 
   // Mentor regions (props sheet)
-  'forge.hall': prop('forge.hall', 7),
+  'forge.hall': {
+    ...prop('forge.hall', 7),
+    details: [
+      { region: WINDOW, x: 28, y: 170 },
+      { region: WINDOW, x: 166, y: 170 },
+      { region: prop('forge.anvil').region, x: 87, y: 112 },
+    ],
+  },
   'forge.furnace': prop('forge.furnace', 2),
   'forge.anvil': prop('forge.anvil'),
   brazier: prop('brazier'),
   torch: prop('torch'),
   'orb.blue': prop('orb.blue'),
   'orb.red': prop('orb.red'),
-  tower: prop('tower', 3),
+  tower: {
+    ...tower,
+    details: [
+      // These source courses contain alternate door tiles. Only the ground floor is an entrance.
+      ...[0, 64].flatMap((y): ObjectDetail[] =>
+        [0, 24, 48, 72].map((x) => ({
+          region: { image: 'props', x: towerX, y: towerY + y, w: 24, h: 64 },
+          x,
+          y,
+        })),
+      ),
+      { region: ATTIC_WINDOW, x: 34, y: 22 },
+      { region: WINDOW, x: 34, y: 86 },
+    ],
+  },
   'mush.house': prop('mush.house', 6),
   'mush.house.blue': prop('mush.house.blue', 6),
   'mush.tree.red': prop('mush.tree.red', 3),

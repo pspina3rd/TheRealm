@@ -298,6 +298,17 @@ export interface PlacedObject {
   readonly px: number;
   readonly py: number;
   readonly sortY: number;
+  readonly height?: number;
+  readonly baseParts?: readonly {
+    readonly region: Region;
+    readonly px: number;
+    readonly py: number;
+  }[];
+  readonly details?: readonly {
+    readonly region: Region;
+    readonly px: number;
+    readonly py: number;
+  }[];
 }
 
 /** Places `art` with its bottom centre on the bottom centre of a `tiles`-wide footprint at (x, y). */
@@ -309,11 +320,32 @@ export function placeObject(
 ): PlacedObject {
   const { region } = art;
   const bottom = (y + 1) * TILE + (art.offsetY ?? 0);
+  const px = Math.round(x * TILE + (tiles * TILE - region.w) / 2);
+  const py = bottom - (art.height ?? region.h);
   return {
     region,
-    px: Math.round(x * TILE + (tiles * TILE - region.w) / 2),
-    py: bottom - region.h,
+    px,
+    py,
     sortY: (y + 1) * TILE,
+    ...(art.height === undefined ? {} : { height: art.height }),
+    ...(art.baseParts
+      ? {
+          baseParts: art.baseParts.map((part) => ({
+            region: part.region,
+            px: px + part.x,
+            py: py + part.y,
+          })),
+        }
+      : {}),
+    ...(art.details
+      ? {
+          details: art.details.map((detail) => ({
+            region: detail.region,
+            px: px + detail.x,
+            py: py + detail.y,
+          })),
+        }
+      : {}),
   };
 }
 

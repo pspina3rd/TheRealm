@@ -110,12 +110,15 @@ export class WorldView {
         heroCenterX >= p.px &&
         heroCenterX <= p.px + p.region.w &&
         heroCenterY >= p.py &&
-        heroCenterY <= p.py + p.region.h;
+        heroCenterY <= p.py + (p.height ?? p.region.h);
       return {
         sortY: p.sortY,
         draw: () => {
           ctx.globalAlpha = coversHero ? SEE_THROUGH : 1;
-          this.atlas.draw(ctx, p.region, p.px - camX, p.py - camY);
+          for (const part of p.baseParts ?? [p])
+            this.atlas.draw(ctx, part.region, part.px - camX, part.py - camY);
+          for (const detail of p.details ?? [])
+            this.atlas.draw(ctx, detail.region, detail.px - camX, detail.py - camY);
           ctx.globalAlpha = 1;
         },
       };

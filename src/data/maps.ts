@@ -182,7 +182,7 @@ const BASE_MAPS: Record<string, MapDef> = {
       },
     ],
     decor: [
-      { object: 'house.gray', x: 3, y: 6 },
+      { object: 'house.red', x: 3, y: 6 },
       { object: 'door', x: 5, y: 6 },
       { object: 'house.blue', x: 14, y: 6 },
       { object: 'door', x: 16, y: 6 },
