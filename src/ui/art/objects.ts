@@ -123,7 +123,6 @@ export const OBJECTS = {
     details: [
       { region: WINDOW, x: 28, y: 170 },
       { region: WINDOW, x: 166, y: 170 },
-      { region: prop('forge.anvil').region, x: 87, y: 112 },
     ],
   },
   'forge.furnace': prop('forge.furnace', 2),

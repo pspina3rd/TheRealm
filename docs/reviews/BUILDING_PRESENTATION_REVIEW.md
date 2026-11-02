@@ -7,7 +7,7 @@ fragment from its atlas rectangle.
 
 This pass assembles the existing licensed pieces into finished facades:
 windows, attic windows, doors, wall courses and foundations. It adds forge
-windows and an anvil marker, gives the tower upper windows and one ground
+windows, gives the tower upper windows and one ground
 entrance, and removes the stray chimney fragment. Mossvale's bakery now uses
 the taller red house so the opening row has more than roof-color variation.
 
@@ -28,3 +28,7 @@ This repairs unfinished assembly. It does not complete the broader need for
 different building silhouettes, civic landmarks and distinctive architecture
 in each settlement. The mushroom houses and mountain hut retain their
 existing complete sprites.
+
+The attempted anvil facade marker was removed after player review: using a
+full anvil sprite as signage made it look like equipment protruding through
+the wall. The map's separate outdoor anvil remains in its intended place.
