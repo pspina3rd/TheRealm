@@ -43,6 +43,18 @@ extension NativeAppUITests {
         }
         let world=app.otherElements["campaign-world"]
         XCTAssertTrue(world.waitForExistence(timeout:10))
+        // Rowan is on-screen from Fern's starting position. Tap his actual map tile;
+        // no debug warp or pre-earned progress is used for this handoff check.
+        let worldFrame=world.frame,scale=min(worldFrame.width/416,worldFrame.height/640)
+        let rowan=app.coordinate(withNormalizedOffset:.zero).withOffset(CGVector(dx:worldFrame.minX+(worldFrame.width-416*scale)/2+16*scale,dy:worldFrame.minY+(worldFrame.height-640*scale)/2+208*scale))
+        rowan.tap()
+        XCTAssertTrue(app.tables["campaign-dialog"].waitForExistence(timeout:15))
+        let begin=app.staticTexts["Begin"];XCTAssertTrue(begin.waitForExistence(timeout:5));begin.tap()
+        XCTAssertTrue(app.otherElements["battle-board"].waitForExistence(timeout:10))
+        app.buttons["Battle actions"].tap()
+        let leave=app.staticTexts["Leave before starting"];XCTAssertTrue(leave.waitForExistence(timeout:5));leave.tap()
+        let backToWorld=NSPredicate {_,_ in world.isHittable}
+        expectation(for:backToWorld,evaluatedWith:nil);waitForExpectations(timeout:5)
         let before=world.value as? String
         let origin=world.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.55))
         let end=world.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.8))

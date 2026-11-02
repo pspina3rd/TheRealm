@@ -11,6 +11,7 @@ final class CampaignViewController: UIViewController {
     private var direction: String?
     private var battleController: BattleViewController?
     private var panelController: CampaignPanelController?
+    private var transitioning=false
     private var titleStack: UIStackView?
     private let saveKey = "native-campaign-v1"
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask { .portrait }
@@ -77,17 +78,25 @@ final class CampaignViewController: UIViewController {
     private func adopt(_ next:CampaignState) {
         state=next
         if let save=next.save {UserDefaults.standard.set(save,forKey:saveKey)}
+        if transitioning {return}
         if next.mode=="title" {panelController?.dismiss(animated:true);panelController=nil;showTitle();return}
         titleStack?.removeFromSuperview();titleStack=nil;world.isHidden=false;menuButton.isHidden=false
         location.text="\(next.location)\n\(next.heroName) · \(next.hp)/\(next.maxHP) HP"
         if let data=next.world {world.state=data}
         if next.panel != nil || next.mode=="battle" {direction=nil}
         if next.mode != "battle",let battle=battleController {
-            panelController?.dismiss(animated:false);panelController=nil;battleController=nil
-            battle.dismiss(animated:true) { [weak self] in self?.adopt(next) };return
+            if let panel=panelController {
+                panelController=nil;transitioning=true
+                panel.dismiss(animated:false) { [weak self] in self?.transitioning=false;self?.adopt(next) };return
+            }
+            battleController=nil;transitioning=true
+            battle.dismiss(animated:true) { [weak self] in self?.transitioning=false;self?.adopt(next) };return
         }
         if next.mode=="battle",battleController==nil,let engine=engine {
-            panelController?.dismiss(animated:false);panelController=nil
+            if let panel=panelController {
+                panelController=nil;transitioning=true
+                panel.dismiss(animated:false) { [weak self] in self?.transitioning=false;self?.adopt(next) };return
+            }
             let battle=BattleViewController(campaignEngine:engine);battle.modalPresentationStyle = .fullScreen
             battle.onCheckpoint={ [weak self] in self?.checkpoint() }
             battle.onOptions={ [weak self] in self?.send(["type":"battleMenu"]) }
