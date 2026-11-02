@@ -23,3 +23,16 @@ Save identity and schema remain unchanged. A legacy position inside a newly
 solid facade returns to its valid respawn under the existing loader policy;
 independent tests verify that hero, items, money and earned progress survive.
 Physical iPhone feel and acceptance still require the player's retest.
+
+## Intel simulator retry
+
+The Intel runner compiled the native app and passed all Apple engine/gesture
+checks in run 41485173236. Its UI step reached the parchment menu and world map
+without assertion failures, but the 12-minute step limit interrupted relaunch.
+Diagnostics show about 103 seconds of cold launch/automation before the first
+assertion; the campaign exceeded the prior 120-second case allowance while
+continuing to progress. An independent reviewer approved bounded allowances of
+240/300 seconds per test, 20 minutes for the UI step and 35 for the job, with all
+individual assertion waits unchanged. Relaunch completion remains unverified.
+If the termination request stalls again, investigate it rather than extending
+the limits further.
