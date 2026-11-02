@@ -454,7 +454,12 @@ export function tomePages(scene: SceneDef, state: GameState): TomePage[] {
       {
         id: `${scene.id}:${index}`,
         title: scene.title,
-        setting: staging.setting === 'home' ? home : staging.setting,
+        setting:
+          staging.setting === 'home' ||
+          (scene.id === 'opening' && index >= 3) ||
+          (scene.id === 'campaignRecovery' && index === 7)
+            ? home
+            : staging.setting,
         action,
         dialogue: hometownText(dialogue, state.flags),
         speaker,
@@ -464,7 +469,9 @@ export function tomePages(scene: SceneDef, state: GameState): TomePage[] {
         ...(subject ? { subject: actorID(subject) } : {}),
         ...(target ? { target: actorID(target) } : {}),
         environment:
-          staging.setting === 'home'
+          staging.setting === 'home' ||
+          (scene.id === 'opening' && index >= 3) ||
+          (scene.id === 'campaignRecovery' && index === 7)
             ? 'village'
             : staging.setting === 'Inner ward'
               ? 'ward'

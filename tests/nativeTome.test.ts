@@ -125,3 +125,11 @@ describe('native tome story presentation', () => {
     expect(spokenText('*A low voice:* "Sleep."')).toBe('Sleep.');
   });
 });
+
+it('stages the waking hometown rather than an empty surface during the opening', () => {
+  const state = newGame('mage');
+  const pages = tomePages(OPENING, state);
+  expect(pages[3]?.environment).toBe('village');
+  expect(pages[3]?.setting).toBe('Merehaven');
+  expect(pages[4]?.environment).toBe('village');
+});
