@@ -1,3 +1,4 @@
+import { legacySurfacePoint } from '../src/data/surfaceLayout';
 import { describe, expect, it } from 'vitest';
 import { weakTo } from '../src/core/elements';
 import { createRng } from '../src/core/rng';
@@ -219,9 +220,13 @@ describe('Vesper, one step ahead', () => {
     expect(vesperEntities(state)).toEqual([]);
     travel(state, { map: 'overworld', x: 5, y: 6 });
     const [vesper] = vesperEntities(state);
-    expect(vesper).toMatchObject({ kind: 'npc', npcId: 'vesperRoad', x: 29, y: 17 });
+    expect(vesper).toMatchObject({
+      kind: 'npc',
+      npcId: 'vesperRoad',
+      ...legacySurfacePoint(29, 17),
+    });
     expect(activeEntities(state)).toContainEqual(vesper);
-    expect(vesperEntities({ ...state, x: 29, y: 17 })).toEqual([]);
+    expect(vesperEntities({ ...state, ...legacySurfacePoint(29, 17) })).toEqual([]);
     state.flags.add('vision:2');
     expect(vesperEntities(state)).toEqual([]);
   });
@@ -318,7 +323,7 @@ describe('save version 8 (story)', () => {
     state.flags.add('vision:1');
     state.flags.add('scene:refusal');
     state.flags.add('reached:brightwater');
-    expect(SAVE_VERSION).toBe(16);
+    expect(SAVE_VERSION).toBe(17);
     const loaded = deserialize(serialize(state))!;
     expect(loaded.talk).toEqual({ 'elder.intro': 3 });
     expect(loaded.flags.has('vision:1')).toBe(true);

@@ -1,3 +1,4 @@
+import { SURFACE_STONES } from '../src/data/surfaceLayout';
 import { describe, expect, it } from 'vitest';
 import { ENCOUNTER_DEFS } from '../src/data/encounters';
 import { MAPS } from '../src/data/maps';
@@ -79,7 +80,11 @@ describe('the grove’s Sevenstones feedback', () => {
     expect(groveStone(state, state.mapId)?.light).toBe(1);
     state.encounters['lesson:hazel:regen'] = { ...newRecord(), wins: 1 };
     const loaded = deserialize(serialize(state))!;
-    expect(groveStone(loaded, state.mapId)).toMatchObject({ light: 2, x: 2, y: 15 });
+    expect(groveStone(loaded, state.mapId)).toMatchObject({
+      light: 2,
+      x: SURFACE_STONES[0].x,
+      y: SURFACE_STONES[0].y,
+    });
     expect([...state.flags]).toEqual(flags);
     expect(groveStone(state, 'grove')).toBeNull();
     state.encounters.forager!.fails = 1;

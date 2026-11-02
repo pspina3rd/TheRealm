@@ -1,3 +1,5 @@
+import { surfaceProvince } from '../data/surfaceLayout';
+import { worldMapBody, surfaceDistrict } from './worldMap';
 import { openingLead } from '../game/opening';
 import { LessonChallenge } from '../battle/lesson';
 import { encounterIntent, enemyMovePurpose } from '../game/encounterIntent';
@@ -169,6 +171,7 @@ export class App {
   private gestures: ReturnType<typeof bindBoardGestures> | null = null;
   private gesturePiece: ActivePiece | null = null;
   private walkTimer = 0;
+  private roadSaveAt = 0;
   private lastFrame = 0;
   private messageTimer = 0;
   /** Toasts raised under an interlude, shown once the map is clear (see `HeldToasts`). */
@@ -410,6 +413,12 @@ export class App {
         this.say(result.text, 'lock');
         break;
       case 'moved':
+        this.renderHud();
+        if (performance.now() - this.roadSaveAt >= 5000) {
+          this.save();
+          this.roadSaveAt = performance.now();
+        }
+        break;
       case 'blocked':
         break;
     }
@@ -772,9 +781,17 @@ export class App {
   ): void {
     this.dialog.close();
     if (spec.kind === 'lesson') prepareLesson(this.state.hero);
-    const weights = pieceWeights(currentMap(this.state), this.state.hero);
+    const province =
+      this.state.mapId === 'overworld'
+        ? surfaceProvince(this.state.x, this.state.y)?.id
+        : undefined;
+    const local = currentMap(this.state);
+    const weights = pieceWeights(
+      province ? { ...local, pieceBias: MAPS[province]?.pieceBias } : local,
+      this.state.hero,
+    );
     const dual = dualChance(this.state.hero);
-    const rule = spec.kind === 'combat' ? MAP_RULES[this.state.mapId] : undefined;
+    const rule = spec.kind === 'combat' ? MAP_RULES[province ?? this.state.mapId] : undefined;
     const battle = new Battle(spec, this.state.hero, this.rng, {
       weights,
       boardMagic: spec.kind === 'combat' || spec.kind === 'lesson',
@@ -1100,6 +1117,9 @@ export class App {
   // ------------------------------------------------------------ menu ---
 
   private openMenu(): void {
+    if (this.started && !this.active) this.save();
+    this.stopRoute();
+    this.heldDirection = null;
     const hero = this.state.hero;
     const refresh = (): void => {
       this.save();
@@ -1125,6 +1145,15 @@ export class App {
         hiddenSlots(this.state),
       ),
       actions: [
+        {
+          label: 'World map',
+          onClick: () =>
+            this.dialog.show({
+              title: 'Sevenstones',
+              body: worldMapBody(this.state),
+              actions: [{ label: 'Back', onClick: () => this.openMenu() }],
+            }),
+        },
         ...(this.state.flags.has('boardMagicEnabled') && arcaneUnlocked(this.state.flags)
           ? [
               {
@@ -1269,7 +1298,7 @@ export class App {
     this.dialog.close();
     this.renderHud();
     this.say(currentMap(this.state).name);
-    // The opening, before the hero has control in Mossvale.
+    // The opening, before the hero has control in their hometown.
     this.playScenes();
   }
 
@@ -1285,7 +1314,10 @@ export class App {
     byId('hud-xp-bar').style.width = `${(100 * hero.xp) / hero.nextXp}%`;
     byId('hud-xp').title = `${hero.xp} / ${hero.nextXp} XP`;
     byId('hud-gil').textContent = String(hero.gil);
-    byId('hud-place').textContent = currentMap(this.state).name;
+    byId('hud-place').textContent =
+      this.state.mapId === 'overworld'
+        ? `Sevenstones · ${surfaceDistrict(this.state.x, this.state.y)}`
+        : currentMap(this.state).name;
     const lead = byId('world-goal');
     lead.textContent = openingLead(this.state);
     lead.hidden = !lead.textContent;
@@ -1342,6 +1374,17 @@ export class App {
   // ----------------------------------------------------------- input ---
 
   private bindInput(): void {
+    const leaveRoad = (): void => {
+      if (this.started && !this.active) {
+        this.heldDirection = null;
+        this.stopRoute();
+        this.save();
+      }
+    };
+    window.addEventListener('pagehide', leaveRoad);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) leaveRoad();
+    });
     document.addEventListener('keydown', (event) => this.onKeyDown(event));
     document.addEventListener('keyup', (event) => {
       if (KEY_DIRECTIONS[normalizeKey(event.key)] === this.heldDirection) this.heldDirection = null;

@@ -143,7 +143,14 @@ export function heroHelpChance(
 export function lessonFoeId(mentor: MentorDef, stop: MentorStop): string {
   if (isAtHome(mentor, stop)) return mentor.trialFoe;
   const monsters = (MAPS[stop.map]?.entities ?? []).flatMap((e) =>
-    e.kind === 'monster' && !e.boss && ENEMIES[e.enemyId] ? [ENEMIES[e.enemyId] as EnemyDef] : [],
+    e.kind === 'monster' &&
+    !e.boss &&
+    ENEMIES[e.enemyId] &&
+    // Expanding the world must not silently replace a familiar roaming lesson
+    // with the strongest monster in a distant late-game province.
+    !(stop.map === 'overworld' && e.id.startsWith('surface:'))
+      ? [ENEMIES[e.enemyId] as EnemyDef]
+      : [],
   );
   const own = monsters.filter((enemy) => enemy.element === mentor.element);
   const pool = own.length > 0 ? own : monsters;

@@ -1,3 +1,4 @@
+import { surfaceProvince } from '../../data/surfaceLayout';
 /**
  * How map tiles are drawn, per area theme. Map rows stay plain characters
  * (see `src/world/tiles.ts`); this module turns each character into ground
@@ -252,8 +253,18 @@ function pick<T>(items: readonly T[], x: number, y: number): T | undefined {
   return items[Math.floor(cellHash(x, y) * items.length)];
 }
 
+function themeAt(map: MapDef, x: number, y: number): ThemeArt {
+  return THEMES[map.id === 'overworld' ? (surfaceProvince(x, y)?.theme ?? map.theme) : map.theme];
+}
+
 function recipeAt(map: MapDef, x: number, y: number): TileRecipe {
-  return THEMES[map.theme].tiles[map.tiles[y]?.[x] ?? ''] ?? {};
+  const tile = map.tiles[y]?.[x] ?? '';
+  if (map.id === 'overworld' && tile === '~') return { terrain: 'water' };
+  if (map.id === 'overworld' && tile === '!') return { terrain: 'lava' };
+  if (map.id === 'overworld' && tile === 'o') return { terrain: 'sand' };
+  if (map.id === 'overworld' && (tile === 'B' || tile === 'L'))
+    return { terrain: tile === 'L' ? 'lava' : 'water', decals: BRIDGE };
+  return themeAt(map, x, y).tiles[tile] ?? {};
 }
 
 function inBounds(map: MapDef, x: number, y: number): boolean {
@@ -277,10 +288,21 @@ function terrainRegion(
  * as matching so terrain runs cleanly off the edge of the map.
  */
 export function planGround(map: MapDef, x: number, y: number, timeMs = 0): Region[] {
-  const theme = THEMES[map.theme];
+  const theme = themeAt(map, x, y);
   const recipe = recipeAt(map, x, y);
   const layers: Region[] = [];
-  if (theme.base) layers.push(terrainRegion(theme.base, FULL_TILE, timeMs));
+  if (theme.base) {
+    if (map.id === 'overworld' && theme.base !== 'grass') {
+      layers.push(terrainRegion('grass', FULL_TILE, timeMs));
+      layers.push(
+        terrainRegion(
+          theme.base,
+          blobTile((dx, dy) => themeAt(map, x + dx, y + dy).base === theme.base),
+          timeMs,
+        ),
+      );
+    } else layers.push(terrainRegion(theme.base, FULL_TILE, timeMs));
+  }
   for (const terrain of TERRAIN_ORDER) {
     if (recipe.terrain !== terrain || terrain === theme.base) continue;
     const matches = (dx: number, dy: number): boolean =>

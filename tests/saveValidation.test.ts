@@ -1,3 +1,4 @@
+import { legacySurfacePoint } from '../src/data/surfaceLayout';
 import { describe, expect, it } from 'vitest';
 import {
   CORRUPT_KEY,
@@ -196,7 +197,11 @@ describe('save validation: stale entries are repaired, not fatal', () => {
     save.respawn = { map: 'sunkenRuins', x: 7, y: 9 };
     delete save.talk;
     const loaded = load(save)!;
-    expect([loaded.mapId, loaded.x, loaded.y]).toEqual(['overworld', 15, 19]);
+    expect([loaded.mapId, loaded.x, loaded.y]).toEqual([
+      'overworld',
+      legacySurfacePoint(15, 19).x,
+      legacySurfacePoint(15, 19).y,
+    ]);
     expect(loaded.hero).toEqual({
       ...state.hero,
       items: { ...state.hero.items, wellStone: 1 },

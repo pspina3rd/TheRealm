@@ -102,7 +102,7 @@ describe('sprite keys in game data', () => {
 
   it('uses Fantasy Dreamland art outdoors and Pixel Battlers in the caves', () => {
     const spritesOn = (mapId: string) =>
-      MAPS[mapId]!.entities.flatMap((e) =>
+      MAPS[mapId]!.entities.filter((e) => !e.id.startsWith('surface:')).flatMap((e) =>
         e.kind === 'monster' ? [ENEMIES[e.enemyId]!.sprite] : [],
       );
     for (const key of spritesOn('overworld')) expect(isStripSprite(key as never)).toBe(false);
@@ -126,11 +126,14 @@ describe('map art planning', () => {
 
   for (const map of Object.values(MAPS)) {
     it(`${map.id} plans ground and props inside their images`, () => {
+      const regions = new Map<string, Region>();
       for (const [x, y] of cells(map)) {
         for (const t of [0, 900]) {
-          for (const layer of planGround(map, x, y, t)) expectInside(layer, `${map.id} ${x},${y}`);
+          for (const layer of planGround(map, x, y, t))
+            regions.set(`${layer.image}:${layer.x}:${layer.y}:${layer.w}:${layer.h}`, layer);
         }
       }
+      for (const region of regions.values()) expectInside(region, map.id);
       const props = planObjects(map);
       for (const prop of props) expectInside(prop.region, map.id);
       expect(props.map((p) => p.sortY)).toEqual(

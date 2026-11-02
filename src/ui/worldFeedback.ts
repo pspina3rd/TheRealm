@@ -1,3 +1,4 @@
+import { SURFACE_STONES } from '../data/surfaceLayout';
 /** Saved encounter outcomes projected into the world; rendering never changes progression. */
 import { ENCOUNTER_DEFS, type SkinId, type WorldProp } from '../data/encounters';
 import { NPCS } from '../data/npcs';
@@ -73,8 +74,8 @@ export function groveStone(
     );
   const light = helped && taught ? 2 : helped || taught ? 1 : 0;
   return {
-    x: 2,
-    y: 15,
+    x: SURFACE_STONES[0].x,
+    y: SURFACE_STONES[0].y,
     light,
     text:
       light === 2

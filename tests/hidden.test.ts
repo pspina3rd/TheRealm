@@ -292,7 +292,7 @@ describe('a mentor who noticed seeks the hero out', () => {
     expect(mapDistance('mossvale', 'mossvale')).toBe(0);
     expect(mapDistance('mossvale', 'overworld')).toBe(1);
     expect(mapDistance('mossvale', 'brightwater')).toBe(2);
-    expect(mapDistance('mossvale', 'caves2')).toBe(6);
+    expect(mapDistance('mossvale', 'caves2')).toBe(4);
     // Locked warps don't count for a hero without their flags.
     expect(mapDistance('mossvale', 'peaks', new Set())).toBe(Infinity);
     expect(mapDistance('mossvale', 'peaks', new Set(['peakGate']))).toBe(2);

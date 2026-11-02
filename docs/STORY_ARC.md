@@ -9,7 +9,7 @@ implemented progression from unverified pacing and tentative mechanics.
 
 The [four hometown openings](HOMETOWNS.md) place the same opening cast and
 events in the selected protagonist's home. Fern begins in Mossvale, Lance
-in Redrock Village, Ares in Glasswater Village, and Vex in Thornwood Village.
+in Cairnwick, Ares in Merehaven, and Vex in Bramblecross.
 Regional mentors retain their established homes. The shared main journey
 and its major beats remain the same; older saves keep their Mossvale origin.
 

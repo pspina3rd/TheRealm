@@ -1,0 +1,58 @@
+[
+  {
+    "cls": "ranger",
+    "mobile": false,
+    "home": "Mossvale",
+    "renderMedianMs": 0.5999999940395355,
+    "renderP95Ms": 14.299999997019768
+  },
+  {
+    "cls": "knight",
+    "mobile": false,
+    "home": "Cairnwick",
+    "renderMedianMs": 0.7999999970197678,
+    "renderP95Ms": 14
+  },
+  {
+    "cls": "mage",
+    "mobile": false,
+    "home": "Merehaven",
+    "renderMedianMs": 0.7999999970197678,
+    "renderP95Ms": 28.30000001192093
+  },
+  {
+    "cls": "rogue",
+    "mobile": false,
+    "home": "Bramblecross",
+    "renderMedianMs": 1.0999999940395355,
+    "renderP95Ms": 17.399999991059303
+  },
+  {
+    "cls": "ranger",
+    "mobile": true,
+    "home": "Mossvale",
+    "renderMedianMs": 1,
+    "renderP95Ms": 21.600000008940697
+  },
+  {
+    "cls": "knight",
+    "mobile": true,
+    "home": "Cairnwick",
+    "renderMedianMs": 0.9000000059604645,
+    "renderP95Ms": 14.300000011920929
+  },
+  {
+    "cls": "mage",
+    "mobile": true,
+    "home": "Merehaven",
+    "renderMedianMs": 0.9000000059604645,
+    "renderP95Ms": 24.700000002980232
+  },
+  {
+    "cls": "rogue",
+    "mobile": true,
+    "home": "Bramblecross",
+    "renderMedianMs": 1,
+    "renderP95Ms": 17.900000005960464
+  }
+]

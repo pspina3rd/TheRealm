@@ -34,6 +34,7 @@ try {
     try {
       await page.goto(process.env.BASE ?? 'http://127.0.0.1:5186/');
       await page.evaluate(async (school) => {
+        const { legacySurfacePoint, expandedLocation } = await import('/src/data/surfaceLayout.ts');
         const { newGame } = await import('/src/world/state.ts'),
           { serialize, SAVE_KEY } = await import('/src/game/save.ts'),
           { newKnownSpell } = await import('/src/game/spells.ts'),
@@ -41,9 +42,8 @@ try {
         const state = newGame();
         Object.assign(state, {
           mapId: 'overworld',
-          x: 8,
-          y: 3,
-          respawn: { map: 'overworld', x: 8, y: 3 },
+          ...legacySurfacePoint(8, 3),
+          respawn: expandedLocation({ map: 'overworld', x: 8, y: 3 }),
         });
         for (const scene of SCENES) state.flags.add(scene.flag);
         if (school === 'fire1') state.hero.spells.fire = newKnownSpell();

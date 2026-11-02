@@ -1,3 +1,4 @@
+import { legacySurfacePoint } from '../src/data/surfaceLayout';
 import { describe, expect, it } from 'vitest';
 import {
   CAMPAIGN_FLAGS as C,
@@ -62,8 +63,7 @@ describe('campaign scene lifecycle', () => {
     withScene(testScene, () => {
       const state = newGame();
       state.mapId = 'overworld';
-      state.x = 15;
-      state.y = 19;
+      Object.assign(state, legacySurfacePoint(15, 19));
       state.flags.add('wyrmBeaten');
       state.flags.add('scene:chapterEnd');
       const before = itemCount(state.hero, 'ether');
@@ -109,7 +109,11 @@ describe('campaign scene lifecycle', () => {
     expect(interrupted.mapId).toBe('innerWard');
     expect(interrupted.flags.has(scene.flag)).toBe(false);
     finishScene(interrupted, scene);
-    expect([interrupted.mapId, interrupted.x, interrupted.y]).toEqual(['overworld', 18, 19]);
+    expect([interrupted.mapId, interrupted.x, interrupted.y]).toEqual([
+      'overworld',
+      legacySurfacePoint(18, 19).x,
+      legacySurfacePoint(18, 19).y,
+    ]);
     expect(interrupted.flags.has(scene.flag)).toBe(true);
     const finished = deserialize(serialize(interrupted))!;
     expect(finished.mapId).toBe('overworld');
@@ -179,9 +183,13 @@ describe('campaign save compatibility', () => {
     old.y = 2;
     old.respawn = { map: 'sunkenRuins', x: 3, y: 3 };
     const loaded = deserialize(JSON.stringify(old))!;
-    expect([loaded.mapId, loaded.x, loaded.y]).toEqual(['overworld', 15, 19]);
+    expect([loaded.mapId, loaded.x, loaded.y]).toEqual([
+      'overworld',
+      legacySurfacePoint(15, 19).x,
+      legacySurfacePoint(15, 19).y,
+    ]);
     expect(loaded.flags.has(C.descent)).toBe(false);
-    expect(SAVE_VERSION).toBe(16);
+    expect(SAVE_VERSION).toBe(17);
   });
 
   it('does not reinterpret a newly recognized campaign destination as an old earned location', () => {
@@ -191,7 +199,11 @@ describe('campaign save compatibility', () => {
     old.y = 1;
     old.respawn = { map: 'innerWard', x: 1, y: 1 };
     const loaded = deserialize(JSON.stringify(old))!;
-    expect([loaded.mapId, loaded.x, loaded.y]).toEqual(['overworld', 15, 19]);
+    expect([loaded.mapId, loaded.x, loaded.y]).toEqual([
+      'overworld',
+      legacySurfacePoint(15, 19).x,
+      legacySurfacePoint(15, 19).y,
+    ]);
     expect(loaded.respawn.map).toBe('mossvale');
     expect(loaded.flags.has(C.wardReady)).toBe(false);
   });

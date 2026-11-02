@@ -1,3 +1,4 @@
+import { expandedLocation } from '../data/surfaceLayout';
 /**
  * Story beats: the scenes (the opening, the Refusal, the Wyrm's fall and
  * the end of Chapter One, each shown once), the Moon Wyrm's visions (shown
@@ -50,7 +51,13 @@ export function visionOnWarp(
         // on the road out, after the departure vision, without doubling a scene.
         (vision.enters === from &&
           hometownOf(flags).region === from &&
-          to !== hometownOf(flags).map)),
+          to !== hometownOf(flags).map) ||
+        // School-first exploration may already have passed a checkpoint before
+        // the call. Catch up one vision per crossing, keeping their order.
+        (vision.id === 'vision2' &&
+          flags.has('ridgeCleared') &&
+          ['forge', 'peaks', 'cliffs', 'ruins'].includes(to)) ||
+        (vision.id === 'vision3' && from === 'peaks' && to === 'overworld')),
   );
   return due ?? null;
 }
@@ -254,7 +261,7 @@ export function finishScene(state: GameState, scene: SceneDef): string[] {
   if (state.flags.has(scene.flag)) return [];
   const given = completeScene(state.flags, state.hero, scene);
   if (scene.to) {
-    const to = { ...scene.to, map: storyMap(scene.to.map, state.flags) };
+    const to = expandedLocation({ ...scene.to, map: storyMap(scene.to.map, state.flags) });
     travel(state, to);
     state.flags.add(reachedFlag(to.map));
   }

@@ -1,3 +1,4 @@
+import { SURFACE_SITES } from './surfaceLayout';
 import type { Location } from '../world/map';
 
 export interface Hometown {
@@ -7,6 +8,7 @@ export interface Hometown {
   readonly start: Location;
   /** A settlement entrance and the safe tile on its regional side. */
   readonly region: string;
+  readonly province: string;
   readonly entrance: readonly [number, number];
   readonly returnTo: Location;
 }
@@ -19,35 +21,51 @@ export const HOMETOWNS: readonly [Hometown, ...Hometown[]] = [
     name: 'Mossvale',
     start: { map: 'mossvale', x: 18, y: 20 },
     region: 'overworld',
-    entrance: [5, 5],
-    returnTo: { map: 'overworld', x: 5, y: 6 },
+    province: 'outdoor',
+    entrance: [SURFACE_SITES.mossvale.x, SURFACE_SITES.mossvale.y],
+    returnTo: { map: 'overworld', x: SURFACE_SITES.mossvale.x, y: SURFACE_SITES.mossvale.y + 1 },
   },
   {
     classId: 'knight',
     map: 'redrockVillage',
-    name: 'Redrock Village',
+    name: 'Cairnwick',
     start: { map: 'redrockVillage', x: 18, y: 20 },
-    region: 'quarry',
-    entrance: [2, 21],
-    returnTo: { map: 'quarry', x: 2, y: 20 },
+    region: 'overworld',
+    province: 'quarry',
+    entrance: [SURFACE_SITES.redrockVillage.x, SURFACE_SITES.redrockVillage.y],
+    returnTo: {
+      map: 'overworld',
+      x: SURFACE_SITES.redrockVillage.x,
+      y: SURFACE_SITES.redrockVillage.y + 1,
+    },
   },
   {
     classId: 'mage',
     map: 'glasswaterVillage',
-    name: 'Glasswater Village',
+    name: 'Merehaven',
     start: { map: 'glasswaterVillage', x: 18, y: 20 },
-    region: 'lake',
-    entrance: [2, 19],
-    returnTo: { map: 'lake', x: 2, y: 18 },
+    region: 'overworld',
+    province: 'lake',
+    entrance: [SURFACE_SITES.glasswaterVillage.x, SURFACE_SITES.glasswaterVillage.y],
+    returnTo: {
+      map: 'overworld',
+      x: SURFACE_SITES.glasswaterVillage.x,
+      y: SURFACE_SITES.glasswaterVillage.y + 1,
+    },
   },
   {
     classId: 'rogue',
     map: 'thornwoodVillage',
-    name: 'Thornwood Village',
+    name: 'Bramblecross',
     start: { map: 'thornwoodVillage', x: 18, y: 20 },
-    region: 'grove',
-    entrance: [2, 19],
-    returnTo: { map: 'grove', x: 2, y: 18 },
+    region: 'overworld',
+    province: 'grove',
+    entrance: [SURFACE_SITES.thornwoodVillage.x, SURFACE_SITES.thornwoodVillage.y],
+    returnTo: {
+      map: 'overworld',
+      x: SURFACE_SITES.thornwoodVillage.x,
+      y: SURFACE_SITES.thornwoodVillage.y + 1,
+    },
   },
 ];
 

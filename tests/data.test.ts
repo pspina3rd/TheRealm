@@ -1,3 +1,4 @@
+import { reachedFlag } from '../src/data/story';
 import { describe, expect, it } from 'vitest';
 import { REGIONS } from '../src/data/balance';
 import { ENEMIES } from '../src/data/enemies';
@@ -11,7 +12,14 @@ import { dueScenes } from '../src/game/story';
 import { defeatedFlag } from '../src/world/state';
 import { SHOPS } from '../src/data/shops';
 import { SPELLS, STARTING_SPELLS } from '../src/data/spells';
-import { DIRECTION_DELTAS, mapHeight, mapWidth, tileAt, warpAt } from '../src/world/map';
+import {
+  DIRECTION_DELTAS,
+  mapHeight,
+  mapWidth,
+  tileAt,
+  warpAt,
+  warpUnlocked,
+} from '../src/world/map';
 import { TILES } from '../src/world/tiles';
 import { addItem, createHero } from '../src/game/hero';
 import { makeBattle } from './helpers';
@@ -304,7 +312,7 @@ function openMaps(flags: ReadonlySet<string>): Set<string> {
   const queue: string[] = [START.map];
   for (let id = queue.shift(); id !== undefined; id = queue.shift()) {
     for (const warp of MAPS[id]!.warps) {
-      if (warp.requiresFlag && !flags.has(warp.requiresFlag)) continue;
+      if (!warpUnlocked(warp, flags)) continue;
       if (!seen.has(warp.to.map)) {
         seen.add(warp.to.map);
         queue.push(warp.to.map);
@@ -321,6 +329,7 @@ function openMaps(flags: ReadonlySet<string>): Set<string> {
  */
 function flagsOn(maps: ReadonlySet<string>, flags: ReadonlySet<string>): string[] {
   return [...maps].flatMap((id) => [
+    reachedFlag(id),
     ...MAPS[id]!.entities.flatMap((entity) => {
       if (
         (entity.requiresFlag && !flags.has(entity.requiresFlag)) ||
@@ -371,8 +380,8 @@ describe('the world and its regions', () => {
     const step = (id: string) => order.findIndex((maps) => maps.includes(id));
     expect(step('forge')).toBeGreaterThan(0);
     expect(step('peaks')).toBeGreaterThan(step('forge'));
-    expect(step('cliffs')).toBe(step('peaks'));
-    expect(step('ruins')).toBe(step('peaks'));
+    expect(step('cliffs')).toBeGreaterThan(step('peaks'));
+    expect(step('ruins')).toBeGreaterThan(step('peaks'));
     expect(step('caves1')).toBeGreaterThan(0);
   });
 
@@ -380,13 +389,18 @@ describe('the world and its regions', () => {
     const regions = Object.entries(REGIONS);
     for (const [id, region] of regions) {
       expect(MAPS[id], id).toBeDefined();
-      const [low, high] = region.monsterLevels;
+
       for (const e of MAPS[id]!.entities) {
         if (e.kind !== 'monster') continue;
         const enemy = ENEMIES[e.enemyId]!;
+        const habitat =
+          id === 'overworld' && e.id.startsWith('surface:')
+            ? REGIONS[e.id.split(':')[1] as keyof typeof REGIONS]
+            : region;
+        const [low, high] = habitat.monsterLevels;
         expect(enemy.level, e.id).toBeGreaterThanOrEqual(low);
         expect(enemy.level, e.id).toBeLessThanOrEqual(high);
-        if (!enemy.boss) expect(enemy.band ?? LEVEL_BAND, e.id).toBe(region.band);
+        if (!enemy.boss) expect(enemy.band ?? LEVEL_BAND, e.id).toBe(habitat.band);
       }
     }
     const entries = regions.map(([, r]) => r.entryLevel);

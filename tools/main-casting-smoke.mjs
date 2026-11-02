@@ -33,16 +33,16 @@ try {
     try {
       await page.goto(process.env.BASE ?? 'http://127.0.0.1:5186/');
       await page.evaluate(async () => {
+        const { legacySurfacePoint, expandedLocation } = await import('/src/data/surfaceLayout.ts');
         const { newGame } = await import('/src/world/state.ts'),
           { serialize, SAVE_KEY } = await import('/src/game/save.ts'),
           { newKnownSpell } = await import('/src/game/spells.ts'),
           { SCENES } = await import('/src/data/story.ts');
         const state = newGame();
         state.mapId = 'overworld';
-        state.x = 8;
-        state.y = 3;
+        Object.assign(state, legacySurfacePoint(8, 3));
         state.facing = 'right';
-        state.respawn = { map: 'overworld', x: 8, y: 3 };
+        state.respawn = expandedLocation({ map: 'overworld', x: 8, y: 3 });
         for (const scene of SCENES) state.flags.add('scene:' + scene.id);
         state.hero.spells = {
           fire: { ...newKnownSpell(), level: 2 },

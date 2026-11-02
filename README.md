@@ -9,7 +9,7 @@ Their goals differ; helping someone does not turn them into an enemy.
 **The story.** Something vast stirs under the realm: the Moon Wyrm, coiled
 around a moon-crystal deep in the Moon Caves, drinks the moonlight while
 spores choke your hometown's well and the lake clouds over. Your chosen hero
-begins in Mossvale, Redrock Village, Glasswater Village, or Thornwood Village,
+begins in Mossvale, Cairnwick, Merehaven, or Bramblecross,
 mends what they can, and learns magic from seven mentors on the
 road down, after Elder Rowan's son falls into a sleep no one can wake him
 from. The Wyrm speaks to you in visions as you go, and its thrall,
@@ -19,6 +19,11 @@ follows the [working second-half script](docs/DIALOGUE_DRAFT.md); its new
 story interpretations remain proposals and its combat still needs tuning.
 The four openings share the same neighbors and main journey; see
 [hometowns](docs/HOMETOWNS.md). Existing saves retain their original home.
+
+**The overworld.** Sevenstones is now a 256 × 256 surface world, with seven
+provinces, branching roads, rivers and regional sites. Open **Menu → World map**
+to find your hometown and the routes. Mentor homes and the main story remain
+in their established regions. See [the expansion notes](docs/OVERWORLD_EXPANSION.md).
 
 ## Quick start
 

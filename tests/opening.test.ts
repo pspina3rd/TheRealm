@@ -1,3 +1,4 @@
+import { SURFACE_SITES, legacySurfacePoint } from '../src/data/surfaceLayout';
 import { step } from '../src/world/movement';
 import { describe, expect, it } from 'vitest';
 import { MAPS } from '../src/data/maps';
@@ -125,7 +126,7 @@ describe('a playable opening', () => {
     travel(state, { map: 'overworld', x: 5, y: 6 });
     state.flags.add('reached:brightwater');
     expect(vesperEntities(state)).toContainEqual(
-      expect.objectContaining({ npcId: 'vesperRoad', x: 29, y: 17 }),
+      expect.objectContaining({ npcId: 'vesperRoad', ...legacySurfacePoint(29, 17) }),
     );
   });
 
@@ -153,8 +154,9 @@ describe('a playable opening', () => {
 
   it('keeps unlocked regional roads reachable from the first overworld arrival', () => {
     const map = MAPS.overworld!;
-    const queue: [number, number][] = [[5, 6]];
-    const seen = new Set(['5,6']);
+    const start = { x: SURFACE_SITES.mossvale.x, y: SURFACE_SITES.mossvale.y + 1 };
+    const queue: [number, number][] = [[start.x, start.y]];
+    const seen = new Set([`${start.x},${start.y}`]);
     for (let i = 0; i < queue.length; i++) {
       const [x, y] = queue[i]!;
       for (const [dx, dy] of [

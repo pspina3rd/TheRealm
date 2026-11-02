@@ -1,3 +1,4 @@
+import { expandedLocation } from '../src/data/surfaceLayout';
 import { describe, expect, it } from 'vitest';
 import { createRng } from '../src/core/rng';
 import { weakTo } from '../src/core/elements';
@@ -165,7 +166,7 @@ function chapterOneFixture(classId: string): GameState {
   scenes(state);
   expect(state.flags.has('wyrmBeaten')).toBe(true);
   expect(state.flags.has(C.complete)).toBe(false);
-  travel(state, { map: 'overworld', x: 15, y: 19 });
+  travel(state, expandedLocation({ map: 'overworld', x: 15, y: 19 }));
   scenes(state);
   return state;
 }
@@ -173,7 +174,7 @@ function chapterOneFixture(classId: string): GameState {
 describe('playable second-half progression', () => {
   it('keeps the new route gated before Chapter One is won', () => {
     const state = newGame();
-    travel(state, { map: 'overworld', x: 15, y: 19 });
+    travel(state, expandedLocation({ map: 'overworld', x: 15, y: 19 }));
     cross(state, 'sunkenArchive', 'locked');
     expect(state.flags.has(C.descent)).toBe(false);
     expect(state.flags.has(C.complete)).toBe(false);

@@ -851,3 +851,28 @@ Design and compatibility: [hometowns](HOMETOWNS.md). Browser reproduction:
   comparison and map captures; broader architectural variety remains open.
 
 Evidence and review boundary: [building presentation](reviews/BUILDING_PRESENTATION_REVIEW.md).
+
+## 2026-11-01 · Expand Sevenstones into a full surface world
+
+- Replaced the 40 × 24 junction with a 256 × 256 continent: seven provinces,
+  a central stone circle, authored branching roads, river crossings, trail
+  markers and regional encounters. Regional sites now return to their own
+  roads instead of jumping directly into distant provinces.
+- Separated all four hometown arrivals and applied the accepted Cairnwick,
+  Merehaven and Bramblecross names. Kept the opening cast unique to its home,
+  the mentors' regional homes and challenges, and the shared story/boss order.
+- Added Menu → World map with destination selection, route-lock explanations,
+  player location and district labels. Culled offscreen props; retained
+  regional battle conditions without raising roaming lessons to distant foes.
+- Version 17 migrates old world locations without resetting progress, keeps
+  historical road access and prevents fresh-save Cave Pass reload grants.
+  Surface landings, school-first vision order and northern route gates are
+  covered. Walking/menu/background checkpoints preserve longer journeys.
+- Format, lint, types, 1,631 tests and production build passed (25 optional
+  skips). Eight real App desktop/phone cases cover map selection, walking
+  with keyboard/touch and position reload; existing casting checks passed.
+  Team branch remained at `f1b14e6` and authored dialogue stayed intact.
+- Human density/pacing review remains open; tile count does not prove the
+  Moon Wyrm's elapsed-time midpoint. The native app remains a Slime prototype.
+
+Map and verification limits: [overworld review](reviews/OVERWORLD_EXPANSION_REVIEW.md).

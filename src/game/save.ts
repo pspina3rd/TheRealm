@@ -1,3 +1,4 @@
+import { expandedLocation } from '../data/surfaceLayout';
 import { sanitizeWeaving } from './weaving';
 import { sanitizeArcane } from './arcane';
 import { ELEMENTS, emptyCounts, type Element } from '../core/elements';
@@ -48,13 +49,14 @@ export const CORRUPT_KEY = `${SAVE_KEY}.corrupt`;
  *   stakes (day, regard, encounter records, haggle prices and spell seals).
  * - 11 unifies both version-10 formats. Missing stakes start at zero;
  *   campaign progress and earned scenes remain intact in either format.
+ * - 17 expands overworld positions around their original landmarks.
  * - 16 records alternate hometowns; existing journeys keep Mossvale.
  * - 15 preserves established journeys when opening triggers and mentor approaches change.
  * - 14 separates custom Weaving recipes and preserves empty spellbooks.
  * - 13 adds opponent Arcane ranks without changing committed-try recovery.
  * - 12 persists committed M1 tries, settling interrupted tries as a failure on load.
  */
-export const SAVE_VERSION = 16;
+export const SAVE_VERSION = 17;
 const recoveredLoads = new WeakSet<GameState>();
 /** Older versions `deserialize` can still upgrade. */
 const MIGRATABLE_VERSIONS: readonly number[] = [
@@ -73,6 +75,7 @@ const MIGRATABLE_VERSIONS: readonly number[] = [
   13,
   14,
   15,
+  16,
   SAVE_VERSION,
 ];
 const FACINGS: readonly Direction[] = ['up', 'down', 'left', 'right'];
@@ -176,8 +179,29 @@ export function deserialize(json: string): GameState | null {
       data.x = 15;
       data.y = 19;
     }
+    if ((data.version as number) < 17) {
+      if (data.mapId === 'overworld') {
+        const point = expandedLocation({
+          map: data.mapId,
+          x: data.x as number,
+          y: data.y as number,
+        });
+        data.x = point.x;
+        data.y = point.y;
+      }
+      if (
+        record(data.respawn) &&
+        data.respawn.map === 'overworld' &&
+        finite(data.respawn.x) &&
+        finite(data.respawn.y)
+      )
+        data.respawn = expandedLocation({ map: 'overworld', x: data.respawn.x, y: data.respawn.y });
+    }
     const victories = count(data.victories) ? data.victories : 0;
-    const flags = migrateFlags(data.flags.filter((f): f is string => typeof f === 'string'));
+    const flags = migrateFlags(
+      data.flags.filter((f): f is string => typeof f === 'string'),
+      (data.version as number) < 17,
+    );
     const version = data.version as number;
     // A class never relocates an existing adventure. Only version 16 new games choose a home.
     if (version < 16) for (const flag of flags) if (flag.startsWith('home:')) flags.delete(flag);
@@ -233,9 +257,10 @@ export function deserialize(json: string): GameState | null {
  * (`peakGate`): a hero who already holds the Cave Pass gets both, so they can
  * still reach the caves they had opened.
  */
-export function migrateFlags(flags: readonly string[]): Set<string> {
+export function migrateFlags(flags: readonly string[], legacyRoads = true): Set<string> {
   const set = new Set(flags);
-  if (set.has('cavePass')) for (const flag of ['ridgeCleared', 'peakGate']) set.add(flag);
+  if (legacyRoads && set.has('cavePass'))
+    for (const flag of ['ridgeCleared', 'peakGate']) set.add(flag);
   return set;
 }
 

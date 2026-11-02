@@ -1,3 +1,4 @@
+import { SURFACE_SITES } from '../src/data/surfaceLayout';
 import { describe, expect, it } from 'vitest';
 import { MAPS, START } from '../src/data/maps';
 import type { MapDef } from '../src/world/map';
@@ -119,13 +120,16 @@ describe('step', () => {
     const state = newGame();
     state.x = 17;
     state.y = 24;
-    expect(step(state, 'down')).toEqual({ kind: 'warp', to: { map: 'overworld', x: 5, y: 6 } });
+    expect(step(state, 'down')).toEqual({
+      kind: 'warp',
+      to: { map: 'overworld', x: SURFACE_SITES.mossvale.x, y: SURFACE_SITES.mossvale.y + 1 },
+    });
     expect(state.mapId).toBe('mossvale');
   });
 
   it('blocks locked warps until the flag is set', () => {
     const state = newGame();
-    travel(state, { map: 'overworld', x: 34, y: 4 });
+    travel(state, { map: 'overworld', x: SURFACE_SITES.peaks.x, y: SURFACE_SITES.peaks.y + 1 });
     const locked = step(state, 'up');
     expect(locked.kind).toBe('locked');
     state.flags.add('peakGate');

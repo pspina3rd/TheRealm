@@ -1,3 +1,4 @@
+import { withExpandedSurface } from './surfaceWorld';
 import { withHometowns } from './hometownMaps';
 import { HOMETOWN_MAPS } from './hometowns';
 import { withMentorApproaches } from './mentorApproaches';
@@ -14,7 +15,7 @@ const BASE_MAPS: Record<string, MapDef> = {
   ...CAMPAIGN_MAPS,
   overworld: {
     id: 'overworld',
-    // The hub's place name: seven standing mana crystals ring it, one per element.
+    // Legacy travel data; the surface builder expands this into the whole continent.
     name: 'Sevenstones',
     theme: 'outdoor',
     // Meadows: nature is plentiful.
@@ -708,7 +709,7 @@ const BASE_MAPS: Record<string, MapDef> = {
 };
 
 export const MAPS: Readonly<Record<string, MapDef>> = withMentorApproaches(
-  withHometowns(BASE_MAPS),
+  withHometowns(withExpandedSurface(BASE_MAPS)),
 );
 
 /** The starter lands, where a beginner's walking heals further (see `walkRegen`). */

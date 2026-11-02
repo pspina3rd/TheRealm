@@ -378,6 +378,7 @@ describe('save', () => {
 
   it('gives an old Cave Pass holder the ridge and peak gates on the new road to the caves', () => {
     const data = JSON.parse(serialize(newGame()));
+    data.version = 16;
     const loaded = deserialize(JSON.stringify({ ...data, flags: ['cavePass', 'npc:sage'] }))!;
     expect(loaded.flags).toEqual(new Set(['cavePass', 'npc:sage', 'ridgeCleared', 'peakGate']));
     expect(deserialize(JSON.stringify({ ...data, flags: ['npc:sage'] }))!.flags).toEqual(
@@ -628,7 +629,7 @@ describe('save migration to version 7 (feats)', () => {
   it('saves the hero’s board feats', () => {
     const state = newGame();
     state.hero.feats = { 'pure.lightning': 3, hastedClear: 1 };
-    expect(SAVE_VERSION).toBe(16);
+    expect(SAVE_VERSION).toBe(17);
     expect(deserialize(serialize(state))!.hero.feats).toEqual(state.hero.feats);
   });
 

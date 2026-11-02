@@ -16,6 +16,8 @@ export const TILES: Readonly<Record<string, TileDef>> = {
   B: { name: 'bridge', walkable: true },
   T: { name: 'tree', walkable: false },
   '~': { name: 'water', walkable: false },
+  '!': { name: 'lava', walkable: false },
+  L: { name: 'lava bridge', walkable: true },
   '^': { name: 'mountain', walkable: false },
   M: { name: 'village', walkable: true },
   W: { name: 'town', walkable: true },

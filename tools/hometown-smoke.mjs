@@ -16,9 +16,9 @@ try {
   for (const mobile of [false, true]) {
     for (const hero of [
       { id: 'ranger', label: 'Ranger · Fern', home: 'mossvale', name: 'Mossvale' },
-      { id: 'knight', label: 'Knight · Lance', home: 'redrockVillage', name: 'Redrock Village' },
-      { id: 'mage', label: 'Mage · Ares', home: 'glasswaterVillage', name: 'Glasswater Village' },
-      { id: 'rogue', label: 'Rogue · Vex', home: 'thornwoodVillage', name: 'Thornwood Village' },
+      { id: 'knight', label: 'Knight · Lance', home: 'redrockVillage', name: 'Cairnwick' },
+      { id: 'mage', label: 'Mage · Ares', home: 'glasswaterVillage', name: 'Merehaven' },
+      { id: 'rogue', label: 'Rogue · Vex', home: 'thornwoodVillage', name: 'Bramblecross' },
     ]) {
       const context = await browser.newContext({
         viewport: mobile ? { width: 393, height: 852 } : { width: 1280, height: 800 },

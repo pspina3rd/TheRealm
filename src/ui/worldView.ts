@@ -1,5 +1,5 @@
+import { SURFACE_STONES } from '../data/surfaceLayout';
 import { NPCS } from '../data/npcs';
-import type { Element } from '../core/elements';
 import { regionFixed } from '../game/encounterFlow';
 import { MAPS } from '../data/maps';
 import { MENTORS } from '../data/mentors';
@@ -20,23 +20,10 @@ import { encounterProps, groveStone, type EncounterProp } from './worldFeedback'
 import { TILE, backgroundFor, planGround, planObjects, type PlacedObject } from './art/themes';
 
 /**
- * The Sevenstones' ring of standing crystals on the hub map, one per
+ * The central ring of standing crystals within the overworld, one per
  * element, and the region whose mending brightens each.
  */
-const STANDING_STONES: readonly {
-  readonly element: Element;
-  readonly region: string | null;
-  readonly x: number;
-  readonly y: number;
-}[] = [
-  { element: 'nature', region: 'grove', x: 31, y: 16 },
-  { element: 'water', region: 'lake', x: 33, y: 15 },
-  { element: 'earth', region: 'quarry', x: 35, y: 16 },
-  { element: 'fire', region: 'forge', x: 36, y: 18 },
-  { element: 'lightning', region: 'peaks', x: 35, y: 20 },
-  { element: 'wind', region: 'cliffs', x: 31, y: 20 },
-  { element: 'arcane', region: 'ruins', x: 30, y: 18 },
-];
+const STANDING_STONES = SURFACE_STONES;
 
 /** Tiles per second the hero glides between grid positions. */
 const GLIDE_SPEED = 8;
@@ -104,7 +91,14 @@ export class WorldView {
     const heroSortY = (this.heroY + 1) * TILE + 0.25;
     const heroCenterX = (this.heroX + 0.5) * TILE;
     const heroCenterY = (this.heroY + 0.5) * TILE;
-    const drawables: Drawable[] = this.props.map((p) => {
+    const visible = this.props.filter(
+      (p) =>
+        p.px + p.region.w >= camX &&
+        p.px <= camX + viewW &&
+        p.py + (p.height ?? p.region.h) >= camY &&
+        p.py <= camY + viewH,
+    );
+    const drawables: Drawable[] = visible.map((p) => {
       const coversHero =
         p.sortY > heroSortY &&
         heroCenterX >= p.px &&

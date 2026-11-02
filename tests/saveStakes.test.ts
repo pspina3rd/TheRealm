@@ -42,7 +42,7 @@ function saveAt(version: number): Record<string, unknown> {
 
 describe('save version 14 (committed tries and unified campaign stakes)', () => {
   it('is the current version', () => {
-    expect(SAVE_VERSION).toBe(16);
+    expect(SAVE_VERSION).toBe(17);
   });
 
   for (let version = 1; version < 10; version++) {

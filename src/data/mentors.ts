@@ -1,3 +1,4 @@
+import { expandedLocation } from './surfaceLayout';
 import type { Element } from '../core/elements';
 import type { Location } from '../world/map';
 import type { MoodLine, Variants } from './types';
@@ -48,7 +49,7 @@ export interface MentorDef {
 }
 
 /** The seven mentors, one per element. */
-export const MENTORS: Readonly<Record<string, MentorDef>> = {
+const AUTHORED_MENTORS: Readonly<Record<string, MentorDef>> = {
   torva: {
     id: 'torva',
     name: 'Torva',
@@ -405,3 +406,16 @@ export const MENTORS: Readonly<Record<string, MentorDef>> = {
     moveEvery: 3,
   },
 };
+
+/** Regional homes stay fixed; travelling stops follow the expanded roads. */
+export const MENTORS: Readonly<Record<string, MentorDef>> = Object.fromEntries(
+  Object.entries(AUTHORED_MENTORS).map(([id, mentor]) => [
+    id,
+    {
+      ...mentor,
+      route: mentor.route.map((stop) =>
+        stop.map === 'overworld' ? { ...stop, ...expandedLocation(stop) } : stop,
+      ) as [MentorStop, ...MentorStop[]],
+    },
+  ]),
+);

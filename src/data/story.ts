@@ -1,3 +1,4 @@
+import { legacySurfacePoint } from './surfaceLayout';
 /**
  * The story's own text and beats, imported from the author's script
  * (docs/STORY.md): Vesper's lines and route, the Moon Wyrm's visions and
@@ -83,8 +84,7 @@ export const VESPER_ROUTE: readonly VesperStop[] = [
   {
     npcId: 'vesperRoad',
     map: 'overworld',
-    x: 29,
-    y: 17,
+    ...legacySurfacePoint(29, 17),
     requiresFlag: 'vision:1',
     requiresFlags: ['reached:brightwater', 'scene:refusal'],
   },

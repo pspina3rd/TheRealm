@@ -1,7 +1,7 @@
 # Four protagonists, one shared journey
 
 The chosen hero determines the hometown: Fern begins in Mossvale, Lance in
-Redrock Village, Ares in Glasswater Village, and Vex in Thornwood Village.
+Cairnwick, Ares in Merehaven, and Vex in Bramblecross.
 These locations were accepted on November 1, 2026.
 
 Each opening has the same familiar neighbors: Rowan, Bean, Pip and Ordor.
@@ -16,12 +16,18 @@ shared journey still goes through Brightwater, the midpoint Moon Wyrm,
 the underground continuation, Sevenstones and the final confrontation.
 Return-home scenes and recovery follow the opening cast home.
 
-Existing saves retain their original Mossvale home and their progress. New
+Existing saves retain their recorded home and their progress; adventures from
+before the four openings retain Mossvale. Version 16's selected hometowns
+remain selected when their overworld positions migrate to the larger map. New
 games start with no spells, and the hero's home does not award a school.
 The alternate home roads do not move mentors or bypass their challenges.
 Mossvale remains reachable for the mentors' existing later travel stops, but
 the opening cast lives only in the selected hometown. The other alternate
 settlement entrances are absent in that adventure.
+
+The homes now open onto separated provinces of the 256 × 256 Sevenstones
+overworld. The central stone circle is reached by road. The existing menu's
+**World map** shows the whole surface and the selected hometown.
 
 This affects the campaign. The native iPhone Slime controls prototype remains
 a separate test battle until the campaign is brought into the native app.
