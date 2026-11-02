@@ -1,4 +1,4 @@
-import { surfaceProvince } from '../../data/surfaceLayout';
+import { SURFACE_CENTER, surfaceProvince } from '../../data/surfaceLayout';
 /**
  * How map tiles are drawn, per area theme. Map rows stay plain characters
  * (see `src/world/tiles.ts`); this module turns each character into ground
@@ -253,7 +253,14 @@ function pick<T>(items: readonly T[], x: number, y: number): T | undefined {
   return items[Math.floor(cellHash(x, y) * items.length)];
 }
 
+const STONE_CIRCLE_THEME: ThemeArt = { ...THEMES.outdoor, base: 'sand' };
+
 function themeAt(map: MapDef, x: number, y: number): ThemeArt {
+  if (
+    map.id === 'overworld' &&
+    (x - SURFACE_CENTER.x) ** 2 + (y - SURFACE_CENTER.y) ** 2 <= 17 ** 2
+  )
+    return STONE_CIRCLE_THEME;
   return THEMES[map.id === 'overworld' ? (surfaceProvince(x, y)?.theme ?? map.theme) : map.theme];
 }
 

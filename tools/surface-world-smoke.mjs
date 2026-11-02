@@ -26,7 +26,7 @@ try {
       const errors = [];
       page.on('pageerror', (e) => {
         errors.push(e.message);
-        console.log('PAGE ERROR', e.message);
+        process.stderr.write(`PAGE ERROR: ${e.message}\n`);
       });
       page.setDefaultTimeout(20000);
       await page.route(/\/src\/main\.ts(?:\?.*)?$/, (r) =>
@@ -130,7 +130,7 @@ try {
       assert.deepEqual(restored, { map: 'overworld', x: after.x, y: after.y });
       assert.deepEqual(errors, []);
       reports.push({ cls, mobile, home: home.name, ...perf });
-      console.log(reports.at(-1));
+      process.stdout.write(`${JSON.stringify(reports.at(-1))}\n`);
       await context.close();
     }
   writeFileSync(out + '/report.json', JSON.stringify(reports, null, 2));
