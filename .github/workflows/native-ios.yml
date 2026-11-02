@@ -37,6 +37,9 @@ jobs:
           git diff --exit-code -- ios/ManaCrystalsPlaytest/Engine/battle-engine.js
       - name: Native gestures and Apple JavaScriptCore tests
         run: swift test --package-path ios
+      - name: Build the native app before booting the simulator
+        run: |
+          xcodebuild build -project ios/ManaCrystalsPlaytest.xcodeproj -scheme ManaCrystalsPlaytest -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/NativeDerivedData" CODE_SIGNING_ALLOWED=NO
       - name: Create iPhone 15 Pro simulator
         run: |
           NATIVE_RUNTIME=$(xcrun simctl list runtimes -j | python3 -c 'import json,sys; r=[r for r in json.load(sys.stdin)["runtimes"] if r["isAvailable"] and r["identifier"].startswith("com.apple.CoreSimulator.SimRuntime.iOS-")]; print(sorted(r,key=lambda x:[int(v) for v in x["version"].split(".")])[-1]["identifier"])')

@@ -28,7 +28,8 @@ final class TomePaperView:UIView {
 final class TomeViewController:UIViewController {
     private let heading=UILabel(),setting=UILabel(),speaker=UILabel(),body=UILabel(),caption=UILabel()
     private let art=SKView(),buttons=UIStackView(),pageNumber=UILabel()
-    private let illustration=TomeIllustration()
+    private let reader=UIScrollView()
+    private let illustration=TomeIllustration(size:CGSize(width:320,height:230))
     private var page:TomePage,choices:[CampaignChoice]
     private var submitting=false,turning=false
     var onChoice:((String)->Void)?
@@ -47,7 +48,7 @@ final class TomeViewController:UIViewController {
         art.allowsTransparency=true;art.backgroundColor = .clear;art.isUserInteractionEnabled=false;art.accessibilityIdentifier="tome-illustration";art.preferredFramesPerSecond=30;illustration.scaleMode = .aspectFit;art.presentScene(illustration)
         buttons.axis = .vertical;buttons.spacing=5
         let stack=UIStackView(arrangedSubviews:[heading,setting,art,speaker,body,caption,buttons,pageNumber]);stack.axis = .vertical;stack.spacing=9;stack.translatesAutoresizingMaskIntoConstraints=false
-        let scroll=UIScrollView();scroll.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(scroll);scroll.addSubview(stack)
+        let scroll=reader;scroll.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(scroll);scroll.addSubview(stack)
         let safe=view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
             scroll.leadingAnchor.constraint(equalTo:safe.leadingAnchor,constant:35),scroll.trailingAnchor.constraint(equalTo:safe.trailingAnchor,constant:-24),scroll.topAnchor.constraint(equalTo:safe.topAnchor,constant:16),scroll.bottomAnchor.constraint(equalTo:safe.bottomAnchor,constant:-14),
@@ -66,6 +67,7 @@ final class TomeViewController:UIViewController {
         let turn=self.page.id != page.id;self.page=page;self.choices=choices;submitting=false;loadViewIfNeeded();apply(page,choices:choices,turn:turn)
     }
     private func apply(_ page:TomePage,choices:[CampaignChoice],turn:Bool){
+        reader.setContentOffset(.zero,animated:false)
         let set={ [self] in heading.text=page.title;setting.text=page.setting;speaker.text=page.speaker;body.text=page.dialogue;caption.text=page.caption;caption.isHidden=page.caption.isEmpty;illustration.show(page);art.isAccessibilityElement=true;art.accessibilityLabel=page.actionDescription.isEmpty ? "Illustration: \(page.setting)":page.actionDescription;pageNumber.text="✦  \(page.id.split(separator:":").last.flatMap{Int($0)}.map{String($0+1)} ?? "")  ✦" }
         if turn && !UIAccessibility.isReduceMotionEnabled {
             turning=true;buttons.isUserInteractionEnabled=false
@@ -87,7 +89,6 @@ private final class TomeIllustration:SKScene {
     private var actors:[String:SKSpriteNode]=[:]
     private var actorOrder:[SKSpriteNode]=[]
     override init(size:CGSize){super.init(size:size);backgroundColor = .clear}
-    convenience init(){self.init(size:CGSize(width:320,height:230))}
     required init?(coder:NSCoder){fatalError("Use init(size:)")}
     private var animate:Bool{!UIAccessibility.isReduceMotionEnabled}
     private func rectangle(_ rect:CGRect,_ color:UIColor)->SKShapeNode{let node=SKShapeNode(rect:rect);node.fillColor=color;node.strokeColor = .clear;addChild(node);return node}
