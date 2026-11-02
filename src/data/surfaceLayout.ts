@@ -7,7 +7,7 @@ export interface SurfacePoint {
 }
 export const SURFACE_SITES = {
   mossvale: { x: 76, y: 76 },
-  brightwater: { x: 152, y: 128 },
+  brightwater: { x: 166, y: 128 },
   grove: { x: 48, y: 190 },
   lake: { x: 188, y: 115 },
   quarry: { x: 126, y: 215 },
@@ -74,30 +74,31 @@ export const SURFACE_STONES = [
   { element: 'arcane', region: 'ruins', x: 119, y: 120 },
 ] as const;
 
-/** Authored road bends, branches and loops. These are travel routes, not random paths. */
+/** The stone sanctuary has one surface entrance, through Mossvale village. */
+export const STONE_APPROACH = { x: 112, y: 112 } as const;
+export const STONE_ENCLOSURE_RADIUS = 27;
+
+/** Provincial roads loop around the sanctuary; none enter the stone circle. */
 export const SURFACE_ROADS: readonly (readonly (readonly [number, number])[])[] = [
   [
     [76, 76],
-    [90, 91],
-    [99, 112],
-    [119, 128],
-    [128, 128],
-  ],
-  [
-    [128, 128],
-    [152, 128],
-    [176, 123],
-    [188, 115],
-  ],
-  [
-    [128, 128],
-    [93, 128],
-    [71, 150],
+    [57, 115],
+    [35, 148],
+    [35, 174],
     [48, 190],
   ],
   [
-    [128, 128],
-    [126, 160],
+    [35, 174],
+    [54, 206],
+    [82, 210],
+    [103, 224],
+    [126, 215],
+  ],
+  [
+    [48, 190],
+    [71, 150],
+    [93, 153],
+    [110, 170],
     [139, 184],
     [126, 215],
   ],
@@ -108,10 +109,11 @@ export const SURFACE_ROADS: readonly (readonly (readonly [number, number])[])[] 
     [202, 194],
   ],
   [
-    [128, 128],
-    [155, 151],
-    [174, 171],
     [202, 194],
+    [174, 171],
+    [164, 160],
+    [176, 123],
+    [188, 115],
   ],
   [
     [217, 160],
@@ -121,11 +123,23 @@ export const SURFACE_ROADS: readonly (readonly (readonly [number, number])[])[] 
     [176, 123],
   ],
   [
-    [128, 128],
-    [153, 107],
+    [166, 128],
+    [165, 123],
+    [176, 123],
+  ],
+  [
+    [76, 76],
+    [102, 81],
+    [124, 88],
+    [153, 92],
     [162, 83],
     [179, 66],
     [184, 43],
+  ],
+  [
+    [153, 92],
+    [166, 107],
+    [176, 123],
   ],
   [
     [184, 43],
@@ -137,49 +151,18 @@ export const SURFACE_ROADS: readonly (readonly (readonly [number, number])[])[] 
     [52, 46],
   ],
   [
-    [128, 128],
-    [118, 103],
-    [102, 81],
-    [73, 46],
-  ],
-  [
     [76, 76],
     [73, 46],
   ],
   [
-    [128, 128],
-    [124, 97],
+    [124, 88],
     [113, 70],
     [110, 38],
   ],
   [
-    [35, 174],
-    [48, 190],
-  ],
-  [
-    [76, 76],
-    [57, 115],
-    [35, 148],
-    [35, 174],
-  ],
-  [
-    [82, 210],
-    [103, 224],
-    [126, 215],
-  ],
-  [
-    [35, 174],
-    [54, 206],
-    [82, 210],
-  ],
-  [
-    [93, 128],
-    [93, 153],
-    [126, 160],
-  ],
-  [
-    [155, 151],
-    [152, 128],
+    [112, 112],
+    [119, 128],
+    [128, 128],
   ],
   [
     [114, 136],
@@ -193,7 +176,7 @@ export const SURFACE_ROADS: readonly (readonly (readonly [number, number])[])[] 
 
 const LEGACY_ANCHORS = [
   [5, 5, 76, 76],
-  [22, 11, 152, 128],
+  [22, 11, 166, 128],
   [0, 16, 48, 190],
   [39, 12, 188, 115],
   [30, 23, 126, 215],

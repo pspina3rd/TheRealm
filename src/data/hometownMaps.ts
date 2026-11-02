@@ -1,5 +1,6 @@
 import { required } from '../core/required';
 import { HOMETOWNS } from './hometowns';
+import { STONE_APPROACH } from './surfaceLayout';
 import type { MapDef } from '../world/map';
 
 /** Reuse the same opening tasks and neighbors; vary the land and road into the world. */
@@ -41,5 +42,29 @@ export function withHometowns(base: Record<string, MapDef>): Record<string, MapD
       ],
     };
   }
+  // Add this after cloning the alternate hometowns: only Mossvale has this path.
+  const northPath = village.tiles.map((row) => row.split(''));
+  for (let y = 0; y <= 9; y++) required(northPath[y])[20] = '=';
+  maps.mossvale = {
+    ...village,
+    tiles: northPath.map((row) => row.join('')),
+    warps: [
+      ...village.warps,
+      { x: 20, y: 0, to: { map: 'overworld', ...STONE_APPROACH, y: STONE_APPROACH.y + 1 } },
+    ],
+    entities: [
+      ...village.entities,
+      {
+        id: 'mv-stones-sign',
+        kind: 'inspect',
+        x: 21,
+        y: 2,
+        title: 'North path',
+        text: 'The stones lie beyond the north path. Provincial roads leave by the south gate.',
+        flag: 'world:mossvale:stones',
+      },
+    ],
+    decor: [...(village.decor ?? []), { object: 'sign', x: 21, y: 2 }],
+  };
   return maps;
 }

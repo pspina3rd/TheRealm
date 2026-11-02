@@ -99,8 +99,15 @@ function approach(state: GameState, target: { x: number; y: number }): Direction
   throw new Error(`No walking approach to ${state.mapId}:${target.x},${target.y}`);
 }
 
-function cross(state: GameState, targetMap: string, expected: 'warp' | 'locked' = 'warp'): void {
-  const warp = currentMap(state).warps.find((w) => w.to.map === targetMap);
+function cross(
+  state: GameState,
+  targetMap: string,
+  expected: 'warp' | 'locked' = 'warp',
+  northPath = false,
+): void {
+  const warp = currentMap(state).warps.find(
+    (w) => w.to.map === targetMap && (!northPath || w.y === 0),
+  );
   expect(warp, `${state.mapId} -> ${targetMap}`).toBeDefined();
   if (!warp) return;
   const direction = approach(state, warp);
@@ -309,7 +316,7 @@ describe('playable second-half progression', () => {
     expect(state.flags.has(C.trial)).toBe(true);
     expect(state.flags.has(C.irdrath)).toBe(false);
     expect(state.flags.has(C.complete)).toBe(false);
-    cross(state, 'overworld');
+    cross(state, 'overworld', 'warp', true);
     cross(state, 'sunkenArchive');
     cross(state, 'cisternMarches');
     boss(state, 'campaign-irdrath');

@@ -43,3 +43,13 @@ separate Slime controls prototype; this change does not claim a native
 campaign port.
 
 Implementation scope: [overworld expansion](../OVERWORLD_EXPANSION.md).
+
+## Mossvale gateway correction
+
+The provincial spokes into the stones have been removed. Only Mossvale's
+signed north path enters the sanctuary; its south gate serves the provincial
+roads. Other hometowns keep their original single exit. Brightwater remains
+outside the sanctuary, and the map marks the village connection with a dotted
+line. Physical route checks cover every hometown, both sides of the Mossvale
+gateway, and each regional entrance. The existing underground story exits
+remain available after their earned gates.

@@ -14,7 +14,11 @@ export function hometownMap(map: MapDef, flags: ReadonlySet<string>): MapDef {
     required(variants.get(map)).set(home.map, variant);
     return variant;
   };
-  if (HOMETOWN_MAPS.has(map.id) && map.id !== home.map) return remember({ ...map, entities: [] });
+  if (HOMETOWN_MAPS.has(map.id) && map.id !== home.map)
+    return remember({
+      ...map,
+      entities: map.entities.filter((entity) => entity.id === 'mv-stones-sign'),
+    });
   const absent = HOMETOWNS.filter(
     (candidate) =>
       candidate.region === map.id && candidate.map !== home.map && candidate.map !== 'mossvale',

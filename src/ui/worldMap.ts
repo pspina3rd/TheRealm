@@ -2,6 +2,7 @@ import { MAPS } from '../data/maps';
 import { HOMETOWNS, hometownOf } from '../data/hometowns';
 import {
   SURFACE_SIZE,
+  STONE_APPROACH,
   SURFACE_SITES,
   SURFACE_CENTER,
   SURFACE_PROVINCES,
@@ -77,6 +78,16 @@ export function drawSurfaceOverview(canvas: HTMLCanvasElement, map: MapDef): voi
   ctx.beginPath();
   ctx.arc(SURFACE_CENTER.x * scale, SURFACE_CENTER.y * scale, 10 * scale, 0, Math.PI * 2);
   ctx.stroke();
+  // This connector passes through the village interior, not an open provincial road.
+  ctx.save();
+  ctx.setLineDash([4, 4]);
+  ctx.strokeStyle = '#e9d7a6';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(SURFACE_SITES.mossvale.x * scale, SURFACE_SITES.mossvale.y * scale);
+  ctx.lineTo(STONE_APPROACH.x * scale, STONE_APPROACH.y * scale);
+  ctx.stroke();
+  ctx.restore();
 }
 
 export function worldMapBody(state: GameState): HTMLElement {
@@ -98,13 +109,17 @@ export function worldMapBody(state: GameState): HTMLElement {
         ? `You are in ${surfaceDistrict(state.x, state.y)}.`
         : `Surface routes from ${MAPS[state.mapId]?.name ?? 'your location'}.`,
   });
-  const info = el('p', { text: 'North is up. Select a destination below to find it on the map.' });
+  const info = el('p', {
+    text: 'North is up. The stone circle is reached only through Mossvale’s north path.',
+  });
   info.setAttribute('role', 'status');
   const legend = el('div');
   legend.style.cssText =
     'display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px';
   const destinations = map.warps.filter(
-    (warp) => !['sunkenArchive', 'upwardRoad', 'innerWard'].includes(warp.to.map),
+    (warp) =>
+      !['sunkenArchive', 'upwardRoad', 'innerWard'].includes(warp.to.map) &&
+      !(warp.x === STONE_APPROACH.x && warp.y === STONE_APPROACH.y),
   );
   let selected = '';
   const paint = (): void => {

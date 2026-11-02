@@ -63,3 +63,10 @@ The native iPhone app remains the separate Slime controls prototype.
 Browser reproduction: `node tools/surface-world-smoke.mjs` against the dev
 server on port 5191; `BASE`, `OUT`, `PLAYWRIGHT_MODULE` and `CHROMIUM_PATH`
 can override the local setup.
+
+## Mossvale gateway
+
+Only Mossvale connects directly to the stone sanctuary. Provincial roads run
+around its enclosing mountains. Travelers enter Mossvale by its existing south
+gate and take the signed north path to the stones; alternate hometowns have
+no north shortcut. Underground story exits remain inside the sanctuary.

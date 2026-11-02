@@ -14,7 +14,9 @@ import { tileAt } from '../src/world/map';
 import { mentorPlace } from '../src/world/mentors';
 import { newGame, travel } from '../src/world/state';
 
-const houses = MAPS.mossvale!.entities.filter((entity) => entity.kind === 'inspect');
+const houses = MAPS.mossvale!.entities.filter((entity) => entity.kind === 'inspect').filter(
+  (entity) => entity.id !== 'mv-stones-sign',
+);
 
 describe('a playable opening', () => {
   it('leaving the village alone grants neither the Focus Stone nor an immediate antagonist', () => {

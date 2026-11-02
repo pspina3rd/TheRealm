@@ -4,6 +4,8 @@ import { VESPER_ROUTE } from './story';
 import type { MapDef, MapEntity, Warp } from '../world/map';
 import {
   SURFACE_SIZE,
+  STONE_APPROACH,
+  STONE_ENCLOSURE_RADIUS,
   SURFACE_SITES,
   SURFACE_ROADS,
   SURFACE_CENTER,
@@ -310,7 +312,7 @@ export function withExpandedSurface(base: Record<string, MapDef>): Record<string
       x: 96,
       y: 130,
       title: 'West road',
-      text: 'Mossvale northwest. Thornwood southwest. The stone circle lies east.',
+      text: 'Mossvale northwest. Thornwood southwest. Reach the stones through Mossvale.',
     },
     {
       x: 150,
@@ -322,7 +324,7 @@ export function withExpandedSurface(base: Record<string, MapDef>): Record<string
       x: 125,
       y: 163,
       title: 'South road',
-      text: 'Redrock and Cairnwick south. Thornwood west. Sevenstones north.',
+      text: 'Redrock and Cairnwick south. Thornwood west. For the stones, follow Mossvale northwest.',
     },
     {
       x: 127,
@@ -384,6 +386,16 @@ export function withExpandedSurface(base: Record<string, MapDef>): Record<string
               : '=',
     );
   }
+  // Apply the boundary last so trails, signs and site clearings cannot cut shortcuts.
+  // The village's north path is the only surface gateway into this sanctuary.
+  for (let y = 98; y <= 158; y++)
+    for (let x = 98; x <= 158; x++) {
+      const distance = Math.hypot(x - SURFACE_CENTER.x, y - SURFACE_CENTER.y);
+      if (distance >= STONE_ENCLOSURE_RADIUS - 2 && distance <= STONE_ENCLOSURE_RADIUS)
+        put(x, y, '^');
+    }
+  put(STONE_APPROACH.x, STONE_APPROACH.y, 'M');
+  warps.push({ ...STONE_APPROACH, to: { map: 'mossvale', x: 20, y: 1 } });
   maps.overworld = {
     ...old,
     name: 'Sevenstones',

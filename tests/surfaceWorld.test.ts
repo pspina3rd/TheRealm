@@ -4,6 +4,7 @@ import { HOMETOWNS } from '../src/data/hometowns';
 import { MENTORS } from '../src/data/mentors';
 import {
   SURFACE_CENTER,
+  STONE_APPROACH,
   SURFACE_SITES,
   SURFACE_SIZE,
   expandedLocation,
@@ -79,7 +80,7 @@ describe('a full Sevenstones surface world', () => {
   });
 
   for (const home of HOMETOWNS)
-    it(`${home.name} has a substantial safe road to the stone circle`, () => {
+    it(`${home.name} reaches the stones only by passing through Mossvale`, () => {
       const state = newGame(home.classId);
       state.x = 17;
       state.y = 24;
@@ -89,9 +90,23 @@ describe('a full Sevenstones surface world', () => {
       expect(exit.to).toEqual(home.returnTo);
       travel(state, exit.to);
       expect(state.mapId).toBe('overworld');
-      const distance = safeDistance(state, SURFACE_CENTER);
-      expect(distance).toBeGreaterThanOrEqual(90);
-      expect(distance).toBeLessThan(400);
+      expect(safeDistance(state, SURFACE_CENTER)).toBe(-1);
+      const distance = safeDistance(state, SURFACE_SITES.mossvale);
+      expect(distance).toBeGreaterThan(0);
+      expect(distance).toBeLessThan(700);
+      travel(state, { map: 'mossvale', x: 17, y: 24 });
+      expect(safeDistance(state, { x: 20, y: 0 })).toBeGreaterThan(0);
+      travel(state, { map: 'mossvale', x: 20, y: 1 });
+      const north = step(state, 'up');
+      expect(north.kind).toBe('warp');
+      if (north.kind !== 'warp') throw new Error('Missing Mossvale north path');
+      travel(state, north.to);
+      expect(safeDistance(state, SURFACE_CENTER)).toBeGreaterThan(0);
+      travel(state, { map: 'overworld', x: STONE_APPROACH.x, y: STONE_APPROACH.y + 1 });
+      expect(step(state, 'up')).toMatchObject({
+        kind: 'warp',
+        to: { map: 'mossvale', x: 20, y: 1 },
+      });
       expect(state.hero.spells).toEqual({});
       expect(state.flags.has('got:wellStone')).toBe(false);
     });
@@ -99,9 +114,15 @@ describe('a full Sevenstones surface world', () => {
   for (const id of ['grove', 'lake', 'quarry', 'forge', 'peaks', 'cliffs', 'ruins'] as const)
     it(`${id} is reached through a provincial road, not a distant local-map jump`, () => {
       const state = newGame();
-      travel(state, { map: 'overworld', ...SURFACE_CENTER });
+      travel(state, {
+        map: 'overworld',
+        x: SURFACE_SITES.mossvale.x,
+        y: SURFACE_SITES.mossvale.y + 1,
+      });
       for (const flag of ['ridgeCleared', 'peakGate', 'reached:cliffs']) state.flags.add(flag);
-      expect(safeDistance(state, SURFACE_SITES[id])).toBeGreaterThan(70);
+      expect(safeDistance(state, SURFACE_SITES[id])).toBeGreaterThan(40);
+      travel(state, { map: 'overworld', ...SURFACE_CENTER });
+      expect(safeDistance(state, SURFACE_SITES[id])).toBe(-1);
       for (const warp of MAPS[id]!.warps)
         expect(warp.to.map === 'overworld' || warp.to.map.startsWith('caves')).toBe(true);
     });
@@ -122,6 +143,13 @@ describe('a full Sevenstones surface world', () => {
       state.flags.add(flag);
       expect(step(state, 'up')).toMatchObject({ kind: 'warp', to: { map: id } });
     });
+
+  it('gives only Mossvale a north path into the sanctuary', () => {
+    for (const home of HOMETOWNS) {
+      const north = MAPS[home.map]!.warps.filter((warp) => warp.y === 0);
+      expect(north).toHaveLength(home.map === 'mossvale' ? 1 : 0);
+    }
+  });
 
   it('does not move the mentors’ original regional homes', () => {
     expect(
