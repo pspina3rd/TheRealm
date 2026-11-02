@@ -58,7 +58,8 @@ timings are evidence for culling, not a physical iPhone performance guarantee.
 Human travel/content pacing still needs review, including keeping the Moon
 Wyrm near the midpoint. Tile count is not proof of playtime or narrative
 quality. The underground continuation is preserved, not resized in this pass.
-The native iPhone app remains the separate Slime controls prototype.
+The native iPhone campaign now uses this surface world and the existing
+native battle controls; its saves are separate from Safari saves.
 
 Browser reproduction: `node tools/surface-world-smoke.mjs` against the dev
 server on port 5191; `BASE`, `OUT`, `PLAYWRIGHT_MODULE` and `CHROMIUM_PATH`

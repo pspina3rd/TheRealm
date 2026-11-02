@@ -26,8 +26,8 @@ the opening cast lives only in the selected hometown. The other alternate
 settlement entrances are absent in that adventure.
 
 The homes now open onto separated provinces of the 256 × 256 Sevenstones
-overworld. The central stone circle is reached by road. The existing menu's
+overworld. The central stone circle is reached only through Mossvale’s north path. The existing menu's
 **World map** shows the whole surface and the selected hometown.
 
-This affects the campaign. The native iPhone Slime controls prototype remains
-a separate test battle until the campaign is brought into the native app.
+The native iPhone campaign uses these same hometowns and progression rules,
+with a separate native save. See [the Xcode guide](../ios/README.md).

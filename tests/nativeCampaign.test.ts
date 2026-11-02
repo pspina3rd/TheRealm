@@ -5,6 +5,7 @@ import { campaignDispatch } from '../src/native/campaign';
 import { dispatch, currentNativeBattle } from '../src/nativeBattle';
 import { newGame } from '../src/world/state';
 import { serialize, deserialize } from '../src/game/save';
+import { MENTORS } from '../src/data/mentors';
 import { MAPS } from '../src/data/maps';
 import { tileAt, type Direction } from '../src/world/map';
 import { HOMETOWNS } from '../src/data/hometowns';
@@ -38,6 +39,7 @@ describe('native campaign boundary', () => {
       expect(state.panel).toBeNull();
       const saved = send({ type: 'checkpoint' }).save;
       expect(deserialize(saved)?.hero.spells).toEqual({});
+      expect(deserialize(saved)?.flags.has('boardMagicEnabled')).toBe(true);
       expect(state.world.sprites.length).toBeGreaterThan(100);
       for (const sprite of state.world.sprites)
         expect(existsSync(`public/assets/${sprite.source}`)).toBe(true);
@@ -107,7 +109,6 @@ describe('native campaign boundary', () => {
     fixtureState.hero.hp = 1;
     send({ type: 'load', save: serialize(fixtureState) });
     let state = send({ type: 'move', direction: approach[2] as Direction });
-    state = choose(state, 'Begin');
     expect(state.mode).toBe('battle');
     state = send({ type: 'battleMenu' });
     const item = state.panel.actions.find((a: { label: string }) => a.label === 'Use Herb');
@@ -117,6 +118,32 @@ describe('native campaign boundary', () => {
     expect(currentNativeBattle()?.hero.hp).toBeGreaterThan(1);
     const battle = JSON.parse(dispatch(JSON.stringify({ type: 'snapshot' }))).state;
     expect(battle.ready).toBe(false);
+  });
+  it('lets the player keep or give a mentor item instead of consuming it on contact', () => {
+    const source = fixture(),
+      stop = MENTORS.hazel!.route[0];
+    source.mapId = stop.map;
+    source.hero.items.sporeCap = 1;
+    const map = MAPS[stop.map]!;
+    const approach = (
+      [
+        [0, 1, 'up'],
+        [0, -1, 'down'],
+        [1, 0, 'left'],
+        [-1, 0, 'right'],
+      ] as const
+    ).find(([dx, dy]) => tileAt(map, stop.x + dx, stop.y + dy).walkable)!;
+    source.x = stop.x + approach[0];
+    source.y = stop.y + approach[1];
+    send({ type: 'load', save: serialize(source) });
+    let state = send({ type: 'move', direction: approach[2] });
+    expect(JSON.parse(state.save).hero.items.sporeCap).toBe(1);
+    state = choose(state, 'Keep');
+    expect(JSON.parse(state.save).hero.items.sporeCap).toBe(1);
+    send({ type: 'load', save: serialize(source) });
+    state = send({ type: 'move', direction: approach[2] });
+    state = choose(state, 'Give');
+    expect(JSON.parse(state.save).hero.items.sporeCap).toBeUndefined();
   });
   it('marks only the selected alternative hometown on the native overview', () => {
     send({ type: 'start', classId: 'mage' });

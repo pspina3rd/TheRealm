@@ -20,7 +20,7 @@ import {
   type WeaveStage,
   type WeaveRecipe,
 } from '../game/weaving';
-import { bringItems } from '../game/hidden';
+import { bringItems, itemsFor } from '../game/hidden';
 import { MENTORS } from '../data/mentors';
 import { stockFor } from '../game/attitude';
 import { battleTryCommitted } from '../game/encounterFlow';
@@ -155,9 +155,34 @@ function scenes(): void {
   };
   page(0);
 }
-function interact(entity: EntityDef, interaction?: ReturnType<typeof describeInteraction>): void {
+function interact(
+  entity: EntityDef,
+  interaction?: ReturnType<typeof describeInteraction>,
+  keepGifts = false,
+): void {
   if (!interaction) {
-    if (entity.kind === 'mentor') bringItems(state(), required(MENTORS[entity.mentorId]));
+    if (entity.kind === 'mentor' && !keepGifts) {
+      const mentor = required(MENTORS[entity.mentorId]),
+        items = itemsFor(state(), mentor);
+      if (items.length) {
+        show(
+          mentor.name,
+          `${items.map((id) => ITEMS[id]?.name ?? id).join(', ')} → ${mentor.name}`,
+          [
+            { label: 'Keep', run: () => interact(entity, undefined, true) },
+            {
+              label: 'Give',
+              run: () => {
+                bringItems(state(), mentor);
+                dirty = true;
+                interact(entity, undefined, true);
+              },
+            },
+          ],
+        );
+        return;
+      }
+    }
     interaction = describeInteraction(state(), entity);
   }
   dirty = true;
@@ -202,6 +227,11 @@ function interact(entity: EntityDef, interaction?: ReturnType<typeof describeInt
       clear();
       dirty = true;
     };
+    if (entity.kind === 'monster') {
+      if (card.prelude) message(card.title, card.prelude, () => begin());
+      else begin();
+      return;
+    }
     if (card.canAccept !== false)
       choices.push({
         label: 'Begin',
@@ -703,6 +733,7 @@ export function campaignDispatch(json: string): string {
       if (!Object.hasOwn(CLASSES, String(r.classId)))
         throw new Error('Choose one of the four heroes.');
       game = newGame(String(r.classId));
+      game.flags.add('boardMagicEnabled');
       battleInfo = null;
       cachedWorld = null;
       dirty = true;
@@ -711,6 +742,7 @@ export function campaignDispatch(json: string): string {
       const loaded = typeof r.save === 'string' ? deserialize(r.save) : null;
       if (!loaded) throw new Error('This campaign save could not be loaded.');
       game = loaded;
+      game.flags.add('boardMagicEnabled');
       battleInfo = null;
       cachedWorld = null;
       dirty = true;

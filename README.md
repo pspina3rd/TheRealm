@@ -27,8 +27,9 @@ in their established regions. See [the expansion notes](docs/OVERWORLD_EXPANSION
 
 ## Quick start
 
-For the native iPhone controls prototype, follow [the Xcode guide](ios/README.md).
-It runs a standalone Slime battle; the full campaign remains in the web game.
+For the native iPhone campaign playtest, follow [the Xcode guide](ios/README.md).
+Exploration, story scenes, puzzles and battles run offline in the app, with
+separate native campaign saves. The earlier Slime fixture remains available to tests.
 
 Requires Node.js 20 or newer.
 

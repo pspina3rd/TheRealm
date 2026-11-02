@@ -12,6 +12,7 @@ final class BattleViewController: UIViewController {
     private let health=UILabel(), status=UILabel()
     private let preview=NextPiecesView()
     private let mana=NativeManaView()
+    private var manaHeight:NSLayoutConstraint?
     private let pause=UIButton(type:.system), options=UIButton(type:.system)
     private var engine: BattleEngine?
     private let campaign: Bool
@@ -49,7 +50,7 @@ final class BattleViewController: UIViewController {
         for button in [options,pause] { button.tintColor = .white;button.widthAnchor.constraint(equalToConstant:44).isActive=true;button.heightAnchor.constraint(equalToConstant:44).isActive=true }
         health.textColor = .white;health.font = .monospacedDigitSystemFont(ofSize:14,weight:.semibold);health.textAlignment = .center;health.adjustsFontSizeToFitWidth=true;health.minimumScaleFactor=0.8
         status.font = .systemFont(ofSize:13,weight:.medium);status.textColor=UIColor(white:0.8,alpha:1);status.textAlignment = .center;status.numberOfLines=2
-        mana.heightAnchor.constraint(equalToConstant:42).isActive=true
+        let manaHeight=mana.heightAnchor.constraint(equalToConstant:0);manaHeight.isActive=true;self.manaHeight=manaHeight
         mana.backgroundColor = .clear
         preview.backgroundColor = .clear
         status.heightAnchor.constraint(equalToConstant:32).isActive=true
@@ -131,6 +132,7 @@ final class BattleViewController: UIViewController {
         }
         state=next
         mana.spells=next.spells
+        manaHeight?.constant=next.spells.isEmpty ? 0:42
         clock?.isPaused=next.paused || (next.status != "ongoing" && !next.busy)
         scene.render(next)
         if next.paused && !next.ready {board.accessibilityValue="Paused"}

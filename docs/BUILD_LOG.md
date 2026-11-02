@@ -876,3 +876,21 @@ Evidence and review boundary: [building presentation](reviews/BUILDING_PRESENTAT
   Moon Wyrm's elapsed-time midpoint. The native app remains a Slime prototype.
 
 Map and verification limits: [overworld review](reviews/OVERWORLD_EXPANSION_REVIEW.md).
+
+## 2026-11-02 · Native campaign integration
+
+- Added offline campaign dispatch around the shared movement, map, story,
+  encounters, shops, growth, Arcane and custom Weaving rules. All heroes keep
+  their selected hometown and begin without spells. Mentor gifts retain an
+  explicit Give/Keep choice; normal monster encounters enter battle directly.
+- UIKit draws the campaign atlas and receives tap-to-walk and drag movement.
+  The existing SpriteKit battle gestures remain intact. Native battle displays
+  include objective markings, learned ranks/mana and incoming obstructions.
+- Native saves checkpoint movement, choices, player inputs and suspension.
+  Committed interrupted attempts use the existing recovery rules. Native saves
+  do not overwrite web saves. The Xcode project bundles the repository assets.
+- Shared tests, types/lint and the web build passed. Apple JavaScriptCore and
+  gesture unit tests passed on the first native candidate. iPhone simulator
+  UI checks are being run before calling this ready for device installation.
+- Physical iPhone feel, visual polish and campaign pacing remain playtest work.
+  The Slime fixture remains available only through a launch argument for tests.

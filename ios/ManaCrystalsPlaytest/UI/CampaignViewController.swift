@@ -183,13 +183,14 @@ private final class CampaignWorldView: UIView {
     required init?(coder:NSCoder){fatalError("Use init(frame:)")}
     private var viewport:CGRect {
         guard let state=state else{return bounds}
-        let scale=min(bounds.width/state.width,bounds.height/state.height)
-        return CGRect(x:(bounds.width-state.width*scale)/2,y:(bounds.height-state.height*scale)/2,width:state.width*scale,height:state.height*scale)
+        let worldWidth=CGFloat(state.width),worldHeight=CGFloat(state.height)
+        let scale:CGFloat=min(bounds.width/worldWidth,bounds.height/worldHeight)
+        return CGRect(x:(bounds.width-worldWidth*scale)/2,y:(bounds.height-worldHeight*scale)/2,width:worldWidth*scale,height:worldHeight*scale)
     }
     override func draw(_ rect:CGRect) {
         guard let state=state,let ctx=UIGraphicsGetCurrentContext() else{return}
         let port=viewport
-        ctx.saveGState();ctx.translateBy(x:port.minX,y:port.minY);ctx.scaleBy(x:port.width/state.width,y:port.height/state.height)
+        ctx.saveGState();ctx.translateBy(x:port.minX,y:port.minY);ctx.scaleBy(x:port.width/CGFloat(state.width),y:port.height/CGFloat(state.height))
         ctx.interpolationQuality = .none
         for sprite in state.sprites {
             if images[sprite.source]==nil,let root=Bundle.main.resourceURL { images[sprite.source]=UIImage(contentsOfFile:root.appendingPathComponent("assets/\(sprite.source)").path) }
@@ -207,7 +208,7 @@ private final class CampaignWorldView: UIView {
     @objc private func tap(_ gesture:UITapGestureRecognizer) {
         guard let state=state else{return};let p=gesture.location(in:self),port=viewport
         guard port.contains(p) else{return}
-        onTap?(Int(floor((p.x-port.minX)*state.width/port.width+state.camX)/32),Int(floor((p.y-port.minY)*state.height/port.height+state.camY)/32))
+        onTap?(Int(floor(((p.x-port.minX)*CGFloat(state.width)/port.width+CGFloat(state.camX))/32)),Int(floor(((p.y-port.minY)*CGFloat(state.height)/port.height+CGFloat(state.camY))/32)))
     }
     @objc private func pan(_ gesture:UIPanGestureRecognizer) {
         guard gesture.state == .began || gesture.state == .changed else {onDirection?(nil);return}
