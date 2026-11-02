@@ -35,7 +35,14 @@ describe('native campaign boundary', () => {
       expect(state.mapId).toBe(home.map);
       expect(state.panel).not.toBeNull();
       for (let guard = 0; state.panel && guard < 30; guard++)
-        state = send({ type: 'action', id: state.panel.actions[0].id });
+        state = send({
+          type: 'action',
+          id:
+            state.panel.actions.find(
+              (a: { label: string }) =>
+                a.label === 'Next page' || a.label === 'Return to the world',
+            )?.id ?? state.panel.actions[0].id,
+        });
       expect(state.panel).toBeNull();
       const saved = send({ type: 'checkpoint' }).save;
       expect(deserialize(saved)?.hero.spells).toEqual({});
@@ -150,7 +157,13 @@ describe('native campaign boundary', () => {
     for (let i = 0; i < 30; i++) {
       const next = send({ type: 'snapshot' });
       if (!next.panel) break;
-      send({ type: 'action', id: next.panel.actions[0].id });
+      send({
+        type: 'action',
+        id:
+          next.panel.actions.find(
+            (a: { label: string }) => a.label === 'Next page' || a.label === 'Return to the world',
+          )?.id ?? next.panel.actions[0].id,
+      });
     }
     const state = choose(send({ type: 'menu' }), 'World map');
     const names = state.overview.sites.map((site: { name: string }) => site.name);
@@ -158,6 +171,28 @@ describe('native campaign boundary', () => {
     expect(names).toContain('Mossvale');
     expect(names).not.toContain('Cairnwick');
     expect(names).not.toContain('Bramblecross');
+  });
+  it('skips the opening safely and never grants a spell or the Focus Stone', () => {
+    const opened = send({ type: 'start', classId: 'ranger' });
+    expect(opened.panel.tome.action).toBe('stones');
+    const next = choose(opened, 'Skip scene'),
+      save = JSON.parse(next.save);
+    expect(next.panel).toBeNull();
+    expect(save.hero.spells).toEqual({});
+    expect(save.flags).toContain('scene:opening');
+    expect(save.flags).not.toContain('got:wellStone');
+  });
+  it('finishes an earned skipped gift scene once without skipping its gameplay requirements', () => {
+    const source = fixture();
+    source.flags.add('npc:elder');
+    source.flags.add('opening:houseVisited');
+    const opened = send({ type: 'load', save: serialize(source) });
+    expect(opened.panel.tome.id).toBe('refusal:0');
+    const next = choose(opened, 'Skip scene'),
+      saved = JSON.parse(next.save);
+    expect(saved.hero.items.wellStone).toBe(1);
+    send({ type: 'load', save: next.save });
+    expect(JSON.parse(send({ type: 'checkpoint' }).save).hero.items.wellStone).toBe(1);
   });
   it('runs the committed offline bundle without DOM or browser globals', () => {
     const context = vm.createContext({});

@@ -1,4 +1,5 @@
 import '../nativeBattle';
+import { tomePages, conversationPage, type TomePage } from './tome';
 import {
   ARCANE_ELEMENTS,
   ARCANE_PURPOSE,
@@ -54,14 +55,7 @@ import {
 } from '../game/encounter';
 import { prepareLesson } from '../game/lessons';
 import { serialize, deserialize } from '../game/save';
-import {
-  dueScenes,
-  scenePages,
-  finishScene,
-  arrive,
-  pendingVision,
-  dismissVision,
-} from '../game/story';
+import { dueScenes, finishScene, arrive, pendingVision, dismissVision } from '../game/story';
 import { hometownText } from '../data/hometowns';
 import { dualChance, pieceWeights } from '../game/pieceOdds';
 import { openingLead } from '../game/opening';
@@ -89,6 +83,7 @@ interface Panel {
   title: string;
   text: string;
   actions: { id: string; label: string; enabled: boolean }[];
+  tome?: TomePage;
 }
 let game: GameState | null = null;
 let panel: Panel | null = null;
@@ -127,12 +122,26 @@ function clear(): void {
 function message(title: string, text: string, after = scenes): void {
   show(title, text, [{ label: 'Continue', run: after }]);
 }
+function bookMessage(
+  title: string,
+  text: string,
+  source: string | undefined,
+  after: () => void,
+  caption = '',
+): void {
+  const page = conversationPage(title, text, source, state(), caption);
+  show(title, page.dialogue, [
+    { label: 'Continue', run: after },
+    { label: 'Skip scene', run: after },
+  ]);
+  required(panel).tome = page;
+}
 function scenes(): void {
   clear();
   const s = state(),
     vision = pendingVision(s);
   if (vision) {
-    message('A distant voice', vision.text, () => {
+    bookMessage('A distant voice', vision.text, 'battler.wyrm', () => {
       dismissVision(s, vision.id);
       dirty = true;
       scenes();
@@ -141,18 +150,27 @@ function scenes(): void {
   }
   const scene = dueScenes(s.flags, s.mapId)[0];
   if (!scene) return;
-  const pages = scenePages(scene, s.hero, s.flags);
+  const pages = tomePages(scene, s);
+  const complete = () => {
+    finishScene(s, scene);
+    dirty = true;
+    scenes();
+  };
   const page = (index: number): void => {
     const beat = pages[index];
     if (!beat) {
-      finishScene(s, scene);
-      dirty = true;
-      scenes();
+      complete();
       return;
     }
-    show(beat.speaker?.name ?? 'Sevenstones', beat.text, [
-      { label: index + 1 === pages.length ? 'Continue' : 'Next', run: () => page(index + 1) },
+    show(beat.title, beat.dialogue, [
+      ...(index > 0 ? [{ label: 'Previous page', run: () => page(index - 1) }] : []),
+      {
+        label: index + 1 === pages.length ? 'Return to the world' : 'Next page',
+        run: () => page(index + 1),
+      },
+      { label: 'Skip scene', run: complete },
     ]);
+    required(panel).tome = beat;
   };
   page(0);
 }
@@ -229,7 +247,7 @@ function interact(
       dirty = true;
     };
     if (entity.kind === 'monster') {
-      if (card.prelude) message(card.title, card.prelude, () => begin());
+      if (card.prelude) bookMessage(card.title, card.prelude, card.sprite, () => begin());
       else begin();
       return;
     }
@@ -237,7 +255,7 @@ function interact(
       choices.push({
         label: 'Begin',
         run: () => {
-          if (card.prelude) message(card.title, card.prelude, () => begin());
+          if (card.prelude) bookMessage(card.title, card.prelude, card.sprite, () => begin());
           else begin();
         },
       });
@@ -265,6 +283,16 @@ function interact(
       .join('\n\n'),
     choices,
   );
+  if (card.kind !== 'needsItem')
+    required(panel).tome = conversationPage(
+      card.title,
+      card.text,
+      card.sprite,
+      state(),
+      [objective, card.kind === 'challenge' ? card.stakes?.blockedReason : null]
+        .filter(Boolean)
+        .join('\n'),
+    );
 }
 function move(direction: Direction): void {
   const s = state(),

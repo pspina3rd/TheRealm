@@ -47,6 +47,9 @@ jobs:
       - name: Build and exercise native iPhone gestures
         timeout-minutes: 12
         run: |
+          xcrun simctl io "$NATIVE_DEVICE" recordVideo --codec=h264 "$RUNNER_TEMP/NativeCampaign.mp4" > "$RUNNER_TEMP/NativeRecording.log" 2>&1 &
+          NATIVE_RECORD_PID=$!
+          trap 'kill -INT "$NATIVE_RECORD_PID" 2>/dev/null || true' EXIT
           xcodebuild test -test-timeouts-enabled YES -default-test-execution-time-allowance 90 -maximum-test-execution-time-allowance 120 -project ios/ManaCrystalsPlaytest.xcodeproj -scheme ManaCrystalsPlaytest -destination "platform=iOS Simulator,id=$NATIVE_DEVICE" -derivedDataPath "$RUNNER_TEMP/NativeDerivedData" -resultBundlePath "$RUNNER_TEMP/NativePlaytest.xcresult" CODE_SIGNING_ALLOWED=NO
       - name: Export native test screenshots
         if: always()
@@ -62,4 +65,5 @@ jobs:
           path: |
             ${{ runner.temp }}/NativePlaytest.xcresult
             ${{ runner.temp }}/NativeScreenshots
+            ${{ runner.temp }}/NativeCampaign.mp4
           if-no-files-found: ignore

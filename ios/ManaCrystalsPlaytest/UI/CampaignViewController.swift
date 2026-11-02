@@ -11,6 +11,7 @@ final class CampaignViewController: UIViewController {
     private var direction: String?
     private var battleController: BattleViewController?
     private var panelController: CampaignPanelController?
+    private var tomeController:TomeViewController?
     private var transitioning=false
     private var titleStack: UIStackView?
     private let saveKey = "native-campaign-v1"
@@ -49,27 +50,52 @@ final class CampaignViewController: UIViewController {
     }
     deinit {walker?.invalidate()}
     private func showTitle() {
-        titleStack?.removeFromSuperview();world.isHidden=true;menuButton.isHidden=true;location.text="Mana Crystals"
+        titleStack?.removeFromSuperview();world.isHidden=true;world.isPaused=true;menuButton.isHidden=true;location.text="Mana Crystals"
         let stack=UIStackView();stack.axis = .vertical;stack.spacing=14;stack.translatesAutoresizingMaskIntoConstraints=false
-        func add(_ title:String, _ action:@escaping ()->Void) {
-            let button=UIButton(type:.system);button.setTitle(title,for:.normal);button.titleLabel?.font = .systemFont(ofSize:19,weight:.semibold)
-            button.heightAnchor.constraint(greaterThanOrEqualToConstant:52).isActive=true
-            button.addAction(UIAction { _ in action() },for:.touchUpInside);stack.addArrangedSubview(button)
+        let title=UILabel();title.text="The Book of Sevenstones";title.textColor=TomeTheme.gold;title.font=TomeTheme.font(27);title.textAlignment = .center;title.numberOfLines=2;stack.addArrangedSubview(title)
+        if let saved=UserDefaults.standard.string(forKey:saveKey) {
+            let button=UIButton(type:.system);button.setTitle("Continue campaign",for:.normal);button.setTitleColor(TomeTheme.paper,for:.normal);button.titleLabel?.font=TomeTheme.font(18);button.heightAnchor.constraint(equalToConstant:48).isActive=true
+            button.addAction(UIAction{[weak self]_ in self?.send(["type":"load","save":saved])},for:.touchUpInside);stack.addArrangedSubview(button)
         }
-        if let saved=UserDefaults.standard.string(forKey:saveKey) {add("Continue campaign") { [weak self] in self?.send(["type":"load","save":saved]) }}
-        let names=[("Fern · Mossvale","ranger"),("Lance · Cairnwick","knight"),("Ares · Merehaven","mage"),("Vex · Bramblecross","rogue")]
-        for (name,id) in names { add("Begin as \(name)") { [weak self] in
-            guard let self=self else{return}
-            if UserDefaults.standard.string(forKey:self.saveKey) != nil {
-                let alert=UIAlertController(title:"Start a new campaign?",message:"Your existing native campaign will be replaced.",preferredStyle:.alert)
-                alert.addAction(UIAlertAction(title:"Cancel",style:.cancel))
-                alert.addAction(UIAlertAction(title:"Start new campaign",style:.destructive){_ in self.send(["type":"start","classId":id])})
-                self.present(alert,animated:true)
-            } else {self.send(["type":"start","classId":id])}
-        }}
-        let note=UILabel();note.text="Tap a place to walk. Drag and hold to explore.";note.textColor = .lightGray;note.numberOfLines=0;note.textAlignment = .center
-        stack.addArrangedSubview(note);view.addSubview(stack);titleStack=stack
-        NSLayoutConstraint.activate([stack.centerYAnchor.constraint(equalTo:view.centerYAnchor),stack.leadingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.leadingAnchor,constant:20),stack.trailingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.trailingAnchor,constant:-20)])
+        let heroes=[("Fern","Mossvale","ranger"),("Lance","Cairnwick","knight"),("Ares","Merehaven","mage"),("Vex","Bramblecross","rogue")]
+        for row in 0..<2 {
+            let line=UIStackView();line.axis = .horizontal;line.distribution = .fillEqually;line.spacing=12
+            for item in heroes[(row*2)..<(row*2+2)] {
+                guard let actor=try? engine?.heroBook(item.2).first?.actors.first else{continue}
+                let button=TomeHeroButton(name:item.0,home:item.1,actor:actor);button.accessibilityIdentifier="hero-\(item.2)"
+                button.addAction(UIAction{[weak self]_ in self?.showHeroBook(item.2)},for:.touchUpInside);line.addArrangedSubview(button)
+            };stack.addArrangedSubview(line)
+        }
+        let note=UILabel();note.text="Choose a hero. Open their story.";note.textColor=TomeTheme.paper;note.font=TomeTheme.font(15);note.textAlignment = .center;stack.addArrangedSubview(note)
+        view.addSubview(stack);titleStack=stack
+        NSLayoutConstraint.activate([stack.centerYAnchor.constraint(equalTo:view.safeAreaLayoutGuide.centerYAnchor),stack.leadingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.leadingAnchor,constant:22),stack.trailingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.trailingAnchor,constant:-22)])
+    }
+    private func showHeroBook(_ classID:String) {
+        do {
+            guard let pages=try engine?.heroBook(classID),let first=pages.first else{return}
+            var index=0
+            func choices()->[CampaignChoice] {
+                var list:[CampaignChoice]=[]
+                if index>0 {list.append(CampaignChoice(id:"previous",label:"Previous page",enabled:true))}
+                list.append(CampaignChoice(id:"next",label:index+1==pages.count ? "Begin adventure":"Next page",enabled:true))
+                list.append(CampaignChoice(id:"close",label:"Return to heroes",enabled:true));return list
+            }
+            let book=TomeViewController(page:first,choices:choices())
+            book.onChoice={ [weak self,weak book] action in
+                guard let self=self,let book=book else{return}
+                if action=="close" {book.dismiss(animated:true);return}
+                if action=="previous" {index=max(0,index-1);book.update(pages[index],choices:choices());return}
+                if index+1<pages.count {index+=1;book.update(pages[index],choices:choices());return}
+                book.dismiss(animated:true) { [weak self] in self?.beginHero(classID) }
+            }
+            present(book,animated:true)
+        } catch {fail(error)}
+    }
+    private func beginHero(_ id:String) {
+        if UserDefaults.standard.string(forKey:saveKey) != nil {
+            let alert=UIAlertController(title:"Start a new campaign?",message:"Your existing native campaign will be replaced.",preferredStyle:.alert)
+            alert.addAction(UIAlertAction(title:"Cancel",style:.cancel));alert.addAction(UIAlertAction(title:"Start new campaign",style:.destructive){[weak self]_ in self?.send(["type":"start","classId":id])});present(alert,animated:true)
+        }else{send(["type":"start","classId":id])}
     }
     @objc private func menu() {direction=nil;send(["type":"menu"])}
     private func send(_ command:[String:Any]) {
@@ -80,9 +106,26 @@ final class CampaignViewController: UIViewController {
         state=next
         if let save=next.save {UserDefaults.standard.set(save,forKey:saveKey)}
         if transitioning {return}
+        if let book=tomeController,next.panel?.tome==nil {
+            tomeController=nil;transitioning=true
+            book.dismiss(animated:false){[weak self] in self?.transitioning=false;self?.adopt(next)};return
+        }
+        if let page=next.panel?.tome,let panel=next.panel {
+            direction=nil;world.cancelMovement();world.isPaused=true
+            if let old=panelController {
+                panelController=nil;transitioning=true
+                old.dismiss(animated:false){[weak self] in self?.transitioning=false;self?.adopt(next)};return
+            }
+            if let book=tomeController {book.update(page,choices:panel.actions);return}
+            let book=TomeViewController(page:page,choices:panel.actions);tomeController=book
+            book.onChoice={ [weak self] id in self?.send(["type":"action","id":id]) }
+            ((battleController as UIViewController?) ?? self).present(book,animated:true);return
+        }
+        world.isPaused=next.mode != "world"
         if next.mode=="title" {panelController?.dismiss(animated:true);panelController=nil;showTitle();return}
         titleStack?.removeFromSuperview();titleStack=nil;world.isHidden=false;menuButton.isHidden=false
-        location.text="\(next.location)\n\(next.heroName) · \(next.hp)/\(next.maxHP) HP"
+        let headerText="\(next.location)\n\(next.heroName) · \(next.hp)/\(next.maxHP) HP"
+        if location.text != headerText {location.text=headerText}
         if let data=next.world {world.state=data}
         if next.panel != nil || next.mode=="battle" {direction=nil}
         if next.mode != "battle",let battle=battleController {
@@ -128,10 +171,10 @@ final class CampaignViewController: UIViewController {
     }
     func suspend() {direction=nil;world.cancelMovement();send(["type":"stopWalking"]);battleController?.suspend();checkpoint()}
     private func fail(_ error:Error) {
-        direction=nil
+        direction=nil;tomeController?.resetSubmission()
         let alert=UIAlertController(title:"Campaign paused",message:error.localizedDescription,preferredStyle:.alert)
         alert.addAction(UIAlertAction(title:"OK",style:.default))
-        ((panelController as UIViewController?) ?? battleController ?? self).present(alert,animated:true)
+        ((tomeController as UIViewController?) ?? panelController ?? battleController ?? self).present(alert,animated:true)
     }
 }
 
@@ -179,53 +222,3 @@ private final class CampaignPanelController: UITableViewController {
     override func tableView(_ tableView:UITableView,didSelectRowAt indexPath:IndexPath) {onChoice?(panel.actions[indexPath.row].id)}
 }
 
-private final class CampaignWorldView: UIView {
-    var state:CampaignWorld? {didSet {setNeedsDisplay();if let state=state {accessibilityValue="Column \(state.heroX), row \(state.heroY)"}}}
-    var onTap:((Int,Int)->Void)?
-    var onDirection:((String?)->Void)?
-    private var images:[String:UIImage]=[:]
-    override init(frame:CGRect) {
-        super.init(frame:frame);isMultipleTouchEnabled=false;isAccessibilityElement=true;accessibilityLabel="Campaign world. Tap to walk or drag and hold to move.";accessibilityIdentifier="campaign-world"
-        addGestureRecognizer(UITapGestureRecognizer(target:self,action:#selector(tap(_:))))
-        addGestureRecognizer(UIPanGestureRecognizer(target:self,action:#selector(pan(_:))))
-        accessibilityCustomActions=[("Walk north","up"),("Walk south","down"),("Walk west","left"),("Walk east","right")].map { name,direction in UIAccessibilityCustomAction(name:name) { [weak self] _ in self?.onDirection?(direction);self?.onDirection?(nil);return true } }
-    }
-    required init?(coder:NSCoder){fatalError("Use init(frame:)")}
-    private var viewport:CGRect {
-        guard let state=state else{return bounds}
-        let worldWidth=CGFloat(state.width),worldHeight=CGFloat(state.height)
-        let scale:CGFloat=min(bounds.width/worldWidth,bounds.height/worldHeight)
-        return CGRect(x:(bounds.width-worldWidth*scale)/2,y:(bounds.height-worldHeight*scale)/2,width:worldWidth*scale,height:worldHeight*scale)
-    }
-    override func draw(_ rect:CGRect) {
-        guard let state=state,let ctx=UIGraphicsGetCurrentContext() else{return}
-        let port=viewport
-        ctx.saveGState();ctx.translateBy(x:port.minX,y:port.minY);ctx.scaleBy(x:port.width/CGFloat(state.width),y:port.height/CGFloat(state.height))
-        ctx.interpolationQuality = .none
-        for sprite in state.sprites {
-            if images[sprite.source]==nil,let root=Bundle.main.resourceURL { images[sprite.source]=UIImage(contentsOfFile:root.appendingPathComponent("assets/\(sprite.source)").path) }
-            guard let image=images[sprite.source]?.cgImage?.cropping(to:CGRect(x:sprite.sx,y:sprite.sy,width:sprite.sw,height:sprite.sh)) else{continue}
-            UIImage(cgImage:image).draw(in:CGRect(x:sprite.x,y:sprite.y,width:sprite.width,height:sprite.height),blendMode:.normal,alpha:sprite.alpha)
-        }
-        for marker in state.markers {
-            let colors:[String:UIColor]=["nature":.systemGreen,"water":.systemBlue,"earth":.systemOrange,"fire":.systemRed,"lightning":.systemYellow,"wind":.systemTeal,"arcane":.systemPurple]
-            let color=colors[marker.element] ?? .white;ctx.setFillColor(color.withAlphaComponent(marker.lit ? 1:0.55).cgColor)
-            ctx.fillEllipse(in:CGRect(x:marker.x-7,y:marker.y-16,width:14,height:24))
-        }
-        ctx.restoreGState()
-    }
-    func cancelMovement() {onDirection?(nil)}
-    @objc private func tap(_ gesture:UITapGestureRecognizer) {
-        guard let state=state else{return};let p=gesture.location(in:self),port=viewport
-        guard port.contains(p) else{return}
-        onTap?(Int(floor(((p.x-port.minX)*CGFloat(state.width)/port.width+CGFloat(state.camX))/32)),Int(floor(((p.y-port.minY)*CGFloat(state.height)/port.height+CGFloat(state.camY))/32)))
-    }
-    @objc private func pan(_ gesture:UIPanGestureRecognizer) {
-        guard gesture.state == .began || gesture.state == .changed else {onDirection?(nil);return}
-        guard gesture.numberOfTouches==1 else {onDirection?(nil);return}
-        let delta=gesture.translation(in:self)
-        guard max(abs(delta.x),abs(delta.y))>12 else{return}
-        let direction=abs(delta.x)>abs(delta.y) ? (delta.x>0 ? "right":"left") : (delta.y>0 ? "down":"up")
-        if gesture.state == .began {onDirection?(direction)} else {onDirection?(direction)}
-    }
-}

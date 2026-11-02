@@ -92,14 +92,15 @@ public final class BattleEngine {
 }
 
 public struct CampaignChoice: Decodable { public let id: String, label: String; public let enabled: Bool }
-public struct CampaignPanel: Decodable { public let title: String, text: String; public let actions: [CampaignChoice] }
+public struct CampaignPanel: Decodable { public let title: String, text: String; public let actions: [CampaignChoice]; public let tome:TomePage? }
 public struct CampaignSprite: Decodable {
-    public let source: String
+    public let id: String, source: String
     public let sx: Double, sy: Double, sw: Double, sh: Double
     public let x: Double, y: Double, width: Double, height: Double, alpha: Double
 }
 public struct CampaignMarker: Decodable { public let x: Double, y: Double; public let element: String; public let lit: Bool }
 public struct CampaignWorld: Decodable {
+    public let mapId:String, background:String
     public let width: Double, height: Double, camX: Double, camY: Double
     public let heroX: Int, heroY: Int
     public let sprites: [CampaignSprite]
@@ -152,4 +153,14 @@ public struct NativeTelegraph:Decodable {
     public let cells:[[Int]]?
     public let rows:Int?
     public let leadPieces:Int
+}
+
+public struct TomeActor:Decodable { public let id:String,name:String,source:String; public let sx:Double,sy:Double,sw:Double,sh:Double;public let walker:Bool }
+public struct TomePage:Decodable {public let id:String,title:String,setting:String,action:String,dialogue:String,speaker:String,caption:String,actionDescription:String;public let subject:String?,target:String?,environment:String?;public let actors:[TomeActor]}
+extension BattleEngine {
+    public func heroBook(_ classID:String)throws->[TomePage] {
+        context.exception=nil
+        guard let json=context.objectForKeyedSubscript("ManaCrystalsNative")?.objectForKeyedSubscript("heroBookJSON")?.call(withArguments:[classID])?.toString(),context.exception==nil else{throw BattleEngineError.unavailable("The character book could not open.")}
+        return try JSONDecoder().decode([TomePage].self,from:Data(json.utf8))
+    }
 }

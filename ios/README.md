@@ -15,7 +15,10 @@ server, npm installation, CocoaPods or downloaded Swift dependency is needed.
 3. Keep your existing Personal Team and signing settings. Connect and select
    your iPhone, then press **Run**. This updates **Crystals Test** in place.
 
-Choose a hero on the title screen. All four begin with zero spells in their
+Choose a hero by their sprite. Their in-world book opens first; Begin adventure
+starts the campaign, while Return to heroes leaves an existing save untouched.
+Story narration uses the same book, with illustrated action or animated portraits
+and spoken dialogue. Next page, Previous page and Skip scene control the reading. All four begin with zero spells in their
 respective hometowns. Native campaign saves are separate from Safari saves and
 from the earlier Slime controls fixture. The app saves after movement, choices
 and battle inputs, and when entering the background. Interrupted committed
@@ -26,7 +29,7 @@ puzzle/lesson attempts follow the campaign's existing retry rules.
 - Exploration: tap a reachable tile or character to walk there. Drag and hold
   to walk in a direction; lift to stop. Movement stops at conversations, travel,
   menus and backgrounding. There are no movement buttons covering the map.
-- Battles: drag sideways to move, tap to rotate, flick down to drop. A slower
+- Battles: drag sideways to move, tap or hold-and-release to rotate, deliberately flick down to drop. A slower
   downward drag soft-drops. These are the previously tested native controls.
 - Campaign menu: world map, inventory, growth, and later Arcane/custom Weaving.
 - Battle actions: corrections where offered, items, lesson casting, advanced

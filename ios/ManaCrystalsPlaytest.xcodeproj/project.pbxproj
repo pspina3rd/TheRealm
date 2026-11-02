@@ -5,6 +5,15 @@
 	};
 	"objectVersion" = "56";
 	"objects" = {
+        "CA0000000000000000000009" = { "isa" = "PBXFileReference"; "lastKnownFileType" = "sourcecode.swift"; "path" = "ManaCrystalsPlaytest/UI/TomeViewController.swift"; "sourceTree" = "<group>"; };
+        "CA000000000000000000000A" = { "isa" = "PBXBuildFile"; "fileRef" = "CA0000000000000000000009"; };
+
+        "CA0000000000000000000007" = { "isa" = "PBXFileReference"; "lastKnownFileType" = "sourcecode.swift"; "path" = "ManaCrystalsPlaytest/UI/CampaignWorldView.swift"; "sourceTree" = "<group>"; };
+        "CA0000000000000000000008" = { "isa" = "PBXBuildFile"; "fileRef" = "CA0000000000000000000007"; };
+
+        "CA0000000000000000000005" = { "isa" = "PBXFileReference"; "lastKnownFileType" = "sourcecode.swift"; "path" = "ManaCrystalsPlaytest/UI/NativeAtlas.swift"; "sourceTree" = "<group>"; };
+        "CA0000000000000000000006" = { "isa" = "PBXBuildFile"; "fileRef" = "CA0000000000000000000005"; };
+
         "CA0000000000000000000001" = {
             "isa" = "PBXFileReference";
             "lastKnownFileType" = "sourcecode.swift";
@@ -123,6 +132,9 @@
 			"children" = (
 				"7508EF28938C079BDC9AE35F",
                 "CA0000000000000000000001",
+                "CA0000000000000000000009",
+                "CA0000000000000000000007",
+                "CA0000000000000000000005",
                 "CA0000000000000000000003",
 				"9B0FB666F91E1A620B9AA94A",
 				"058AE90CF01E498945FD0424",
@@ -141,6 +153,9 @@
 			"files" = (
 				"78BF6A898DFA54771A86F83D",
                 "CA0000000000000000000002",
+                "CA000000000000000000000A",
+                "CA0000000000000000000008",
+                "CA0000000000000000000006",
 				"E4D9E457324CD9F054326E37",
 				"2B7E473635CA92856021CB4F",
 				"0B1F8239DA5D2BE8EC3E6894",

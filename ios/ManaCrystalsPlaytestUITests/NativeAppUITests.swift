@@ -33,14 +33,17 @@ final class NativeAppUITests: XCTestCase {
 extension NativeAppUITests {
     func testCampaignOpeningMovementMenuAndRelaunch() {
         let app=XCUIApplication();app.launchArguments=["--reset-campaign-ui-test"];app.launch()
-        let start=app.buttons["Begin as Fern · Mossvale"]
+        let start=app.buttons["hero-ranger"]
         XCTAssertTrue(start.waitForExistence(timeout:15));start.tap()
-        for _ in 0..<20 {
-            let dialog=app.tables["campaign-dialog"]
-            if !dialog.waitForExistence(timeout:1) {break}
-            let first=dialog.cells["campaign-choice-0"]
-            if !first.exists {break};first.tap()
-        }
+        XCTAssertTrue(app.buttons["Next page"].waitForExistence(timeout:5))
+        app.buttons["Return to heroes"].tap()
+        XCTAssertTrue(start.waitForExistence(timeout:5));XCTAssertFalse(app.buttons["Continue campaign"].exists)
+        start.tap();app.buttons["Next page"].tap();app.buttons["Begin adventure"].tap()
+        let skip=app.buttons["Skip scene"];XCTAssertTrue(skip.waitForExistence(timeout:10))
+        app.buttons["Next page"].tap();app.buttons["Next page"].tap()
+        XCTAssertTrue(app.staticTexts["Sleep."].waitForExistence(timeout:5))
+        let bookShot=XCTAttachment(screenshot:app.screenshot());bookShot.name="In-world story tome";bookShot.lifetime = .keepAlways;add(bookShot)
+        skip.tap()
         let world=app.otherElements["campaign-world"]
         XCTAssertTrue(world.waitForExistence(timeout:10))
         // Rowan is on-screen from Fern's starting position. Tap his actual map tile;
@@ -48,7 +51,7 @@ extension NativeAppUITests {
         let worldFrame=world.frame,scale=min(worldFrame.width/416,worldFrame.height/640)
         let rowan=app.coordinate(withNormalizedOffset:.zero).withOffset(CGVector(dx:worldFrame.minX+(worldFrame.width-416*scale)/2+16*scale,dy:worldFrame.minY+(worldFrame.height-640*scale)/2+208*scale))
         rowan.tap()
-        XCTAssertTrue(app.tables["campaign-dialog"].waitForExistence(timeout:15))
+        XCTAssertTrue(app.buttons["Begin"].waitForExistence(timeout:15))
         let begin=app.staticTexts["Begin"];XCTAssertTrue(begin.waitForExistence(timeout:5));begin.tap()
         XCTAssertTrue(app.otherElements["battle-board"].waitForExistence(timeout:10))
         app.buttons["Battle actions"].tap()

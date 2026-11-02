@@ -50,7 +50,7 @@ extension BattleEngineTests {
             XCTAssertEqual(state.mapId,home);XCTAssertEqual(state.mode,"world")
             XCTAssertFalse(state.world?.sprites.isEmpty ?? true)
             for _ in 0..<30 {
-                guard let choice=state.panel?.actions.first else{break}
+                guard let choice=state.panel?.actions.first(where:{$0.label=="Next page" || $0.label=="Return to the world"}) ?? state.panel?.actions.first else{break}
                 state=try engine.campaign(["type":"action","id":choice.id])
             }
             XCTAssertNil(state.panel)
