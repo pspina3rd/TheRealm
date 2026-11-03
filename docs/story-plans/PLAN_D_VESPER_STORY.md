@@ -1,0 +1,799 @@
+# Plan D — Vesper's story: execution plan
+
+Execution plan for Plan D in
+[STORY_QUALITY_REVIEW.md](../reviews/STORY_QUALITY_REVIEW.md) (findings F3, F4, F5, F6; decisions
+SQR-D06, SQR-D07). Passage IDs (`SR-…`) refer to
+[WORLD_BIBLE_STORY_READER.md](../WORLD_BIBLE_STORY_READER.md). Continuity checks (`WB-C…`) and
+decisions (`WB-Q…`) refer to [WORLD_BIBLE.md](../WORLD_BIBLE.md). File references are to branch
+`GetPutTaco` as read on 3 November 2026.
+
+This is a planning document. It changes no game text, data or tests. All drafted text is a
+proposal for the author (Philip Spina). New decisions are numbered `PD-D01`… in section 15.
+
+**Markers.** **[A]** means the line depends on Plan A (one voice, class answers, jargon). **[B]**
+means it depends on Plan B (the secret history and clue ledger). **[C]** means it depends on Plan C
+(attitude-coloured scenes, board mechanics). Lines with no marker stand alone.
+
+## 1. Goal, scope and non-goals
+
+**Goal.** Rebuild the emotional spine as a triangle — the hero, Vesper and Fennick — so that
+players remember Vesper and can say what Vesper wanted. Fix the second-half rhythm at the same
+time.
+
+**Scope.**
+
+- Character bibles for the hero (four classes), Vesper and Fennick.
+- A beat sheet for the whole game, mapped to the monomyth (WB section 7) and WB-C10.
+- Vesper as a rival at the four first-half stops (`VESPER_ROUTE`, `src/data/story.ts:83-95`).
+- The underground restructure from `campaignThreshold` to `ascentOpened`: seven repair beats
+  become three, plus one wonder, one danger and one quiet Vesper scene.
+- Rewrites of `vesperAcceptance`, `campaignReturn`, `malificatRisen`, `malificatFallen` and
+  `campaignRecovery`.
+- Engineering impact, save migration and tests, described for the engineer who implements it.
+
+**Non-goals.**
+
+- No change to the encounter order (WB-C10) or the four major fights' stats.
+- No new answer to what the voice is. That is Plan B (WB-Q02).
+- No new attitude rules. Plan C owns how attitude colours scenes; this plan supplies the text.
+- No change to surface mentor approaches (the other half of F6), or to other characters' barks (Plan A).
+- Vesper is not redeemed or forgiven. Harm stays named and owned.
+
+## 2. Problems this plan solves
+
+### P4. Vesper's big choice and the hero's growth do not land
+
+**Root cause.**
+
+1. Vesper has no motive a player can feel. The only stated motive is "seeking glory"
+   (`SR-vesper.confide.warm`, `src/data/story.ts:127`). The first-half lines are thirty
+   interchangeable threats in a register the second half never uses (F3).
+2. The Fennick link appears only after the Wyrm (`SR-chapterEnd-06`, `SR-campaignThreshold-03`).
+   The player has no picture of Vesper's childhood when Vesper chooses the voice.
+3. "I can hear the surface" (`SR-vesperAcceptance-18`) is a climax with no setup. Nothing earlier
+   says Vesper wanted to be heard.
+4. The hero's four hesitations (`SR-refusal-01`, `src/data/story.ts:264-272`) never return. Every
+   later hero line is shared text such as "Where do you need me?" (`SR-archiveRefuge-09`).
+5. The scene system already supports class lines for any speaker (`classLines`,
+   `src/data/story.ts:177`, resolved in `src/game/story.ts:297`), but only the opening and refusal
+   use it.
+
+**Tasks.** D1.1–D1.5 (rival lines), D2.4 (quiet reading scene), D3.1–D3.5 (late rewrites), D5.1
+(playtest). Plan A drafts the full class voice; this plan owns the arc and where each answer
+lands (section 4).
+
+**Before → after.**
+
+| Moment                | Before                                             | After                                                                                       |
+| --------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Four first-half stops | One shared bark table, "surface-bug", "the Master" | Four stop-specific rival scenes; Vesper competes, sometimes helps, never says "Master"      |
+| Vesper's motive       | "Seeking glory"                                    | "It's my turn to be heard." Ambition stays: power is how Vesper thinks you get heard        |
+| `rootwaysRecord`      | Short reading; Vesper leaves                       | Quiet scene; the two take turns reading; Vesper names the childhood wound                   |
+| `vesperAcceptance`    | Shared hero lines; Vesper's refusal is generic     | Vesper's refusal echoes the hero's own opening hesitation; the hero answers in class        |
+| `campaignReturn`      | Fennick asks; the hero reports a route             | The hero reports what Vesper said; Fennick owns his part                                    |
+| `malificatRisen`      | "Fennick?" gets no answer                          | Fennick answers "I'm here" — the payoff to "Tell them I'm here" (`SR-campaignThreshold-12`) |
+| `campaignRecovery`    | Cup of water; no hero gesture                      | The hero returns the ledger Vesper asked for; Vesper's response follows attitude **[C]**    |
+
+**Acceptance criteria.** Every hero class has a distinct line in `rootwaysRecord`,
+`vesperAcceptance`, `campaignReturn`, `malificatRisen` and `malificatFallen` that answers that
+class's hesitation. The words "Master", "surface-bug", "meat" and "dust" do not appear in Vesper's
+first-half lines. Five of eight playtesters can say what Vesper wanted (section 12).
+
+**Tests.** `tests/vesperArc.test.ts` (new, section 8.4): every class gets its own line at each
+answer point; the banned words are absent; Fennick's "I'm here" directly follows "Fennick?" in
+`malificatRisen`.
+
+### P5d. The underground half repeats one beat
+
+**Root cause.** From `archiveRefuge` to `ascentLanding` the critical path is gated by seven repair
+beats in a row: drain (`archiveDrain`, `src/data/campaignNpcs.ts:64`), trial channel
+(`cisternTrial`, :86), tram rail (`rootTram`, :109), lift (`ketterRescue`, :132), bell circuit
+(`bellCircuit`, :154), shutter brake (staged in `SR-vesperAcceptance-07`) and jacked beam
+(`ascentRepair`, :199). Each warp in `src/data/campaignMaps.ts` (:109, :146, :182, :218, :255,
+:292, :332) waits on one of them. There is no place of wonder, no danger that cannot be fixed, and
+no rest.
+
+**Tasks.** D2.1–D2.8, D4.1–D4.6.
+
+**Before → after.** Seven repairs become three: the old drain (drain and channel merged), Ketter's
+lift (unchanged) and the fallen beam (beam and bell handover merged). The tram becomes a ride. The
+bell circuit becomes the danger: the bells cannot be fixed, only escaped. The shutter brake stays
+as a choice inside the bridge scene, not a task. Full table in section 6.1.
+
+**Acceptance criteria.** On the critical path between `campaignThreshold` and `ascentOpened`, no
+two repair tasks are adjacent without a non-repair scene or fight between them. The three new
+scenes (wonder, danger, quiet) exist and are reachable for all four classes with no optional
+lessons (WB-C15).
+
+**Tests.** `tests/campaign.test.ts` per-class completion run updated to the new task list;
+`tests/campaignPacing.test.ts` (new) asserts the rhythm rule and scene reachability (section 8.4).
+
+## 3. Character bibles
+
+### 3.1 The hero
+
+The hero's arc is the same shape for every class: **a hesitation, set up in the opening, is said
+back to the hero by Vesper at the bridge, and the hero answers it.** The hero changes because they
+hear their own excuse in someone else's mouth. Class sets the words, not the morality (WB section
+5).
+
+| Class (hero)  | Want (opening)               | Lie they believe                       | Need                                  | Vesper says it back                                    |
+| ------------- | ---------------------------- | -------------------------------------- | ------------------------------------- | ------------------------------------------------------ |
+| Ranger, Fern  | Keep watch over the sleepers | "If I look away, someone gets lost."   | Trust other people to watch           | "It needs someone listening. If I go, nobody will be." |
+| Knight, Lance | Hold the post                | "Duty means staying where I was put."  | Choose a post for the people under it | "This is my post. You of all people understand."       |
+| Mage, Ares    | Find the answer in a book    | "What isn't written can't be trusted." | Listen to a person, not only a page   | "Nothing up there was ever written for me."            |
+| Rogue, Vex    | Stay out of it               | "If I care, I owe."                    | Admit they care and pay it            | "Not your problem. Remember? Go up."                   |
+
+**Arc beats by act.**
+
+| Act                       | Hero beat                                                                                                           |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 1 (to the call)           | Hesitation stated (`SR-refusal-01`). Leaves anyway, for Rowan's son.                                                |
+| 2a (surface, to the Wyrm) | Meets a rival who is better at the hero's own game. Wins some contests, loses some.                                 |
+| 2b (underground)          | Reads the ledger with Vesper and answers "Were you loud?" in class voice. Holds the brake rather than chase Vesper. |
+| 3 (return and rite)       | Tells Fennick what Vesper said, without excusing it. Fights Vesper, then carries them out.                          |
+| End                       | Gives back the ledger. Goes home; Pip's tower.                                                                      |
+
+**Voice rules.** Short sentences. Concrete nouns the class notices (WB section 5): Fern routes and
+weather; Lance who is exposed; Ares how things work; Vex terms and what is withheld. The hero never
+gives a speech about growth. The answer to the hesitation is one line, said once, at the bridge.
+
+### 3.2 Vesper
+
+**Want (child-sized).** To be heard. Vesper's own phrase is **"It's my turn."** A child understands
+waiting for a turn that never comes.
+
+**Wound.** Vesper was one of twelve children Fennick looked after. Fennick read to all of them at
+once; "you had to be loud to get a page turned", and Vesper was quiet. Fennick was often at the
+ward. The voice was the first thing that spoke only to Vesper and said their name right. **[B]**
+for why the voice could reach a child near the ward.
+
+**Lie.** "Nobody hears you unless you are the loudest." Power is volume. This keeps Vesper's
+established ambition (WB section 5): Vesper still wants power and knowledge, because they believe
+that is what gets you heard.
+
+**Need.** To be heard without taking power, and to hear others: to be one voice among many. The
+Lishal's "seven voices, and they can barely carry a whisper" (`SR-vesperAcceptance-02`) is Vesper
+scorning exactly that.
+
+**Accountability.** Vesper chooses. Vesper reads every name of the earlier vessels
+(`SR-vesperAcceptance-12`), sees the bridge, and lets go of the rail. Their choice darkens the
+stones, and people fall asleep (`SR-ascentOpened-03`, `SR-malificatRisen-04`). The wound explains
+the choice; it never excuses it. No scene asks anyone harmed to forgive Vesper
+(`SR-campaignRecovery-05` stays).
+
+**Arc beats by act.**
+
+| Act | Vesper beat                                                                                                 |
+| --- | ----------------------------------------------------------------------------------------------------------- |
+| 2a  | A rival one step ahead. Watches the hero, copies their moves, wants to be noticed. "Someone listens to me." |
+| Mid | Goes into the Moon Caves ahead of the hero. Empty cloak, wet tracks.                                        |
+| 2b  | Reads the ledger with the hero. Hears "Fennick's at the ward." Duel: "Wait my turn again?" Then the bridge. |
+| 3   | The Malificat calls for Fennick. Loses. "It's gone quiet."                                                  |
+| End | Alive, under guard. Accepts, or does not accept, the ledger and the cup **[C]**.                            |
+
+**Voice rules.** Precise observations about what the hero just did; amused questions; wounded
+pride (WB section 5). Counts things. Never uses "surface-bug", "meat", "dust", "darkness", "the
+deep" or "Master" before the midpoint. Calls the voice "someone" or "it" until the Malificat.
+Pronouns they/them everywhere (fix `SR-chapterEnd-06` under Plan A). The Malificat speaks with the
+same habits (WB-C11).
+
+### 3.3 Fennick
+
+**Want.** The rite done with the helpers alive and informed (WB section 5).
+
+**Wound.** He looked after many children and chose the ward over the one who needed him most. He
+heard Vesper say they could hear the town from the top window, and told them to come down and eat.
+
+**Lie.** "Looking after everyone is the same as listening to each one."
+
+**Need.** To listen to one person. To accept that he cannot undo Vesper's choice, and must not
+speak for the people Vesper harmed.
+
+**Arc beats.** Threshold: hand on the iron, lets go, stays at his post ("Tell them I'm here").
+Return: owns his part ("I should have gone up"). Rite: accepts Ketter's correction, a first act of
+listening (`SR-campaignRite-15`). Malificat: answers "I'm here" without leaving his station.
+Recovery: sits and listens, says nothing.
+
+**Voice rules.** Practical instructions; short; asks questions instead of explaining. Pronoun
+**he/him**, matching "old man" (`SR-chapterEnd-06`) and `SR-campaignThreshold-11`. The recovery
+scene's "Fennick withdraws their hand" (`src/data/campaignStory.ts:816`) conflicts; see PD-D05.
+
+## 4. Beat sheet
+
+Positions are rough author targets (WB section 7), not measured time.
+
+| Monomyth stage (WB 7)              | Pos.   | Scene / encounter (WB-C10 in bold)                            | Hero                            | Vesper                                         | Fennick                                         |
+| ---------------------------------- | ------ | ------------------------------------------------------------- | ------------------------------- | ---------------------------------------------- | ----------------------------------------------- |
+| Ordinary world                     | 0–5%   | `opening`                                                     | Class line `SR-opening-04`      | —                                              | —                                               |
+| Call and refusal                   | 5–10%  | `refusal`                                                     | Hesitation `SR-refusal-01`      | —                                              | —                                               |
+| Aid and crossing                   | 10–20% | Brightwater; Fennick seed **[B]** (Plan B task 4)             | —                               | —                                              | Lantern, asks about a cloaked traveller         |
+| Trials and relationships           | 20–30% | `vesperRoad`                                                  | Meets a rival                   | "I'm Vesper. Remember it."                     | —                                               |
+|                                    | 30–38% | `vesperRidge` (quarry)                                        | Contest                         | Torva turned them away; "someone listens"      | —                                               |
+|                                    | 38–44% | `vesperPeaks`                                                 | Helped                          | Marks the gate; reads aloud to themselves      | —                                               |
+|                                    | 44–48% | `vesperRuins`                                                 | Contest                         | "It's my turn to be heard."                    | —                                               |
+| Ordeal                             | 50%    | **Moon Wyrm**; `wyrmFall`, `chapterEnd`                       | False victory                   | Empty cloak                                    | "I taught the child… to walk" **[A]**           |
+| Consequences, deeper understanding | 52%    | `campaignThreshold`                                           | Goes down alone                 | —                                              | "Them and eleven others." "Tell them I'm here." |
+|                                    | 55–62% | `archiveRefuge` → old drain → **Irdrath**                     | Repair 1                        | —                                              | —                                               |
+|                                    | 65%    | `rootwaysRecord` (quiet)                                      | "Were you loud?" class answer   | The wound, in their words                      | Message delivered                               |
+|                                    | 68–72% | `ketterStranded` → lift → **Vesper duel**                     | Repair 2                        | "Wait my turn again?"                          | —                                               |
+|                                    | 73%    | `warrensLit` (wonder)                                         | Class line of wonder            | A dragged handprint on the glass               | —                                               |
+|                                    | 75%    | `hollowsHush` (danger) → `hollowsEscaped`                     | Carries a sleeper               | —                                              | Letters found                                   |
+|                                    | 78–82% | `lishalRefusal` → procedure → `vesperAcceptance` → **Lishal** | Hears own hesitation; answers   | Lets go of the rail. "I can hear the surface." | —                                               |
+| Road back                          | 84%    | `ascentLanding` → beam → `ascentOpened`                       | Repair 3                        | "Straight through. Didn't stop."               | Courier                                         |
+|                                    | 86–95% | `campaignReturn`, Mossvale, **rite**                          | Reports Vesper's words          | —                                              | "I should have gone up." Takes correction       |
+| Resurrection                       | 96%    | `malificatRisen` → **Malificat** → `malificatFallen`          | Fights, then carries Vesper out | Calls "Fennick?"; "It's gone quiet."           | "I'm here."                                     |
+| Return with the elixir             | 98%    | `campaignRecovery`, `mossvaleRecovery`                        | Returns the ledger              | Response by attitude **[C]**                   | Sits and listens                                |
+
+WB-C10 order is unchanged: Wyrm, Irdrath, Vesper duel, Lishal, rite, final form. The danger
+encounter at 75% is an ordinary-strength fight, not a boss position (PD-D04).
+
+## 5. Workstream 1 — Vesper as rival before the midpoint
+
+### 5.1 How the gates work today
+
+- **Where Vesper appears.** `vesperStop` (`src/game/story.ts:132-151`) returns the newest stop in
+  `VESPER_ROUTE` whose flag the hero holds: `vesperRoad` after `vision:1` plus `reached:brightwater`
+  and `scene:refusal` (WB-C06); `vesperRidge` after `vision:2`; `vesperPeaks` after `vision:3`;
+  `vesperRuins` on `reached:ruins`. Vesper is gone once `wyrmBeaten` is set.
+- **What each stop is.** `vesper(stop, challenge)` (`src/data/npcs.ts:1115-1130`) builds one NPC per
+  stop with `voice: 'vesper'`, element `arcane`, the shared `VESPER_LINES`
+  (`src/data/story.ts:97-167`), a puzzle or offering, and rewards of Moon Shards plus
+  `lore:vesper.<stop>`. It is not `essential` and not repeatable.
+- **Attitude.** `attitudeOf` (`src/game/attitude.ts:83-92`): arcane alignment, plus half of water
+  and earth, minus half of fire and wind, plus Charm, plus regard. Moods: `cold`
+  (Hostile/Wary), `plain` (Neutral), `warm` (Friendly/Devoted). Devoted says `confide` instead of
+  `intro`. A Hostile hero is refused, because Vesper is not essential (`dealTerms`, :99-102).
+- **Regard is per stop, not per character.** `regardOf(state, npc.id)` (`src/game/encounter.ts:168`)
+  keys on `vesperRoad`, `vesperRidge` and so on, so a win at the road does not warm the ridge. A
+  rivalry needs memory across stops. Recommendation for Plan C: key Vesper's regard by `voice`
+  (D4.7, PD-D06).
+- **Lore flags.** `lore:vesper.*` only show an icon labelled "Lore of the Depths"
+  (`src/ui/art/icons.ts:1099-1105`). They carry no text. Plan B decides whether they become clue
+  pages **[B]**.
+
+### 5.2 Changes
+
+1. Rename the NPC from "Vesper, Thrall of the Depths" to **Vesper** (`src/data/npcs.ts:1118`). The
+   Master becomes a secret (PD-D02).
+2. Replace the shared table with per-stop lines: `VESPER_LINES_BY_STOP`, sharing `refuse`,
+   `accept`, `decline` and `lose`. Each `intro` keeps three distinct moods, as
+   `tests/attitude.test.ts:245-256` requires.
+3. Keep every challenge, reward and route gate. The contest framing makes the existing puzzles
+   rival races: "I've done this one. Show me how you'd do it."
+4. Update the author's script table `### Vesper, Thrall of the Depths` in `docs/STORY.md:52`,
+   because `tests/script.test.ts:119` checks the game text against it.
+
+### 5.3 Draft lines (existing `NpcLines` shape)
+
+Plan A's bark cut applies: about twelve distinct lines across the stops, not thirty.
+
+```
+const VESPER_SHARED = {
+  refuse: '*Vesper turns their back.* "Not today. You wouldn\'t listen anyway."',
+  accept: "I've done this one already. Show me how you'd do it.",
+  decline: "Fine. I'll be ahead of you anyway.",
+  lose: '*They show you where their own piece went.* "Too slow. Try it my way next time."',
+};
+export const VESPER_LINES_BY_STOP = {
+  road: { ...VESPER_SHARED,
+    intro: {
+      cold: '*A traveller in a dark cloak blocks the milestone.* "Mossvale sent you? Just you?"',
+      plain: '*A traveller in a dark cloak is stacking stones on the milestone.* "You came from Mossvale. Nobody walks this road on purpose."',
+      warm: '*They tilt their head.* "You walked the whole road without looking back once. I counted."',
+    },
+    confide: '"Nobody on this road has asked my name all week. You didn\'t either. But you looked." *They hold out a Moon Shard.*',
+    win: '*They knock the stones flat.* "You put the second piece where I put my first. I\'m Vesper. Remember it."',
+    done: 'Brightwater is that way. Everyone goes to Brightwater.',
+  },
+  ridge: { ...VESPER_SHARED,
+    intro: {
+      cold: '"Torva sent me away. Has she let you in yet? No? Good."',
+      plain: '*Vesper sits on the ridge road, rubbing a burned thumb.* "Torva says my hands are quick and careless. Then she went back inside."',
+      warm: '"You again. Good. I wanted somebody to see this."',
+    },
+    confide: '"At night, under the ridge, something hums. It says my name right. Most people get it wrong."', // [B]
+    win: '*They wrap your herb round their thumb.* "Six hundred. I made five hundred and ninety. Don\'t tell Torva."',
+    done: "I'm going higher. Someone up there listens.",
+  },
+  peaks: { ...VESPER_SHARED,
+    intro: {
+      cold: '"The storm gate sticks on the left. Work it out yourself."',
+      plain: '*Vesper has chalked an arrow on the beacon road.* "The storm gate sticks on the left. I marked it. You\'re welcome."',
+      warm: '"I waited. Don\'t make it strange. The gate is easier with two."',
+    },
+    confide: '"I used to read out loud to myself, so somebody was talking to me. Now somebody talks back."', // [B]
+    win: '"Three rows, and you didn\'t waste the long piece. Rook would have shouted about that."',
+    done: "Moonfall next. I'll be there first.",
+  },
+  ruins: { ...VESPER_SHARED,
+    intro: {
+      cold: '*Vesper keeps a palm flat on the Moon Caves\' seal.* "Selene let you into the tower. She told me to wait outside."',
+      plain: '*Vesper keeps a palm flat on the seal.* "Selene listens to you. She never had time for my questions."',
+      warm: '"You\'re nearly as fast as me now. Nearly." *Their hand stays on the seal.*',
+    },
+    confide: '"The man who looked after us read to twelve of us at once. I was never loud enough to get the page turned."',
+    win: '*Behind them, the seal hums very low.* "Nine hundred. Fine. Hear that? It always listens to me."',
+    done: "Don't follow me down. It's my turn to be heard.",
+  },
+};
+```
+
+**Fit to gates.** Cold lines are short and closed; plain lines carry the rival; warm lines show
+Vesper wanting to be noticed. Devoted heroes get the wound early (`confide`), which pays off in
+`rootwaysRecord`. Mentor mentions (Torva, Rook, Selene) are true whether or not the hero has met
+them, because they describe Vesper's experience, not the hero's. The ridge `accept` for the herb
+offering stays in `VESPER_SHARED`; the offering UI already asks for the item. Vesper sometimes
+helps: the peaks puzzle is Vesper's marked route, and `lose` shows the hero Vesper's own move. The
+`accept` line also sets up Plan C's duel that mirrors the hero's spell order **[C]**.
+
+## 6. Workstream 2 — Underground pacing
+
+### 6.1 Before and after
+
+Scene line references are to `src/data/campaignStory.ts`. "R" marks a repair task.
+
+| #   | Before: scene / task (line)               | Map            | Requires → sets                              | After                                                                   | What breaks                                                                     |
+| --- | ----------------------------------------- | -------------- | -------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| 1   | `campaignThreshold` (17)                  | overworld      | `wyrmBeaten`, `scene:chapterEnd` → `descent` | Keep; two line edits (6.3)                                              | Tome staging indices if beats are added (`src/native/tome.ts:136`)              |
+| 2   | `archiveRefuge` (52)                      | sunkenArchive  | `descent`, until `drain`                     | Keep; Odile hands over the ledger; until `trial`                        | Warp `sunkenArchive→cisternMarches` now needs `descent` (`campaignMaps.ts:109`) |
+| 3   | R `archiveDrain` task (Npcs :64)          | sunkenArchive  | → `drain`                                    | **Cut**; merged into row 5                                              | Entity `archive-odile` (Maps :100); tests listing the task                      |
+| 4   | `archiveDrained` (81)                     | sunkenArchive  | `drain`                                      | **Cut**; first stretcher moves to row 7                                 | Tome entry `archiveDrained` (`tome.ts:148`)                                     |
+| 5   | `irdrathCistern` (102) + R `cisternTrial` | cisternMarches | `drain`, until `trial` → `trial`             | Keep; requires `descent`; task becomes "the old drain": clear and test  | Task intro text; `encounterIntent.ts:30-31`                                     |
+| 6   | `irdrathTrial` (133) → **Irdrath**        | cisternMarches | `trial` → `irdrath`                          | Keep                                                                    | —                                                                               |
+| 7   | `irdrathYielded` (163)                    | cisternMarches | `irdrath`                                    | Keep; add the first stretcher and "one trip we can make" from row 4     | Tome indices                                                                    |
+| 8   | `rootwaysRecord` (188)                    | rootways       | `irdrath`, until `vesper`                    | **Rewrite** as the quiet scene; sets new `read`                         | Tome indices (`tome.ts:172`)                                                    |
+| 9   | R `rootTram` task (Npcs :109)             | rootways       | → `tram`                                     | **Cut**; tram is a ride; Rafe in scene only                             | Warp `rootways→glassWarrens` needs `read` (Maps :182)                           |
+| 10  | `ketterStranded` (218) + R `ketterRescue` | glassWarrens   | `tram`, until `rescue` → `rescue`            | Keep; requires `read`                                                   | —                                                                               |
+| 11  | `ketterRescued` (235) → **Vesper duel**   | glassWarrens   | `rescue`, until `vesper` → `vesper`          | Keep; one line edit (6.3)                                               | —                                                                               |
+| 12  | `vesperRetreated` (279)                   | glassWarrens   | `vesper`                                     | Keep                                                                    | —                                                                               |
+| 13  | —                                         | glassWarrens   | —                                            | **New** `warrensLit` (wonder); requires `vesper`, until `hush`          | New tome entry                                                                  |
+| 14  | `bellShift` (292) + R `bellCircuit`       | bellHollows    | `vesper`, until `bells` → `bells`            | **Replaced** by `hollowsHush` (danger) + fight `campaign-hush` → `hush` | Entity `bells-ketter` (Maps :246); warp needs `hush` (Maps :255)                |
+| 15  | `bellRelief` (317)                        | bellHollows    | `bells`                                      | **Replaced** by `hollowsEscaped`; Fennick's letters; requires `hush`    | `tests/nativeTome.test.ts:63-65`                                                |
+| 16  | `lishalRefusal` (350)                     | quietFoundry   | `bells`, until `procedure`                   | Keep; requires `hush`                                                   | —                                                                               |
+| 17  | `foundryProcedure` task                   | quietFoundry   | → `procedure`                                | Keep (discovery, WB-C13)                                                | —                                                                               |
+| 18  | `vesperAcceptance` (407)                  | quietFoundry   | `procedure` → `accepted`                     | **Rewrite** (7.1); brake stays a choice, not a task                     | Tome indices                                                                    |
+| 19  | **Lishal**, `lishalSilenced` (475)        | quietFoundry   | `accepted` → `lishal`                        | Keep                                                                    | —                                                                               |
+| 20  | `ascentLanding` (491) + R `ascentRepair`  | upwardRoad     | `lishal`, until `ascent` → `ascent`          | Keep; adds Ketter's handover from row 15 ("Two for hold")               | —                                                                               |
+| 21  | `ascentOpened` (515)                      | upwardRoad     | `ascent`                                     | Keep; trim the duplicated handover                                      | —                                                                               |
+
+**Rhythm after.** People → repair → boss → quiet → repair → boss → wonder → danger → discovery →
+choice → boss → repair → road back. Three repairs: the old drain, the lift, the beam.
+
+### 6.2 Flags
+
+| Flag constant (`campaignFlags.ts`) | Value                    | Status after                                                                  |
+| ---------------------------------- | ------------------------ | ----------------------------------------------------------------------------- |
+| `drain`                            | `campaign:drain`         | No longer granted. Kept as a constant for saves. Nothing gates on it.         |
+| `tram`                             | `campaign:tram`          | No longer granted. Migration maps it to `read`.                               |
+| `bells`                            | `campaign:bells`         | No longer granted. Migration maps it to `hush`.                               |
+| `read` (new)                       | `campaign:read`          | Set by `rootwaysRecord` (`sets`). Gates `rootways → glassWarrens`.            |
+| `hush` (new)                       | `defeated:campaign-hush` | Set by winning the `campaign-hush` fight. Gates `bellHollows → quietFoundry`. |
+
+A scene may set a milestone; `campaignThreshold` and `vesperAcceptance` already do
+(`src/data/campaignStory.ts:23`, :413). `rootwaysRecord` setting `read` follows that precedent. It
+is a story beat with no failure state, so it does not let narration replace earned work in the
+sense of the file header (:1-5).
+
+### 6.3 Small edits to kept scenes
+
+Drafts in sections 6 and 7 use the scene helpers in `src/data/campaignStory.ts:9-14` (`say`,
+`show`). `hero({…}, stage?)` is shorthand for `{ stage, who: 'hero', classLines: {…} }`, and
+`voiced(who, {…})` is the same for another speaker. Both are existing `SceneBeat` fields
+(`src/data/story.ts:169-182`).
+
+```
+// campaignThreshold, SR-campaignThreshold-03 (line 29)
+say('fennick', "Yes. I'm Fennick. I looked after them when they were small. Them and eleven others."),
+// ketterRescued, SR-ketterRescued-14 (lines 266-270); stage direction unchanged
+say('vesperDuel', 'You want me to go back with you. Stand in line. Wait my turn again.', '*Their fingers lift…*'),
+```
+
+Plan A replaces "Upper branch carries the voice. Lower one feeds our lamps" (`SR-ketterRescued-06`)
+with "the voice pipe" and "the lamp pipe" **[A]**.
+
+### 6.4 The quiet Vesper scene — `rootwaysRecord` (rewrite)
+
+No conflict. The two take turns, which is the thing Vesper never got.
+
+```
+{ id: 'rootwaysRecord', title: 'Taking turns', flag: 'scene:rootwaysRecord', map: 'rootways',
+  requiresFlags: [C.irdrath], untilFlag: C.vesper, sets: [C.read], beats: [
+  show('The tram waits at the platform with its lamp lit. Rafe has gone for the driver. Vesper sits on the step, reading the plan you left on the bench.'),
+  say('vesperDuel', "That's a bell tower. The road runs underneath."),
+  say('hero', "You've been there?"),
+  say('vesperDuel', "I'd hardly send you ahead of me, would I?"),
+  say('hero', 'I found this with it.', '*You put the ledger on the step between you.*'),
+  show('Vesper does not take it. They wait until you open it, then lean in.'),
+  say('vesperDuel', 'Read it out. I like hearing it.'),
+  show('You read the first name. Vesper reads the second. You go on like that, taking turns, down the page.'),
+  say('hero', 'The same promise. Every time.'),                                  // [B] ledger contents
+  say('vesperDuel', 'And nothing about how any of them died.'),
+  say('hero', "Fennick's at the ward. He said to tell you he's there."),
+  say('vesperDuel', 'He was always there. At the ward.', '*They turn the page before you finish it.*'),
+  say('vesperDuel', 'He read to twelve of us at once. You had to be loud to get a page turned.'),
+  say('hero', 'Were you loud?'),
+  say('vesperDuel', 'No.'),
+  hero({ ranger: "I'd have noticed you.", knight: "I'd have made room.",
+         mage: 'Then nobody wrote down what you said.', rogue: "Loud's overrated." }),  // [A]
+  show('Up the platform, the tram bell rings. Rafe waves from the cab.'),
+  say('vesperDuel', "Keep it dry. I'll want the rest.", '*Their hand moves toward the ledger, then stops. They step down onto the lower road.*'),
+] }
+```
+
+The ledger's contents ("the same promise", the earlier vessels) depend on Plan B's clue ledger
+**[B]**. The class lines are Plan A's to polish **[A]**.
+
+### 6.5 The wonder scene — `warrensLit` (new)
+
+Plays on `glassWarrens` straight after `vesperRetreated`, before the hero walks on.
+
+```
+{ id: 'warrensLit', title: 'Every lamp at once', flag: 'scene:warrensLit', map: 'glassWarrens',
+  requiresFlags: [C.vesper], untilFlag: C.hush, beats: [
+  show('Ketter opens the lamp pipe all the way. Lamp by lamp, the Glass Warrens light from the floor up.'),
+  show('The walls are not rock. They are glass, thin as a window, and behind every pane something small is growing toward the light.'), // [B]
+  say('ketter', "First time in a year they've all been on at once."),
+  hero({ ranger: "There's moss behind the glass. It's leaning toward the lamps.",
+         knight: 'You could see someone coming from three landings away.',
+         mage: "It isn't built. It's grown. Every pane.", rogue: 'Nobody down here mentioned it was beautiful.' }),
+  show('Far down the shaft one pane is dark: a long smear, as if a hand was dragged across the glass.'),
+  say('ketter', "That's where they went. The lower road, toward the bells."),
+] }
+```
+
+What grows behind the glass is a Plan B lore hook **[B]**.
+
+### 6.6 The danger scene — `hollowsHush` (new) and `hollowsEscaped` (replaces `bellShift`, `bellRelief`)
+
+Real danger with no repair answer: the voice, angry after the duel, rings every bell. People fall
+asleep on their feet. The hero cannot fix the bells, only get people out. A mandatory
+ordinary-strength fight, `campaign-hush`, stands on the escape path.
+
+```
+{ id: 'hollowsHush', title: 'Every bell at once', flag: 'scene:hollowsHush', map: 'bellHollows',
+  requiresFlags: [C.vesper], untilFlag: C.hush, beats: [
+  show("Ketter's supper bowl sits on the bench, cold. Then every bell in the Hollows rings at once. Nobody is pulling the cords."),
+  say('ketter', 'Hands over your ears. Now.'),
+  show('Down the passage, two workers sit down where they stand. One is still holding a lamp. Their eyes close.'),
+  say('hero', 'We can stop the bells—'),
+  say('ketter', "Not these. They aren't ours any more. We carry who we can, and we go."),
+  show("The sleeping worker's lamp flickers. In the dark between the bells, something moves toward it."),
+  hero({ ranger: "I'll watch the back. Go.", knight: 'Get them behind me.',
+         mage: 'No book for this. Run.', rogue: "Fine. I'll take the heavy one." }, '*You lift the nearest worker.*'),
+] }
+{ id: 'hollowsEscaped', title: "Fennick's letters", flag: 'scene:hollowsEscaped', map: 'bellHollows',
+  requiresFlags: [C.hush], beats: [
+  show('At the far door the bells stop together, as if a hand has closed over them. Ketter lowers the second worker onto a bench and counts their breathing.'),
+  say('ketter', "They'll wake. The bell sleepers always do. Give it a day."),   // [B]
+  say('ketter', 'These came from Fennick. I was saving them for when the bells went quiet.', '*Ketter opens a drawer of plans and letters.*'),
+  show('One letter shows the stations around the ward. A circle is drawn in ink, with one piece missing. Ketter lays it beside the relay plan.'), // [A]
+  say('ketter', "Now someone's got to go down and look for the missing piece."),
+] }
+```
+
+`campaign-hush` uses a new enemy `hushWisp` at about `bellWisp` strength
+(`src/data/campaignEnemies.ts`). If Plan C's drowsy blocks pass their playtest gate, this is the
+first fight to use them, so the player feels the sleep before Ketter explains it **[C]**. "The bell
+sleepers always do" must agree with Plan B's account of sleep **[B]**. "The missing piece" replaces
+"lower return" (`SR-bellRelief-07`) per Plan A **[A]**.
+
+### 6.7 Merged repairs
+
+- **The old drain** (`cisternTrial`, `src/data/campaignNpcs.ts:86-108`). One task: clear the blocked
+  drain outside Irdrath's channel, then run the test with the chambers shut. New intro, plain mood:
+  "The archive floods because this drain is blocked. Clear it and we can test it with the chambers
+  shut." `irdrathCistern`'s "The old drain runs outside it" (`SR-irdrathCistern-10`) then refers to
+  the same object the player clears. `archiveRefuge` changes "The drain's under that pallet"
+  (`SR-archiveRefuge-08`) to "The water comes down from the cisterns. Their old drain is blocked.
+  Come with me."
+- **The lift** (`ketterRescue`) is unchanged. It is a rescue, with a person on the other end.
+- **The fallen beam** (`ascentRepair`). `ascentLanding` takes the handover moment from
+  `SR-bellRelief-02`–`04`: the relief operator answers "Two for hold" correctly before Ketter
+  finishes. `ascentOpened` drops its duplicate (`SR-ascentOpened-01`) and keeps "Good. They've
+  got it."
+
+## 7. Workstream 3 — Late-scene rewrites
+
+### 7.1 The bridge — `vesperAcceptance`
+
+Keep beats `SR-vesperAcceptance-01` to `-12` and `-13` to `-28` as written. Insert four beats
+between `-12` ("I read every one.") and `-13` (the rail). Vesper's class-keyed line works with the
+existing `classLines` field, because `scenePages` uses it for any speaker
+(`src/game/story.ts:297-298`). No engine change is needed.
+
+```
+show('The frame passes between you. When it clears, Vesper has not moved.'),
+voiced('vesperDuel', { ranger: 'It needs someone listening. If I go, nobody will be.',
+  knight: 'This is my post. You of all people understand.',
+  mage: 'Nothing up there was ever written for me.', rogue: 'Not your problem. Remember? Go up.' }),
+hero({ ranger: 'I said that about my houses once. Other people can watch. Let someone listen to you.',
+  knight: "I left my post. I'm holding this one because people are under it. I can't come to you. Come to me.",
+  mage: "Then I'll read whatever you write. Every word. Starting now.",
+  rogue: "Not my problem. That's what I said about Mossvale. I was lying then too. Come over. Please." },
+  '*Your hands stay on the brake.*'),                                                       // [A]
+say('vesperDuel', 'You would, too.', '*They look at the bridge, and at your hands on the brake.*'),
+```
+
+Then the existing `-13` (fingers close on the rail; when the frame passes, they have let go),
+`-14` "Vesper?", `-15` "No. I'm staying.", `-16` "Let me hear it. All of it." One line is added
+after `-18` "I can hear the surface.":
+
+```
+say('vesperDuel', "And they'll all hear me.", '*The bells answer with their next breath.*'),
+```
+
+**Why it works.** The hero's own excuse comes back at them; the hero answers in their own voice;
+Vesper sees that the answer is sincere ("You would, too.") and still chooses. The choice is free,
+seen and costly (WB-C11). The hero holding the brake explains Vesper's head start (WB section 6.9).
+
+### 7.2 `campaignReturn`
+
+Keep `SR-campaignReturn-01` to `-09` (ending "And you were close enough to hear them?" / "Yes.").
+Insert the report and Fennick's admission after `-09`, keep `-10` to `-12`, and add one line
+after `-12`:
+
+```
+say('fennick', 'What did they say?'),
+say('hero', "That they'd waited long enough. Then: 'I can hear the surface.'"),
+show("Fennick's finger stays on the steps."),
+say('fennick', 'When they were small they sat in the top window. They said they could hear the town from there. I told them to come down and eat with the others.'),
+say('fennick', 'I should have gone up.'),
+hero({ ranger: 'You were watching the ward. Someone had to. But they chose the voice, not you.',
+  knight: 'You kept your post. I know how that goes. The choice on that platform was theirs.',
+  mage: 'No book would have told you. And none of it made their choice for them.',
+  rogue: "You're not the one who took the deal." }),                                          // [A]
+// SR-campaignReturn-10 to -12 as written, then:
+say('fennick', "If they call for me in there, I'll answer from my station. Tell Vale that's where I'll be."),
+```
+
+Every hero answer comforts Fennick without moving Vesper's responsibility onto him. The last line
+fixes the unfinished sleeve-catch (`SR-campaignReturn-12`) and sets up 7.3.
+
+### 7.3 `malificatRisen` and `malificatFallen`
+
+`malificatRisen`, after `SR-malificatRisen-06` ("Fennick?"), which follows the second voice (`-05`):
+
+```
+say('fennick', "I'm here.", '*He does not leave the lantern station.*'),
+show("For a breath, the light in Vesper's hand goes still."),
+show('The second voice: "He is outside. He has always been outside. Break it."'),            // [B]
+```
+
+`-04` becomes "I know. I'm drawing on all seven. Can you hear how loud I am?" The hero line after
+"What have you done?" (`SR-malificatRisen-09`) becomes class-keyed:
+
+```
+hero({ ranger: "The voice can't leave this chamber. And I'm not leaving you in here with it.",
+  knight: "The voice can't leave this chamber. I'm standing here until it doesn't need to.",
+  mage: "The voice can't leave this chamber. Listen to it. It's using you.",
+  rogue: "The voice can't leave this chamber. Still not my problem. You are." }),             // [A]
+```
+
+The voice's line "He has always been outside" is manipulation, not fact, and must match Plan B's
+voice **[B]**. Plan A fixes the speaker label (F7).
+
+`malificatFallen`: keep `-01`. After `-02` (the voice calls "Vesper."), add Vesper's line and the
+hero carrying them out. Keep Vale's arm across the entrance (`-03`) and the sealing (`-04`).
+
+```
+say('vesperDuel', "It's gone quiet.", '*They say it to no one.*'),
+hero({ ranger: "I've got you. Lift.", knight: "Lean on me. I'm not moving till you do.",
+  mage: 'Up. Slowly. Count with me.', rogue: "You're heavier than you look. Come on." },
+  "*You kneel and get your shoulder under Vesper's arm.*"),
+```
+
+`-04` changes "while Vesper is carried beyond the boundary" to "while you and a guard carry Vesper
+beyond the boundary". The hero physically shows that a person can be stopped without being thrown
+away.
+
+### 7.4 `campaignRecovery`
+
+Keep `SR-campaignRecovery-01` to `-03` and `-06` to `-08`. Replace `-04` and `-05` with:
+
+```
+say('guard', "Three more fell asleep in Brightwater while the stones were dark. We have a room ready. They'll stay under guard."), // [B]
+show('Fennick nods. No one asks the people Vesper harmed to forgive them.'),
+show('You take the ledger from your pack. The pages are dry.'),
+say('hero', 'You wanted the rest.'),
+// Attitude-coloured beats [C]: Plan C supplies the gate; one mood's beats are shown.
+{ mood: 'cold',  stage: '*Vesper looks at the ledger and does not take it. You leave it on the blanket.*' },
+{ mood: 'plain', who: 'vesperDuel', line: '"Leave it."', stage: '*When you look back from the path, the ledger is open.*' },
+{ mood: 'warm',  who: 'vesperDuel', line: '"Was it dry?"', stage: '' },
+{ mood: 'warm',  who: 'hero', line: '"Yes."', stage: '' },
+{ mood: 'warm',  stage: '*Vesper takes the cup, then the ledger. Fennick sits on the grass beside them, says nothing, and listens while they read the first name aloud.*' },
+```
+
+The `mood` field does not exist today; it is Plan C's proposed gate (section 9). The number "three
+more" depends on Plan B's account of what dark stones do **[B]**. A cold Vesper still survives,
+still gets the cup within reach, and is still under guard: the ending choice is the same; only its
+colour changes (Plan C item 5).
+
+## 8. Workstream 4 — Engineering impact
+
+### 8.1 Data and code
+
+| Area                   | File and line                                            | Change                                                                                                 |
+| ---------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Flags                  | `src/data/campaignFlags.ts:3-20`                         | Add `read`, `hush`. Keep `drain`, `tram`, `bells` as constants.                                        |
+| Scenes                 | `src/data/campaignStory.ts`                              | Rewrites in 6.3–6.6, 7.1–7.4; remove `archiveDrained`, `bellShift`, `bellRelief`.                      |
+| Tasks                  | `src/data/campaignNpcs.ts:64`, :109, :154                | Remove `archiveDrain`, `rootTram`, `bellCircuit`; update the `voice` switch (:25-33).                  |
+| Task intent text       | `src/game/encounterIntent.ts:30-34`                      | Remove the three intents; update `cisternTrial`.                                                       |
+| Maps                   | `src/data/campaignMaps.ts:100`, :174, :246               | Remove the three task entities; Rafe and Ketter in Hollows become scene-only.                          |
+| Warps                  | `campaignMaps.ts:109`, :182, :255                        | Gates: `descent`, `read`, `hush`; new locked texts.                                                    |
+| Encounter              | `campaignMaps.ts` (bellHollows entities)                 | Add `boss('campaign-hush', 'hushWisp', …, C.vesper)` or a non-boss mandatory variant (PD-D04).         |
+| Enemy                  | `src/data/campaignEnemies.ts`                            | Add `hushWisp`, `bellWisp` tier.                                                                       |
+| Vesper NPCs            | `src/data/npcs.ts:1083-1130`                             | `vesper(stop, challenge)` takes per-stop lines; name "Vesper".                                         |
+| Vesper lines           | `src/data/story.ts:97-167`                               | Replace `VESPER_LINES` with `VESPER_LINES_BY_STOP`.                                                    |
+| Author's script        | `docs/STORY.md:52`                                       | Per-stop Vesper tables (the fidelity test reads them).                                                 |
+| Native tome staging    | `src/native/tome.ts:136-210`                             | Re-index `shots`, `casts`, `subjects` for every scene with inserted beats; add entries for new scenes. |
+| Mood-gated scene beats | `src/data/story.ts:169-182`, `src/game/story.ts:286-303` | Plan C adds the gate; Plan D only supplies beats.                                                      |
+| Vesper regard          | `src/game/encounter.ts:168`, :232                        | Recommend keying by `npc.voice ?? npc.id` for Vesper (D4.7, Plan C).                                   |
+| Story Reader           | `tools/export-story-reader.mjs`                          | Regenerate; passage numbers shift for rewritten scenes.                                                |
+
+### 8.2 Save migration
+
+Scenes are saved only as `scene:` flags; there is no saved "current scene" (`src/game/save.ts:200-216`).
+Bump `SAVE_VERSION` from 17 to 18 (`src/game/save.ts:59`) and add `migrateCampaignPacing(flags)`
+for `version < 18`:
+
+1. `tram` held → add `read` and `scene:rootwaysRecord`.
+2. `bells` held → add `hush`, `scene:hollowsHush`, `scene:hollowsEscaped`, `scene:warrensLit`.
+3. `vesper` held but not `bells` → add nothing. The hero is in the Hollows before the old repair;
+   the new danger scene and fight will play. Accept this one-time replay.
+4. `drain` without `trial` → add nothing. The cistern gate now opens on `descent`.
+5. A hero standing on a removed entity's tile stays put; the existing
+   `tests/campaignRuntime.test.ts:234` behaviour covers this.
+
+Old `scene:archiveDrained`, `scene:bellShift` and `scene:bellRelief` flags are harmless and stay.
+
+### 8.3 Existing tests to update
+
+| Test file                                  | What changes                                                                                                                                |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tests/campaign.test.ts:27-40`, :191-248   | Remove `archiveDrain`, `rootTram`, `bellCircuit` steps; add the `rootwaysRecord` scene and `campaign-hush` fight; keep the four-class loop. |
+| `tests/campaign.test.ts:251-287`, :289-310 | Mandatory task list; the failed-task retry test uses `archiveDrain`, switch to `cisternTrial`.                                              |
+| `tests/attitude.test.ts:361-406`           | Task list in "never locks progress".                                                                                                        |
+| `tests/data.test.ts:251-265`               | Puzzle layout table for removed tasks.                                                                                                      |
+| `tests/encounterIntent.test.ts:67`         | `it.each` list.                                                                                                                             |
+| `tests/nativeTome.test.ts:63-65`           | `bellRelief` page checks move to `hollowsEscaped`.                                                                                          |
+| `tests/story.test.ts:245`                  | Stops no longer share `VESPER_LINES`; assert `voice: 'vesper'` and per-stop lines.                                                          |
+| `tests/script.test.ts:119`, :277           | Map each stop to its `docs/STORY.md` table.                                                                                                 |
+| `tests/saveCampaignStakes.test.ts:85`      | Round-trip at version 18.                                                                                                                   |
+
+### 8.4 New tests
+
+| New test file                    | Assertions                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tests/campaignPacing.test.ts`   | (1) Every scene's `requiresFlags` are each set by some scene `sets`, task reward, boss defeat or Chapter One flag (reachability). (2) No two repair tasks are consecutive on the critical path. (3) `warrensLit`, `hollowsHush` and `rootwaysRecord` are due on their maps in a fresh run. (4) Each removed task id is absent from `NPCS` and every map.                                                                                          |
+| `tests/campaign.test.ts` (loop)  | For ranger, knight, mage and rogue with no optional lessons: the route completes; `read` and `hush` are earned in order; `C.complete` set (WB-C15).                                                                                                                                                                                                                                                                                               |
+| `tests/vesperArc.test.ts`        | (1) `rootwaysRecord`, `vesperAcceptance`, `campaignReturn`, `malificatRisen`, `malificatFallen` each give four distinct hero lines via `scenePages`. (2) `vesperAcceptance` gives a class-keyed Vesper line. (3) No first-half Vesper line contains "Master", "surface-bug", "meat" or "dust". (4) `campaignRecovery` keeps "No one asks the people Vesper harmed to forgive them." (5) Each recovery mood shows exactly one Vesper response [C]. |
+| `tests/saveMigrationV18.test.ts` | A v17 save holding `tram` loads with `read`; one holding `bells` loads with `hush` and the three new scenes seen; one mid-Hollows (`vesper`, no `bells`) gets the danger scene; no save gains `complete`.                                                                                                                                                                                                                                         |
+
+## 9. Coordination with Plans A, B and C
+
+| Plan | Plan D needs                                                                                                                                            | Plan D gives                                                                                         |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| A    | One register; the bark cut; the four class voices; jargon replacements; pronoun fix in `SR-chapterEnd-06`.                                              | Where each class answer lands (sections 3.1, 4). Plan A's three late-scene class lines become these. |
+| B    | The voice's nature; why it reached a child at the ward; what dark stones do to sleepers; ledger contents; Fennick seed in Brightwater; lore flag pages. | Vesper's wound as a clue target: "it says my name right" is a plant for the voice's method.          |
+| C    | A scene-beat gate on Vesper's mood; Vesper regard that spans stops; drowsy blocks for `campaign-hush`; the duel as a mirror.                            | Drafted cold/plain/warm recovery beats; the rival "show me how you'd do it" setup.                   |
+
+**Order.** Plan A's voice rules first. Plan B's secret history must be approved before the **[B]**
+lines are final; drafts can go in with placeholders. Plan C's mood gate must land before 7.4 ships;
+until then, `campaignRecovery` uses the plain beats only.
+
+## 10. Tasks
+
+| ID   | Task                                     | Owner role       | Input                     | Output                           | Effort  |
+| ---- | ---------------------------------------- | ---------------- | ------------------------- | -------------------------------- | ------- |
+| D1.1 | Approve bibles (section 3)               | Narrative lead   | This plan, WB section 5   | Bibles added to WB section 5     | 2 days  |
+| D1.2 | Final per-stop Vesper lines              | Writer           | 5.3, Plan A register      | `VESPER_LINES_BY_STOP` text      | 3 days  |
+| D1.3 | Update `docs/STORY.md` Vesper tables     | Writer           | D1.2                      | Script tables                    | 1 day   |
+| D1.4 | Implement per-stop lines and rename      | Engineer         | D1.3                      | `story.ts`, `npcs.ts`            | 1 day   |
+| D1.5 | Rival playtest of the four stops         | Designer         | D1.4 build                | Notes, line fixes                | 2 days  |
+| D2.1 | Approve pacing table (6.1)               | Author           | Section 6                 | PD-D03 decision                  | 1 day   |
+| D2.2 | Merge drain and channel                  | Writer, engineer | 6.7                       | `cisternTrial`, scenes 2, 5, 7   | 2 days  |
+| D2.3 | Cut tram task; Rafe in scene             | Engineer         | 6.1 row 9                 | Maps, NPCs                       | 1 day   |
+| D2.4 | Quiet scene `rootwaysRecord`             | Writer           | 6.4                       | Scene                            | 2 days  |
+| D2.5 | Wonder scene `warrensLit`                | Writer, artist   | 6.5                       | Scene, tome staging              | 3 days  |
+| D2.6 | Danger scene and `campaign-hush` fight   | Writer, designer | 6.6, Plan C drowsy result | Scenes, enemy, map entity        | 4 days  |
+| D2.7 | Merge handover into ascent               | Writer           | 6.7                       | `ascentLanding`, `ascentOpened`  | 1 day   |
+| D2.8 | Balance pass on the new route            | Designer         | D2.2–D2.7                 | `docs/CAMPAIGN_BALANCE.md` notes | 2 days  |
+| D3.1 | Bridge rewrite                           | Writer           | 7.1, Plan A class voice   | Scene                            | 2 days  |
+| D3.2 | `campaignReturn` rewrite                 | Writer           | 7.2                       | Scene                            | 1 day   |
+| D3.3 | `malificatRisen` / `malificatFallen`     | Writer           | 7.3, Plan B voice         | Scenes                           | 2 days  |
+| D3.4 | `campaignRecovery` with mood beats       | Writer           | 7.4, Plan C gate          | Scene                            | 1 day   |
+| D3.5 | Small edits (6.3) and `ketterRescued`    | Writer           | 6.3                       | Scenes                           | 0.5 day |
+| D4.1 | Flags, warps, entities                   | Engineer         | 8.1                       | Data changes                     | 2 days  |
+| D4.2 | Save migration v18                       | Engineer         | 8.2                       | `save.ts`                        | 1 day   |
+| D4.3 | Native tome re-indexing                  | Engineer         | Final scenes              | `tome.ts`                        | 2 days  |
+| D4.4 | Update existing tests                    | Engineer         | 8.3                       | Passing suite                    | 2 days  |
+| D4.5 | New tests                                | Engineer         | 8.4                       | Four test files                  | 2 days  |
+| D4.6 | Regenerate Story Reader                  | Engineer         | D4.1–D4.3                 | Reader and manifest              | 0.5 day |
+| D4.7 | Vesper regard across stops (with Plan C) | Engineer         | PD-D06                    | `encounter.ts`                   | 1 day   |
+| D5.1 | Playtest (section 12)                    | Designer         | Full build                | Report                           | 4 days  |
+
+Total about 5 writer-weeks and 2.5 engineer-weeks, within the review's 4–6 week estimate.
+
+## 11. Acceptance criteria
+
+1. All four classes complete the campaign with no optional lessons (WB-C15), proven by the
+   per-class test.
+2. Every scene's prerequisite flags are reachable (`tests/campaignPacing.test.ts`).
+3. Encounter order matches WB-C10.
+4. The critical path between `campaignThreshold` and `ascentOpened` has three repair tasks, none
+   adjacent, plus the wonder, danger and quiet scenes.
+5. Each class has its own answer at the five answer points (section 7, 6.4).
+6. Vesper's first-half lines never say "Master"; pronouns are they/them throughout.
+7. "No one asks the people Vesper harmed to forgive them" remains, and the harm is named.
+8. Old v17 saves load at every underground stage without losing or gaining milestones beyond 8.2.
+9. Playtest targets in section 12 are met.
+
+## 12. Playtest protocol
+
+**Who.** Eight players: four aged 9–13, four adults; two per class. None has seen the story.
+Sessions run from a save at `vesperRoad` through the ending, over two or three sittings.
+
+**During play.** The observer notes, without prompting: remarks about Vesper; whether the player
+stops to read `rootwaysRecord`; reactions at the bridge (pause, comment, retry); skipped pages in
+the tome (the native tome logs page skips).
+
+**After play, in this order, unprompted questions first.**
+
+1. "Which character do you remember most?" Record the first name said.
+2. "What did Vesper want?" Free answer.
+3. "Why did Vesper stay at the bridge?"
+4. "Was Vesper bad? Should they be forgiven?"
+5. "What did your hero say to Vesper on the bridge? Did it sound like your hero?"
+6. "Which part underground felt different from the rest?"
+7. "Was any part underground boring?"
+
+**Success.**
+
+| Measure                                                                  | Target          |
+| ------------------------------------------------------------------------ | --------------- |
+| Names Vesper first or second in Q1                                       | 6 of 8          |
+| Q2 answer matches "to be heard / noticed / have a turn / be listened to" | 5 of 8          |
+| Q4 answer holds both: they did wrong, and they are not thrown away       | 5 of 8          |
+| Q5 recalls the class answer                                              | 4 of 8          |
+| Q6 names the Warrens lit or the bells                                    | 5 of 8          |
+| Q7 names a repair scene as boring                                        | 2 of 8 or fewer |
+
+**If it fails.** Q2 fails → strengthen the ruins `done` line and the quiet scene. Q4 tilts toward
+"Vesper was right" → strengthen the recovery harm line. Q7 still names repairs → cut the beam to a
+scene.
+
+## 13. Milestones
+
+| Milestone | Contents                                                     | Gate                                 |
+| --------- | ------------------------------------------------------------ | ------------------------------------ |
+| M-D1      | Bibles approved; decisions PD-D01–D06 answered               | Author sign-off                      |
+| M-D2      | Rival lines in game (D1.x)                                   | Rival playtest, D1.5                 |
+| M-D3      | Underground restructure in game (D2.x, D4.1–D4.5)            | Suite green; per-class run passes    |
+| M-D4      | Late rewrites in game (D3.x), with Plan B and C dependencies | Plan B history approved; Plan C gate |
+| M-D5      | Full playtest (D5.1)                                         | Section 12 targets                   |
+
+## 14. Risks
+
+| Risk                                                          | Mitigation                                                                                                            |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Vesper becomes too sympathetic; the story excuses harm        | Harm named in recovery; every hero answer to Fennick keeps the choice with Vesper; test asserts the forgiveness line. |
+| "To be heard" reads as wanting approval, against WB section 5 | Keep ambition explicit: power is how Vesper thinks you get heard (PD-D01).                                            |
+| The danger fight adds a fifth major encounter                 | Ordinary strength; no boss music; WB-C10 positions unchanged (PD-D04).                                                |
+| Old saves replay or skip scenes                               | Migration 8.2 plus `tests/saveMigrationV18.test.ts`.                                                                  |
+| Tome staging drifts after beat inserts                        | D4.3 re-index; `tests/nativeTome.test.ts` page checks for each rewritten scene.                                       |
+| Plan B changes the voice and invalidates **[B]** lines        | Mark and hold **[B]** lines until Plan B approval; few lines depend on it.                                            |
+| Plan C mood gate slips                                        | Ship recovery with plain beats; mood beats follow.                                                                    |
+| Class lines feel like four writers                            | Plan A owns final class voice; one writer does all late class lines in one pass.                                      |
+
+## 15. Author decisions
+
+| ID     | Decision                                                                                                         | Affects                             |
+| ------ | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| PD-D01 | Adopt Vesper's want "to be heard" ("It's my turn"), replacing "seeking glory" as the root motive, ambition kept? | WB section 5 Vesper; WB-C11; WB-Q06 |
+| PD-D02 | Remove "Thrall of the Depths" and "Master" from Vesper's first-half lines?                                       | WB section 5; WB-C11; WB-Q08        |
+| PD-D03 | Approve the underground pacing table (6.1): cut three tasks, add wonder, danger and quiet scenes?                | SQR-D07; WB-Q03; WB-C12; WB-C13     |
+| PD-D04 | Add the mandatory ordinary-strength `campaign-hush` fight between the duel and the Lishal?                       | WB-C10; WB-C18                      |
+| PD-D05 | Fennick's pronoun: he/him (matching "old man") throughout?                                                       | WB section 5 Fennick; WB-Q01        |
+| PD-D06 | Fennick looked after twelve children, Vesper among them; key Vesper's regard across all four stops?              | WB-Q01; WB-C17; SQR-D06             |
+| PD-D07 | The hero carries Vesper out of the ward, and the ledger is returned in recovery?                                 | WB-Q06; WB-C17                      |
