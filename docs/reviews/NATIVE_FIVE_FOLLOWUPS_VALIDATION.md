@@ -59,3 +59,12 @@ items, money and earned progress.
 Physical iPhone feel remains the player's retest. Separately, the native renderer
 still has simpler block/effect drawing than the web renderer; full visual parity
 is not claimed by this delivery.
+
+
+## Subsequent visual port
+
+The simpler block/effect rendering noted above was addressed in a later change,
+with shared exported art and actual resolver-driven four-rank spell traces.
+See [NATIVE_VISUAL_PARITY_REVIEW.md](NATIVE_VISUAL_PARITY_REVIEW.md) for its separate
+review, Apple evidence and updated Xcode package. This historical record describes
+the original five-fix candidate, not the later visual candidate.

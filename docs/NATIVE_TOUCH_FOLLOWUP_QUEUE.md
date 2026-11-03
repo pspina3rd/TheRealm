@@ -23,5 +23,8 @@ passed native compilation, engine/gesture tests and both iPhone 15 Pro UI flows.
 Fresh menu/map screenshots were inspected. The updated Xcode source package is
 ready for physical iPhone retesting. See the [integration record](reviews/NATIVE_FIVE_FOLLOWUPS_VALIDATION.md).
 
-A separate finding remains: native block/effect rendering does not yet fully match
-the web presentation. These five fixes do not constitute full visual parity.
+The subsequent native visual port now includes the shared block/icon art,
+resolver-driven four-rank spell effects, encounter stage/HUD and authored world
+cues. See the [visual implementation and review record](reviews/NATIVE_VISUAL_PARITY_REVIEW.md)
+for its independent correction loop, Apple screenshots and final validation
+status. The earlier five-fix delivery above did not include this later work.

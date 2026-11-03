@@ -3,7 +3,11 @@
 **Crystals Test now opens the campaign.** It uses UIKit for exploration and
 conversations, the existing native SpriteKit battle board and gestures, and the
 shared campaign rules running offline in Apple's JavaScriptCore. The map art is
-bundled from the same licensed atlas assets as the web game. No browser, web
+bundled from the same licensed atlas assets as the web game. Blocks, element
+glyphs, obstruction textures and encounter decorations are exported directly
+from the web renderers. Native spell animation follows the shared resolver's
+actual affected cells, with distinct visuals at each of the four ranks.
+No browser, web
 server, npm installation, CocoaPods or downloaded Swift dependency is needed.
 
 ## Update the app already installed on your phone
@@ -49,6 +53,13 @@ changing shared engine code, regenerate it with `npm ci` and
 The native-only data clone preserves the engine's preview state in JavaScriptCore,
 which does not provide the browser's `structuredClone` global.
 
+After changing the shared block, icon or world-decoration renderers, run
+`npm run build:native-visuals` and commit `public/assets/native-visuals`.
+This developer export uses Playwright Chromium; install it with
+`npx playwright install chromium` if needed, or set `NATIVE_VISUAL_BROWSER` to
+an installed Chromium executable. `npm run check:native-visuals` verifies
+renderer source hashes and exported files without starting a browser.
+
 On a Mac:
 
 ```bash
@@ -61,10 +72,19 @@ xcodebuild test -project ios/ManaCrystalsPlaytest.xcodeproj \
 
 GitHub's **Native iOS playtest** workflow creates an iPhone 15 Pro simulator,
 runs the native tests and exercises board gestures and background/resume. It
-uploads the Xcode result bundle with its screenshot. Simulator checks do not
+uploads the Xcode result bundle, recording and screenshot gallery. Simulator checks do not
 replace testing how this feels on the physical phone.
 
 The earlier standalone Slime fixture remains available to automated gesture
 tests with the `--battle-playtest` launch argument. The default app launches
 the campaign. Campaign tests exercise JavaScriptCore without browser APIs,
 all four hometowns, native movement, the world map, relaunch and suspension.
+
+DEBUG builds also accept `--visual-gallery --visual-school fire` (or water,
+earth, wind, lightning, nature, special). This read-only test gallery uses the
+real native renderers and isolated resolver fixtures; it never loads or replaces
+the player's live battle. The six school groups cover all four ranks at target,
+effect and result phases. The special group includes zero spells, obstruction
+requirements, Arcane opponent techniques, ordered custom Weaving, authored
+puzzles and a real mentor lesson. These launch arguments are for development;
+normal app launch remains the campaign.
