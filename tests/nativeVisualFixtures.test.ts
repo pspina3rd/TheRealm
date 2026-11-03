@@ -13,7 +13,7 @@ describe('native visual gallery fixture safety and coverage', () => {
     });
     attachCampaignBattle(live, () => true);
     const before = dispatch(JSON.stringify({ type: 'snapshot' }));
-    expect(JSON.parse(visualFixturesJSON())).toHaveLength(110);
+    expect(JSON.parse(visualFixturesJSON())).toHaveLength(111);
     expect(currentNativeBattle()).toBe(live);
     expect(dispatch(JSON.stringify({ type: 'snapshot' }))).toBe(before);
     expect(live.hero.spells).toEqual({});
@@ -99,5 +99,14 @@ describe('native visual gallery fixture safety and coverage', () => {
     expect(ring.tags.flat()).toContain('protected');
     const lamps = cases.find((item) => item.id === 'encounter-lamps')!.state;
     expect(lamps.objective.lamps).toHaveLength(4);
+  });
+  it('carries a real mentor lesson with borrowed magic and matching elemental art', () => {
+    const item = nativeVisualFixtures().find((item) => item.id === 'mentor-lesson')!;
+    expect(item.state.stage.ally).not.toBeNull();
+    expect(item.state.stage.tint).toBe('fire');
+    expect(item.state.stage.allyElement).toBe('fire');
+    expect(item.state.stage.shieldElement).toBe('fire');
+    expect(item.state.active?.recolored).toBe(true);
+    expect(item.state.feedback.some((item) => item.kind === 'toss')).toBe(true);
   });
 });

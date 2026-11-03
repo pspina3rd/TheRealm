@@ -115,5 +115,5 @@ extension NativeAppUITests {
     func testVisualWindAllFourRanks(){reviewVisualGroup("wind",expected:12)}
     func testVisualLightningAllFourRanks(){reviewVisualGroup("lightning",expected:12)}
     func testVisualNatureAllFourRanks(){reviewVisualGroup("nature",expected:12)}
-    func testVisualZeroSpellsObstructionsArcaneAndOrderedWeaving(){reviewVisualGroup("special",expected:38)}
+    func testVisualZeroSpellsObstructionsArcaneAndOrderedWeaving(){reviewVisualGroup("special",expected:39)}
 }

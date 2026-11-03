@@ -35,11 +35,24 @@ final class NativeEncounterView:UIView {
         guard let image=NativeAtlas.shared.image(actor.source,x:Int(actor.sx),y:Int(actor.sy),width:Int(actor.sw),height:Int(actor.sh)) else{return nil}
         crops[key]=image;return image
     }
-    private func portrait(_ actor:NativeStageActor?,center:CGPoint,maxSize:CGSize,alpha:CGFloat=1,offset:CGFloat=0) {
+    private func portrait(_ actor:NativeStageActor?,center:CGPoint,maxSize:CGSize,alpha:CGFloat=1,offset:CGFloat=0,tint:String?=nil) {
         guard let actor=actor,let picture=image(actor),actor.sw>0,actor.sh>0 else{return}
         let scale=min(maxSize.width/CGFloat(actor.sw),maxSize.height/CGFloat(actor.sh))
         let w=CGFloat(actor.sw)*scale,h=CGFloat(actor.sh)*scale
-        picture.draw(in:CGRect(x:round(center.x-w/2+offset),y:round(center.y-h),width:w,height:h),blendMode:.normal,alpha:alpha)
+        var art=picture
+        if let tint=tint {
+            let key="tint:\(actor.source):\(actor.sx):\(actor.sy):\(actor.sw):\(actor.sh):\(tint)"
+            if let cached=crops[key] {art=cached} else {
+                let format=UIGraphicsImageRendererFormat();format.scale=1
+                art=UIGraphicsImageRenderer(size:picture.size,format:format).image { renderer in
+                    let bounds=CGRect(origin:.zero,size:picture.size)
+                    renderer.cgContext.interpolationQuality = .none;picture.draw(in:bounds)
+                    renderer.cgContext.setBlendMode(.color);NativeBattleArt.color(tint).setFill();renderer.cgContext.fill(bounds)
+                    picture.draw(in:bounds,blendMode:.destinationIn,alpha:1)
+                };crops[key]=art
+            }
+        }
+        art.draw(in:CGRect(x:round(center.x-w/2+offset),y:round(center.y-h),width:w,height:h),blendMode:.normal,alpha:alpha)
     }
     private func meter(_ rect:CGRect,ratio:CGFloat,color:UIColor) {
         NativeAtlas.color("#090b15").setFill();UIBezierPath(rect:rect.insetBy(dx:-1,dy:-1)).fill()
@@ -62,8 +75,12 @@ final class NativeEncounterView:UIView {
         portrait(stage?.hero,center:hero,maxSize:CGSize(width:34,height:38),offset:shake("hero"))
         var allyPoint=CGPoint(x:42,y:baseline)
         if !UIAccessibility.isReduceMotionEnabled,let toss=feedback.last(where:{$0.kind=="toss"}) {allyPoint.y -= CGFloat(sin(min(1,toss.elapsedMs/400)*Double.pi)*7)}
+        if let element=stage?.allyElement,stage?.ally != nil {
+            ctx.setFillColor(NativeBattleArt.color(element).withAlphaComponent(0.5).cgColor)
+            ctx.fillEllipse(in:CGRect(x:allyPoint.x-13,y:baseline-4,width:26,height:8))
+        }
         portrait(stage?.ally,center:allyPoint,maxSize:CGSize(width:30,height:36))
-        portrait(stage?.opponent,center:enemy,maxSize:CGSize(width:51,height:58),alpha:enemyAlpha,offset:shake("enemy"))
+        portrait(stage?.opponent,center:enemy,maxSize:CGSize(width:51,height:58),alpha:enemyAlpha,offset:shake("enemy"),tint:stage?.tint)
         NativeBattleArt.text(state.title ?? "Challenge",in:CGRect(x:left,y:0,width:centerWidth,height:15),size:12,color:.white,alignment:.center)
         if state.enemyMaxHP>0 {
             let hp=CGFloat(state.enemyHP)/CGFloat(max(1,state.enemyMaxHP))

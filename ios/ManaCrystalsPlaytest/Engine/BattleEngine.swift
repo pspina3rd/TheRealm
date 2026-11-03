@@ -50,7 +50,7 @@ public struct NativeBattleStage:Decodable {
     public let hero:NativeStageActor?,opponent:NativeStageActor?,ally:NativeStageActor?
     public let enemyActionMs:Double
     public let weakness:[String],resistance:[String],statuses:[NativeStageStatus],feedback:[NativeFeedback]
-    public let showMove:Bool,moveIcon:String?,shieldElement:String?
+    public let showMove:Bool,moveIcon:String?,shieldElement:String?,tint:String?,allyElement:String?
 }
 public struct NativeSeal:Decodable {public let column:Int,pieces:Int}
 public struct BattleState: Decodable {

@@ -144,6 +144,8 @@ export function nativePresentation(battle: Battle) {
       showMove: seesEnemyMove(battle.hero.stats.insight),
       moveIcon: combat ? MOVE_ICONS[combat.nextMove.kind].icon : null,
       shieldElement: lesson?.shield === 'up' ? lesson.shieldElement : null,
+      tint: lesson?.mentor.element ?? null,
+      allyElement: ally?.element ?? null,
       statuses,
       feedback,
     },

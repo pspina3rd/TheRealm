@@ -1,6 +1,7 @@
 /** Isolated, deterministic presentation cases built from real spell previews.
  * This module never attaches a battle, writes a save, or changes campaign progress.
  */
+import { LessonChallenge } from '../battle/lesson';
 import { Battle, type AutoCastFrame } from '../battle/battle';
 import { BOARD_SPELLS, type CastPreview } from '../battle/magicCasting';
 import type { MagicState } from '../core/boardMagic';
@@ -378,6 +379,32 @@ function weavingCases(): NativeVisualFixture[] {
   return result;
 }
 
+function lessonCases(): NativeVisualFixture[] {
+  const battle = new Battle(
+    { kind: 'lesson', mentorId: 'torva', spellId: 'fire', enemyId: 'forgeImp', difficulty: 1 },
+    createHero(),
+    createRng(478),
+    { boardMagic: true },
+  );
+  const lesson = battle.challenge as LessonChallenge;
+  lesson.helpChance = 1;
+  battle.input('hardDrop');
+  // Arrange the real lesson's shield checkpoint without inventing combat events.
+  lesson.enemyHp = Math.ceil(lesson.enemy.hp * lesson.shieldAt);
+  lesson.shield = 'up';
+  battleSnapshotFor(battle);
+  advanceNativePresentation(battle, 160);
+  return [
+    {
+      id: 'mentor-lesson',
+      title: 'Mentor lesson · borrowed spell, elemental foe, shield and helper toss',
+      group: 'special',
+      progress: 0.4,
+      state: snapshot(battle, 'mentor-lesson'),
+    },
+  ];
+}
+
 /** Calling this cannot change the attached battle or any campaign save. */
 export function nativeVisualFixtures(): NativeVisualFixture[] {
   return [
@@ -386,6 +413,7 @@ export function nativeVisualFixtures(): NativeVisualFixture[] {
     ...arcaneCases(),
     ...weavingCases(),
     ...encounterCases(),
+    ...lessonCases(),
   ];
 }
 export function visualFixturesJSON(): string {
