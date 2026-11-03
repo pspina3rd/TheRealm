@@ -74,7 +74,7 @@ extension NativeAppUITests {
         app.staticTexts["World map"].tap()
         XCTAssertTrue(app.staticTexts.containing(NSPredicate(format:"label CONTAINS %@","Provincial roads leave Mossvale by the south gate")).firstMatch.waitForExistence(timeout:5))
         // The complete accessibility label also existed when visible prose was
-        // ellipsized. Verify the actual known two-line instruction layout.
+        // ellipsized. Verify the actual wrapped instruction layout.
         let instructions=app.staticTexts["campaign-panel-text"]
         XCTAssertGreaterThan(instructions.frame.height,32)
         let overview=app.images["campaign-panel-map"]
@@ -85,8 +85,19 @@ extension NativeAppUITests {
         app.tables["campaign-dialog"].swipeUp()
         XCTAssertTrue(nature.waitForExistence(timeout:5));nature.tap()
         XCTAssertTrue(app.staticTexts.containing(NSPredicate(format:"label CONTAINS %@","Leave Mossvale by the south gate")).firstMatch.waitForExistence(timeout:5))
-        XCTAssertTrue(app.staticTexts["Walk this part of the route"].isHittable)
+        let selectedTitle=app.staticTexts["World map · Thornwood Grove"]
+        XCTAssertTrue(selectedTitle.isHittable)
+        XCTAssertTrue(instructions.isHittable)
+        XCTAssertGreaterThanOrEqual(selectedTitle.frame.minY,app.tables["campaign-dialog"].frame.minY)
+        XCTAssertGreaterThanOrEqual(instructions.frame.minY,app.tables["campaign-dialog"].frame.minY)
+        XCTAssertLessThanOrEqual(instructions.frame.maxY,app.tables["campaign-dialog"].frame.maxY)
         let routeShot=XCTAttachment(screenshot:app.screenshot());routeShot.name="Native mentor route and south gate guidance";routeShot.lifetime = .keepAlways;add(routeShot)
+        let walkRoute=app.staticTexts["Walk this part of the route"]
+        for _ in 0..<3 {if walkRoute.isHittable {break};app.tables["campaign-dialog"].swipeUp()}
+        XCTAssertTrue(walkRoute.isHittable);walkRoute.tap()
+        let reachedRoad=NSPredicate {_,_ in world.isHittable && (world.value as? String)=="Column 76, row 77"}
+        expectation(for:reachedRoad,evaluatedWith:nil);waitForExpectations(timeout:15)
+        let roadShot=XCTAttachment(screenshot:app.screenshot());roadShot.name="Native starter enemies outside Mossvale";roadShot.lifetime = .keepAlways;add(roadShot)
         app.terminate();app.launchArguments=[];app.launch()
         XCTAssertTrue(app.buttons["Continue campaign"].waitForExistence(timeout:10));app.buttons["Continue campaign"].tap()
         XCTAssertTrue(world.waitForExistence(timeout:10))

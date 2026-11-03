@@ -236,7 +236,8 @@ private final class CampaignPanelController: UITableViewController {
         if isViewLoaded && unchanged(panel) {return}
         self.panel=panel;loadViewIfNeeded();renderedPanel=panel;renderedOverview=overview
         buildHeader(width:tableView.bounds.width-tableView.adjustedContentInset.left-tableView.adjustedContentInset.right)
-        tableView.reloadData();tableView.setContentOffset(CGPoint(x:0,y:-tableView.adjustedContentInset.top),animated:false)
+        tableView.reloadData();tableView.layoutIfNeeded()
+        tableView.setContentOffset(CGPoint(x:0,y:-tableView.adjustedContentInset.top),animated:false)
         UIAccessibility.post(notification:.screenChanged,argument:tableView.tableHeaderView?.viewWithTag(701))
     }
     private func buildHeader(width:CGFloat) {
@@ -311,6 +312,7 @@ private final class CampaignPanelController: UITableViewController {
     override func tableView(_ tableView:UITableView,willSelectRowAt indexPath:IndexPath)->IndexPath? {panel.actions[indexPath.row].enabled && !submitting ? indexPath:nil}
     override func tableView(_ tableView:UITableView,didSelectRowAt indexPath:IndexPath) {
         guard !submitting,panel.actions[indexPath.row].enabled else{return}
-        submitting=true;onChoice?(panel.actions[indexPath.row].id)
+        submitting=true;tableView.deselectRow(at:indexPath,animated:false)
+        onChoice?(panel.actions[indexPath.row].id)
     }
 }

@@ -31,7 +31,7 @@ They were corrected and re-reviewed. Every monster is physically reachable:
 mountain boundary remains intact. Early hunting circuits and the travelled
 road coverage have explicit reachability/density regressions.
 
-- Complete local checks passed: formatting, lint, types, 1768 tests; 27 optional
+- Complete local checks passed: formatting, lint, types, 1771 tests; 27 optional
   simulation tests remain skipped in the ordinary suite. Production web build,
   86 shared-art verification and offline native resource generation passed.
 - Separate zero-spell/no-equipment simulations ran actual battles at 2200 ms per
@@ -50,18 +50,27 @@ road coverage have explicit reachability/density regressions.
   [browser report](artifacts/SURFACE_ROUTE_BROWSER_REPORT.json) records all eight
   hero/layout cases.
 
-Source candidate: `6a6802813949e1b6f39f115a9ca23ec6e2ff7311`, tree
-`a443ba677791dbdca10b963a44ce292fba0f0bae` (local package revision `a6a6e14`).
-[Repository CI](https://github.com/pspina3rd/TheRealm/actions/runs/41642827747)
-passed. [Apple validation](https://github.com/pspina3rd/TheRealm/actions/runs/41642827869)
+Source candidate: `8d7b517eec73764c736f36df5e38c513cc631e9f`, tree
+`31a4fbff6ae3e7da143be9772725505300bdc4af` (local package revision `9d12e7f`).
+[Repository CI](https://github.com/pspina3rd/TheRealm/actions/runs/41645721391)
+passed. [Apple validation](https://github.com/pspina3rd/TheRealm/actions/runs/41645721353)
 is pending at the time of this saved checkpoint.
+
+The final native integration review also caught hometown substitution changing
+literal Mossvale directions for the other three heroes. Navigation now bypasses
+that story-only substitution. The correction was independently reviewed; all
+four hometowns execute the route with literal place names and preserved progress
+in the native boundary tests. Browser production code is unchanged by this final
+native-only correction.
 
 ## Package
 
 `Crystals-iPhone-Encounter-Routes.zip` includes 185 committed Xcode/project/asset
 files, all 86 shared visual exports and the updated offline JavaScript resource.
-Every archived file was compared byte-for-byte with package revision `a6a6e14`.
-SHA-256: `54e88850bf127a6a35face585161bab2d5b5e95c5b32680d015fde4d7f42c49b`.
+Every archived file was compared byte-for-byte with package revision `9d12e7f`.
+SHA-256: `ad43fd99e980fefa3e9044a6ac0a58c2b2bb96d1dbc98918c23005d638466f42`.
 Extract the whole ZIP, open `ios/ManaCrystalsPlaytest.xcodeproj`, keep the same
 Personal Team and select the connected iPhone, then Run. Keep the installed app
 to preserve its campaign save. Node, npm and a server are not required.
+
+Raw trial evidence: [opening battles](artifacts/SURFACE_STARTER_BALANCE.json).
