@@ -111,14 +111,14 @@ let overview: ReturnType<typeof overviewSnapshot> | null = null;
 let cachedWorld: ReturnType<typeof worldSnapshot> | null = null;
 const rng = () => createRng(seed++);
 const state = () => required(game, 'Choose a hero or continue a saved campaign.');
-function show(title: string, text: string, choices: Choice[]): void {
+function show(title: string, text: string, choices: Choice[], openingNames = true): void {
   stopWalking();
   overview = null;
   actions.clear();
   revision++;
   panel = {
     title,
-    text: hometownText(text, state().flags),
+    text: openingNames ? hometownText(text, state().flags) : text,
     actions: choices.map((choice, index) => {
       const id = `${revision}:${index}`;
       if (choice.enabled !== false) actions.set(id, choice.run);
@@ -494,6 +494,7 @@ function worldMap(destinationId?: string): void {
         run: () => worldMap(destination.id),
       })),
     ],
+    false,
   );
   overview = overviewSnapshot(state(), destinationId);
 }

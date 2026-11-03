@@ -31,30 +31,34 @@ function fixture(x = 18, y = 20) {
 }
 
 describe('native campaign boundary', () => {
-  it('offers actual mentor routes and walks out of the sanctuary without granting progress', () => {
-    const source = fixture();
-    source.flags.add('scene:refusal');
-    travel(source, { map: 'overworld', ...SURFACE_CENTER });
-    send({ type: 'load', save: serialize(source) });
-    const before = deserialize(send({ type: 'checkpoint' }).save)!;
-    let state = choose(send({ type: 'menu' }), 'World map');
-    state = choose(state, 'Thornwood Grove · Nature — Hazel');
-    expect(state.panel.text).toContain('south gate');
-    expect(
-      state.overview.sites.some((site: { name: string }) => site.name === '◆ Thornwood Grove'),
-    ).toBe(true);
-    expect(deserialize(send({ type: 'checkpoint' }).save)?.flags).toEqual(before.flags);
-    state = choose(state, 'Walk this part of the route');
-    expect(state.walking).toBe(true);
-    for (let steps = 0; state.walking && steps < 200; steps++) state = send({ type: 'walkStep' });
-    const loaded = deserialize(send({ type: 'checkpoint' }).save)!;
-    expect(loaded.mapId).toBe('mossvale');
-    expect(loaded.hero).toEqual(source.hero);
-    expect(loaded.flags.has('ridgeCleared')).toBe(false);
-    expect(loaded.flags.has('peakGate')).toBe(false);
-    expect(loaded.x).toBe(20);
-    expect(loaded.y).toBe(1);
-  });
+  for (const home of HOMETOWNS)
+    it(`${home.name} keeps real place names while following a mentor route out of the sanctuary`, () => {
+      const source = newGame(home.classId);
+      source.flags.add('scene:opening');
+      source.flags.add('scene:refusal');
+      travel(source, { map: 'overworld', ...SURFACE_CENTER });
+      send({ type: 'load', save: serialize(source) });
+      const before = deserialize(send({ type: 'checkpoint' }).save)!;
+      let state = choose(send({ type: 'menu' }), 'World map');
+      state = choose(state, 'Thornwood Grove · Nature — Hazel');
+      expect(state.panel.text).toContain('south gate');
+      expect(state.panel.text).toContain('Mossvale');
+      if (home.map !== 'mossvale') expect(state.panel.text).not.toContain(home.name);
+      expect(
+        state.overview.sites.some((site: { name: string }) => site.name === '◆ Thornwood Grove'),
+      ).toBe(true);
+      expect(deserialize(send({ type: 'checkpoint' }).save)?.flags).toEqual(before.flags);
+      state = choose(state, 'Walk this part of the route');
+      expect(state.walking).toBe(true);
+      for (let steps = 0; state.walking && steps < 200; steps++) state = send({ type: 'walkStep' });
+      const loaded = deserialize(send({ type: 'checkpoint' }).save)!;
+      expect(loaded.mapId).toBe('mossvale');
+      expect(loaded.hero).toEqual(source.hero);
+      expect(loaded.flags.has('ridgeCleared')).toBe(false);
+      expect(loaded.flags.has('peakGate')).toBe(false);
+      expect(loaded.x).toBe(20);
+      expect(loaded.y).toBe(1);
+    });
   for (const home of HOMETOWNS)
     it(`opens ${home.name} with the shared story and zero spells`, () => {
       let state = send({ type: 'start', classId: home.classId });

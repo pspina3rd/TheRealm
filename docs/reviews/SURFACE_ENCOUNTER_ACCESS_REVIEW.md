@@ -21,3 +21,9 @@ Approved for source integration. No remaining blocking finding within this scope
 2. The first cave regression incorrectly assumed caves1 exited to Brightwater and placed the caves2 start below its exit on solid terrain. Corrected tests use the authored Ruins exit and select an adjacent, walkable, non-warp starting tile. Re-review and the focused suite passed.
 
 The reported bare-equipment/zero-spell simulations support early encounter viability, but scripted placement is not a measure of novice human win rates. Difficulty tuning should follow playtesting rather than treating simulation success as that proof.
+
+## Native place-name correction re-review
+
+A subsequent integration check found that the native panel's opening-story hometown substitution also rewrote real navigation references to Mossvale for the other three heroes. The narrow correction makes that substitution optional, preserves its existing default for other callers, and disables it for the world-map panel. Actual destination labels, route coordinates, and movement logic remain unchanged.
+
+Independently reviewed the corrected call and reran `tests/nativeCampaign.test.ts`: all 18 tests passed. The route regression now covers all four hometowns, requires literal Mossvale in sanctuary directions, rejects alternate-home substitution, and follows the route into Mossvale while preserving the hero and progression gates. This correction is approved at source and native-engine-test scope. Fresh Apple execution and final browser/native presentation checks remain separate pending verification.

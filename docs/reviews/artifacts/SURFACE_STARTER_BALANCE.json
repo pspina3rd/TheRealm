@@ -1,0 +1,53 @@
+{
+  "monsters": 113,
+  "report": [
+    {
+      "classId": "ranger",
+      "enemyId": "slime",
+      "wins": 12,
+      "seconds": 57.93333333333334
+    },
+    {
+      "classId": "ranger",
+      "enemyId": "shroom",
+      "wins": 11,
+      "seconds": 74.30833333333332
+    },
+    {
+      "classId": "knight",
+      "enemyId": "slime",
+      "wins": 12,
+      "seconds": 57.93333333333334
+    },
+    {
+      "classId": "knight",
+      "enemyId": "shroom",
+      "wins": 12,
+      "seconds": 74.8
+    },
+    {
+      "classId": "mage",
+      "enemyId": "slime",
+      "wins": 12,
+      "seconds": 57.93333333333334
+    },
+    {
+      "classId": "mage",
+      "enemyId": "shroom",
+      "wins": 8,
+      "seconds": 76.19166666666668
+    },
+    {
+      "classId": "rogue",
+      "enemyId": "slime",
+      "wins": 12,
+      "seconds": 56.28333333333334
+    },
+    {
+      "classId": "rogue",
+      "enemyId": "shroom",
+      "wins": 11,
+      "seconds": 68.55
+    }
+  ]
+}
