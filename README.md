@@ -20,6 +20,11 @@ story interpretations remain proposals and its combat still needs tuning.
 The four openings share the same neighbors and main journey; see
 [hometowns](docs/HOMETOWNS.md). Existing saves retain their original home.
 
+**Story review:** the [World Bible](docs/WORLD_BIBLE.md) consolidates the setting,
+characters and complete arc, with approved and proposed material labeled. The
+[Story Reader](docs/WORLD_BIBLE_STORY_READER.md) preserves current game text with
+passage IDs for wording edits.
+
 **The overworld.** Sevenstones is now a 256 × 256 surface world, with seven
 provinces, branching roads, rivers and regional sites. Open **Menu → World map**
 to find your hometown and the routes. Mentor homes and the main story remain

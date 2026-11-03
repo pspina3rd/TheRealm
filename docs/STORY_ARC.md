@@ -14,8 +14,10 @@ Regional mentors retain their established homes. The shared main journey
 and its major beats remain the same; older saves keep their Mossvale origin.
 
 A proposed [second-half outline](STORY_OUTLINE_DRAFT.md) is available for
-review. Its new names, lore, and mechanisms are draft proposals;
-they are not approved canon or implemented game content.
+review. Its new lore and mechanisms remain proposals, including material already
+used in the first playable adaptation; implementation does not approve it as canon.
+The consolidated [World Bible](WORLD_BIBLE.md) separates these statuses and links
+the current-text Story Reader for wording review.
 
 ## Preserve the first half
 
