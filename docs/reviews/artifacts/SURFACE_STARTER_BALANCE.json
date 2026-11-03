@@ -4,50 +4,66 @@
     {
       "classId": "ranger",
       "enemyId": "slime",
+      "province": "heartland",
+      "rule": null,
       "wins": 12,
-      "seconds": 57.93333333333334
+      "seconds": 50.6
     },
     {
       "classId": "ranger",
       "enemyId": "shroom",
-      "wins": 11,
-      "seconds": 74.30833333333332
+      "province": "heartland",
+      "rule": null,
+      "wins": 9,
+      "seconds": 75.25833333333333
     },
     {
       "classId": "knight",
       "enemyId": "slime",
+      "province": "quarry",
+      "rule": null,
       "wins": 12,
-      "seconds": 57.93333333333334
+      "seconds": 52.983333333333334
     },
     {
       "classId": "knight",
       "enemyId": "shroom",
+      "province": "quarry",
+      "rule": null,
       "wins": 12,
-      "seconds": 74.8
+      "seconds": 70.21666666666667
     },
     {
       "classId": "mage",
       "enemyId": "slime",
+      "province": "lake",
+      "rule": null,
       "wins": 12,
-      "seconds": 57.93333333333334
+      "seconds": 50.05
     },
     {
       "classId": "mage",
       "enemyId": "shroom",
-      "wins": 8,
-      "seconds": 76.19166666666668
+      "province": "lake",
+      "rule": null,
+      "wins": 9,
+      "seconds": 63.94166666666666
     },
     {
       "classId": "rogue",
       "enemyId": "slime",
+      "province": "grove",
+      "rule": "spores",
       "wins": 12,
-      "seconds": 56.28333333333334
+      "seconds": 52.43333333333334
     },
     {
       "classId": "rogue",
       "enemyId": "shroom",
+      "province": "grove",
+      "rule": "spores",
       "wins": 11,
-      "seconds": 68.55
+      "seconds": 72.09166666666667
     }
   ]
 }
