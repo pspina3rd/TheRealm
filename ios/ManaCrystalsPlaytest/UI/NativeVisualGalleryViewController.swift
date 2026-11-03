@@ -7,7 +7,7 @@ final class NativeVisualGalleryViewController:UIViewController {
     private let board=SKView(),scene=BattleScene(size:CGSize(width:300,height:600))
     private let stage=NativeEncounterView(),mana=NativeManaView(),preview=NextPiecesView()
     private let titleLabel=UILabel(),indexLabel=UILabel(),assetLabel=UILabel()
-    private let previous=UIButton(type:.system),next=UIButton(type:.system)
+    private let previous=UIButton(type:.system),nextButton=UIButton(type:.system)
     private var fixtures:[NativeVisualFixture]=[]
     private var position=0
     private var ratio:NSLayoutConstraint?
@@ -18,8 +18,8 @@ final class NativeVisualGalleryViewController:UIViewController {
         indexLabel.textColor=NativeAtlas.color("#f6d365");indexLabel.font = .monospacedDigitSystemFont(ofSize:10,weight:.regular);indexLabel.accessibilityIdentifier="visual-index"
         assetLabel.textColor=NativeAtlas.color("#72e6a2");assetLabel.font = .systemFont(ofSize:9);assetLabel.accessibilityIdentifier="visual-assets"
         previous.setTitle("Previous",for:.normal);previous.accessibilityIdentifier="visual-previous";previous.addTarget(self,action:#selector(back),for:.touchUpInside)
-        next.setTitle("Next",for:.normal);next.accessibilityIdentifier="visual-next";next.addTarget(self,action:#selector(forward),for:.touchUpInside)
-        let navigation=UIStackView(arrangedSubviews:[previous,indexLabel,next]);navigation.distribution = .equalSpacing;navigation.heightAnchor.constraint(equalToConstant:44).isActive=true
+        nextButton.setTitle("Next",for:.normal);nextButton.accessibilityIdentifier="visual-next";nextButton.addTarget(self,action:#selector(forward),for:.touchUpInside)
+        let navigation=UIStackView(arrangedSubviews:[previous,indexLabel,nextButton]);navigation.distribution = .equalSpacing;navigation.heightAnchor.constraint(equalToConstant:44).isActive=true
         stage.heightAnchor.constraint(equalToConstant:72).isActive=true;preview.heightAnchor.constraint(equalToConstant:30).isActive=true;mana.heightAnchor.constraint(equalToConstant:42).isActive=true
         let header=UIStackView(arrangedSubviews:[titleLabel,assetLabel,stage,preview,mana]);header.axis = .vertical;header.spacing=2
         header.translatesAutoresizingMaskIntoConstraints=false;navigation.translatesAutoresizingMaskIntoConstraints=false;board.translatesAutoresizingMaskIntoConstraints=false
@@ -58,6 +58,6 @@ final class NativeVisualGalleryViewController:UIViewController {
         indexLabel.accessibilityValue="\(position+1)/\(fixtures.count)|\(fixture.id)"
         board.accessibilityValue="\(fixture.id)|\(fixture.state.effect?.element ?? "none")|\(fixture.state.effect?.rank ?? 0)|\(fixture.state.effect?.phase ?? "board")|\(fixture.state.width)|\(fixture.state.height)"
         stage.adopt(fixture.state);mana.spells=fixture.state.spells;preview.pieces=fixture.state.next;preview.lines=fixture.state.lines
-        previous.isEnabled=position>0;next.isEnabled=position+1<fixtures.count;view.layoutIfNeeded();scene.size=board.bounds.size;scene.render(fixture.state)
+        previous.isEnabled=position>0;nextButton.isEnabled=position+1<fixtures.count;view.layoutIfNeeded();scene.size=board.bounds.size;scene.render(fixture.state)
     }
 }
