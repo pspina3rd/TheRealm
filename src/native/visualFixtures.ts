@@ -1,7 +1,7 @@
 /** Isolated, deterministic presentation cases built from real spell previews.
  * This module never attaches a battle, writes a save, or changes campaign progress.
  */
-import { LessonChallenge } from '../battle/lesson';
+import type { LessonChallenge } from '../battle/lesson';
 import { Battle, type AutoCastFrame } from '../battle/battle';
 import { BOARD_SPELLS, type CastPreview } from '../battle/magicCasting';
 import type { MagicState } from '../core/boardMagic';
