@@ -26,6 +26,14 @@ export type Feedback =
     }
   /** A sprite-sheet effect played over a target. */
   | { readonly kind: 'vfx'; readonly target: Target; readonly effect: EffectId }
+  /** A committed Arcane technique affects the opponent, not an invented board area. */
+  | {
+      readonly kind: 'opponentCast';
+      readonly target: 'enemy';
+      readonly element: Element;
+      readonly rank: number;
+      readonly technique: string;
+    }
   /** An icon that pops and rises; `row` places it on the board. */
   | { readonly kind: 'icon'; readonly target: Target; readonly icon: IconId; readonly row?: number }
   /** Board rows flash in the given colours. */
@@ -209,6 +217,16 @@ export function feedbackFor(event: BattleEvent): Feedback[] {
     case 'autoSpell':
       return [{ kind: 'banner', text: `Auto: ${event.element} · Lv${event.rank}` }];
     case 'spell': {
+      if (event.opponentTechnique)
+        return [
+          {
+            kind: 'opponentCast',
+            target: 'enemy',
+            element: event.opponentTechnique.element,
+            rank: event.opponentTechnique.rank,
+            technique: event.opponentTechnique.id,
+          },
+        ];
       const effect = SPELL_EFFECTS[event.spellId];
       if (!effect) return [];
       const kind = SPELLS[event.spellId]?.levels[0].effect.kind;

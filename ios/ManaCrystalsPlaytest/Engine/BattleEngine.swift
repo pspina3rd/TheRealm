@@ -6,6 +6,7 @@ public struct NativePiece: Decodable, Equatable {
     public let x: Int?, y: Int?
     public let cells: [[Int]]
     public let colors: [String]
+    public let recolored: Bool?
 }
 public struct NativeColorTouch: Decodable {
     public let color: String
@@ -14,6 +15,7 @@ public struct NativeColorTouch: Decodable {
 public struct NativeObstruction: Decodable {
     public let strength: Int
     public let sequence: [NativeColorTouch]?
+    public let step: Int?
 }
 public struct NativeSpell: Decodable {
     public let id: String, element: String
@@ -21,10 +23,45 @@ public struct NativeSpell: Decodable {
 }
 public struct NativeEffect: Decodable {
     public let school: String, phase: String
+    public let element: String, character: Bool
+    public let source: String?
+    public let index: Int, total: Int
+    public let before: NativeMagicState, effectState: NativeMagicState, after: NativeMagicState
+    public let visual: [NativeVisualBlock]
     public let rank: Int, rows: [Int]
     public let remainingMs: Double, durationMs: Double
 }
+public struct NativeMagicState: Decodable { public let grid:[[String?]], obstructions:[String:NativeObstruction] }
+public struct NativeVisualBlock: Decodable {
+    public let from:[Int]?, to:[Int]?, effectAt:[Int]?
+    public let before:String?, after:String?, effectCell:String?
+}
+public struct NativeStageActor:Decodable {public let source:String;public let sx:Double,sy:Double,sw:Double,sh:Double}
+public struct NativeStageStatus:Decodable {public let target:String,icon:String;public let count:Int;public let name:String?,badge:String?}
+public struct NativeFeedback:Decodable {
+    public let id:Int,kind:String
+    public let target:String?,text:String?,color:String?,icon:String?,effect:String?,element:String?,face:String?,beat:String?,direction:String?
+    public let rank:Int?,technique:String?
+    public let row:Int?,rows:[Int]?,colors:[String]?,cells:[[Int]]?,elements:[String]?
+    public let sprite:NativeStageActor?
+    public let elapsedMs:Double,durationMs:Double
+}
+public struct NativeBattleStage:Decodable {
+    public let hero:NativeStageActor?,opponent:NativeStageActor?,ally:NativeStageActor?
+    public let enemyActionMs:Double
+    public let weakness:[String],resistance:[String],statuses:[NativeStageStatus],feedback:[NativeFeedback]
+    public let showMove:Bool,moveIcon:String?,shieldElement:String?
+}
+public struct NativeSeal:Decodable {public let column:Int,pieces:Int}
 public struct BattleState: Decodable {
+    public let battleID:String
+    public let visualTimeMs:Double
+    public let stage:NativeBattleStage?
+    public let feedback:[NativeFeedback]
+    public let seal:NativeSeal?
+    public let slowPieces:Int?,hastePieces:Int?,fogPieces:Int?
+    public let quickenMs:Double?,ruleID:String?
+    public let visible:[[Bool]]?
     public let pieceID: Int, version: Int, width: Int, height: Int, ghostY: Int
     public let ready: Bool, paused: Bool, busy: Bool
     public let status: String
@@ -98,13 +135,25 @@ public struct CampaignSprite: Decodable {
     public let sx: Double, sy: Double, sw: Double, sh: Double
     public let x: Double, y: Double, width: Double, height: Double, alpha: Double
 }
-public struct CampaignMarker: Decodable { public let x: Double, y: Double; public let element: String; public let lit: Bool }
+public struct CampaignMarker: Decodable { public let x: Double, y: Double; public let element: String,color:String; public let lit: Bool }
+public struct CampaignWorldAnimation:Decodable {
+    public let id:String,frames:Int,fps:Double
+    public let phase:Double?,offsets:[[Double]]?,motion:String?
+}
+public struct CampaignWorldDecoration:Decodable {
+    public let id:String,kind:String,layer:String,color:String
+    public let x:Double,y:Double,width:Double?,height:Double?,alpha:Double?,lineWidth:Double?
+    public let stroke:String?,text:String?,clampBottom:Bool?
+    public let pulseMean:Double?,pulseAmplitude:Double?,pulsePeriod:Double?
+}
 public struct CampaignWorld: Decodable {
     public let mapId:String, background:String
     public let width: Double, height: Double, camX: Double, camY: Double
     public let heroX: Int, heroY: Int
     public let sprites: [CampaignSprite]
     public let markers: [CampaignMarker]
+    public let animations:[CampaignWorldAnimation],decorations:[CampaignWorldDecoration]
+    public let groundCount:Int,overlayBase:Int
 }
 public struct CampaignState: Decodable {
     public let mode: String, mapId: String, location: String, heroName: String
@@ -135,13 +184,23 @@ public struct NativeObjective: Decodable {
     public let label: String
     public let counter: String?
     public let piecesLeft: Int?
+    public let progress:Double?
+    public let crystals:[NativeObjectiveCrystal]?
+    public let score:NativeTally?,lines:NativeTally?,price:NativePrice?
+    public let lamps:[NativeLamp]?,rival:NativeRival?
 }
+public struct NativeObjectiveCrystal:Decodable {public let element:String;public let have:Int,want:Int}
+public struct NativeTally:Decodable {public let have:Int,want:Int}
+public struct NativePrice:Decodable {public let value:Double,min:Double,max:Double}
+public struct NativeLamp:Decodable {public let element:String,lit:Bool}
+public struct NativeRival:Decodable {public let rows:Int,top:Int,pending:Int,secondsLeft:Int}
 public struct NativeArea: Decodable { public let cols: [Int], rows: [Int] }
 public struct NativeVerbParams: Decodable {
     public let zones: [String?]?
     public let outline: [NativeArea]?
     public let spare: NativeArea?
     public let lip: Int?
+    public let pieceLimit:Int?
 }
 public struct NativeVerb: Decodable { public let verb: String; public let params: NativeVerbParams }
 
@@ -162,5 +221,14 @@ extension BattleEngine {
         context.exception=nil
         guard let json=context.objectForKeyedSubscript("ManaCrystalsNative")?.objectForKeyedSubscript("heroBookJSON")?.call(withArguments:[classID])?.toString(),context.exception==nil else{throw BattleEngineError.unavailable("The character book could not open.")}
         return try JSONDecoder().decode([TomePage].self,from:Data(json.utf8))
+    }
+}
+
+public struct NativeVisualFixture:Decodable {public let id:String,title:String,group:String;public let progress:Double;public let state:BattleState}
+extension BattleEngine {
+    public func visualFixtures() throws -> [NativeVisualFixture] {
+        context.exception=nil
+        guard let json=context.objectForKeyedSubscript("ManaCrystalsNative")?.objectForKeyedSubscript("visualFixturesJSON")?.call(withArguments:[])?.toString(),context.exception==nil else {throw BattleEngineError.unavailable("Visual fixture generation failed: \(context.exception?.toString() ?? "missing export")")}
+        return try JSONDecoder().decode([NativeVisualFixture].self,from:Data(json.utf8))
     }
 }

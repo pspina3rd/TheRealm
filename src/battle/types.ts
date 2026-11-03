@@ -61,7 +61,16 @@ export type BattleEvent =
   | { readonly kind: 'haste'; readonly pieces: number }
   | { readonly kind: 'curse'; readonly rows: number }
   | { readonly kind: 'drain'; readonly element: Element; readonly amount: number }
-  | { readonly kind: 'spell'; readonly spellId: string }
+  | {
+      readonly kind: 'spell';
+      readonly spellId: string;
+      /** Presentation identity of a committed opponent technique, not a second cast. */
+      readonly opponentTechnique?: {
+        readonly id: string;
+        readonly element: Element;
+        readonly rank: number;
+      };
+    }
   | {
       readonly kind: 'autoSpell';
       readonly spellId: string;

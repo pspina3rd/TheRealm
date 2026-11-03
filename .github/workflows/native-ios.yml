@@ -7,6 +7,8 @@ on:
       - 'ios/**'
       - 'src/**'
       - 'tools/build-native.mjs'
+      - 'tools/*native-visuals.mjs'
+      - 'public/assets/native-visuals/**'
       - 'package*.json'
       - '.github/workflows/native-ios.yml'
   pull_request:
@@ -14,6 +16,8 @@ on:
       - 'ios/**'
       - 'src/**'
       - 'tools/build-native.mjs'
+      - 'tools/*native-visuals.mjs'
+      - 'public/assets/native-visuals/**'
       - 'package*.json'
       - '.github/workflows/native-ios.yml'
 
@@ -35,6 +39,7 @@ jobs:
       - run: npm ci
       - name: Verify the committed offline battle rules
         run: |
+          npm run check:native-visuals
           npm run build:native
           git diff --exit-code -- ios/ManaCrystalsPlaytest/Engine/battle-engine.js
       - name: Native gestures and Apple JavaScriptCore tests

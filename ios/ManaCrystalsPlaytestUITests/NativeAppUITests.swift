@@ -46,10 +46,13 @@ extension NativeAppUITests {
         skip.tap()
         let world=app.otherElements["campaign-world"]
         XCTAssertTrue(world.waitForExistence(timeout:10))
+        let worldShot=XCTAttachment(screenshot:app.screenshot());worldShot.name="Native opening world and authored cues";worldShot.lifetime = .keepAlways;add(worldShot)
         // Rowan is on-screen from Fern's starting position. Tap his actual map tile;
         // no debug warp or pre-earned progress is used for this handoff check.
-        let worldFrame=world.frame,scale=min(worldFrame.width/416,worldFrame.height/640)
-        let rowan=app.coordinate(withNormalizedOffset:.zero).withOffset(CGVector(dx:worldFrame.minX+(worldFrame.width-416*scale)/2+16*scale,dy:worldFrame.minY+(worldFrame.height-640*scale)/2+208*scale))
+        let worldFrame=world.frame,scale=worldFrame.width/416
+        let sourceHeight=min(1280,max(320,(416*worldFrame.height/worldFrame.width).rounded()))
+        let cameraY=832<=sourceHeight ? (832-sourceHeight)/2:max(0,min(832-sourceHeight,656-sourceHeight/2))
+        let rowan=app.coordinate(withNormalizedOffset:.zero).withOffset(CGVector(dx:worldFrame.minX+16*scale,dy:worldFrame.minY+(400-cameraY)*scale))
         rowan.tap()
         XCTAssertTrue(app.buttons["Begin"].waitForExistence(timeout:15))
         let begin=app.staticTexts["Begin"];XCTAssertTrue(begin.waitForExistence(timeout:5));begin.tap()
@@ -84,4 +87,33 @@ extension NativeAppUITests {
         XCUIDevice.shared.press(.home);app.activate()
         XCTAssertTrue(world.waitForExistence(timeout:5))
     }
+}
+
+
+extension NativeAppUITests {
+    private func reviewVisualGroup(_ group:String,expected:Int) {
+        let app=XCUIApplication();app.launchArguments=["--visual-gallery","--visual-school",group];app.launch()
+        let index=app.staticTexts["visual-index"],board=app.otherElements["visual-board"]
+        XCTAssertTrue(index.waitForExistence(timeout:30));XCTAssertTrue(board.waitForExistence(timeout:10))
+        XCTAssertEqual(app.staticTexts["visual-assets"].value as? String,"complete")
+        for n in 1...expected {
+            let at=NSPredicate { _,_ in (index.value as? String ?? "").hasPrefix("\(n)/\(expected)|") }
+            expectation(for:at,evaluatedWith:nil);waitForExpectations(timeout:5)
+            let logicalWidth=Double((board.value as? String ?? "").split(separator:"|").dropLast().last ?? "0") ?? 0
+            XCTAssertGreaterThan(logicalWidth,0);XCTAssertGreaterThanOrEqual(Double(board.frame.width)/max(1,logicalWidth),24)
+            XCTAssertGreaterThan(board.frame.height,480)
+            let title=app.staticTexts["visual-title"].label
+            XCTAssertFalse(title.isEmpty)
+            let shot=XCTAttachment(screenshot:app.screenshot());shot.name="Visual \(group) \(n) \(title)";shot.lifetime = .keepAlways;add(shot)
+            if n<expected {XCTAssertTrue(app.buttons["visual-next"].isEnabled);app.buttons["visual-next"].tap()}
+        }
+        XCTAssertFalse(app.buttons["visual-next"].isEnabled)
+    }
+    func testVisualFireAllFourRanks(){reviewVisualGroup("fire",expected:12)}
+    func testVisualIceAllFourRanks(){reviewVisualGroup("water",expected:12)}
+    func testVisualGravityAllFourRanks(){reviewVisualGroup("earth",expected:12)}
+    func testVisualWindAllFourRanks(){reviewVisualGroup("wind",expected:12)}
+    func testVisualLightningAllFourRanks(){reviewVisualGroup("lightning",expected:12)}
+    func testVisualNatureAllFourRanks(){reviewVisualGroup("nature",expected:12)}
+    func testVisualZeroSpellsObstructionsArcaneAndOrderedWeaving(){reviewVisualGroup("special",expected:38)}
 }

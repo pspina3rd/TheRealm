@@ -5,6 +5,12 @@
 	};
 	"objectVersion" = "56";
 	"objects" = {
+        "95082236202A035BE1F3A5C6" = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ManaCrystalsPlaytest/UI/NativeVisualGalleryViewController.swift"; sourceTree = "<group>"; };
+        "27AD0B5D805129B3D164AE93" = { isa = PBXBuildFile; fileRef = "95082236202A035BE1F3A5C6"; };
+        "37D09DCF3449FCFA8B5CF022" = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ManaCrystalsPlaytest/UI/NativeEncounterView.swift"; sourceTree = "<group>"; };
+        "6FEC3E39E1017269D05AFF7E" = { isa = PBXBuildFile; fileRef = "37D09DCF3449FCFA8B5CF022"; };
+        "84DB9FC27FBFC3526A32BC3D" = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ManaCrystalsPlaytest/UI/NativeSpellEffects.swift"; sourceTree = "<group>"; };
+        "E7C66573B7CA33C16C315444" = { isa = PBXBuildFile; fileRef = "84DB9FC27FBFC3526A32BC3D"; };
         "CA0000000000000000000009" = { "isa" = "PBXFileReference"; "lastKnownFileType" = "sourcecode.swift"; "path" = "ManaCrystalsPlaytest/UI/TomeViewController.swift"; "sourceTree" = "<group>"; };
         "CA000000000000000000000A" = { "isa" = "PBXBuildFile"; "fileRef" = "CA0000000000000000000009"; };
 
@@ -131,6 +137,9 @@
 			"isa" = "PBXGroup";
 			"children" = (
 				"7508EF28938C079BDC9AE35F",
+                "84DB9FC27FBFC3526A32BC3D",
+                "37D09DCF3449FCFA8B5CF022",
+                "95082236202A035BE1F3A5C6",
                 "CA0000000000000000000001",
                 "CA0000000000000000000009",
                 "CA0000000000000000000007",
@@ -152,6 +161,9 @@
 			"buildActionMask" = "2147483647";
 			"files" = (
 				"78BF6A898DFA54771A86F83D",
+                "E7C66573B7CA33C16C315444",
+                "6FEC3E39E1017269D05AFF7E",
+                "27AD0B5D805129B3D164AE93",
                 "CA0000000000000000000002",
                 "CA000000000000000000000A",
                 "CA0000000000000000000008",

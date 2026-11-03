@@ -72,7 +72,12 @@ import {
 import type { Gain } from '../game/rewards';
 import { spellName, levelStep } from '../game/spells';
 import type { Attitude } from '../game/attitude';
-import { worldSnapshot, overviewSnapshot } from './world';
+import {
+  worldSnapshot,
+  overviewSnapshot,
+  DEFAULT_WORLD_VIEWPORT,
+  nativeWorldViewport,
+} from './world';
 
 interface Choice {
   label: string;
@@ -91,6 +96,13 @@ const actions = new Map<string, () => void>();
 let revision = 0;
 let battleInfo: { entity: EntityDef; terms?: Attitude } | null = null;
 let walking: Direction[] = [];
+let walkingTarget: { x: number; y: number } | null = null;
+let viewport = DEFAULT_WORLD_VIEWPORT;
+function stopWalking(): void {
+  walking = [];
+  if (walkingTarget) cachedWorld = null;
+  walkingTarget = null;
+}
 let seed = 101;
 let dirty = false;
 let outgoingSave: string | null = null;
@@ -99,7 +111,7 @@ let cachedWorld: ReturnType<typeof worldSnapshot> | null = null;
 const rng = () => createRng(seed++);
 const state = () => required(game, 'Choose a hero or continue a saved campaign.');
 function show(title: string, text: string, choices: Choice[]): void {
-  walking = [];
+  stopWalking();
   overview = null;
   actions.clear();
   revision++;
@@ -117,7 +129,7 @@ function clear(): void {
   panel = null;
   overview = null;
   actions.clear();
-  walking = [];
+  stopWalking();
 }
 function message(title: string, text: string, after = scenes): void {
   show(title, text, [{ label: 'Continue', run: after }]);
@@ -306,7 +318,7 @@ function move(direction: Direction): void {
     scenes();
   } else if (result.kind === 'interact') interact(result.entity);
   else if (result.kind === 'locked') message('The way ahead', result.text);
-  else if (result.kind === 'blocked') walking = [];
+  else if (result.kind === 'blocked') stopWalking();
 }
 function finishBattle(): void {
   const info = required(battleInfo, 'There is no campaign battle.'),
@@ -776,11 +788,24 @@ export function campaignDispatch(json: string): string {
       cachedWorld = null;
       dirty = true;
       scenes();
+    } else if (r.type === 'viewport') {
+      if (
+        typeof r.width !== 'number' ||
+        typeof r.height !== 'number' ||
+        !Number.isFinite(r.width) ||
+        !Number.isFinite(r.height)
+      )
+        throw new Error('Invalid world viewport.');
+      const next = nativeWorldViewport(r.width, r.height);
+      if (next.width !== viewport.width || next.height !== viewport.height) {
+        viewport = next;
+        cachedWorld = null;
+      }
     } else if (r.type === 'snapshot') {
       /* Read only. */
     } else if (r.type === 'checkpoint') {
       if (game) dirty = true;
-      walking = [];
+      stopWalking();
     } else if (r.type === 'finishBattle') finishBattle();
     else if (r.type === 'battleMenu') battleMenu();
     else if (r.type === 'action') {
@@ -794,23 +819,28 @@ export function campaignDispatch(json: string): string {
       if (!panel && !battleInfo) {
         if (!['up', 'down', 'left', 'right'].includes(String(r.direction)))
           throw new Error('Invalid direction.');
-        walking = [];
+        stopWalking();
         move(r.direction as Direction);
       }
     } else if (r.type === 'walkTo') {
-      if (!panel && !battleInfo && Number.isInteger(r.x) && Number.isInteger(r.y))
+      if (!panel && !battleInfo && Number.isInteger(r.x) && Number.isInteger(r.y)) {
         walking = pathTo(state(), Number(r.x), Number(r.y)) ?? [];
+        walkingTarget = walking.length ? { x: Number(r.x), y: Number(r.y) } : null;
+        cachedWorld = null;
+      }
     } else if (r.type === 'walkStep') {
       if (!panel && !battleInfo) {
         const direction = walking.shift();
         if (direction) move(direction);
+        if (!walking.length) stopWalking();
       }
-    } else if (r.type === 'stopWalking') walking = [];
+    } else if (r.type === 'stopWalking') stopWalking();
     else throw new Error('Unknown campaign request.');
     const save = outgoingSave ?? (game && dirty ? serialize(game) : null);
     dirty = false;
     outgoingSave = null;
-    if (game && !cachedWorld && !battleInfo) cachedWorld = worldSnapshot(game);
+    if (game && !cachedWorld && !battleInfo)
+      cachedWorld = worldSnapshot(game, viewport, walkingTarget);
     return JSON.stringify({
       ok: true,
       state: {

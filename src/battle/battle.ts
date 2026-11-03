@@ -356,7 +356,13 @@ export class Battle implements BattleContext {
     const preview = this.magicCasting.preview(id, target);
     const resolution = this.magicCasting.commit(preview);
     this.startPlay();
-    this.emit({ kind: 'spell', spellId: id.startsWith('arcane:') ? 'shadow' : id });
+    this.emit({
+      kind: 'spell',
+      spellId: id.startsWith('arcane:') ? 'shadow' : id,
+      ...(id.startsWith('arcane:')
+        ? { opponentTechnique: { id, element: preview.element, rank: preview.rank } }
+        : {}),
+    });
     this.rewardMagic(resolution, preview.powerScale, preview.surge, preview.element);
   }
 

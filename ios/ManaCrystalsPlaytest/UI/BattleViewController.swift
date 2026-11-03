@@ -9,7 +9,7 @@ import SpriteKit
 final class BattleViewController: UIViewController {
     private let board=NativeBoardView()
     private let scene=BattleScene()
-    private let health=UILabel(), status=UILabel()
+    private let encounter=NativeEncounterView(), status=UILabel()
     private let preview=NextPiecesView()
     private let mana=NativeManaView()
     private var manaHeight:NSLayoutConstraint?
@@ -42,13 +42,13 @@ final class BattleViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor=UIColor(red:0.035,green:0.045,blue:0.085,alpha:1)
-        let header=UIStackView(arrangedSubviews:[options,health,pause]);header.axis = .horizontal;header.alignment = .center;header.spacing=8
-        options.setImage(UIImage(systemName:"slider.horizontal.3"),for:.normal);options.accessibilityLabel="Playtest settings"
+        let header=UIStackView(arrangedSubviews:[options,encounter,pause]);header.axis = .horizontal;header.alignment = .center;header.spacing=8
+        options.setImage(UIImage(systemName:campaign ? "book.closed":"slider.horizontal.3"),for:.normal);options.accessibilityLabel="Playtest settings"
         pause.setImage(UIImage(systemName:"pause.fill"),for:.normal);pause.accessibilityLabel="Pause"
         options.addTarget(self,action:#selector(showOptions),for:.touchUpInside)
         pause.addTarget(self,action:#selector(togglePause),for:.touchUpInside)
-        for button in [options,pause] { button.tintColor = .white;button.widthAnchor.constraint(equalToConstant:44).isActive=true;button.heightAnchor.constraint(equalToConstant:44).isActive=true }
-        health.textColor = .white;health.font = .monospacedDigitSystemFont(ofSize:14,weight:.semibold);health.textAlignment = .center;health.adjustsFontSizeToFitWidth=true;health.minimumScaleFactor=0.8
+        for button in [options,pause] { button.tintColor = NativeAtlas.color("#f5d77b");button.widthAnchor.constraint(equalToConstant:44).isActive=true;button.heightAnchor.constraint(equalToConstant:44).isActive=true }
+        encounter.heightAnchor.constraint(equalToConstant:72).isActive=true
         status.font = .systemFont(ofSize:13,weight:.medium);status.textColor=UIColor(white:0.8,alpha:1);status.textAlignment = .center;status.numberOfLines=2
         let manaHeight=mana.heightAnchor.constraint(equalToConstant:0);manaHeight.isActive=true;self.manaHeight=manaHeight
         mana.backgroundColor = .clear
@@ -131,9 +131,12 @@ final class BattleViewController: UIViewController {
             boardRatio=board.heightAnchor.constraint(equalTo:board.widthAnchor,multiplier:CGFloat(next.height)/CGFloat(next.width));boardRatio?.isActive=true
         }
         state=next
+        encounter.adopt(next)
         mana.spells=next.spells
         manaHeight?.constant=next.spells.isEmpty ? 0:42
-        clock?.isPaused=next.paused || (next.status != "ongoing" && !next.busy)
+        // Let already-committed hit/defeat feedback finish, without accepting
+        // another board input or keeping the display link alive indefinitely.
+        clock?.isPaused=next.paused || (next.status != "ongoing" && !next.busy && next.feedback.isEmpty)
         scene.render(next)
         if next.paused && !next.ready {board.accessibilityValue="Paused"}
         else if let piece=next.active {board.accessibilityValue="\(piece.name), column \((piece.x ?? 0)+1), row \((piece.y ?? 0)+1)"}
@@ -143,7 +146,7 @@ final class BattleViewController: UIViewController {
         let newHUDKey="\(objectiveKey):\(next.heroHP):\(next.enemyHP):\(next.paused):\(next.ready):\(next.busy):\(next.status):\(next.lines):\(next.pausesLeft):\(spellKey):\(nextKey):\(next.enemyMove):\(Int(ceil(next.enemyRemainingMs/1000)))"
         guard newHUDKey != hudKey else{return}
         hudKey=newHUDKey
-        health.text=next.enemyMaxHP > 0 ? "YOU \(next.heroHP)/\(next.heroMaxHP)   \(next.title ?? "SLIME") \(next.enemyHP)/\(next.enemyMaxHP)" : "YOU \(next.heroHP)/\(next.heroMaxHP) · \(next.title ?? "Challenge")"
+
         pause.setImage(UIImage(systemName:next.paused ? "play.fill":"pause.fill"),for:.normal)
         pause.accessibilityLabel=next.paused ? "Resume":"Pause"
         if campaign && next.status != "ongoing" {pause.setImage(UIImage(systemName:"checkmark"),for:.normal);pause.accessibilityLabel="Return to campaign"}
@@ -155,11 +158,11 @@ final class BattleViewController: UIViewController {
         else if let spell=next.spells.first {
             let name=Self.names[spell.id] ?? spell.id
             status.text="\(name) \(spell.rank) · \(spell.mana)/\(spell.cost) mana · \(next.busy ? "CASTING":"AUTO")"
-        } else {status.text="\(next.enemyMove) · \(Int(ceil(next.enemyRemainingMs/1000)))s"}
+        } else {status.text=next.stage?.showMove == true ? "\(next.enemyMove) · \(Int(ceil(next.enemyRemainingMs/1000)))s":"Opponent preparing"}
         if campaign && next.status == "ongoing" && !next.ready {
             if next.paused {status.text="Paused"}
             else if let effect=next.effect {status.text="\(Self.names[effect.school] ?? effect.school) · Level \(effect.rank)"}
-            else if next.objective?.label == next.title && next.enemyMaxHP>0 {status.text="\(next.enemyMove) · \(Int(ceil(next.enemyRemainingMs/1000)))s"}
+            else if next.enemyMaxHP>0 {status.text=next.stage?.showMove == true ? "\(next.enemyMove) · \(Int(ceil(next.enemyRemainingMs/1000)))s":"Opponent preparing"}
             else {status.text=[next.objective?.label,next.objective?.counter,next.objective?.piecesLeft.map { "\($0) pieces left" }].compactMap{$0}.joined(separator:" · ")}
         }
         preview.pieces=next.paused && !next.ready ? [] : next.next;preview.lines=next.lines
@@ -207,20 +210,19 @@ private final class PlaytestOptions:UITableViewController {
     @objc private func close(){dismiss(animated:true)}
 }
 
-private final class NativeManaView:UIView {
-    var spells:[NativeSpell]=[] {didSet {setNeedsDisplay();isAccessibilityElement=true;accessibilityLabel=spells.map { "\(BattleViewController.names[$0.id] ?? $0.id) level \($0.rank), \($0.mana) of \($0.cost) mana" }.joined(separator:". ")}}
+final class NativeManaView:UIView {
+    var spells:[NativeSpell]=[] {didSet {guard spells.map({"\($0.id):\($0.rank):\($0.mana):\($0.cost)"}) != oldValue.map({"\($0.id):\($0.rank):\($0.mana):\($0.cost)"}) else{return};setNeedsDisplay();isAccessibilityElement=true;accessibilityIdentifier="battle-mana";accessibilityLabel=spells.map { "\(BattleViewController.names[$0.id] ?? $0.id) level \($0.rank), \($0.mana) of \($0.cost) mana" }.joined(separator:". ")}}
     override func draw(_ rect:CGRect) {
-        guard !spells.isEmpty,let ctx=UIGraphicsGetCurrentContext() else{return}
-        let colors:[String:UIColor]=["fire":.systemRed,"water":.systemBlue,"earth":.systemOrange,"wind":.systemTeal,"lightning":.systemYellow,"nature":.systemGreen,"arcane":.systemPurple]
+        guard !spells.isEmpty,let ctx=UIGraphicsGetCurrentContext() else{return};ctx.interpolationQuality = .none
         let width=bounds.width/CGFloat(spells.count)
         for (index,spell) in spells.enumerated() {
-            let x=CGFloat(index)*width+3,w=width-6,color=colors[spell.element] ?? .white
-            let title="\(BattleViewController.names[spell.id] ?? spell.id) \(spell.rank)"
-            let attributes:[NSAttributedString.Key:Any]=[.font:UIFont.systemFont(ofSize:11,weight:.semibold),.foregroundColor:color]
-            (title as NSString).draw(in:CGRect(x:x,y:0,width:w,height:14),withAttributes:attributes)
-            ctx.setFillColor(UIColor(white:0.2,alpha:1).cgColor);ctx.fill(CGRect(x:x,y:17,width:w,height:5))
-            ctx.setFillColor(color.cgColor);ctx.fill(CGRect(x:x,y:17,width:w*min(1,CGFloat(spell.mana)/CGFloat(max(1,spell.cost))),height:5))
-            ("\(spell.mana)/\(spell.cost)" as NSString).draw(in:CGRect(x:x,y:25,width:w,height:13),withAttributes:[.font:UIFont.monospacedDigitSystemFont(ofSize:10,weight:.regular),.foregroundColor:UIColor.lightGray])
+            let x=CGFloat(index)*width+3,w=max(1,width-6),color=NativeBattleArt.color(spell.element),ready=spell.cost>0 && spell.mana>=spell.cost
+            NativeBattleArt.icon(spell.element)?.draw(in:CGRect(x:x,y:0,width:12,height:12))
+            for tier in 0..<4 {(tier<spell.rank ? color:NativeAtlas.color("#38415b")).setFill();ctx.fill(CGRect(x:x+16+CGFloat(tier)*4,y:4,width:3,height:4))}
+            let track=CGRect(x:x,y:17,width:w,height:5);NativeAtlas.color("#1d2238").setFill();ctx.fill(track)
+            color.setFill();ctx.fill(CGRect(x:x,y:17,width:w*min(1,CGFloat(spell.mana)/CGFloat(max(1,spell.cost))),height:5))
+            if ready {ctx.setStrokeColor(color.cgColor);ctx.setLineWidth(1);ctx.stroke(track.insetBy(dx:-1,dy:-1))}
+            NativeBattleArt.text("\(spell.mana)/\(spell.cost)",in:CGRect(x:x,y:26,width:w,height:12),size:9,color:ready ? .white:NativeAtlas.color("#aeb6d7"),alignment:.center)
         }
     }
 }

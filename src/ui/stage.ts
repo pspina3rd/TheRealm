@@ -145,6 +145,7 @@ export class Stage {
   private rushFlash = 0;
   private layout: Layout = WIDE;
   private face: Timed<Face> | null = null;
+  private opponentCast: Timed<Extract<Feedback, { kind: 'opponentCast' }>> | null = null;
 
   constructor(canvas: HTMLCanvasElement, atlas: Atlas) {
     const ctx = canvas.getContext('2d');
@@ -172,6 +173,7 @@ export class Stage {
     this.hero = hero;
     this.options = options;
     this.face = null;
+    this.opponentCast = null;
     this.hop = null;
     this.floats = [];
     this.effects = [];
@@ -184,6 +186,9 @@ export class Stage {
 
   play(feedback: Feedback): void {
     switch (feedback.kind) {
+      case 'opponentCast':
+        this.opponentCast = { value: feedback, elapsed: 0 };
+        break;
       case 'face':
         this.face = { value: feedback.face, elapsed: 0 };
         break;
@@ -233,6 +238,7 @@ export class Stage {
     this.drawHero(timeMs);
     this.drawOpponent(dtMs, timeMs, battle.combat?.enraged ?? false);
     this.drawAutomaticArcane(battle);
+    this.drawOpponentCast(dtMs);
     const combat = battle.combat;
     this.rushFlash = Math.max(0, this.rushFlash - dtMs);
     if (combat instanceof LessonChallenge && combat.shield === 'up') {
@@ -259,6 +265,53 @@ export class Stage {
     return left > 0 ? Math.sin(timeMs / 16) * 6 * (left / SHAKE_MS) : 0;
   }
 
+  private drawOpponentCast(dtMs: number): void {
+    const cast = this.opponentCast;
+    if (!cast) return;
+    cast.elapsed += dtMs;
+    if (cast.elapsed >= 1000) {
+      this.opponentCast = null;
+      return;
+    }
+    const { element, rank } = cast.value;
+    const ctx = this.ctx,
+      enemy = this.anchor('enemy'),
+      hero = this.anchor('hero');
+    const p = Math.max(0, Math.min(1, cast.elapsed / 1000));
+    ctx.save();
+    ctx.globalAlpha = 1 - p * 0.4;
+    ctx.strokeStyle = ELEMENT_COLOR_OF[element];
+    ctx.fillStyle = ELEMENT_COLOR_OF[element];
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(enemy.x, enemy.y, 24, 30, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    drawIcon(ctx, ELEMENT_ICONS[element], enemy.x - 12, enemy.y - 42, { scale: 2 });
+    for (let tier = 1; tier <= 4; tier++) {
+      ctx.fillStyle = tier <= rank ? ELEMENT_COLOR_OF[element] : '#38415b';
+      ctx.fillRect(enemy.x - 13 + (tier - 1) * 7, enemy.y + 33, 5, 4);
+    }
+    ctx.beginPath();
+    ctx.moveTo(hero.x, hero.y);
+    ctx.quadraticCurveTo((hero.x + enemy.x) / 2, enemy.y - 30, enemy.x, enemy.y);
+    ctx.stroke();
+    if (!reducedMotion())
+      for (let i = 0; i < 5; i++) {
+        const t = (p + i / 5) % 1;
+        ctx.fillStyle = ELEMENT_COLOR_OF[element];
+        ctx.beginPath();
+        ctx.arc(
+          hero.x + (enemy.x - hero.x) * t,
+          hero.y + (enemy.y - hero.y) * t - Math.sin(t * Math.PI) * 20,
+          2,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fill();
+      }
+    ctx.restore();
+  }
+
   private drawAutomaticArcane(battle: Battle): void {
     const frame = battle.autoFrame;
     if (!frame?.preview.character) return;
@@ -274,7 +327,12 @@ export class Stage {
     ctx.ellipse(enemy.x, enemy.y, 24, 30, 0, 0, Math.PI * 2);
     ctx.stroke();
     drawIcon(ctx, 'arcane', enemy.x - 8, enemy.y - 42, { scale: 2 });
+    for (let tier = 1; tier <= 4; tier++) {
+      ctx.fillStyle = tier <= frame.preview.rank ? ELEMENT_COLOR_OF.arcane : '#38415b';
+      ctx.fillRect(enemy.x - 13 + (tier - 1) * 7, enemy.y + 33, 5, 4);
+    }
     if (frame.phase === 'effect') {
+      ctx.fillStyle = '#c193ff';
       ctx.beginPath();
       ctx.moveTo(enemy.x, enemy.y);
       ctx.quadraticCurveTo((enemy.x + hero.x) / 2, enemy.y - 30, hero.x, hero.y);

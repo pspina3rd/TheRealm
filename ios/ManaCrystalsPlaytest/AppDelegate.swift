@@ -10,7 +10,13 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let scene=scene as? UIWindowScene else { return }
         let window=UIWindow(windowScene:scene)
-        window.rootViewController=ProcessInfo.processInfo.arguments.contains("--battle-playtest") ? BattleViewController() : CampaignViewController();window.makeKeyAndVisible();self.window=window
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--visual-gallery") {window.rootViewController=NativeVisualGalleryViewController()}
+        else {window.rootViewController=ProcessInfo.processInfo.arguments.contains("--battle-playtest") ? BattleViewController() : CampaignViewController()}
+        #else
+        window.rootViewController=CampaignViewController()
+        #endif
+        window.makeKeyAndVisible();self.window=window
     }
     func sceneWillResignActive(_ scene: UIScene) {
         (window?.rootViewController as? BattleViewController)?.suspend()

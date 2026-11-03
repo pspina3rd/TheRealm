@@ -11,6 +11,8 @@ import { PIECES } from './core/pieces';
 import { cellColors } from './core/board';
 import { createRng } from './core/rng';
 import { required } from './core/required';
+import { advanceNativePresentation, nativePresentation } from './native/presentation';
+import { visibleCells } from './battle/rules';
 
 if (typeof globalThis.structuredClone !== 'function')
   globalThis.structuredClone = <T>(value: T): T => nativeClone(value);
@@ -48,7 +50,16 @@ export function battleSnapshot() {
     previousPiece = b.board.active;
     pieceID++;
   }
+  return nativeSnapshot(b, pieceID, ready);
+}
+
+/** Read-only wire rendering for isolated visual fixtures; never replaces a campaign battle. */
+export function battleSnapshotFor(b: Battle) {
+  return nativeSnapshot(b, 1, false);
+}
+function nativeSnapshot(b: Battle, pieceID: number, ready: boolean) {
   return {
+    ...nativePresentation(b),
     version: 1,
     title: b.combat?.enemy.name ?? (b.spec.kind === 'encounter' ? 'Puzzle' : 'Challenge'),
     objective: b.objective,
@@ -66,6 +77,13 @@ export function battleSnapshot() {
     height: b.board.height,
     grid: b.board.grid,
     obstructions: b.board.obstructions,
+    seal: b.board.seal,
+    slowPieces: b.slowPieces,
+    hastePieces: b.hastePieces,
+    quickenMs: b.quickenMs,
+    fogPieces: b.fogPieces,
+    ruleID: b.rule?.id ?? null,
+    visible: b.rule?.id === 'dark' ? visibleCells(b.board) : null,
     active: b.board.active
       ? {
           name: b.board.active.name,
@@ -73,6 +91,7 @@ export function battleSnapshot() {
           y: b.board.active.y,
           cells: b.board.active.cells,
           colors: b.board.active.colors,
+          recolored: b.board.active.recolored,
         }
       : null,
     ghostY: b.board.ghostY(),
@@ -106,6 +125,16 @@ export function battleSnapshot() {
     effect: b.autoFrame
       ? {
           school: b.autoFrame.preview.id,
+          element: b.autoFrame.preview.element,
+          source: b.autoFrame.source ?? null,
+          character: Boolean(b.autoFrame.preview.character),
+          index: b.autoFrame.index,
+          total: b.autoFrame.total,
+          before: b.autoFrame.before,
+          effectState:
+            b.autoFrame.preview.resolution.effectState ?? b.autoFrame.preview.resolution.state,
+          after: b.autoFrame.preview.resolution.state,
+          visual: b.autoFrame.preview.resolution.visual ?? [],
           rank: b.autoFrame.preview.rank,
           phase: b.autoFrame.phase,
           rows: (() => {
@@ -166,6 +195,7 @@ export function dispatch(json: string): string {
       if (r.type === 'step') {
         const ms = Number(r.ms);
         if (!Number.isFinite(ms) || ms < 0) throw new Error('Invalid frame duration.');
+        advanceNativePresentation(b, Math.min(100, ms));
         b.update(Math.min(100, ms));
       } else if (r.type === 'begin') {
         if (ready) {

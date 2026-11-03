@@ -1,0 +1,442 @@
+{
+  "sourceHashes": {
+    "src/ui/crystals.ts": "b39e57166ce46bd1c97e1b043bfbec0e988235e2498ef800deaf01b5def864b6",
+    "src/ui/boardView.ts": "37991ff8cdaba666c97b6a6d228ef5b0ad327482493fbeaf26b2647102ae66f1",
+    "src/ui/iconDraw.ts": "2ec76a50c51abe94fd3e51038355fb54d2b7e8c813aea86524237c0e1627c6d4",
+    "src/ui/art/icons.ts": "c80a5ee5c9507dff0cab93e1a7677d728d76d8c8a74f2cffff978f6357ec2170",
+    "src/ui/worldDecoration.ts": "a4fb5ccd98e4d3e81ee3db5b16e74a90d3d4d795fbea8226e14d4bd13e04db10",
+    "src/data/encounters.ts": "afcfc34ea1b0d75c3b90406db8bafee00a64faef7dcfcdfe7bb7fbc0e6196db2"
+  },
+  "assets": {
+    "crystal-cyan": {
+      "width": 30,
+      "height": 30,
+      "sha256": "c62fa2bbab6868cb659240dfba923244673a283c02599e01c38a3d55f9f1ff70"
+    },
+    "crystal-cyan-rune": {
+      "width": 30,
+      "height": 30,
+      "sha256": "0f6c951721670816950bac3f0ef072ef3d93612d65e002e130b49760b3d14916"
+    },
+    "crystal-gold": {
+      "width": 30,
+      "height": 30,
+      "sha256": "c77aecaabda00145db1fc21ee31834a2568e9c766d475609a1891f94220c15e8"
+    },
+    "crystal-gold-rune": {
+      "width": 30,
+      "height": 30,
+      "sha256": "80f5a9f1c2fe19bbcb63c6d0b289c2185f22483923417c23ceba07495020c493"
+    },
+    "crystal-violet": {
+      "width": 30,
+      "height": 30,
+      "sha256": "e502411c5072fef6b21d08c4873c98ddf8a36c7e433c3182ae44f483e42db823"
+    },
+    "crystal-violet-rune": {
+      "width": 30,
+      "height": 30,
+      "sha256": "45809a4bcd4e0d817c2f0b8e78c6efcc5c7e3636ab176d3a0acec85d269cad17"
+    },
+    "crystal-green": {
+      "width": 30,
+      "height": 30,
+      "sha256": "4f0f61093988654091f048c93f83cc04a730e22013d6f8076721e7fbc523a223"
+    },
+    "crystal-green-rune": {
+      "width": 30,
+      "height": 30,
+      "sha256": "6a5a2c92042a7c5a40350578c4fe7784d68f97fe5d97e58f1daa35349cb88dff"
+    },
+    "crystal-red": {
+      "width": 30,
+      "height": 30,
+      "sha256": "5f2724f8a98670c42e488c917135f97ec8962d821f92ecfc2ffd41080d9a1b82"
+    },
+    "crystal-red-rune": {
+      "width": 30,
+      "height": 30,
+      "sha256": "b9b89c138a31ebac3086d5774b5301ced405d50013b0653e07ed0e53c8f4cd9d"
+    },
+    "crystal-blue": {
+      "width": 30,
+      "height": 30,
+      "sha256": "15f1abaec1e327a8a3b5664e3116409a58f122bf776fa46aaa758378fed78458"
+    },
+    "crystal-blue-rune": {
+      "width": 30,
+      "height": 30,
+      "sha256": "56180217b71450ea25076828ce6a25590a58841506d65449acb0432ff40b0312"
+    },
+    "crystal-orange": {
+      "width": 30,
+      "height": 30,
+      "sha256": "b92cdbdeb5b039c78dcb7a0ceb4683aa43ac4743a00efcb43882d23e54334e12"
+    },
+    "crystal-orange-rune": {
+      "width": 30,
+      "height": 30,
+      "sha256": "89f96837ca75e01d473d7cde40a853cb704aae2f2feb2c3a4c43ea74c0a49cc2"
+    },
+    "crystal-stone": {
+      "width": 30,
+      "height": 30,
+      "sha256": "9ff378f93f6c2416f7c77544c6b1d29e83b51700885cbb212fbe08b63d9d1d72"
+    },
+    "crystal-neutral": {
+      "width": 30,
+      "height": 30,
+      "sha256": "27f5a2609055b37ff28a2f2352ce93cca340a8173c48629ce7de1499059a06b1"
+    },
+    "stone-1": {
+      "width": 30,
+      "height": 30,
+      "sha256": "3f883cfd7b5c7d50c4fcaaea944189a8e6aba225117de33708cbfaee1af13176"
+    },
+    "stone-2": {
+      "width": 30,
+      "height": 30,
+      "sha256": "1e058edf2d69f6c4f4a2b0051c6017d6a3b34bc2041fd8e4e8d75a1d9dc37a8f"
+    },
+    "stone-3": {
+      "width": 30,
+      "height": 30,
+      "sha256": "36e5a20c20a966e0fe6abbf696cdaf36d231bb14dc8a6faeafc7f0f884360713"
+    },
+    "icon-fire": {
+      "width": 12,
+      "height": 12,
+      "sha256": "1ce482c2dead399e8f06c146bbd2c34d58e42f5cbed29ec4af2e5c4e177e7e11"
+    },
+    "icon-water": {
+      "width": 12,
+      "height": 12,
+      "sha256": "ceec27b1ea775e5a35e1341d45d388be1f7d0a5b73368d30375e953ea80a9cdb"
+    },
+    "icon-lightning": {
+      "width": 12,
+      "height": 12,
+      "sha256": "098c861e007ae34380f8cb08ce62d2e8606496763176a6f04920268979664c62"
+    },
+    "icon-nature": {
+      "width": 12,
+      "height": 12,
+      "sha256": "85a3271aa0ee2f92423acc4bdc4ad918e32ced98c9038f9def1e9ae0e05ea31d"
+    },
+    "icon-earth": {
+      "width": 12,
+      "height": 12,
+      "sha256": "34c9f86cb0e78822f4fd7de0cc53c25b50cfd02e92fef3e0ee306fdfdf265e0a"
+    },
+    "icon-arcane": {
+      "width": 12,
+      "height": 12,
+      "sha256": "db25b798d43ea6baa372ab4c6fe01066847a4e411790c0f6f881c16a1b4248bb"
+    },
+    "icon-wind": {
+      "width": 12,
+      "height": 12,
+      "sha256": "26d5ea25e34720d2fbf5b0ef2b301b07dfe5225b174d4841a5bb38a3d25f5675"
+    },
+    "icon-ward": {
+      "width": 12,
+      "height": 12,
+      "sha256": "83a30cac48a8394a5c59798180d785334aedf9d0c4826f8f5e7950f5f1f2bfe2"
+    },
+    "icon-heart": {
+      "width": 12,
+      "height": 12,
+      "sha256": "b457a47e89b7e57a682e119531cd38493b8fde94df2a1be815696a59ff87f249"
+    },
+    "icon-haste": {
+      "width": 12,
+      "height": 12,
+      "sha256": "6505ca339a4e9cc244eb524656c48449d6611f21dddba30dee1f9a1baca135e1"
+    },
+    "icon-potion": {
+      "width": 12,
+      "height": 12,
+      "sha256": "e6ae76bbc1cac74afa2b1e9ee137d75a4c383f9c95048ad853fbd1b123d936f6"
+    },
+    "icon-sword": {
+      "width": 12,
+      "height": 12,
+      "sha256": "0329decc4e65382963e26927e5d55e02d33f8ead367f53863193da0a7e53d272"
+    },
+    "icon-armor": {
+      "width": 12,
+      "height": 12,
+      "sha256": "3eb7e20231127dd13fb2eb335e29c14b539d6031f81eddcd54d178009f12a7bf"
+    },
+    "icon-robe": {
+      "width": 12,
+      "height": 12,
+      "sha256": "1b2146309e7509ebdbd46674bd4092d65ca79238b408f4c742ec42981a6d3cd6"
+    },
+    "icon-feather": {
+      "width": 12,
+      "height": 12,
+      "sha256": "c2f1fe0faf58fca651b540d5adbca528746019d83de9073f169c0f2956709ee1"
+    },
+    "icon-book": {
+      "width": 12,
+      "height": 12,
+      "sha256": "9cc19ce4a7f9de16e6cc125dc9233dd714a3fa179b175f6f7d4db77a77ae3d20"
+    },
+    "icon-amulet": {
+      "width": 12,
+      "height": 12,
+      "sha256": "e3f3066a18f8c32a9ca67c7287954fe095bc4ff75dde51a1fdc0bbaa5e5e44df"
+    },
+    "icon-mushroom": {
+      "width": 12,
+      "height": 12,
+      "sha256": "a4afb1ac87198f823d41d61cebed7a2c546b54a4889e2ffe0ce9643444c7aa34"
+    },
+    "icon-blob": {
+      "width": 12,
+      "height": 12,
+      "sha256": "d24431e59572160769f73a38c04943d3d1eba73d726b290247a2a3ca66a4a960"
+    },
+    "icon-shard": {
+      "width": 12,
+      "height": 12,
+      "sha256": "453c0f53499c8783e131f442e6f3c4cbfd94efdd81e0129194b0129143a23029"
+    },
+    "icon-fang": {
+      "width": 12,
+      "height": 12,
+      "sha256": "2727272507e1d54535587800e2ecae9d8abcc971cfabe6f45f768ecfb2c2dbce"
+    },
+    "icon-bed": {
+      "width": 12,
+      "height": 12,
+      "sha256": "e9f5ebf6450c58f7d4253f32c98f89ad8b036c03ec535c20aea5c2efbc280802"
+    },
+    "icon-herb": {
+      "width": 12,
+      "height": 12,
+      "sha256": "7f8cc5d4c9e5299804860cc3b5116913b9b7c9d6fb3fc748ccf8ec0285a30230"
+    },
+    "icon-coin": {
+      "width": 12,
+      "height": 12,
+      "sha256": "f5587a4e33c938f9f5955bc92a383cdcce4ecc53172918a29682bf7e1d147396"
+    },
+    "icon-star": {
+      "width": 12,
+      "height": 12,
+      "sha256": "7e6f473768a5d0a65df64d0323a6354bdda4ae0421da392b9d0c7cf42a353b5f"
+    },
+    "icon-lock": {
+      "width": 12,
+      "height": 12,
+      "sha256": "1eb9d3544fe83a84f81ba36e5904abc00e862cb3488191c77d955161f96de91b"
+    },
+    "icon-bag": {
+      "width": 12,
+      "height": 12,
+      "sha256": "5ad4b91e1c20230477af00d04bccdcc4b266d1434de97220b4eb340460afd7ce"
+    },
+    "icon-trade": {
+      "width": 12,
+      "height": 12,
+      "sha256": "831d6ac8485af4e5e8a478da50539bd401cc592f792f92ed6bc6bc90b6f152bf"
+    },
+    "icon-gift": {
+      "width": 12,
+      "height": 12,
+      "sha256": "3e5ab3c149c02b8f29d3749799f216e589e103e3be8eaa5e7919b06a125b987c"
+    },
+    "icon-puzzle": {
+      "width": 12,
+      "height": 12,
+      "sha256": "dc0d3f9a0cbdd11d34d64f2b827721b0e24a117b6a823b5b6208a18e17db9ea8"
+    },
+    "icon-piece": {
+      "width": 12,
+      "height": 12,
+      "sha256": "4e3d0836b4f664be5feb525572bba3065b1b63b109a51bf42d64204cee3e97c1"
+    },
+    "icon-lines": {
+      "width": 12,
+      "height": 12,
+      "sha256": "058fb2b3119ea34b05324ddd5d1491526cf4d5e7bb0e34d7f5da890c6aedd0d8"
+    },
+    "icon-weak": {
+      "width": 12,
+      "height": 12,
+      "sha256": "a780b65edbc353d208d01428faf5cffb6f8397bdae356f624d42a2306415b189"
+    },
+    "icon-resist": {
+      "width": 12,
+      "height": 12,
+      "sha256": "4aa81c38e25bc9a1972412df0c9946fdd2d3e4e4d4a971ad8a90e4494a111d8a"
+    },
+    "icon-eye": {
+      "width": 12,
+      "height": 12,
+      "sha256": "806663b053ceb8003685c5609ba4f74bf0569928f76fb5b90d7951db94adf90a"
+    },
+    "icon-clover": {
+      "width": 12,
+      "height": 12,
+      "sha256": "1edf2d41991f078de9da2892b07e4c90053c6d4f1ebd9391dcb3a7fdfa6f9ee2"
+    },
+    "icon-boot": {
+      "width": 12,
+      "height": 12,
+      "sha256": "1502152031e2f86e1a17c4ceafc3d67c482e1954fb19eb9c9f8991fdfefb882b"
+    },
+    "icon-point": {
+      "width": 12,
+      "height": 12,
+      "sha256": "f5dbec71c89547676272ac836e69626f6c33101d1f35a4fe73d2c360230860ab"
+    },
+    "icon-burst": {
+      "width": 12,
+      "height": 12,
+      "sha256": "5dff43b3651b74e6c68375df37484779f45429842b966af98bb3f409a704d5e6"
+    },
+    "icon-drop": {
+      "width": 12,
+      "height": 12,
+      "sha256": "2b97797a3ee5f1139edab5ebbdbd14db402a0ee9d1b4cb6d87e9cc499804ec1e"
+    },
+    "icon-wand": {
+      "width": 12,
+      "height": 12,
+      "sha256": "822175764bc4c668da4bea7ffffcda668a5fddbdb7a093ad457d1d23399b1b43"
+    },
+    "icon-scroll": {
+      "width": 12,
+      "height": 12,
+      "sha256": "535122dce0279a44929c9f9c7d9e1f034e8445d29ae859c0cf11c5877d69598f"
+    },
+    "icon-hourglass": {
+      "width": 12,
+      "height": 12,
+      "sha256": "528ff959c543707efe8cbee44aec8c41f2c5f10399fb789eafc057b07922a977"
+    },
+    "icon-faceHostile": {
+      "width": 12,
+      "height": 12,
+      "sha256": "ae45deedbb0b23100580ea81599ecbcbae8f3be0019b62c1dca06b254c5492e2"
+    },
+    "icon-faceWary": {
+      "width": 12,
+      "height": 12,
+      "sha256": "38207df169b46d27c37c08ed5aa75cdea44d5bfb3788150f863648861802c384"
+    },
+    "icon-faceNeutral": {
+      "width": 12,
+      "height": 12,
+      "sha256": "3b27388c6edb2227ce5116a9be35019fd9c4d792fc28f10765cfa833f33677bf"
+    },
+    "icon-faceFriendly": {
+      "width": 12,
+      "height": 12,
+      "sha256": "450bae3ff5a3939a136e789e3922af7c0d64b2473fb2988fa8395bd872b15d25"
+    },
+    "icon-faceDevoted": {
+      "width": 12,
+      "height": 12,
+      "sha256": "c9792db67da8988259aef73b7136215d289238965b2cf0a5aa17eee5ed84c26e"
+    },
+    "icon-star-fire": {
+      "width": 12,
+      "height": 12,
+      "sha256": "babac1e0572b280b57094d5e48544ae4ce7d9884fc24b651f00774aff77491b0"
+    },
+    "icon-star-water": {
+      "width": 12,
+      "height": 12,
+      "sha256": "f48b2d7aaa3b9ac23c80b949adbe1526ebf68ec5c9849ed79df8a8d1d6bdb888"
+    },
+    "icon-star-lightning": {
+      "width": 12,
+      "height": 12,
+      "sha256": "7e6f473768a5d0a65df64d0323a6354bdda4ae0421da392b9d0c7cf42a353b5f"
+    },
+    "icon-star-nature": {
+      "width": 12,
+      "height": 12,
+      "sha256": "da4acfab53ad8cfe923ed0669f5a988207cc5c1778420df556ed81459a5d9bc4"
+    },
+    "icon-star-earth": {
+      "width": 12,
+      "height": 12,
+      "sha256": "f5422dd0d606dc7f89d6871eddc804fae688757bdaa9faa03e86805592d5e163"
+    },
+    "icon-star-arcane": {
+      "width": 12,
+      "height": 12,
+      "sha256": "7d8903d43489f9fedaf577708b889d81a02614fa37296b3ead0c5e724903b2a8"
+    },
+    "icon-star-wind": {
+      "width": 12,
+      "height": 12,
+      "sha256": "77cd26a2e27d35f0b0c782f1defc4a3bde596594291d9c7cd8d45604c44426cf"
+    },
+    "world-elder-win": {
+      "width": 48,
+      "height": 48,
+      "sha256": "c79f1e4b0b1bee09d3daa2521f960e9e84fdf2984344a2b2de1ef3d08157e927"
+    },
+    "world-elder-fail": {
+      "width": 48,
+      "height": 48,
+      "sha256": "c83c9a1177b783a9d9139cda2a7663872b190f0cb44451b91cc0dd187f857138"
+    },
+    "world-kid-win": {
+      "width": 576,
+      "height": 48,
+      "sha256": "ffa6636fd6249946d8fc5517d003cf57c6a7f04c0f846be79967ead32f53a845"
+    },
+    "world-kid-fail": {
+      "width": 48,
+      "height": 48,
+      "sha256": "483f5cf0a2e6dba667b46122982613b7d5594c09e1048bc0712932864056f9e3"
+    },
+    "world-farmer-win": {
+      "width": 48,
+      "height": 48,
+      "sha256": "56dca6b434c768bdb34bb36b5373eadcf2486c26fb88fe012e2a91f13af6c9f4"
+    },
+    "world-farmer-fail": {
+      "width": 48,
+      "height": 48,
+      "sha256": "a257f34cb369329ff4dd4801de531b70b99ec7bbde4063b589f2aa9724adaf6a"
+    },
+    "world-stallKeeper-win": {
+      "width": 48,
+      "height": 48,
+      "sha256": "7ccb65abffeb6d577068603397b6284b625e9189553116cac9ff4d3ede309a1b"
+    },
+    "world-stallKeeper-fail": {
+      "width": 48,
+      "height": 48,
+      "sha256": "d5ab5e6dffc4db76a9a08df2993ce95164ddd064d2821d88bf7f6b68785dc8f3"
+    },
+    "world-forager-win": {
+      "width": 48,
+      "height": 48,
+      "sha256": "f768b6bd9ff65c437cdbb2c27de03563b7332481e2a559700a88db39f83c06b5"
+    },
+    "world-forager-fail": {
+      "width": 48,
+      "height": 48,
+      "sha256": "58be0261ab00268b77123712658aded568791ecac0ca093664b86a56d9309804"
+    },
+    "world-guard-win": {
+      "width": 48,
+      "height": 48,
+      "sha256": "5d10c38e18b8a9543f01bdb38cbbeee9eee20a44da52c478c626cb4c5191ffd1"
+    },
+    "world-guard-fail": {
+      "width": 576,
+      "height": 48,
+      "sha256": "ef19af5e87dfff5b5613c33ca9b636afdcf81fa48dc7b5f1f7d64120bb22d221"
+    }
+  }
+}

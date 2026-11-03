@@ -12,6 +12,7 @@ final class CampaignViewController: UIViewController {
     private var battleController: BattleViewController?
     private var panelController: CampaignPanelController?
     private var tomeController:TomeViewController?
+    private var viewportHeight=0
     private var transitioning=false
     private var titleStack: UIStackView?
     private let saveKey = "native-campaign-v1"
@@ -48,6 +49,14 @@ final class CampaignViewController: UIViewController {
             else if self.state?.walking==true {self.send(["type":"walkStep"])}
         }
         if let walker=walker {RunLoop.main.add(walker,forMode:.common)}
+    }
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        guard engine != nil,world.bounds.width>0,world.bounds.height>0 else{return}
+        let height=Int(max(320,min(1280,(416*world.bounds.height/world.bounds.width).rounded())))
+        guard viewportHeight != height else{return}
+        viewportHeight=height
+        send(["type":"viewport","width":416,"height":height])
     }
     deinit {walker?.invalidate()}
     private func showTitle() {
