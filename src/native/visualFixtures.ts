@@ -381,7 +381,7 @@ function weavingCases(): NativeVisualFixture[] {
 
 function lessonCases(): NativeVisualFixture[] {
   const battle = new Battle(
-    { kind: 'lesson', mentorId: 'torva', spellId: 'fire', enemyId: 'forgeImp', difficulty: 1 },
+    { kind: 'lesson', mentorId: 'torva', spellId: 'fire', enemyId: 'emberWisp', difficulty: 1 },
     createHero(),
     createRng(478),
     { boardMagic: true },

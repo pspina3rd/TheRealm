@@ -77,7 +77,7 @@ final class NativeEncounterView:UIView {
         if !UIAccessibility.isReduceMotionEnabled,let toss=feedback.last(where:{$0.kind=="toss"}) {allyPoint.y -= CGFloat(sin(min(1,toss.elapsedMs/400)*Double.pi)*7)}
         if let element=stage?.allyElement,stage?.ally != nil {
             ctx.setFillColor(NativeBattleArt.color(element).withAlphaComponent(0.5).cgColor)
-            ctx.fillEllipse(in:CGRect(x:allyPoint.x-13,y:baseline-4,width:26,height:8))
+            ctx.fillEllipse(in:CGRect(x:allyPoint.x-13,y:baseline-6,width:26,height:8))
         }
         portrait(stage?.ally,center:allyPoint,maxSize:CGSize(width:30,height:36))
         portrait(stage?.opponent,center:enemy,maxSize:CGSize(width:51,height:58),alpha:enemyAlpha,offset:shake("enemy"),tint:stage?.tint)

@@ -3,6 +3,7 @@ import { Battle } from '../src/battle/battle';
 import { createRng } from '../src/core/rng';
 import { createHero } from '../src/game/hero';
 import { attachCampaignBattle, currentNativeBattle, dispatch } from '../src/nativeBattle';
+import { nativePresentation } from '../src/native/presentation';
 import { nativeVisualFixtures, visualFixturesJSON } from '../src/native/visualFixtures';
 
 describe('native visual gallery fixture safety and coverage', () => {
@@ -108,5 +109,16 @@ describe('native visual gallery fixture safety and coverage', () => {
     expect(item.state.stage.shieldElement).toBe('fire');
     expect(item.state.active?.recolored).toBe(true);
     expect(item.state.feedback.some((item) => item.kind === 'toss')).toBe(true);
+  });
+  it('does not invent an elemental tint for a lesson foe without authored tint', () => {
+    const battle = new Battle(
+      { kind: 'lesson', mentorId: 'torva', spellId: 'fire', enemyId: 'forgeImp', difficulty: 1 },
+      createHero(),
+      createRng(1),
+      { boardMagic: true },
+    );
+    const stage = nativePresentation(battle).stage;
+    expect(stage.tint).toBeNull();
+    expect(stage.allyElement).toBe('fire');
   });
 });
