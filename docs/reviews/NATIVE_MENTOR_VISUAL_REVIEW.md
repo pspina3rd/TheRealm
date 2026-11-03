@@ -77,7 +77,6 @@ the separate gesture test failed at app launch with “does not have a process I
 before board actions. This mentor review does not claim that gesture test passed
 or waive its outstanding validation; the same product candidate is being retried.
 
-
 The unchanged [second Apple attempt](https://github.com/pspina3rd/TheRealm/actions/runs/41566012936/attempts/2)
 subsequently passed all nine UI tests, including the gesture/background-resume
 checks and all 111 visual cases. The separate pending validation item is now

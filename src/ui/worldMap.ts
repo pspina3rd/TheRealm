@@ -12,6 +12,7 @@ import { hometownMap } from '../world/hometowns';
 import { warpUnlocked, type MapDef } from '../world/map';
 import type { GameState } from '../world/state';
 import { el } from './dom';
+import { travelGuide } from '../game/travelGuide';
 
 const COLORS: Readonly<Record<string, string>> = {
   grove: '#47764d',
@@ -168,9 +169,7 @@ export function worldMapBody(state: GameState): HTMLElement {
       selected = warp.to.map;
       for (const peer of legend.querySelectorAll('button'))
         peer.setAttribute('aria-pressed', String(peer === button));
-      info.textContent = accessible
-        ? `${name} is marked on the map.`
-        : `${name}: ${(warp.requiresFlag && !state.flags.has(warp.requiresFlag) ? warp.lockedText : warp.missingAnyText) ?? warp.lockedText ?? 'The route is not open yet.'}`;
+      info.textContent = travelGuide(state, warp.to.map)?.text ?? `${name} is marked on the map.`;
       paint();
     });
     legend.append(button);

@@ -36,6 +36,11 @@ puzzle/lesson attempts follow the campaign's existing retry rules.
 - Battles: drag sideways to move, tap or hold-and-release to rotate, deliberately flick down to drop. A slower
   downward drag soft-drops. These are the previously tested native controls.
 - Campaign menu: world map, inventory, growth, and later Arcane/custom Weaving.
+- World map: choose a region to see its mentor and school, the next crossing,
+  and any remaining road requirement. **Walk this part of the route** follows
+  that crossing using normal movement. Choose the next leg after arriving.
+  Provincial roads leave Mossvale by the south gate; its north path leads
+  into the enclosed stone sanctuary.
 - Battle actions: corrections where offered, items, lesson casting, advanced
   techniques and custom Weaving. Standard combat spells retain automatic casts.
 - After an encounter, tap the checkmark to apply its outcome and return.

@@ -1,4 +1,5 @@
 import { required } from '../core/required';
+import { habitatPosition, roadsideEncounters } from './surfaceEncounters';
 import { MENTORS } from './mentors';
 import { VESPER_ROUTE } from './story';
 import type { MapDef, MapEntity, Warp } from '../world/map';
@@ -284,10 +285,13 @@ export function withExpandedSurface(base: Record<string, MapDef>): Record<string
     const foes = required(families[area.id]);
     const places = required(habitatSites[area.id]);
     for (let i = 0; i < places.length; i++) {
-      const [x, y] = required(places[i]);
-      // Shore creatures stay on the land side of Glasswater.
-      if (grid[y]?.[x] === '~' || grid[y]?.[x] === '!') continue;
-      if (reserved(x, y)) continue;
+      const place = habitatPosition(required(places[i]), area.id, grid, roadPoints, [
+        ...entities,
+        ...warps,
+        ...travellingStops,
+      ]);
+      if (!place) continue;
+      const { x, y } = place;
       disk(x, y, 1, '.');
       entities.push({
         id: `surface:${area.id}:foe:${i}`,
@@ -354,6 +358,9 @@ export function withExpandedSurface(base: Record<string, MapDef>): Record<string
       flag: `world:sign:${sign.x}:${sign.y}`,
     });
   }
+  entities.push(
+    ...roadsideEncounters(grid, roadPoints, [...entities, ...warps, ...travellingStops]),
+  );
   for (const entity of [...entities, ...travellingStops]) {
     let nearest = required(roadPoints[0]);
     for (const point of roadPoints)

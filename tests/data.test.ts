@@ -394,7 +394,9 @@ describe('the world and its regions', () => {
         if (e.kind !== 'monster') continue;
         const enemy = ENEMIES[e.enemyId]!;
         const habitat =
-          id === 'overworld' && e.id.startsWith('surface:')
+          id === 'overworld' &&
+          e.id.startsWith('surface:') &&
+          !['home', 'road', 'stones'].includes(e.id.split(':')[1] ?? '')
             ? REGIONS[e.id.split(':')[1] as keyof typeof REGIONS]
             : region;
         const [low, high] = habitat.monsterLevels;

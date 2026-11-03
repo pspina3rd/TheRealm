@@ -50,7 +50,6 @@ No application behavior, assertions or time limits were changed to hide the
 failure. The retry must complete the gesture assertions before validation is
 considered complete.
 
-
 ## Retry result
 
 [Attempt 2](https://github.com/pspina3rd/TheRealm/actions/runs/41566012936/attempts/2),

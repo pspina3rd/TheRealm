@@ -60,7 +60,6 @@ Physical iPhone feel remains the player's retest. Separately, the native rendere
 still has simpler block/effect drawing than the web renderer; full visual parity
 is not claimed by this delivery.
 
-
 ## Subsequent visual port
 
 The simpler block/effect rendering noted above was addressed in a later change,

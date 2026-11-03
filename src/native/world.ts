@@ -5,7 +5,12 @@ import { NPCS } from '../data/npcs';
 import { hometownMap } from '../world/hometowns';
 import { HOMETOWNS, hometownOf } from '../data/hometowns';
 import { regionFixed } from '../game/encounterFlow';
-import { SURFACE_SITES, SURFACE_STONES } from '../data/surfaceLayout';
+import {
+  SURFACE_SITES,
+  SURFACE_STONES,
+  SURFACE_CENTER,
+  STONE_APPROACH,
+} from '../data/surfaceLayout';
 import { heroClass } from '../game/hero';
 import { entityAttitude, entitySprite } from '../game/encounter';
 import { seeksHero } from '../game/hidden';
@@ -437,7 +442,7 @@ export function worldSnapshot(
 }
 
 /** Compact terrain for the native map sheet; selecting the map never moves the hero. */
-export function overviewSnapshot(state: GameState) {
+export function overviewSnapshot(state: GameState, selected?: string) {
   const map = hometownMap(required(MAPS.overworld), state.flags);
   const home = hometownOf(state.flags);
   return {
@@ -456,10 +461,14 @@ export function overviewSnapshot(state: GameState) {
           !['innerWard', 'upwardRoad', 'sunkenArchive'].includes(id) &&
           (!HOMETOWNS.some((town) => town.map === id) || id === home.map || id === 'mossvale'),
       )
-      .map(([id, point]) => ({
+      .map(([id, point]): { x: number; y: number; name: string } => ({
         x: point.x,
         y: point.y,
-        name: HOMETOWNS.find((home) => home.map === id)?.name ?? MAPS[id]?.name ?? id,
-      })),
+        name: `${selected === id ? '◆ ' : ''}${HOMETOWNS.find((home) => home.map === id)?.name ?? MAPS[id]?.name ?? id}`,
+      }))
+      .concat([
+        { ...SURFACE_CENTER, name: `${selected === 'stones' ? '◆ ' : ''}Stone circle` },
+        { ...STONE_APPROACH, name: 'Mossvale north path' },
+      ]),
   };
 }

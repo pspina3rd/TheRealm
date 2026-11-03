@@ -66,7 +66,6 @@ layout: the prior menu clipped visible prose while its label remained complete.
 Review actual screenshots and visible geometry. Preserve the previous held-touch,
 movement-flash, save, progression, page-skip and native input fixes.
 
-
 ## Implemented visual port and correction loop
 
 The app now uses 86 exported PNGs from the actual web block, glyph, icon and
@@ -116,7 +115,6 @@ Wisp tint and helper aura are verified in the fresh Apple capture described in
 the mentor review. A negative Forge Imp fixture separately verifies that an untinted enemy
 is not recolored merely because its mentor teaches Fire.
 
-
 ## Source checks and packaged project
 
 [Repository CI](https://github.com/pspina3rd/TheRealm/actions/runs/41566012964)
@@ -134,7 +132,6 @@ Archive SHA-256: `c3ed2fad37b69989ec51cdbeb933e21bcd4a58a43f3d24431685b2252bef4d
 The archive supplies a three-step START_HERE file. It is Xcode source for direct
 installation, not a signed IPA or TestFlight upload. No npm/server is required
 on the player's Mac or phone. Keep the existing installed app to retain saves.
-
 
 ## Final capture and scoped visual disposition
 
@@ -156,7 +153,6 @@ bounded compositing difference remains: native Fire fades its affected gem faces
 more strongly at the sampled midphase than the web canvas renderer. The shared
 texture, affected cells and rank span agree. This is accepted as an opacity
 variation, consistent with the scope excluding whole-screen pixel identity.
-
 
 ## Final validation complete
 

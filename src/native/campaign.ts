@@ -59,6 +59,7 @@ import { dueScenes, finishScene, arrive, pendingVision, dismissVision } from '..
 import { hometownText } from '../data/hometowns';
 import { dualChance, pieceWeights } from '../game/pieceOdds';
 import { openingLead } from '../game/opening';
+import { travelDestinations, travelGuide } from '../game/travelGuide';
 import { cannotBuyReason, priceFor, buy, sell, sellableItems } from '../game/shop';
 import { useItem, cannotUseReason, slotFor, equip, spendSkillPoints } from '../game/hero';
 import {
@@ -465,6 +466,37 @@ function spellGrowth(id: string): void {
     ],
   );
 }
+function worldMap(destinationId?: string): void {
+  const guide = destinationId ? travelGuide(state(), destinationId) : null;
+  show(
+    guide ? `World map · ${guide.destination.name}` : 'World map',
+    guide?.text ??
+      'Choose a place to see the next part of your route. Provincial roads leave Mossvale by the south gate.',
+    [
+      ...(guide?.next && guide.path?.length
+        ? [
+            {
+              label: 'Walk this part of the route',
+              run: () => {
+                const next = guide.next;
+                clear();
+                if (!next) return;
+                walking = pathTo(state(), next.x, next.y) ?? [];
+                walkingTarget = walking.length ? { x: next.x, y: next.y } : null;
+                cachedWorld = null;
+              },
+            },
+          ]
+        : []),
+      { label: 'Back', run: menu },
+      ...travelDestinations(state()).map((destination) => ({
+        label: destination.label,
+        run: () => worldMap(destination.id),
+      })),
+    ],
+  );
+  overview = overviewSnapshot(state(), destinationId);
+}
 function menu(): void {
   show(
     'Campaign',
@@ -473,12 +505,7 @@ function menu(): void {
       { label: 'Resume', run: scenes },
       {
         label: 'World map',
-        run: () => {
-          show('World map', 'North is up. Reach the stones through Mossvale’s north path.', [
-            { label: 'Back', run: menu },
-          ]);
-          overview = overviewSnapshot(state());
-        },
+        run: () => worldMap(),
       },
       { label: 'Inventory', run: inventory },
       { label: 'Growth and spells', run: skills },
