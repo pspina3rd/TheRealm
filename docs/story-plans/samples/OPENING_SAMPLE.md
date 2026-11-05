@@ -38,13 +38,18 @@ Fern ran.
 
 ## Rowan
 
-He did not remember the path down. He remembered the birches going past like bars, falling once,
-and Rowan's door, and hammering on it with both fists.
+Rowan yawned as he put on his captain's coat. Thirty-five years he had been part of the watch, with
+the last ten as captain. A role he took over because Bracken, Fern's father, never returned.
 
-Rowan opened it already in his boots, his captain's coat over his nightshirt. Thirty years of night
-duty does not leave a man. He and Fern's father had grown up two doors apart on this lane. Rowan had
-known Fern since the day he was born, and had looked out for him since the day his father did not
-come home. He took one look at Fern's face and stepped aside.
+The two had grown up together, and were lifelong friends. Rowan had been elated when Bracken
+announced he would become a father. He still remembered the night —
+
+Pounding at the door, and Fern's voice shouting, interrupted Rowan's musings.
+
+"I wonder what it is this time... He's so desperate for excitement he's probably mistaken a bat for
+a dragon again..."
+
+_(Draft from here on: not yet rewritten.)_
 
 "Sit."
 
