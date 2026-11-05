@@ -49,39 +49,70 @@ Pounding at the door, and Fern's voice shouting, interrupted Rowan's musings.
 "I wonder what it is this time... He's so desperate for excitement he's probably mistaken a bat for
 a dragon again..."
 
-_(Draft from here on: not yet rewritten.)_
+Rowan opened the door, and Fern nearly fell through it.
 
-"Sit."
+"Rowan! The stones... they... I was at the top of the hill and they..."
 
-"The stones —"
+"Bat or dragon?"
 
-"Sit. Breathe. Now tell it again, slower."
+"What? No! The stones!"
 
-Fern told it again. Rowan listened the way he had listened to every report Fern had ever brought
-him: without interrupting, watching Fern's face rather than the words. When it was done, he was
-quiet.
+Rowan looked at him properly then. The lad's face was white, his chest heaving, and there was mud
+all down one side of him where he must have fallen on the path. That was not the face of someone who
+had seen a bat.
 
-"You're sure it was the violet."
+"Sit," Rowan said. "Breathe. Now tell it again, slower."
+
+Fern sat, and told it again. The flicker. Turning back to find all seven burning as if nothing had
+happened. Telling himself he was tired. Then his shadow fading on the path, and the violet stone
+going out, and the others following it, one after another, until there was nothing left on the hill
+but the dark.
+
+Rowan did not interrupt. He never did. He listened with his arms folded, watching Fern's face rather
+than the words, the way he listened to every report.
+
+"The violet," he said, when Fern had finished. "You're sure it went first."
 
 "I'm sure."
 
-Rowan got up and went to the window that faced north.
-On any night of the year you could see a faint glow over the birches from there.
+Rowan went to the window that faced north. On any night of the year you could see a faint glow over
+the birches from there. He had stood at that window more nights than he could remember, and it had
+always been there.
 
-There wasn't one.
+It wasn't there now.
 
-He stood at the window a long time. Fern had once watched him walk into the sheep pens at midnight
-with a lantern and a stick and a wolf on the other side of the hurdle. He had never seen him look
-like this, like a man counting something and getting the wrong number.
+"Rowan?"
 
-"Ring for the watch," Rowan said at last. "All of them. Then go home and sleep."
+He didn't answer. He was thinking about his wife.
 
-"I can't sleep."
+She had said it more than once, in the years before she went back to her people. Usually at this
+same window, with Hareguy asleep in the next room. _The stones will tell us, Rowan. When they
+change, it will be time._ And Rowan, who had stood on that hill a thousand nights and never once
+seen them change, would smile and say, _Then we'll be waiting a long while._
 
-Rowan looked at him. Then he took the second chair down from the wall, the one that had been his
-son's before the boy went off to Brightwater, and set it by the fire.
+He had never quite believed her. He had never needed to. The stones never changed.
 
-"Then sit with me till it's light."
+"Ring for the watch," he said at last. "All of them."
+
+Fern was already on his feet. "And then what?"
+
+Rowan turned from the window. For a moment he looked older than Fern had ever seen him. Then he took
+paper and ink down from the shelf and set them on the table.
+
+"And then I need to write a letter."
+
+"To who?"
+
+"Hareguy."
+
+Fern stared at him. "Hair Guy? What's Hair Guy going to do about..."
+
+"Hair-gway," Rowan said, without thinking, exactly the way she used to say it to him. He sat and
+dipped the pen. "Go. Ring the bell."
+
+Fern went. Behind him, at the window that looked out on nothing, Rowan began to write.
+
+_(Draft from here on: not yet rewritten.)_
 
 ## Three houses
 
