@@ -58,3 +58,10 @@ These replace earlier canon wherever they conflict, including World Bible WB-C16
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | Rowan's wife | An Elf. She believed Hareguy's latent elvish abilities would develop, that the stones would play a part, and that this would follow a sign. |
 | The sign     | The unchanging stones dimming is that sign, which is why the letter calls Hareguy home.                                                     |
+
+| Topic              | Decision                                                                                                                          |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| Elves              | Rare. Most have left the land; the few who remain are often hidden and unseen.                                                    |
+| Elvish language    | Not used in the story's text. Only names carry it (Hareguy's is the common-tongue form of his elvish name).                       |
+| Hareguy's name     | He corrects people to "Hair-gway"; Mossvale keeps calling him "Hair Guy". Show this in a scene rather than explaining it.         |
+| Rowan and the sign | Rowan never quite believed his wife's prediction. The stones dimming is the moment he has to, and it is why he writes to Hareguy. |
