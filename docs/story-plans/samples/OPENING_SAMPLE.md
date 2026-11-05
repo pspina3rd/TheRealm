@@ -4,31 +4,21 @@
 
 The night patrol ended at the stones. It always had. You walked the hedge line west, cut up past the
 sheep pens, and followed the path through the birches, heading north, until, as you crested a barren
-hill, the glow could be seen. There you stopped, and looked, and said what every watchman in
-Mossvale had said at that spot for as long as there had been a watch:
+hill, the glow could be seen.
 
-"Seven lit. All's well."
+There he stood, as countless watch-people from Mossvale had stood before him, basking in the soft
+glow of the stones. They did not flicker in wind or fade in rain. In all the years of the watch,
+they had never once changed.
 
-Then you went home to bed.
+Fern sighed and waited a moment longer, as he had every night since his father died.
 
-Fern had said it more nights than he could count. Rowan had said it for thirty years. He was
-captain of the watch now and sent younger legs up the hill, but every morning, when Fern came by to
-report, he still asked: "Seven?" Fern would say seven, and Rowan would nod as if it were news.
+"Well, that's enough of that. I'm sure Rowan will have some training he wants me to do before the
+end of my shift..."
 
-Nobody knew what the stones were. They were older than the village and older than the road. Each
-burned its own colour, and people said each was the root of one of the seven kinds of magic, the
-place the teachers' crafts first came from. Children were told the stones kept watch while the
-village slept. Mostly they were simply there. They did not flicker in wind or fade in rain. In all
-the years of the watch, they had never once changed. That was the point of them.
+He turned to go, and the stones went dark.
 
-Fern reached the top of the hill, breath smoking, and looked.
-
-Seven.
-
-He opened his mouth to say it, and the stones went dark.
-
-Not out. Not for long. Less than a blink: a stutter, a skipped beat. Then all seven were back,
-steady, as if nothing had happened.
+Not out. Not for long. Less than a blink: a stutter, a skipped beat. When he spun back, all seven
+were burning, steady, as if nothing had happened.
 
 Fern stood very still.
 
@@ -36,10 +26,9 @@ He had been awake since the last bell. He had walked six miles in the dark. It w
 hedge looks like a man and a man looks like a hedge. He watched the stones until his eyes watered.
 They burned, seven colours, exactly as they had every night of his life.
 
-"Seven lit," he said, and it came out like a question. He shook his head. "All's well. You're
-tired. You're seeing things."
+"You're tired," he muttered, shaking his head. "You're seeing things."
 
-He turned to go.
+He turned away again.
 
 He felt it on the back of his neck before he saw it. His shadow on the path ahead of him went thin
 and grey.
@@ -145,8 +134,6 @@ round his fists, and did not let it run an inch further than it had to.
   years ago.
 - **The stones.** People believe each is the root of one kind of magic, and that the stones keep
   watch while the village sleeps. What they truly are waits on the choice of what the voice is.
-- **The watch's saying.** "Seven lit. All's well." ends every patrol, so the night it fails carries
-  weight, and it can return at the end of the story.
 - **Rowan's guilt.** Fern's father "did not come home", and Rowan holds the rope as if he cannot
   lose another. The cause of the death, and why Rowan blames himself, is left for later.
 - **Rowan's well.** He cracked the bedrock with the rune stone he will later give Fern. Nothing is
