@@ -42,3 +42,8 @@ These replace earlier canon wherever they conflict, including World Bible WB-C16
 | Rowan's limit | No bad knees. A skewed sense of duty to the town, and his guilt over Fern's father, keep him from going to Brightwater himself.                                        |
 | Lamp lighting | Dropped, along with the lamp order.                                                                                                                                    |
 | Opening night | The stones flicker at the patrol's last stop, then the violet stone goes out and the six dim behind Fern; he runs to Rowan. The watch saying: "Seven lit. All's well." |
+
+| Topic          | Decision                                                                                                                                                 |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Sleep" breath | Cut from the opening. The felt voice saying "Sleep" is an unearned call to adventure; the stones dimming is enough to send Fern running.                 |
+| Stone colours  | As the game draws them: violet (Arcane), blue (Water), cyan (Wind), green (Nature), gold (Lightning), orange (Earth), red (Fire). Violet goes out first. |

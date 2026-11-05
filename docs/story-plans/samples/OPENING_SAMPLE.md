@@ -6,9 +6,9 @@ The night patrol ended at the stones. It always had. You walked the hedge line w
 sheep pens, and followed the path through the birches, heading north, until, as you crested a barren
 hill, the glow could be seen.
 
-There he stood, as countless watch-people from Mossvale had stood before him, basking in the soft
-glow of the stones. In all the years of the watch, they had never once changed. Glowing softly, each
-a different color.
+There he stood, as countless watch-people from Mossvale had stood before him, basking in the light
+of the stones. In all the years of the watch, they had never once changed. Glowing softly, each a
+different color.
 
 Fern sighed and waited a moment longer, as he had every night since his father died.
 
@@ -31,7 +31,7 @@ He turned away again.
 He felt it on the back of his neck before he saw it. His shadow on the path ahead of him went thin
 and grey.
 
-The violet stone was out. The other six were fading out in sequence, blue, then green, yellow,
+The violet stone was out. The other six were fading out in sequence, blue, then cyan, green, gold,
 orange, and finally red, until the hill was nearly dark.
 
 Fern ran.
