@@ -49,20 +49,21 @@ Pounding at the door, and Fern's voice shouting, interrupted Rowan's musings.
 "I wonder what it is this time... He's so desperate for excitement he's probably mistaken a bat for
 a dragon again..."
 
-"Was it a little dragon again, or just a big bat?" Rowan asked as he opened the door.
+"Was it a little dragon again, or just a big bat", Rowan asks as he opens the door.
 
-Fern stumbled in, shouting, "Rowan! The stones... they... I was at the top of the hill and they..."
+Fern stumbles in shouting, "Rowan! The stones... they... I was at the top of the hill and they..."
 
 "The stones?"
 
 "Yes, they stopped glowing!!!"
 
-Rowan hesitated. The lad's face was white, his chest heaving, and there was mud all down one side of
-him.
+Rowan hesitates, the lad's face is white, his chest heaving, and there was mud all down one side of him.
 
 "Sit," Rowan said. "Breathe. Start from the beginning."
 
-Fern sat, and told it from the beginning. The flicker. Turning back to find all seven burning as if
+_(Draft from here on: not yet rewritten.)_
+
+Fern sat, and told it again. The flicker. Turning back to find all seven burning as if
 nothing had happened. Telling himself he was tired. Then his shadow fading on the path, and the
 violet stone going out, and the others following it, one after another, until there was nothing left
 on the hill but the dark.
