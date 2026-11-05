@@ -38,7 +38,7 @@ These replace earlier canon wherever they conflict, including World Bible WB-C16
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Fern          | He/him. Scouts for the Mossvale watch; the night patrol ends at the stone circle.                                                                                      |
 | Rowan         | Current captain of the watch. Childhood best friend of Fern's father; nearly a second father to Fern.                                                                  |
-| Fern's father | Dead. Rowan believes his own inaction caused the death. Cause and circumstances not yet decided.                                                                       |
+| Fern's father | Bracken. Dead. Rowan believes his own inaction caused the death. Cause and circumstances not yet decided.                                                              |
 | Rowan's limit | No bad knees. A skewed sense of duty to the town, and his guilt over Fern's father, keep him from going to Brightwater himself.                                        |
 | Lamp lighting | Dropped, along with the lamp order.                                                                                                                                    |
 | Opening night | The stones flicker at the patrol's last stop, then the violet stone goes out and the six dim behind Fern; he runs to Rowan. The watch saying: "Seven lit. All's well." |
