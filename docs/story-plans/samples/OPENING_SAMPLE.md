@@ -6,9 +6,9 @@ The night patrol ended at the stones. It always had. You walked the hedge line w
 sheep pens, and followed the path through the birches, heading north, until, as you crested a barren
 hill, the glow could be seen.
 
-There he stood, as countless watch-people from Mossvale had stood before him, basking in the light
-of the stones. In all the years of the watch, they had never once changed. Glowing softly, each a
-different color.
+There he stood, as countless others from Mossvale had stood before, basking in the light of the
+stones. In all the years of the watch, the stones had never changed, powered by ancient and powerful
+magic. Illuminating the night with their soft rainbow of colors.
 
 Fern sighed and waited a moment longer, as he had every night since his father died.
 
