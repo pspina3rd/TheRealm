@@ -12,8 +12,9 @@ at that spot for as long as there had been a watch:
 Then you went home to bed.
 
 Fern had said it more nights than he could count. Rowan had said it for thirty years, until his
-knees took him off the rota, and he still asked every morning over the porridge: "Seven?" Fern
-would say seven, and Rowan would nod as if it were news.
+knees took him off the night patrol. He was still captain of the watch, and every morning, when Fern
+came by to report, he still asked: "Seven?" Fern would say seven, and Rowan would nod as if it were
+news.
 
 Nobody knew what the stones were. They were older than the village and older than the road. Each
 burned its own colour, and people said each was the root of one of the seven kinds of magic, the
@@ -58,8 +59,9 @@ Fern ran.
 He did not remember the path down. He remembered the birches going past like bars, falling once,
 and Rowan's door, and hammering on it with both fists.
 
-Rowan opened it already in his boots, the old watch coat over his nightshirt. Thirty years of night
-duty does not leave a man. He took one look at Fern's face and stepped aside.
+Rowan opened it already in his boots, his captain's coat over his nightshirt. Thirty years of night
+duty does not leave a man. He and Fern's father had grown up two doors apart on this lane, and Rowan
+had known Fern since the day he was born. He took one look at Fern's face and stepped aside.
 
 "Sit."
 
@@ -84,7 +86,7 @@ He stood at the window a long time. Fern had once watched him walk into the shee
 with a lantern and a stick and a wolf on the other side of the hurdle. He had never seen him look
 like this, like a man counting something and getting the wrong number.
 
-"Ring for the watch," Rowan said at last. "Then go home and sleep."
+"Ring for the watch," Rowan said at last. "All of them. Then go home and sleep."
 
 "I can't sleep."
 
@@ -137,8 +139,9 @@ Fern took the rope.
 
 ## What to judge
 
-- **Fern and Rowan.** Fern scouts for the village watch. Rowan was its captain, trained Fern, and
-  has become close to a father. His own son left for Brightwater years ago.
+- **Fern and Rowan.** Fern scouts for the village watch. Rowan is its captain, Fern's father's
+  childhood best friend, and nearly a second father to Fern. Rowan's own son left for Brightwater
+  years ago.
 - **The stones.** People believe each is the root of one kind of magic, and that the stones keep
   watch while the village sleeps. What they truly are waits on the choice of what the voice is.
 - **The watch's saying.** "Seven lit. All's well." ends every patrol, so the night it fails carries
