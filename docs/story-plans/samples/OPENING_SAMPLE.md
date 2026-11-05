@@ -66,7 +66,7 @@ out, with a faint light in it that moved when nothing moved it.
 "Three."
 
 He nodded, as if it were a number he had been expecting. He was a broad man gone narrow at the
-edges, and his knees had stopped taking ladders two winters ago, which was how Fern had come by
+edges, and his knees had given up the north path two winters ago, which was how Fern had come by
 the morning walk.
 
 "I dug this well," he said. "Forty years back. Went down further than I meant to. There was a stone
@@ -91,8 +91,8 @@ on.
 
 - **Voice and tone.** Plain words, serious stakes, small humour from character, wonder in ordinary
   things.
-- **Small inventions.** Fern walks the north path to read the weather, a job taken over from Rowan when his knees
-  failed. Rowan cracked the
-  bedrock with the rune stone he later gives Fern. The baker is a specific person with a habit.
+- **Small inventions.** Fern walks the north path to read the weather, a job taken over from Rowan
+  when his knees failed. Rowan cracked the bedrock with the rune stone he later gives Fern. The
+  baker is a specific person with a habit.
 - **What comes next.** Clearing the well, then Kestrel's letter about Rowan's son at Brightwater,
   then Fern's choice to leave.
