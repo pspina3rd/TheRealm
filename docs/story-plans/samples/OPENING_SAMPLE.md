@@ -7,24 +7,22 @@ sheep pens, and followed the path through the birches, heading north, until, as 
 hill, the glow could be seen.
 
 There he stood, as countless watch-people from Mossvale had stood before him, basking in the soft
-glow of the stones. They did not flicker in wind or fade in rain. In all the years of the watch,
-they had never once changed.
+glow of the stones. In all the years of the watch, they had never once changed. Glowing softly, each
+a different color.
 
 Fern sighed and waited a moment longer, as he had every night since his father died.
 
 "Well, that's enough of that. I'm sure Rowan will have some training he wants me to do before the
 end of my shift..."
 
-He turned to go, and the stones went dark.
-
-Not out. Not for long. Less than a blink: a stutter, a skipped beat. When he spun back, all seven
-were burning, steady, as if nothing had happened.
+He turned to go, and the stones seemed to dim. He turned back, and all seven were burning steadily,
+as if nothing had happened.
 
 Fern stood very still.
 
-He had been awake since the last bell. He had walked six miles in the dark. It was the hour when a
+He had been awake since dusk. He had walked six miles in the dark. The hour had long passed when a
 hedge looks like a man and a man looks like a hedge. He watched the stones until his eyes watered.
-They burned, seven colours, exactly as they had every night of his life.
+They glowed, unchanging, exactly as they had every night of his life.
 
 "You're tired," he muttered, shaking his head. "You're seeing things."
 
@@ -33,12 +31,8 @@ He turned away again.
 He felt it on the back of his neck before he saw it. His shadow on the path ahead of him went thin
 and grey.
 
-He turned back. The violet stone was gone. The other six were sinking, slowly, the way coals sink
-when a door opens somewhere in the house, until the hill was nearly dark.
-
-Then the ground breathed. It was not a tremor. Somewhere far below, something enormous drew in a
-long breath, the way a sleeper breathes before turning over, and for the length of it the whole
-valley was told one thing. The one thing was _sleep_.
+The violet stone was out. The other six were fading out in sequence, blue, then green, yellow,
+orange, and finally red, until the hill was nearly dark.
 
 Fern ran.
 
