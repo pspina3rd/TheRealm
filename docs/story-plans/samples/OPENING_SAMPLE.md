@@ -7,8 +7,8 @@ sheep pens, and followed the path through the birches, heading north, until, as 
 hill, the glow could be seen.
 
 There he stood, as countless others from Mossvale had stood before, basking in the light of the
-stones. In all the years of the watch, the stones had never changed, powered by ancient and powerful
-magic. Illuminating the night with their soft rainbow of colors.
+stones. In all the years of the watch, the stones had never changed, infused with ancient and
+powerful magic. Illuminating the night with their soft rainbow of colors.
 
 Fern sighed and waited a moment longer, as he had every night since his father died.
 
