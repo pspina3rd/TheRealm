@@ -112,8 +112,6 @@ dipped the pen. "Go. Ring the bell."
 
 Fern went. Behind him, at the window that looked out on nothing, Rowan began to write.
 
-_(Draft from here on: not yet rewritten.)_
-
 ## Three houses
 
 By dawn, three houses would not wake.
