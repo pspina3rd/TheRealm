@@ -1,98 +1,147 @@
 # Opening sample
 
-## Before dawn
+## The last stop
 
-There were seven stones in the circle north of Mossvale, and from the top of the north path you
-could see all of them: seven small lights low against the dark, each its own colour, set round the
-hill like people keeping watch at a bedside.
+The night patrol ended at the stones. It always had. You walked the hedge line west, cut up past
+the sheep pens, followed the north path through the birches, and came out on the bare hill where
+the circle stood. There you stopped, and looked, and said what every watchman in Mossvale had said
+at that spot for as long as there had been a watch:
 
-Fern walked that path every morning before first light, to read the weather for the village: which
-way the wind sat, whether the frost would hold, whether Bean should cover her beds. It had been
-Rowan's walk once. Every morning began the same way, with a look north to count the stones. Seven.
-Then the wind on the back of the hand, and the long way down.
+"Seven lit. All's well."
 
-That morning there were six.
+Then you went home to bed.
 
-The violet one had not dimmed or flickered. It was simply gone, as if a hand had closed over it.
-Fern stood with a hand on the cold top rail of the gate and waited for it to come back, the way you
-wait after missing a step on the stair. The other six held a moment longer. Then all six sank
-together, not out but lower, like coals when a door opens somewhere in the house.
+Fern had said it more nights than he could count. Rowan had said it for thirty years, until his
+knees took him off the rota, and he still asked every morning over the porridge: "Seven?" Fern
+would say seven, and Rowan would nod as if it were news.
 
-The ground moved. It was not a tremor; it was slower than that. Fern felt it through the gate and
-in the teeth: a long breath drawn in, far down, the way a sleeper breathes before turning over.
-Down in the village, every lit window dimmed at once.
+Nobody knew what the stones were. They were older than the village and older than the road. Each
+burned its own colour, and people said each was the root of one of the seven kinds of magic, the
+place the teachers' crafts first came from. Children were told the stones kept watch while the
+village slept. Mostly they were simply there. They did not flicker in wind or fade in rain. In all
+the years of the watch, they had never once changed. That was the point of them.
 
-There was no sound. Afterward Fern could never say there had been a voice. Only that, for the
-length of that breath, the whole valley had been told one thing, and the one thing was _sleep_.
+Fern reached the top of the hill, breath smoking, and looked.
 
-Then the windows steadied, and it was an ordinary dark. Fern lifted a hand to find the wind, and
-found nothing. The air lay flat and still over Mossvale, and it did not move again until noon.
+Seven.
+
+He opened his mouth to say it, and the stones went dark.
+
+Not out. Not for long. Less than a blink: a stutter, a skipped beat. Then all seven were back,
+steady, as if nothing had happened.
+
+Fern stood very still.
+
+He had been awake since the last bell. He had walked six miles in the dark. It was the hour when a
+hedge looks like a man and a man looks like a hedge. He watched the stones until his eyes watered.
+They burned, seven colours, exactly as they had every night of his life.
+
+"Seven lit," he said, and it came out like a question. He shook his head. "All's well. You're
+tired. You're seeing things."
+
+He turned to go.
+
+He felt it on the back of his neck before he saw it. His shadow on the path ahead of him went thin
+and grey.
+
+He turned back. The violet stone was gone. The other six were sinking, slowly, the way coals sink
+when a door opens somewhere in the house, until the hill was nearly dark.
+
+Then the ground breathed. It was not a tremor. Somewhere far below, something enormous drew in a
+long breath, the way a sleeper breathes before turning over, and for the length of it the whole
+valley was told one thing. The one thing was _sleep_.
+
+Fern ran.
+
+## Rowan
+
+He did not remember the path down. He remembered the birches going past like bars, falling once,
+and Rowan's door, and hammering on it with both fists.
+
+Rowan opened it already in his boots, the old watch coat over his nightshirt. Thirty years of night
+duty does not leave a man. He took one look at Fern's face and stepped aside.
+
+"Sit."
+
+"The stones —"
+
+"Sit. Breathe. Now tell it again, slower."
+
+Fern told it again. Rowan listened the way he had listened to every report Fern had ever brought
+him: without interrupting, watching Fern's face rather than the words. When it was done, he was
+quiet.
+
+"You're sure it was the violet."
+
+"I'm sure."
+
+Rowan got up. It took him two tries and a hand on the table. He went to the window that faced north.
+On any night of the year you could see a faint glow over the birches from there.
+
+There wasn't one.
+
+He stood at the window a long time. Fern had once watched him walk into the sheep pens at midnight
+with a lantern and a stick and a wolf on the other side of the hurdle. He had never seen him look
+like this, like a man counting something and getting the wrong number.
+
+"Ring for the watch," Rowan said at last. "Then go home and sleep."
+
+"I can't sleep."
+
+Rowan looked at him. Then he took the second chair down from the wall, the one that had been his
+son's before the boy went off to Brightwater, and set it by the fire.
+
+"Then sit with me till it's light."
 
 ## Three houses
 
-Mossvale woke the way it always did, which was the first strange thing. Bean was in her beds before
-the light, kneeling between the rows with her sleeves pushed up. Ordor's shutters banged open on
-the hour. Somewhere behind the bakehouse, Pip was arguing with a tower of glass blocks.
+By dawn, three houses would not wake.
 
-But there was no smoke from the bakehouse chimney.
+The baker was in his chair by a cold oven, head tipped back, one hand open on his knee as if he had
+been about to show someone something. The Millers were in their bed. Old Tom was on top of his
+blankets with his boots still on. All of them were breathing. None of them woke when Fern said
+their names, or shook them, or, feeling foolish and then frightened, pinched the back of a hand
+hard enough to mark it.
 
-Fern knocked. The baker had not missed a dawn in thirty years; he said bread knew when it was being
-neglected. No one came. Through the gap in the shutter Fern could see him in his chair by the cold
-oven, head tipped back, one hand open on his knee as if he had been about to show someone
-something. He was breathing. He did not wake when Fern said his name, or shook him, or, feeling
-foolish and then frightened, pinched the back of his hand hard enough to mark it.
+The rest of Mossvale got up anyway, because that is what people do. Bean was in her beds by first
+light, sleeves pushed up, pressing seedlings into the soil.
 
-There were two more houses like it before the sun cleared the hedge. The Millers, both of them.
-Old Tom, who slept with his boots on.
-
-"They're warm," Bean said, when Fern told her. She did not get up. She pressed a seedling into the
-soil and firmed it with two fingers, and then another. "Warm's something."
+"They're warm," she said, when Fern told her. She did not stop. "Warm's something."
 
 "You should come and see."
 
-"I've seen sleeping. I'll see it at noon if it's still there." Another seedling. Her hands were not
-quite steady. "Somebody has to have these in before the frost. If I stop, I'll stop."
+"I've seen sleeping." Another seedling. Her hands were not quite steady. "Somebody has to have these
+in before the frost. If I stop, I'll stop."
 
 ## The well
 
 Rowan was at the well, which was where Mossvale went when it did not know where else to go. He had
 the bucket up on the rim and was looking into it like a man rereading a letter.
 
-The water was violet. Not tinted: violet all the way down, the colour of the stone that had gone
-out, with a faint light in it that moved when nothing moved it.
+The water was violet. Not tinted: violet all the way down, with a faint light in it that moved when
+nothing moved it.
 
-"Three houses," Rowan said, without looking up.
-
-"Three."
-
-He nodded, as if it were a number he had been expecting. He was a broad man gone narrow at the
-edges, and his knees had given up the north path two winters ago, which was how Fern had come by
-the morning walk.
-
-"I dug this well," he said. "Forty years back. Went down further than I meant to. There was a stone
-at the bottom I couldn't shift, so I found an old rune stone in the spoil and cracked it open with
-that." He tipped the bucket. The violet water went back into the dark with a sound like someone
-hushing a child. "Never thought about it since. I'm thinking about it now."
+"I dug this well," he said. "Before I ever joined the watch. Went down further than I meant to.
+There was a stone at the bottom I couldn't shift, so I found an old rune stone in the spoil and
+cracked it open with that." He tipped the bucket. The violet water went back into the dark with a
+sound like someone hushing a child. "Never thought about it since. I'm thinking about it now."
 
 "You don't know it's the well."
 
 "No," Rowan agreed. "I don't know anything. That's what I don't like." He held out the rope.
-"There's a crust on the walls. I can feel it through the line. I can't go down. You can."
+"There's a crust on the walls. I can feel it through the line. I can't go down any more. You can."
 
-Fern looked at the rope, and then north, where six stones would be paling against the coming day,
-and the seventh was not.
-
-Behind them, a bird landed on the bakehouse chimney, waited for warmth that did not come, and flew
-on.
+Fern took the rope.
 
 ---
 
 ## What to judge
 
-- **Voice and tone.** Plain words, serious stakes, small humour from character, wonder in ordinary
-  things.
-- **Small inventions.** Fern walks the north path to read the weather, a job taken over from Rowan
-  when his knees failed. Rowan cracked the bedrock with the rune stone he later gives Fern. The
-  baker is a specific person with a habit.
-- **What comes next.** Clearing the well, then Kestrel's letter about Rowan's son at Brightwater,
-  then Fern's choice to leave.
+- **Fern and Rowan.** Fern scouts for the village watch. Rowan was its captain, trained Fern, and
+  has become close to a father. His own son left for Brightwater years ago.
+- **The stones.** People believe each is the root of one kind of magic, and that the stones keep
+  watch while the village sleeps. What they truly are waits on the choice of what the voice is.
+- **The watch's saying.** "Seven lit. All's well." ends every patrol, so the night it fails carries
+  weight, and it can return at the end of the story.
+- **Rowan's well.** He cracked the bedrock with the rune stone he will later give Fern. Nothing is
+  confirmed yet.
