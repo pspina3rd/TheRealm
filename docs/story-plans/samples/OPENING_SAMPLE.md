@@ -3,8 +3,8 @@
 ## The last stop
 
 The night patrol ended at the stones. It always had. You walked the hedge line west, cut up past
-the sheep pens, followed the north path through the birches, and came out on the bare hill where
-the circle stood. There you stopped, and looked, and said what every watchman in Mossvale had said
+the sheep pens, and followed the path through the birches, heading north, until, as you crested a
+barren hill, the glow could be seen. There you stopped, and looked, and said what every watchman in Mossvale had said
 at that spot for as long as there had been a watch:
 
 "Seven lit. All's well."
