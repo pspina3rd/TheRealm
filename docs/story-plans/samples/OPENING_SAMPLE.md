@@ -2,29 +2,31 @@
 
 ## Before dawn
 
-There were seven stones in the circle north of Mossvale, and from the top of the lane you could
-see all of them: seven small lights low against the dark, each its own colour, set round the hill
-like people keeping watch at a bedside.
+There were seven stones in the circle north of Mossvale, and from the top of the north path you
+could see all of them: seven small lights low against the dark, each its own colour, set round the
+hill like people keeping watch at a bedside.
 
-Fern had lit the lane lamps every morning for four years, and every morning began the same way,
-with a look north to count them. Seven. Then the taper, the ladder, the first lamp by the mill.
+Fern walked that path every morning before first light, to read the weather for the village: which
+way the wind sat, whether the frost would hold, whether Bean should cover her beds. It had been
+Rowan's walk once. Every morning began the same way, with a look north to count the stones. Seven.
+Then the wind on the back of the hand, and the long way down.
 
 That morning there were six.
 
 The violet one had not dimmed or flickered. It was simply gone, as if a hand had closed over it.
-Fern stood with the taper burning down and waited for it to come back, the way you wait after
-missing a step on the stair. The other six held a moment longer. Then all six sank together, not
-out but lower, like coals when a door opens somewhere in the house.
+Fern stood with a hand on the cold top rail of the gate and waited for it to come back, the way you
+wait after missing a step on the stair. The other six held a moment longer. Then all six sank
+together, not out but lower, like coals when a door opens somewhere in the house.
 
-The ground moved. It was not a tremor; it was slower than that. Fern felt it through the feet of
-the ladder and in the teeth: a long breath drawn in, far down, the way a sleeper breathes before
-turning over. Every lamp on the lane bowed its flame toward the earth.
+The ground moved. It was not a tremor; it was slower than that. Fern felt it through the gate and
+in the teeth: a long breath drawn in, far down, the way a sleeper breathes before turning over.
+Down in the village, every lit window dimmed at once.
 
 There was no sound. Afterward Fern could never say there had been a voice. Only that, for the
 length of that breath, the whole valley had been told one thing, and the one thing was _sleep_.
 
-Then the flames stood up again, and it was an ordinary dark, and the taper had burned down to
-Fern's fingers.
+Then the windows steadied, and it was an ordinary dark. Fern lifted a hand to find the wind, and
+found nothing. The air lay flat and still over Mossvale, and it did not move again until noon.
 
 ## Three houses
 
@@ -65,7 +67,7 @@ out, with a faint light in it that moved when nothing moved it.
 
 He nodded, as if it were a number he had been expecting. He was a broad man gone narrow at the
 edges, and his knees had stopped taking ladders two winters ago, which was how Fern had come by
-the lamps.
+the morning walk.
 
 "I dug this well," he said. "Forty years back. Went down further than I meant to. There was a stone
 at the bottom I couldn't shift, so I found an old rune stone in the spoil and cracked it open with
@@ -89,7 +91,8 @@ on.
 
 - **Voice and tone.** Plain words, serious stakes, small humour from character, wonder in ordinary
   things.
-- **Small inventions.** Fern lights the lamps because Rowan's knees failed. Rowan cracked the
+- **Small inventions.** Fern walks the north path to read the weather, a job taken over from Rowan when his knees
+  failed. Rowan cracked the
   bedrock with the rune stone he later gives Fern. The baker is a specific person with a habit.
 - **What comes next.** Clearing the well, then Kestrel's letter about Rowan's son at Brightwater,
   then Fern's choice to leave.
