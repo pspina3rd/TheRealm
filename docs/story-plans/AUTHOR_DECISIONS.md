@@ -29,3 +29,16 @@ Undecided items remain proposals.
 | A-D3, PD-D05 | Vesper they/them; Fennick he/him throughout | Yes    |                                                                                           |
 | PD-D01       | Vesper's motive "to be heard"               | Held   | Author needs the story laid out as a story first. See [STORY_RETOLD.md](STORY_RETOLD.md). |
 | PD-D06       | Fennick's twelve children and his failure   | Held   | As PD-D01.                                                                                |
+
+## Round 3 — Rebuilt opening (5 November 2026)
+
+These replace earlier canon wherever they conflict, including World Bible WB-C16 (Rowan's knees).
+
+| Topic         | Decision                                                                                                                                                               |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fern          | He/him. Scouts for the Mossvale watch; the night patrol ends at the stone circle.                                                                                      |
+| Rowan         | Current captain of the watch. Childhood best friend of Fern's father; nearly a second father to Fern.                                                                  |
+| Fern's father | Dead. Rowan believes his own inaction caused the death. Cause and circumstances not yet decided.                                                                       |
+| Rowan's limit | No bad knees. A skewed sense of duty to the town, and his guilt over Fern's father, keep him from going to Brightwater himself.                                        |
+| Lamp lighting | Dropped, along with the lamp order.                                                                                                                                    |
+| Opening night | The stones flicker at the patrol's last stop, then the violet stone goes out and the six dim behind Fern; he runs to Rowan. The watch saying: "Seven lit. All's well." |

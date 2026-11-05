@@ -11,10 +11,9 @@ at that spot for as long as there had been a watch:
 
 Then you went home to bed.
 
-Fern had said it more nights than he could count. Rowan had said it for thirty years, until his
-knees took him off the night patrol. He was still captain of the watch, and every morning, when Fern
-came by to report, he still asked: "Seven?" Fern would say seven, and Rowan would nod as if it were
-news.
+Fern had said it more nights than he could count. Rowan had said it for thirty years. He was
+captain of the watch now and sent younger legs up the hill, but every morning, when Fern came by to
+report, he still asked: "Seven?" Fern would say seven, and Rowan would nod as if it were news.
 
 Nobody knew what the stones were. They were older than the village and older than the road. Each
 burned its own colour, and people said each was the root of one of the seven kinds of magic, the
@@ -60,8 +59,9 @@ He did not remember the path down. He remembered the birches going past like bar
 and Rowan's door, and hammering on it with both fists.
 
 Rowan opened it already in his boots, his captain's coat over his nightshirt. Thirty years of night
-duty does not leave a man. He and Fern's father had grown up two doors apart on this lane, and Rowan
-had known Fern since the day he was born. He took one look at Fern's face and stepped aside.
+duty does not leave a man. He and Fern's father had grown up two doors apart on this lane. Rowan had
+known Fern since the day he was born, and had looked out for him since the day his father did not
+come home. He took one look at Fern's face and stepped aside.
 
 "Sit."
 
@@ -77,7 +77,7 @@ quiet.
 
 "I'm sure."
 
-Rowan got up. It took him two tries and a hand on the table. He went to the window that faced north.
+Rowan got up and went to the window that faced north.
 On any night of the year you could see a faint glow over the birches from there.
 
 There wasn't one.
@@ -131,9 +131,10 @@ sound like someone hushing a child. "Never thought about it since. I'm thinking 
 "You don't know it's the well."
 
 "No," Rowan agreed. "I don't know anything. That's what I don't like." He held out the rope.
-"There's a crust on the walls. I can feel it through the line. I can't go down any more. You can."
+"There's a crust on the walls. I can feel it through the line. You're lighter. I'll hold it."
 
-Fern took the rope.
+Fern took the end and went over the rim. Above him, Rowan braced his feet and wound the rope twice
+round his fists, and did not let it run an inch further than it had to.
 
 ---
 
@@ -146,5 +147,7 @@ Fern took the rope.
   watch while the village sleeps. What they truly are waits on the choice of what the voice is.
 - **The watch's saying.** "Seven lit. All's well." ends every patrol, so the night it fails carries
   weight, and it can return at the end of the story.
+- **Rowan's guilt.** Fern's father "did not come home", and Rowan holds the rope as if he cannot
+  lose another. The cause of the death, and why Rowan blames himself, is left for later.
 - **Rowan's well.** He cracked the bedrock with the rune stone he will later give Fern. Nothing is
   confirmed yet.
