@@ -48,8 +48,13 @@ These replace earlier canon wherever they conflict, including World Bible WB-C16
 | "Sleep" breath | Cut from the opening. The felt voice saying "Sleep" is an unearned call to adventure; the stones dimming is enough to send Fern running.                 |
 | Stone colours  | As the game draws them: violet (Arcane), blue (Water), cyan (Wind), green (Nature), gold (Lightning), orange (Earth), red (Fire). Violet goes out first. |
 
-| Topic            | Decision                                                                                                                                                                                                          |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Fern's character | Restless and hungry for excitement in a quiet village, and still grieving Bracken. Both are true at once.                                                                                                         |
-| Rowan's son      | Alive and awake in Brightwater; not a sleeper. Details to come.                                                                                                                                                   |
-| The call         | Working direction: a letter asks Rowan's son to come home and help with the stones. Rowan's duty will not let him leave Mossvale in its hour of need, so Fern carries the letter and becomes the unexpected hero. |
+| Topic            | Decision                                                                                                                                                                                                                                   |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Fern's character | Restless and hungry for excitement in a quiet village, and still grieving Bracken. Both are true at once.                                                                                                                                  |
+| Rowan's son      | Hareguy (said "Hair-gway"; "Hair Guy" colloquially). Alive and awake in Brightwater; not a sleeper. Half-elf: his mother, Rowan's wife, was an Elf. His name is the common-tongue form of a traditional name in this land's elvish tongue. |
+| The call         | Working direction: a letter asks Rowan's son to come home and help with the stones. Rowan's duty will not let him leave Mossvale in its hour of need, so Fern carries the letter and becomes the unexpected hero.                          |
+
+| Topic        | Decision                                                                                                                                    |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Rowan's wife | An Elf. She believed Hareguy's latent elvish abilities would develop, that the stones would play a part, and that this would follow a sign. |
+| The sign     | The unchanging stones dimming is that sign, which is why the letter calls Hareguy home.                                                     |
