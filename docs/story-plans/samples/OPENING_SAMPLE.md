@@ -42,7 +42,7 @@ Rowan yawned as he put on his captain's coat. Thirty-five years he had been part
 the last ten as captain. A role he took over because Bracken, Fern's father, never returned.
 
 The two had grown up together, and were lifelong friends. Rowan had been elated when Bracken
-announced he would become a father. He still remembered the night —
+announced he would become a father. He still remembered the night...
 
 Pounding at the door, and Fern's voice shouting, interrupted Rowan's musings.
 
