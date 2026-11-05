@@ -31,8 +31,8 @@ He turned away again.
 He felt it on the back of his neck before he saw it. His shadow on the path ahead of him went thin
 and grey.
 
-The violet stone was out. The other six were fading out in sequence, blue, then cyan, green, gold,
-orange, and finally red, until the hill was nearly dark.
+The violet stone was out! The other six slowly followed: blue, then cyan, green and then gold,
+orange, and finally red, until the hill was awash in darkness.
 
 Fern ran.
 
