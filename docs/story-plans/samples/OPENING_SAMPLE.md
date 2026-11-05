@@ -1,6 +1,6 @@
 # Opening sample
 
-## The lamplighter
+## Before dawn
 
 There were seven stones in the circle north of Mossvale, and from the top of the lane you could
 see all of them: seven small lights low against the dark, each its own colour, set round the hill
