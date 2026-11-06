@@ -84,6 +84,52 @@ green, gold, orange, and just before red went out I ran."
 
 "I didn't stay to find out."
 
+"Then we'll go and see."
+
+Rowan grabbed the lantern from the hook by the door. Fern opened his mouth to argue, then closed it
+and followed him out.
+
+Rowan was stern and silent. Fern kept glancing nervously at him, desperate for Rowan to believe him.
+
+As they crested the barren hill, Fern stopped dead.
+
+All seven stones glowed brightly.
+
+"No... no, no, no. They were out, Rowan! I swear they were out!"
+
+"I know."
+
+Fern blinked. "You... you believe me?"
+
+"Lad, I've known you since the day you were born, I know you. And your tells. You were pale as the
+grave, I don't know what happened or why, but I do believe you."
+
+They stood there together for a long while, watching the stones glow.
+
+"If they go out again..." Rowan said quietly. "Whatever is doing this, a sword won't stop it.
+Neither will a watch that only knows how to carry one."
+
+"So what do we do?"
+
+Rowan turned to him. "You're going to learn magic."
+
+"Me? Magic?" A grin spread across Fern's face before he could stop it. "Real magic?"
+
+"Real magic. There are teachers out there, scattered across the land. You'll find them, and you'll
+learn whatever they can teach you."
+
+"Why not you? You're the captain."
+
+"Because..." Rowan looked back toward Mossvale. "...someone has to stay."
+
+Fern paled slightly, realizing he would be leaving his home.
+
+"And no," Rowan added, starting back down the path, "you can't use it on dragons."
+
+Fern's eyes went wide at the idea of fighting a dragon.
+
+"Or large bats," Rowan said, chuckling.
+
 _(Draft from here on: not yet rewritten.)_
 
 ## Three houses
