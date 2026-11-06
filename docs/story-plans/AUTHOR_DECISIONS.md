@@ -52,16 +52,24 @@ These replace earlier canon wherever they conflict, including World Bible WB-C16
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Fern's character | Restless and hungry for excitement in a quiet village, and still grieving Bracken. Both are true at once.                                                                                                                                  |
 | Rowan's son      | Hareguy (said "Hair-gway"; "Hair Guy" colloquially). Alive and awake in Brightwater; not a sleeper. Half-elf: his mother, Rowan's wife, was an Elf. His name is the common-tongue form of a traditional name in this land's elvish tongue. |
-| The call         | Working direction: a letter asks Rowan's son to come home and help with the stones. Rowan's duty will not let him leave Mossvale in its hour of need, so Fern carries the letter and becomes the unexpected hero.                          |
 
 | Topic        | Decision                                                                                                                                    |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | Rowan's wife | An Elf. She believed Hareguy's latent elvish abilities would develop, that the stones would play a part, and that this would follow a sign. |
-| The sign     | The unchanging stones dimming is that sign, which is why the letter calls Hareguy home.                                                     |
 
-| Topic              | Decision                                                                                                                          |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
-| Elves              | Rare. Most have left the land; the few who remain are often hidden and unseen.                                                    |
-| Elvish language    | Not used in the story's text. Only names carry it (Hareguy's is the common-tongue form of his elvish name).                       |
-| Hareguy's name     | He corrects people to "Hair-gway"; Mossvale keeps calling him "Hair Guy". Show this in a scene rather than explaining it.         |
-| Rowan and the sign | Rowan never quite believed his wife's prediction. The stones dimming is the moment he has to, and it is why he writes to Hareguy. |
+| Topic           | Decision                                                                                                                  |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Elves           | Rare. Most have left the land; the few who remain are often hidden and unseen.                                            |
+| Elvish language | Not used in the story's text. Only names carry it (Hareguy's is the common-tongue form of his elvish name).               |
+| Hareguy's name  | He corrects people to "Hair-gway"; Mossvale keeps calling him "Hair Guy". Show this in a scene rather than explaining it. |
+
+## Round 4 — Fern's call (6 November 2026)
+
+| Topic            | Decision                                                                                                                                                  |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The letter       | Dropped. Rowan does not write to Hareguy in the opening.                                                                                                  |
+| After the report | Rowan asks if the stones are still out; Fern did not stay to see. They climb the hill together and find the stones lit again. Rowan believes Fern anyway. |
+| The call         | To protect Mossvale, Rowan decides Fern must learn magic. Fern goes out to the regional mentors.                                                          |
+| Hareguy's entry  | After Fern has learned the magics, before the Moon Wyrm. Working idea: Hareguy is the catalyst for Arcane Weaving.                                        |
+| Rowan's window   | The stones cannot be seen from Mossvale. Their glow shows only as you crest the barren hill.                                                              |
+| Stone order      | Which stone went out first carries no special meaning in the opening.                                                                                     |
