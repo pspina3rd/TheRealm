@@ -2,9 +2,8 @@
 
 ## The last stop
 
-The night patrol ended at the stones. It always had. You walked the hedge line west, cut up past the
-sheep pens, and followed the path through the birches, heading north, until, as you crested a barren
-hill, the glow could be seen.
+The night patrol ended at the stones. It always had. You followed the path north through the birches
+until, as you crested a barren hill, the glow could be seen.
 
 There he stood, as countless others from Mossvale had stood before, basking in the light of the
 stones. In all the years of the watch, the stones had never changed, infused with ancient and
@@ -61,56 +60,31 @@ Rowan hesitates, the lad's face is white, his chest heaving, and there was mud a
 
 "Sit," Rowan said. "Breathe. Start from the beginning."
 
+Fern dropped into the chair by the fire. He took a breath, then another.
+
+"I was finishing the patrol and had stopped at the top of the hill, like I always do, and..." He
+shook his head. "When I turned to leave, I swear they dimmed, just for a split second. When I turned
+back... I thought I was going crazy."
+
+"Dimmed? The stones never dim."
+
+"I figured I was tired, it was a long day."
+
+Rowan waited.
+
+"I waited a few more minutes and left. As I walked away, my shadow started fading on the path in
+front of me. I spun around and the violet stone was out! Then they all started fading, blue, cyan,
+green, gold, orange, and just before red went out I ran."
+
+"All of them?"
+
+"It was pitch black as I reached the birches."
+
+"Are they still out?"
+
+"I didn't stay to find out."
+
 _(Draft from here on: not yet rewritten.)_
-
-Fern sat, and told it again. The flicker. Turning back to find all seven burning as if
-nothing had happened. Telling himself he was tired. Then his shadow fading on the path, and the
-violet stone going out, and the others following it, one after another, until there was nothing left
-on the hill but the dark.
-
-Rowan did not interrupt. He never did. He listened with his arms folded, watching Fern's face rather
-than the words, the way he listened to every report.
-
-"The violet," he said, when Fern had finished. "You're sure it went first."
-
-"I'm sure."
-
-Rowan went to the window that faced north. On any night of the year you could see a faint glow over
-the birches from there. He had stood at that window more nights than he could remember, and it had
-always been there.
-
-It wasn't there now.
-
-"Rowan?"
-
-He didn't answer. He was thinking about his wife.
-
-She had said it more than once, in the years before she went back to her people. Usually at this
-same window, with Hareguy asleep in the next room. _The stones will tell us, Rowan. When they
-change, it will be time._ And Rowan, who had stood on that hill a thousand nights and never once
-seen them change, would smile and say, _Then we'll be waiting a long while._
-
-He had never quite believed her. He had never needed to. The stones never changed.
-
-"Ring for the watch," he said at last. "All of them."
-
-Fern was already on his feet. "And then what?"
-
-Rowan turned from the window. For a moment he looked older than Fern had ever seen him. Then he took
-paper and ink down from the shelf and set them on the table.
-
-"And then I need to write a letter."
-
-"To who?"
-
-"Hareguy."
-
-Fern stared at him. "Hair Guy? What's Hair Guy going to do about..."
-
-"Hair-gway," Rowan said, without thinking, exactly the way she used to say it to him. He sat and
-dipped the pen. "Go. Ring the bell."
-
-Fern went. Behind him, at the window that looked out on nothing, Rowan began to write.
 
 ## Three houses
 
