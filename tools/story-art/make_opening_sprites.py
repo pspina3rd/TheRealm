@@ -75,24 +75,37 @@ def opaque_box(sheet: Image.Image, box) -> tuple[int, int, int, int]:
     return sheet.crop(box).getbbox() or (0, 0, FRAME, FRAME)
 
 
+MUD_DARK = rgb(68, 50, 32)
+MUD_SPLASH = rgb(132, 100, 66)
+
+
 def add_mud(sheet: Image.Image) -> Image.Image:
-    """Splash mud down the right-hand side of Fern's clothes, below the shoulders."""
+    """Mud caked round both trouser cuffs, with a few small splashes higher on the body."""
     out = sheet.copy()
     px = out.load()
-    clothes = set(FERN_TOP) | set(TEAL_SLEEVE) | {rgb(82, 128, 174), rgb(102, 160, 217), rgb(30, 48, 65), rgb(41, 64, 87)}
+    trousers = set(BLUE_LEG) | {rgb(30, 48, 65)}
+    clothes = set(FERN_TOP) | set(TEAL_SLEEVE) | trousers
     for _, _, box in frames(sheet):
-        left, top, right, bottom = opaque_box(sheet, box)
-        mid = box[0] + (left + right) // 2
-        # One solid splash over the lower right of the clothes, like a fall on one side.
-        cx = (mid + box[0] + right) / 2
-        cy = box[1] + top + (bottom - top) * 0.8
-        rx = max(1.5, (box[0] + right - mid) * 0.4)
-        ry = (bottom - top) * 0.13
-        for y in range(box[1] + top, box[1] + bottom):
-            for x in range(box[0] + left, box[0] + right):
-                inside = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1
-                if px[x, y] in clothes and inside:
-                    px[x, y] = MUD
+        # Cuffs: the lowest two trouser pixels in every column, darkest at the hem.
+        for x in range(box[0], box[2]):
+            column = [y for y in range(box[1], box[3]) if px[x, y] in trousers]
+            if column:
+                hem = max(column)
+                px[x, hem] = MUD_DARK
+                if px[x, hem - 1] in trousers:
+                    px[x, hem - 1] = MUD
+        # Splashes: a few single specks spread over the clothes, at least three pixels apart.
+        candidates = sorted(
+            ((x, y) for y in range(box[1], box[3]) for x in range(box[0], box[2]) if px[x, y] in clothes),
+            key=lambda p: _noise(*p),
+        )
+        placed: list[tuple[int, int]] = []
+        for x, y in candidates:
+            if len(placed) == 6:
+                break
+            if all(abs(x - qx) + abs(y - qy) >= 4 for qx, qy in placed):
+                px[x, y] = MUD_SPLASH
+                placed.append((x, y))
     return out
 
 
