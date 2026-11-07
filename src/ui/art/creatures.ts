@@ -67,6 +67,12 @@ export const CREATURES = {
   'char.018': person('char.018'),
   'char.027': person('char.027'),
   'char.033': person('char.033'),
+  // Story scene variants (Fern muddied, Rowan in his captain's coat, the memory of Bracken)
+  'story.fernMuddy': person('story.fern-muddy'),
+  'story.rowanCoat': person('story.rowan-coat'),
+  'story.rowanLantern': person('story.rowan-lantern'),
+  'story.rowanYoung': person('story.rowan-young'),
+  'story.bracken': person('story.bracken'),
   chest: {
     map: { kind: 'still', region: { image: 'caves', x: 642, y: 36, w: 28, h: 26 } },
     battleScale: 3,

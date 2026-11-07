@@ -1,4 +1,5 @@
 import { SURFACE_STONES } from '../data/surfaceLayout';
+import { drawStandingStone } from './standingStone';
 import { NPCS } from '../data/npcs';
 import { regionFixed } from '../game/encounterFlow';
 import { MAPS } from '../data/maps';
@@ -354,27 +355,7 @@ export class WorldView {
       const bright = nature ? nature.light > 0 : region !== null && regionFixed(state, region);
       const px = x * TILE - camX + TILE / 2;
       const py = y * TILE - camY + TILE;
-      ctx.save();
-      if (bright) {
-        ctx.globalAlpha = 0.5 + 0.25 * Math.sin(timeMs / 300);
-        ctx.fillStyle = ELEMENT_COLOR_OF[element];
-        ctx.beginPath();
-        ctx.ellipse(px, py - 4, TILE * 0.6, TILE * 0.25, 0, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.globalAlpha = bright ? 1 : 0.45;
-      ctx.fillStyle = ELEMENT_COLOR_OF[element];
-      ctx.beginPath();
-      ctx.moveTo(px - 7, py - 2);
-      ctx.lineTo(px - 5, py - 30);
-      ctx.lineTo(px, py - 38);
-      ctx.lineTo(px + 5, py - 30);
-      ctx.lineTo(px + 7, py - 2);
-      ctx.closePath();
-      ctx.fill();
-      ctx.strokeStyle = '#1a1a26';
-      ctx.stroke();
-      ctx.restore();
+      drawStandingStone(ctx, px, py, ELEMENT_COLOR_OF[element], bright ? 1 : 0, timeMs);
     });
   }
 

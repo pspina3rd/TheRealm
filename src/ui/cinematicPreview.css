@@ -1,0 +1,44 @@
+body {
+  margin: 0;
+  background: #14161f;
+  color: #ece6d6;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+#cinematic-preview {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.cinematic-stage {
+  display: block;
+  width: 100%;
+  image-rendering: pixelated;
+  border-radius: 6px;
+}
+
+.cinematic-counter {
+  margin: 8px 0 0;
+  font:
+    12px system-ui,
+    sans-serif;
+  color: #8f8a7c;
+}
+
+.cinematic-words {
+  min-height: 7em;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.cinematic-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.cinematic-controls button {
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 14px;
+}

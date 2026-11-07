@@ -67,3 +67,17 @@ sitting, and the inset replay during the report.
 
 All questions are answered. Bracken is Fern's sprite aged up, with darker hair and older clothes, so
 father and son visibly resemble each other. Young Rowan is Rowan's sprite with brown hair.
+
+## Web preview
+
+The opening plays as an illustrated preview in the browser. It is not yet part of the game.
+
+- Run `npm run dev` and open `/cinematic.html`. Use Next, Previous and Replay, or the arrow keys.
+- `/cinematic.html?shot=7&t=3000` freezes shot 7 three seconds in.
+- `node tools/cinematic-screenshots.mjs <folder> 7:3000 8:500` saves frames as PNGs. Set
+  `CHROMIUM_PATH` if Playwright's own browser is not installed.
+
+The shots are in `src/data/openingCinematic.ts`. The words come from
+[OPENING_SAMPLE.md](../samples/OPENING_SAMPLE.md), and a test fails if the two drift apart. Fern's
+report runs over two shots, so shots after 15 are numbered one higher than in the tables above.
+[opening-preview-contact-sheet.png](opening-preview-contact-sheet.png) shows one frame of each shot.

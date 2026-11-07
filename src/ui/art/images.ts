@@ -26,6 +26,13 @@ export const IMAGES = {
    * his outfit (built by `tools/story-art/make_opening_sprites.py`; the pack original is unchanged).
    */
   'char.026': { src: 'story/fern.png', width: 192, height: 192 },
+  /** Story scene variants of the pack characters (see `public/assets/story/README.md`). */
+  'story.fern-muddy': { src: 'story/fern-pale-muddy.png', width: 192, height: 192 },
+  'story.rowan-coat': { src: 'story/rowan-coat.png', width: 192, height: 192 },
+  'story.rowan-lantern': { src: 'story/rowan-coat-lantern.png', width: 192, height: 192 },
+  'story.rowan-young': { src: 'story/rowan-young.png', width: 192, height: 192 },
+  'story.bracken': { src: 'story/bracken.png', width: 192, height: 192 },
+  'story.birch': { src: 'story/birch.png', width: 48, height: 104 },
   'enemy.001': { src: 'elvgames/enemies/001.png', width: 192, height: 240 },
   'enemy.001.large': { src: 'elvgames/enemies/001_large.png', width: 288, height: 360 },
   'enemy.009': { src: 'elvgames/enemies/009.png', width: 192, height: 240 },
