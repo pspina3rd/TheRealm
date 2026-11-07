@@ -50,6 +50,11 @@ LEATHER = [rgb(122, 86, 54), rgb(96, 66, 40), rgb(68, 46, 28), rgb(46, 30, 18)]
 FERN_SLEEVE = [rgb(181, 76, 255), rgb(145, 61, 204), rgb(109, 46, 153), rgb(72, 30, 102), rgb(54, 23, 76)]
 TEAL_SLEEVE = [rgb(52, 112, 138), rgb(38, 89, 110), rgb(29, 67, 83), rgb(19, 44, 55), rgb(14, 33, 41)]
 LEATHER_SLEEVE = [rgb(148, 106, 68), rgb(122, 86, 54), rgb(96, 66, 40), rgb(68, 46, 28), rgb(46, 30, 18)]
+# One of Fern's trouser legs is orange in the original; make both legs one colour.
+FERN_ORANGE_LEG = [rgb(255, 168, 0), rgb(204, 134, 0), rgb(76, 50, 0)]
+BLUE_LEG = [rgb(102, 160, 217), rgb(82, 128, 174), rgb(41, 64, 87)]
+FERN_BLUE_LEG = [rgb(102, 160, 217), rgb(82, 128, 174), rgb(41, 64, 87), rgb(30, 48, 65)]
+MOSS_TROUSERS = [rgb(104, 112, 84), rgb(84, 92, 68), rgb(58, 64, 46), rgb(40, 44, 32)]
 FERN_SKIN = [rgb(255, 189, 153), rgb(229, 154, 114)]
 PALE_SKIN = [rgb(240, 214, 200), rgb(212, 180, 164)]
 
@@ -81,8 +86,8 @@ def add_mud(sheet: Image.Image) -> Image.Image:
         # One solid splash over the lower right of the clothes, like a fall on one side.
         cx = (mid + box[0] + right) / 2
         cy = box[1] + top + (bottom - top) * 0.8
-        rx = max(1.5, (box[0] + right - mid) * 0.5)
-        ry = (bottom - top) * 0.16
+        rx = max(1.5, (box[0] + right - mid) * 0.4)
+        ry = (bottom - top) * 0.13
         for y in range(box[1] + top, box[1] + bottom):
             for x in range(box[0] + left, box[0] + right):
                 inside = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1
@@ -199,9 +204,15 @@ def main() -> None:
         OUT / 'rowan-young.png'
     )
 
-    pale = recolor(fern, dict(zip(FERN_SKIN + FERN_SLEEVE, PALE_SKIN + TEAL_SLEEVE)))
+    pale = recolor(
+        fern,
+        dict(zip(FERN_SKIN + FERN_SLEEVE + FERN_ORANGE_LEG, PALE_SKIN + TEAL_SLEEVE + BLUE_LEG)),
+    )
     add_mud(pale).save(OUT / 'fern-pale-muddy.png')
     bracken = dict(zip(FERN_HAIR + FERN_TOP + FERN_SLEEVE, DARK_GREEN + LEATHER + LEATHER_SLEEVE))
+    # Both legs, orange and blue, become one pair of moss-green trousers.
+    bracken.update(zip(FERN_BLUE_LEG, MOSS_TROUSERS))
+    bracken.update(zip(FERN_ORANGE_LEG, MOSS_TROUSERS[:2] + MOSS_TROUSERS[2:3]))
     recolor(fern, bracken).save(OUT / 'bracken.png')
 
     birch_tree().save(OUT / 'birch.png')
