@@ -34,6 +34,10 @@ def recolor(img: Image.Image, mapping: dict[Color, Color]) -> Image.Image:
 # Rowan (char.038): shirt blues and grey hair.
 ROWAN_SHIRT = [rgb(123, 156, 190), rgb(92, 117, 143), rgb(62, 78, 95), rgb(46, 58, 71)]
 NAVY = [rgb(58, 82, 158), rgb(42, 62, 124), rgb(28, 42, 88), rgb(18, 28, 60)]
+# Rowan's right sleeve uses its own grey ramp, separate from his hair.
+ROWAN_SLEEVE = [rgb(183, 173, 155), rgb(146, 138, 124), rgb(110, 104, 93), rgb(73, 69, 62), rgb(55, 52, 46)]
+NAVY_SLEEVE = [rgb(72, 98, 176), rgb(58, 82, 158), rgb(42, 62, 124), rgb(28, 42, 88), rgb(18, 28, 60)]
+SHIRT_SLEEVE = [rgb(150, 180, 210), rgb(123, 156, 190), rgb(92, 117, 143), rgb(62, 78, 95), rgb(46, 58, 71)]
 ROWAN_HAIR = [rgb(202, 175, 162), rgb(151, 131, 122), rgb(101, 88, 81), rgb(75, 65, 60)]
 BROWN_HAIR = [rgb(166, 116, 72), rgb(128, 86, 52), rgb(92, 60, 36), rgb(66, 42, 26)]
 
@@ -42,6 +46,10 @@ FERN_HAIR = [rgb(45, 255, 0), rgb(36, 204, 0), rgb(27, 153, 0), rgb(18, 102, 0),
 DARK_GREEN = [rgb(72, 160, 44), rgb(56, 128, 34), rgb(42, 98, 26), rgb(28, 68, 18), rgb(18, 46, 12)]
 FERN_TOP = [rgb(38, 89, 110), rgb(29, 67, 83), rgb(19, 44, 55), rgb(14, 33, 41)]
 LEATHER = [rgb(122, 86, 54), rgb(96, 66, 40), rgb(68, 46, 28), rgb(46, 30, 18)]
+# Fern's right sleeve is purple in the original; match it to the top instead.
+FERN_SLEEVE = [rgb(181, 76, 255), rgb(145, 61, 204), rgb(109, 46, 153), rgb(72, 30, 102), rgb(54, 23, 76)]
+TEAL_SLEEVE = [rgb(52, 112, 138), rgb(38, 89, 110), rgb(29, 67, 83), rgb(19, 44, 55), rgb(14, 33, 41)]
+LEATHER_SLEEVE = [rgb(148, 106, 68), rgb(122, 86, 54), rgb(96, 66, 40), rgb(68, 46, 28), rgb(46, 30, 18)]
 FERN_SKIN = [rgb(255, 189, 153), rgb(229, 154, 114)]
 PALE_SKIN = [rgb(240, 214, 200), rgb(212, 180, 164)]
 
@@ -66,7 +74,7 @@ def add_mud(sheet: Image.Image) -> Image.Image:
     """Splash mud down the right-hand side of Fern's clothes, below the shoulders."""
     out = sheet.copy()
     px = out.load()
-    clothes = set(FERN_TOP) | {rgb(82, 128, 174), rgb(102, 160, 217), rgb(30, 48, 65), rgb(41, 64, 87)}
+    clothes = set(FERN_TOP) | set(TEAL_SLEEVE) | {rgb(82, 128, 174), rgb(102, 160, 217), rgb(30, 48, 65), rgb(41, 64, 87)}
     for _, _, box in frames(sheet):
         left, top, right, bottom = opaque_box(sheet, box)
         mid = box[0] + (left + right) // 2
@@ -113,21 +121,69 @@ def add_lantern(sheet: Image.Image) -> Image.Image:
     return out
 
 
+# Birch colours: the pack's leaf ramp shifted lighter and yellower, and a pale banded trunk.
+LEAF = [rgb(32, 70, 44), rgb(66, 128, 62), rgb(104, 168, 70), rgb(150, 204, 84), rgb(204, 236, 120)]
+BARK_LIGHT, BARK_MID, BARK_SHADE = rgb(240, 236, 226), rgb(214, 208, 196), rgb(170, 164, 152)
+BARK_EDGE, BARK_MARK = rgb(70, 62, 56), rgb(36, 32, 30)
+
+
+def _noise(x: int, y: int) -> int:
+    """Stable per-pixel noise, 0 to 99, so the tree is identical on every run."""
+    return (x * 73856093 ^ y * 19349663) % 100
+
+
 def birch_tree() -> Image.Image:
-    """A single grasslands tree with a pale, banded birch trunk and lighter leaves."""
-    tree = Image.open(TILES / 'grasslands.png').convert('RGBA').crop((0, 516, 64, 634))
+    """A slender birch: pale trunk with dark marks under a tall, airy, yellow-green crown."""
+    w, h = 48, 104
+    tree = Image.new('RGBA', (w, h), (0, 0, 0, 0))
     px = tree.load()
-    for y in range(tree.height):
-        for x in range(tree.width):
-            r, g, b, a = px[x, y]
-            if a == 0:
-                continue
-            if r > g and r > b:  # brown trunk pixels
-                shade = (r + g + b) / (3 * 255)
-                band = (y * 5 + (x // 2) * 11) % 13 == 0 or (y * 5 + (x // 2) * 11) % 13 == 1
-                px[x, y] = MUD if band else (int(150 + 100 * shade), int(146 + 100 * shade), int(136 + 100 * shade), a)
-            elif g > r and g > b:  # leaves: lighter, yellower green
-                px[x, y] = (min(255, r + 30), min(255, g + 18), b, a)
+
+    # Ground shadow, matching the pack's soft shadow.
+    for y in range(h - 7, h - 1):
+        for x in range(8, 40):
+            if ((x - 24) / 15) ** 2 + ((y - (h - 4)) / 3) ** 2 <= 1:
+                px[x, y] = (40, 40, 48, 60)
+
+    # Trunk: five pixels wide with a slight lean, marks on alternating sides, darker at the foot.
+    for y in range(40, h - 3):
+        cx = 22 + (1 if y < 62 else 0)
+        for i, colour in enumerate((BARK_EDGE, BARK_LIGHT, BARK_LIGHT, BARK_MID, BARK_EDGE)):
+            px[cx + i, y] = colour
+        if y >= h - 9:
+            px[cx + 1, y] = BARK_SHADE if _noise(cx, y) < 50 else BARK_MARK
+            px[cx + 3, y] = BARK_MARK
+        elif _noise(3, y) < 22:
+            start = 1 if _noise(5, y) < 50 else 2
+            px[cx + start, y] = BARK_MARK
+            px[cx + start + 1, y] = BARK_MARK
+
+    # Crown: overlapping clusters, taller than wide, with gaps the trunk shows through.
+    clusters = [(24, 14, 9, 10), (16, 26, 8, 9), (32, 25, 8, 9), (20, 40, 9, 8), (30, 42, 7, 7),
+                (24, 30, 7, 7), (13, 40, 5, 6), (36, 36, 5, 6)]
+    inside = set()
+    for cx, cy, rx, ry in clusters:
+        for y in range(cy - ry, cy + ry + 1):
+            for x in range(cx - rx, cx + rx + 1):
+                ragged = _noise(x, y) < 12 and ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 > 0.7
+                if ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1 and not ragged:
+                    inside.add((x, y))
+    for x, y in inside:
+        edge = any((x + dx, y + dy) not in inside for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+        if edge:
+            px[x, y] = LEAF[0]
+            continue
+        # Light from the upper left in clean steps, with a checker dither where steps meet,
+        # matching the pack's tree shading.
+        light = 4.2 - (y / 52) * 3 - (x - 18) / 30
+        step = int(light)
+        if light - step > 0.75 and (x + y) % 2 == 0:
+            step += 1
+        px[x, y] = LEAF[max(1, min(4, step))]
+
+    # A couple of pale branches showing through the gaps in the crown.
+    for x, y in ((21, 33), (20, 34), (27, 35), (28, 36), (19, 46), (29, 47)):
+        if (x, y) in inside:
+            px[x, y] = BARK_MID
     return tree
 
 
@@ -136,13 +192,17 @@ def main() -> None:
     fern = Image.open(CHARS / '026.png').convert('RGBA')
     rowan = Image.open(CHARS / '038.png').convert('RGBA')
 
-    rowan_coat = recolor(rowan, dict(zip(ROWAN_SHIRT, NAVY)))
+    rowan_coat = recolor(rowan, dict(zip(ROWAN_SHIRT + ROWAN_SLEEVE, NAVY + NAVY_SLEEVE)))
     rowan_coat.save(OUT / 'rowan-coat.png')
     add_lantern(rowan_coat).save(OUT / 'rowan-coat-lantern.png')
-    recolor(rowan, dict(zip(ROWAN_HAIR, BROWN_HAIR))).save(OUT / 'rowan-young.png')
+    recolor(rowan, dict(zip(ROWAN_HAIR + ROWAN_SLEEVE, BROWN_HAIR + SHIRT_SLEEVE))).save(
+        OUT / 'rowan-young.png'
+    )
 
-    add_mud(recolor(fern, dict(zip(FERN_SKIN, PALE_SKIN)))).save(OUT / 'fern-pale-muddy.png')
-    recolor(fern, dict(zip(FERN_HAIR + FERN_TOP, DARK_GREEN + LEATHER))).save(OUT / 'bracken.png')
+    pale = recolor(fern, dict(zip(FERN_SKIN + FERN_SLEEVE, PALE_SKIN + TEAL_SLEEVE)))
+    add_mud(pale).save(OUT / 'fern-pale-muddy.png')
+    bracken = dict(zip(FERN_HAIR + FERN_TOP + FERN_SLEEVE, DARK_GREEN + LEATHER + LEATHER_SLEEVE))
+    recolor(fern, bracken).save(OUT / 'bracken.png')
 
     birch_tree().save(OUT / 'birch.png')
 
