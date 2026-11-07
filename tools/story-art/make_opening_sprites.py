@@ -217,10 +217,10 @@ def main() -> None:
         OUT / 'rowan-young.png'
     )
 
-    pale = recolor(
-        fern,
-        dict(zip(FERN_SKIN + FERN_SLEEVE + FERN_ORANGE_LEG, PALE_SKIN + TEAL_SLEEVE + BLUE_LEG)),
-    )
+    # The everyday Fern: the pack's purple sleeve and orange leg matched to the rest of his outfit.
+    fern_fixed = recolor(fern, dict(zip(FERN_SLEEVE + FERN_ORANGE_LEG, TEAL_SLEEVE + BLUE_LEG)))
+    fern_fixed.save(OUT / 'fern.png')
+    pale = recolor(fern_fixed, dict(zip(FERN_SKIN, PALE_SKIN)))
     add_mud(pale).save(OUT / 'fern-pale-muddy.png')
     bracken = dict(zip(FERN_HAIR + FERN_TOP + FERN_SLEEVE, DARK_GREEN + LEATHER + LEATHER_SLEEVE))
     # Both legs, orange and blue, become one pair of moss-green trousers.

@@ -6,11 +6,12 @@ changed.
 
 Regenerate with `python tools/story-art/make_opening_sprites.py` from the repository root.
 
-| File                     | Made from            | Change                                                                  |
-| ------------------------ | -------------------- | ----------------------------------------------------------------------- |
-| `rowan-coat.png`         | `characters/038.png` | Shirt and right sleeve recoloured navy.                                 |
-| `rowan-coat-lantern.png` | `rowan-coat.png`     | Lit lantern held at the hand.                                           |
-| `rowan-young.png`        | `characters/038.png` | Grey hair recoloured brown; sleeve matched to shirt.                    |
-| `fern-pale-muddy.png`    | `characters/026.png` | Paler skin, teal sleeve, both legs blue, mud on the cuffs and splashes. |
-| `bracken.png`            | `characters/026.png` | Darker green hair, leather top and sleeve, moss-green trousers.         |
-| `birch.png`              | Pack leaf palette    | Drawn new: pale marked trunk, airy crown.                               |
+| File                     | Made from            | Change                                                                                             |
+| ------------------------ | -------------------- | -------------------------------------------------------------------------------------------------- |
+| `fern.png`               | `characters/026.png` | The everyday Fern: purple sleeve and orange leg matched to his outfit. Used in game as `char.026`. |
+| `rowan-coat.png`         | `characters/038.png` | Shirt and right sleeve recoloured navy.                                                            |
+| `rowan-coat-lantern.png` | `rowan-coat.png`     | Lit lantern held at the hand.                                                                      |
+| `rowan-young.png`        | `characters/038.png` | Grey hair recoloured brown; sleeve matched to shirt.                                               |
+| `fern-pale-muddy.png`    | `characters/026.png` | Paler skin, teal sleeve, both legs blue, mud on the cuffs and splashes.                            |
+| `bracken.png`            | `characters/026.png` | Darker green hair, leather top and sleeve, moss-green trousers.                                    |
+| `birch.png`              | Pack leaf palette    | Drawn new: pale marked trunk, airy crown.                                                          |

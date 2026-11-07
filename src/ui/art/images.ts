@@ -21,6 +21,11 @@ export const IMAGES = {
   ...characterImages(['002', '004', '005', '006', '007', '008', '012', '013', '014', '015',
     '016', '017', '018', '019', '020', '025', '026', '027', '031', '032', '033', '037', '038',
     '039', '040']),
+  /**
+   * Fern, the Ranger, with the pack's purple sleeve and orange trouser leg matched to the rest of
+   * his outfit (built by `tools/story-art/make_opening_sprites.py`; the pack original is unchanged).
+   */
+  'char.026': { src: 'story/fern.png', width: 192, height: 192 },
   'enemy.001': { src: 'elvgames/enemies/001.png', width: 192, height: 240 },
   'enemy.001.large': { src: 'elvgames/enemies/001_large.png', width: 288, height: 360 },
   'enemy.009': { src: 'elvgames/enemies/009.png', width: 192, height: 240 },

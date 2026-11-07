@@ -48,6 +48,11 @@ describe('images', () => {
       expect(pngSize(resolve('public/assets', image.src))).toEqual([image.width, image.height]);
     });
   }
+
+  it('draws Fern from the corrected story sheet and keeps the pack original', () => {
+    expect(IMAGES['char.026'].src).toBe('story/fern.png');
+    expect(pngSize(resolve('public/assets/elvgames/characters/026.png'))).toEqual([192, 192]);
+  });
 });
 
 describe('sprite regions', () => {
