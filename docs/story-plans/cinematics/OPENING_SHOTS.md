@@ -63,7 +63,7 @@ coat, Fern's grin, Fern paling at the thought of leaving.
 Removed after review: Fern's shadow thinning (the scene darkens with the stones instead), Fern
 sitting, and the inset replay during the report.
 
-## Questions for the author
+## Decisions
 
-1. **Bracken's sprite.** Options: a colour-swapped Rowan; Fern's sprite with darker hair and
-   different clothes, so father and son resemble each other; or an unused character sprite.
+All questions are answered. Bracken is Fern's sprite aged up, with darker hair and older clothes, so
+father and son visibly resemble each other. Young Rowan is Rowan's sprite with brown hair.
