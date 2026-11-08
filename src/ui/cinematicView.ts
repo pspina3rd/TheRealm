@@ -110,18 +110,19 @@ const BRICK_PATCHES: readonly (readonly [number, number])[] = [
 ];
 
 /**
- * Each stone's nudge from an even spacing along the back of the horseshoe, so they stand where they
- * fell rather than in a laid-out arc. Fixed, so every viewing matches.
+ * The stones were set in a ring long ago and have settled unevenly since: each one's small nudge
+ * from its place, and its share of the spacing. Fixed, so every viewing matches.
  */
-const STONE_SCATTER: readonly (readonly [number, number])[] = [
-  [6, 10],
-  [-8, -12],
-  [4, 8],
-  [10, -16],
-  [-6, 6],
-  [8, -6],
-  [-4, 14],
+const STONE_SETTLING: readonly (readonly [number, number])[] = [
+  [3, 5],
+  [-4, -6],
+  [2, 4],
+  [5, -7],
+  [-3, 3],
+  [4, -3],
+  [-2, 6],
 ];
+const STONE_SPACING: readonly number[] = [0, 0.15, 0.32, 0.5, 0.66, 0.83, 1];
 
 /** Warm and cool light colours. */
 const FIRELIGHT = '#ff9a48';
@@ -129,15 +130,14 @@ const LANTERN_LIGHT = '#ffd27a';
 const MOONLIGHT = '#9fb4ff';
 
 /**
- * Where each stone's base is: scattered round the back of the horseshoe, violet at the left end and
- * red at the right, back stones first so nearer ones overlap them.
+ * Where each stone's base is: round the back of the hilltop, violet at the left end and red at the
+ * right, a little unevenly as old standing stones settle; back stones first so nearer ones overlap.
  */
 function stonePositions(): { x: number; y: number; index: number }[] {
-  const last = STONE_ORDER.length - 1;
   const span = RING.rx * 0.95;
   return STONE_ORDER.map((_, index) => {
-    const [dx, dy] = STONE_SCATTER[index] ?? [0, 0];
-    const x = RING.x - span + (index * 2 * span) / last;
+    const [dx, dy] = STONE_SETTLING[index] ?? [0, 0];
+    const x = RING.x - span + (STONE_SPACING[index] ?? 0) * 2 * span;
     const across = (x - RING.x) / RING.rx;
     return { x: x + dx, y: RING.y - RING.ry * Math.sqrt(1 - across * across) + dy, index };
   }).sort((a, b) => a.y - b.y);
