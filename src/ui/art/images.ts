@@ -28,6 +28,7 @@ export const IMAGES = {
   'char.026': { src: 'story/fern.png', width: 192, height: 192 },
   /** Story scene variants of the pack characters (see `public/assets/story/README.md`). */
   'story.fern-muddy': { src: 'story/fern-pale-muddy.png', width: 192, height: 192 },
+  'story.fern-sitting': { src: 'story/fern-sitting.png', width: 192, height: 192 },
   'story.rowan-coat': { src: 'story/rowan-coat.png', width: 192, height: 192 },
   'story.rowan-lantern': { src: 'story/rowan-coat-lantern.png', width: 192, height: 192 },
   'story.rowan-young': { src: 'story/rowan-young.png', width: 192, height: 192 },

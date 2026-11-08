@@ -49,11 +49,23 @@ describe('actorPose', () => {
   };
 
   it('moves in a straight line, keeping the facing and gait of the key it left', () => {
-    expect(actorPose(actor, 500)).toEqual({ x: 0, y: 50, facing: 'up', walking: true });
+    expect(actorPose(actor, 500)).toEqual({
+      x: 0,
+      y: 50,
+      facing: 'up',
+      walking: true,
+      sprite: 'char.026',
+    });
   });
 
   it('settles on the last key, standing still unless told otherwise', () => {
-    expect(actorPose(actor, 4000)).toEqual({ x: 0, y: 0, facing: 'down', walking: false });
+    expect(actorPose(actor, 4000)).toEqual({
+      x: 0,
+      y: 0,
+      facing: 'down',
+      walking: false,
+      sprite: 'char.026',
+    });
   });
 
   it('turns on the spot when two keys share a time', () => {
@@ -66,6 +78,28 @@ describe('actorPose', () => {
       ],
     };
     expect(actorPose(turn, 5).facing).toBe('left');
+  });
+
+  it('switches sprite from the key that asks for it on, such as sitting down', () => {
+    const sits: CinematicActor = {
+      sprite: 'story.fernMuddy',
+      keys: [
+        { at: 0, x: 0, y: 0, facing: 'left', walking: true },
+        { at: 100, x: 10, y: 0, facing: 'right', sprite: 'story.fernSitting' },
+        { at: 200, x: 10, y: 0, facing: 'right' },
+      ],
+    };
+    expect(actorPose(sits, 50).sprite).toBe('story.fernMuddy');
+    expect(actorPose(sits, 150).sprite).toBe('story.fernSitting');
+    expect(actorPose(sits, 500).sprite).toBe('story.fernSitting');
+  });
+
+  it('can start an actor on a sprite of its own', () => {
+    const seated: CinematicActor = {
+      sprite: 'story.fernMuddy',
+      keys: [{ at: 0, x: 0, y: 0, facing: 'right', sprite: 'story.fernSitting' }],
+    };
+    expect(actorPose(seated, 0).sprite).toBe('story.fernSitting');
   });
 
   it('rejects an actor with nowhere to stand', () => {
@@ -124,7 +158,11 @@ describe('the opening cinematic', () => {
 
   it('only uses sprites the game can draw, and seven stones where stones appear', () => {
     for (const s of OPENING_CINEMATIC) {
-      for (const actor of s.actors) expect(isCreatureId(actor.sprite), actor.sprite).toBe(true);
+      for (const actor of s.actors) {
+        expect(isCreatureId(actor.sprite), actor.sprite).toBe(true);
+        for (const key of actor.keys)
+          if (key.sprite) expect(isCreatureId(key.sprite), key.sprite).toBe(true);
+      }
       if (s.stones) expect(s.stones, s.id).toHaveLength(STONE_ORDER.length);
       if (s.stones) expect(s.setting, s.id).toBe('hill');
     }
@@ -171,6 +209,16 @@ describe('the opening cinematic', () => {
       else if (s.setting !== 'memory' && sprites.some((id) => id.startsWith('char.026')))
         expect.fail(`${s.id} shows clean Fern after the run`);
     });
+  });
+
+  it('seats Fern in the chair for his report, until he gets up to follow Rowan', () => {
+    for (const id of ['the-report', 'the-report-ends']) {
+      const fern = shot(id).actors.find((a) => a.sprite === 'story.fernMuddy');
+      expect(fern && actorPose(fern, 0).sprite, id).toBe('story.fernSitting');
+    }
+    const leaving = shot('lantern').actors.find((a) => a.sprite === 'story.fernMuddy');
+    expect(leaving && actorPose(leaving, 0).sprite).toBe('story.fernSitting');
+    expect(leaving && actorPose(leaving, 2000).sprite).toBe('story.fernMuddy');
   });
 
   it('lights the way with Rowan’s lantern from the moment he takes it', () => {

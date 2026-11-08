@@ -24,6 +24,8 @@ export interface ActorKey {
   readonly y: number;
   readonly facing: Direction;
   readonly walking?: boolean;
+  /** A different sprite from this key on, such as the same character seated. */
+  readonly sprite?: string;
 }
 
 /** A character on stage: a sprite sheet and its path through the shot. */
@@ -94,14 +96,19 @@ export interface ActorPose {
   readonly y: number;
   readonly facing: Direction;
   readonly walking: boolean;
+  readonly sprite: string;
 }
 
-/** Where `actor` is at `t`: moving in a straight line between keys, facing as the last key passed. */
+/**
+ * Where `actor` is at `t`: moving in a straight line between keys, facing, walking and drawn as the
+ * last key passed says.
+ */
 export function actorPose(actor: CinematicActor, t: number): ActorPose {
   const keys = actor.keys;
   const first = keys[0];
   if (!first) throw new Error(`Actor ${actor.sprite} has no keys`);
   let prev = first;
+  let sprite = first.sprite ?? actor.sprite;
   for (const key of keys) {
     if (key.at > t) {
       const span = key.at - prev.at;
@@ -111,11 +118,13 @@ export function actorPose(actor: CinematicActor, t: number): ActorPose {
         y: prev.y + k * (key.y - prev.y),
         facing: prev.facing,
         walking: prev.walking ?? false,
+        sprite,
       };
     }
     prev = key;
+    sprite = key.sprite ?? sprite;
   }
-  return { x: prev.x, y: prev.y, facing: prev.facing, walking: prev.walking ?? false };
+  return { x: prev.x, y: prev.y, facing: prev.facing, walking: prev.walking ?? false, sprite };
 }
 
 /** Every key time in a shot, for checking that nothing happens after it ends. */

@@ -90,3 +90,11 @@ These replace earlier canon wherever they conflict, including World Bible WB-C16
 | Cottage        | Rowan's cottage: timber-framed plaster walls, a wooden plank floor, and a stone fireplace with the fire in it. Built from the pack's tiles.                                                                                                   |
 
 | Platforms | The iPhone version of the illustrated scenes waits until the desktop (web) version is settled. |
+
+## Round 6 — Scope of the story (8 November 2026)
+
+| Topic       | Decision                                                                                                               |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------- |
+| The sleep   | Abandoned. No one falls into an enchanted sleep; earlier plans, options and drafts built on the sleep no longer apply. |
+| First spell | Fern learns his first spell from Dorn, the Earth teacher, not at Rowan's well.                                         |
+| The chair   | Fern sits in the chair by the fire for his report, as the text says.                                                   |

@@ -263,12 +263,12 @@ export class CinematicView {
       .map((actor) => ({ actor, pose: actorPose(actor, t) }))
       .sort((a, b) => a.pose.y - b.pose.y);
     for (const { actor, pose } of poses) {
-      if (!isCreatureId(actor.sprite)) throw new Error(`Unknown sprite ${actor.sprite}`);
+      if (!isCreatureId(pose.sprite)) throw new Error(`Unknown sprite ${pose.sprite}`);
       ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
       ctx.beginPath();
       ctx.ellipse(pose.x, pose.y - 2, 9, 3, 0, 0, Math.PI * 2);
       ctx.fill();
-      const frame = mapFrame(actor.sprite, pose.facing, pose.walking, t);
+      const frame = mapFrame(pose.sprite, pose.facing, pose.walking, t);
       this.atlas.draw(ctx, frame, Math.round(pose.x - 24), Math.round(pose.y - 46));
       if (actor.lantern)
         lights.push({ x: pose.x, y: pose.y - 14, radius: 60, colour: LANTERN_LIGHT });

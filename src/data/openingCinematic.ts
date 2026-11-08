@@ -367,7 +367,8 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         keys: [
           { at: 0, x: 250, y: 128, facing: 'left', walking: true },
           { at: 600, x: 196, y: 146, facing: 'left', walking: true },
-          { at: 1200, x: 118, y: 126, facing: 'right' },
+          { at: 1200, x: 106, y: 128, facing: 'left' },
+          { at: 1300, x: 104, y: 117, facing: 'right', sprite: 'story.fernSitting' },
         ],
       },
     ],
@@ -381,7 +382,10 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
     durationMs: 5000,
     actors: [
       { sprite: 'story.rowanCoat', keys: [{ at: 0, x: 160, y: 124, facing: 'left' }] },
-      { sprite: 'story.fernMuddy', keys: [{ at: 0, x: 118, y: 126, facing: 'right' }] },
+      {
+        sprite: 'story.fernMuddy',
+        keys: [{ at: 0, x: 104, y: 117, facing: 'right', sprite: 'story.fernSitting' }],
+      },
     ],
     darkness: steady(0.62),
     door: steady(1),
@@ -393,7 +397,10 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
     durationMs: 5000,
     actors: [
       { sprite: 'story.rowanCoat', keys: [{ at: 0, x: 160, y: 124, facing: 'left' }] },
-      { sprite: 'story.fernMuddy', keys: [{ at: 0, x: 118, y: 126, facing: 'right' }] },
+      {
+        sprite: 'story.fernMuddy',
+        keys: [{ at: 0, x: 104, y: 117, facing: 'right', sprite: 'story.fernSitting' }],
+      },
     ],
     darkness: steady(0.62),
     door: steady(1),
@@ -415,8 +422,8 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
       {
         sprite: 'story.fernMuddy',
         keys: [
-          { at: 0, x: 118, y: 126, facing: 'right' },
-          { at: 600, x: 118, y: 126, facing: 'right', walking: true },
+          { at: 0, x: 104, y: 117, facing: 'right', sprite: 'story.fernSitting' },
+          { at: 600, x: 108, y: 126, facing: 'right', walking: true, sprite: 'story.fernMuddy' },
           { at: 2400, x: 256, y: 92, facing: 'up' },
         ],
       },

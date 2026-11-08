@@ -69,6 +69,7 @@ export const CREATURES = {
   'char.033': person('char.033'),
   // Story scene variants (Fern muddied, Rowan in his captain's coat, the memory of Bracken)
   'story.fernMuddy': person('story.fern-muddy'),
+  'story.fernSitting': person('story.fern-sitting'),
   'story.rowanCoat': person('story.rowan-coat'),
   'story.rowanLantern': person('story.rowan-lantern'),
   'story.rowanYoung': person('story.rowan-young'),

@@ -362,6 +362,42 @@ def fireplace() -> Image.Image:
     return sheet
 
 
+def sitting(sheet: Image.Image) -> Image.Image:
+    """A seated pose from a walker sheet's right-facing frame, as a full sheet of that one frame.
+
+    The head and body drop onto the seat and the legs bend forward over its edge. The sprite is drawn
+    in 2 x 2 pixel blocks, so the legs are too: a lit thigh, a shaded shin and a muddy boot."""
+    frame = sheet.crop((0, 96, 48, 144))
+    seated = Image.new('RGBA', (48, 48), (0, 0, 0, 0))
+    seated.alpha_composite(frame.crop((0, 0, 48, 40)), (0, 4))  # head and body, lowered onto the seat
+    px = seated.load()
+    light, mid, dark = BLUE_LEG
+    outline = rgb(30, 48, 65)
+    legs = [
+        # (x, y, colour) for each 2 x 2 block: thigh along the seat, knee, shin down, boot.
+        *[(x, 40, light) for x in range(24, 34, 2)],
+        *[(x, 42, mid) for x in range(24, 34, 2)],
+        (34, 40, outline),
+        (34, 42, mid),
+        (32, 44, mid),
+        (34, 44, dark),
+        (32, 46, MUD_DARK),
+        (34, 46, MUD_DARK),
+        (36, 42, outline),
+        (36, 44, outline),
+        (36, 46, outline),
+    ]
+    for x, y, colour in legs:
+        for dx in (0, 1):
+            for dy in (0, 1):
+                px[x + dx, y + dy] = colour
+    out = Image.new('RGBA', sheet.size, (0, 0, 0, 0))
+    for row in range(4):
+        for col in range(4):
+            out.alpha_composite(seated, (col * 48, row * 48))
+    return out
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     fern = Image.open(CHARS / '026.png').convert('RGBA')
@@ -378,7 +414,9 @@ def main() -> None:
     fern_fixed = recolor(fern, dict(zip(FERN_SLEEVE + FERN_ORANGE_LEG, TEAL_SLEEVE + BLUE_LEG)))
     fern_fixed.save(OUT / 'fern.png')
     pale = recolor(fern_fixed, dict(zip(FERN_SKIN, PALE_SKIN)))
-    add_mud(pale).save(OUT / 'fern-pale-muddy.png')
+    muddy = add_mud(pale)
+    muddy.save(OUT / 'fern-pale-muddy.png')
+    sitting(muddy).save(OUT / 'fern-sitting.png')
     bracken = dict(zip(FERN_HAIR + FERN_TOP + FERN_SLEEVE, DARK_GREEN + LEATHER + LEATHER_SLEEVE))
     # Both legs, orange and blue, become one pair of moss-green trousers.
     bracken.update(zip(FERN_BLUE_LEG, MOSS_TROUSERS))
