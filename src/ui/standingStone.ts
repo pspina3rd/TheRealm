@@ -8,8 +8,8 @@ const STONE_W = 80;
 const STONE_H = 80;
 
 /**
- * Draws one stone, a boulder with crystals of its colour growing out of it, with its base at
- * (px, py). `light` runs from 0 (dark crystals) to 1 (lit crystals with a pulsing glow).
+ * Draws one stone with its base at (px, py). `light` runs from 0 (plain grey rock) to 1 (dark rock
+ * glowing from within in the stone's colour, with a pulsing glow on the ground around it).
  */
 export function drawStandingStone(
   ctx: CanvasRenderingContext2D,
@@ -24,6 +24,11 @@ export function drawStandingStone(
   const x = Math.round(px - STONE_W / 2);
   const y = Math.round(py - STONE_H);
   ctx.save();
+  // Its shadow on the ground.
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
+  ctx.beginPath();
+  ctx.ellipse(px, py - 2, 24, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
   if (light > 0) {
     ctx.globalAlpha = light * (0.45 + 0.2 * Math.sin(timeMs / 300));
     ctx.fillStyle = ELEMENT_COLOR_OF[element];

@@ -251,7 +251,7 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
     text: "Rowan yawned as he put on his captain's coat. Thirty-five years he had been part of the watch, with the last ten as captain. A role he took over because Bracken, Fern's father, never returned.",
     durationMs: 3000,
     actors: [{ sprite: 'story.rowanCoat', keys: [{ at: 0, x: 120, y: 128, facing: 'down' }] }],
-    darkness: steady(0.5),
+    darkness: steady(0.62),
     fade: [
       { at: 0, value: 1 },
       { at: 800, value: 0 },
@@ -295,7 +295,7 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         ],
       },
     ],
-    darkness: steady(0.5),
+    darkness: steady(0.62),
     door: steady(0),
     doorShake: [
       { at: 0, value: 0 },
@@ -318,7 +318,7 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         ],
       },
     ],
-    darkness: steady(0.5),
+    darkness: steady(0.62),
     door: [
       { at: 0, value: 0 },
       { at: 1500, value: 0 },
@@ -346,7 +346,7 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         ],
       },
     ],
-    darkness: steady(0.5),
+    darkness: steady(0.62),
     door: steady(1),
   },
   {
@@ -371,7 +371,7 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         ],
       },
     ],
-    darkness: steady(0.5),
+    darkness: steady(0.62),
     door: steady(1),
   },
   {
@@ -383,7 +383,7 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
       { sprite: 'story.rowanCoat', keys: [{ at: 0, x: 160, y: 124, facing: 'left' }] },
       { sprite: 'story.fernMuddy', keys: [{ at: 0, x: 118, y: 126, facing: 'right' }] },
     ],
-    darkness: steady(0.5),
+    darkness: steady(0.62),
     door: steady(1),
   },
   {
@@ -395,7 +395,7 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
       { sprite: 'story.rowanCoat', keys: [{ at: 0, x: 160, y: 124, facing: 'left' }] },
       { sprite: 'story.fernMuddy', keys: [{ at: 0, x: 118, y: 126, facing: 'right' }] },
     ],
-    darkness: steady(0.5),
+    darkness: steady(0.62),
     door: steady(1),
   },
   {
@@ -421,7 +421,7 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         ],
       },
     ],
-    darkness: steady(0.5),
+    darkness: steady(0.62),
     fade: [
       { at: 0, value: 0 },
       { at: 2600, value: 0 },

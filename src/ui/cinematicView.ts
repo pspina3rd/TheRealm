@@ -1,6 +1,6 @@
 /**
- * Draws one moment of an illustrated story scene (see `src/game/cinematic.ts`) onto a 320 x 180
- * canvas, using the game's own sprites, tiles and standing-stone drawing.
+ * Draws one moment of an illustrated story scene (see `src/game/cinematic.ts`) onto a 480 x 270
+ * canvas, using the game's own sprites, ground tiles and standing-stone drawing.
  */
 import {
   STONE_ORDER,
@@ -9,10 +9,13 @@ import {
   type CinematicShot,
   type CinematicActor,
 } from '../game/cinematic';
+import type { MapDef } from '../world/map';
 import type { Atlas } from './art/atlas';
 import { isCreatureId, mapFrame } from './art/creatures';
+import { ELEMENT_COLOR_OF } from './art/feedback';
 import type { Region } from './art/images';
 import { PROP_ATLAS } from './art/propAtlas';
+import { TILE, cellHash, planGround } from './art/themes';
 import { drawStandingStone } from './standingStone';
 
 export const STAGE_WIDTH = 480;
@@ -30,9 +33,57 @@ const VIEW = {
   bottom: STAGE_HEIGHT - ORIGIN.y,
 } as const;
 
-const GRASS: Region = { image: 'grasslands', x: 32, y: 0, w: 32, h: 32 };
-const PATH: Region = { image: 'grasslands', x: 224, y: 0, w: 32, h: 32 };
+/**
+ * The ground of each outdoor setting, as a small map in canvas tiles (15 x 9), so the game's own
+ * ground art draws it: '.' grass, ',' flowers, '=' bare earth and path, with blended edges.
+ */
+const groundMap = (id: string, tiles: readonly string[]): MapDef => ({
+  id,
+  name: '',
+  theme: 'outdoor',
+  tiles,
+  warps: [],
+  entities: [],
+});
+const HILL_GROUND = groundMap('cinematic-hill', [
+  '.,......,....,.',
+  '....,.......,..',
+  '.,..=======...,',
+  '...=========...',
+  '..,=========.,.',
+  '....,..=..,....',
+  '.,.....=.....,.',
+  '...,...=..,....',
+  '.......=......,',
+]);
+const MEADOW_GROUND = groundMap('cinematic-meadow', [
+  '.,..,..,...,.,.',
+  ',...,.,..,...,.',
+  '..,....,..,..,.',
+  '.,.,..,...,.,..',
+  '..,..,.....,..,',
+  ',..,...,.,...,.',
+  '.,...,..,..,..,',
+  '..,.,...,.,..,.',
+  ',...,.,...,..,.',
+]);
+
 const BIRCH: Region = { image: 'story.birch', x: 0, y: 0, w: 64, h: 92 };
+// The cottage, from the pack's village tiles.
+/** Plain and cracked flagstones, mixed so the floor does not repeat. */
+const FLAGSTONES: readonly Region[] = [0, 0, 32, 0, 64, 0].map((x, i) => ({
+  image: 'village',
+  x,
+  y: i === 5 ? 64 : 32,
+  w: 32,
+  h: 32,
+}));
+const POST: Region = { image: 'village', x: 8, y: 690, w: 12, h: 32 };
+const SKIRTING: Region = { image: 'village', x: 24, y: 758, w: 64, h: 10 };
+const BRICKS: Region = { image: 'village', x: 24, y: 712, w: 40, h: 36 };
+const WINDOW: Region = { image: 'village', x: 785, y: 146, w: 28, h: 32 };
+const PLASTER = '#ffe1bf';
+const MORTAR = '#6f6a5c';
 const DOOR_SHUT: Region = { image: 'village', x: 0, y: 280, w: 32, h: 38 };
 const DOOR_OPEN: Region = { image: 'village', x: 0, y: 466, w: 32, h: 38 };
 const CHAIR: Region = { image: 'village', x: 0, y: 128, w: 32, h: 40 };
@@ -51,10 +102,17 @@ const BIRCHES: readonly (readonly [number, number])[] = [
 ];
 /** The stones stand in a horseshoe on the hilltop, open toward the path up the hill. */
 const RING = { x: 160, y: 120, rx: 200, ry: 74 } as const;
-/** The house: the back wall meets the floor here, and the door and stove stand on that line. */
+/** The cottage: the back wall meets the floor here, and the door and stove stand on that line. */
 const WALL_FOOT = 86;
 const DOOR_X = 256;
 const STOVE_X = 54;
+const WINDOW_X = 168;
+/** Where brick shows through the plaster, on the back wall. */
+const BRICK_PATCHES: readonly (readonly [number, number])[] = [
+  [-60, 8],
+  [180, -20],
+  [330, 20],
+];
 
 /**
  * Each stone's nudge from an even spacing along the back of the horseshoe, so they stand where they
@@ -69,6 +127,11 @@ const STONE_SCATTER: readonly (readonly [number, number])[] = [
   [8, -6],
   [-4, 14],
 ];
+
+/** Warm and cool light colours. */
+const FIRELIGHT = '#ff9a48';
+const LANTERN_LIGHT = '#ffd27a';
+const MOONLIGHT = '#9fb4ff';
 
 /**
  * Where each stone's base is: scattered round the back of the horseshoe, violet at the left end and
@@ -109,6 +172,8 @@ export class CinematicView {
     const { ctx } = this;
     ctx.clearRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT);
     const lights: Light[] = [];
+    if (shot.setting !== 'house')
+      this.drawGround(shot.setting === 'hill' ? HILL_GROUND : MEADOW_GROUND, t);
     ctx.save();
     ctx.translate(ORIGIN.x, ORIGIN.y);
     if (shot.setting === 'house') this.drawHouse(shot, t, lights);
@@ -116,7 +181,9 @@ export class CinematicView {
     this.drawActors(shot.actors, t, lights);
     ctx.restore();
     if (shot.setting === 'memory') this.drawMemoryFrame();
-    this.drawNight(sample(shot.darkness, t), lights);
+    const darkness = sample(shot.darkness, t);
+    this.drawNight(darkness, lights);
+    this.drawLightColour(darkness, lights);
     const fade = shot.fade ? sample(shot.fade, t) : 0;
     if (fade > 0) {
       ctx.fillStyle = `rgba(0, 0, 0, ${fade})`;
@@ -124,60 +191,74 @@ export class CinematicView {
     }
   }
 
+  /** Grass, flowers and paths, drawn by the game's own ground art from a small map. */
+  private drawGround(map: MapDef, t: number): void {
+    map.tiles.forEach((row, y) => {
+      for (let x = 0; x < row.length; x++)
+        for (const layer of planGround(map, x, y, t))
+          this.atlas.draw(this.ctx, layer, x * TILE, y * TILE);
+    });
+  }
+
   private drawOutdoors(shot: CinematicShot, t: number, lights: Light[]): void {
-    for (let y = VIEW.top - 19; y < VIEW.bottom; y += 32)
-      for (let x = VIEW.left; x < VIEW.right; x += 32) this.atlas.draw(this.ctx, GRASS, x, y);
-    if (shot.setting === 'hill') {
-      for (let y = RING.y + 8; y < VIEW.bottom; y += 32) this.atlas.draw(this.ctx, PATH, 144, y);
-      const stones = shot.stones;
-      if (stones)
-        for (const { x, y, index } of stonePositions()) {
-          const light = sample(stones[index] ?? [], t);
-          const element = STONE_ORDER[index] ?? 'arcane';
-          drawStandingStone(this.ctx, this.atlas, x, y, element, light, t);
-          if (light > 0) lights.push({ x, y: y - 34, radius: 40 * light });
-        }
-    }
+    const stones = shot.setting === 'hill' ? shot.stones : undefined;
+    if (stones)
+      for (const { x, y, index } of stonePositions()) {
+        const light = sample(stones[index] ?? [], t);
+        const element = STONE_ORDER[index] ?? 'arcane';
+        drawStandingStone(this.ctx, this.atlas, x, y, element, light, t);
+        if (light > 0)
+          lights.push({ x, y: y - 30, radius: 48 * light, colour: ELEMENT_COLOR_OF[element] });
+      }
     for (const [x, y] of BIRCHES) this.atlas.draw(this.ctx, BIRCH, x - 32, y - 88);
   }
 
   private drawHouse(shot: CinematicShot, t: number, lights: Light[]): void {
     const { ctx } = this;
-    // Plaster wall with timber posts, and a plank floor.
-    const width = VIEW.right - VIEW.left;
-    ctx.fillStyle = '#e6cfa8';
-    ctx.fillRect(VIEW.left, VIEW.top, width, WALL_FOOT - VIEW.top);
-    ctx.fillStyle = '#6e4a2c';
-    for (let x = VIEW.left; x < VIEW.right; x += 80)
-      ctx.fillRect(x, VIEW.top, 6, WALL_FOOT - VIEW.top);
-    ctx.fillRect(VIEW.left, WALL_FOOT - 4, width, 4);
-    ctx.fillStyle = '#946a44';
-    ctx.fillRect(VIEW.left, WALL_FOOT, width, VIEW.bottom - WALL_FOOT);
-    ctx.fillStyle = '#7a5536';
-    for (let y = WALL_FOOT + 10, row = 0; y < VIEW.bottom; y += 12, row++) {
-      ctx.fillRect(VIEW.left, y, width, 1);
-      for (let x = VIEW.left + (row % 2) * 24; x < VIEW.right; x += 48)
-        ctx.fillRect(x, y - 11, 1, 11);
-    }
-    // Furniture against the back wall, the stove and its fire, and the door.
+    // Plaster wall framed in timber, brick showing through in places, on a stone skirting.
+    ctx.fillStyle = PLASTER;
+    ctx.fillRect(VIEW.left, VIEW.top, VIEW.right - VIEW.left, WALL_FOOT - VIEW.top);
+    for (const [x, y] of BRICK_PATCHES) this.atlas.draw(ctx, BRICKS, x, y);
+    for (let x = VIEW.left + 8; x < VIEW.right; x += 96)
+      for (let y = VIEW.top; y < WALL_FOOT; y += POST.h) this.atlas.draw(ctx, POST, x, y);
+    for (let x = VIEW.left; x < VIEW.right; x += SKIRTING.w)
+      this.atlas.draw(ctx, SKIRTING, x, WALL_FOOT - SKIRTING.h);
+    // Flagstones, set in mortar, from the wall to the front of the room.
+    ctx.fillStyle = MORTAR;
+    ctx.fillRect(VIEW.left, WALL_FOOT, VIEW.right - VIEW.left, VIEW.bottom - WALL_FOOT);
+    for (let y = WALL_FOOT; y < VIEW.bottom; y += TILE)
+      for (let x = VIEW.left; x < VIEW.right; x += TILE) {
+        const stone = FLAGSTONES[Math.floor(cellHash(x / TILE, y / TILE) * FLAGSTONES.length)];
+        if (stone) this.atlas.draw(ctx, stone, x, y);
+      }
+    // The window, the bench, the stove and its fire, the chair and the door.
+    this.atlas.draw(ctx, WINDOW, WINDOW_X - WINDOW.w / 2, 20);
+    lights.push({ x: WINDOW_X, y: 36, radius: 40, colour: MOONLIGHT, strength: 0.5 });
     this.atlas.draw(ctx, BENCH, 150, WALL_FOOT - 30);
     this.atlas.draw(ctx, STOVE, STOVE_X - 21, WALL_FOOT - 66, 42, 66);
     this.atlas.draw(ctx, CHAIR, 82, 92);
-    lights.push({ x: STOVE_X, y: WALL_FOOT - 16, radius: 110 + 6 * Math.sin(t / 90) });
+    const flicker = 6 * Math.sin(t / 90) + 3 * Math.sin(t / 37);
+    lights.push({ x: STOVE_X, y: WALL_FOOT - 16, radius: 110 + flicker, colour: FIRELIGHT });
     const open = shot.door ? sample(shot.door, t) >= 0.5 : false;
     const shake = shot.doorShake ? sample(shot.doorShake, t) * Math.sin(t / 25) : 0;
     this.atlas.draw(ctx, open ? DOOR_OPEN : DOOR_SHUT, DOOR_X - 16 + shake, WALL_FOOT - 38);
   }
 
   private drawActors(actors: readonly CinematicActor[], t: number, lights: Light[]): void {
+    const { ctx } = this;
     const poses = actors
       .map((actor) => ({ actor, pose: actorPose(actor, t) }))
       .sort((a, b) => a.pose.y - b.pose.y);
     for (const { actor, pose } of poses) {
       if (!isCreatureId(actor.sprite)) throw new Error(`Unknown sprite ${actor.sprite}`);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.beginPath();
+      ctx.ellipse(pose.x, pose.y - 2, 9, 3, 0, 0, Math.PI * 2);
+      ctx.fill();
       const frame = mapFrame(actor.sprite, pose.facing, pose.walking, t);
-      this.atlas.draw(this.ctx, frame, Math.round(pose.x - 24), Math.round(pose.y - 46));
-      if (actor.lantern) lights.push({ x: pose.x, y: pose.y - 14, radius: 52 });
+      this.atlas.draw(ctx, frame, Math.round(pose.x - 24), Math.round(pose.y - 46));
+      if (actor.lantern)
+        lights.push({ x: pose.x, y: pose.y - 14, radius: 60, colour: LANTERN_LIGHT });
     }
   }
 
@@ -204,27 +285,50 @@ export class CinematicView {
     night.fillStyle = `rgba(8, 12, 28, ${darkness})`;
     night.fillRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT);
     night.globalCompositeOperation = 'destination-out';
-    for (const { x: sx, y: sy, radius } of lights) {
-      const light = { x: sx + ORIGIN.x, y: sy + ORIGIN.y, radius };
-      const glow = night.createRadialGradient(light.x, light.y, 0, light.x, light.y, light.radius);
-      glow.addColorStop(0, 'rgba(0, 0, 0, 0.85)');
+    for (const light of lights) {
+      const { x, y, radius } = onCanvas(light);
+      const glow = night.createRadialGradient(x, y, 0, x, y, radius);
+      glow.addColorStop(0, `rgba(0, 0, 0, ${0.85 * (light.strength ?? 1)})`);
       glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
       night.fillStyle = glow;
-      night.fillRect(
-        light.x - light.radius,
-        light.y - light.radius,
-        light.radius * 2,
-        light.radius * 2,
-      );
+      night.fillRect(x - radius, y - radius, radius * 2, radius * 2);
     }
     this.ctx.drawImage(night.canvas, 0, 0);
+  }
+
+  /** Each light tints what it falls on with its own colour, more strongly the darker the night. */
+  private drawLightColour(darkness: number, lights: readonly Light[]): void {
+    if (darkness <= 0) return;
+    const { ctx } = this;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    for (const light of lights) {
+      const { x, y, radius } = onCanvas(light);
+      const glow = ctx.createRadialGradient(x, y, 0, x, y, radius);
+      const alpha = Math.round(255 * 0.15 * darkness * (light.strength ?? 1));
+      glow.addColorStop(0, `${light.colour}${alpha.toString(16).padStart(2, '0')}`);
+      glow.addColorStop(1, `${light.colour}00`);
+      ctx.fillStyle = glow;
+      ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+    }
+    ctx.restore();
   }
 }
 
 interface Light {
+  /** Position and reach in staging coordinates. */
   readonly x: number;
   readonly y: number;
   readonly radius: number;
+  /** The light's colour, as #rrggbb. */
+  readonly colour: string;
+  /** How strongly it lights its surroundings, 1 by default. */
+  readonly strength?: number;
+}
+
+/** A light's position on the canvas. */
+function onCanvas(light: Light): { x: number; y: number; radius: number } {
+  return { x: light.x + ORIGIN.x, y: light.y + ORIGIN.y, radius: light.radius };
 }
 
 function required2d(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
