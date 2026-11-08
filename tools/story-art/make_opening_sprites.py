@@ -289,6 +289,37 @@ def standing_stones() -> Image.Image:
     return sheet
 
 
+# The cottage fireplace: the pack's stone tower doorway (its open frame) with the door's last sliver
+# blackened, and the pack's brazier fire burning inside it.
+TOWER_OPEN_DOOR = (362, 128, 458, 192)
+BRAZIER = (340, 0, 360, 26)
+FIREBOX = rgb(30, 20, 18)
+
+
+HEARTH_STONE = [rgb(150, 146, 132), rgb(188, 184, 168), rgb(110, 104, 94)]
+# Inside the doorway (x0, y0, x1, y1), and the open step below it that becomes the hearth.
+FIRE_OPENING = (33, 18, 63, 56)
+HEARTH_STEP = (32, 56, 64, 64)
+
+
+def fireplace() -> Image.Image:
+    props = Image.open(Path('public/assets/elvgames/tiles/props.png')).convert('RGBA')
+    hearth = props.crop(TOWER_OPEN_DOOR)
+    px = hearth.load()
+    x0, y0, x1, y1 = FIRE_OPENING
+    for y in range(y0, y1):
+        for x in range(x0, x1):
+            px[x, y] = FIREBOX  # the doorway, door and handle included, becomes the dark firebox
+    x0, y0, x1, y1 = HEARTH_STEP
+    for y in range(y0, y1):
+        for x in range(x0, x1):
+            edge = y == y0 or y == y1 - 1
+            px[x, y] = HEARTH_STONE[2] if edge else HEARTH_STONE[(x // 6 + y) % 2]
+    fire = props.crop(BRAZIER)
+    hearth.alpha_composite(fire, ((hearth.width - fire.width) // 2, FIRE_OPENING[3] - fire.height))
+    return hearth
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     fern = Image.open(CHARS / '026.png').convert('RGBA')
@@ -314,6 +345,7 @@ def main() -> None:
 
     birch_tree().save(OUT / 'birch.png')
     standing_stones().save(OUT / 'stones.png')
+    fireplace().save(OUT / 'fireplace.png')
 
 
 if __name__ == '__main__':

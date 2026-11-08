@@ -14,7 +14,6 @@ import type { Atlas } from './art/atlas';
 import { isCreatureId, mapFrame } from './art/creatures';
 import { ELEMENT_COLOR_OF } from './art/feedback';
 import type { Region } from './art/images';
-import { PROP_ATLAS } from './art/propAtlas';
 import { TILE, cellHash, planGround } from './art/themes';
 import { drawStandingStone } from './standingStone';
 
@@ -88,8 +87,7 @@ const DOOR_SHUT: Region = { image: 'village', x: 0, y: 280, w: 32, h: 38 };
 const DOOR_OPEN: Region = { image: 'village', x: 0, y: 466, w: 32, h: 38 };
 const CHAIR: Region = { image: 'village', x: 0, y: 128, w: 32, h: 40 };
 const BENCH: Region = { image: 'village', x: 64, y: 192, w: 64, h: 32 };
-const [stoveX, stoveY, stoveW, stoveH] = PROP_ATLAS['forge.furnace'];
-const STOVE: Region = { image: 'props', x: stoveX, y: stoveY, w: stoveW, h: stoveH };
+const FIREPLACE: Region = { image: 'story.fireplace', x: 0, y: 0, w: 96, h: 64 };
 
 /** Birches around the hilltop, outside the stones: base position on the stage. */
 const BIRCHES: readonly (readonly [number, number])[] = [
@@ -102,10 +100,10 @@ const BIRCHES: readonly (readonly [number, number])[] = [
 ];
 /** The stones stand in a horseshoe on the hilltop, open toward the path up the hill. */
 const RING = { x: 160, y: 120, rx: 200, ry: 74 } as const;
-/** The cottage: the back wall meets the floor here, and the door and stove stand on that line. */
+/** The cottage: the back wall meets the floor here; the door and fireplace stand on that line. */
 const WALL_FOOT = 86;
 const DOOR_X = 256;
-const STOVE_X = 54;
+const FIRE_X = 46;
 const WINDOW_X = 168;
 /** Where brick shows through the plaster, on the back wall. */
 const BRICK_PATCHES: readonly (readonly [number, number])[] = [
@@ -231,14 +229,14 @@ export class CinematicView {
         const stone = FLAGSTONES[Math.floor(cellHash(x / TILE, y / TILE) * FLAGSTONES.length)];
         if (stone) this.atlas.draw(ctx, stone, x, y);
       }
-    // The window, the bench, the stove and its fire, the chair and the door.
+    // The window, the bench, the fireplace, the chair and the door.
     this.atlas.draw(ctx, WINDOW, WINDOW_X - WINDOW.w / 2, 20);
     lights.push({ x: WINDOW_X, y: 36, radius: 40, colour: MOONLIGHT, strength: 0.5 });
     this.atlas.draw(ctx, BENCH, 150, WALL_FOOT - 30);
-    this.atlas.draw(ctx, STOVE, STOVE_X - 21, WALL_FOOT - 66, 42, 66);
+    this.atlas.draw(ctx, FIREPLACE, FIRE_X - FIREPLACE.w / 2, WALL_FOOT - FIREPLACE.h);
     this.atlas.draw(ctx, CHAIR, 82, 92);
     const flicker = 6 * Math.sin(t / 90) + 3 * Math.sin(t / 37);
-    lights.push({ x: STOVE_X, y: WALL_FOOT - 16, radius: 110 + flicker, colour: FIRELIGHT });
+    lights.push({ x: FIRE_X, y: WALL_FOOT - 18, radius: 110 + flicker, colour: FIRELIGHT });
     const open = shot.door ? sample(shot.door, t) >= 0.5 : false;
     const shake = shot.doorShake ? sample(shot.doorShake, t) * Math.sin(t / 25) : 0;
     this.atlas.draw(ctx, open ? DOOR_OPEN : DOOR_SHUT, DOOR_X - 16 + shake, WALL_FOOT - 38);
@@ -276,7 +274,7 @@ export class CinematicView {
     ctx.fillRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT);
   }
 
-  /** Night over everything, with soft holes where stones, the stove or a lantern give light. */
+  /** Night over everything, with soft holes where stones, the fire or a lantern give light. */
   private drawNight(darkness: number, lights: readonly Light[]): void {
     if (darkness <= 0) return;
     const night = this.night;
