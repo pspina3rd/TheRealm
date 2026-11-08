@@ -69,20 +69,14 @@ const MEADOW_GROUND = groundMap('cinematic-meadow', [
 
 const BIRCH: Region = { image: 'story.birch', x: 0, y: 0, w: 64, h: 92 };
 // The cottage, from the pack's village tiles.
-/** Plain and cracked flagstones, mixed so the floor does not repeat. */
-const FLAGSTONES: readonly Region[] = [0, 0, 32, 0, 64, 0].map((x, i) => ({
-  image: 'village',
-  x,
-  y: i === 5 ? 64 : 32,
-  w: 32,
-  h: 32,
-}));
+/** One floorboard from the pack's bridge planks: a seam above an 8-pixel board, with dark ends. */
+const FLOORBOARD: Region = { image: 'grasslands', x: 260, y: 428, w: 56, h: 10 };
 const POST: Region = { image: 'village', x: 8, y: 690, w: 12, h: 32 };
 const SKIRTING: Region = { image: 'village', x: 24, y: 758, w: 64, h: 10 };
 const BRICKS: Region = { image: 'village', x: 24, y: 712, w: 40, h: 36 };
 const WINDOW: Region = { image: 'village', x: 785, y: 146, w: 28, h: 32 };
 const PLASTER = '#ffe1bf';
-const MORTAR = '#6f6a5c';
+const FLOOR_SEAM = '#5a3a24';
 const DOOR_SHUT: Region = { image: 'village', x: 0, y: 280, w: 32, h: 38 };
 const DOOR_OPEN: Region = { image: 'village', x: 0, y: 466, w: 32, h: 38 };
 const CHAIR: Region = { image: 'village', x: 0, y: 128, w: 32, h: 40 };
@@ -221,14 +215,14 @@ export class CinematicView {
       for (let y = VIEW.top; y < WALL_FOOT; y += POST.h) this.atlas.draw(ctx, POST, x, y);
     for (let x = VIEW.left; x < VIEW.right; x += SKIRTING.w)
       this.atlas.draw(ctx, SKIRTING, x, WALL_FOOT - SKIRTING.h);
-    // Flagstones, set in mortar, from the wall to the front of the room.
-    ctx.fillStyle = MORTAR;
+    // Floorboards across the room, their joints staggered from row to row.
+    ctx.fillStyle = FLOOR_SEAM;
     ctx.fillRect(VIEW.left, WALL_FOOT, VIEW.right - VIEW.left, VIEW.bottom - WALL_FOOT);
-    for (let y = WALL_FOOT; y < VIEW.bottom; y += TILE)
-      for (let x = VIEW.left; x < VIEW.right; x += TILE) {
-        const stone = FLAGSTONES[Math.floor(cellHash(x / TILE, y / TILE) * FLAGSTONES.length)];
-        if (stone) this.atlas.draw(ctx, stone, x, y);
-      }
+    for (let y = WALL_FOOT, row = 0; y < VIEW.bottom; y += FLOORBOARD.h, row++) {
+      const stagger = Math.floor(cellHash(row, 7) * FLOORBOARD.w);
+      for (let x = VIEW.left - stagger; x < VIEW.right; x += FLOORBOARD.w)
+        this.atlas.draw(ctx, FLOORBOARD, x, y);
+    }
     // The window, the bench, the fireplace, the chair and the door.
     this.atlas.draw(ctx, WINDOW, WINDOW_X - WINDOW.w / 2, 20);
     lights.push({ x: WINDOW_X, y: 36, radius: 40, colour: MOONLIGHT, strength: 0.5 });
