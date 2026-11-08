@@ -32,7 +32,9 @@ export const IMAGES = {
   'story.rowan-lantern': { src: 'story/rowan-coat-lantern.png', width: 192, height: 192 },
   'story.rowan-young': { src: 'story/rowan-young.png', width: 192, height: 192 },
   'story.bracken': { src: 'story/bracken.png', width: 192, height: 192 },
-  'story.birch': { src: 'story/birch.png', width: 48, height: 104 },
+  'story.birch': { src: 'story/birch.png', width: 64, height: 92 },
+  /** The seven standing stones in `STONE_ORDER`: lit on the top row, dark beneath. */
+  'story.stones': { src: 'story/stones.png', width: 224, height: 60 },
   'enemy.001': { src: 'elvgames/enemies/001.png', width: 192, height: 240 },
   'enemy.001.large': { src: 'elvgames/enemies/001_large.png', width: 288, height: 360 },
   'enemy.009': { src: 'elvgames/enemies/009.png', width: 192, height: 240 },

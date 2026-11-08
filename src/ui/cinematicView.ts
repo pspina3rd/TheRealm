@@ -11,7 +11,6 @@ import {
 } from '../game/cinematic';
 import type { Atlas } from './art/atlas';
 import { isCreatureId, mapFrame } from './art/creatures';
-import { ELEMENT_COLOR_OF } from './art/feedback';
 import type { Region } from './art/images';
 import { PROP_ATLAS } from './art/propAtlas';
 import { drawStandingStone } from './standingStone';
@@ -21,7 +20,7 @@ export const STAGE_HEIGHT = 180;
 
 const GRASS: Region = { image: 'grasslands', x: 32, y: 0, w: 32, h: 32 };
 const PATH: Region = { image: 'grasslands', x: 224, y: 0, w: 32, h: 32 };
-const BIRCH: Region = { image: 'story.birch', x: 0, y: 0, w: 48, h: 104 };
+const BIRCH: Region = { image: 'story.birch', x: 0, y: 0, w: 64, h: 92 };
 const DOOR_SHUT: Region = { image: 'village', x: 0, y: 280, w: 32, h: 38 };
 const DOOR_OPEN: Region = { image: 'village', x: 0, y: 466, w: 32, h: 38 };
 const CHAIR: Region = { image: 'village', x: 0, y: 128, w: 32, h: 40 };
@@ -31,24 +30,28 @@ const STOVE: Region = { image: 'props', x: stoveX, y: stoveY, w: stoveW, h: stov
 
 /** Birches lining the path up the hill: base position on the stage. */
 const BIRCHES: readonly (readonly [number, number])[] = [
-  [34, 112],
-  [286, 108],
-  [70, 152],
-  [252, 150],
-  [102, 196],
-  [222, 194],
+  [-12, 58],
+  [332, 58],
+  [6, 180],
+  [314, 180],
+  [64, 218],
+  [256, 218],
 ];
-/** The ring of stones on the hilltop, seen from the path. */
-const RING = { x: 160, y: 58, rx: 74, ry: 20 } as const;
+/** The stones stand in a horseshoe on the hilltop, open toward the path up the hill. */
+const RING = { x: 160, y: 94, rx: 130, ry: 62 } as const;
 /** The house: the back wall meets the floor here, and the door and stove stand on that line. */
 const WALL_FOOT = 86;
 const DOOR_X = 256;
 const STOVE_X = 54;
 
-/** Where each stone's base is, back of the ring first so nearer stones overlap it. */
+/**
+ * Where each stone's base is: spread evenly round the top half of the horseshoe, violet at the left
+ * end and red at the right, back stones first so nearer ones overlap them.
+ */
 function stonePositions(): { x: number; y: number; index: number }[] {
+  const last = STONE_ORDER.length - 1;
   return STONE_ORDER.map((_, index) => {
-    const angle = -Math.PI / 2 + (index * 2 * Math.PI) / STONE_ORDER.length;
+    const angle = Math.PI + (index * Math.PI) / last;
     return {
       x: RING.x + Math.cos(angle) * RING.rx,
       y: RING.y + Math.sin(angle) * RING.ry,
@@ -97,24 +100,17 @@ export class CinematicView {
     for (let y = 0; y < STAGE_HEIGHT; y += 32)
       for (let x = 0; x < STAGE_WIDTH; x += 32) this.atlas.draw(this.ctx, GRASS, x, y);
     if (shot.setting === 'hill') {
-      for (let y = RING.y + RING.ry + 6; y < STAGE_HEIGHT; y += 32)
-        this.atlas.draw(this.ctx, PATH, 144, y);
+      for (let y = RING.y + 8; y < STAGE_HEIGHT; y += 32) this.atlas.draw(this.ctx, PATH, 144, y);
       const stones = shot.stones;
       if (stones)
         for (const { x, y, index } of stonePositions()) {
           const light = sample(stones[index] ?? [], t);
-          drawStandingStone(
-            this.ctx,
-            x,
-            y,
-            ELEMENT_COLOR_OF[STONE_ORDER[index] ?? 'arcane'],
-            light,
-            t,
-          );
-          if (light > 0) lights.push({ x, y: y - 18, radius: 30 * light });
+          const element = STONE_ORDER[index] ?? 'arcane';
+          drawStandingStone(this.ctx, this.atlas, x, y, element, light, t);
+          if (light > 0) lights.push({ x, y: y - 12, radius: 30 * light });
         }
     }
-    for (const [x, y] of BIRCHES) this.atlas.draw(this.ctx, BIRCH, x - 24, y - 100);
+    for (const [x, y] of BIRCHES) this.atlas.draw(this.ctx, BIRCH, x - 32, y - 88);
   }
 
   private drawHouse(shot: CinematicShot, t: number, lights: Light[]): void {

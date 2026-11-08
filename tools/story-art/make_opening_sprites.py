@@ -139,70 +139,89 @@ def add_lantern(sheet: Image.Image) -> Image.Image:
     return out
 
 
-# Birch colours: the pack's leaf ramp shifted lighter and yellower, and a pale banded trunk.
-LEAF = [rgb(32, 70, 44), rgb(66, 128, 62), rgb(104, 168, 70), rgb(150, 204, 84), rgb(204, 236, 120)]
-BARK_LIGHT, BARK_MID, BARK_SHADE = rgb(240, 236, 226), rgb(214, 208, 196), rgb(170, 164, 152)
-BARK_EDGE, BARK_MARK = rgb(70, 62, 56), rgb(36, 32, 30)
+# Birch: the pack's round tree with lighter, yellower leaves and white bark marked in black.
+BIRCH_LEAVES = [rgb(40, 86, 52), rgb(70, 140, 70), rgb(110, 176, 74), rgb(156, 206, 92), rgb(210, 236, 128)]
+# The pack trunk's four shades (by r + g + b), darkest to lightest, as birch bark.
+BIRCH_BARK = {213: rgb(92, 86, 80), 322: rgb(196, 192, 182), 422: rgb(230, 227, 218), 489: rgb(248, 246, 240)}
+BARK_MARK = rgb(46, 40, 38)
+# The pack sheet stacks a spare trunk piece under this tree; the tree itself ends at row 92.
+PACK_TREE = (0, 516, 64, 608)
 
 
 def _noise(x: int, y: int) -> int:
-    """Stable per-pixel noise, 0 to 99, so the tree is identical on every run."""
+    """Stable per-pixel noise, 0 to 99, so the art is identical on every run."""
     return (x * 73856093 ^ y * 19349663) % 100
 
 
+def _brightness(colour: Color) -> int:
+    return int(0.3 * colour[0] + 0.59 * colour[1] + 0.11 * colour[2])
+
+
 def birch_tree() -> Image.Image:
-    """A slender birch: pale trunk with dark marks under a tall, airy, yellow-green crown."""
-    w, h = 48, 104
-    tree = Image.new('RGBA', (w, h), (0, 0, 0, 0))
+    """The pack's single round tree, made a birch: same outline and shading, new colours."""
+    tree = Image.open(TILES / 'grasslands.png').convert('RGBA').crop(PACK_TREE)
     px = tree.load()
-
-    # Ground shadow, matching the pack's soft shadow.
-    for y in range(h - 7, h - 1):
-        for x in range(8, 40):
-            if ((x - 24) / 15) ** 2 + ((y - (h - 4)) / 3) ** 2 <= 1:
-                px[x, y] = (40, 40, 48, 60)
-
-    # Trunk: five pixels wide with a slight lean, marks on alternating sides, darker at the foot.
-    for y in range(40, h - 3):
-        cx = 22 + (1 if y < 62 else 0)
-        for i, colour in enumerate((BARK_EDGE, BARK_LIGHT, BARK_LIGHT, BARK_MID, BARK_EDGE)):
-            px[cx + i, y] = colour
-        if y >= h - 9:
-            px[cx + 1, y] = BARK_SHADE if _noise(cx, y) < 50 else BARK_MARK
-            px[cx + 3, y] = BARK_MARK
-        elif _noise(3, y) < 22:
-            start = 1 if _noise(5, y) < 50 else 2
-            px[cx + start, y] = BARK_MARK
-            px[cx + start + 1, y] = BARK_MARK
-
-    # Crown: overlapping clusters, taller than wide, with gaps the trunk shows through.
-    clusters = [(24, 14, 9, 10), (16, 26, 8, 9), (32, 25, 8, 9), (20, 40, 9, 8), (30, 42, 7, 7),
-                (24, 30, 7, 7), (13, 40, 5, 6), (36, 36, 5, 6)]
-    inside = set()
-    for cx, cy, rx, ry in clusters:
-        for y in range(cy - ry, cy + ry + 1):
-            for x in range(cx - rx, cx + rx + 1):
-                ragged = _noise(x, y) < 12 and ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 > 0.7
-                if ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1 and not ragged:
-                    inside.add((x, y))
-    for x, y in inside:
-        edge = any((x + dx, y + dy) not in inside for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
-        if edge:
-            px[x, y] = LEAF[0]
-            continue
-        # Light from the upper left in clean steps, with a checker dither where steps meet,
-        # matching the pack's tree shading.
-        light = 4.2 - (y / 52) * 3 - (x - 18) / 30
-        step = int(light)
-        if light - step > 0.75 and (x + y) % 2 == 0:
-            step += 1
-        px[x, y] = LEAF[max(1, min(4, step))]
-
-    # A couple of pale branches showing through the gaps in the crown.
-    for x, y in ((21, 33), (20, 34), (27, 35), (28, 36), (19, 46), (29, 47)):
-        if (x, y) in inside:
-            px[x, y] = BARK_MID
+    leaf_shades = sorted(
+        {_brightness(px[x, y]) for y in range(tree.height) for x in range(tree.width)
+         if px[x, y][3] > 200 and px[x, y][1] > px[x, y][0]}
+    )
+    for y in range(tree.height):
+        for x in range(tree.width):
+            r, g, b, a = px[x, y]
+            if a <= 200:
+                continue  # the soft ground shadow stays as it is
+            if g > r:
+                step = leaf_shades.index(_brightness(px[x, y])) * 5 // len(leaf_shades)
+                px[x, y] = BIRCH_LEAVES[step][:3] + (a,)
+            else:
+                bark = BIRCH_BARK.get(r + g + b, BIRCH_BARK[422])
+                marked = r + g + b >= 422 and _noise(3, y) < 18 and _noise(x // 2, y) < 55
+                px[x, y] = (BARK_MARK if marked else bark)[:3] + (a,)
     return tree
+
+
+# The seven stones: the pack's round boulder with small crystals of each stone's colour set in it.
+STONE_HEX = ['#bd91ff', '#7296ff', '#61d9e8', '#72e6a2', '#f6d365', '#ffad69', '#ff7c9b']
+PACK_ROCK = (0, 192, 32, 222)
+# Crystal shapes: o outline, m body, l light face, h highlight.
+BIG_CRYSTAL = ['..o..', '.olo.', '.ohlo', 'omllo', 'omlho', 'ommlo', 'ommlo', '.ooo.']
+SMALL_CRYSTAL = ['.o.', 'olo', 'oho', 'omo', 'omo', 'ooo']
+CHIP = ['.o.', 'olo', 'omo', 'ooo']
+# Where each crystal sits on the boulder (top-left of its shape).
+CRYSTALS = [(BIG_CRYSTAL, 13, 0), (SMALL_CRYSTAL, 7, 5), (SMALL_CRYSTAL, 21, 4), (CHIP, 17, 15)]
+
+
+def _crystal_ramp(hex_colour: str, lit: bool) -> dict[str, Color]:
+    r, g, b = (int(hex_colour[i : i + 2], 16) for i in (1, 3, 5))
+    if not lit:  # a dark stone: the crystals dull to a dim grey tint of their colour
+        grey = (r + g + b) // 3
+        r, g, b = ((v + grey * 2) // 3 * 45 // 100 for v in (r, g, b))
+    mix = lambda v, k: min(255, int(v + (255 - v) * k))  # noqa: E731
+    return {
+        'o': rgb(r * 35 // 100, g * 35 // 100, b * 42 // 100),
+        'm': rgb(r * 80 // 100, g * 80 // 100, b * 85 // 100),
+        'l': rgb(r, g, b),
+        'h': rgb(mix(r, 0.6), mix(g, 0.6), mix(b, 0.6)),
+    }
+
+
+def standing_stones() -> Image.Image:
+    """A sheet of the seven stones in STONE_ORDER: lit on the top row, dark beneath."""
+    rock = Image.open(TILES / 'grasslands.png').convert('RGBA').crop(PACK_ROCK)
+    w, h = rock.size
+    sheet = Image.new('RGBA', (w * len(STONE_HEX), h * 2), (0, 0, 0, 0))
+    for row, lit in enumerate((True, False)):
+        for col, hex_colour in enumerate(STONE_HEX):
+            stone = rock.copy()
+            px = stone.load()
+            ramp = _crystal_ramp(hex_colour, lit)
+            for shape, ox, oy in CRYSTALS:
+                for dy, line in enumerate(shape):
+                    for dx, ch in enumerate(line):
+                        if ch in ramp:
+                            px[ox + dx, oy + dy] = ramp[ch]
+            sheet.alpha_composite(stone, (col * w, row * h))
+    return sheet
 
 
 def main() -> None:
@@ -229,6 +248,7 @@ def main() -> None:
     recolor(fern, bracken).save(OUT / 'bracken.png')
 
     birch_tree().save(OUT / 'birch.png')
+    standing_stones().save(OUT / 'stones.png')
 
 
 if __name__ == '__main__':

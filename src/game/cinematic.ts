@@ -48,6 +48,9 @@ export const STONE_ORDER = [
   'fire',
 ] as const;
 
+/** One of the seven stones, named by its school of magic. */
+export type StoneElement = (typeof STONE_ORDER)[number];
+
 export interface CinematicShot {
   readonly id: string;
   readonly setting: CinematicSetting;

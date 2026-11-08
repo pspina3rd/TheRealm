@@ -78,3 +78,12 @@ These replace earlier canon wherever they conflict, including World Bible WB-C16
 | Hareguy's dream  | He wants to be a hair stylist. Rowan never took it seriously. Canon.                                                                                                                                                                                                                                                                           |
 | The rift         | Never listed in full. Possible causes, any of which may surface in Hareguy's own words: Rowan not believing his mother, dismissing his dream, being more of a father to Fern, and putting his best friend's son first.                                                                                                                         |
 | Letter contents  | Never shown. The player sees only Hareguy read it and react.                                                                                                                                                                                                                                                                                   |
+
+## Round 5 — Look of the opening (8 November 2026)
+
+| Topic          | Decision                                                                                                                                      |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| The stones     | Boulders in the pack's style with small crystals of each stone's colour set in them. They glow when lit and go dark rock when out.            |
+| Everywhere     | The overworld's stones use the same art as the story scenes.                                                                                  |
+| Hilltop layout | The stones stand in a horseshoe open toward the path; violet at the left end, red at the right, so they go out in a sweep from left to right. |
+| Birches        | The pack's own round tree recoloured as a birch, not drawn from scratch.                                                                      |

@@ -355,7 +355,7 @@ export class WorldView {
       const bright = nature ? nature.light > 0 : region !== null && regionFixed(state, region);
       const px = x * TILE - camX + TILE / 2;
       const py = y * TILE - camY + TILE;
-      drawStandingStone(ctx, px, py, ELEMENT_COLOR_OF[element], bright ? 1 : 0, timeMs);
+      drawStandingStone(ctx, this.atlas, px, py, element, bright ? 1 : 0, timeMs);
     });
   }
 
