@@ -3,12 +3,12 @@ import { STONE_ORDER, type StoneElement } from '../game/cinematic';
 import type { Atlas } from './art/atlas';
 import { ELEMENT_COLOR_OF } from './art/feedback';
 
-/** Each stone's cell in the `story.stones` sheet. */
-const STONE_W = 32;
-const STONE_H = 30;
+/** Each stone's cell in the `story.stones` sheet; the stone stands on the cell's bottom edge. */
+const STONE_W = 80;
+const STONE_H = 80;
 
 /**
- * Draws one stone, a boulder with small crystals of its colour set in it, with its base at
+ * Draws one stone, a boulder with crystals of its colour growing out of it, with its base at
  * (px, py). `light` runs from 0 (dark crystals) to 1 (lit crystals with a pulsing glow).
  */
 export function drawStandingStone(
@@ -28,7 +28,7 @@ export function drawStandingStone(
     ctx.globalAlpha = light * (0.45 + 0.2 * Math.sin(timeMs / 300));
     ctx.fillStyle = ELEMENT_COLOR_OF[element];
     ctx.beginPath();
-    ctx.ellipse(px, py - 6, STONE_W * 0.7, STONE_H * 0.35, 0, 0, Math.PI * 2);
+    ctx.ellipse(px, py - 8, 34, 12, 0, 0, Math.PI * 2);
     ctx.fill();
   }
   ctx.globalAlpha = 1;

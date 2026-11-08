@@ -38,7 +38,7 @@ const BIRCHES: readonly (readonly [number, number])[] = [
   [256, 218],
 ];
 /** The stones stand in a horseshoe on the hilltop, open toward the path up the hill. */
-const RING = { x: 160, y: 94, rx: 130, ry: 62 } as const;
+const RING = { x: 160, y: 126, rx: 138, ry: 58 } as const;
 /** The house: the back wall meets the floor here, and the door and stove stand on that line. */
 const WALL_FOOT = 86;
 const DOOR_X = 256;
@@ -107,7 +107,7 @@ export class CinematicView {
           const light = sample(stones[index] ?? [], t);
           const element = STONE_ORDER[index] ?? 'arcane';
           drawStandingStone(this.ctx, this.atlas, x, y, element, light, t);
-          if (light > 0) lights.push({ x, y: y - 12, radius: 30 * light });
+          if (light > 0) lights.push({ x, y: y - 34, radius: 40 * light });
         }
     }
     for (const [x, y] of BIRCHES) this.atlas.draw(this.ctx, BIRCH, x - 32, y - 88);
