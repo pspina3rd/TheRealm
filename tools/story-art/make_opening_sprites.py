@@ -4,6 +4,7 @@ Writes new files to public/assets/story/ and never changes the pack's originals.
 Run from the repository root: python tools/story-art/make_opening_sprites.py
 """
 
+import random
 from pathlib import Path
 
 from PIL import Image
@@ -180,196 +181,128 @@ def birch_tree() -> Image.Image:
     return tree
 
 
-# The seven stones: the pack's large boulders, each one different, with crystals of its colour.
+# The seven stones are smooth, water-worn lake stones, like yooperlites under a black light: plain
+# grey rock by day, but when lit the rock goes dark and patches, veins and flecks inside it glow in
+# the stone's colour. Each stone has its own shape and its own pattern of glow.
 STONE_HEX = ['#bd91ff', '#7296ff', '#61d9e8', '#72e6a2', '#f6d365', '#ffad69', '#ff7c9b']
 STONE_CELL = 80  # each stone sits bottom-centred in an 80 x 80 cell
-SPIRE = (128, 192, 160, 256)
-BOULDERS = [(0, 256, 64, 320), (64, 256, 128, 320), (128, 256, 192, 320), (192, 256, 256, 320)]
-SMALL_ROCKS = [(0, 192, 32, 224), (64, 192, 96, 224), (0, 224, 32, 256)]
-def crystal_shape(width: int, height: int, lean: int = 0) -> list[str]:
-    """A faceted crystal as rows of o outline, l lit face, m shaded face and h highlight.
-
-    It has a pointed tip, a lit left face and a shaded right face; `lean` shifts it one pixel sideways
-    every `abs(lean)` rows going up (negative leans left)."""
-    half = width // 2
-    tip = half + 1
-    rows = []
-    for y in range(height):
-        if y < tip:  # the point widens towards the shoulders
-            span = 1 + 2 * y
-            pad = half - y
-            if span <= 1:
-                row = ' ' * pad + 'o'
-            else:
-                inner = ''.join('h' if i == 1 and y > 1 else ('l' if i < span // 2 else 'm') for i in range(1, span - 1))
-                row = ' ' * pad + 'o' + inner + 'o'
-        elif y == height - 1:
-            row = ' ' + 'o' * (width - 2)
-        else:
-            inner = ''.join(
-                'h' if i == 1 and y < height * 2 // 3 else ('l' if i <= half else 'm') for i in range(1, width - 1)
-            )
-            row = 'o' + inner + 'o'
-        rows.append(row)
-    if lean:
-        shifted = []
-        for y, row in enumerate(rows):
-            offset = (height - 1 - y) // abs(lean)
-            shifted.append((' ' * offset + row) if lean > 0 else row)
-        if lean < 0:
-            shifted = [' ' * ((y) // abs(lean)) + row for y, row in enumerate(rows)]
-        rows = shifted
-    return [row.replace(' ', '.') for row in rows]
-
-
-SHAPES = {
-    'great': crystal_shape(9, 22),
-    'tall': crystal_shape(7, 17),
-    'big': crystal_shape(7, 12),
-    'small': crystal_shape(5, 9),
-    'tiny': crystal_shape(3, 5),
-    'leanL': crystal_shape(5, 12, -3),
-    'leanR': crystal_shape(5, 12, 3),
-    'bigLeanL': crystal_shape(7, 15, -3),
-    'bigLeanR': crystal_shape(7, 15, 3),
-}
-# Each stone: its rock (and an optional smaller rock at its foot), mirrored or not, and its crystals.
-# A crystal is placed by shape, position across the rock (0 left to 1 right) and either 'top' (on the
-# rock's upper edge at that point) or a depth into the rock's face (0 top to 1 bottom).
-STONES = [
-    # violet (Arcane): the tall spire, one great crystal at its peak and more climbing its side
-    (SPIRE, False, None, [('great', 0.5, 'top'), ('small', 0.15, 0.4), ('tiny', 0.85, 0.55), ('leanR', 0.8, 0.25)]),
-    # blue (Water): a broad boulder, a cluster on top like water caught mid-splash
-    (
-        BOULDERS[0],
-        False,
-        SMALL_ROCKS[0],
-        [('bigLeanL', 0.36, 'top'), ('tall', 0.5, 'top'), ('small', 0.62, 'top'), ('tiny', 0.75, 0.5)],
-    ),
-    # cyan (Wind): a heaped boulder, every crystal leaning the same way, as if blown
-    (BOULDERS[2], True, None, [('bigLeanR', 0.55, 'top'), ('leanR', 0.38, 'top'), ('leanR', 0.72, 0.35), ('tiny', 0.25, 0.55)]),
-    # green (Nature): crystals growing out of a crack down the boulder's face
-    (BOULDERS[3], False, SMALL_ROCKS[2], [('big', 0.5, 'top'), ('small', 0.47, 0.32), ('small', 0.55, 0.52), ('tiny', 0.45, 0.72)]),
-    # gold (Lightning): the spire mirrored, a single tall shard split from its peak
-    (SPIRE, True, SMALL_ROCKS[1], [('great', 0.45, 'top'), ('leanL', 0.2, 0.3), ('tiny', 0.75, 0.5)]),
-    # orange (Earth): the broad boulder mirrored, crystals low, heavy and half buried
-    (BOULDERS[1], True, None, [('big', 0.3, 0.5), ('tall', 0.6, 0.48), ('small', 0.45, 0.68), ('tiny', 0.5, 'top')]),
-    # red (Fire): a heaped boulder with a crown of crystals like a flame
-    (
-        BOULDERS[2],
-        False,
-        SMALL_ROCKS[0],
-        [('bigLeanL', 0.32, 'top'), ('great', 0.5, 'top'), ('bigLeanR', 0.68, 'top'), ('tiny', 0.28, 0.6)],
-    ),
+# Plain lake-stone greys, darkest (outline) to lightest (sunlit top), and the rock under a lit glow.
+STONE_GREYS = [rgb(46, 44, 48), rgb(92, 90, 94), rgb(124, 122, 126), rgb(156, 154, 156), rgb(188, 186, 186)]
+LIT_GREYS = [rgb(22, 20, 28), rgb(44, 42, 52), rgb(58, 56, 66), rgb(72, 70, 80), rgb(88, 86, 96)]
+# Shapes: width, height, lumps (extra rounded masses as fractions: across, up, size), lean, seed.
+STONE_SHAPES = [
+    (30, 58, [(0.5, 0.75, 0.55), (0.45, 0.4, 0.6)], 3, 11),  # violet: a tall egg, leaning
+    (62, 40, [(0.3, 0.35, 0.55), (0.7, 0.4, 0.5)], 0, 23),  # blue: broad and low, two lobes
+    (46, 50, [(0.4, 0.55, 0.6), (0.65, 0.3, 0.45)], -2, 37),  # cyan: lumpy, leaning left
+    (54, 46, [(0.5, 0.45, 0.7)], 0, 41),  # green: a round, heavy stone
+    (34, 62, [(0.5, 0.3, 0.55), (0.45, 0.72, 0.5)], -3, 53),  # gold: tall, narrow and crooked
+    (58, 36, [(0.35, 0.4, 0.6), (0.68, 0.35, 0.55)], 0, 67),  # orange: flat and wide
+    (48, 54, [(0.5, 0.3, 0.6), (0.3, 0.65, 0.45), (0.72, 0.62, 0.45)], 1, 79),  # red: a heaped cairn
 ]
 
 
-def _crystal_ramp(hex_colour: str, lit: bool) -> dict[str, Color]:
+def _glow_ramp(hex_colour: str) -> dict[str, Color]:
+    """Fluorescent glow: a deep edge, the stone's colour, and a near-white hot core."""
     r, g, b = (int(hex_colour[i : i + 2], 16) for i in (1, 3, 5))
-    if not lit:  # a dark stone: the crystals dull to a dim grey tint of their colour
-        grey = (r + g + b) // 3
-        r, g, b = ((v + grey * 2) // 3 * 45 // 100 for v in (r, g, b))
 
-    def mix(v: int, k: float) -> int:
+    def toward_white(v: int, k: float) -> int:
         return min(255, int(v + (255 - v) * k))
 
     return {
-        'o': rgb(r * 35 // 100, g * 35 // 100, b * 42 // 100),
-        'm': rgb(r * 80 // 100, g * 80 // 100, b * 85 // 100),
+        'm': rgb(r * 62 // 100, g * 62 // 100, b * 70 // 100),
         'l': rgb(r, g, b),
-        'h': rgb(mix(r, 0.6), mix(g, 0.6), mix(b, 0.6)),
+        'h': rgb(toward_white(r, 0.65), toward_white(g, 0.65), toward_white(b, 0.65)),
     }
 
 
-def _stone_rock(tiles: Image.Image, rock, mirrored: bool, foot) -> Image.Image:
-    """The stone's rock, bottom-centred in its cell, with a smaller rock at its foot if given."""
-    cell = Image.new('RGBA', (STONE_CELL, STONE_CELL), (0, 0, 0, 0))
-    body = tiles.crop(rock)
-    body = body.crop(body.getbbox())
-    if mirrored:
-        body = body.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
-    left = (STONE_CELL - body.width) // 2
-    if foot:
-        small = tiles.crop(foot)
-        small = small.crop(small.getbbox())
-        side = left + body.width - small.width // 2 if not mirrored else left - small.width // 2
-        cell.alpha_composite(small, (max(0, min(STONE_CELL - small.width, side)), STONE_CELL - small.height))
-    cell.alpha_composite(body, (left, STONE_CELL - body.height))
-    return cell
+def _value_noise(seed: int, scale: float):
+    """Smooth 2D noise in 0..1, stable for a given seed."""
+    rand = random.Random(seed)
+    grid = {(i, j): rand.random() for i in range(-2, 40) for j in range(-2, 40)}
+
+    def at(x: float, y: float) -> float:
+        gx, gy = x / scale, y / scale
+        i, j = int(gx), int(gy)
+        fx, fy = gx - i, gy - j
+        fx, fy = fx * fx * (3 - 2 * fx), fy * fy * (3 - 2 * fy)
+        top = grid[(i, j)] * (1 - fx) + grid[(i + 1, j)] * fx
+        low = grid[(i, j + 1)] * (1 - fx) + grid[(i + 1, j + 1)] * fx
+        return top * (1 - fy) + low * fy
+
+    return at
 
 
-def _solid(px, x: int, y: int) -> bool:
-    return 0 <= x < STONE_CELL and 0 <= y < STONE_CELL and px[x, y][3] > 200
+def _stone_mask(width: int, height: int, lumps, lean: int, seed: int) -> set[tuple[int, int]]:
+    """The stone's silhouette: overlapping rounded masses with weathered, uneven edges, resting on a
+    flattened base at the bottom of the cell."""
+    left = (STONE_CELL - width) // 2
+    base = STONE_CELL - 1
+    rough = _value_noise(seed + 9, 5.0)
+    pixels = set()
+    for across, up, size in lumps:
+        cx = left + across * width
+        cy = base - up * height
+        rx, ry = size * width * 0.62, size * height * 0.62
+        for y in range(STONE_CELL):
+            for x in range(STONE_CELL):
+                shift = lean * (base - y) / max(1, height)  # the stone leans as it rises
+                edge = 1 + 0.22 * (rough(x, y) - 0.5)
+                if ((x - cx - shift) / rx) ** 2 + ((y - cy) / ry) ** 2 <= edge:
+                    pixels.add((x, y))
+    # Settle the stone: drop it onto the ground and flatten the bottom two rows it rests on.
+    drop = base - max(y for _, y in pixels)
+    settled = {(x, y + drop) for x, y in pixels}
+    floor = base - 1
+    row = [x for x, y in settled if y == floor - 2]
+    if row:
+        for x in range(min(row) + 1, max(row)):
+            settled.update({(x, floor), (x, base)})
+    return {(x, y) for x, y in settled if y <= base}
 
 
-def _darken(colour: Color, k: float) -> Color:
-    return (int(colour[0] * k), int(colour[1] * k), int(colour[2] * k), colour[3])
-
-
-def _tint(colour: Color, toward: Color, k: float) -> Color:
-    return tuple(int(c + (t - c) * k) for c, t in zip(colour[:3], toward[:3])) + (colour[3],)
-
-
-def _place_crystals(stone: Image.Image, crystals, ramp: dict[str, Color], lit: bool) -> None:
-    """Grows each crystal out of the rock.
-
-    The crystal's lower part is buried: the rock is drawn back over it, a dark crack rims the place
-    where it breaks through, and a lit crystal tints the rock around it with its glow."""
-    rock = stone.copy()
-    solid = rock.load()
-    px = stone.load()
-    left, top, right, bottom = stone.getbbox() or (0, 0, STONE_CELL, STONE_CELL)
-    middle = (left + right) // 2
-    for shape_name, across, where in crystals:
-        shape = SHAPES[shape_name]
-        width, height = max(len(line) for line in shape), len(shape)
-        buried = height * 2 // 5  # this many rows of the crystal stay inside the rock
-        foot = height - buried  # the first buried row: it must lie on solid rock
-        cx = int(left + across * (right - left))
-        for _ in range(STONE_CELL):
-            if where == 'top':
-                column = [y for y in range(STONE_CELL) if _solid(solid, cx, y)]
-                y = (column[0] if column else top) - foot + 1
-            else:
-                y = int(top + where * (bottom - top)) - height // 2
-            base = [cx - width // 2 + dx for dx, ch in enumerate(shape[foot]) if ch != '.']
-            if all(_solid(solid, x, y + foot) for x in base):
-                break
-            cx += 1 if cx < middle else -1  # step in towards the rock until the foot is set
-        x = cx - width // 2
-        drawn = set()
-        for dy, line in enumerate(shape):
-            for dx, ch in enumerate(line):
-                tx, ty = x + dx, y + dy
-                if ch not in ramp or not (0 <= tx < STONE_CELL and 0 <= ty < STONE_CELL):
-                    continue
-                if dy >= foot and _solid(solid, tx, ty):
-                    continue  # buried: the rock stays in front
-                px[tx, ty] = ramp[ch]
-                drawn.add((tx, ty))
-        # The crack: rock pixels touching the crystal along its buried edge are darkened, and a lit
-        # crystal's glow spills a little onto the rock just below where it breaks through.
-        for tx, ty in list(drawn):
-            for ddx in (-2, -1, 0, 1, 2):
-                for ddy in (-1, 0, 1, 2):
-                    nx, ny = tx + ddx, ty + ddy
-                    if (nx, ny) in drawn or not _solid(solid, nx, ny):
-                        continue
-                    near = abs(ddx) <= 1 and ddy in (0, 1)
-                    if near and ty - y >= foot - 2:
-                        px[nx, ny] = _darken(solid[nx, ny], 0.45)
-                    elif lit and ddy >= 1 and ty - y >= foot - 1:
-                        px[nx, ny] = _tint(px[nx, ny], ramp['l'], 0.18)
+def _shade(mask: set[tuple[int, int]], x: int, y: int, greys, weather) -> Color:
+    """Pack-style stepped shading: outline at the edge, light from the upper left, dithered steps,
+    with weathering: broad patches a shade lighter or darker and small dark pits."""
+    if any((x + dx, y + dy) not in mask for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+        return greys[0]
+    xs = [px for px, py in mask if py == y]
+    ys = [py for px, py in mask if px == x]
+    across = (x - min(xs)) / max(1, max(xs) - min(xs))
+    down = (y - min(ys)) / max(1, max(ys) - min(ys))
+    light = 4.1 - across * 1.6 - down * 2.2 + (weather(x, y) - 0.5) * 1.4
+    if _noise(x, y) < 4:
+        return greys[1]  # a pit
+    step = int(light)
+    if light - step > 0.6 and (x + y) % 2 == 0:
+        step += 1
+    return greys[max(1, min(4, step))]
 
 
 def standing_stones() -> Image.Image:
-    """A sheet of the seven stones in STONE_ORDER: lit on the top row, dark beneath."""
-    tiles = Image.open(TILES / 'grasslands.png').convert('RGBA')
-    sheet = Image.new('RGBA', (STONE_CELL * len(STONES), STONE_CELL * 2), (0, 0, 0, 0))
-    for col, ((rock, mirrored, foot, crystals), hex_colour) in enumerate(zip(STONES, STONE_HEX)):
+    """A sheet of the seven stones in STONE_ORDER: lit (glowing) on the top row, plain beneath."""
+    sheet = Image.new('RGBA', (STONE_CELL * len(STONE_SHAPES), STONE_CELL * 2), (0, 0, 0, 0))
+    for col, ((width, height, lumps, lean, seed), hex_colour) in enumerate(zip(STONE_SHAPES, STONE_HEX)):
+        mask = _stone_mask(width, height, lumps, lean, seed)
+        weather = _value_noise(seed + 5, 6.0)
+        patches = _value_noise(seed, 7.0)
+        flecks = _value_noise(seed + 1, 2.2)
+        veins = _value_noise(seed + 2, 11.0)
+        glow = _glow_ramp(hex_colour)
         for row, lit in enumerate((True, False)):
-            stone = _stone_rock(tiles, rock, mirrored, foot)
-            _place_crystals(stone, crystals, _crystal_ramp(hex_colour, lit), lit)
+            stone = Image.new('RGBA', (STONE_CELL, STONE_CELL), (0, 0, 0, 0))
+            px = stone.load()
+            for x, y in mask:
+                px[x, y] = _shade(mask, x, y, LIT_GREYS if lit else STONE_GREYS, weather)
+                if not lit or px[x, y] == LIT_GREYS[0]:
+                    continue
+                patch = patches(x, y)
+                vein = abs(veins(x, y) - 0.5) < 0.035  # thin bands where the vein noise crosses its middle
+                if patch > 0.74 or (vein and patch > 0.45):
+                    px[x, y] = glow['h'] if patch > 0.8 else glow['l']
+                elif patch > 0.66 or vein:
+                    px[x, y] = glow['m']
+                elif flecks(x, y) > 0.86:
+                    px[x, y] = glow['l']
             sheet.alpha_composite(stone, (col * STONE_CELL, row * STONE_CELL))
     return sheet
 
