@@ -181,24 +181,27 @@ def birch_tree() -> Image.Image:
     return tree
 
 
-# The seven stones are smooth, water-worn lake stones, like yooperlites under a black light: plain
-# grey rock by day, but when lit the rock goes dark and patches, veins and flecks inside it glow in
-# the stone's colour. Each stone has its own shape and its own pattern of glow.
+# The seven stones are the pack's large boulders, each one different, treated like yooperlites under a
+# black light: plain grey rock when out; when lit the rock goes dark and patches, veins and flecks
+# inside it glow in the stone's colour.
 STONE_HEX = ['#bd91ff', '#7296ff', '#61d9e8', '#72e6a2', '#f6d365', '#ffad69', '#ff7c9b']
 STONE_CELL = 80  # each stone sits bottom-centred in an 80 x 80 cell
-# Plain lake-stone greys, darkest (outline) to lightest (sunlit top), and the rock under a lit glow.
-STONE_GREYS = [rgb(46, 44, 48), rgb(92, 90, 94), rgb(124, 122, 126), rgb(156, 154, 156), rgb(188, 186, 186)]
-LIT_GREYS = [rgb(22, 20, 28), rgb(44, 42, 52), rgb(58, 56, 66), rgb(72, 70, 80), rgb(88, 86, 96)]
-# Shapes: width, height, lumps (extra rounded masses as fractions: across, up, size), lean, seed.
-STONE_SHAPES = [
-    (30, 58, [(0.5, 0.75, 0.55), (0.45, 0.4, 0.6)], 3, 11),  # violet: a tall egg, leaning
-    (62, 40, [(0.3, 0.35, 0.55), (0.7, 0.4, 0.5)], 0, 23),  # blue: broad and low, two lobes
-    (46, 50, [(0.4, 0.55, 0.6), (0.65, 0.3, 0.45)], -2, 37),  # cyan: lumpy, leaning left
-    (54, 46, [(0.5, 0.45, 0.7)], 0, 41),  # green: a round, heavy stone
-    (34, 62, [(0.5, 0.3, 0.55), (0.45, 0.72, 0.5)], -3, 53),  # gold: tall, narrow and crooked
-    (58, 36, [(0.35, 0.4, 0.6), (0.68, 0.35, 0.55)], 0, 67),  # orange: flat and wide
-    (48, 54, [(0.5, 0.3, 0.6), (0.3, 0.65, 0.45), (0.72, 0.62, 0.45)], 1, 79),  # red: a heaped cairn
+SPIRE = (128, 192, 160, 256)
+BOULDERS = [(0, 256, 64, 320), (64, 256, 128, 320), (128, 256, 192, 320), (192, 256, 256, 320)]
+# Each stone, in STONE_ORDER: its boulder, whether it is mirrored, and the seed of its glow pattern.
+STONES = [
+    (SPIRE, False, 11),
+    (BOULDERS[0], False, 23),
+    (BOULDERS[2], True, 37),
+    (BOULDERS[3], False, 41),
+    (SPIRE, True, 53),
+    (BOULDERS[1], True, 67),
+    (BOULDERS[2], False, 79),
 ]
+# The rock keeps the pack's shading, colour-shifted to grey: a cool grey when out, and darkened under
+# the glow when lit, as rock looks under a black light.
+GREY_TINT = (1.0, 1.0, 1.06)
+LIT_TINT = (0.34, 0.33, 0.42)
 
 
 def _glow_ramp(hex_colour: str) -> dict[str, Color]:
@@ -218,11 +221,11 @@ def _glow_ramp(hex_colour: str) -> dict[str, Color]:
 def _value_noise(seed: int, scale: float):
     """Smooth 2D noise in 0..1, stable for a given seed."""
     rand = random.Random(seed)
-    grid = {(i, j): rand.random() for i in range(-2, 40) for j in range(-2, 40)}
+    grid = {(i, j): rand.random() for i in range(-4, 60) for j in range(-4, 60)}
 
     def at(x: float, y: float) -> float:
         gx, gy = x / scale, y / scale
-        i, j = int(gx), int(gy)
+        i, j = int(gx // 1), int(gy // 1)
         fx, fy = gx - i, gy - j
         fx, fy = fx * fx * (3 - 2 * fx), fy * fy * (3 - 2 * fy)
         top = grid[(i, j)] * (1 - fx) + grid[(i + 1, j)] * fx
@@ -232,78 +235,57 @@ def _value_noise(seed: int, scale: float):
     return at
 
 
-def _stone_mask(width: int, height: int, lumps, lean: int, seed: int) -> set[tuple[int, int]]:
-    """The stone's silhouette: overlapping rounded masses with weathered, uneven edges, resting on a
-    flattened base at the bottom of the cell."""
-    left = (STONE_CELL - width) // 2
-    base = STONE_CELL - 1
-    rough = _value_noise(seed + 9, 5.0)
-    pixels = set()
-    for across, up, size in lumps:
-        cx = left + across * width
-        cy = base - up * height
-        rx, ry = size * width * 0.62, size * height * 0.62
-        for y in range(STONE_CELL):
-            for x in range(STONE_CELL):
-                shift = lean * (base - y) / max(1, height)  # the stone leans as it rises
-                edge = 1 + 0.22 * (rough(x, y) - 0.5)
-                if ((x - cx - shift) / rx) ** 2 + ((y - cy) / ry) ** 2 <= edge:
-                    pixels.add((x, y))
-    # Settle the stone: drop it onto the ground and flatten the bottom two rows it rests on.
-    drop = base - max(y for _, y in pixels)
-    settled = {(x, y + drop) for x, y in pixels}
-    floor = base - 1
-    row = [x for x, y in settled if y == floor - 2]
-    if row:
-        for x in range(min(row) + 1, max(row)):
-            settled.update({(x, floor), (x, base)})
-    return {(x, y) for x, y in settled if y <= base}
+def _boulder(tiles: Image.Image, rock, mirrored: bool) -> Image.Image:
+    """The pack boulder, bottom-centred in its cell."""
+    cell = Image.new('RGBA', (STONE_CELL, STONE_CELL), (0, 0, 0, 0))
+    body = tiles.crop(rock)
+    body = body.crop(body.getbbox())
+    if mirrored:
+        body = body.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+    cell.alpha_composite(body, ((STONE_CELL - body.width) // 2, STONE_CELL - body.height))
+    return cell
 
 
-def _shade(mask: set[tuple[int, int]], x: int, y: int, greys, weather) -> Color:
-    """Pack-style stepped shading: outline at the edge, light from the upper left, dithered steps,
-    with weathering: broad patches a shade lighter or darker and small dark pits."""
-    if any((x + dx, y + dy) not in mask for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
-        return greys[0]
-    xs = [px for px, py in mask if py == y]
-    ys = [py for px, py in mask if px == x]
-    across = (x - min(xs)) / max(1, max(xs) - min(xs))
-    down = (y - min(ys)) / max(1, max(ys) - min(ys))
-    light = 4.1 - across * 1.6 - down * 2.2 + (weather(x, y) - 0.5) * 1.4
-    if _noise(x, y) < 4:
-        return greys[1]  # a pit
-    step = int(light)
-    if light - step > 0.6 and (x + y) % 2 == 0:
-        step += 1
-    return greys[max(1, min(4, step))]
+def _stone(boulder: Image.Image, seed: int, hex_colour: str, lit: bool) -> Image.Image:
+    """The boulder colour-shifted to grey (darkened when lit), with the glow when lit."""
+    stone = boulder.copy()
+    px = stone.load()
+    tint = LIT_TINT if lit else GREY_TINT
+    darkest = min(_brightness(px[x, y]) for y in range(STONE_CELL) for x in range(STONE_CELL) if px[x, y][3] > 200)
+    patches = _value_noise(seed, 7.0)
+    flecks = _value_noise(seed + 1, 2.2)
+    veins = _value_noise(seed + 2, 11.0)
+    warp_x, warp_y = _value_noise(seed + 3, 6.0), _value_noise(seed + 4, 6.0)
+    glow = _glow_ramp(hex_colour)
+    for y in range(STONE_CELL):
+        for x in range(STONE_CELL):
+            if px[x, y][3] <= 200:
+                continue
+            level = _brightness(px[x, y])
+            px[x, y] = tuple(min(255, int(level * k)) for k in tint) + (px[x, y][3],)
+            if not lit or level == darkest:
+                continue  # the outline and cracks never glow
+            patch = patches(x, y)
+            # Veins follow warped noise, so they wander in irregular seams instead of straight lines.
+            wx, wy = x + (warp_x(x, y) - 0.5) * 14, y + (warp_y(x, y) - 0.5) * 14
+            vein = abs(veins(wx, wy) - 0.5) < 0.03
+            if patch > 0.77 or (vein and patch > 0.5):
+                px[x, y] = glow['h'] if patch > 0.82 else glow['l']
+            elif patch > 0.7 or vein:
+                px[x, y] = glow['m']
+            elif flecks(x, y) > 0.86:
+                px[x, y] = glow['l']
+    return stone
 
 
 def standing_stones() -> Image.Image:
-    """A sheet of the seven stones in STONE_ORDER: lit (glowing) on the top row, plain beneath."""
-    sheet = Image.new('RGBA', (STONE_CELL * len(STONE_SHAPES), STONE_CELL * 2), (0, 0, 0, 0))
-    for col, ((width, height, lumps, lean, seed), hex_colour) in enumerate(zip(STONE_SHAPES, STONE_HEX)):
-        mask = _stone_mask(width, height, lumps, lean, seed)
-        weather = _value_noise(seed + 5, 6.0)
-        patches = _value_noise(seed, 7.0)
-        flecks = _value_noise(seed + 1, 2.2)
-        veins = _value_noise(seed + 2, 11.0)
-        glow = _glow_ramp(hex_colour)
+    """A sheet of the seven stones in STONE_ORDER: lit (glowing) on the top row, plain grey beneath."""
+    tiles = Image.open(TILES / 'grasslands.png').convert('RGBA')
+    sheet = Image.new('RGBA', (STONE_CELL * len(STONES), STONE_CELL * 2), (0, 0, 0, 0))
+    for col, ((rock, mirrored, seed), hex_colour) in enumerate(zip(STONES, STONE_HEX)):
+        boulder = _boulder(tiles, rock, mirrored)
         for row, lit in enumerate((True, False)):
-            stone = Image.new('RGBA', (STONE_CELL, STONE_CELL), (0, 0, 0, 0))
-            px = stone.load()
-            for x, y in mask:
-                px[x, y] = _shade(mask, x, y, LIT_GREYS if lit else STONE_GREYS, weather)
-                if not lit or px[x, y] == LIT_GREYS[0]:
-                    continue
-                patch = patches(x, y)
-                vein = abs(veins(x, y) - 0.5) < 0.035  # thin bands where the vein noise crosses its middle
-                if patch > 0.74 or (vein and patch > 0.45):
-                    px[x, y] = glow['h'] if patch > 0.8 else glow['l']
-                elif patch > 0.66 or vein:
-                    px[x, y] = glow['m']
-                elif flecks(x, y) > 0.86:
-                    px[x, y] = glow['l']
-            sheet.alpha_composite(stone, (col * STONE_CELL, row * STONE_CELL))
+            sheet.alpha_composite(_stone(boulder, seed, hex_colour, lit), (col * STONE_CELL, row * STONE_CELL))
     return sheet
 
 

@@ -81,9 +81,9 @@ These replace earlier canon wherever they conflict, including World Bible WB-C16
 
 ## Round 5 — Look of the opening (8 November 2026)
 
-| Topic          | Decision                                                                                                                                      |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| The stones     | Boulders in the pack's style with small crystals of each stone's colour set in them. They glow when lit and go dark rock when out.            |
-| Everywhere     | The overworld's stones use the same art as the story scenes.                                                                                  |
-| Hilltop layout | The stones stand in a horseshoe open toward the path; violet at the left end, red at the right, so they go out in a sweep from left to right. |
-| Birches        | The pack's own round tree recoloured as a birch, not drawn from scratch.                                                                      |
+| Topic          | Decision                                                                                                                                                                                                                                      |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The stones     | The pack's large boulders, each one different. Like yooperlites under a black light: plain grey rock when out; when lit the rock darkens and glowing patches, veins and flecks of the stone's colour show through. Replaces the crystal idea. |
+| Everywhere     | The overworld's stones use the same art as the story scenes.                                                                                                                                                                                  |
+| Hilltop layout | Open. Tried so far: an even arc and a scattered arc (currently shown), both open toward the path with violet at the left end and red at the right. The scene stage is wider (480 x 270) to give the stones room.                              |
+| Birches        | The pack's own round tree recoloured as a birch, not drawn from scratch.                                                                                                                                                                      |

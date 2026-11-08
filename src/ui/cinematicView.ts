@@ -15,8 +15,20 @@ import type { Region } from './art/images';
 import { PROP_ATLAS } from './art/propAtlas';
 import { drawStandingStone } from './standingStone';
 
-export const STAGE_WIDTH = 320;
-export const STAGE_HEIGHT = 180;
+export const STAGE_WIDTH = 480;
+export const STAGE_HEIGHT = 270;
+/**
+ * Shots are staged on a 320 x 180 area (see `src/data/openingCinematic.ts`); the canvas shows that
+ * area centred with this much more scenery around it, so large props such as the stones have room.
+ */
+const ORIGIN = { x: 80, y: 45 } as const;
+/** The visible scenery, in staging coordinates. */
+const VIEW = {
+  left: -ORIGIN.x,
+  top: -ORIGIN.y,
+  right: STAGE_WIDTH - ORIGIN.x,
+  bottom: STAGE_HEIGHT - ORIGIN.y,
+} as const;
 
 const GRASS: Region = { image: 'grasslands', x: 32, y: 0, w: 32, h: 32 };
 const PATH: Region = { image: 'grasslands', x: 224, y: 0, w: 32, h: 32 };
@@ -28,35 +40,48 @@ const BENCH: Region = { image: 'village', x: 64, y: 192, w: 64, h: 32 };
 const [stoveX, stoveY, stoveW, stoveH] = PROP_ATLAS['forge.furnace'];
 const STOVE: Region = { image: 'props', x: stoveX, y: stoveY, w: stoveW, h: stoveH };
 
-/** Birches lining the path up the hill: base position on the stage. */
+/** Birches around the hilltop, outside the stones: base position on the stage. */
 const BIRCHES: readonly (readonly [number, number])[] = [
-  [-12, 58],
-  [332, 58],
-  [6, 180],
-  [314, 180],
-  [64, 218],
-  [256, 218],
+  [-66, 62],
+  [386, 62],
+  [-60, 214],
+  [380, 214],
+  [36, 252],
+  [284, 252],
 ];
 /** The stones stand in a horseshoe on the hilltop, open toward the path up the hill. */
-const RING = { x: 160, y: 126, rx: 138, ry: 58 } as const;
+const RING = { x: 160, y: 120, rx: 200, ry: 74 } as const;
 /** The house: the back wall meets the floor here, and the door and stove stand on that line. */
 const WALL_FOOT = 86;
 const DOOR_X = 256;
 const STOVE_X = 54;
 
 /**
- * Where each stone's base is: spread evenly round the top half of the horseshoe, violet at the left
- * end and red at the right, back stones first so nearer ones overlap them.
+ * Each stone's nudge from an even spacing along the back of the horseshoe, so they stand where they
+ * fell rather than in a laid-out arc. Fixed, so every viewing matches.
+ */
+const STONE_SCATTER: readonly (readonly [number, number])[] = [
+  [6, 10],
+  [-8, -12],
+  [4, 8],
+  [10, -16],
+  [-6, 6],
+  [8, -6],
+  [-4, 14],
+];
+
+/**
+ * Where each stone's base is: scattered round the back of the horseshoe, violet at the left end and
+ * red at the right, back stones first so nearer ones overlap them.
  */
 function stonePositions(): { x: number; y: number; index: number }[] {
   const last = STONE_ORDER.length - 1;
+  const span = RING.rx * 0.95;
   return STONE_ORDER.map((_, index) => {
-    const angle = Math.PI + (index * Math.PI) / last;
-    return {
-      x: RING.x + Math.cos(angle) * RING.rx,
-      y: RING.y + Math.sin(angle) * RING.ry,
-      index,
-    };
+    const [dx, dy] = STONE_SCATTER[index] ?? [0, 0];
+    const x = RING.x - span + (index * 2 * span) / last;
+    const across = (x - RING.x) / RING.rx;
+    return { x: x + dx, y: RING.y - RING.ry * Math.sqrt(1 - across * across) + dy, index };
   }).sort((a, b) => a.y - b.y);
 }
 
@@ -84,9 +109,12 @@ export class CinematicView {
     const { ctx } = this;
     ctx.clearRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT);
     const lights: Light[] = [];
+    ctx.save();
+    ctx.translate(ORIGIN.x, ORIGIN.y);
     if (shot.setting === 'house') this.drawHouse(shot, t, lights);
     else this.drawOutdoors(shot, t, lights);
     this.drawActors(shot.actors, t, lights);
+    ctx.restore();
     if (shot.setting === 'memory') this.drawMemoryFrame();
     this.drawNight(sample(shot.darkness, t), lights);
     const fade = shot.fade ? sample(shot.fade, t) : 0;
@@ -97,10 +125,10 @@ export class CinematicView {
   }
 
   private drawOutdoors(shot: CinematicShot, t: number, lights: Light[]): void {
-    for (let y = 0; y < STAGE_HEIGHT; y += 32)
-      for (let x = 0; x < STAGE_WIDTH; x += 32) this.atlas.draw(this.ctx, GRASS, x, y);
+    for (let y = VIEW.top - 19; y < VIEW.bottom; y += 32)
+      for (let x = VIEW.left; x < VIEW.right; x += 32) this.atlas.draw(this.ctx, GRASS, x, y);
     if (shot.setting === 'hill') {
-      for (let y = RING.y + 8; y < STAGE_HEIGHT; y += 32) this.atlas.draw(this.ctx, PATH, 144, y);
+      for (let y = RING.y + 8; y < VIEW.bottom; y += 32) this.atlas.draw(this.ctx, PATH, 144, y);
       const stones = shot.stones;
       if (stones)
         for (const { x, y, index } of stonePositions()) {
@@ -116,17 +144,20 @@ export class CinematicView {
   private drawHouse(shot: CinematicShot, t: number, lights: Light[]): void {
     const { ctx } = this;
     // Plaster wall with timber posts, and a plank floor.
+    const width = VIEW.right - VIEW.left;
     ctx.fillStyle = '#e6cfa8';
-    ctx.fillRect(0, 0, STAGE_WIDTH, WALL_FOOT);
+    ctx.fillRect(VIEW.left, VIEW.top, width, WALL_FOOT - VIEW.top);
     ctx.fillStyle = '#6e4a2c';
-    for (let x = 0; x < STAGE_WIDTH; x += 80) ctx.fillRect(x, 0, 6, WALL_FOOT);
-    ctx.fillRect(0, WALL_FOOT - 4, STAGE_WIDTH, 4);
+    for (let x = VIEW.left; x < VIEW.right; x += 80)
+      ctx.fillRect(x, VIEW.top, 6, WALL_FOOT - VIEW.top);
+    ctx.fillRect(VIEW.left, WALL_FOOT - 4, width, 4);
     ctx.fillStyle = '#946a44';
-    ctx.fillRect(0, WALL_FOOT, STAGE_WIDTH, STAGE_HEIGHT - WALL_FOOT);
+    ctx.fillRect(VIEW.left, WALL_FOOT, width, VIEW.bottom - WALL_FOOT);
     ctx.fillStyle = '#7a5536';
-    for (let y = WALL_FOOT + 10, row = 0; y < STAGE_HEIGHT; y += 12, row++) {
-      ctx.fillRect(0, y, STAGE_WIDTH, 1);
-      for (let x = (row % 2) * 24; x < STAGE_WIDTH; x += 48) ctx.fillRect(x, y - 11, 1, 11);
+    for (let y = WALL_FOOT + 10, row = 0; y < VIEW.bottom; y += 12, row++) {
+      ctx.fillRect(VIEW.left, y, width, 1);
+      for (let x = VIEW.left + (row % 2) * 24; x < VIEW.right; x += 48)
+        ctx.fillRect(x, y - 11, 1, 11);
     }
     // Furniture against the back wall, the stove and its fire, and the door.
     this.atlas.draw(ctx, BENCH, 150, WALL_FOOT - 30);
@@ -157,7 +188,7 @@ export class CinematicView {
     ctx.fillRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT);
     const cx = STAGE_WIDTH / 2;
     const cy = STAGE_HEIGHT / 2;
-    const vignette = ctx.createRadialGradient(cx, cy, 50, cx, cy, 190);
+    const vignette = ctx.createRadialGradient(cx, cy, 75, cx, cy, 285);
     vignette.addColorStop(0, 'rgba(60, 40, 20, 0)');
     vignette.addColorStop(1, 'rgba(60, 40, 20, 0.85)');
     ctx.fillStyle = vignette;
@@ -173,7 +204,8 @@ export class CinematicView {
     night.fillStyle = `rgba(8, 12, 28, ${darkness})`;
     night.fillRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT);
     night.globalCompositeOperation = 'destination-out';
-    for (const light of lights) {
+    for (const { x: sx, y: sy, radius } of lights) {
+      const light = { x: sx + ORIGIN.x, y: sy + ORIGIN.y, radius };
       const glow = night.createRadialGradient(light.x, light.y, 0, light.x, light.y, light.radius);
       glow.addColorStop(0, 'rgba(0, 0, 0, 0.85)');
       glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
