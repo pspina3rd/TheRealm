@@ -302,7 +302,14 @@ FIRE_OPENING = (33, 18, 63, 56)
 HEARTH_STEP = (32, 56, 64, 64)
 
 
-def fireplace() -> Image.Image:
+CHIMNEY_HEIGHT = 67  # from the ceiling of the scene down to the mantel
+CHIMNEY_WIDTH = 64
+HEARTH_DEPTH = 10  # how far the hearth slab comes out onto the floor
+BRICK_COURSES = (0, 16, 20, 32)  # two courses of the doorway's brickwork, used to build the chimney
+
+
+def _firebox() -> Image.Image:
+    """The pack's stone doorway: the doorway made a dark firebox, a hearth step, and the brazier fire."""
     props = Image.open(Path('public/assets/elvgames/tiles/props.png')).convert('RGBA')
     hearth = props.crop(TOWER_OPEN_DOOR)
     px = hearth.load()
@@ -318,6 +325,41 @@ def fireplace() -> Image.Image:
     fire = props.crop(BRAZIER)
     hearth.alpha_composite(fire, ((hearth.width - fire.width) // 2, FIRE_OPENING[3] - fire.height))
     return hearth
+
+
+def fireplace() -> Image.Image:
+    """The whole fireplace as part of the building: a stone chimney breast rising to the ceiling, the
+    firebox with its mantel, and a hearth slab coming out onto the floor."""
+    box = _firebox()
+    width = box.width
+    sheet = Image.new('RGBA', (width, CHIMNEY_HEIGHT + box.height + HEARTH_DEPTH), (0, 0, 0, 0))
+    # The chimney breast: the doorway's own brickwork, course over course, with dark edges.
+    bricks = box.crop(BRICK_COURSES)
+    left = (width - CHIMNEY_WIDTH) // 2
+    for y in range(0, CHIMNEY_HEIGHT, bricks.height):
+        shift = (y // bricks.height) % 2 * (bricks.width // 2)  # stagger alternate courses
+        for x in range(left - shift, left + CHIMNEY_WIDTH, bricks.width):
+            sheet.alpha_composite(bricks, (x, y))
+    px = sheet.load()
+    for y in range(CHIMNEY_HEIGHT):
+        for x in range(width):
+            if not left <= x < left + CHIMNEY_WIDTH:
+                px[x, y] = (0, 0, 0, 0)
+            elif x in (left, left + 1, left + CHIMNEY_WIDTH - 2, left + CHIMNEY_WIDTH - 1):
+                px[x, y] = HEARTH_STONE[2]
+    sheet.alpha_composite(box, (0, CHIMNEY_HEIGHT))
+    # The hearth slab on the floor: a light top edge, jointed stone, a dark front edge.
+    top = CHIMNEY_HEIGHT + box.height
+    for y in range(top, top + HEARTH_DEPTH):
+        for x in range(6, width - 6):
+            if y == top + HEARTH_DEPTH - 1 or x in (6, width - 7):
+                colour = HEARTH_STONE[2]
+            elif y == top:
+                colour = HEARTH_STONE[1]
+            else:
+                colour = HEARTH_STONE[2] if x % 21 == 0 else HEARTH_STONE[(x // 7 + y) % 2]
+            px[x, y] = colour
+    return sheet
 
 
 def main() -> None:

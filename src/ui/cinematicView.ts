@@ -81,7 +81,10 @@ const DOOR_SHUT: Region = { image: 'village', x: 0, y: 280, w: 32, h: 38 };
 const DOOR_OPEN: Region = { image: 'village', x: 0, y: 466, w: 32, h: 38 };
 const CHAIR: Region = { image: 'village', x: 0, y: 128, w: 32, h: 40 };
 const BENCH: Region = { image: 'village', x: 64, y: 192, w: 64, h: 32 };
-const FIREPLACE: Region = { image: 'story.fireplace', x: 0, y: 0, w: 96, h: 64 };
+const FIREPLACE: Region = { image: 'story.fireplace', x: 0, y: 0, w: 96, h: 141 };
+/** The fireplace sprite: its chimney breast and its hearth, which comes out onto the floor. */
+const CHIMNEY_WIDTH = 64;
+const HEARTH_DEPTH = 10;
 
 /** Birches around the hilltop, outside the stones: base position on the stage. */
 const BIRCHES: readonly (readonly [number, number])[] = [
@@ -211,8 +214,11 @@ export class CinematicView {
     ctx.fillStyle = PLASTER;
     ctx.fillRect(VIEW.left, VIEW.top, VIEW.right - VIEW.left, WALL_FOOT - VIEW.top);
     for (const [x, y] of BRICK_PATCHES) this.atlas.draw(ctx, BRICKS, x, y);
+    const behindFireplace = (x: number): boolean =>
+      x + POST.w > FIRE_X - FIREPLACE.w / 2 && x < FIRE_X + FIREPLACE.w / 2;
     for (let x = VIEW.left + 8; x < VIEW.right; x += 96)
-      for (let y = VIEW.top; y < WALL_FOOT; y += POST.h) this.atlas.draw(ctx, POST, x, y);
+      if (!behindFireplace(x))
+        for (let y = VIEW.top; y < WALL_FOOT; y += POST.h) this.atlas.draw(ctx, POST, x, y);
     for (let x = VIEW.left; x < VIEW.right; x += SKIRTING.w)
       this.atlas.draw(ctx, SKIRTING, x, WALL_FOOT - SKIRTING.h);
     // Floorboards across the room, their joints staggered from row to row.
@@ -227,13 +233,28 @@ export class CinematicView {
     this.atlas.draw(ctx, WINDOW, WINDOW_X - WINDOW.w / 2, 20);
     lights.push({ x: WINDOW_X, y: 36, radius: 40, colour: MOONLIGHT, strength: 0.5 });
     this.atlas.draw(ctx, BENCH, 150, WALL_FOOT - 30);
-    this.atlas.draw(ctx, FIREPLACE, FIRE_X - FIREPLACE.w / 2, WALL_FOOT - FIREPLACE.h);
+    this.drawFireplace();
     this.atlas.draw(ctx, CHAIR, 82, 92);
     const flicker = 6 * Math.sin(t / 90) + 3 * Math.sin(t / 37);
     lights.push({ x: FIRE_X, y: WALL_FOOT - 18, radius: 110 + flicker, colour: FIRELIGHT });
     const open = shot.door ? sample(shot.door, t) >= 0.5 : false;
     const shake = shot.doorShake ? sample(shot.doorShake, t) * Math.sin(t / 25) : 0;
     this.atlas.draw(ctx, open ? DOOR_OPEN : DOOR_SHUT, DOOR_X - 16 + shake, WALL_FOOT - 38);
+  }
+
+  /**
+   * The fireplace stands out from the wall: its chimney breast and firebox cast a soft shadow on the
+   * plaster to their right, and its hearth comes out onto the floorboards.
+   */
+  private drawFireplace(): void {
+    const { ctx } = this;
+    const left = FIRE_X - FIREPLACE.w / 2;
+    const top = WALL_FOOT + HEARTH_DEPTH - FIREPLACE.h;
+    const mantel = WALL_FOOT - 64;
+    ctx.fillStyle = 'rgba(40, 24, 16, 0.22)';
+    ctx.fillRect(FIRE_X + CHIMNEY_WIDTH / 2, top, 6, mantel - top);
+    ctx.fillRect(left + FIREPLACE.w, mantel, 6, WALL_FOOT - mantel);
+    this.atlas.draw(ctx, FIREPLACE, left, top);
   }
 
   private drawActors(actors: readonly CinematicActor[], t: number, lights: Light[]): void {
