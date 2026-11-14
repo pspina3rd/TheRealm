@@ -19,6 +19,9 @@ an answer that turn.
   profile, check when it started if she hasn't said, fix, give next steps.
   The fix line is the same every run: it is Y-a's line from 20 October.
 - **Opening:** Phil's, with the agent's name left as his placeholder.
+- **How she shares information:** at her usual on all five counts (volume,
+  signal, certainty, accuracy, openness), as accepted by Phil on
+  14 November and written in `docs/claims-her-side.md`.[^1]
 
 **What varies:** her words only, including how she asks for the transfer
 (Phil, 14 November: *"Asking to transfer can be done in a variety of
@@ -187,103 +190,96 @@ side.
 
 <sub>1 What·Contract *transfer*</sub>
 > **AGENT** What are you trying to transfer?
-> **SELLA** A draught. To Pell.
+> **SELLA** A healing draught, out of the party bag and into Pell's. And he can't get into the party bag to take it himself.
 
-*Read.* Tells: a draught, and Pell. Doesn't tell: what goes wrong. Most
-pressing: still what goes wrong.
+*Read.* Tells: the draught, both bags, and Pell locked out. Doesn't tell:
+what she has tried, or when it's needed. Most important: Pell is locked
+out, which is more than one item.
 
-<sub>2 What·Contract *draught*</sub>
-> **AGENT** And what happens when you try?
-> **SELLA** Nothing. Nothing happens at all.
->
-> <sub>repetition middle: the first time, fine</sub>
+<sub>2 How·Contract *transfer*</sub>
+> **AGENT** How have you been trying to transfer it?
+> **SELLA** Every way I can think of. I've been through the whole account since last night.
 
-*Read.* Understood: nothing new. Didn't understand: what she
-is doing when nothing happens.
+*Read.* Tells: she has looked everywhere, since last night. Most
+interesting: last night. Understood: she isn't missing something obvious
+to her.
 
-<sub>3 How·Contract *transfer*</sub>
-> **AGENT** How are you going about it?
-> **SELLA** I've told you. Nothing happens. I've clicked on everything I can think of.
->
-> <sub>repetition middle: the second time, it wears thin</sub>
-
-*Read.* Tells: she has tried everything she can think of, and she's
-getting short with me. Most concerning: one more question like that and I
-lose her. Change tack, but stay near her point.
-
-<sub>4 Who·Verify *Pell*</sub>
-> **AGENT** Can Pell take the draught himself?
-> **SELLA** No. He can't get into the party bag at all. He's tried.
-
-*Read.* Tells: the party bag, and Pell locked out. That makes it access,
-not just one item. Most important: this is bigger than the transfer. Most
-interesting: it took four plays to get what run 1 got in one.
-
-<sub>5 Who·Expand *name*</sub>
+<sub>3 Who·Expand *name*</sub>
 > **AGENT** Can I take your name?
 > **SELLA** Sella Brandt.
 
-<sub>6 What·Contract *account* (record)</sub> — the Fairweather party.
-<sub>7 What·Expand *profile* (record)</sub> — *changed last night.*
+<sub>4 What·Contract *account* (record)</sub> — the Fairweather party.
 
-<sub>8 What·Fix</sub> — the same line as run 1.
+<sub>5 What·Validate *Pell* — paraphrase</sub>
+> **AGENT** So the draught is in the party bag, Pell can't open it, and you've found no way to transfer it to him.
+> **SELLA** Yes. And he leaves in the morning.
+>
+> <sub>repetition middle: the first time, fine</sub>
+
+<sub>6 What·Expand *profile* (record)</sub> — *changed last night.*
+
+*Read.* Tells: this matches "since last night". She has already said
+when, so there's no need to ask.
+
+<sub>7 What·Fix</sub> — the same line as run 1.
 > **SELLA** Since last night? That's when I was going through the whole account. Assign, not transfer. Right.
 
-<sub>9 When·Callback</sub>
+<sub>8 When·Callback</sub>
 > **AGENT** Have him open the bag tonight. If he can't, ring us and we'll pick it up straight away.
-> **SELLA** He's gone in the morning, so tonight it is. If he'd gone out without it, I'd never have forgiven myself.
+> **SELLA** Tonight, then. If he'd gone out without it, I'd never have forgiven myself.
 >
 > <sub>baggage: *Pell gets hurt*, at the close</sub>
 
-**Fixed on the last play. There was no room for the paraphrase or the
-"when" question.**
+**Fixed, eight plays.**
 
 ---
 
 ## Run 5
 
-> **SELLA** I can't get into the party bag.
+> **SELLA** I need to get a draught to someone tonight and the bag won't let me.
 
-*Read.* Tells: the party bag, and she can't get in. Understood: she's
-locked out. *(Wrong, as it turns out.)* Most pressing: her access, which is
-an account matter.
+*Read.* Tells: a draught, the bag, tonight. Doesn't tell: who it's for,
+or what "won't let me" looks like. Most urgent: tonight.
 
-<sub>1 Who·Expand *name*</sub>
+<sub>1 Who·Contract *draught*</sub>
+> **AGENT** Who is the draught for?
+> **SELLA** Pell. He's in my party. He's leaving on a contract in the morning, and he can't open the party bag himself.
+
+*Read.* Tells: Pell, the contract, the morning, and Pell locked out.
+Doesn't tell: what happens when she tries. Most pressing: that.
+
+<sub>2 What·Contract *bag*</sub>
+> **AGENT** What does the bag do when you try?
+> **SELLA** Nothing at all. I can see the draught sitting there, and I can't move it over to him.
+
+*Read.* Understood: she can get in and see it; she can't move it; Pell
+can't get in at all.
+
+<sub>3 What·Validate *Pell* — paraphrase</sub>
+> **AGENT** So you can see the draught, you can't move it to Pell, and Pell can't open the party bag to take it.
+> **SELLA** That's right.
+>
+> <sub>repetition middle: the first time, fine</sub>
+
+<sub>4 Who·Expand *name*</sub>
 > **AGENT** Can I take your name?
 > **SELLA** Sella Brandt.
 
-<sub>2 What·Contract *account* (record)</sub> — the Fairweather party; Sella Brandt, party leader.
-<sub>3 What·Expand *profile* (record)</sub> — *Party bag access: Admin Only — changed last night.*
+<sub>5 What·Contract *account* (record)</sub> — the Fairweather party.
+<sub>6 What·Expand *profile* (record)</sub> — *changed last night.*
 
-*Read.* Tells: Admin Only, and she is the admin, so she ought to be able
-to get in. Most concerning: it doesn't fit. I've misunderstood something.
-
-<sub>4 What·Validate *bag* — a guess at something she hasn't said</sub>
-> **AGENT** So the party bag won't let you in at all?
-> **SELLA** No, I can get in. I can see everything in it. It's Pell who can't. And I can't move the draught over to him.
-
-*Read.* Tells: Pell, the draught, and she's in fine. Understood now: "can't
-get into" meant she can't make it do what she needs. Most important: Pell
-is locked out.
-
-<sub>5 What·Validate *Pell* — paraphrase</sub>
-> **AGENT** So you're in, Pell's locked out, and the draught needs to get to him.
-> **SELLA** Yes, that's what I said. Before morning. He's off on a contract.
->
-> <sub>repetition middle: the second check on the same point, it wears thin</sub>
-
-<sub>6 When·Verify *draught*</sub>
+<sub>7 When·Verify *draught*</sub>
 > **AGENT** When did you first try moving the draught?
 > **SELLA** Last night. I've hardly stopped since.
 
-<sub>7 What·Fix</sub> — the same line as run 1.
+<sub>8 What·Fix</sub> — the same line as run 1.
 > **SELLA** So he can get it himself. Good.
 
-<sub>8 When·Callback</sub>
+<sub>9 When·Callback</sub>
 > **AGENT** Have him open the bag tonight. If he can't, ring us and we'll pick it up straight away.
 > **SELLA** I will. I'm not sending him out with nothing.
 
-**Fixed, eight plays.**
+**Fixed on the last play.**
 
 ---
 
@@ -292,24 +288,28 @@ is locked out.
 **Held in all five:**
 - **Her facts:** the party bag, the draught, Pell locked out, the morning,
   and last night. She never said anything outside Phil's list.
-- **Middle repetition:** the first paraphrase was fine every time. The
-  second check on the same point wore thin, in runs 4 and 5.
-- ***Pell gets hurt*:** it came out four times, in four different
+- **Middle repetition:** the one paraphrase was fine every time.
+- ***Pell gets hurt*:** it came out in four runs, in four different
   wordings, always with one meaning: if he goes without it, it's on her.
 
+**How she asked for the transfer:** "put it into Pell's bag", "get it to
+Pell", "give Pell the draught", "the transfer thing", "get a draught to
+someone". Five wordings, one request. None of them is *Assign*, which is
+TLC's word, so the cause shows whichever way she puts it.
+
 **Moved with her words:**
-- **Which words came into play, and when,** and so which cards the agent
-  could use. In run 4 the agent couldn't say "bag" until play 4.
-- **Length:** seven to nine plays. Her opener in run 3 ("since last
-  night") saved a question. Her short answers in run 4 cost three. Her loose
-  wording in run 5 ("can't get into") sent the agent the wrong way until
-  one guess, checked with her, corrected it.
+- **Which words came into play, and when,** and so which card the agent
+  played first: *working*, *draught*, *bag*, *transfer*, *draught*.
+- **Length:** seven to nine plays. When she mentioned "last night"
+  herself (runs 3 and 4), the agent had no need to ask when it started.
+  That one remark is the whole difference between seven or eight plays and
+  nine.
 
-**Not tested here:** empathy middle, pattern middle and non-positive low.
-The same agent never made a wrong fix and never ran the same card three
-times in a row, so nothing set them off.
+**Not tested here:** a second repeat, empathy middle, pattern middle and
+non-positive low. The same agent never repeated itself, never made a wrong
+fix and never ran the same card three times in a row.
 
-**How she asked for the transfer:** "put it into Pell's bag", "get it to Pell",
-"give Pell the draught", "the transfer thing", "move it over to him". Five
-wordings, one request. None of them is *Assign*, which is TLC's word, so
-the cause shows whichever way she puts it.
+[^1]: Runs 4 and 5 were first written with her sharing far less (run 4) and
+    wording things misleadingly (run 5). Those were changes to her
+    character that I had not put on her sheet. Both were replayed on
+    14 November at her usual.

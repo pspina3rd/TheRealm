@@ -76,3 +76,31 @@ Phil before they are built. Nothing here is folded into the record.
   code is not touched until then.
 - 14 and 15 come back **after the test has been run properly and fully, and
   her responses are consistent and customer-specific** (Phil).
+
+## How she shares information — accepted by Phil, 14 November
+
+The five counts are Phil's, from the design frame
+(`docs/handover/memory/therealm-design-frame.md`): volume, signal,
+certainty, accuracy, openness. The meanings and Sella's ranges are mine
+**[C·ok]**. Each is where she usually sits and how far she strays, fitted
+to her and to this call, not a general scale. Not folded into the record.
+
+16. **Volume — how much she says per answer.** Usually a sentence or two
+    that answers what was asked. On her own point (the bag, Pell) she can
+    run to three or four. After a repeat or a change of subject she drops
+    to a few words. She rarely opens with the whole story unasked.
+17. **Signal — how much of it helps solve the problem.** Usually high: she
+    stays on the bag and Pell. Stress adds some noise, such as how long she
+    has been at it and how many times she tried. It rarely crowds out the
+    useful part.
+18. **Certainty — how sure she sounds.** High and steady on what she has
+    seen: the draught is in the bag, Pell can't get in, he leaves in the
+    morning. Low on why, and she says so plainly. The narrowest range of
+    the five.
+19. **Accuracy — how right she is.** Usually right about what she sees.
+    Reliably wrong about two things without knowing it: what the action is
+    called, and that nothing changed on her side. Now and then she words
+    something loosely enough to mislead; that is rare.
+20. **Openness — how willingly she shares beyond the problem.** Middling.
+    She answers about Pell and the contract when asked, and does not offer
+    her own worry. That comes out only when something sets it off.
