@@ -45,7 +45,7 @@ Labels in small type; a note only where a setting is being tested.
 > <sub>baggage, on the company · empathy high keeps it off the agent</sub>
 
 <sub>8 When·Callback</sub>
-> **AGENT** If Pell still can't get in tonight, call us back and we'll pick it straight up.
+> **AGENT** If Pell still can't get in tonight, call us back and we'll pick it up straight away.[^1]
 > **SELLA** He'll have it before he goes, then.
 
 **Fixed, eight plays. Need met.**
@@ -399,3 +399,5 @@ faults in my own design, fixed here and in the design before sending: X-b
 and Y-b turn 5 paired two *new* subjects, which cannot test digging (it needs
 one inquiry on her point and one new); and two paraphrases of her situation
 were labelled Who, when they ask for a thing, What.
+
+[^1]: Was *"we'll pick it straight up"*, which is not English as spoken. Corrected 14 November.
