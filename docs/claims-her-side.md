@@ -104,3 +104,21 @@ to her and to this call, not a general scale. Not folded into the record.
 20. **Openness — how willingly she shares beyond the problem.** Middling.
     She answers about Pell and the contract when asked, and does not offer
     her own worry. That comes out only when something sets it off.
+
+### How the five work — Phil, 14 November
+
+21. **[P]** Customers respond to a given inquiry according to a bell curve.
+    A customer has her own bell curve of potential responses along that
+    same spectrum. His example: the number of ways to greet someone in
+    English.
+22. **[P]** That holds for each of the five, and they can impact and
+    influence one another.
+23. **[C·ok]** How 22 sits with the design frame's "independent": the five
+    are rolled separately on her sheet, so knowing one tells you nothing
+    about another. During a call, a draw on one can shift where another
+    lands. Phil: *"That is right."*
+24. **[C]** So one answer from her is five linked draws from her own
+    curves, and a run should be drawn that way. Most answers land near her
+    usual; a tail is rare, and takes others with it. The examples of which
+    one pulls on which (volume on signal, openness on volume, certainty on
+    how accuracy is heard) are mine and not ruled on.
