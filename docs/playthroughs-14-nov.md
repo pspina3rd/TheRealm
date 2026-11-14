@@ -40,7 +40,7 @@ Most pressing: what "it" is.
 
 <sub>1 What·Expand *working*</sub>
 > **AGENT** What isn't working for you?
-> **SELLA** The party bag. I can't get the draught across to Pell's bag, and he can't get into the party bag himself. He's off on a contract in the morning, and it's never done this before.
+> **SELLA** The party bag. I can't put the draught into Pell's bag, and he can't get into the party bag himself. He's off on a contract in the morning, and it's never done this before.
 
 *Read.* Tells: the bag, a draught, Pell locked out, the morning, never
 before. Doesn't tell: who she is, or since when. Most urgent: the morning.
@@ -54,7 +54,7 @@ Most interesting: "never done this before" means something changed.
 <sub>3 What·Contract *account* (record)</sub> — the Fairweather party; Sella Brandt, party leader.
 
 <sub>4 What·Validate *Pell* — paraphrase</sub>
-> **AGENT** So Pell can't open the party bag, you can't get the draught across to him, and he's away in the morning.
+> **AGENT** So Pell can't open the party bag, you can't put the draught into his bag, and he's away in the morning.
 > **SELLA** That's it, yes.
 >
 > <sub>repetition middle: the first time, fine</sub>
@@ -309,7 +309,7 @@ is locked out.
 The same agent never made a wrong fix and never ran the same card three
 times in a row, so nothing set them off.
 
-**How she asked for the transfer:** "get it across", "get it to Pell",
+**How she asked for the transfer:** "put it into Pell's bag", "get it to Pell",
 "give Pell the draught", "the transfer thing", "move it over to him". Five
 wordings, one request. None of them is *Assign*, which is TLC's word, so
 the cause shows whichever way she puts it.
