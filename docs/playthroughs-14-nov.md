@@ -77,7 +77,7 @@ Don't say so; just fix it.
 > **SELLA** Assign. So he'll have it before he goes. I wasn't sending him out without it.
 
 <sub>8 When·Callback</sub>
-> **AGENT** Have him open the bag tonight. If he can't, ring us and we'll pick it straight up.
+> **AGENT** Have him open the bag tonight. If he can't, ring us and we'll pick it up straight away.
 > **SELLA** I'll get him to try now.
 
 **Fixed, eight plays.**
@@ -86,10 +86,10 @@ Don't say so; just fix it.
 
 ## Run 2
 
-> **SELLA** I'm trying to get a healing draught to Pell and it won't go.
+> **SELLA** I'm trying to get a healing draught to Pell and it won't work.
 
-*Read.* Tells: a draught, Pell, it won't go. Doesn't tell: go where.
-Didn't understand: "won't go". Most pressing: what happens when she tries.
+*Read.* Tells: a draught, Pell, it won't work. Doesn't tell: what she
+does, or what happens. Most pressing: what happens when she tries.
 
 <sub>1 What·Contract *draught*</sub>
 > **AGENT** What happens when you try to move the draught?
@@ -128,7 +128,7 @@ herself.
 > **SELLA** Oh, thank goodness. He'll have it before he goes.
 
 <sub>9 When·Callback</sub>
-> **AGENT** Have him open the bag tonight. If he can't, ring us and we'll pick it straight up.
+> **AGENT** Have him open the bag tonight. If he can't, ring us and we'll pick it up straight away.
 > **SELLA** I will. Thank you.
 
 **Fixed on the last play.**
@@ -170,7 +170,7 @@ when, so there's no need to ask.
 > **SELLA** Assign. I'd never have found that. So he can get it himself before morning?
 
 <sub>7 When·Callback</sub>
-> **AGENT** He can. Have him open the bag tonight. If he can't, ring us and we'll pick it straight up.
+> **AGENT** He can. Have him open the bag tonight. If he can't, ring us and we'll pick it up straight away.
 > **SELLA** He's right here. I'll have him try now.
 
 **Fixed, seven plays.**
@@ -194,16 +194,16 @@ pressing: still what goes wrong.
 
 <sub>2 What·Contract *draught*</sub>
 > **AGENT** And what happens when you try?
-> **SELLA** Nothing. It doesn't go.
+> **SELLA** Nothing. Nothing happens at all.
 >
 > <sub>repetition middle: the first time, fine</sub>
 
-*Read.* Understood: nothing new. Didn't understand: what "doesn't go"
-looks like.
+*Read.* Understood: nothing new. Didn't understand: what she
+is doing when nothing happens.
 
 <sub>3 How·Contract *transfer*</sub>
 > **AGENT** How are you going about it?
-> **SELLA** I've told you. It doesn't go. I've clicked on everything I can think of.
+> **SELLA** I've told you. Nothing happens. I've clicked on everything I can think of.
 >
 > <sub>repetition middle: the second time, it wears thin</sub>
 
@@ -227,10 +227,10 @@ interesting: it took four plays to get what run 1 got in one.
 <sub>7 What·Expand *profile* (record)</sub> — *changed last night.*
 
 <sub>8 What·Fix</sub> — the same line as run 1.
-> **SELLA** Since last night? That's when I was going through all of it. Assign, not transfer. Right.
+> **SELLA** Since last night? That's when I was going through the whole account. Assign, not transfer. Right.
 
 <sub>9 When·Callback</sub>
-> **AGENT** Have him open the bag tonight. If he can't, ring us and we'll pick it straight up.
+> **AGENT** Have him open the bag tonight. If he can't, ring us and we'll pick it up straight away.
 > **SELLA** He's gone in the morning, so tonight it is. If he'd gone out without it, I'd never have forgiven myself.
 >
 > <sub>baggage: *Pell gets hurt*, at the close</sub>
@@ -259,7 +259,7 @@ an account matter.
 to get in. Most concerning: it doesn't fit. I've misunderstood something.
 
 <sub>4 What·Validate *bag* — a guess at something she hasn't said</sub>
-> **AGENT** So when you open the party bag, it won't let you in at all?
+> **AGENT** So the party bag won't let you in at all?
 > **SELLA** No, I can get in. I can see everything in it. It's Pell who can't. And I can't move the draught over to him.
 
 *Read.* Tells: Pell, the draught, and she's in fine. Understood now: "can't
@@ -280,7 +280,7 @@ is locked out.
 > **SELLA** So he can get it himself. Good.
 
 <sub>8 When·Callback</sub>
-> **AGENT** Have him open the bag tonight. If he can't, ring us and we'll pick it straight up.
+> **AGENT** Have him open the bag tonight. If he can't, ring us and we'll pick it up straight away.
 > **SELLA** I will. I'm not sending him out with nothing.
 
 **Fixed, eight plays.**
