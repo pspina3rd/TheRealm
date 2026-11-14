@@ -1,0 +1,31 @@
+1. How many counts sit in a tail in one answer
+   without the pulls: 0: 79.2%  1: 18.9%  2: 1.8%  3: 0.084%  4: 0.002%  5: 0.000%
+   with the pulls   : 0: 76.8%  1: 20.0%  2: 2.9%  3: 0.3%  4: 0.014%  5: 0.000%
+
+2. Where each curve lands once the others act on it
+   volume    centre 0.04  spread 1.08  in her usual 93.6%
+   signal    centre -0.29  spread 1.03  in her usual 93.8%
+   certainty centre 0.00  spread 1.00  in her usual 95.4%
+   accuracy  centre -0.10  spread 1.01  in her usual 95.1%
+   openness  centre 0.00  spread 1.00  in her usual 95.5%
+
+3. One count pinned in a tail (2.5 spreads out): what it does to the rest
+   volume low : signal -0.75 (tail 17.1%), accuracy -0.51 (tail 8.8%)
+   volume high: signal -0.15 (tail 7.4%), accuracy 0.10 (tail 4.6%)
+   signal low : moves nothing
+   signal high: moves nothing
+   certainty low : volume 0.50 (tail 9.3%), signal -0.28 (tail 8.7%), accuracy 0.05 (tail 4.7%)
+   certainty high: volume -0.50 (tail 8.3%), accuracy -0.07 (tail 5.3%)
+   accuracy low : moves nothing
+   accuracy high: moves nothing
+   openness low : volume -0.79 (tail 11.4%), signal 0.23 (tail 5.6%), accuracy -0.12 (tail 5.5%)
+   openness high: volume 0.96 (tail 16.6%), signal -0.34 (tail 9.4%), accuracy 0.08 (tail 4.6%)
+
+4. Which pairs of tails turn up together most (with the pulls)
+   answers with two or more tails: 3.2%
+   volume low + signal low: 0.4%
+   volume high + openness high: 0.4%
+   volume high + signal low: 0.3%
+   volume low + openness low: 0.2%
+   volume low + accuracy low: 0.2%
+   signal low + openness high: 0.2%

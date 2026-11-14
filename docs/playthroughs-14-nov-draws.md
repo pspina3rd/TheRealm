@@ -21,6 +21,10 @@ lines are mine, made up in play to fit the draws, and are not canon.
 - **Focus:** procedure first. Of Phil's questions they mostly reach for
   *what didn't I understand?* and *what's most urgent?*, which to them means
   their own next step: name, search, profile, fix, next steps.
+- **Plays left:** they know how many plays remain and what they still
+  have to do (name, search, profile, fix). When the plays left are no more
+  than those steps, they take the next step whatever they would otherwise
+  have reached for.[^1]
 - **Strengths:** every card; the record and coworkers; no assumptions.
 - **Weaknesses:** cards misfire or land flat; they go back to the same
   door; they search too soon; when unsure of the angle they say something
@@ -141,31 +145,27 @@ that for sure, was never told about Assign, and got no next steps.**
 >
 > <sub>her draws: volume very high, openness high (pulls volume up) · a flat question, and a full answer anyway · baggage: *Pell gets hurt*</sub>
 
-<sub>6 What·Contract *bag* · what I didn't understand · flat</sub>
-> **AGENT** What happens when Pell tries the party bag?
-> **SELLA** It won't open for him. It opens for me, and I can see everything in it. The draught's right there. For him, nothing.
+<sub>6 Who·Expand *name* · four plays left and four steps to do · flat</sub>
+> **AGENT** Can I take your name?
+> **SELLA** Sella Brandt. It's the Fairweather party, and it's the party bag I'm ringing about.
 >
 > <sub>her draws: volume high</sub>
 
-<sub>7 Who·Expand *name* · most urgent · lands</sub>
-> **AGENT** Can I take your name?
-> **SELLA** Sella Brandt, the Fairweather party.
->
-> <sub>her draws: signal high, certainty high</sub>
+<sub>7 What·Contract *account* (record) · next step · lands</sub> — finds the Fairweather party.
+<sub>8 What·Expand *profile* (record) · next step · flat</sub> — reads *Admin Only — changed last night*, and doesn't connect it to Pell.
 
-<sub>8 Who·Expand *account* · what I didn't understand · flat · same door</sub>
-> **AGENT** And is the account in your name?
-> **SELLA** It's the party's.
+<sub>9 What·Fix · next step · lands</sub>
+> **AGENT** Your profile shows the party bag set to Admin Only since last night. I've set it back, so the whole party can open it.
+> **SELLA** So the whole party can open it again, and Pell can take the draught out himself tonight. Good. That's all I needed.
 >
-> <sub>her draws: volume low (pulls signal down)</sub>
-
-<sub>9 What·Contract *account* (record) · what I didn't understand · lands</sub> — finds the Fairweather party. No plays left to read her profile.
+> <sub>her draws: volume high, signal high, openness low</sub>
 
 > **AGENT** Thank you for contacting TLC, Sella.
-> **SELLA** That's it? He leaves in the morning.
+> **SELLA** Thank you.
 
-**Not fixed. The apprentice spent six plays understanding her and never
-looked until the last one.**
+**Fixed on the last play. The apprentice spent five plays understanding
+her, then had exactly enough left. She was never told about Assign, and
+got no next steps.**
 
 ---
 
@@ -225,7 +225,8 @@ looked until the last one.**
 >
 > <sub>her draws: volume low, signal high, certainty low, openness high</sub>
 
-**Fixed on the last play, after one wrong fix. She was never told about
+**Fixed on play eight, after one wrong fix, with next steps on the last
+play. She was never told about
 Assign.**
 
 ---
@@ -332,28 +333,29 @@ it. No next steps.**
 >
 > <sub>her draws: signal low, accuracy high · she corrects the detail</sub>
 
-<sub>7 How·Contract *draught* · what I didn't understand · flat</sub>
-> **AGENT** How would you normally get a draught to him?
-> **SELLA** I don't know that I ever have. I think I've always just handed things out myself.
->
-> <sub>her draws: certainty low</sub>
+<sub>7 What·Contract *account* (record) · three plays left and three steps to do · flat</sub> — finds the Fairweather party, and looks no further.
+<sub>8 What·Expand *profile* (record) · next step · flat</sub> — reads *Admin Only — changed last night*, and doesn't connect it to Pell.
 
-<sub>8 What·Contract *account* (record) · what I didn't understand · flat</sub> — finds the Fairweather party, and looks no further.
-<sub>9 What·Expand *profile* (record) · reaches for: what she didn't tell me · lands</sub> — *Admin Only — changed last night*, and connects it to Pell. No plays left to fix it.
+<sub>9 What·Fix · next step · lands</sub>
+> **AGENT** Your profile shows the party bag set to Admin Only since last night. I've set it back, so Pell can open it and take the draught himself.
+> **SELLA** Oh, thank goodness. I've been sick about it all night. He's the only one going out tomorrow, with the Ryles laid up, and I'd never have forgiven myself. Thank you.
+>
+> <sub>her draws: volume high, signal low, certainty high, openness very high (pulls volume up)</sub>
 
 > **AGENT** Thank you for contacting TLC, Sella.
-> **SELLA** So that's it? He's out at first light.
+> **SELLA** Thank you.
 
-**Not fixed. The apprentice saw the cause on the last play and had none
-left to act on it.**
+**Fixed on the last play. She was never told about Assign, and got no
+next steps.**
 
 ---
 
 ## What happened
 
-**Outcomes:** three of five fixed (runs 1, 3, 4), none of them cleanly.
-Two ran out of plays (runs 2, 5). With the perfect agent of the earlier
-file, all five were fixed.
+**Outcomes:** all five fixed, none of them cleanly. Three were fixed on
+the last play. In no run was she shown how to Assign, and only run 3 gave
+her next steps. With the perfect agent of the earlier file, all five were
+fixed, with Assign explained and next steps given.
 
 **She stayed herself.** Her facts never moved, and she never said anything
 outside Phil's list. Her worry about Pell came out in four runs, each time
@@ -378,15 +380,17 @@ she shown how to Assign.
 
 ## What is wrong
 
-1. **The apprentice's focus is drawn fresh every play, so it ignores how
-   many plays are left.** Runs 2 and 5 failed because the draw kept
-   saying "what didn't I understand?" on plays 8 and 9 with nothing looked
-   up. That may be a true picture of a new apprentice, or it may be my
-   rule being too mechanical.
-2. **Most of her answers have at least one count off her usual,** because
-   there are five of them: only 2 of 50 were all usual. A tail came up in
-   18 of the 50, which is more often than "rare".
-3. **What flat, lands and critical mean at the record is mine.** I played
-   flat as "finds it and doesn't connect it" and critical as "finds more
-   than was searched for". The record gives the four landings but not what
-   they mean for a lookup.
+1. **Her tails came up too often in these draws.** I set "usual" too
+   narrow in the draw script. The working-out is in
+   `docs/sharing-links.md`; the next draws will use it.
+2. **What a move's landing means at the record is mine.** The record gives
+   four landings for a move: *misfire*, *flat*, *lands*, *critical*. It
+   does not say what they look like when the move is a lookup. I played
+   *flat* as "finds the entry and doesn't see what it means for her", and
+   *critical* as "finds more than was searched for".
+
+[^1]: Added 14 November on Phil's correction: *"Why would it ignore how
+    many plays are left, it is a variable that matters!"* Runs 2 and 5
+    first ran out of plays because the apprentice's focus was drawn without
+    it. Both were replayed from the point the rule takes hold, on the same
+    draws.
