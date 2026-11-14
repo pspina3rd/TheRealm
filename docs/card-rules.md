@@ -96,3 +96,20 @@ here goes into the record.
     suit. It closes the call the way the universal opening starts it — where
     the customer shares her reason for contact — and like the opening it is
     free.
+
+## What a search returns
+
+22. **[P, 14 November]** The four landings of a move (misfire, flat, lands,
+    critical) do not fit system searches well. A search comes back as one
+    of six:
+    - no results
+    - one result
+    - multiple results
+    - many results
+    - overwhelming results
+    - exact match
+
+    This agrees with the record: *"Inquire with the CRM, the CRM
+    responds"*, and delivery is inert for the CRM (`settled.md` §2,
+    *Targets*). What decides which of the six comes back is not yet ruled
+    on.

@@ -383,14 +383,18 @@ she shown how to Assign.
 1. **Her tails came up too often in these draws.** I set "usual" too
    narrow in the draw script. The working-out is in
    `docs/sharing-links.md`; the next draws will use it.
-2. **What a move's landing means at the record is mine.** The record gives
-   four landings for a move: *misfire*, *flat*, *lands*, *critical*. It
-   does not say what they look like when the move is a lookup. I played
-   *flat* as "finds the entry and doesn't see what it means for her", and
-   *critical* as "finds more than was searched for".
+2. **The record plays in these runs use landings that do not belong
+   there.**[^2]
 
 [^1]: Added 14 November on Phil's correction: *"Why would it ignore how
     many plays are left, it is a variable that matters!"* Runs 2 and 5
     first ran out of plays because the apprentice's focus was drawn without
     it. Both were replayed from the point the rule takes hold, on the same
     draws.
+
+[^2]: I played lookups as *flat* ("finds the entry and doesn't see what it
+    means") and *critical* ("finds more than was searched for"). Phil,
+    14 November: those outcomes don't fit system searches; a search returns
+    one of six (`docs/card-rules.md`, rule 22). The record plays here are
+    to be replayed once it is settled what decides which of the six comes
+    back.
