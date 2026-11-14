@@ -1,3 +1,5 @@
+> **Legacy campaign implementation:** This describes the earlier sleeping-house build. It is not the new Fern opening. Later [author decisions](story-plans/AUTHOR_DECISIONS.md) remove enchanted sleep and the well-first lesson. See [the current bible](WORLD_BIBLE.md) and [Fern web playtest](story-plans/cinematics/OPENING_SHOTS.md).
+
 # Playable opening and teacher access
 
 The opening is a village problem the player can investigate. It is not a list

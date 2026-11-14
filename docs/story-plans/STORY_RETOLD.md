@@ -1,3 +1,5 @@
+> **Historical playable-story retelling:** This text describes the older campaign and proposals. It is not the current approved synopsis: enchanted sleep, Rowan's knees and Hareguy's illness have been removed by later author decisions. See [the current bible](../WORLD_BIBLE.md). Part 2's Vesper/Fennick history remains held.
+
 # Mana Crystals — The Story Retold
 
 This is the whole story of Mana Crystals told as one story, from the first dark night to the last

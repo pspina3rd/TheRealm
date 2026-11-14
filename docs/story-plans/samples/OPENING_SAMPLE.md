@@ -1,188 +1,149 @@
-# Opening sample
+# Fern — illustrated opening script
 
-## The last stop
+Revised 14 November 2026 following the author's request to edit the prose and complete the dawn departure. This is the web opening for review. Other protagonists and the later campaign are outside this pass.
 
-The night patrol ended at the stones. It always had. You followed the path north through the birches
-until, as you crested a barren hill, the glow could be seen.
+Only the words below appear on the pages. Actions, pauses and accessible image descriptions are in [the shot list](../cinematics/OPENING_SHOTS.md) and cinematic data. Third-person narration supplies context; dialogue names identify speakers. The player controls the road and first lesson after the final page. The rune stone has no demonstrated power here.
 
-There he stood, as countless others from Mossvale had stood before, basking in the light of the
-stones. In all the years of the watch, the stones had never changed, infused with ancient and
-powerful magic. Illuminating the night with their soft rainbow of colors.
+## patrol-path
 
-Fern sighed and waited a moment longer, as he had every night since his father died.
+The night patrol ended at the stones.
 
-"Well, that's enough of that. I'm sure Rowan will have some training he wants me to do before the
-end of my shift..."
+## the-stones
 
-He turned to go, and the stones seemed to dim. He turned back, and all seven were burning steadily,
-as if nothing had happened.
+Bracken had walked this patrol, too. Ten years after his death, Fern still paused here.
 
-Fern stood very still.
+**Fern:** Seven lit. All's well.
 
-He had been awake since dusk. He had walked six miles in the dark. The hour had long passed when a
-hedge looks like a man and a man looks like a hedge. He watched the stones until his eyes watered.
-They glowed, unchanging, exactly as they had every night of his life.
+## turns-to-go
 
-"You're tired," he muttered, shaking his head. "You're seeing things."
+**Fern:** Rowan will have more training for me if I stay here all night.
 
-He turned away again.
+## the-flicker
 
-He felt it on the back of his neck before he saw it. His shadow on the path ahead of him went thin
-and grey.
+<!-- Silent visual beat. -->
 
-The violet stone was out! The other six slowly followed: blue, then cyan, green and then gold,
-orange, and finally red, until the hill was awash in darkness.
+## head-shake
 
-Fern ran.
+**Fern:** You're tired. You're seeing things.
 
-## Rowan
+## walks-away
 
-Rowan yawned as he put on his captain's coat. Thirty-five years he had been part of the watch, with
-the last ten as captain. A role he took over because Bracken, Fern's father, never returned.
+<!-- Silent visual beat. -->
 
-The two had grown up together, and were lifelong friends. Rowan had been elated when Bracken
-announced he would become a father. He still remembered the night...
+## stones-go-out
 
-Pounding at the door, and Fern's voice shouting, interrupted Rowan's musings.
+<!-- Silent visual beat. -->
 
-"I wonder what it is this time... He's so desperate for excitement he's probably mistaken a bat for
-a dragon again..."
+## fern-runs
 
-"Was it a little dragon again, or just a big bat", Rowan asks as he opens the door.
+<!-- Silent visual beat. -->
 
-Fern stumbles in shouting, "Rowan! The stones... they... I was at the top of the hill and they..."
+## rowan-wakes
 
-"The stones?"
+<!-- Silent visual beat. -->
 
-"Yes, they stopped glowing!!!"
+## pounding
 
-Rowan hesitates, the lad's face is white, his chest heaving, and there was mud all down one side of him.
+**Fern:** Rowan!
 
-"Sit," Rowan said. "Breathe. Start from the beginning."
+## door-opens
 
-Fern dropped into the chair by the fire. He took a breath, then another.
+**Rowan:** A little dragon this time, or a big bat?
 
-"I was finishing the patrol and had stopped at the top of the hill, like I always do, and..." He
-shook his head. "When I turned to leave, I swear they dimmed, just for a split second. When I turned
-back... I thought I was going crazy."
+## fern-bursts-in
 
-"Dimmed? The stones never dim."
+**Fern:** The stones. They went out.
 
-"I figured I was tired, it was a long day."
+## by-the-chair
 
-Rowan waited.
+**Rowan:** Sit. Breathe. Start from the beginning.
 
-"I waited a few more minutes and left. As I walked away, my shadow started fading on the path in
-front of me. I spun around and the violet stone was out! Then they all started fading, blue, cyan,
-green, gold, orange, and just before red went out I ran."
+## the-report
 
-"All of them?"
+**Fern:** They flickered. I thought I was tired. Then they started going out, one after another.
 
-"It was pitch black as I reached the birches."
+## the-report-ends
 
-"Are they still out?"
+**Rowan:** All seven?
 
-"I didn't stay to find out."
+**Fern:** I ran when the red one started to fade.
 
-"Then we'll go and see."
+## are-they-still-out
 
-Rowan grabbed the lantern from the hook by the door. Fern opened his mouth to argue, then closed it
-and followed him out.
+**Rowan:** Are they still out?
 
-Rowan was stern and silent. Fern kept glancing nervously at him, desperate for Rowan to believe him.
+**Fern:** I didn't stay to find out.
 
-As they crested the barren hill, Fern stopped dead.
+## lantern
 
-All seven stones glowed brightly.
+**Rowan:** Then we'll go and see.
 
-"No... no, no, no. They were out, Rowan! I swear they were out!"
+## back-up-the-hill
 
-"I know."
+<!-- Silent visual beat. -->
 
-Fern blinked. "You... you believe me?"
+## the-crest
 
-"Lad, I've known you since the day you were born, I know you. And your tells. You were pale as the
-grave, I don't know what happened or why, but I do believe you."
+**Fern:** They were out. I swear they were.
 
-They stood there together for a long while, watching the stones glow.
+## i-believe-you
 
-"If they go out again..." Rowan said quietly. "Whatever is doing this, a sword won't stop it.
-Neither will a watch that only knows how to carry one."
+**Rowan:** I believe you, lad.
 
-"So what do we do?"
+## learn-magic
 
-Rowan turned to him. "You're going to learn magic."
+**Rowan:** A sword won't help us if the stones fail. You're going to learn magic.
 
-"Me? Magic?" A grin spread across Fern's face before he could stop it. "Real magic?"
+**Fern:** Me? Real magic?
 
-"Real magic. There are teachers out there, scattered across the land. You'll find them, and you'll
-learn whatever they can teach you."
+## someone-has-to-stay
 
-"Why not you? You're the captain."
+**Rowan:** Real magic.
 
-"Because..." Rowan looked back toward Mossvale. "...someone has to stay."
+**Fern:** Why not you? You're the captain.
 
-Fern paled slightly, realizing he would be leaving his home.
+**Rowan:** Someone has to stay.
 
-"And no," Rowan added, starting back down the path, "you can't use it on dragons."
+## or-large-bats
 
-Fern's eyes went wide at the idea of fighting a dragon.
+**Rowan:** And no using it on dragons.
 
-"Or large bats," Rowan said, chuckling.
+**Fern:** Dragons?
 
-_(Draft from here on: not yet rewritten.)_
+**Rowan:** Or large bats.
 
-## Three houses
+## the-morning-after
 
-By dawn, three houses would not wake.
+By morning, nobody else had seen the stones go out.
 
-The baker was in his chair by a cold oven, head tipped back, one hand open on his knee as if he had
-been about to show someone something. The Millers were in their bed. Old Tom was on top of his
-blankets with his boots still on. All of them were breathing. None of them woke when Fern said
-their names, or shook them, or, feeling foolish and then frightened, pinched the back of a hand
-hard enough to mark it.
+**Rowan:** Usual patrols. From dusk to dawn, someone stays at the stones. Watch and report. I'll take tonight.
 
-The rest of Mossvale got up anyway, because that is what people do. Bean was in her beds by first
-light, sleeves pushed up, pressing seedlings into the soil.
+## keep-it-between-us
 
-"They're warm," she said, when Fern told her. She did not stop. "Warm's something."
+**Rowan:** What you saw stays between us for now.
 
-"You should come and see."
+**Fern:** What do I tell the teachers?
 
-"I've seen sleeping." Another seedling. Her hands were not quite steady. "Somebody has to have these
-in before the frost. If I stop, I'll stop."
+**Rowan:** Tell them exactly what happened.
 
-## The well
+## the-rune-stone
 
-Rowan was at the well, which was where Mossvale went when it did not know where else to go. He had
-the bucket up on the rim and was looking into it like a man rereading a letter.
+**Rowan:** I found this when I dug the well. Keep it safe.
 
-The water was violet. Not tinted: violet all the way down, with a faint light in it that moved when
-nothing moved it.
+## a-teacher-to-start-with
 
-"I dug this well," he said. "Before I ever joined the watch. Went down further than I meant to.
-There was a stone at the bottom I couldn't shift, so I found an old rune stone in the spoil and
-cracked it open with that." He tipped the bucket. The violet water went back into the dark with a
-sound like someone hushing a child. "Never thought about it since. I'm thinking about it now."
+**Rowan:** Try Kestrel at Windward Cliffs. She takes beginners. Wind would suit a scout.
 
-"You don't know it's the well."
+## rowans-watch
 
-"No," Rowan agreed. "I don't know anything. That's what I don't like." He held out the rope.
-"There's a crust on the walls. I can feel it through the line. You're lighter. I'll hold it."
+That night, Rowan took the watch himself.
 
-Fern took the end and went over the rim. Above him, Rowan braced his feet and wound the rope twice
-round his fists, and did not let it run an inch further than it had to.
+## dawn-on-the-north-road
 
----
+At dawn, Rowan alone saw Fern off. Mossvale was quiet behind them.
 
-## What to judge
+**Rowan:** All seven held steady. North for Windward. Keep that stone close.
 
-- **Fern and Rowan.** Fern scouts for the village watch. Rowan is its captain, Fern's father's
-  childhood best friend, and nearly a second father to Fern. Rowan's own son left for Brightwater
-  years ago.
-- **The stones.** People believe each is the root of one kind of magic, and that the stones keep
-  watch while the village sleeps. What they truly are waits on the choice of what the voice is.
-- **Rowan's guilt.** Fern's father "did not come home", and Rowan holds the rope as if he cannot
-  lose another. The cause of the death, and why Rowan blames himself, is left for later.
-- **Rowan's well.** He cracked the bedrock with the rune stone he will later give Fern. Nothing is
-  confirmed yet.
+## beyond-the-patrol
+
+The path to the stones turned away. Fern kept going. He had never walked beyond the patrol before.

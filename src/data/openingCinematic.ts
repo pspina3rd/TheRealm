@@ -1,16 +1,16 @@
 /**
- * The opening as illustrated scenes: the patrol, Rowan's house and the return to the hill.
- * Staging follows docs/story-plans/cinematics/OPENING_SHOTS.md; the words are the author's, from
- * docs/story-plans/samples/OPENING_SAMPLE.md (a test keeps them identical). The stage is 320 x 180
- * pixels and an actor's x and y are where their feet touch the ground.
+ * Fern's illustrated opening, through the dawn handoff. Visible words match
+ * docs/story-plans/samples/OPENING_SAMPLE.md. Descriptions are accessible staging,
+ * not duplicate page narration. Actors use 320 x 180 staging coordinates within
+ * the wider 480 x 270 canvas; x/y mark their feet.
  */
-import { steady, type CinematicShot } from '../game/cinematic';
+import type { CinematicShot } from '../game/cinematic';
 
 export const OPENING_CINEMATIC: readonly CinematicShot[] = [
   {
     id: 'patrol-path',
     setting: 'hill',
-    text: 'The night patrol ended at the stones. It always had. You followed the path north through the birches until, as you crested a barren hill, the glow could be seen.',
+    text: 'The night patrol ended at the stones.',
     durationMs: 3500,
     actors: [
       {
@@ -21,26 +21,45 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         ],
       },
     ],
-    stones: [steady(1), steady(1), steady(1), steady(1), steady(1), steady(1), steady(1)],
-    darkness: steady(0.68),
+    stones: [
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+    ],
+    darkness: [{ at: 0, value: 0.68 }],
     fade: [
       { at: 0, value: 1 },
       { at: 800, value: 0 },
     ],
+    description: 'At night, Fern walks up the birch path toward seven glowing standing stones.',
   },
   {
     id: 'the-stones',
     setting: 'hill',
-    text: 'There he stood, as countless others from Mossvale had stood before, basking in the light of the stones. In all the years of the watch, the stones had never changed, infused with ancient and powerful magic. Illuminating the night with their soft rainbow of colors.',
+    text: 'Bracken had walked this patrol, too. Ten years after his death, Fern still paused here.',
     durationMs: 3000,
     actors: [{ sprite: 'char.026', keys: [{ at: 0, x: 160, y: 112, facing: 'up' }] }],
-    stones: [steady(1), steady(1), steady(1), steady(1), steady(1), steady(1), steady(1)],
-    darkness: steady(0.68),
+    stones: [
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+    ],
+    darkness: [{ at: 0, value: 0.68 }],
+    dialogue: [{ speaker: 'Fern', text: "Seven lit. All's well." }],
+    description: 'Fern pauses at the crest, facing the seven steady lights.',
   },
   {
     id: 'turns-to-go',
     setting: 'hill',
-    text: 'Fern sighed and waited a moment longer, as he had every night since his father died.\n\n"Well, that\'s enough of that. I\'m sure Rowan will have some training he wants me to do before the end of my shift..."',
+    text: '',
     durationMs: 3500,
     actors: [
       {
@@ -51,13 +70,25 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         ],
       },
     ],
-    stones: [steady(1), steady(1), steady(1), steady(1), steady(1), steady(1), steady(1)],
-    darkness: steady(0.68),
+    stones: [
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+    ],
+    darkness: [{ at: 0, value: 0.68 }],
+    dialogue: [
+      { speaker: 'Fern', text: 'Rowan will have more training for me if I stay here all night.' },
+    ],
+    description: 'Fern turns back toward Mossvale.',
   },
   {
     id: 'the-flicker',
     setting: 'hill',
-    text: 'He turned to go, and the stones seemed to dim. He turned back, and all seven were burning steadily, as if nothing had happened.\n\nFern stood very still.',
+    text: '',
     durationMs: 3500,
     actors: [
       {
@@ -112,12 +143,13 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         { at: 900, value: 1 },
       ],
     ],
-    darkness: steady(0.68),
+    darkness: [{ at: 0, value: 0.68 }],
+    description: 'All seven lights dip briefly. Fern turns back; the stones are steady again.',
   },
   {
     id: 'head-shake',
     setting: 'hill',
-    text: 'He had been awake since dusk. He had walked six miles in the dark. The hour had long passed when a hedge looks like a man and a man looks like a hedge. He watched the stones until his eyes watered. They glowed, unchanging, exactly as they had every night of his life.\n\n"You\'re tired," he muttered, shaking his head. "You\'re seeing things."',
+    text: '',
     durationMs: 3500,
     actors: [
       {
@@ -131,13 +163,23 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         ],
       },
     ],
-    stones: [steady(1), steady(1), steady(1), steady(1), steady(1), steady(1), steady(1)],
-    darkness: steady(0.68),
+    stones: [
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+    ],
+    darkness: [{ at: 0, value: 0.68 }],
+    dialogue: [{ speaker: 'Fern', text: "You're tired. You're seeing things." }],
+    description: 'Fern looks to either side, then back at the stones.',
   },
   {
     id: 'walks-away',
     setting: 'hill',
-    text: 'He turned away again.\n\nHe felt it on the back of his neck before he saw it. His shadow on the path ahead of him went thin and grey.',
+    text: '',
     durationMs: 3000,
     actors: [
       {
@@ -148,13 +190,22 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         ],
       },
     ],
-    stones: [steady(1), steady(1), steady(1), steady(1), steady(1), steady(1), steady(1)],
-    darkness: steady(0.68),
+    stones: [
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+    ],
+    darkness: [{ at: 0, value: 0.68 }],
+    description: 'Fern starts down the path.',
   },
   {
     id: 'stones-go-out',
     setting: 'hill',
-    text: 'The violet stone was out! The other six slowly followed: blue, then cyan, green and then gold, orange, and finally red, until the hill was awash in darkness.',
+    text: '',
     durationMs: 5600,
     actors: [
       {
@@ -196,7 +247,7 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         { at: 4400, value: 1 },
         { at: 4900, value: 0 },
       ],
-      steady(1),
+      [{ at: 0, value: 1 }],
     ],
     darkness: [
       { at: 0, value: 0.68 },
@@ -207,11 +258,13 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
       { at: 4100, value: 0.88 },
       { at: 4900, value: 0.92 },
     ],
+    description:
+      'Violet goes dark, followed by blue, cyan, green, gold and orange. The hill darkens. Red still glows.',
   },
   {
     id: 'fern-runs',
     setting: 'hill',
-    text: 'Fern ran.',
+    text: '',
     durationMs: 2400,
     actors: [
       {
@@ -224,12 +277,12 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
       },
     ],
     stones: [
-      steady(0),
-      steady(0),
-      steady(0),
-      steady(0),
-      steady(0),
-      steady(0),
+      [{ at: 0, value: 0 }],
+      [{ at: 0, value: 0 }],
+      [{ at: 0, value: 0 }],
+      [{ at: 0, value: 0 }],
+      [{ at: 0, value: 0 }],
+      [{ at: 0, value: 0 }],
       [
         { at: 0, value: 1 },
         { at: 1500, value: 0 },
@@ -244,47 +297,26 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
       { at: 1200, value: 0 },
       { at: 2200, value: 1 },
     ],
+    description: 'As red fades, Fern runs down the path. The scene fades to black.',
   },
   {
     id: 'rowan-wakes',
     setting: 'house',
-    text: "Rowan yawned as he put on his captain's coat. Thirty-five years he had been part of the watch, with the last ten as captain. A role he took over because Bracken, Fern's father, never returned.",
+    text: '',
     durationMs: 3000,
     actors: [{ sprite: 'story.rowanCoat', keys: [{ at: 0, x: 120, y: 128, facing: 'down' }] }],
-    darkness: steady(0.62),
+    darkness: [{ at: 0, value: 0.62 }],
     fade: [
       { at: 0, value: 1 },
       { at: 800, value: 0 },
     ],
-    door: steady(0),
-  },
-  {
-    id: 'the-memory',
-    setting: 'memory',
-    text: 'The two had grown up together, and were lifelong friends. Rowan had been elated when Bracken announced he would become a father. He still remembered the night...',
-    durationMs: 4000,
-    actors: [
-      {
-        sprite: 'story.rowanYoung',
-        keys: [
-          { at: 0, x: 140, y: 120, facing: 'down' },
-          { at: 2000, x: 140, y: 120, facing: 'right' },
-        ],
-      },
-      {
-        sprite: 'story.bracken',
-        keys: [
-          { at: 0, x: 180, y: 120, facing: 'down' },
-          { at: 2000, x: 180, y: 120, facing: 'left' },
-        ],
-      },
-    ],
-    darkness: steady(0),
+    door: [{ at: 0, value: 0 }],
+    description: "In Rowan's cottage, the captain turns from the fire toward his door.",
   },
   {
     id: 'pounding',
     setting: 'house',
-    text: "Pounding at the door, and Fern's voice shouting, interrupted Rowan's musings.\n\n\"I wonder what it is this time... He's so desperate for excitement he's probably mistaken a bat for a dragon again...\"",
+    text: '',
     durationMs: 3000,
     actors: [
       {
@@ -295,19 +327,21 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         ],
       },
     ],
-    darkness: steady(0.62),
-    door: steady(0),
+    darkness: [{ at: 0, value: 0.62 }],
+    door: [{ at: 0, value: 0 }],
     doorShake: [
       { at: 0, value: 0 },
       { at: 200, value: 3 },
       { at: 1600, value: 3 },
       { at: 1800, value: 0 },
     ],
+    dialogue: [{ speaker: 'Fern', text: 'Rowan!' }],
+    description: 'The cottage door shakes. Fern calls from outside.',
   },
   {
     id: 'door-opens',
     setting: 'house',
-    text: '"Was it a little dragon again, or just a big bat", Rowan asks as he opens the door.',
+    text: '',
     durationMs: 3000,
     actors: [
       {
@@ -318,17 +352,19 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         ],
       },
     ],
-    darkness: steady(0.62),
+    darkness: [{ at: 0, value: 0.62 }],
     door: [
       { at: 0, value: 0 },
       { at: 1500, value: 0 },
       { at: 1700, value: 1 },
     ],
+    dialogue: [{ speaker: 'Rowan', text: 'A little dragon this time, or a big bat?' }],
+    description: 'Rowan crosses to the door and opens it.',
   },
   {
     id: 'fern-bursts-in',
     setting: 'house',
-    text: 'Fern stumbles in shouting, "Rowan! The stones... they... I was at the top of the hill and they..."\n\n"The stones?"\n\n"Yes, they stopped glowing!!!"',
+    text: '',
     durationMs: 3500,
     actors: [
       {
@@ -346,13 +382,15 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         ],
       },
     ],
-    darkness: steady(0.62),
-    door: steady(1),
+    darkness: [{ at: 0, value: 0.62 }],
+    door: [{ at: 0, value: 1 }],
+    dialogue: [{ speaker: 'Fern', text: 'The stones. They went out.' }],
+    description: 'Fern rushes in, pale and muddy. Rowan steps aside.',
   },
   {
     id: 'by-the-chair',
     setting: 'house',
-    text: 'Rowan hesitates, the lad\'s face is white, his chest heaving, and there was mud all down one side of him.\n\n"Sit," Rowan said. "Breathe. Start from the beginning."\n\nFern dropped into the chair by the fire. He took a breath, then another.',
+    text: '',
     durationMs: 3500,
     actors: [
       {
@@ -372,13 +410,15 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         ],
       },
     ],
-    darkness: steady(0.62),
-    door: steady(1),
+    darkness: [{ at: 0, value: 0.62 }],
+    door: [{ at: 0, value: 1 }],
+    dialogue: [{ speaker: 'Rowan', text: 'Sit. Breathe. Start from the beginning.' }],
+    description: 'Rowan leads Fern to the fire. Fern sits and catches his breath.',
   },
   {
     id: 'the-report',
     setting: 'house',
-    text: '"I was finishing the patrol and had stopped at the top of the hill, like I always do, and..." He shook his head. "When I turned to leave, I swear they dimmed, just for a split second. When I turned back... I thought I was going crazy."\n\n"Dimmed? The stones never dim."\n\n"I figured I was tired, it was a long day."\n\nRowan waited.',
+    text: '',
     durationMs: 5000,
     actors: [
       { sprite: 'story.rowanCoat', keys: [{ at: 0, x: 160, y: 124, facing: 'left' }] },
@@ -387,13 +427,20 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         keys: [{ at: 0, x: 104, y: 117, facing: 'right', sprite: 'story.fernSitting' }],
       },
     ],
-    darkness: steady(0.62),
-    door: steady(1),
+    darkness: [{ at: 0, value: 0.62 }],
+    door: [{ at: 0, value: 1 }],
+    dialogue: [
+      {
+        speaker: 'Fern',
+        text: 'They flickered. I thought I was tired. Then they started going out, one after another.',
+      },
+    ],
+    description: 'Fern reports from the chair; Rowan stays beside him and listens.',
   },
   {
     id: 'the-report-ends',
     setting: 'house',
-    text: '"I waited a few more minutes and left. As I walked away, my shadow started fading on the path in front of me. I spun around and the violet stone was out! Then they all started fading, blue, cyan, green, gold, orange, and just before red went out I ran."\n\n"All of them?"\n\n"It was pitch black as I reached the birches."\n\n"Are they still out?"\n\n"I didn\'t stay to find out."',
+    text: '',
     durationMs: 5000,
     actors: [
       { sprite: 'story.rowanCoat', keys: [{ at: 0, x: 160, y: 124, facing: 'left' }] },
@@ -402,13 +449,38 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         keys: [{ at: 0, x: 104, y: 117, facing: 'right', sprite: 'story.fernSitting' }],
       },
     ],
-    darkness: steady(0.62),
-    door: steady(1),
+    darkness: [{ at: 0, value: 0.62 }],
+    door: [{ at: 0, value: 1 }],
+    dialogue: [
+      { speaker: 'Rowan', text: 'All seven?' },
+      { speaker: 'Fern', text: 'I ran when the red one started to fade.' },
+    ],
+    description: 'Rowan asks about the last stone. Fern looks up at him.',
+  },
+  {
+    id: 'are-they-still-out',
+    setting: 'house',
+    text: '',
+    durationMs: 2800,
+    actors: [
+      { sprite: 'story.rowanCoat', keys: [{ at: 0, x: 160, y: 124, facing: 'left' }] },
+      {
+        sprite: 'story.fernMuddy',
+        keys: [{ at: 0, x: 104, y: 117, facing: 'right', sprite: 'story.fernSitting' }],
+      },
+    ],
+    darkness: [{ at: 0, value: 0.62 }],
+    door: [{ at: 0, value: 1 }],
+    dialogue: [
+      { speaker: 'Rowan', text: 'Are they still out?' },
+      { speaker: 'Fern', text: "I didn't stay to find out." },
+    ],
+    description: 'Rowan waits for Fern to answer before taking his lantern.',
   },
   {
     id: 'lantern',
     setting: 'house',
-    text: '"Then we\'ll go and see."\n\nRowan grabbed the lantern from the hook by the door. Fern opened his mouth to argue, then closed it and followed him out.',
+    text: '',
     durationMs: 3500,
     actors: [
       {
@@ -428,18 +500,20 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         ],
       },
     ],
-    darkness: steady(0.62),
+    darkness: [{ at: 0, value: 0.62 }],
     fade: [
       { at: 0, value: 0 },
       { at: 2600, value: 0 },
       { at: 3400, value: 1 },
     ],
-    door: steady(1),
+    door: [{ at: 0, value: 1 }],
+    dialogue: [{ speaker: 'Rowan', text: "Then we'll go and see." }],
+    description: 'Rowan takes his lantern. Fern stands and follows him outside.',
   },
   {
     id: 'back-up-the-hill',
     setting: 'hill',
-    text: 'Rowan was stern and silent. Fern kept glancing nervously at him, desperate for Rowan to believe him.',
+    text: '',
     durationMs: 3600,
     actors: [
       {
@@ -454,25 +528,34 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         sprite: 'story.fernMuddy',
         keys: [
           { at: 0, x: 146, y: 224, facing: 'up', walking: true },
-          { at: 1200, x: 146, y: 200, facing: 'left', walking: true },
+          { at: 1200, x: 146, y: 200, facing: 'right', walking: true },
           { at: 1500, x: 146, y: 194, facing: 'up', walking: true },
-          { at: 2200, x: 146, y: 180, facing: 'left', walking: true },
+          { at: 2200, x: 146, y: 180, facing: 'right', walking: true },
           { at: 2500, x: 146, y: 174, facing: 'up', walking: true },
           { at: 3000, x: 146, y: 164, facing: 'up' },
         ],
       },
     ],
-    stones: [steady(1), steady(1), steady(1), steady(1), steady(1), steady(1), steady(1)],
-    darkness: steady(0.72),
+    stones: [
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+    ],
+    darkness: [{ at: 0, value: 0.72 }],
     fade: [
       { at: 0, value: 1 },
       { at: 600, value: 0 },
     ],
+    description: 'Rowan leads up the path. Fern glances right toward him, waiting for a response.',
   },
   {
     id: 'the-crest',
     setting: 'hill',
-    text: 'As they crested the barren hill, Fern stopped dead.\n\nAll seven stones glowed brightly.',
+    text: '',
     durationMs: 3000,
     actors: [
       {
@@ -491,18 +574,31 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         ],
       },
     ],
-    stones: [steady(1), steady(1), steady(1), steady(1), steady(1), steady(1), steady(1)],
-    darkness: steady(0.72),
+    stones: [
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+    ],
+    darkness: [{ at: 0, value: 0.72 }],
+    dialogue: [{ speaker: 'Fern', text: 'They were out. I swear they were.' }],
+    description: 'They reach the hilltop together. All seven stones are glowing.',
   },
   {
     id: 'i-believe-you',
     setting: 'hill',
-    text: '"No... no, no, no. They were out, Rowan! I swear they were out!"\n\n"I know."\n\nFern blinked. "You... you believe me?"\n\n"Lad, I\'ve known you since the day you were born, I know you. And your tells. You were pale as the grave, I don\'t know what happened or why, but I do believe you."\n\nThey stood there together for a long while, watching the stones glow.',
-    durationMs: 5000,
+    text: '',
+    durationMs: 2200,
     actors: [
       {
         sprite: 'story.rowanLantern',
-        keys: [{ at: 0, x: 176, y: 112, facing: 'up' }],
+        keys: [
+          { at: 0, x: 176, y: 112, facing: 'up' },
+          { at: 400, x: 176, y: 112, facing: 'left' },
+        ],
         lantern: true,
       },
       {
@@ -510,17 +606,27 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         keys: [
           { at: 0, x: 144, y: 114, facing: 'up' },
           { at: 300, x: 144, y: 114, facing: 'right' },
-          { at: 4200, x: 144, y: 114, facing: 'up' },
+          { at: 1800, x: 144, y: 114, facing: 'up' },
         ],
       },
     ],
-    stones: [steady(1), steady(1), steady(1), steady(1), steady(1), steady(1), steady(1)],
-    darkness: steady(0.72),
+    stones: [
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+    ],
+    darkness: [{ at: 0, value: 0.72 }],
+    dialogue: [{ speaker: 'Rowan', text: 'I believe you, lad.' }],
+    description: 'Fern turns to Rowan. Rowan turns toward Fern instead of looking away.',
   },
   {
     id: 'learn-magic',
     setting: 'hill',
-    text: '"If they go out again..." Rowan said quietly. "Whatever is doing this, a sword won\'t stop it. Neither will a watch that only knows how to carry one."\n\n"So what do we do?"\n\nRowan turned to him. "You\'re going to learn magic."\n\n"Me? Magic?" A grin spread across Fern\'s face before he could stop it. "Real magic?"\n\n"Real magic. There are teachers out there, scattered across the land. You\'ll find them, and you\'ll learn whatever they can teach you."\n\n"Why not you? You\'re the captain."',
+    text: '',
     durationMs: 5000,
     actors: [
       {
@@ -539,13 +645,29 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         ],
       },
     ],
-    stones: [steady(1), steady(1), steady(1), steady(1), steady(1), steady(1), steady(1)],
-    darkness: steady(0.72),
+    stones: [
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+    ],
+    darkness: [{ at: 0, value: 0.72 }],
+    dialogue: [
+      {
+        speaker: 'Rowan',
+        text: "A sword won't help us if the stones fail. You're going to learn magic.",
+      },
+      { speaker: 'Fern', text: 'Me? Real magic?' },
+    ],
+    description: 'Rowan faces Fern, who turns toward him.',
   },
   {
     id: 'someone-has-to-stay',
     setting: 'hill',
-    text: '"Because..." Rowan looked back toward Mossvale. "...someone has to stay."\n\nFern paled slightly, realizing he would be leaving his home.',
+    text: '',
     durationMs: 3500,
     actors: [
       {
@@ -558,13 +680,27 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
       },
       { sprite: 'story.fernMuddy', keys: [{ at: 0, x: 144, y: 114, facing: 'right' }] },
     ],
-    stones: [steady(1), steady(1), steady(1), steady(1), steady(1), steady(1), steady(1)],
-    darkness: steady(0.72),
+    stones: [
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+    ],
+    darkness: [{ at: 0, value: 0.72 }],
+    dialogue: [
+      { speaker: 'Rowan', text: 'Real magic.' },
+      { speaker: 'Fern', text: "Why not you? You're the captain." },
+      { speaker: 'Rowan', text: 'Someone has to stay.' },
+    ],
+    description: 'Rowan looks down the path toward Mossvale. Fern stays beside him.',
   },
   {
     id: 'or-large-bats',
     setting: 'hill',
-    text: '"And no," Rowan added, starting back down the path, "you can\'t use it on dragons."\n\nFern\'s eyes went wide at the idea of fighting a dragon.\n\n"Or large bats," Rowan said, chuckling.',
+    text: '',
     durationMs: 4000,
     actors: [
       {
@@ -585,12 +721,175 @@ export const OPENING_CINEMATIC: readonly CinematicShot[] = [
         ],
       },
     ],
-    stones: [steady(1), steady(1), steady(1), steady(1), steady(1), steady(1), steady(1)],
-    darkness: steady(0.72),
+    stones: [
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+    ],
+    darkness: [{ at: 0, value: 0.72 }],
     fade: [
       { at: 0, value: 0 },
       { at: 2800, value: 0 },
       { at: 4000, value: 1 },
     ],
+    dialogue: [
+      { speaker: 'Rowan', text: 'And no using it on dragons.' },
+      { speaker: 'Fern', text: 'Dragons?' },
+      { speaker: 'Rowan', text: 'Or large bats.' },
+    ],
+    description: 'Rowan heads down the path. Fern hesitates, then follows.',
+  },
+  {
+    id: 'the-morning-after',
+    setting: 'house',
+    text: 'By morning, nobody else had seen the stones go out.',
+    description: 'Daylight fills the cottage. Fern and Rowan speak alone by the hearth.',
+    dialogue: [
+      {
+        speaker: 'Rowan',
+        text: "Usual patrols. From dusk to dawn, someone stays at the stones. Watch and report. I'll take tonight.",
+      },
+    ],
+    durationMs: 3200,
+    actors: [
+      { sprite: 'char.026', keys: [{ at: 0, x: 104, y: 128, facing: 'right' }] },
+      { sprite: 'story.rowanCoat', keys: [{ at: 0, x: 160, y: 124, facing: 'left' }] },
+    ],
+    darkness: [{ at: 0, value: 0.12 }],
+    door: [{ at: 0, value: 0 }],
+  },
+  {
+    id: 'keep-it-between-us',
+    setting: 'house',
+    text: '',
+    description: 'Rowan faces Fern. There is no one else in the cottage.',
+    dialogue: [
+      { speaker: 'Rowan', text: 'What you saw stays between us for now.' },
+      { speaker: 'Fern', text: 'What do I tell the teachers?' },
+      { speaker: 'Rowan', text: 'Tell them exactly what happened.' },
+    ],
+    durationMs: 3000,
+    actors: [
+      { sprite: 'char.026', keys: [{ at: 0, x: 104, y: 128, facing: 'right' }] },
+      { sprite: 'story.rowanCoat', keys: [{ at: 0, x: 160, y: 124, facing: 'left' }] },
+    ],
+    darkness: [{ at: 0, value: 0.12 }],
+  },
+  {
+    id: 'the-rune-stone',
+    setting: 'house',
+    text: '',
+    description: 'Rowan passes a small, unlit rune stone to Fern. Fern keeps it.',
+    dialogue: [{ speaker: 'Rowan', text: 'I found this when I dug the well. Keep it safe.' }],
+    durationMs: 3500,
+    actors: [
+      { sprite: 'char.026', keys: [{ at: 0, x: 104, y: 128, facing: 'right' }] },
+      { sprite: 'story.rowanCoat', keys: [{ at: 0, x: 160, y: 124, facing: 'left' }] },
+    ],
+    darkness: [{ at: 0, value: 0.12 }],
+    runeStone: {
+      x: [
+        { at: 0, value: 148 },
+        { at: 1000, value: 148 },
+        { at: 2100, value: 116 },
+      ],
+      y: [
+        { at: 0, value: 111 },
+        { at: 2100, value: 111 },
+      ],
+    },
+  },
+  {
+    id: 'a-teacher-to-start-with',
+    setting: 'house',
+    text: '',
+    description:
+      'Rowan names a teacher. Fern listens; the route is a recommendation, not a compulsory lesson.',
+    dialogue: [
+      {
+        speaker: 'Rowan',
+        text: 'Try Kestrel at Windward Cliffs. She takes beginners. Wind would suit a scout.',
+      },
+    ],
+    durationMs: 3000,
+    actors: [
+      { sprite: 'char.026', keys: [{ at: 0, x: 104, y: 128, facing: 'right' }] },
+      { sprite: 'story.rowanCoat', keys: [{ at: 0, x: 160, y: 124, facing: 'left' }] },
+    ],
+    darkness: [{ at: 0, value: 0.12 }],
+  },
+  {
+    id: 'rowans-watch',
+    setting: 'hill',
+    text: 'That night, Rowan took the watch himself.',
+    description: 'Rowan keeps watch alone beside seven steady stones, from dusk toward dawn.',
+    durationMs: 4000,
+    actors: [
+      {
+        sprite: 'story.rowanLantern',
+        keys: [{ at: 0, x: 160, y: 140, facing: 'up' }],
+        lantern: true,
+      },
+    ],
+    darkness: [
+      { at: 0, value: 0.72 },
+      { at: 3000, value: 0.72 },
+      { at: 4000, value: 0.22 },
+    ],
+    stones: [
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+      [{ at: 0, value: 1 }],
+    ],
+    fade: [
+      { at: 0, value: 1 },
+      { at: 600, value: 0 },
+    ],
+  },
+  {
+    id: 'dawn-on-the-north-road',
+    setting: 'road',
+    text: 'At dawn, Rowan alone saw Fern off. Mossvale was quiet behind them.',
+    description:
+      'Fern and Rowan stand at the fork: the north road continues ahead, the path to the stones branches right.',
+    dialogue: [
+      {
+        speaker: 'Rowan',
+        text: 'All seven held steady. North for Windward. Keep that stone close.',
+      },
+    ],
+    durationMs: 3000,
+    actors: [
+      { sprite: 'char.026', keys: [{ at: 0, x: 160, y: 140, facing: 'left' }] },
+      { sprite: 'story.rowanCoat', keys: [{ at: 0, x: 128, y: 144, facing: 'right' }] },
+    ],
+    darkness: [{ at: 0, value: 0.1 }],
+  },
+  {
+    id: 'beyond-the-patrol',
+    setting: 'road',
+    text: 'The path to the stones turned away. Fern kept going. He had never walked beyond the patrol before.',
+    description:
+      'Fern turns north and takes a few steps past the fork. Rowan stays behind. The player takes control here.',
+    durationMs: 2200,
+    actors: [
+      {
+        sprite: 'char.026',
+        keys: [
+          { at: 0, x: 160, y: 140, facing: 'up', walking: true },
+          { at: 1600, x: 160, y: 110, facing: 'up' },
+        ],
+      },
+      { sprite: 'story.rowanCoat', keys: [{ at: 0, x: 128, y: 144, facing: 'right' }] },
+    ],
+    darkness: [{ at: 0, value: 0.1 }],
   },
 ];

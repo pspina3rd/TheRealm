@@ -125,14 +125,24 @@ describe('shotKeyTimes', () => {
   });
 });
 
-/** The author's opening, paragraph by paragraph, as the sample document holds it. */
-function sampleParagraphs(): string[] {
+/** Visible script only; accessible directions stay out of the page text. */
+function samplePages(): { id: string; paragraphs: string[] }[] {
   const doc = readFileSync('docs/story-plans/samples/OPENING_SAMPLE.md', 'utf8');
-  const body = doc.slice(doc.indexOf('## The last stop'), doc.indexOf('_(Draft from here on'));
-  return body
-    .split('\n\n')
-    .filter((p) => p.trim() !== '' && !p.startsWith('## '))
-    .map((p) => p.split(/\s+/).join(' ').trim());
+  return doc
+    .split(/^## /m)
+    .slice(1)
+    .map((section) => {
+      const [id, ...body] = section.split('\n');
+      return {
+        id: id!.trim(),
+        paragraphs: body
+          .join('\n')
+          .split('\n\n')
+          .map((p) => p.trim())
+          .filter((p) => p && !p.startsWith('<!--'))
+          .map((p) => p.split(/\s+/).join(' ')),
+      };
+    });
 }
 
 const shot = (id: string): CinematicShot => {
@@ -142,9 +152,15 @@ const shot = (id: string): CinematicShot => {
 };
 
 describe('the opening cinematic', () => {
-  it("shows the author's words exactly, in order, with nothing left out", () => {
-    const shown = OPENING_CINEMATIC.flatMap((s) => s.text.split('\n\n'));
-    expect(shown).toEqual(sampleParagraphs());
+  it('matches the edited page script, with speech separate from visual directions', () => {
+    const shown = OPENING_CINEMATIC.map((s) => ({
+      id: s.id,
+      paragraphs: [
+        ...s.text.split('\n\n').filter(Boolean),
+        ...(s.dialogue ?? []).map((d) => `**${d.speaker}:** ${d.text}`),
+      ],
+    }));
+    expect(shown).toEqual(samplePages());
   });
 
   it('gives every shot a unique id and keeps every event inside the shot', () => {
@@ -206,7 +222,10 @@ describe('the opening cinematic', () => {
     OPENING_CINEMATIC.forEach((s, i) => {
       const sprites = s.actors.map((a) => a.sprite);
       if (i < burst) expect(sprites, s.id).not.toContain('story.fernMuddy');
-      else if (s.setting !== 'memory' && sprites.some((id) => id.startsWith('char.026')))
+      else if (
+        i < order.indexOf('the-morning-after') &&
+        sprites.some((id) => id.startsWith('char.026'))
+      )
         expect.fail(`${s.id} shows clean Fern after the run`);
     });
   });
@@ -221,10 +240,26 @@ describe('the opening cinematic', () => {
     expect(leaving && actorPose(leaving, 2000).sprite).toBe('story.fernMuddy');
   });
 
+  it('faces Fern toward Rowan during the climb, and reaches dawn without filming the lesson', () => {
+    const climb = shot('back-up-the-hill');
+    const fern = climb.actors.find((a) => a.sprite === 'story.fernMuddy')!;
+    const rowan = climb.actors.find((a) => a.sprite === 'story.rowanLantern')!;
+    const glance = actorPose(fern, 1400);
+    expect(actorPose(rowan, 1400).x).toBeGreaterThan(glance.x);
+    expect(glance.facing).toBe('right');
+    expect(OPENING_CINEMATIC.at(-1)?.id).toBe('beyond-the-patrol');
+    expect(shot('the-rune-stone').runeStone).toBeDefined();
+    expect(shot('rowans-watch').actors).toHaveLength(1);
+    expect(shot('dawn-on-the-north-road').actors).toHaveLength(2);
+    expect(OPENING_CINEMATIC.some((s) => s.actors.some((a) => a.sprite.includes('kestrel')))).toBe(
+      false,
+    );
+  });
+
   it('lights the way with Rowan’s lantern from the moment he takes it', () => {
     const order = OPENING_CINEMATIC.map((s) => s.id);
     const takes = order.indexOf('lantern');
-    OPENING_CINEMATIC.slice(takes).forEach((s) => {
+    OPENING_CINEMATIC.slice(takes, order.indexOf('the-morning-after')).forEach((s) => {
       const rowan = s.actors.find((a) => a.sprite === 'story.rowanLantern');
       expect(rowan?.lantern, s.id).toBe(true);
     });

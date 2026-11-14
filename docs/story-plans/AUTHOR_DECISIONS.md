@@ -4,6 +4,22 @@ Running record of Philip Spina's decisions on the story plans. Decision IDs come
 listed in [README.md](README.md). A decision recorded here overrides the plan's working version.
 Undecided items remain proposals.
 
+## Current state — 14 November 2026
+
+The author has asked for the cinematic prose to be edited and the dawn departure tried, with **Fern as the present focus**. Other hero adaptations are deferred. The [revised web script](samples/OPENING_SAMPLE.md) and [shot list](cinematics/OPENING_SHOTS.md) are the review surfaces.
+
+For conflicting entries below, the latest explicit decision governs:
+
+- No enchanted sleep; Hareguy is awake. Rowan is watch captain, without the earlier bad knees.
+- Bracken died in the Redrock rescue. Rowan's reason for blaming himself is not stated outright; it emerges later with Dorn.
+- Kestrel is the recommended first teacher; the player can choose another. The earlier well-first and Dorn-first requirements are superseded.
+- The illustrated opening ends at dawn; the first trip, lesson, return and optional letter are played. The letter's older pre-departure Quake requirement is superseded. Its contents stay private.
+- Rowan gives the unexplained rune stone; it demonstrates no power in the opening.
+- The Lamplighter order is rejected. Voice identity and the Vesper/Fennick childhood proposals remain held.
+- iPhone illustrated scenes still wait until the web version is settled.
+
+This summary reconciles existing decisions and the author's latest scope; it does not choose the voice's identity or approve a replacement second-half plot.
+
 | Status | Meaning                                                 |
 | ------ | ------------------------------------------------------- |
 | Yes    | Approved as written in the plan.                        |
@@ -110,7 +126,7 @@ These replace earlier canon wherever they conflict, including World Bible WB-C16
 | Bracken's death  | Ten years ago a collapse at Redrock trapped one of Dorn's crews. Bracken, captain of the Mossvale watch, took men to dig them out. Rowan called a retreat; Bracken kept getting others out. Rowan pulled the last miner clear as Bracken pushed him through from inside; Rowan turned to help his friend as the rocks came down. |
 | Rowan's guilt    | He took the miner first, when Bracken was right behind. (This replaces "inaction".) Dorn was there, and it surfaces when Fern meets him.                                                                                                                                                                                         |
 
-## Round 7 — After the hill (8 November 2026)
+## Round 7 continued — After the hill (8 November 2026)
 
 | Topic                 | Decision                                                                                                                                                                                                                                                                                                                                                                              |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

@@ -3,6 +3,10 @@ import type { GameState } from '../world/state';
 
 /** One immediate, optional lead. No checklist of future systems on the opening screen. */
 export function openingLead(state: Pick<GameState, 'flags' | 'mapId'>): string {
+  if (state.flags.has('opening:fernDawn'))
+    return [...state.flags].some((f) => f.startsWith('taught:mentor:'))
+      ? ''
+      : 'Windward Cliffs · Kestrel teaches Wind. Other teachers are open to you.';
   if (state.flags.has('scene:refusal')) return '';
   if (state.mapId !== hometownOf(state.flags).map) return 'Rowan is waiting by the village well.';
   if (!state.flags.has('opening:houseVisited')) return 'Check a shuttered house.';

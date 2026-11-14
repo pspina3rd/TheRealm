@@ -100,15 +100,15 @@ The memory page tells the friendship and impending-fatherhood story while its tw
 
 Concrete issues in [OPENING_SAMPLE.md](../story-plans/samples/OPENING_SAMPLE.md):
 
-| Passage | Problem | Recommended treatment |
-| --- | --- | --- |
-| Opening “You followed…” then “There he stood…” | Second person abruptly becomes third person. | Choose a consistent narrator for the book. |
-| “Illuminating the night with their soft rainbow of colors.” | A detached participial fragment after a cumbersome explanation of ancient magic. | Attach it cleanly or let the lit stones supply the image. |
-| “A role he took over because Bracken…” | A fragment following a tenure calculation that interrupts the emergency. | Fold the essential relationship into a natural sentence; move service history elsewhere. |
-| “Rowan asks”; “Fern stumbles”; “Rowan hesitates” | Unmotivated switches from past into present tense. | Use the same narrative tense throughout. |
-| “Rowan hesitates, the lad's face is white…” | Comma splice plus mixed tenses in one sentence. | Separate the action from the observation and retain only what the image cannot show. |
-| “they stopped glowing!!!” | Punctuation is doing the work of performance. | Use restrained punctuation and the actor's entrance to carry urgency. |
-| Rowan's “I know you. And your tells…” explanation | Repeats the stronger, shorter “I know” that precedes it. | Preserve reassurance; reduce the explanation of why he believes Fern. |
+| Passage                                                     | Problem                                                                          | Recommended treatment                                                                    |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Opening “You followed…” then “There he stood…”              | Second person abruptly becomes third person.                                     | Choose a consistent narrator for the book.                                               |
+| “Illuminating the night with their soft rainbow of colors.” | A detached participial fragment after a cumbersome explanation of ancient magic. | Attach it cleanly or let the lit stones supply the image.                                |
+| “A role he took over because Bracken…”                      | A fragment following a tenure calculation that interrupts the emergency.         | Fold the essential relationship into a natural sentence; move service history elsewhere. |
+| “Rowan asks”; “Fern stumbles”; “Rowan hesitates”            | Unmotivated switches from past into present tense.                               | Use the same narrative tense throughout.                                                 |
+| “Rowan hesitates, the lad's face is white…”                 | Comma splice plus mixed tenses in one sentence.                                  | Separate the action from the observation and retain only what the image cannot show.     |
+| “they stopped glowing!!!”                                   | Punctuation is doing the work of performance.                                    | Use restrained punctuation and the actor's entrance to carry urgency.                    |
+| Rowan's “I know you. And your tells…” explanation           | Repeats the stronger, shorter “I know” that precedes it.                         | Preserve reassurance; reduce the explanation of why he believes Fern.                    |
 
 The “Sit. Breathe. Start from the beginning” exchange works because it expresses care through an immediate action. Preserve that directness. The bat joke can retain their familiarity, but its repeated setup should not crowd out the mystery.
 

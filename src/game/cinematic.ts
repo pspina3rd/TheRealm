@@ -37,7 +37,7 @@ export interface CinematicActor {
   readonly lantern?: boolean;
 }
 
-export type CinematicSetting = 'hill' | 'house' | 'memory';
+export type CinematicSetting = 'hill' | 'house' | 'memory' | 'road';
 
 /** The seven standing stones, in the order they go out: violet first, red last. */
 export const STONE_ORDER = [
@@ -58,6 +58,10 @@ export interface CinematicShot {
   readonly setting: CinematicSetting;
   /** The words shown beneath the picture. Paragraphs are separated by blank lines. */
   readonly text: string;
+  /** Speech is labelled separately from the book's narrator. */
+  readonly dialogue?: readonly { readonly speaker: string; readonly text: string }[];
+  /** Accessible description of the pictured action, not visible duplicate narration. */
+  readonly description?: string;
   readonly durationMs: number;
   readonly actors: readonly CinematicActor[];
   /** Brightness of each stone, 0 (out) to 1 (lit), in `STONE_ORDER`. Absent: no stones on stage. */
@@ -70,6 +74,8 @@ export interface CinematicShot {
   readonly door?: Track;
   /** How hard the house door shakes, in pixels. */
   readonly doorShake?: Track;
+  /** A small unlit stone passed between hands, without demonstrating magical power. */
+  readonly runeStone?: { readonly x: Track; readonly y: Track };
 }
 
 /** The value of `track` at `t` milliseconds. */
@@ -134,6 +140,8 @@ export function shotKeyTimes(shot: CinematicShot): number[] {
     shot.fade ?? [],
     shot.door ?? [],
     shot.doorShake ?? [],
+    shot.runeStone?.x ?? [],
+    shot.runeStone?.y ?? [],
     ...(shot.stones ?? []),
   ];
   return [

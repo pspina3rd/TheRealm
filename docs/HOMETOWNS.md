@@ -1,3 +1,5 @@
+> **Current-story notice (14 November 2026):** The four-home arrangement remains. The author is currently focusing on Fern. Later decisions replace the well/Focus Stone opening described below; use [the current bible](WORLD_BIBLE.md) for the rebuilt opening.
+
 # Four protagonists, one shared journey
 
 The chosen hero determines the hometown: Fern begins in Mossvale, Lance in

@@ -1,3 +1,6 @@
+import { OPENING_CINEMATIC } from '../data/openingCinematic';
+import { FERN_DAWN, FERN_OPENING_PENDING, finishFernOpening } from '../game/fernOpening';
+import { cinematicBook } from './cinematicBook';
 import { surfaceProvince } from '../data/surfaceLayout';
 import { worldMapBody, surfaceDistrict } from './worldMap';
 import { openingLead } from '../game/opening';
@@ -177,7 +180,12 @@ export class App {
   /** Toasts raised under an interlude, shown once the map is clear (see `HeldToasts`). */
   private readonly heldToasts = new HeldToasts<{ text: string; icon: IconSpec | IconId }>();
 
-  constructor(atlas: Atlas, store: KeyValueStore) {
+  constructor(
+    atlas: Atlas,
+    store: KeyValueStore,
+    private readonly fernPlaytest = false,
+    private readonly startAtDawn = false,
+  ) {
     this.store = store;
     this.atlas = atlas;
     const loaded = loadSave(store);
@@ -278,7 +286,14 @@ export class App {
     this.showView('world');
     this.renderHud();
     this.say(currentMap(this.state).name);
-    if (!this.started) this.chooseClass();
+    if (this.fernPlaytest && !this.started) this.startNewGame('ranger');
+    else if (
+      this.fernPlaytest &&
+      this.state.flags.has(FERN_OPENING_PENDING) &&
+      !this.state.flags.has(FERN_DAWN)
+    )
+      this.playFernOpening();
+    else if (!this.started) this.chooseClass();
     else {
       // A scene or vision the game was closed on shows again.
       this.playScenes(() => {
@@ -1293,13 +1308,43 @@ export class App {
     deleteSave(this.store);
     this.state = newGame(classId);
     this.state.flags.add('boardMagicEnabled');
+    if (this.fernPlaytest && classId === 'ranger') this.state.flags.add(FERN_OPENING_PENDING);
     this.started = true;
     this.save();
     this.dialog.close();
     this.renderHud();
     this.say(currentMap(this.state).name);
-    // The opening, before the hero has control in their hometown.
-    this.playScenes();
+    if (this.fernPlaytest && classId === 'ranger') this.playFernOpening();
+    else this.playScenes();
+  }
+
+  /** The author-review web sequence; native and ordinary campaign entry remain separate. */
+  private playFernOpening(): void {
+    const done = (): void => {
+      if (!finishFernOpening(this.state)) return;
+      this.dialog.close();
+      this.save();
+      this.renderHud();
+      this.say('The north road · Windward Cliffs');
+    };
+    if (this.startAtDawn) {
+      done();
+      return;
+    }
+    this.heldDirection = null;
+    this.stopRoute();
+    const book = cinematicBook({ shots: OPENING_CINEMATIC, atlas: this.atlas, onComplete: done });
+    this.dialog.show({
+      title: 'The Night Watch',
+      body: book.element,
+      actions: [],
+      autofocus: false,
+      onCancel: () => {
+        book.dispose();
+        done();
+      },
+    });
+    book.element.focus();
   }
 
   // ------------------------------------------------------------- HUD ---

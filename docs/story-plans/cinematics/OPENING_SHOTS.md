@@ -1,83 +1,51 @@
-# Opening shot list
+# Fern — opening shot list
 
-Draft for author review. Staging for the opening as written in
-[OPENING_SAMPLE.md](../samples/OPENING_SAMPLE.md), from the patrol to the walk back down the hill.
-Nothing is built until this list is approved.
+Revised 14 November 2026. Web prototype implemented through the dawn handoff. The iPhone scenes remain deferred until the web sequence is settled, as recorded in [AUTHOR_DECISIONS.md](../AUTHOR_DECISIONS.md).
 
-The scenes play as illustrated storybook pages: one shot per page, with the page's words beneath.
-"Code effect" means it is done in the game's drawing code with the existing art. "Art edit" means a
-changed or new sprite.
+The [page script](../samples/OPENING_SAMPLE.md) contains visible narration and dialogue. The table below describes what the picture must show; these descriptions are also available to screen readers without being repeated as visible prose. Pages wait for the reader. Animation duration does not impose a reading deadline. Previous and Replay are available; Skip opening reaches the same handoff as reading through.
 
-## Scene 1 — The last stop (hilltop, night)
+| Shot | ID                        | Setting | Action                                                                                                   |
+| ---- | ------------------------- | ------- | -------------------------------------------------------------------------------------------------------- |
+| 1    | `patrol-path`             | hill    | At night, Fern walks up the birch path toward seven glowing standing stones.                             |
+| 2    | `the-stones`              | hill    | Fern pauses at the crest, facing the seven steady lights.                                                |
+| 3    | `turns-to-go`             | hill    | Fern turns back toward Mossvale.                                                                         |
+| 4    | `the-flicker`             | hill    | All seven lights dip briefly. Fern turns back; the stones are steady again.                              |
+| 5    | `head-shake`              | hill    | Fern looks to either side, then back at the stones.                                                      |
+| 6    | `walks-away`              | hill    | Fern starts down the path.                                                                               |
+| 7    | `stones-go-out`           | hill    | Violet goes dark, followed by blue, cyan, green, gold and orange. The hill darkens. Red still glows.     |
+| 8    | `fern-runs`               | hill    | As red fades, Fern runs down the path. The scene fades to black.                                         |
+| 9    | `rowan-wakes`             | house   | In Rowan's cottage, the captain turns from the fire toward his door.                                     |
+| 10   | `pounding`                | house   | The cottage door shakes. Fern calls from outside.                                                        |
+| 11   | `door-opens`              | house   | Rowan crosses to the door and opens it.                                                                  |
+| 12   | `fern-bursts-in`          | house   | Fern rushes in, pale and muddy. Rowan steps aside.                                                       |
+| 13   | `by-the-chair`            | house   | Rowan leads Fern to the fire. Fern sits and catches his breath.                                          |
+| 14   | `the-report`              | house   | Fern reports from the chair; Rowan stays beside him and listens.                                         |
+| 15   | `the-report-ends`         | house   | Rowan asks about the last stone. Fern looks up at him.                                                   |
+| 16   | `are-they-still-out`      | house   | Rowan waits for Fern to answer before taking his lantern.                                                |
+| 17   | `lantern`                 | house   | Rowan takes his lantern. Fern stands and follows him outside.                                            |
+| 18   | `back-up-the-hill`        | hill    | Rowan leads up the path. Fern glances right toward him, waiting for a response.                          |
+| 19   | `the-crest`               | hill    | They reach the hilltop together. All seven stones are glowing.                                           |
+| 20   | `i-believe-you`           | hill    | Fern turns to Rowan. Rowan turns toward Fern instead of looking away.                                    |
+| 21   | `learn-magic`             | hill    | Rowan faces Fern, who turns toward him.                                                                  |
+| 22   | `someone-has-to-stay`     | hill    | Rowan looks down the path toward Mossvale. Fern stays beside him.                                        |
+| 23   | `or-large-bats`           | hill    | Rowan heads down the path. Fern hesitates, then follows.                                                 |
+| 24   | `the-morning-after`       | house   | Daylight fills the cottage. Fern and Rowan speak alone by the hearth.                                    |
+| 25   | `keep-it-between-us`      | house   | Rowan faces Fern. There is no one else in the cottage.                                                   |
+| 26   | `the-rune-stone`          | house   | Rowan passes a small, unlit rune stone to Fern. Fern keeps it.                                           |
+| 27   | `a-teacher-to-start-with` | house   | Rowan names a teacher. Fern listens; the route is a recommendation, not a compulsory lesson.             |
+| 28   | `rowans-watch`            | hill    | Rowan keeps watch alone beside seven steady stones, from dusk toward dawn.                               |
+| 29   | `dawn-on-the-north-road`  | road    | Fern and Rowan stand at the fork: the north road continues ahead, the path to the stones branches right. |
+| 30   | `beyond-the-patrol`       | road    | Fern turns north and takes a few steps past the fork. Rowan stays behind. The player takes control here. |
 
-| #   | Words on the page                          | On screen                                                                                                                    | How                                                                       |
-| --- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| 1   | "The night patrol ended at the stones…"    | Fern walks up a dark path between birch trees.                                                                               | Night tint (code effect). Birch trees (art edit A).                       |
-| 2   | "There he stood…"                          | Fern stops at the crest, his back to us. Seven stones in a ring, softly glowing.                                             | Lit stone sprites with a slow glow pulse (code effect).                   |
-| 3   | "Fern sighed…" / "Well, that's enough…"    | Fern faces us, then turns to go.                                                                                             | Existing walk frames.                                                     |
-| 4   | "He turned to go, and the stones seemed…"  | As he turns away, all seven dip for a split second. He turns back; they are steady.                                          | Brief brightness dip (code effect).                                       |
-| 5   | "Fern stood very still." / "You're tired…" | Fern stares at the stones, then looks left and right: a head shake.                                                          | Quick left and right frames.                                              |
-| 6   | "He turned away again."                    | Fern walks away from the stones.                                                                                             | Existing walk frames.                                                     |
-| 7   | "The violet stone was out!…"               | Stones dim and go out one at a time: violet, blue, cyan, green, gold, orange. The whole scene grows slowly darker with each. | Lit stone swaps to unlit stone; scene darkens step by step (code effect). |
-| 8   | "Fern ran."                                | As the red stone starts to go, Fern runs off down the path. Fade to black.                                                   | Walk cycle at double speed; fade (code effect).                           |
+## Web testing
 
-## Scene 2 — Rowan (Rowan's house, night)
+- Run `npm run dev`, then open `/cinematic.html` for the illustrated book preview.
+- Open `/?opening=fern` for the same sequence followed by a playable overworld handoff. This development playtest uses a separate save namespace; ordinary campaign saves are not replaced.
+- The final preview action opens `/?opening=fern&at=dawn` at the fork. Walking, regional approach challenges and lessons use the existing game. Later campaign text still needs the no-sleep rewrite; this test does not claim that rewrite is finished.
+- `?shot=N&t=MS` freezes a preview frame; `node tools/cinematic-screenshots.mjs <folder> N:MS` saves it. Shot IDs above are the stable reference.
 
-| #   | Words on the page                               | On screen                                                                                | How                                                                                                                      |
-| --- | ----------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| 9   | "Rowan yawned as he put on his captain's coat…" | Inside Rowan's house: bed, chair, stove, door. Rowan in his navy captain's uniform coat. | Village furniture tiles. Rowan in coat (art edit B).                                                                     |
-| 10  | "The two had grown up together…"                | Memory: young Rowan and Bracken side by side, softly faded at the edges.                 | Soft vignette, not full sepia, so colours stay readable (code effect). Bracken and young Rowan (art edit F; question 1). |
-| 11  | "Pounding at the door…"                         | The door shakes.                                                                         | Door tile jolts (code effect).                                                                                           |
-| 12  | "Was it a little dragon again…"                 | The door swings open.                                                                    | Closed door swaps to open door (existing tiles).                                                                         |
-| 13  | "Fern stumbles in shouting…"                    | Fern rushes in, pale, mud down one side.                                                 | Muddy, pale Fern (art edit C).                                                                                           |
-| 14  | "Sit," Rowan said…                              | Fern stands by the chair, too wound up to sit; Rowan standing.                           | Existing frames.                                                                                                         |
-| 15  | Fern's report                                   | Two-shot of Fern and Rowan. Words only.                                                  | Existing frames.                                                                                                         |
-| 16  | "Then we'll go and see."                        | Rowan takes the lantern from its hook; they leave.                                       | Rowan holding a lantern (art edit E).                                                                                    |
+## Staging constraints
 
-## Scene 3 — The hill again (night)
+Keep the existing pack art: boulder standing stones, birches, captain's coat, muddy Fern, seated Fern and Rowan's lantern. Fern sits for his report, stands to follow Rowan, and looks right toward him on the return climb. He is clean again the following morning. The rune stone is an ordinary, unlit hand-held prop; do not give it a glow, an elemental demonstration or an explanation of its future purpose. The watch and dawn scenes have no neighbor cameos. The first teacher visit and letter are played, not filmed.
 
-| #   | Words on the page                        | On screen                                                                            | How                                              |
-| --- | ---------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------ |
-| 17  | "Rowan was stern and silent…"            | Rowan leads up the birch path with the lantern; Fern behind, turning to look at him. | Lantern light circle around Rowan (code effect). |
-| 18  | "As they crested the barren hill…"       | Both stop at the crest. All seven stones glow brightly.                              | Lit stones at full brightness.                   |
-| 19  | Dialogue at the stones                   | Two-shot by the stones.                                                              | Existing frames.                                 |
-| 20  | "You're going to learn magic."           | Rowan turns to face Fern.                                                            | Direction frames.                                |
-| 21  | "Because..." / "...someone has to stay." | Rowan looks back down the hill toward Mossvale.                                      | Direction frames.                                |
-| 22  | "Or large bats," Rowan said, chuckling.  | Rowan walks down the path; Fern follows. Fade out.                                   | Existing walk; fade (code effect).               |
-
-## Art edits needed
-
-All edits are made from the existing pack art and keep its style and palette.
-
-| ID  | Edit                                                            | Frames            | Size   |
-| --- | --------------------------------------------------------------- | ----------------- | ------ |
-| A   | Birch trees: pale trunks with dark bands                        | 1–2 tree variants | Small  |
-| B   | Rowan in his captain's uniform coat, navy (a darker royal blue) | All 16            | Medium |
-| C   | Fern, pale and muddy down one side                              | All 16            | Small  |
-| E   | Rowan in his coat, holding a lantern                            | All 16            | Medium |
-| F   | Memory pair: young Rowan and Bracken (question 1)               | All 16 each       | Medium |
-
-Not possible at this sprite size, so carried by the words alone: Rowan yawning or pulling on his
-coat, Fern's grin, Fern paling at the thought of leaving.
-
-Removed after review: Fern's shadow thinning (the scene darkens with the stones instead), Fern
-sitting, and the inset replay during the report.
-
-## Decisions
-
-All questions are answered. Bracken is Fern's sprite aged up, with darker hair and older clothes, so
-father and son visibly resemble each other. Young Rowan is Rowan's sprite with brown hair.
-
-## Web preview
-
-The opening plays as an illustrated preview in the browser. It is not yet part of the game.
-
-- Run `npm run dev` and open `/cinematic.html`. Use Next, Previous and Replay, or the arrow keys.
-- `/cinematic.html?shot=7&t=3000` freezes shot 7 three seconds in.
-- `node tools/cinematic-screenshots.mjs <folder> 7:3000 8:500` saves frames as PNGs. Set
-  `CHROMIUM_PATH` if Playwright's own browser is not installed.
-
-The shots are in `src/data/openingCinematic.ts`. The words come from
-[OPENING_SAMPLE.md](../samples/OPENING_SAMPLE.md), and a test fails if the two drift apart. Fern's
-report runs over two shots, so shots after 15 are numbered one higher than in the tables above.
-[opening-preview-contact-sheet.png](opening-preview-contact-sheet.png) shows one frame of each shot.
+The two facing sprites and long narration that previously formed the memory page are removed from this opening. Bracken's death and Rowan's guilt are not explained here; Dorn's later scene remains the planned place for the Redrock account.

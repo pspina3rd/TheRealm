@@ -25,7 +25,7 @@ try {
   for (const frame of frames) {
     const [shot, ms] = frame.split(':');
     await page.goto(`http://127.0.0.1:${port}/cinematic.html?shot=${shot}&t=${ms}`);
-    await page.waitForFunction(() => document.querySelector('.cinematic-words p'));
+    await page.waitForFunction(() => document.querySelector('.cinematic-book[data-shot]'));
     await page.waitForTimeout(300);
     const name = `shot-${shot.padStart(2, '0')}-${ms}ms.png`;
     await page.locator('#cinematic-preview').screenshot({ path: `${out}/${name}` });

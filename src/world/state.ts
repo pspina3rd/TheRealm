@@ -64,8 +64,21 @@ export function newGame(classId?: string, heroName?: string): GameState {
 }
 
 export function currentMap(state: GameState): MapDef {
-  const map = MAPS[state.mapId];
+  let map = MAPS[state.mapId];
   if (!map) throw new Error(`Unknown map: ${state.mapId}`);
+  if (map.id === 'overworld' && state.flags.has('opening:fernDawn')) {
+    // In Fern's isolated revised journey, Windward is a first-teacher route.
+    // Keep its local courier challenge, without pretending the old mountain
+    // gate or a previous regional visit has already been earned.
+    map = {
+      ...map,
+      warps: map.warps.map((warp) =>
+        warp.to.map === 'cliffs'
+          ? { ...warp, requiresFlag: undefined, requiresAnyFlag: undefined }
+          : warp,
+      ),
+    };
+  }
   return hometownMap(map, state.flags);
 }
 

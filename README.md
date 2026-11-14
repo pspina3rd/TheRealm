@@ -6,24 +6,18 @@ you with magic, villagers bring you their trouble (a choked well, a jammed
 tower, overgrown herb beds), shopkeepers negotiate and sages set puzzles.
 Their goals differ; helping someone does not turn them into an enemy.
 
-**The story.** Something vast stirs under the realm: the Moon Wyrm, coiled
-around a moon-crystal deep in the Moon Caves, drinks the moonlight while
-spores choke your hometown's well and the lake clouds over. Your chosen hero
-begins in Mossvale, Cairnwick, Merehaven, or Bramblecross,
-mends what they can, and learns magic from seven mentors on the
-road down, after Elder Rowan's son falls into a sleep no one can wake him
-from. The Wyrm speaks to you in visions as you go, and its thrall,
-Vesper, is always one step ahead of you. The first-half words are the author's
-own, from [docs/STORY.md](docs/STORY.md). A first playable continuation now
-follows the [working second-half script](docs/DIALOGUE_DRAFT.md); its new
-story interpretations remain proposals and its combat still needs tuning.
-The four openings share the same neighbors and main journey; see
-[hometowns](docs/HOMETOWNS.md). Existing saves retain their original home.
+**The story.** Fern scouts for the Mossvale watch. One night the seven standing
+stones go out. When he brings Rowan back, their light has returned. Rowan
+believes him and sends him to learn magic. The current story work focuses on
+Fern; the other three heroes and their hometowns remain part of the project.
+The Moon Wyrm is the midpoint false victory, followed by an underground journey,
+Vesper's separate duel and final transformation.
 
-**Story review:** the [World Bible](docs/WORLD_BIBLE.md) consolidates the setting,
-characters and complete arc, with approved and proposed material labeled. The
-[Story Reader](docs/WORLD_BIBLE_STORY_READER.md) preserves current game text with
-passage IDs for wording edits.
+**Story review:** use the [current World Bible](docs/WORLD_BIBLE.md) and
+[author decisions](docs/story-plans/AUTHOR_DECISIONS.md). The older playable
+campaign and [Story Reader](docs/WORLD_BIBLE_STORY_READER.md) still contain
+superseded sleep-based material; the new opening does not imply that the whole
+campaign rewrite is complete.
 
 **The overworld.** Sevenstones is now a 256 × 256 surface world, with seven
 provinces, branching roads, rivers and regional sites. Open **Menu → World map**
@@ -58,6 +52,18 @@ npm run build      # static site in dist/
 | `npm run lint`               | ESLint                               |
 | `npm run format`             | Rewrite files with Prettier          |
 | `npm run check`              | Everything CI runs                   |
+
+## Try Fern's revised opening
+
+Run `npm run dev`, then open **http://localhost:5173/?opening=fern**.
+The illustrated book runs through the dawn departure and hands control back
+on the road. Read through, or use Skip opening. This development playtest uses
+its own save slot; your ordinary campaign save is preserved.
+
+For the book alone, open **http://localhost:5173/cinematic.html**. The
+[script and shot list](docs/story-plans/cinematics/OPENING_SHOTS.md) explain
+review controls and current scope. The iPhone scenes remain deferred until
+the web version is settled.
 
 ## How to play
 

@@ -1,44 +1,122 @@
-body {
-  margin: 0;
-  background: #14161f;
-  color: #ece6d6;
-  font-family: Georgia, 'Times New Roman', serif;
-}
-
+/* Scoped to the book so the campaign's menu and world keep their own layout. */
 #cinematic-preview {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 16px;
+  min-height: 100dvh;
+  padding: clamp(8px, 2vw, 24px);
+  box-sizing: border-box;
+  background: #151a1a;
 }
-
+body:has(#cinematic-preview) {
+  margin: 0;
+}
+.cinematic-book {
+  box-sizing: border-box;
+  max-width: 960px;
+  margin: auto;
+  padding: clamp(12px, 3vw, 28px);
+  color: #332617;
+  background: linear-gradient(90deg, #d5ba83, #f4e7c5 4%, #f4e7c5 96%, #d5ba83);
+  border: 6px solid #493628;
+  border-radius: 8px;
+  box-shadow:
+    0 8px 24px #0007,
+    inset 0 0 0 1px #a18252;
+  font-family: Georgia, 'Times New Roman', serif;
+  outline-offset: 3px;
+}
+.cinematic-title {
+  margin: 0 0 12px;
+  font-size: clamp(20px, 3vw, 28px);
+}
 .cinematic-stage {
   display: block;
   width: 100%;
   image-rendering: pixelated;
-  border-radius: 6px;
+  border: 1px solid #705132;
+  box-sizing: border-box;
 }
-
 .cinematic-counter {
-  margin: 8px 0 0;
+  margin: 0;
   font:
-    12px system-ui,
-    sans-serif;
-  color: #8f8a7c;
+    14px Georgia,
+    serif;
+  white-space: nowrap;
 }
-
 .cinematic-words {
   min-height: 7em;
-  font-size: 18px;
+  font-size: clamp(17px, 2.2vw, 20px);
   line-height: 1.5;
+  padding: 8px 0;
 }
-
+.cinematic-words p {
+  margin: 10px 0;
+}
+.cinematic-dialogue {
+  display: grid;
+  grid-template-columns: 5em 1fr;
+  gap: 8px;
+}
+.cinematic-dialogue b {
+  font-size: 0.85em;
+  padding-top: 0.2em;
+}
+.cinematic-footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-top: 1px solid #b39a6d;
+  padding-top: 12px;
+}
 .cinematic-controls {
   display: flex;
   gap: 8px;
+  margin-left: auto;
 }
-
-.cinematic-controls button {
-  padding: 8px 14px;
-  font: inherit;
-  font-size: 14px;
+.cinematic-book button {
+  min-height: 44px;
+  padding: 8px 12px;
+  color: #f4e7c5;
+  background: #493628;
+  border: 1px solid #6d5039;
+  border-radius: 4px;
+  font:
+    16px Georgia,
+    serif;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.cinematic-book button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.cinematic-book button:focus-visible {
+  outline: 3px solid #236574;
+  outline-offset: 3px;
+}
+#dialog:has(.cinematic-book) {
+  max-width: min(98vw, 1020px);
+  max-height: 98dvh;
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+#dialog:has(.cinematic-book) > #dialog-title,
+#dialog:has(.cinematic-book) > #dialog-actions {
+  display: none;
+}
+#dialog:has(.cinematic-book) #dialog-body {
+  padding: 0;
+}
+@media (max-width: 520px) {
+  .cinematic-dialogue {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .cinematic-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .cinematic-book {
+    border-width: 4px;
+  }
 }

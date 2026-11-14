@@ -1,3 +1,5 @@
+> **Current-story notice (14 November 2026):** Preserve the major encounter order and pacing targets below. Later [author decisions](story-plans/AUTHOR_DECISIONS.md) abandon enchanted sleep and rebuild Fern's opening; the sleep continuity fixes and instruction to preserve all old first-half dialogue are superseded. Use [the current bible](WORLD_BIBLE.md).
+
 # Mana Crystals — full-story structure and writer brief
 
 This records Philip Spina's approved story structure. It governs the full

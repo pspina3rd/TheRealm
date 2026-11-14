@@ -1,3 +1,5 @@
+> **Current scope (14 November 2026):** Plans A–D below predate the rebuilt Fern opening and removal of enchanted sleep. Keep their superseded mechanisms and rejected Lamplighter history out of new work. [The author decision log](AUTHOR_DECISIONS.md) and [current bible](../WORLD_BIBLE.md) govern. Other protagonists are deferred while Fern is developed.
+
 # Story improvement plans
 
 Detailed plans for the five main problems and four improvement plans in

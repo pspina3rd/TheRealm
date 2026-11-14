@@ -66,6 +66,17 @@ const MEADOW_GROUND = groundMap('cinematic-meadow', [
   '..,.,...,.,..,.',
   ',...,.,...,..,.',
 ]);
+const ROAD_GROUND = groundMap('cinematic-road', [
+  '.,.....=.....,.',
+  '.......=.......',
+  '..,....=....,..',
+  '.......=.......',
+  '.,.....========',
+  '.......=.......',
+  '..,....=....,..',
+  '.......=.......',
+  '.,.....=.....,.',
+]);
 
 const BIRCH: Region = { image: 'story.birch', x: 0, y: 0, w: 64, h: 92 };
 // The cottage, from the pack's village tiles.
@@ -168,12 +179,30 @@ export class CinematicView {
     ctx.clearRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT);
     const lights: Light[] = [];
     if (shot.setting !== 'house')
-      this.drawGround(shot.setting === 'hill' ? HILL_GROUND : MEADOW_GROUND, t);
+      this.drawGround(
+        shot.setting === 'hill'
+          ? HILL_GROUND
+          : shot.setting === 'road'
+            ? ROAD_GROUND
+            : MEADOW_GROUND,
+        t,
+      );
     ctx.save();
     ctx.translate(ORIGIN.x, ORIGIN.y);
     if (shot.setting === 'house') this.drawHouse(shot, t, lights);
     else this.drawOutdoors(shot, t, lights);
     this.drawActors(shot.actors, t, lights);
+    if (shot.runeStone) {
+      // Reuse an unlit pack boulder at hand size. No glow or elemental effect.
+      this.atlas.draw(
+        ctx,
+        { image: 'story.stones', x: 400, y: 80, w: 80, h: 80 },
+        sample(shot.runeStone.x, t) - 8,
+        sample(shot.runeStone.y, t) - 12,
+        16,
+        16,
+      );
+    }
     ctx.restore();
     if (shot.setting === 'memory') this.drawMemoryFrame();
     const darkness = sample(shot.darkness, t);

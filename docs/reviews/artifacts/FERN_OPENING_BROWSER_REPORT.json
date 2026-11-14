@@ -1,0 +1,10 @@
+{
+  "results": [
+    "Skip hands control to a spell-less Fern; ordinary save preserved; movement and reload keep the road position.",
+    "Reading all 30 pages and Skip produce identical saved outcomes.",
+    "393 × 852 touch viewport: no horizontal overflow, 44px controls, Previous/Replay/tap Skip and preview-to-road handoff work.",
+    "Holding Enter cannot repeatedly advance pages; releasing and pressing again works.",
+    "Reduced-motion presentation uses a still scene; visual descriptions remain available to screen readers."
+  ],
+  "errors": []
+}
