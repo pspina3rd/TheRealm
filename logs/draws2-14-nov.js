@@ -12,7 +12,7 @@
  *  - the apprentice's read of what came back is drawn too: nobody tells the
  *    kind from the particular, or fact from opinion, every time (rule 24).
  *
- * Usage: node logs/draws2-14-nov.js
+ * Usage: node logs/draws2-14-nov.js [firstRun lastRun]
  */
 
 const AXES = ['volume', 'signal', 'certainty', 'accuracy', 'openness'];
@@ -98,7 +98,10 @@ function focus(rng) {
   return FOCUS[0][0];
 }
 
-for (let run = 1; run <= 5; run += 1) {
+// Runs 1-5 by default; `node logs/draws2-14-nov.js 6 10` for a later set.
+const first = Number(process.argv[2]) || 1;
+const last = Number(process.argv[3]) || 5;
+for (let run = first; run <= last; run += 1) {
   const rng = seededRng(1500 + run);
   console.log(`\nRun ${run}`);
   console.log(`  opener  her: ${herAnswer(rng)}`);
