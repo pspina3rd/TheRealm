@@ -113,3 +113,16 @@ here goes into the record.
     responds"*, and delivery is inert for the CRM (`settled.md` §2,
     *Targets*). What decides which of the six comes back is not yet ruled
     on.
+
+## Telling the kind from the particular
+
+23. **[P, 14 November]** *"It's about knowing the difference between general
+    and generic, art and a work of art, or fact and opinion."* A name is a
+    kind of thing many can have; the caller is one particular person. So a
+    name search does not return one Sella Brandt, and "one result" is not
+    the same as "exact match".
+24. **[P, 14 November]** *"No one can tell them apart every time, that's
+    the thing."* Not the new apprentice, and not anyone else. **[C]** So it
+    is a draw for every agent: experience makes getting it right more
+    reliable and never certain, which is §9's *reliability, never
+    permission*.
