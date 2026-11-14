@@ -126,3 +126,11 @@ here goes into the record.
     is a draw for every agent: experience makes getting it right more
     reliable and never certain, which is §9's *reliability, never
     permission*.
+25. **[P, 14 November]** A new apprentice should know to check a search
+    result with her before opening it. **[C]** The check is a play.
+26. **[C·ok, 14 November]** For the bag call, a search on her name alone
+    returns multiple results: two Sella Brandts, a Stella Brandt and a
+    Sela Brant, with the wrong Sella Brandt first. Her name with her party
+    returns one result. The number on the bag returns an exact match.
+27. **[C·ok, 14 November]** A new apprentice reads what came back
+    correctly 65 times in 100. A guess, accepted to play with.

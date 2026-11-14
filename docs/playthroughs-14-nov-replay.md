@@ -14,6 +14,9 @@ fresh draws after Phil's corrections of 14 November:
 - **A landing is drawn only for moves aimed at a person.** The record
   simply responds.
 - **The apprentice counts plays left** against the steps still to do.
+- **The apprentice knows to check a search result with her before opening
+  it** (Phil, 14 November: *"They should"*). The check is a play, and they
+  count it among the steps still to do.[^1]
 
 Draws: `logs/draws2-14-nov.js`, output in `logs/draws2-14-nov.txt`. Every
 number in it is my guess. Lines are mine, made up in play to fit the draws,
@@ -186,23 +189,27 @@ about Assign. No next steps.**
 >
 > <sub>her draws: openness high side</sub>
 
-<sub>6 Who·Expand *Pell* · reaches for: what she didn't tell me · flat</sub>
-> **AGENT** Has Pell got an account with us?
-> **SELLA** He's on the party's account. I put him on myself in the spring.
+<sub>6 Who·Contract *name* (record) · four plays left and four steps to do · reads it wrong</sub> — **multiple results:** two Sella Brandts, a Stella Brandt, a Sela Brant. The apprentice supposes the first Sella Brandt is her, and checks.
+
+<sub>7 What·Validate *account* — a guess, checked with her · next step · flat</sub>
+> **AGENT** You have an account in your own name, is that right?
+> **SELLA** No. It's the party's account. The Fairweather party.
 >
-> <sub>her draws: all at her centre</sub>
+> <sub>her draws: all at her centre · the check catches the wrong guess before a play is spent opening it</sub>
 
-<sub>7 Who·Contract *name* (record) · three plays left and three steps to do · reads it wrong</sub> — **multiple results:** two Sella Brandts, a Stella Brandt, a Sela Brant. The apprentice takes the first Sella Brandt to be her.
+<sub>8 What·Expand *profile* (record) · next step · reads it right</sub> — the Fairweather party. *Admin Only — changed last night.* The apprentice puts it together with Pell being shut out, and lets go of the faulty bag.
 
-<sub>8 What·Expand *profile* (record) · next step · reads it right</sub> — an account of her own, no party, no party bag. Not her.
-
-<sub>9 What·Expand *profile* (record) · reads it wrong</sub> — the other Sella Brandt: the Fairweather party. *Admin Only — changed last night.* No plays left, and the apprentice did not see what it meant.
+<sub>9 What·Fix · next step · lands</sub>
+> **AGENT** Since last night the party bag's been set so only you can open it. I've opened it back up, so Pell can take the draught himself.
+> **SELLA** Oh. I think that's what I needed. So he can just take it?
+>
+> <sub>her draws: certainty low side</sub>
 
 > **AGENT** Thank you for contacting TLC, Sella.
-> **SELLA** Is that it? I don't know what I'm meant to do now.
+> **SELLA** Thank you.
 
-**Not fixed. The apprentice went looking for a faulty bag, then lost a
-play on the wrong Sella Brandt.**
+**Fixed on the last play. The apprentice began by looking for a faulty
+bag. Never told about Assign. No next steps.**
 
 ---
 
@@ -242,24 +249,27 @@ play on the wrong Sella Brandt.**
 >
 > <sub>her draws: volume high side, certainty high side, openness high side · baggage: *Pell gets hurt* · read wrong: the apprentice misses "except to look for a way"</sub>
 
-<sub>6 What·Expand *bag* (Bram) · what I didn't understand · critical · reads it right</sub>
-> **AGENT** *(aside)* Bram, would a party bag ever stop opening for its members on its own?
-> **BRAM** Not on its own. Look at the leader's profile, under bag access. If it says Admin Only, that's your answer.
-> **SELLA** I don't know what any of that means.
+<sub>6 Who·Contract *name* (record) · four plays left and four steps to do · reads it right</sub> — **multiple results:** two Sella Brandts, a Stella Brandt, a Sela Brant. The apprentice sees it has to be narrowed.
+
+<sub>7 Who·Expand *party* · next step · lands</sub>
+> **AGENT** Which party are you with?
+> **SELLA** The Fairweather party. One word. I've read it off that account page so many times tonight I could spell it backwards.
 >
-> <sub>her draws: signal low side · critical: Bram says exactly where to look · Bram's line is mine</sub>
+> <sub>her draws: signal **TAIL** low, accuracy high side · mostly noise, and the one thing asked for is exact</sub>
 
-<sub>7 Who·Contract *name* (record) · three plays left and three steps to do · reads it wrong</sub> — **multiple results:** two Sella Brandts, a Stella Brandt, a Sela Brant. The apprentice takes the first Sella Brandt to be her.
+<sub>8 What·Expand *profile* (record) · next step · reads it right</sub> — the Fairweather party. *Admin Only — changed last night.* It contradicts "nothing has changed on my side", and the apprentice goes with the record.
 
-<sub>8 What·Expand *profile* (record) · next step · reads it right</sub> — an account of her own, no party. Not her.
-
-<sub>9 What·Expand *profile* (record) · next step · reads it right</sub> — the other Sella Brandt: the Fairweather party. *Admin Only — changed last night.* Bram's answer, and no plays left to act on it.
+<sub>9 What·Fix · next step · misfire · reads it right</sub>
+> **AGENT** It was on Admin Only. I've taken it off.
+> **SELLA** Is that good?
+>
+> <sub>her draws: volume low side · misfire: the right fix, said in our words and not hers</sub>
 
 > **AGENT** Thank you for contacting TLC, Sella.
-> **SELLA** So nothing's been done.
+> **SELLA** Right.
 
-**Not fixed. The apprentice had the answer from Bram on play six and lost
-the call on the wrong Sella Brandt.**
+**The bag is open again, so Pell can take the draught. She doesn't know
+it. Never told about Assign. No next steps.**
 
 ---
 
@@ -324,34 +334,37 @@ the call on the wrong Sella Brandt.**
 
 ## What happened
 
-**Outcomes:** three fixed (runs 1, 2, 5) and two not (runs 3, 4).
+**Outcomes:** all five ended with the bag open again. How each ended for
+her differs:
 
 - **Run 1:** fixed, and she was blamed for the change.
 - **Run 2:** fixed, and she left sure it was TLC's doing.
+- **Run 3:** fixed, and she half understood it.
+- **Run 4:** fixed, and she doesn't know it.
 - **Run 5:** fixed, with Assign explained, on a critical last play.
-- **Runs 3 and 4:** both lost on the same thing. A search on her name
-  alone returned several people, and the apprentice took the first Sella
-  Brandt for her. That cost the play that would have been the fix.
+
+Only run 5 told her about Assign. None gave her next steps.
 
 **How the search went, by what she was asked for:**
 - **The number on the bag** (runs 1, 2): exact match, straight to her.
 - **Her name with the party** (run 5): one result. It was her; the
-  apprentice didn't check.
-- **Her name alone** (runs 3, 4): multiple results, and the wrong one
-  opened first.
+  apprentice didn't check, and should have.
+- **Her name alone** (runs 3, 4): multiple results, and a play spent
+  checking with her. In run 3 that check caught a wrong guess.
 
 **She stayed herself.** Her facts never moved. Her worry about Pell came
 out in every run. Most of her answers sat inside her usual, leaning one way
-or the other. Six of her answers had a tail in them, and each one was plain
-to see: she poured it all out (runs 1, 4), her worry came out in full
-(run 2), she was flatly certain (runs 2, 4), or she was exact to the letter
-(run 5).
+or the other. Seven of her answers had a tail in them, and each one was
+plain to see: she poured it all out (runs 1, 4), her worry came out in
+full (run 2), she was flatly certain (runs 2, 4), she was exact to the
+letter (run 5), or it was nearly all noise (run 4).
 
 **What the apprentice misread:**
 - **Fact as opinion** (run 1): she hedged something she had seen, and it
   was discounted.
 - **Opinion as fact** (run 4): "nothing has changed on my side", said with
-  complete certainty, sent the apprentice away from her settings.
+  complete certainty, sent the apprentice away from her settings until the
+  record said otherwise.
 - **The particular as the kind** (runs 1, 3): a setting changed last night
   read as how leaders' profiles always look; one thing she couldn't find
   read as a faulty bag.
@@ -361,14 +374,19 @@ When she was certain and wrong, it steered the call twice (runs 2, 4).
 That is the design frame's point that certainty and accuracy do not move
 together, showing up in play.
 
-## What is wrong
+**The cost of a new apprentice is not the fix; it is the ending.** With
+plays counted and results checked, every call reached the fix. Four of
+five then had nothing left to explain it, name Assign, or say what happens
+next.
 
-1. **What the record returns for her name is mine:** two Sella Brandts, a
-   Stella Brandt and a Sela Brant, with the wrong one listed first. Both
-   failures turn on that.
-2. **The apprentice read things right 65 times in 100.** That number is a
-   guess, and it decides a good deal.
-3. **Nobody asked the apprentice to check a result with her before opening
-   it.** A one-line check ("the Fairweather party?") would have saved runs
-   3 and 4, and the design frame calls it the skill: *validate with the
-   customer, then search*. This apprentice never did it unprompted.
+## Phil's rulings, 14 November
+
+1. What a search on her name returns (two Sella Brandts, a Stella Brandt,
+   a Sela Brant; the wrong one first): **Ok.**
+2. The apprentice reads things right 65 times in 100: **Ok.**
+3. Should a new apprentice know to check a result with her before opening
+   it: **"They should."**
+
+[^1]: Runs 3 and 4 were first played without this, and both were lost on
+    the wrong Sella Brandt. Replayed from play six, on the same draws.
+    In run 4 the apprentice no longer has a play to spare for Bram.
