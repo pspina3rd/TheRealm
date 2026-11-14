@@ -1,0 +1,60 @@
+
+Run 1
+  opener  her: signal high
+  play 1  focus: what is most urgent | critical | her: accuracy very high, openness low
+  play 2  focus: what I did not understand | lands | goes back to the same door | her: signal very high, accuracy very low
+  play 3  focus: what is most urgent | flat | her: accuracy very low, openness very high (openness pulls volume up)
+  play 4  focus: what she did not tell me | lands | goes back to the same door | her: openness low
+  play 5  focus: what is most urgent | flat | her: volume very low, accuracy high (volume pulls signal down)
+  play 6  focus: what is most interesting | critical | goes back to the same door | her: certainty high, openness very low
+  play 7  focus: what she did not tell me | flat | her: certainty high, accuracy high
+  play 8  focus: what she did not tell me | flat | her: signal high, accuracy low, openness low
+  play 9  focus: what it told me | flat | her: accuracy low
+
+Run 2
+  opener  her: signal very high, accuracy low
+  play 1  focus: what I did not understand | lands | her: signal high, certainty high
+  play 2  focus: what I did not understand | flat | her: certainty low
+  play 3  focus: what it told me | flat | her: accuracy very high, openness low
+  play 4  focus: what it told me | lands | her: volume low (volume pulls signal down)
+  play 5  focus: what I did not understand | flat | her: volume very high, openness high (openness pulls volume up)
+  play 6  focus: what I did not understand | flat | her: volume high
+  play 7  focus: what is most urgent | lands | her: signal high, certainty high
+  play 8  focus: what I did not understand | flat | goes back to the same door | her: volume low (volume pulls signal down)
+  play 9  focus: what I did not understand | lands | her: volume high, signal high, openness low
+
+Run 3
+  opener  her: volume low, signal low (volume pulls signal down)
+  play 1  focus: what is most urgent | lands | her: signal high, certainty very high, openness high (openness pulls volume up)
+  play 2  focus: what is most concerning | lands | her: signal low
+  play 3  focus: what it told me | lands | her: openness high (openness pulls volume up)
+  play 4  focus: what I did not understand | misfire | her: volume high, openness low
+  play 5  focus: what is most urgent | critical | her: certainty very low
+  play 6  focus: what it told me | misfire | her: signal low, accuracy high
+  play 7  focus: what I did not understand | lands | goes back to the same door | her: certainty high, openness high (openness pulls volume up)
+  play 8  focus: what is most urgent | lands | her: volume very high, certainty high, accuracy very high, openness low
+  play 9  focus: what it told me | flat | her: volume low, signal high, certainty low, openness high (volume pulls signal down; openness pulls volume up)
+
+Run 4
+  opener  her: certainty high, accuracy low, openness high (openness pulls volume up)
+  play 1  focus: what is most urgent | lands | her: all usual
+  play 2  focus: what is most interesting | flat | her: all usual
+  play 3  focus: what I did not understand | lands | goes back to the same door | her: certainty very high
+  play 4  focus: what it told me | flat | her: signal very low, certainty low
+  play 5  focus: what is most urgent | flat | her: openness low
+  play 6  focus: what is most urgent | lands | her: accuracy low
+  play 7  focus: what is most urgent | lands | her: volume very high, certainty low, accuracy very high
+  play 8  focus: what I did not understand | lands | her: signal high, accuracy high, openness low
+  play 9  focus: what I did not understand | flat | her: signal low
+
+Run 5
+  opener  her: volume low, signal very low, openness low (volume pulls signal down)
+  play 1  focus: what I did not understand | flat | her: accuracy low
+  play 2  focus: what is most interesting | lands | her: signal high, accuracy low
+  play 3  focus: what she did not tell me | misfire | her: openness high (openness pulls volume up)
+  play 4  focus: what I did not understand | flat | goes back to the same door | her: volume low, certainty low (volume pulls signal down)
+  play 5  focus: what is most urgent | lands | her: signal low, certainty low, openness very high (volume pulls signal down; openness pulls volume up)
+  play 6  focus: what it told me | flat | her: signal low, accuracy high
+  play 7  focus: what I did not understand | flat | her: certainty low
+  play 8  focus: what I did not understand | flat | her: accuracy very low
+  play 9  focus: what she did not tell me | lands | her: volume high, signal low, certainty high, openness very high (openness pulls volume up)
