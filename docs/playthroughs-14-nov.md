@@ -20,10 +20,9 @@ an answer that turn.
   The fix line is the same every run: it is Y-a's line from 20 October.
 - **Opening:** Phil's, with the agent's name left as his placeholder.
 
-**What varies:** her words only. Her word for the action is *transfer*, from
-her sheet (the cause, `docs/plan-two-causes.md`). It stays the same; the
-words around it change (Phil, 14 November: *"Her character sheet should
-provide the necessary information."*). What she knows is Phil's list of
+**What varies:** her words only, including how she asks for the transfer
+(Phil, 14 November: *"Asking to transfer can be done in a variety of
+alternative manners."*). What she knows is Phil's list of
 16 October, and the bands are as `settled.md` §8 *Fields* words them. Her
 lines are mine, made up in play, and are not canon. Cards follow
 `docs/card-rules.md`.
@@ -41,7 +40,7 @@ Most pressing: what "it" is.
 
 <sub>1 What·Expand *working*</sub>
 > **AGENT** What isn't working for you?
-> **SELLA** The party bag. I can't transfer the draught to Pell's bag, and he can't get into the party bag himself. He's off on a contract in the morning, and it's never done this before.
+> **SELLA** The party bag. I can't get the draught across to Pell's bag, and he can't get into the party bag himself. He's off on a contract in the morning, and it's never done this before.
 
 *Read.* Tells: the bag, a draught, Pell locked out, the morning, never
 before. Doesn't tell: who she is, or since when. Most urgent: the morning.
@@ -55,7 +54,7 @@ Most interesting: "never done this before" means something changed.
 <sub>3 What·Contract *account* (record)</sub> — the Fairweather party; Sella Brandt, party leader.
 
 <sub>4 What·Validate *Pell* — paraphrase</sub>
-> **AGENT** So Pell can't open the party bag, you can't transfer the draught to him, and he's away in the morning.
+> **AGENT** So Pell can't open the party bag, you can't get the draught across to him, and he's away in the morning.
 > **SELLA** That's it, yes.
 >
 > <sub>repetition middle: the first time, fine</sub>
@@ -87,7 +86,7 @@ Don't say so; just fix it.
 
 ## Run 2
 
-> **SELLA** I'm trying to transfer a healing draught to Pell and it won't go.
+> **SELLA** I'm trying to get a healing draught to Pell and it won't go.
 
 *Read.* Tells: a draught, Pell, it won't go. Doesn't tell: go where.
 Didn't understand: "won't go". Most pressing: what happens when she tries.
@@ -145,7 +144,7 @@ Doesn't tell: what she needs it to do. Most interesting: since last night.
 
 <sub>1 What·Contract *bag*</sub>
 > **AGENT** What do you need the bag to do?
-> **SELLA** Let me transfer the draught to Pell. That's all. And he can't even open it to take it himself.
+> **SELLA** Let me give Pell the draught. That's all. And he can't even open it to take it himself.
 
 *Read.* Tells: the draught is for Pell, and Pell is locked out. Doesn't
 tell: when, or who she is. Most pressing: Pell is locked out.
@@ -261,7 +260,7 @@ to get in. Most concerning: it doesn't fit. I've misunderstood something.
 
 <sub>4 What·Validate *bag* — a guess at something she hasn't said</sub>
 > **AGENT** So when you open the party bag, it won't let you in at all?
-> **SELLA** No, I can get in. I can see everything in it. It's Pell who can't. And I can't transfer the draught to him.
+> **SELLA** No, I can get in. I can see everything in it. It's Pell who can't. And I can't move the draught over to him.
 
 *Read.* Tells: Pell, the draught, and she's in fine. Understood now: "can't
 get into" meant she can't make it do what she needs. Most important: Pell
@@ -291,7 +290,6 @@ is locked out.
 ## What held, and what moved
 
 **Held in all five:**
-- **Her word:** *transfer*, every time she names the action.
 - **Her facts:** the party bag, the draught, Pell locked out, the morning,
   and last night. She never said anything outside Phil's list.
 - **Middle repetition:** the first paraphrase was fine every time. The
@@ -311,7 +309,7 @@ is locked out.
 The same agent never made a wrong fix and never ran the same card three
 times in a row, so nothing set them off.
 
-**Corrected before sending:** my first draft had her say "get across",
-"move" and "give" for the action. That hid her word, which is part of the
-cause. Per Phil, it comes from her sheet, so she now says *transfer* every
-time she names the action.
+**How she asked for the transfer:** "get it across", "get it to Pell",
+"give Pell the draught", "the transfer thing", "move it over to him". Five
+wordings, one request. None of them is *Assign*, which is TLC's word, so
+the cause shows whichever way she puts it.
