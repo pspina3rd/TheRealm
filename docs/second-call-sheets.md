@@ -47,18 +47,69 @@ grows*, *It misremembers*, *What gets written back*):
 - **Knows:** nothing new. She still cannot Assign.
 - **Everything else:** as it was. This one is the control.
 
-## The second call, the same for all three
+## What brings each of them back [C] — for Phil to rule on
 
-Cause B from `docs/plan-two-causes.md`, already Phil's: a system update
-three days ago set party bags to Admin Only. Pell can't get into the party
-bag again. This time it is TLC's doing.
+Phil, 15 November: option 5, each sheet decides. The first proposal here
+was one call for all three (the system update). It was withdrawn: it
+treated three different customers as one kind, and the Sella who knows
+Assign might never have rung about it.
 
-- Her profile reads *Party bag access: Admin Only — changed 3 days ago.*
-- Bram: *"There was an update to bags three days ago. A couple of parties
-  have rung since."*
-- The fix: *"Your party bag was set to Admin Only, we switched it back."*
+Common to all three: Pell is going out again in the morning, and she wants
+a draught in his bag before he goes. The agent is a new apprentice again,
+and not the one she had last time.
 
-Why this call: all three versions of her would ring about it, and it turns
-each residue around. The one who was blamed is not at fault this time. The
-one who blames TLC is right this time. The control shows the call with
-nothing carried.
+### After run 1 — she rings braced, about her word alone
+
+- **What she does first:** looks for a way to hand over the draught again.
+  She touches nothing this time, because she was told she changed
+  something.
+- **So the cause is different:** the bag is open and Pell can get in. The
+  only thing wrong is that she is looking for *transfer* and TLC calls it
+  *Assign*.
+- **How she opens:** with what she needs, and that she has not changed
+  anything.
+- **What the record now holds:** a case note from last time, *"Customer
+  set bag access to Admin Only. Reverted."* Assignment history is still
+  nil.
+- **What it tests:** whether the apprentice reads the old note and brings
+  the blame back, and whether she ever gets her word.
+
+### After run 9 — she rings to ask if the fault is mended
+
+- **What she does first:** Assigns the draught to Pell herself. It works.
+- **Why she rings anyway:** she believes TLC's side locked Pell out last
+  time, and he is going out again. She wants to know it will not happen
+  again.
+- **How she opens:** *"Last time, something on your side shut my man out
+  of the party bag. Has that been put right?"*
+- **What the record now holds:** a case note, *"Bag access was Admin Only.
+  Reverted. Showed customer Assign."* No fault logged. One assignment in
+  the history, made today.
+- **What it tests:** `settled.md` §4. Her memory and the record disagree.
+  *"Correct a mistaken memory when being wrong changes what happens next.
+  Let it go when it's only about the past."* And no line may put the error
+  on her.
+
+### After run 10 — it happens again
+
+- **What she does first:** exactly what she did the first time. Nothing
+  was written, so nothing has changed. She hunts for *transfer* and flips
+  the setting again.
+- **So the cause is the same:** her own setting, changed last night, with
+  her word underneath.
+- **How she opens:** much as before. She may add that this happened once
+  already and they sorted it.
+- **What the record now holds:** a case note, *"Bag access Admin Only.
+  Reverted."*, and a profile that reads *Admin Only — changed last night*
+  for the second time.
+- **What it tests:** whether the apprentice sees the pattern in the
+  history, and whether this time she is given the word so it stops.
+
+### What is mine in this
+
+- Pell going out again, as the occasion for all three.
+- The three case notes, and that the earlier apprentice wrote them that
+  way.
+- That the Sella from run 1 touches nothing, and the Sella from run 10
+  does the same as before.
+- That the Sella from run 9 rings for reassurance at all.
