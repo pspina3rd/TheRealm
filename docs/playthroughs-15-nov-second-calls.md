@@ -267,14 +267,26 @@ There will be a third call.**
 - **A coworker can plant something too.** In B it was Bram's aside, which
   she overheard, that turned her round. In A it was Bram who had the word.
 
-## What is wrong
+## Three things I reported as wrong, and Phil's rulings
 
-1. **The case notes were never read in A or C.** Reading the account
-   history is its own play, and this apprentice only went there once, in B.
-   So the pattern in C was missed, and the note in A was neither used nor
-   corrected.
-2. **In A she raised last time's blame and nothing in the rules made the
-   apprentice answer it.** The next play was a lookup.
-3. **The apprentice still cannot connect her word to Assign without Bram
-   or a critical,** even when she says "put one thing in one man's bag".
-   That is from the sheet I proposed, and it decided A and C.
+I listed these as faults. They are not.
+
+1. **The old case note was read in only one call of three.**
+2. **She raised last time's blame and the apprentice's next move was a
+   lookup.**
+
+   Phil, 15 November: *"1 and 2 are actually possible and realistic
+   outcomes."*
+
+3. **The apprentice could not connect her words to Assign without Bram or
+   a critical.**
+
+   Phil: *"3 is a valid choice based on what was available and understood.
+   Is it the play I'd make? Not at all, neither does one person's choice
+   over another's make it more or less valid."*
+
+**What I take from it [C]:** a call that goes imperfectly is the game
+working, not a fault in it. A fault is something that breaks the record or
+the rules, or a line no person would say. A play is valid if it follows
+from what that player had and understood, whoever would have played it
+differently.
