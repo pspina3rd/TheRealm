@@ -72,8 +72,8 @@ engine, which is untouched. For one move aimed at her it works out the
 shape of her answer from her sheet and a draw: how much she says, which of
 the things she knows she hands over, how sure and how exact she is, and
 what the move set off in her (a repeat, a pattern, being brushed off, her
-baggage, a belief, what a fix leaves her doing). No words. 17 tests;
-the whole suite is 410 passing, and lint is clean.
+baggage, a belief, what a fix leaves her doing). No words. 19 tests;
+the whole suite passes and lint is clean.
 
 **How it was checked:** `scripts/answerShapes.js` plays the moves of three
 of the hand-played calls (runs 1, 2 and 4 of the replay) for Sheet X and
@@ -103,7 +103,7 @@ the same draw, which is also what the hand runs showed.
 | | New module | Original engine |
 |---|---|---|
 | Does her sheet change her answers? | 54% of answers differ between X and Y | 22% differ, and only in which answer she gives |
-| Does her baggage come out during a call? | 74% of calls | 0% |
+| Does her baggage come out during a call? | 72% of calls | 0% |
 | Say her words back, or ask twice: does it show? | 50% (always on X; not the first time on Y, as her sheet says) | 8% |
 
 ### Four faults found by reading the output, fixed before this was written
@@ -111,11 +111,30 @@ the same draw, which is also what the hand runs showed.
 The tests passed with all four in. Reading the printed shapes as the
 person on the call found them:
 
-1. Asked her name, she gave the transfer and not her name.
+1. Asked her name, she gave the transfer and not her name. **This one was
+   not a fault; see the correction below.**
 2. Moving on from her name counted as changing the subject on her.
 3. A different question about the bag counted as a repeat.
 4. A fix was reported as her "giving nothing useful", when she had not
    been asked for anything.
+
+### Correction, 15 November: fault 1 was not a fault
+
+Phil: *"Can people ignore a question and state something else? Then why
+wouldn't someone ignore the question and proceed with talking about their
+problem?"*
+
+They can, and she would. The record already says she answers from her own
+card, which need not be the one asked (`settled.md` §2, *Her side,
+mirrored*), and in the hand-played run 3 she did exactly this. My "fix"
+made her give her name every time, which took a real behaviour away.
+
+**Changed:** asked who she is, she now either answers or leaves the
+question and carries on with her problem. It is a draw. The odds are mine:
+one time in four as a rule; six in ten for a customer who prefers digging
+whose last point has not been answered yet; a little more when she is
+notably open. A question about her problem is never left, because there
+the question and her own point are the same thing.
 
 ### Verdict
 

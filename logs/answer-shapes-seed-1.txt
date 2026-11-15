@@ -5,40 +5,40 @@ run 1 (ends in blame)
     X    says three or four sentences · gives cannot-transfer, pell-shut-out, leaves-in-the-morning · baggage: no-one-told-her
     Y    says three or four sentences · gives cannot-transfer, pell-shut-out, leaves-in-the-morning · baggage: pell-gets-hurt
   AGENT  Can I take your name?
-    X    says a few words · gives her-name
-    Y    says a few words · gives her-name
+    X    says three or four sentences · leaves the question and carries on with her problem · gives cannot-transfer, pell-shut-out, leaves-in-the-morning, never-a-problem-before · hedged · loosely put
+    Y    says three or four sentences · leaves the question and carries on with her problem · gives cannot-transfer, pell-shut-out, leaves-in-the-morning, never-a-problem-before · hedged · loosely put
   AGENT  Have you transferred anything to Pell before?
-    X    says a sentence or two · gives nothing useful
-    Y    says a sentence or two · gives nothing useful
+    X    says a few words · gives cannot-transfer · loosely put
+    Y    says a few words · gives cannot-transfer · loosely put
   AGENT  So you have never transferred anything before... (paraphrase)
-    X    says a few words · gives cannot-transfer · not listening
-    Y    says a sentence or two · gives cannot-transfer, at-it-since-last-night · fine
+    X    says a sentence or two · gives cannot-transfer, at-it-since-last-night · loosely put · not listening
+    Y    says a sentence or two · gives cannot-transfer, at-it-since-last-night · loosely put · fine
   AGENT  Is anyone else in your party able to get into the bag?
-    X    says a sentence or two · gives cannot-transfer, pell-shut-out · exact
-    Y    says a sentence or two · gives cannot-transfer, pell-shut-out · exact
+    X    says a sentence or two · gives cannot-transfer, pell-shut-out, never-a-problem-before · exact
+    Y    says a sentence or two · gives cannot-transfer, pell-shut-out, never-a-problem-before · exact
   AGENT  It looks like you changed the bag... (the fix, said as blame)
-    X    says runs on · lets them off · puts it on the company
-    Y    says three or four sentences · gets short · turns on the agent
+    X    says three or four sentences · baggage: no-one-told-her · lets them off · puts it on the company
+    Y    says a sentence or two · baggage: pell-gets-hurt · gets short · turns on the agent
 
 run 2 (three misfires)
   AGENT  What do you mean by transfer?
     X    says three or four sentences · gives cannot-transfer, at-it-since-last-night, pell-shut-out · baggage: no-one-told-her
     Y    says three or four sentences · gives cannot-transfer, at-it-since-last-night, pell-shut-out · baggage: pell-gets-hurt
   AGENT  What happens when Pell tries the party bag?
-    X    says a few words · gives cannot-transfer
-    Y    says a few words · gives cannot-transfer
+    X    says three or four sentences · gives cannot-transfer, pell-shut-out, never-a-problem-before, leaves-in-the-morning · hedged · loosely put
+    Y    says three or four sentences · gives cannot-transfer, pell-shut-out, never-a-problem-before, leaves-in-the-morning · hedged · loosely put
   AGENT  So has something happened to the bag, or... (fishing)
-    X    says a sentence or two · gives nothing useful · lets them off
-    Y    says a sentence or two · gives nothing useful · gets short
+    X    says a few words · gives cannot-transfer · loosely put · lets them off
+    Y    says a few words · gives cannot-transfer · loosely put · gets short
   AGENT  Why does it need to be Pell who has it?
-    X    says a few words · gives pell-shut-out, leaves-in-the-morning · brushed off
-    Y    says a few words · gives pell-shut-out, leaves-in-the-morning · baggage: pell-gets-hurt · brushed off
+    X    says a sentence or two · gives pell-shut-out, leaves-in-the-morning, cannot-transfer · loosely put
+    Y    says a sentence or two · gives pell-shut-out, leaves-in-the-morning, cannot-transfer · loosely put · baggage: pell-gets-hurt
   AGENT  I completely understand. So Pell needs the draught. (stock paraphrase)
-    X    says a sentence or two · gives pell-shut-out, leaves-in-the-morning · exact · not listening · hears the stock line
-    Y    says a sentence or two · gives pell-shut-out, leaves-in-the-morning · exact · fine · gets short
+    X    says a sentence or two · gives pell-shut-out, leaves-in-the-morning, cannot-transfer · exact · not listening · hears the stock line
+    Y    says a sentence or two · gives pell-shut-out, leaves-in-the-morning, cannot-transfer · exact · fine · gets short
   AGENT  Can I take your order number? (wrong thing asked for)
-    X    says runs on · gives her-number, cannot-transfer, pell-shut-out, leaves-in-the-morning · lets them off
-    Y    says three or four sentences · gives her-number, cannot-transfer · gets short
+    X    says three or four sentences · leaves the question and carries on with her problem · gives cannot-transfer, pell-shut-out, leaves-in-the-morning · baggage: no-one-told-her · lets them off
+    Y    says a sentence or two · leaves the question and carries on with her problem · gives cannot-transfer, pell-shut-out · baggage: pell-gets-hurt · gets short
   AGENT  Your party bag was changed to Admin Only... (the fix)
     X    says a sentence or two
     Y    says a sentence or two
@@ -48,20 +48,20 @@ run 4 (a fix she is not told the meaning of)
     X    says three or four sentences · gives cannot-transfer, pell-shut-out, leaves-in-the-morning · baggage: no-one-told-her
     Y    says three or four sentences · gives cannot-transfer, pell-shut-out, leaves-in-the-morning · baggage: pell-gets-hurt
   AGENT  When you say transfer, what are you looking for?
-    X    says a few words · gives nothing useful
-    Y    says a few words · gives nothing useful
+    X    says three or four sentences · gives cannot-transfer, at-it-since-last-night, pell-shut-out · hedged · loosely put
+    Y    says three or four sentences · gives cannot-transfer, at-it-since-last-night, pell-shut-out · hedged · loosely put
   AGENT  Can I take your name?
-    X    says a sentence or two · gives her-name
-    Y    says a sentence or two · gives her-name
+    X    says a few words · gives her-name · loosely put
+    Y    says a few words · gives her-name · loosely put
   AGENT  Has anything changed, as far as you know?
-    X    says a few words · gives cannot-transfer · states nothing-changed-on-her-side (sure, right) · brushed off
-    Y    says a few words · gives cannot-transfer · states nothing-changed-on-her-side (sure, wrong) · brushed off
+    X    says a sentence or two · gives cannot-transfer, pell-shut-out · loosely put · states nothing-changed-on-her-side (sure, right)
+    Y    says a sentence or two · gives cannot-transfer, pell-shut-out · loosely put · states nothing-changed-on-her-side (sure, wrong)
   AGENT  So everyone could open it until now... (paraphrase)
-    X    says a sentence or two · gives cannot-transfer, pell-shut-out · exact · not listening
-    Y    says a sentence or two · gives cannot-transfer, pell-shut-out · exact · fine
+    X    says a sentence or two · gives cannot-transfer, pell-shut-out, never-a-problem-before · exact · not listening
+    Y    says a sentence or two · gives cannot-transfer, pell-shut-out, never-a-problem-before · exact · fine
   AGENT  Which party are you with?
-    X    says runs on · gives her-party, cannot-transfer, pell-shut-out, leaves-in-the-morning
-    Y    says runs on · gives her-party, cannot-transfer, pell-shut-out, leaves-in-the-morning
+    X    says three or four sentences · leaves the question and carries on with her problem · gives cannot-transfer, pell-shut-out, leaves-in-the-morning · baggage: no-one-told-her
+    Y    says three or four sentences · leaves the question and carries on with her problem · gives cannot-transfer, pell-shut-out, leaves-in-the-morning · baggage: pell-gets-hurt
   AGENT  It was on Admin Only. I have taken it off. (the fix, in our words)
     X    says a sentence or two · lets them off · thanks them and rings off
     Y    says a sentence or two · gets short · asks what it means
@@ -71,7 +71,7 @@ The same three measures
     new module       54% of answers differ between X and Y (1000 seeds, three calls each)
     original engine  22% of answers differ between the two kinds of baggage (6 seeds, one call each)
   Does her baggage come out during a call?
-    new module       74% of calls
+    new module       72% of calls
     original engine  0% of calls
   Say her own words back, or ask the same thing twice: does it show?
     new module       50% of the time

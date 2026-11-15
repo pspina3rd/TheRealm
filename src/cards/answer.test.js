@@ -188,15 +188,43 @@ test('she only ever gives what she knows, nearest the question first, and no mor
   assert.strictEqual(critical.gives.length, Math.min(KNOWS.length, lands.gives.length + 1));
 });
 
-test('asked who she is, she says so first, even at her shortest', () => {
-  for (let seed = 1; seed <= 200; seed++) {
-    for (const subject of ['name', 'number', 'party', 'account']) {
-      const s = shape(Y, ask('who', 'expand', subject), [], seed, { volume: -4, signal: -4 });
-      assert.deepStrictEqual(s.gives, [`her-${subject}`]);
+test('asked who she is, she usually says so, and sometimes carries on with her problem', () => {
+  const name = ask('who', 'expand', 'name');
+  const share = (sheet, history, shift = {}) => {
+    let own = 0;
+    for (let seed = 1; seed <= 2000; seed++) {
+      const s = shape(sheet, name, history, seed, shift);
+      if (s.takes === 'her own point') {
+        own++;
+        // Leaving the question, she gives only her problem.
+        assert.ok(s.gives.every((g) => !g.startsWith('her-')));
+      } else {
+        assert.strictEqual(s.takes, 'the question');
+        assert.strictEqual(s.gives[0], 'her-name');
+      }
     }
-    const open = shape(Y, ask('who', 'expand', 'name', { landing: 'critical' }), [], seed);
-    assert.strictEqual(open.gives[0], 'her-name');
+    return own / 2000;
+  };
+  const usual = share(Y, []);
+  assert.ok(usual > 0.2 && usual < 0.34, `usual ${usual}`);
+  // A digger whose last point got nothing out of her yet stays on it more often.
+  const unanswered = [past(ask('what', 'contract', 'bag'), 'a sentence or two', null, [])];
+  const pending = share(Y, unanswered);
+  assert.ok(pending > 0.55 && pending < 0.7, `pending ${pending}`);
+  // That is the digger's doing: a sheet that casts wide is as usual.
+  assert.ok(Math.abs(share(Z, unanswered) - share(Z, [])) < 0.03);
+  // Full of it, she is likelier still to go her own way.
+  assert.ok(share(Y, [], { openness: 6 }) > usual + 0.1);
+});
+
+test('a question about her problem is never left, and a fix has nothing to take', () => {
+  for (let seed = 1; seed <= 200; seed++) {
+    assert.strictEqual(shape(Y, ask('what', 'contract', 'bag'), [], seed).takes, 'the question');
   }
+  assert.strictEqual(shape(Y, { kind: 'fix' }).takes, null);
+  const left = Array.from({ length: 50 }, (_, i) => shape(Y, ask('who', 'expand', 'name'), [], i + 1))
+    .find((s) => s.takes === 'her own point');
+  assert.ok(left && describeShape(left).includes('carries on with her problem'));
 });
 
 test('two sheets differ only where the sheets differ', () => {

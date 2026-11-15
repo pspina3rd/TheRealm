@@ -43,6 +43,16 @@ const PULLS = Object.freeze([
   { from: 'openness', to: 'signal', low: -0.15, high: -0.15 },
 ]);
 
+/**
+ * How often, asked who she is, she leaves the question and carries on with
+ * her problem. She answers from her own card, which need not be the one
+ * asked (settled.md section 2, Her side, mirrored), and she is the one with
+ * the problem. `pending` is for a customer who prefers digging whose last
+ * point got no answer out of her yet; `open` is added when she is notably
+ * open. Guesses.
+ */
+const OWN_WAY = Object.freeze({ usual: 0.25, pending: 0.6, open: 0.15 });
+
 /** How far a reaction on her sheet moves her volume, in spreads. */
 const DROP = Object.freeze({ repeat: 1, reach: 1, short: 0.5 });
 
@@ -253,12 +263,28 @@ function afterFix(sheet, move, history) {
   return null;
 }
 
+/**
+ * Whether she answers what was asked or carries on with her own problem.
+ * Only a question about who she is can be left like this: a question on
+ * her problem and her own point are the same thing.
+ */
+function whatSheTakes(sheet, move, history, counts, draw) {
+  if (!move.subject) return null;
+  if (!IDENTIFIES.includes(move.subject)) return 'the question';
+  const onPoint = history.filter((h) => h.move.subject && !IDENTIFIES.includes(h.move.subject));
+  const last = onPoint[onPoint.length - 1];
+  const pending = sheet.reach === 'digging' && last && last.shape.gives.length === 0;
+  const odds = (pending ? OWN_WAY.pending : OWN_WAY.usual) + (counts.openness > 1 ? OWN_WAY.open : 0);
+  return draw < odds ? 'her own point' : 'the question';
+}
+
 /** The things she knows that this answer has room for, nearest first. */
-function handsOver(move, says, counts, landing) {
+function handsOver(move, says, counts, landing, takes) {
   // A fix is something said to her; she is not being asked for anything.
   if (!move.subject) return [];
-  // Asked who she is, she says so first, whatever else there is room for.
-  const asked = IDENTIFIES.includes(move.subject) ? [`her-${move.subject}`] : [];
+  // Asked who she is, and answering, she says so first.
+  const answers = takes === 'the question' && IDENTIFIES.includes(move.subject);
+  const asked = answers ? [`her-${move.subject}`] : [];
   const near = KNOWS.filter((k) => k.about.includes(move.subject));
   const rest = KNOWS.filter((k) => !near.includes(k));
   const signal = band(counts.signal);
@@ -284,7 +310,9 @@ function handsOver(move, says, counts, landing) {
  * @param {() => number} [args.rng] injected; defaults to Math.random
  * @param {Object<string, number>} [args.shift] see drawCounts
  * @returns {object} counts and their bands; `says`; `asked` (false when
- *   the move was a fix said to her, not a question); `gives`; `hedged`,
+ *   the move was a fix said to her, not a question); `takes` ('the
+ *   question', or 'her own point' when she leaves it and carries on with
+ *   her problem); `gives`; `hedged`,
  *   `flat`, `loose`, `misleading`, `exact`; and what the move set off:
  *   `repeat`, `pattern`, `reach`, `towardAgent`, `baggage`, `belief`,
  *   `afterFix`. Anything not set off is null or false.
@@ -306,13 +334,16 @@ function shapeAnswer({ sheet, move, history = [], rng = Math.random, shift = {} 
   const bands = {};
   for (const count of COUNTS) bands[count] = band(counts[count]);
   const says = SAYS[bands.volume];
+  // Drawn on every move, used or not, so two sheets stay on the same draws.
+  const takes = whatSheTakes(sheet, move, history, counts, rng());
 
   return {
     counts,
     bands,
     says,
     asked: Boolean(move.subject),
-    gives: handsOver(move, says, counts, landing),
+    takes,
+    gives: handsOver(move, says, counts, landing, takes),
     hedged: counts.certainty < -1,
     flat: counts.certainty > 1,
     loose: counts.accuracy < -1,
@@ -351,6 +382,7 @@ function shapeCall({ sheet, moves, rng, shift = {} }) {
  */
 function describeShape(shape) {
   const parts = [`says ${shape.says}`];
+  if (shape.takes === 'her own point') parts.push('leaves the question and carries on with her problem');
   if (shape.asked) parts.push(shape.gives.length ? `gives ${shape.gives.join(', ')}` : 'gives nothing useful');
   if (shape.hedged) parts.push('hedged');
   if (shape.flat) parts.push('flatly sure');
