@@ -1,0 +1,58 @@
+
+the bag call · seed 2
+
+SELLA  It isn't working.
+
+  9 of nine turns left. In front of you, and how you can ask:
+    1. what isn't working          what (expand contract validate)
+    (id asks her for something to search on)
+
+your turn> what expand 1
+YOU    Tell me what's happening.
+SELLA  I'm trying to get a draught out of the bag to one of my party, and
+       it won't go. It just sits there.
+
+  8 of nine turns left. In front of you, and how you can ask:
+    1. what isn't working          what (expand contract validate)
+    2. the draught                 what (expand contract validate)
+    3. where the draught is        what (expand contract validate)
+    4. the bag                     what (expand contract validate)
+    5. the party                   who (expand) · what (expand contract)
+    6. who it's for                who (expand contract)
+    7. what you tried              what (expand contract validate) · how (expand contract)
+    (id asks her for something to search on)
+
+your turn> who expand 6
+YOU    Who's it for?
+SELLA  Pell. He's the one who takes the hits, so he ought to be the one
+       carrying it.
+
+  7 of nine turns left. In front of you, and how you can ask:
+    1. what isn't working          what (expand contract validate)
+    2. the draught                 what (expand contract validate)
+    3. where the draught is        what (expand contract validate)
+    4. the bag                     what (expand contract validate)
+    5. the party                   who (expand) · what (expand contract)
+    6. who it's for                who (expand contract validate)
+    7. what you tried              what (expand contract validate) · how (expand contract)
+    (id asks her for something to search on)
+
+your turn> what contract 7
+YOU    What did you try first?
+SELLA  The only thing I could think to try. I've done it four times now.
+       I've been at this since last night thinking I was doing something
+       stupid.
+       (No longer in front of you: what isn't working)
+
+  6 of nine turns left. In front of you, and how you can ask:
+    1. the draught                 what (expand contract validate)
+    2. where the draught is        what (expand contract validate)
+    3. the bag                     what (expand contract validate)
+    4. the party                   who (expand) · what (expand contract)
+    5. who it's for                who (expand contract validate)
+    6. what you tried              what (expand contract validate) · how (expand contract)
+    7. when it started             when (expand contract)
+    (id asks her for something to search on)
+
+your turn> what validate 4
+  There is no what validate question for the party yet. Try one of the ones listed.
