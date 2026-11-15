@@ -127,10 +127,20 @@ Runs 1–5 are `docs/playthroughs-14-nov-replay.md`; runs 6–10 are
 2. **From TLC's seat, eight of the ten calls are not finished.** The bag
    is open, but she still cannot Assign, so the same need will bring her
    back. Only runs 5 and 9 close it.
-3. **That may be the repeat calling.** Phil's list of 16 October says she
-   does not know she has called repeatedly. A call that fixes the symptom
-   and never gives her the word is exactly how that would come about. This
-   link is mine and unconfirmed.
+3. **The ten runs are one call played ten times, not ten calls in a
+   row.**[^1] She is held the same in each so the sheet can be tested. In
+   the game her sheet would grow from call to call, like a character in a
+   long campaign, so each ending above is a different place her second
+   call would start from.
 4. **The agent never learns what it planted.** In no run does the agent's
    seat show the mark left on hers. That is `settled.md` §4: the game
    never confirms it.
+
+[^1]: I first wrote here that fixing the symptom without giving her the
+    word might be why "she does not know she has called repeatedly"
+    (Phil's list, 16 October). Wrong. Phil, 15 November: that line was
+    *"keeping the customer variable the same across multiple runs"*. He did
+    not want the sheet carried across the runs, because it *"would be
+    growing like a rpg character would from interaction to interaction,
+    it's like a multi-year long campaign. If the NPCs didn't grow and
+    evolve the story would be boring."*

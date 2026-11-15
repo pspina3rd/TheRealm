@@ -17,6 +17,9 @@ same call, about the same issue.*
 What Sella knows, and does not know, on this call:
 
 - She does **not** know she has called repeatedly.
+  *(Phil, 15 November: this is a test device, not part of her story. It
+  keeps the customer the same across runs. In the game her sheet grows
+  from call to call, like a character in a long campaign.)*
 - She does **not** know the cause.
 - She does **not** know the effect.
 - She knows she can't transfer an item from the party bag to Pell's bag.
