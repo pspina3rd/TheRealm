@@ -53,6 +53,28 @@ const PULLS = Object.freeze([
  */
 const OWN_WAY = Object.freeze({ usual: 0.25, pending: 0.6, open: 0.15 });
 
+/**
+ * How often a second question on the same word, put a different way, is
+ * heard by her as the same question again, by her tolerance for repetition.
+ * The agent hears two questions; whether it is a repeat is hers to decide.
+ * Guesses.
+ */
+const SAME_WORD = Object.freeze({ low: 0.7, middle: 0.3, high: 0.3 });
+
+/**
+ * How often a customer who prefers digging feels brushed off when asked who
+ * she is in the middle of her problem: `usual` when she had just been
+ * talking about it, `pending` when the last question on it had got nothing
+ * out of her yet. Guesses.
+ */
+const NAME_MID_PROBLEM = Object.freeze({ usual: 0.3, pending: 0.6 });
+
+/**
+ * How often she comes back with something of her own after a fix has been
+ * said to her. She also does whenever her signal is running high. Guess.
+ */
+const VOLUNTEERS_AFTER_FIX = 0.3;
+
 /** How far a reaction on her sheet moves her volume, in spreads. */
 const DROP = Object.freeze({ repeat: 1, reach: 1, short: 0.5 });
 
@@ -162,20 +184,26 @@ function applyPulls(counts) {
   return z;
 }
 
-/** True when this move goes back over something already asked or said. */
-function isRepeat(move, history) {
+/**
+ * True when she hears this move as going back over something. Her own
+ * words said back to her always are, and so is the same card on the same
+ * word. The same word asked a different way is a repeat only if she hears
+ * it as one, which is a draw against her tolerance.
+ */
+function isRepeat(sheet, move, history, draw) {
   if (move.kind === 'paraphrase') return true;
-  // The same card on the same word. A different angle on it is a new question.
-  return history.some((h) => h.move.kind === 'question' && move.kind === 'question'
-    && h.move.suit === move.suit && h.move.angle === move.angle && h.move.subject === move.subject);
+  if (move.kind !== 'question') return false;
+  const before = history.filter((h) => h.move.kind === 'question' && h.move.subject === move.subject);
+  if (before.some((h) => h.move.suit === move.suit && h.move.angle === move.angle)) return true;
+  return before.length > 0 && draw < SAME_WORD[sheet.repetition];
 }
 
 /**
  * What going back over something does to her, from her tolerance for
  * repetition (settled.md section 8).
  */
-function repeatReaction(sheet, move, history) {
-  if (!isRepeat(move, history)) return null;
+function repeatReaction(sheet, move, history, draw) {
+  if (!isRepeat(sheet, move, history, draw)) return null;
   const nth = history.filter((h) => h.shape.repeat).length + 1;
   if (sheet.repetition === 'low') return 'not listening';
   if (sheet.repetition === 'high') return 'settled';
@@ -204,11 +232,18 @@ function patternReaction(sheet, move, history) {
 
 /**
  * Depth or breadth. Digging: a change of subject before the last one was
- * answered feels like being brushed off. Casting wide: a third inquiry
- * running on one subject feels stuck. Asking who she is counts as neither.
+ * answered feels like being brushed off, and so can being asked who she is
+ * in the middle of her problem. Casting wide: a third inquiry running on one
+ * subject feels stuck.
  */
-function reachReaction(sheet, move, history) {
-  const onPoint = (m) => m.subject && !IDENTIFIES.includes(m.subject);
+function reachReaction(sheet, move, history, draw) {
+  const onPoint = (m) => Boolean(m.subject) && !IDENTIFIES.includes(m.subject);
+  if (IDENTIFIES.includes(move.subject)) {
+    const last = history[history.length - 1];
+    if (sheet.reach !== 'digging' || !last || !onPoint(last.move)) return null;
+    const odds = last.shape.gives.length === 0 ? NAME_MID_PROBLEM.pending : NAME_MID_PROBLEM.usual;
+    return draw < odds ? 'brushed off' : null;
+  }
   const asked = history.filter((h) => onPoint(h.move));
   const prev = asked[asked.length - 1];
   if (!prev || !onPoint(move)) return null;
@@ -243,9 +278,13 @@ function baggageSurfaces(sheet, move, counts) {
   return subjects.includes(move.subject) && trigger.suits.includes(move.suit);
 }
 
-/** A belief she states when asked near it, and whether she is right. */
+/**
+ * A belief she states when asked near it, or when told she changed
+ * something, and whether she is right.
+ */
 function beliefStated(sheet, move, counts) {
-  const belief = BELIEVES.find((b) => b.about.includes(move.subject));
+  const subject = move.kind === 'blame' ? 'changed' : move.subject;
+  const belief = BELIEVES.find((b) => b.about.includes(subject));
   if (!belief) return null;
   const right = sheet.causes.includes(belief.rightWhen) && !sheet.causes.includes(belief.wrongWhen);
   return { id: belief.id, right, sure: counts.certainty > -1 };
@@ -279,13 +318,15 @@ function whatSheTakes(sheet, move, history, counts, draw) {
 }
 
 /** The things she knows that this answer has room for, nearest first. */
-function handsOver(move, says, counts, landing, takes) {
-  // A fix is something said to her; she is not being asked for anything.
-  if (!move.subject) return [];
+function handsOver(move, says, counts, landing, takes, volunteers) {
+  // A fix is something said to her; she is not being asked for anything,
+  // and what she comes back with, if she does, starts from her own night.
+  if (!move.subject && !volunteers) return [];
+  const subject = move.subject || 'account';
   // Asked who she is, and answering, she says so first.
   const answers = takes === 'the question' && IDENTIFIES.includes(move.subject);
   const asked = answers ? [`her-${move.subject}`] : [];
-  const near = KNOWS.filter((k) => k.about.includes(move.subject));
+  const near = KNOWS.filter((k) => k.about.includes(subject));
   const rest = KNOWS.filter((k) => !near.includes(k));
   const signal = band(counts.signal);
   const lift = { 'tail low': -ROOM[says], 'low side': -1, usual: 0, 'high side': 1, 'tail high': 1 }[signal];
@@ -312,7 +353,8 @@ function handsOver(move, says, counts, landing, takes) {
  * @returns {object} counts and their bands; `says`; `asked` (false when
  *   the move was a fix said to her, not a question); `takes` ('the
  *   question', or 'her own point' when she leaves it and carries on with
- *   her problem); `gives`; `hedged`,
+ *   her problem); `volunteers` (true when she comes back with something
+ *   of her own after a fix); `gives`; `hedged`,
  *   `flat`, `loose`, `misleading`, `exact`; and what the move set off:
  *   `repeat`, `pattern`, `reach`, `towardAgent`, `baggage`, `belief`,
  *   `afterFix`. Anything not set off is null or false.
@@ -320,8 +362,10 @@ function handsOver(move, says, counts, landing, takes) {
 function shapeAnswer({ sheet, move, history = [], rng = Math.random, shift = {} }) {
   const landing = move.landing || 'lands';
   const drawn = drawCounts(rng, shift);
-  const repeat = repeatReaction(sheet, move, history);
-  const reach = reachReaction(sheet, move, history);
+  // Drawn on every move, used or not, so two sheets stay on the same draws.
+  const draw = { takes: rng(), repeat: rng(), reach: rng(), volunteers: rng() };
+  const repeat = repeatReaction(sheet, move, history, draw.repeat);
+  const reach = reachReaction(sheet, move, history, draw.reach);
   const toward = towardAgent(sheet, { ...move, landing });
 
   // Her sheet's reactions take words away before the answer is sized.
@@ -334,8 +378,8 @@ function shapeAnswer({ sheet, move, history = [], rng = Math.random, shift = {} 
   const bands = {};
   for (const count of COUNTS) bands[count] = band(counts[count]);
   const says = SAYS[bands.volume];
-  // Drawn on every move, used or not, so two sheets stay on the same draws.
-  const takes = whatSheTakes(sheet, move, history, counts, rng());
+  const takes = whatSheTakes(sheet, move, history, counts, draw.takes);
+  const volunteers = !move.subject && (draw.volunteers < VOLUNTEERS_AFTER_FIX || counts.signal > 1);
 
   return {
     counts,
@@ -343,7 +387,8 @@ function shapeAnswer({ sheet, move, history = [], rng = Math.random, shift = {} 
     says,
     asked: Boolean(move.subject),
     takes,
-    gives: handsOver(move, says, counts, landing, takes),
+    volunteers,
+    gives: handsOver(move, says, counts, landing, takes, volunteers),
     hedged: counts.certainty < -1,
     flat: counts.certainty > 1,
     loose: counts.accuracy < -1,
@@ -384,6 +429,7 @@ function describeShape(shape) {
   const parts = [`says ${shape.says}`];
   if (shape.takes === 'her own point') parts.push('leaves the question and carries on with her problem');
   if (shape.asked) parts.push(shape.gives.length ? `gives ${shape.gives.join(', ')}` : 'gives nothing useful');
+  if (shape.volunteers && shape.gives.length) parts.push(`volunteers ${shape.gives.join(', ')}`);
   if (shape.hedged) parts.push('hedged');
   if (shape.flat) parts.push('flatly sure');
   if (shape.misleading) parts.push('misleading');

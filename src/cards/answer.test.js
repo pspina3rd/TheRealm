@@ -61,15 +61,35 @@ test('repetition: middle is fine, then wears thin, then notices; low hears not l
   assert.deepStrictEqual(react({ ...Y, repetition: 'high' }), ['settled', 'settled', 'settled']);
 });
 
-test('the same question twice is a repeat; a new question or a guess is not', () => {
+test('the same card on the same word is always a repeat; a new word or a guess never is', () => {
   const first = ask('what', 'contract', 'bag');
   const history = [past(first)];
-  assert.strictEqual(shape(X, first, history).repeat, 'not listening');
-  assert.strictEqual(shape(X, ask('what', 'contract', 'draught'), history).repeat, null);
-  assert.strictEqual(shape(X, ask('who', 'contract', 'bag'), history).repeat, null);
-  // A different angle on the same word is a new question, not a repeat.
-  assert.strictEqual(shape(X, ask('what', 'random', 'bag'), history).repeat, null);
-  assert.strictEqual(shape(X, { ...first, kind: 'guess' }, history).repeat, null);
+  for (let seed = 1; seed <= 100; seed++) {
+    assert.strictEqual(shape(X, first, history, seed).repeat, 'not listening');
+    assert.strictEqual(shape(X, ask('what', 'contract', 'draught'), history, seed).repeat, null);
+    assert.strictEqual(shape(X, { ...first, kind: 'guess' }, history, seed).repeat, null);
+    // With nothing asked before, there is nothing to repeat.
+    assert.strictEqual(shape(X, ask('what', 'random', 'bag'), [], seed).repeat, null);
+  }
+});
+
+test('the same word asked a different way is a repeat only if she hears it as one', () => {
+  const history = [past(ask('what', 'contract', 'bag'))];
+  const heard = (sheet, move) => {
+    let n = 0;
+    for (let seed = 1; seed <= 2000; seed++) if (shape(sheet, move, history, seed).repeat) n++;
+    return n / 2000;
+  };
+  // A new angle, or a new suit, on the word she has already been asked about.
+  for (const move of [ask('what', 'random', 'bag'), ask('who', 'contract', 'bag')]) {
+    const low = heard(X, move);
+    const middle = heard(Y, move);
+    assert.ok(low > 0.64 && low < 0.76, `low tolerance ${low}`);
+    assert.ok(middle > 0.25 && middle < 0.35, `middle tolerance ${middle}`);
+  }
+  // When she does hear it, it is her sheet's reaction and no other.
+  const one = Array.from({ length: 40 }, (_, k) => shape(X, ask('what', 'random', 'bag'), history, k + 1)).find((x) => x.repeat);
+  assert.strictEqual(one.repeat, 'not listening');
 });
 
 test('a repeat that wears on her takes words away; one she is fine with does not', () => {
@@ -101,9 +121,8 @@ test('reach: digging is brushed off by a switch before she has answered; wide is
   assert.strictEqual(shape(Y, pell, [unanswered]).reach, 'brushed off');
   assert.strictEqual(shape(Y, pell, [past(bag, 'a few words')]).reach, null);
   assert.strictEqual(shape(Y, bag, [unanswered]).reach, null);
-  // Asking who she is opens no thread and closes none.
+  // Her name in between does not answer her point for her.
   const name = ask('who', 'expand', 'name');
-  assert.strictEqual(shape(Y, name, [unanswered]).reach, null);
   assert.strictEqual(shape(Y, pell, [unanswered, past(name, 'a few words', null, [])]).reach, 'brushed off');
   assert.strictEqual(shape(Z, bag, [past(bag), past(name), past(bag)]).reach, 'stuck');
   assert.strictEqual(shape(Z, bag, [past(bag), past(bag)]).reach, 'stuck');
@@ -179,9 +198,7 @@ test('she only ever gives what she knows, nearest the question first, and no mor
     if (s.gives.length) assert.strictEqual(s.gives[0], 'pell-shut-out');
     if (s.bands.signal === 'tail low') assert.deepStrictEqual(s.gives, []);
   }
-  assert.deepStrictEqual(shape(Y, { kind: 'fix' }).gives, []);
   assert.strictEqual(shape(Y, { kind: 'fix' }).asked, false);
-  assert.ok(!describeShape(shape(Y, { kind: 'fix' })).includes('gives'));
   // A critical question gets one thing more than the same draw would give.
   const lands = shape(Y, ask('who', 'contract', 'pell'), [], 12);
   const critical = shape(Y, ask('who', 'contract', 'pell', { landing: 'critical' }), [], 12);
@@ -221,10 +238,63 @@ test('a question about her problem is never left, and a fix has nothing to take'
   for (let seed = 1; seed <= 200; seed++) {
     assert.strictEqual(shape(Y, ask('what', 'contract', 'bag'), [], seed).takes, 'the question');
   }
-  assert.strictEqual(shape(Y, { kind: 'fix' }).takes, null);
+  for (let seed = 1; seed <= 50; seed++) assert.strictEqual(shape(Y, { kind: 'fix' }, [], seed).takes, null);
   const left = Array.from({ length: 50 }, (_, i) => shape(Y, ask('who', 'expand', 'name'), [], i + 1))
     .find((s) => s.takes === 'her own point');
   assert.ok(left && describeShape(left).includes('carries on with her problem'));
+});
+
+test('asked who she is mid-problem, a digger can feel brushed off; nobody else does', () => {
+  const name = ask('who', 'expand', 'name');
+  const bag = ask('what', 'contract', 'bag');
+  const felt = (sheet, history) => {
+    let n = 0;
+    for (let seed = 1; seed <= 2000; seed++) if (shape(sheet, name, history, seed).reach === 'brushed off') n++;
+    return n / 2000;
+  };
+  const midProblem = felt(Y, [past(bag)]);
+  const pending = felt(Y, [past(bag, 'a sentence or two', null, [])]);
+  assert.ok(midProblem > 0.25 && midProblem < 0.35, `mid-problem ${midProblem}`);
+  assert.ok(pending > 0.55 && pending < 0.66, `pending ${pending}`);
+  // Not at the start of the call, not straight after another such question,
+  // and not for a customer who casts wide.
+  assert.strictEqual(felt(Y, []), 0);
+  assert.strictEqual(felt(Y, [past(bag), past(ask('what', 'expand', 'number'))]), 0);
+  assert.strictEqual(felt(Z, [past(bag, 'a sentence or two', null, [])]), 0);
+});
+
+test('after a fix she sometimes comes back with something of her own', () => {
+  let volunteered = 0;
+  let quiet = 0;
+  for (let seed = 1; seed <= 2000; seed++) {
+    const s = shape(Y, { kind: 'fix' }, [], seed);
+    assert.strictEqual(s.asked, false);
+    if (!s.volunteers) {
+      quiet++;
+      assert.deepStrictEqual(s.gives, []);
+      assert.ok(!describeShape(s).includes('gives') && !describeShape(s).includes('volunteers'));
+      continue;
+    }
+    volunteered++;
+    // It starts from her own night on the account, when there is room for anything.
+    if (s.gives.length) {
+      assert.strictEqual(s.gives[0], 'at-it-since-last-night');
+      assert.ok(describeShape(s).includes('volunteers at-it-since-last-night'));
+    }
+    assert.ok(s.gives.every((g) => KNOWS.some((k) => k.id === g)));
+  }
+  assert.ok(volunteered / 2000 > 0.3 && volunteered / 2000 < 0.5, `volunteered ${volunteered / 2000}`);
+  assert.ok(quiet > 0);
+  // A question is answered, not volunteered.
+  assert.strictEqual(shape(Y, ask('what', 'contract', 'bag')).volunteers, false);
+});
+
+test('told she changed something, she says she did not, right or wrong', () => {
+  for (let seed = 1; seed <= 50; seed++) {
+    assert.strictEqual(shape(Y, { kind: 'blame' }, [], seed).belief.right, false);
+    assert.strictEqual(shape(X, { kind: 'blame' }, [], seed).belief.right, true);
+    assert.strictEqual(shape(Y, { kind: 'fix' }, [], seed).belief, null);
+  }
 });
 
 test('two sheets differ only where the sheets differ', () => {

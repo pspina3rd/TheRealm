@@ -72,7 +72,7 @@ engine, which is untouched. For one move aimed at her it works out the
 shape of her answer from her sheet and a draw: how much she says, which of
 the things she knows she hands over, how sure and how exact she is, and
 what the move set off in her (a repeat, a pattern, being brushed off, her
-baggage, a belief, what a fix leaves her doing). No words. 19 tests;
+baggage, a belief, what a fix leaves her doing). No words. 22 tests;
 the whole suite passes and lint is clean.
 
 **How it was checked:** `scripts/answerShapes.js` plays the moves of three
@@ -103,8 +103,8 @@ the same draw, which is also what the hand runs showed.
 | | New module | Original engine |
 |---|---|---|
 | Does her sheet change her answers? | 54% of answers differ between X and Y | 22% differ, and only in which answer she gives |
-| Does her baggage come out during a call? | 72% of calls | 0% |
-| Say her words back, or ask twice: does it show? | 50% (always on X; not the first time on Y, as her sheet says) | 8% |
+| Does her baggage come out during a call? | 75% of calls | 0% |
+| Say her words back, or ask twice: does it show? | 55% (always on X; not the first time on Y, as her sheet says) | 8% |
 
 ### Four faults found by reading the output, fixed before this was written
 
@@ -135,6 +135,41 @@ one time in four as a rule; six in ten for a customer who prefers digging
 whose last point has not been answered yet; a little more when she is
 notably open. A question about her problem is never left, because there
 the question and her own point are the same thing.
+
+### Correction, 15 November: the other three were not faults either
+
+Phil asked what else I *thought* I saw. Looked at again from her seat:
+
+2. *Moving on from her name counted as changing the subject on her.* A
+   customer in the middle of her problem who is asked for her name may
+   well feel brushed off. I had made that impossible.
+3. *A different question about the bag counted as a repeat.* A new angle
+   on the same word is a new question to the agent. Whether she hears it
+   as the same question again is hers to decide, and with low tolerance
+   she often will.
+4. *A fix was reported as her "giving nothing useful".* I changed it so
+   she never gives anything after a fix. In the hand-played calls she did:
+   *"I may have pressed something."*
+
+All four were the same mistake: an answer that did not match the question,
+or a reaction that did not follow my rule, called a fault. The lines were
+those of a person.
+
+**Changed, on Phil's "Yes, make those changes":** each is now a draw on
+her sheet. The odds are mine.
+
+- **Asked who she is mid-problem,** a customer who prefers digging feels
+  brushed off three times in ten, and six in ten if her last point had got
+  nothing out of her yet. Never at the start of a call, and never for a
+  customer who casts wide.
+- **The same word asked a different way** is heard as a repeat seven
+  times in ten at low tolerance, three in ten at middle or high. The same
+  card on the same word is always a repeat, and her own words said back to
+  her always are.
+- **After a fix** she comes back with something of her own three times in
+  ten, and whenever her signal is running high. It starts from her own
+  night on the account. Told she changed something, she always says she
+  did not, right or wrong.
 
 ### Verdict
 
