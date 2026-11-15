@@ -12,7 +12,7 @@
  *  - the apprentice's read of what came back is drawn too: nobody tells the
  *    kind from the particular, or fact from opinion, every time (rule 24).
  *
- * Usage: node logs/draws2-14-nov.js [firstRun lastRun]
+ * Usage: node logs/draws2-14-nov.js [firstRun lastRun [count=shift ...]]
  */
 
 const AXES = ['volume', 'signal', 'certainty', 'accuracy', 'openness'];
@@ -67,10 +67,14 @@ function band(z) {
   return null;
 }
 
-/** One answer from her: five draws, then the pulls. */
-function herAnswer(rng) {
+/**
+ * One answer from her: five draws, then the pulls.
+ * `shift` moves the centre of a count for a sheet that has changed since
+ * her first call, e.g. { openness: -0.5 }.
+ */
+function herAnswer(rng, shift = {}) {
   const z = {};
-  for (const axis of AXES) z[axis] = bell(rng);
+  for (const axis of AXES) z[axis] = bell(rng) + (shift[axis] || 0);
   for (const target of ['volume', 'signal', 'accuracy']) {
     for (const pull of PULLS.filter((p) => p.to === target)) {
       const source = z[pull.from];
@@ -99,17 +103,23 @@ function focus(rng) {
 }
 
 // Runs 1-5 by default; `node logs/draws2-14-nov.js 6 10` for a later set.
+// A trailing `openness=-0.5` shifts that count's centre for every answer.
 const first = Number(process.argv[2]) || 1;
 const last = Number(process.argv[3]) || 5;
+const shift = {};
+for (const arg of process.argv.slice(4)) {
+  const [axis, delta] = arg.split('=');
+  if (AXES.includes(axis)) shift[axis] = Number(delta);
+}
 for (let run = first; run <= last; run += 1) {
   const rng = seededRng(1500 + run);
   console.log(`\nRun ${run}`);
-  console.log(`  opener  her: ${herAnswer(rng)}`);
+  console.log(`  opener  her: ${herAnswer(rng, shift)}`);
   for (let play = 1; play <= 9; play += 1) {
     const f = focus(rng);
     const l = landing(rng);
     const read = rng() < READS_RIGHT ? 'reads it right' : 'READS IT WRONG';
     const repeat = rng() < 0.25 ? ' | same door' : '';
-    console.log(`  play ${play}  focus: ${f} | if a person: ${l} | ${read}${repeat} | her: ${herAnswer(rng)}`);
+    console.log(`  play ${play}  focus: ${f} | if a person: ${l} | ${read}${repeat} | her: ${herAnswer(rng, shift)}`);
   }
 }

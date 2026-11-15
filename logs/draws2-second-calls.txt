@@ -1,0 +1,37 @@
+# Second calls. Run 11: after run 1 (openness -0.5). Run 12: after run 9. Run 13: after run 10.
+
+Run 11
+  opener  her: accuracy high side
+  play 1  focus: what is most urgent | if a person: lands | READS IT WRONG | her: openness low side
+  play 2  focus: what I did not understand | if a person: critical | reads it right | same door | her: openness low side
+  play 3  focus: what is most urgent | if a person: lands | reads it right | her: volume low side, signal low side, certainty high side, accuracy low side, openness low side
+  play 4  focus: what is most urgent | if a person: flat | READS IT WRONG | same door | her: volume TAIL HIGH, openness high side
+  play 5  focus: what I did not understand | if a person: flat | reads it right | same door | her: certainty low side
+  play 6  focus: what is most urgent | if a person: flat | reads it right | her: certainty high side, accuracy low side, openness low side
+  play 7  focus: what I did not understand | if a person: lands | READS IT WRONG | her: volume low side, accuracy low side
+  play 8  focus: what it told me | if a person: flat | reads it right | her: signal low side, openness low side
+  play 9  focus: what is most urgent | if a person: lands | reads it right | her: all at her centre
+
+Run 12
+  opener  her: signal low side, accuracy TAIL LOW
+  play 1  focus: what is most urgent | if a person: lands | READS IT WRONG | same door | her: volume high side, accuracy high side
+  play 2  focus: what is most urgent | if a person: lands | READS IT WRONG | her: signal low side, accuracy low side
+  play 3  focus: what it told me | if a person: flat | reads it right | same door | her: volume high side, openness high side
+  play 4  focus: what I did not understand | if a person: lands | reads it right | her: volume high side, signal low side, accuracy high side, openness high side
+  play 5  focus: what is most urgent | if a person: flat | READS IT WRONG | her: signal low side, certainty low side
+  play 6  focus: what is most interesting | if a person: flat | reads it right | her: certainty high side
+  play 7  focus: what I did not understand | if a person: flat | reads it right | her: volume high side, signal low side, certainty low side
+  play 8  focus: what is most urgent | if a person: flat | reads it right | her: signal low side, accuracy high side
+  play 9  focus: what is most urgent | if a person: lands | reads it right | same door | her: certainty low side
+
+Run 13
+  opener  her: signal low side, certainty low side, accuracy low side
+  play 1  focus: what it told me | if a person: flat | reads it right | her: volume high side
+  play 2  focus: what is most urgent | if a person: critical | READS IT WRONG | her: volume TAIL HIGH
+  play 3  focus: what it told me | if a person: misfire | READS IT WRONG | her: volume low side, accuracy TAIL LOW
+  play 4  focus: what I did not understand | if a person: flat | reads it right | her: openness low side
+  play 5  focus: what it told me | if a person: critical | reads it right | her: volume TAIL HIGH, accuracy low side
+  play 6  focus: what it told me | if a person: lands | READS IT WRONG | her: signal high side, accuracy high side
+  play 7  focus: what is most urgent | if a person: critical | READS IT WRONG | same door | her: signal low side, certainty high side, accuracy high side
+  play 8  focus: what I did not understand | if a person: lands | reads it right | same door | her: signal high side, accuracy high side
+  play 9  focus: what I did not understand | if a person: lands | READS IT WRONG | her: openness high side
