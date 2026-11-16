@@ -72,7 +72,7 @@ engine, which is untouched. For one move aimed at her it works out the
 shape of her answer from her sheet and a draw: how much she says, which of
 the things she knows she hands over, how sure and how exact she is, and
 what the move set off in her (a repeat, a pattern, being brushed off, her
-baggage, a belief, what a fix leaves her doing). No words. 22 tests;
+baggage, a belief, what a fix leaves her doing). No words. 23 tests;
 the whole suite passes and lint is clean.
 
 **How it was checked:** `scripts/answerShapes.js` plays the moves of three
@@ -103,8 +103,8 @@ the same draw, which is also what the hand runs showed.
 | | New module | Original engine |
 |---|---|---|
 | Does her sheet change her answers? | 54% of answers differ between X and Y | 22% differ, and only in which answer she gives |
-| Does her baggage come out during a call? | 75% of calls | 0% |
-| Say her words back, or ask twice: does it show? | 55% (always on X; not the first time on Y, as her sheet says) | 8% |
+| Does her baggage come out during a call? | 74% of calls | 0% |
+| Say her words back, or ask twice: does it show? | 50% (always on X; not the first time on Y, as her sheet says) | 8% |
 
 ### Four faults found by reading the output, fixed before this was written
 
@@ -129,12 +129,9 @@ card, which need not be the one asked (`settled.md` §2, *Her side,
 mirrored*), and in the hand-played run 3 she did exactly this. My "fix"
 made her give her name every time, which took a real behaviour away.
 
-**Changed:** asked who she is, she now either answers or leaves the
-question and carries on with her problem. It is a draw. The odds are mine:
-one time in four as a rule; six in ten for a customer who prefers digging
-whose last point has not been answered yet; a little more when she is
-notably open. A question about her problem is never left, because there
-the question and her own point are the same thing.
+**Changed:** asked who she is, she can now leave the question and carry
+on with her problem. How that is decided was changed again on 16 November;
+see the last correction below.
 
 ### Correction, 15 November: the other three were not faults either
 
@@ -155,21 +152,36 @@ All four were the same mistake: an answer that did not match the question,
 or a reaction that did not follow my rule, called a fault. The lines were
 those of a person.
 
-**Changed, on Phil's "Yes, make those changes":** each is now a draw on
-her sheet. The odds are mine.
+**Changed, on Phil's "Yes, make those changes":** her sheet now decides
+each of the three. I first did it with odds; see the next correction.
 
-- **Asked who she is mid-problem,** a customer who prefers digging feels
-  brushed off three times in ten, and six in ten if her last point had got
-  nothing out of her yet. Never at the start of a call, and never for a
-  customer who casts wide.
-- **The same word asked a different way** is heard as a repeat seven
-  times in ten at low tolerance, three in ten at middle or high. The same
-  card on the same word is always a repeat, and her own words said back to
-  her always are.
-- **After a fix** she comes back with something of her own three times in
-  ten, and whenever her signal is running high. It starts from her own
-  night on the account. Told she changed something, she always says she
-  did not, right or wrong.
+### Correction, 16 November: no odds
+
+I had put a percentage on each of the four behaviours above. Phil: *"Why
+are there odds? The character sheet should help derive the response, not a
+random percentage."*
+
+A draw on her own five curves is her sheet at work. A flat one-in-four is
+a coin I added beside it. The four percentages are gone. The only chance
+left in an answer is where she lands on her five counts; pin those, and the
+answer is fixed. A test holds that.
+
+Each behaviour is now derived from her sheet and the call so far:
+
+- **Leaving a question about who she is.** She does it when her own point
+  is still open (the last thing she was asked about her problem has had
+  nothing out of her yet) and either she prefers digging, or this answer
+  has room for only one thing, which she spends on her problem. Otherwise
+  she answers.
+- **Feeling brushed off by that question.** A customer who prefers digging
+  does, when her point is still open. Nobody else does.
+- **Hearing the same word, asked a different way, as a repeat.** Low
+  tolerance hears it at once. Middle hears it only once repetition has
+  already worn on her in this call, which is the record's point that
+  tolerance wears down inside a single bad call. High does not hear it.
+- **Coming back with something after a fix.** She does when that answer
+  finds her with something useful to say, or notably open: that is, when
+  her signal or her openness drew high.
 
 ### Verdict
 

@@ -43,38 +43,6 @@ const PULLS = Object.freeze([
   { from: 'openness', to: 'signal', low: -0.15, high: -0.15 },
 ]);
 
-/**
- * How often, asked who she is, she leaves the question and carries on with
- * her problem. She answers from her own card, which need not be the one
- * asked (settled.md section 2, Her side, mirrored), and she is the one with
- * the problem. `pending` is for a customer who prefers digging whose last
- * point got no answer out of her yet; `open` is added when she is notably
- * open. Guesses.
- */
-const OWN_WAY = Object.freeze({ usual: 0.25, pending: 0.6, open: 0.15 });
-
-/**
- * How often a second question on the same word, put a different way, is
- * heard by her as the same question again, by her tolerance for repetition.
- * The agent hears two questions; whether it is a repeat is hers to decide.
- * Guesses.
- */
-const SAME_WORD = Object.freeze({ low: 0.7, middle: 0.3, high: 0.3 });
-
-/**
- * How often a customer who prefers digging feels brushed off when asked who
- * she is in the middle of her problem: `usual` when she had just been
- * talking about it, `pending` when the last question on it had got nothing
- * out of her yet. Guesses.
- */
-const NAME_MID_PROBLEM = Object.freeze({ usual: 0.3, pending: 0.6 });
-
-/**
- * How often she comes back with something of her own after a fix has been
- * said to her. She also does whenever her signal is running high. Guess.
- */
-const VOLUNTEERS_AFTER_FIX = 0.3;
-
 /** How far a reaction on her sheet moves her volume, in spreads. */
 const DROP = Object.freeze({ repeat: 1, reach: 1, short: 0.5 });
 
@@ -187,23 +155,28 @@ function applyPulls(counts) {
 /**
  * True when she hears this move as going back over something. Her own
  * words said back to her always are, and so is the same card on the same
- * word. The same word asked a different way is a repeat only if she hears
- * it as one, which is a draw against her tolerance.
+ * word. The same word asked a different way is two questions to the agent;
+ * whether it is one to her comes from her tolerance for repetition. Low
+ * hears it at once. Middle hears it only once repetition has already worn
+ * on her in this call, which is the record's point that tolerance wears
+ * down inside a single bad call. High does not mind and does not hear it.
  */
-function isRepeat(sheet, move, history, draw) {
+function isRepeat(sheet, move, history) {
   if (move.kind === 'paraphrase') return true;
   if (move.kind !== 'question') return false;
   const before = history.filter((h) => h.move.kind === 'question' && h.move.subject === move.subject);
   if (before.some((h) => h.move.suit === move.suit && h.move.angle === move.angle)) return true;
-  return before.length > 0 && draw < SAME_WORD[sheet.repetition];
+  if (before.length === 0) return false;
+  const worn = history.some((h) => h.shape.repeat && !['fine', 'settled'].includes(h.shape.repeat));
+  return sheet.repetition === 'low' || (sheet.repetition === 'middle' && worn);
 }
 
 /**
  * What going back over something does to her, from her tolerance for
  * repetition (settled.md section 8).
  */
-function repeatReaction(sheet, move, history, draw) {
-  if (!isRepeat(sheet, move, history, draw)) return null;
+function repeatReaction(sheet, move, history) {
+  if (!isRepeat(sheet, move, history)) return null;
   const nth = history.filter((h) => h.shape.repeat).length + 1;
   if (sheet.repetition === 'low') return 'not listening';
   if (sheet.repetition === 'high') return 'settled';
@@ -230,23 +203,33 @@ function patternReaction(sheet, move, history) {
   return sheet.pattern === 'high' && alternating ? 'names the alternation' : null;
 }
 
+/** True for a move about her problem, as against one about who she is. */
+function onPoint(move) {
+  return Boolean(move.subject) && !IDENTIFIES.includes(move.subject);
+}
+
 /**
- * Depth or breadth. Digging: a change of subject before the last one was
- * answered feels like being brushed off, and so can being asked who she is
- * in the middle of her problem. Casting wide: a third inquiry running on one
+ * True when the last thing she was asked about her problem has had nothing
+ * out of her yet, so her point is still open.
+ */
+function pointPending(history) {
+  const asked = history.filter((h) => onPoint(h.move));
+  const last = asked[asked.length - 1];
+  return Boolean(last) && last.shape.gives.length === 0;
+}
+
+/**
+ * Depth or breadth. Digging: leaving her point before it is answered feels
+ * like being brushed off, whether the agent leaves it for another subject
+ * or to ask who she is. Casting wide: a third inquiry running on one
  * subject feels stuck.
  */
-function reachReaction(sheet, move, history, draw) {
-  const onPoint = (m) => Boolean(m.subject) && !IDENTIFIES.includes(m.subject);
-  if (IDENTIFIES.includes(move.subject)) {
-    const last = history[history.length - 1];
-    if (sheet.reach !== 'digging' || !last || !onPoint(last.move)) return null;
-    const odds = last.shape.gives.length === 0 ? NAME_MID_PROBLEM.pending : NAME_MID_PROBLEM.usual;
-    return draw < odds ? 'brushed off' : null;
-  }
+function reachReaction(sheet, move, history) {
+  if (!move.subject) return null;
   const asked = history.filter((h) => onPoint(h.move));
   const prev = asked[asked.length - 1];
-  if (!prev || !onPoint(move)) return null;
+  if (!prev) return null;
+  if (!onPoint(move)) return sheet.reach === 'digging' && pointPending(history) ? 'brushed off' : null;
   if (sheet.reach === 'digging') {
     const moved = prev.move.subject !== move.subject;
     return moved && prev.shape.gives.length === 0 ? 'brushed off' : null;
@@ -304,17 +287,17 @@ function afterFix(sheet, move, history) {
 
 /**
  * Whether she answers what was asked or carries on with her own problem.
- * Only a question about who she is can be left like this: a question on
- * her problem and her own point are the same thing.
+ * She answers from her own card, which need not be the one asked
+ * (settled.md section 2, Her side, mirrored). Only a question about who she
+ * is can be left: a question on her problem and her own point are the same
+ * thing. She leaves it when her point is still open and either she prefers
+ * digging, or this answer has room for only one thing, which she spends on
+ * her problem.
  */
-function whatSheTakes(sheet, move, history, counts, draw) {
+function whatSheTakes(sheet, move, history, says) {
   if (!move.subject) return null;
-  if (!IDENTIFIES.includes(move.subject)) return 'the question';
-  const onPoint = history.filter((h) => h.move.subject && !IDENTIFIES.includes(h.move.subject));
-  const last = onPoint[onPoint.length - 1];
-  const pending = sheet.reach === 'digging' && last && last.shape.gives.length === 0;
-  const odds = (pending ? OWN_WAY.pending : OWN_WAY.usual) + (counts.openness > 1 ? OWN_WAY.open : 0);
-  return draw < odds ? 'her own point' : 'the question';
+  if (onPoint(move) || !pointPending(history)) return 'the question';
+  return sheet.reach === 'digging' || says === 'a few words' ? 'her own point' : 'the question';
 }
 
 /** The things she knows that this answer has room for, nearest first. */
@@ -361,11 +344,10 @@ function handsOver(move, says, counts, landing, takes, volunteers) {
  */
 function shapeAnswer({ sheet, move, history = [], rng = Math.random, shift = {} }) {
   const landing = move.landing || 'lands';
+  // The only chance in an answer: where she lands on her own five curves.
   const drawn = drawCounts(rng, shift);
-  // Drawn on every move, used or not, so two sheets stay on the same draws.
-  const draw = { takes: rng(), repeat: rng(), reach: rng(), volunteers: rng() };
-  const repeat = repeatReaction(sheet, move, history, draw.repeat);
-  const reach = reachReaction(sheet, move, history, draw.reach);
+  const repeat = repeatReaction(sheet, move, history);
+  const reach = reachReaction(sheet, move, history);
   const toward = towardAgent(sheet, { ...move, landing });
 
   // Her sheet's reactions take words away before the answer is sized.
@@ -378,8 +360,10 @@ function shapeAnswer({ sheet, move, history = [], rng = Math.random, shift = {} 
   const bands = {};
   for (const count of COUNTS) bands[count] = band(counts[count]);
   const says = SAYS[bands.volume];
-  const takes = whatSheTakes(sheet, move, history, counts, draw.takes);
-  const volunteers = !move.subject && (draw.volunteers < VOLUNTEERS_AFTER_FIX || counts.signal > 1);
+  const takes = whatSheTakes(sheet, move, history, says);
+  // After a fix she comes back with something of her own when this answer
+  // finds her with something useful to say or notably open.
+  const volunteers = !move.subject && (counts.signal > 1 || counts.openness > 1);
 
   return {
     counts,
