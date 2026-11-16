@@ -11,14 +11,14 @@ run 1 (ends in blame)
     X    says a sentence or two · gives nothing useful
     Y    says a sentence or two · gives nothing useful
   AGENT  So you have never transferred anything before... (paraphrase)
-    X    says a few words · gives cannot-transfer · not listening
-    Y    says a sentence or two · gives cannot-transfer, at-it-since-last-night · fine
+    X    says a few words · gives cannot-transfer · reads it as not listening
+    Y    says a sentence or two · gives cannot-transfer, at-it-since-last-night
   AGENT  Is anyone else in your party able to get into the bag?
     X    says a sentence or two · gives cannot-transfer, pell-shut-out · exact
     Y    says a sentence or two · gives cannot-transfer, pell-shut-out · exact
   AGENT  It looks like you changed the bag... (the fix, said as blame)
-    X    says runs on · states nothing-changed-on-her-side (sure, right) · lets them off · puts it on the company
-    Y    says three or four sentences · states nothing-changed-on-her-side (sure, wrong) · gets short · turns on the agent
+    X    says runs on · volunteers at-it-since-last-night · states nothing-changed-on-her-side (unsure, right) · lets them off · puts it on the company
+    Y    says three or four sentences · volunteers at-it-since-last-night · states nothing-changed-on-her-side (unsure, wrong) · gets short · turns on the agent
 
 run 2 (three misfires)
   AGENT  What do you mean by transfer?
@@ -28,16 +28,16 @@ run 2 (three misfires)
     X    says a few words · gives cannot-transfer
     Y    says a few words · gives cannot-transfer
   AGENT  So has something happened to the bag, or... (fishing)
-    X    says a sentence or two · gives nothing useful · not listening · lets them off
+    X    says a sentence or two · gives nothing useful · it wears thin · lets them off
     Y    says a sentence or two · gives nothing useful · gets short
   AGENT  Why does it need to be Pell who has it?
-    X    says a few words · gives pell-shut-out, leaves-in-the-morning · brushed off
-    Y    says a few words · gives pell-shut-out, leaves-in-the-morning · baggage: pell-gets-hurt · brushed off
+    X    says a sentence or two · gives pell-shut-out, leaves-in-the-morning, cannot-transfer
+    Y    says a sentence or two · gives pell-shut-out, leaves-in-the-morning, cannot-transfer
   AGENT  I completely understand. So Pell needs the draught. (stock paraphrase)
-    X    says a sentence or two · gives pell-shut-out, leaves-in-the-morning · exact · not listening · hears the stock line
-    Y    says a sentence or two · gives pell-shut-out, leaves-in-the-morning · exact · fine · gets short
+    X    says a few words · gives pell-shut-out · exact · reads it as not listening · hears the stock line
+    Y    says a sentence or two · gives pell-shut-out, leaves-in-the-morning · exact · baggage: pell-gets-hurt · it wears thin · gets short
   AGENT  Can I take your order number? (wrong thing asked for)
-    X    says runs on · gives her-number, cannot-transfer, pell-shut-out, leaves-in-the-morning · lets them off
+    X    says three or four sentences · answers and adds · gives her-number, cannot-transfer · a little brushed off · lets them off
     Y    says three or four sentences · gives her-number, cannot-transfer · gets short
   AGENT  Your party bag was changed to Admin Only... (the fix)
     X    says a sentence or two · volunteers at-it-since-last-night, cannot-transfer, pell-shut-out
@@ -51,14 +51,14 @@ run 4 (a fix she is not told the meaning of)
     X    says a few words · gives nothing useful
     Y    says a few words · gives nothing useful
   AGENT  Can I take your name?
-    X    says a sentence or two · leaves the question and carries on with her problem · gives nothing useful · brushed off
-    Y    says a sentence or two · leaves the question and carries on with her problem · gives nothing useful · brushed off
+    X    says a sentence or two · leaves the question · gives cannot-transfer · badly brushed off
+    Y    says a sentence or two · leaves the question · gives cannot-transfer · badly brushed off
   AGENT  Has anything changed, as far as you know?
-    X    says a few words · gives cannot-transfer · states nothing-changed-on-her-side (sure, right) · brushed off
-    Y    says a few words · gives cannot-transfer · states nothing-changed-on-her-side (sure, wrong) · brushed off
+    X    says a sentence or two · gives cannot-transfer, pell-shut-out · states nothing-changed-on-her-side (sure, right) · a little brushed off
+    Y    says a sentence or two · gives cannot-transfer, pell-shut-out · states nothing-changed-on-her-side (sure, wrong) · a little brushed off
   AGENT  So everyone could open it until now... (paraphrase)
-    X    says a sentence or two · gives cannot-transfer, pell-shut-out · exact · not listening
-    Y    says a sentence or two · gives cannot-transfer, pell-shut-out · exact · fine
+    X    says a sentence or two · gives cannot-transfer, pell-shut-out · exact · reads it as not listening
+    Y    says a sentence or two · gives cannot-transfer, pell-shut-out · exact
   AGENT  Which party are you with?
     X    says runs on · gives her-party, cannot-transfer, pell-shut-out, leaves-in-the-morning
     Y    says runs on · gives her-party, cannot-transfer, pell-shut-out, leaves-in-the-morning
@@ -68,11 +68,11 @@ run 4 (a fix she is not told the meaning of)
 
 The same three measures
   Does her sheet change her answers?
-    new module       54% of answers differ between X and Y (1000 seeds, three calls each)
+    new module       56% of answers differ between X and Y (1000 seeds, three calls each)
     original engine  22% of answers differ between the two kinds of baggage (6 seeds, one call each)
   Does her baggage come out during a call?
-    new module       74% of calls
+    new module       82% of calls
     original engine  0% of calls
   Say her own words back, or ask the same thing twice: does it show?
-    new module       50% of the time
+    new module       67% of the time
     original engine  8% of the time

@@ -73,7 +73,8 @@ shape of her answer from her sheet and a draw: how much she says, which of
 the things she knows she hands over, how sure and how exact she is, and
 what the move set off in her (a repeat, a pattern, being brushed off, her
 baggage, a belief, what a fix leaves her doing). No words. 23 tests;
-the whole suite passes and lint is clean.
+the whole suite passes and lint is clean. *(Rebuilt on 16 November so
+that each of these is a degree; see the corrections below.)*
 
 **How it was checked:** `scripts/answerShapes.js` plays the moves of three
 of the hand-played calls (runs 1, 2 and 4 of the replay) for Sheet X and
@@ -102,9 +103,9 @@ the same draw, which is also what the hand runs showed.
 
 | | New module | Original engine |
 |---|---|---|
-| Does her sheet change her answers? | 54% of answers differ between X and Y | 22% differ, and only in which answer she gives |
-| Does her baggage come out during a call? | 74% of calls | 0% |
-| Say her words back, or ask twice: does it show? | 50% (always on X; not the first time on Y, as her sheet says) | 8% |
+| Does her sheet change her answers? | 56% of answers differ between X and Y | 22% differ, and only in which answer she gives |
+| Does her baggage come out during a call? | 82% of calls | 0% |
+| Say her words back, or ask twice: does it show? | 67% (always on X; on Y once the call has worn on her) | 8% |
 
 ### Four faults found by reading the output, fixed before this was written
 
@@ -183,6 +184,65 @@ Each behaviour is now derived from her sheet and the call so far:
   finds her with something useful to say, or notably open: that is, when
   her signal or her openness drew high.
 
+### Correction, 16 November: no switches either — rebuilt as degrees
+
+Taking the odds out, I put yes-or-no rules in. Phil: *"You are making
+those binary outcomes. They fall within a spectrum, and a spectrum of
+spectrums."*
+
+`src/cards/answer.js` was rebuilt on that, with his agreement to the shape
+first:
+
+- **Every reaction is a degree** from none to full: how much a move grates
+  as a repeat, how brushed off or stuck she feels, how much of her answer
+  goes to her own problem, how far her baggage comes out, how warmly or
+  shortly a clumsy move is met, how much a miss strains her and how much of
+  that shows.
+- **Each degree is fed by other ranges.** How brushed off she feels is how
+  strongly she prefers digging, times how much of her point is still open,
+  times how far the move leaves it. How much a question grates is how like
+  an earlier one it is (the word, the suit, the angle), against a tolerance
+  that the call has been wearing down.
+- **Her sheet carries a number under each band,** as the record says, and
+  the degrees read the number. Move the number and the degree moves with
+  it; a test sweeps each one.
+- **Effects scale.** A little brushed off costs her a few words; badly
+  brushed off costs her most of them.
+- **Labels come last.** "Wears thin", "badly brushed off", "leaves the
+  question" are put on for reading and decide nothing. The record's own
+  wording for each band still comes out: middle tolerance is fine, then
+  thin, then noticed; low hears not listening at once.
+- **What she does with a question about who she is** is the record's own
+  range, raised on 8 October and never ruled on: she answers, answers and
+  adds, half-answers and drifts, or leaves the question.
+- **The only chance** is still where she lands on her five curves.
+
+One thing came out of the degrees that I had written as a rule before: a
+customer of middle tolerance does not mind the same word asked a different
+way, until repeats earlier in the call have worn her down, and then she
+does. Nobody wrote that in; it follows from one tolerance wearing.
+
+How the ranges combine is in `WEIGHT` at the top of the module. Every
+number in it is my guess.
+
+### Phil's picture of a call, 16 November
+
+*"Imagine a door that opens to other doors. Entering a door leads to more
+doors. Some doors continue in a straight line. Some lead elsewhere,
+linking to other rooms from the left, right, top or bottom. Walk into the
+first room through the door, the opposite wall contains the exit doors."*
+
+My reading, which he called *"pretty damn close to what I'm
+envisioning"*: the first door is the opening. A room is her answer, a
+different room each time. The exit doors are what that answer makes
+possible next, each open by degrees. Straight on continues the line of
+inquiry; the side doors lead to rooms that can also be reached from
+elsewhere, and what is found in a room depends partly on the wall it was
+entered through. A call is a path through rooms, not a list of questions.
+
+**Built so far:** the room. **Not built:** the far wall, meaning which
+exits an answer opens and how wide.
+
 ### Verdict
 
 **It passes.** The module reproduces what the hand-played runs showed, and
@@ -201,19 +261,19 @@ the original engine does not. So there is no call to switch to option 3.
 
 ### Guesses of mine inside it, not yet ruled on
 
+All in `WEIGHT`, `VALUE`, `DEPTH`, `SAY` and `ROOM` at the top of
+`src/cards/answer.js`. The ones that decide the most:
+
+- **The number under each band:** 0.2, 0.5 and 0.8 for low, middle and
+  high, where a sheet gives only the band.
+- **How like an earlier question a new one is:** six parts the word, two
+  the suit, two the angle.
+- **How fast repeats wear her tolerance down,** and that it wears faster
+  the less of it she had.
+- **How far a move is from her point:** a related subject a short step, an
+  unrelated one a longer step, a question about who she is the furthest.
 - **How much fits in an answer:** one thing she knows in a few words, two
   in a sentence or two, three in three or four sentences, all five when
   she runs on.
-- **What a reaction costs her in words:** one spread of volume for a
-  repeat that wears on her or for being brushed off; half a spread when
-  she gets short with a clumsy move.
-- **"Brushed off"** (digging) is a change of subject after a question she
-  gave nothing useful to. **"Stuck"** (casting wide) is a third question
-  running on one subject.
-- **A repeat** is a paraphrase, or the same card on the same word again.
-- **Her baggage comes out** when her openness is more than one spread
-  above her usual, or when its trigger is hit, and never when she is in
-  her closed tail.
-- **Middle empathy "gets short"** with a clumsy move. The record's wording
-  for middle is about goodwill on a busy day; this is my reading from the
-  hand runs.
+- **Where a degree gets a word:** "a little" from three-tenths, plainly
+  from a half, "badly" from three-quarters.

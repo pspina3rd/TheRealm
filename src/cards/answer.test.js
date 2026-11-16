@@ -4,7 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert');
 const { seededRng } = require('../call/rng');
 const {
-  COUNTS, SHEETS, KNOWS, band, drawCounts, shapeAnswer, shapeCall, describeShape,
+  COUNTS, SHEETS, KNOWS, band, valueOf, drawCounts, shapeAnswer, shapeCall, describeShape,
 } = require('./answer');
 
 const { X, Y, Z } = SHEETS;
@@ -12,8 +12,18 @@ const ask = (suit, angle, subject, extra = {}) => ({ kind: 'question', suit, ang
 const paraphrase = (subject, extra = {}) => ({ kind: 'paraphrase', suit: 'what', angle: 'validate', subject, ...extra });
 const shape = (sheet, move, history = [], seed = 1, shift = {}) =>
   shapeAnswer({ sheet, move, history, rng: seededRng(seed), shift });
-/** A history entry written by hand, for pinning what came before. */
-const past = (move, says = 'a sentence or two', repeat = null, gives = ['cannot-transfer']) => ({ move, shape: { says, repeat, gives } });
+/** A history entry written by hand: what was asked, and what she gave to it. */
+const past = (move, gives = ['cannot-transfer', 'pell-shut-out'], like = 0) => ({ move, shape: { gives, degrees: { likeness: like } } });
+const near = (a, b) => Math.abs(a - b) < 1e-9;
+/** A sheet with the number under one band set by hand. */
+const withValue = (sheet, field, value) => ({ ...sheet, values: { ...(sheet.values || {}), [field]: value } });
+const SWEEP = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9];
+const rising = (list) => list.every((v, i) => i === 0 || v > list[i - 1]);
+const falling = (list) => list.every((v, i) => i === 0 || v < list[i - 1]);
+
+const bag = ask('what', 'contract', 'bag');
+const name = ask('who', 'expand', 'name');
+const open = [past(bag, [])];
 
 test('band puts a value on her own curve, with the tails beyond two spreads', () => {
   assert.strictEqual(band(0), 'usual');
@@ -24,11 +34,21 @@ test('band puts a value on her own curve, with the tails beyond two spreads', ()
   assert.strictEqual(band(-2.01), 'tail low');
 });
 
+test('valueOf reads the number under a band, or the middle of the band when none is given', () => {
+  assert.strictEqual(valueOf(X, 'repetition'), 0.2);
+  assert.strictEqual(valueOf(Y, 'repetition'), 0.5);
+  assert.strictEqual(valueOf(X, 'empathy'), 0.8);
+  assert.strictEqual(valueOf(Y, 'depth'), 0.8);
+  assert.strictEqual(valueOf(Z, 'depth'), 0.2);
+  assert.strictEqual(valueOf(withValue(Y, 'repetition', 0.37), 'repetition'), 0.37);
+  assert.strictEqual(valueOf(withValue(Y, 'depth', 7), 'depth'), 1);
+});
+
 test('drawCounts is deterministic and returns all five counts', () => {
   assert.deepStrictEqual(drawCounts(seededRng(5)), drawCounts(seededRng(5)));
   assert.deepStrictEqual(Object.keys(drawCounts(seededRng(5))), [...COUNTS]);
   const shifted = drawCounts(seededRng(5), { openness: -0.5 });
-  assert.ok(Math.abs(shifted.openness - (drawCounts(seededRng(5)).openness - 0.5)) < 1e-9);
+  assert.ok(near(shifted.openness, drawCounts(seededRng(5)).openness - 0.5));
 });
 
 test('the counts land where docs/sharing-links.md says they do', () => {
@@ -44,243 +64,318 @@ test('the counts land where docs/sharing-links.md says they do', () => {
     signal += z.signal;
     if (z.volume < -2) { lowVolume++; signalWhenVolumeLow += z.signal; }
   }
-  // Three answers in four have nothing in a tail.
   assert.ok(Math.abs(allUsual / n - 0.77) < 0.02, `all usual ${allUsual / n}`);
-  // Signal sits a little below its own centre once the others act on it.
   assert.ok(signal / n < -0.2 && signal / n > -0.4, `signal centre ${signal / n}`);
-  // Very few words drag signal well down with them.
   assert.ok(lowVolume > 100);
   assert.ok(signalWhenVolumeLow / lowVolume < -0.8, `signal when volume is low ${signalWhenVolumeLow / lowVolume}`);
 });
 
-test('repetition: middle is fine, then wears thin, then notices; low hears not listening; high is settled', () => {
-  const moves = [paraphrase('pell'), paraphrase('pell'), paraphrase('pell')];
-  const react = (sheet) => shapeCall({ sheet, moves, rng: seededRng(3) }).map((h) => h.shape.repeat);
-  assert.deepStrictEqual(react(Y), ['fine', 'wears thin', 'notices the repeat']);
-  assert.deepStrictEqual(react(X), ['not listening', 'not listening', 'not listening']);
-  assert.deepStrictEqual(react({ ...Y, repetition: 'high' }), ['settled', 'settled', 'settled']);
-});
-
-test('the same card on the same word is always a repeat; a new word or a guess never is', () => {
-  const first = ask('what', 'contract', 'bag');
-  const history = [past(first)];
-  for (let seed = 1; seed <= 100; seed++) {
-    assert.strictEqual(shape(X, first, history, seed).repeat, 'not listening');
-    assert.strictEqual(shape(X, ask('what', 'contract', 'draught'), history, seed).repeat, null);
-    assert.strictEqual(shape(X, { ...first, kind: 'guess' }, history, seed).repeat, null);
-    // With nothing asked before, there is nothing to repeat.
-    assert.strictEqual(shape(X, ask('what', 'random', 'bag'), [], seed).repeat, null);
+test('the only chance in an answer is her five counts', () => {
+  let taken = 0;
+  shapeAnswer({ sheet: Y, move: name, history: open, rng: () => { taken++; return 0.5; } });
+  assert.strictEqual(taken, 10);
+  const moves = [bag, name, paraphrase('bag'), ask('what', 'random', 'bag'), { kind: 'fix' }, { kind: 'blame' }];
+  for (const sheet of [X, Y, Z]) {
+    assert.deepStrictEqual(shapeCall({ sheet, moves, rng: () => 0.5 }), shapeCall({ sheet, moves, rng: () => 0.5 }));
   }
 });
 
-test('the same word asked a different way is a repeat only if her sheet hears it as one', () => {
-  const first = ask('what', 'contract', 'bag');
-  const again = [ask('what', 'random', 'bag'), ask('who', 'contract', 'bag')];
-  for (let seed = 1; seed <= 50; seed++) {
-    for (const move of again) {
-      // Low tolerance hears it at once.
-      assert.strictEqual(shape(X, move, [past(first)], seed).repeat, 'not listening');
-      // Middle does not, on a call that has gone well so far.
-      assert.strictEqual(shape(Y, move, [past(first)], seed).repeat, null);
-      assert.strictEqual(shape(Y, move, [past(first), past(paraphrase('pell'), 'a sentence or two', 'fine')], seed).repeat, null);
-      // High does not mind, and does not hear it.
-      assert.strictEqual(shape({ ...Y, repetition: 'high' }, move, [past(first)], seed).repeat, null);
+test('no reaction is a switch: move the number on her sheet and the degree moves with it', () => {
+  const degree = (field, value, sheet, move, history, key) => shape(withValue(sheet, field, value), move, history).degrees[key];
+  // The more she tolerates repetition, the less a repeat grates.
+  assert.ok(falling(SWEEP.map((v) => degree('repetition', v, Y, paraphrase('bag'), [], 'repeat'))));
+  // The more she prefers digging, the more leaving her point brushes her off, and the less staying on it sticks.
+  assert.ok(rising(SWEEP.map((v) => degree('depth', v, Y, name, open, 'brushedOff'))));
+  assert.ok(falling(SWEEP.map((v) => degree('depth', v, Y, bag, [past(bag), past(bag)], 'stuck'))));
+  // The more closely she reads the agent, the warmer she is with a clumsy move, and the less short.
+  const fishing = ask('what', 'random', 'bag', { landing: 'misfire' });
+  assert.ok(rising(SWEEP.map((v) => degree('empathy', v, Y, fishing, [], 'warmth'))));
+  assert.ok(falling(SWEEP.map((v) => degree('empathy', v, Y, fishing, [], 'short'))));
+  // The more she absorbs, the less a miss strains her.
+  assert.ok(falling(SWEEP.map((v) => degree('nonPositive', v, Y, { kind: 'wrong-fix' }, [], 'strain'))));
+  // The more she hears pattern, the more a run registers.
+  const run = [past(bag), past(bag)];
+  assert.ok(rising(SWEEP.map((v) => degree('pattern', v, Y, bag, run, 'pattern'))));
+});
+
+test('every degree stays between none and full, on every sheet, over many calls', () => {
+  const moves = [
+    ask('what', 'expand', 'working'), bag, paraphrase('pell', { stock: true }), name,
+    ask('what', 'random', 'bag', { landing: 'misfire' }), ask('when', 'expand', 'morning', { landing: 'critical' }),
+    ask('what', 'verify', 'changed'), bag, { kind: 'wrong-fix' }, { kind: 'wrong-fix' }, { kind: 'blame' }, { kind: 'unclear-fix' }, { kind: 'fix' },
+  ];
+  const says = ['a few words', 'a sentence or two', 'three or four sentences', 'runs on'];
+  const ids = KNOWS.map((k) => k.id);
+  for (const sheet of [X, Y, Z]) {
+    for (let seed = 1; seed <= 150; seed++) {
+      for (const { shape: s } of shapeCall({ sheet, moves, rng: seededRng(seed) })) {
+        for (const [key, value] of Object.entries(s.degrees)) {
+          if (key !== 'patternShape') assert.ok(value >= 0 && value <= 1, `${key} ${value}`);
+        }
+        assert.ok(says.includes(s.says));
+        assert.ok(describeShape(s).startsWith(`says ${s.says}`));
+        // She only ever gives what she knows, or who she is, and nothing twice.
+        for (const given of s.gives) assert.ok(ids.includes(given) || given.startsWith('her-'));
+        assert.strictEqual(new Set(s.gives).size, s.gives.length);
+      }
     }
   }
-  // Once repetition has worn on her in this call, middle hears it too.
-  const worn = [past(first), past(paraphrase('pell'), 'a sentence or two', 'fine'), past(paraphrase('pell'), 'a few words', 'wears thin')];
-  assert.strictEqual(shape(Y, again[0], worn).repeat, 'notices the repeat');
 });
 
-test('a repeat that wears on her takes words away; one she is fine with does not', () => {
+test('how like an earlier question a new one is: the word, the suit and the angle', () => {
+  const history = [past(bag)];
+  const like = (move, h = history) => shape(Y, move, h).degrees.likeness;
+  assert.ok(near(like(bag), 1));
+  assert.ok(near(like(ask('what', 'random', 'bag')), 0.8));
+  assert.ok(near(like(ask('who', 'contract', 'bag')), 0.8));
+  assert.ok(near(like(ask('who', 'random', 'bag')), 0.6));
+  assert.strictEqual(like(ask('what', 'contract', 'draught')), 0);
+  assert.strictEqual(like({ ...bag, kind: 'guess' }), 0);
+  assert.strictEqual(like(bag, []), 0);
+  assert.strictEqual(like(paraphrase('bag'), []), 1);
+  // So the same word asked a different way grates on low tolerance, less than a true repeat does.
+  const grate = (sheet, move) => shape(sheet, move, history).degrees.repeat;
+  assert.ok(grate(X, bag) > grate(X, ask('what', 'random', 'bag')));
+  assert.ok(grate(X, ask('what', 'random', 'bag')) > grate(X, ask('who', 'random', 'bag')));
+  assert.ok(grate(X, ask('who', 'random', 'bag')) > grate(Y, ask('who', 'random', 'bag')));
+});
+
+test('repetition reads as the record words it: middle fine, then thin, then noticed; low at once; high settled', () => {
+  const moves = [paraphrase('pell'), paraphrase('pell'), paraphrase('pell')];
+  const call = (sheet) => shapeCall({ sheet, moves, rng: seededRng(3) });
+  assert.deepStrictEqual(call(Y).map((h) => h.shape.labels.repeat), ['fine with it', 'it wears thin', 'notices the repeat']);
+  assert.deepStrictEqual(call(X).map((h) => h.shape.labels.repeat), Array(3).fill('reads it as not listening'));
+  assert.deepStrictEqual(call({ ...Y, repetition: 'high' }).map((h) => h.shape.labels.repeat), Array(3).fill('settled by it'));
+  // Underneath, it is one tolerance wearing down, faster the less of it she had.
+  const grates = (sheet) => call(sheet).map((h) => h.shape.degrees.repeat);
+  assert.ok(rising(grates(Y)));
+  assert.ok(grates(X)[1] >= grates(X)[0] && grates(X)[0] > grates(Y)[0]);
+  assert.ok(near(grates(Y)[0], 0.5) && near(grates(Y)[1], 0.7) && near(grates(Y)[2], 0.9));
+  // Middle tolerance does not mind the same word asked another way, until the call has worn on her.
+  const fresh = shape(Y, ask('what', 'random', 'bag'), [past(bag)]);
+  const worn = shape(Y, ask('what', 'random', 'bag'), [past(bag), past(paraphrase('pell'), ['pell-shut-out'], 1), past(paraphrase('pell'), ['pell-shut-out'], 1)]);
+  assert.strictEqual(fresh.labels.repeat, 'fine with it');
+  assert.strictEqual(worn.labels.repeat, 'it wears thin');
+});
+
+test('a repeat takes words from her in proportion to how much it grates', () => {
   for (let seed = 1; seed <= 30; seed++) {
-    const plain = shape(Y, ask('what', 'contract', 'bag'), [], seed);
-    const fine = shape(Y, paraphrase('bag'), [], seed);
-    const thin = shape(Y, paraphrase('bag'), [past(paraphrase('bag'), 'a sentence or two', 'fine')], seed);
-    assert.strictEqual(fine.counts.volume, plain.counts.volume);
-    assert.ok(Math.abs(thin.counts.volume - (plain.counts.volume - 1)) < 1e-9);
+    const plain = shape(Y, bag, [], seed);
+    for (const sheet of [X, Y]) {
+      const again = shape(sheet, paraphrase('bag'), [], seed);
+      assert.ok(near(again.counts.volume, plain.counts.volume - 1.2 * again.degrees.repeat ** 2));
+    }
+    assert.ok(shape(X, paraphrase('bag'), [], seed).counts.volume < shape(Y, paraphrase('bag'), [], seed).counts.volume);
   }
 });
 
-test('pattern: middle names a straight run of three, low never, only high hears alternation', () => {
-  const run = [ask('what', 'contract', 'bag'), ask('what', 'contract', 'draught'), ask('what', 'contract', 'transfer')];
-  const last = (sheet, moves) => shapeCall({ sheet, moves, rng: seededRng(2) }).map((h) => h.shape.pattern);
-  assert.deepStrictEqual(last(Y, run), [null, null, 'names the run']);
-  assert.deepStrictEqual(last(X, run), [null, null, null]);
-  const alternating = [ask('why', 'expand', 'pell'), ask('when', 'expand', 'morning'), ask('why', 'expand', 'bag'), ask('when', 'expand', 'contract')];
-  assert.deepStrictEqual(last(Y, alternating), [null, null, null, null]);
-  assert.strictEqual(last({ ...Y, pattern: 'high' }, alternating)[3], 'names the alternation');
-  // A fix is not a card, so it cannot complete a run.
-  assert.strictEqual(shape(Y, { kind: 'fix' }, run.map((m) => past(m))).pattern, null);
-});
-
-test('reach: digging is brushed off by a switch before she has answered; wide is stuck on a third in a row', () => {
-  const bag = ask('what', 'contract', 'bag');
-  const pell = ask('who', 'expand', 'pell');
-  const unanswered = past(bag, 'a sentence or two', null, []);
-  assert.strictEqual(shape(Y, pell, [unanswered]).reach, 'brushed off');
-  assert.strictEqual(shape(Y, pell, [past(bag, 'a few words')]).reach, null);
-  assert.strictEqual(shape(Y, bag, [unanswered]).reach, null);
+test('brushed off is her digging, times how open her point is, times how far the move leaves it', () => {
+  const brushed = (sheet, move, history) => shape(sheet, move, history).degrees.brushedOff;
+  // A digger whose point has had nothing: her name is the furthest from it.
+  assert.ok(near(brushed(Y, name, open), 0.8));
+  assert.ok(near(brushed(Y, ask('when', 'expand', 'contract'), open), 0.48));
+  // A related subject is a shorter step away: the bag and Pell share what she knows.
+  assert.ok(near(brushed(Y, ask('who', 'expand', 'pell'), open), 0.24));
+  assert.strictEqual(brushed(Y, bag, open), 0);
+  // Half answered, half the feeling; fully answered, none; and none at the start of a call.
+  assert.ok(near(brushed(Y, name, [past(bag, ['cannot-transfer'])]), 0.4));
+  assert.strictEqual(brushed(Y, name, [past(bag)]), 0);
+  assert.strictEqual(brushed(Y, name, []), 0);
+  // A customer who casts wide feels a little of it, not none.
+  assert.ok(near(brushed(Z, name, open), 0.2));
   // Her name in between does not answer her point for her.
-  const name = ask('who', 'expand', 'name');
-  assert.strictEqual(shape(Y, pell, [unanswered, past(name, 'a few words', null, [])]).reach, 'brushed off');
-  assert.strictEqual(shape(Z, bag, [past(bag), past(name), past(bag)]).reach, 'stuck');
-  assert.strictEqual(shape(Z, bag, [past(bag), past(bag)]).reach, 'stuck');
-  assert.strictEqual(shape(Z, pell, [past(bag), past(bag)]).reach, null);
-  assert.strictEqual(shape(Z, bag, [past(bag)]).reach, null);
-  assert.strictEqual(shape(Y, pell, []).reach, null);
+  assert.ok(near(brushed(Y, ask('when', 'expand', 'contract'), [...open, past(name, [])]), 0.48));
+  assert.strictEqual(shape(Y, name, open).labels.reach, 'badly brushed off');
+  assert.strictEqual(shape(Y, ask('who', 'expand', 'pell'), open).labels.reach, null);
+  assert.strictEqual(shape(Z, name, open).labels.reach, null);
 });
 
-test('empathy decides what a clumsy or stock move draws from her', () => {
-  const fishing = ask('what', 'random', 'bag', { landing: 'misfire' });
-  assert.strictEqual(shape(X, fishing).towardAgent, 'lets them off');
-  assert.strictEqual(shape(Y, fishing).towardAgent, 'gets short');
-  assert.strictEqual(shape(Z, fishing).towardAgent, 'no warmth');
-  assert.strictEqual(shape(X, paraphrase('pell', { stock: true })).towardAgent, 'hears the stock line');
-  assert.strictEqual(shape(Y, paraphrase('pell', { stock: true })).towardAgent, null);
-  assert.strictEqual(shape(X, ask('what', 'contract', 'bag')).towardAgent, null);
-  // Getting short costs her half a spread of volume against the same draw.
-  const clean = shape(Y, { ...fishing, landing: 'lands' }, [], 9);
-  assert.ok(Math.abs(shape(Y, fishing, [], 9).counts.volume - (clean.counts.volume - 0.5)) < 1e-9);
+test('stuck is her casting wide, times how long the agent has stayed on one word', () => {
+  const stuck = (sheet, history) => shape(sheet, bag, history).degrees.stuck;
+  assert.strictEqual(stuck(Z, []), 0);
+  assert.ok(near(stuck(Z, [past(bag)]), 0.4));
+  assert.ok(near(stuck(Z, [past(bag), past(bag)]), 0.8));
+  assert.ok(near(stuck(Z, [past(bag), past(name), past(bag)]), 0.8));
+  assert.ok(near(stuck(Y, [past(bag), past(bag)]), 0.2));
+  assert.strictEqual(shape(Z, ask('who', 'expand', 'pell'), [past(bag), past(bag)]).degrees.stuck, 0);
+  assert.strictEqual(shape(Z, bag, [past(bag), past(bag)]).labels.reach, 'badly stuck');
 });
 
-test('baggage comes out when she is open or when something sets it off, never when she is closed', () => {
-  const plain = ask('what', 'contract', 'bag');
-  assert.strictEqual(shape(Y, plain, [], 1, { openness: 6 }).baggage, 'pell-gets-hurt');
-  assert.strictEqual(shape(X, plain, [], 1, { openness: 6 }).baggage, 'no-one-told-her');
-  const trigger = ask('when', 'expand', 'morning');
-  assert.strictEqual(shape(Y, trigger, [], 1, { openness: -6 }).baggage, null);
-  let fired = 0;
-  let quiet = 0;
-  for (let seed = 1; seed <= 200; seed++) {
-    const onTrigger = shape(Y, trigger, [], seed);
-    if (onTrigger.bands.openness !== 'tail low') { assert.strictEqual(onTrigger.baggage, 'pell-gets-hurt'); fired++; }
-    const offTrigger = shape(Y, plain, [], seed);
-    if (offTrigger.counts.openness <= 1) { assert.strictEqual(offTrigger.baggage, null); quiet++; }
+test('being brushed off or stuck takes words from her in proportion', () => {
+  for (let seed = 1; seed <= 30; seed++) {
+    const fresh = shape(Y, name, [], seed);
+    const brushed = shape(Y, name, open, seed);
+    assert.ok(near(brushed.counts.volume, fresh.counts.volume - brushed.degrees.brushedOff));
   }
-  assert.ok(fired > 150 && quiet > 100);
-  // X's trigger is not Y's: the morning sets nothing off in her.
-  assert.strictEqual(shape(X, trigger, [], 1, { openness: 0.5 - drawCounts(seededRng(1)).openness }).baggage, null);
 });
 
-test('she is sure nothing changed on her side: right on X, wrong on Y, and it never shows which', () => {
+test('asked who she is, how much of her answer goes to her own problem is a range', () => {
+  for (let seed = 1; seed <= 200; seed++) {
+    const settled = shape(Y, name, [past(bag)], seed);
+    const half = shape(Y, name, [past(bag, ['cannot-transfer'])], seed);
+    const digger = shape(Y, name, open, seed);
+    const wide = shape(Z, name, open, seed);
+    // Nothing open: she answers, her name first; running very open, she adds to it.
+    assert.ok(settled.degrees.ownPoint <= 0.15);
+    assert.ok(['answers', 'answers and adds'].includes(settled.labels.takes));
+    assert.strictEqual(settled.gives[0], 'her-name');
+    // The more of her point is open, and the more she digs, the more goes to her problem.
+    assert.ok(digger.degrees.ownPoint > half.degrees.ownPoint && half.degrees.ownPoint > settled.degrees.ownPoint);
+    assert.ok(digger.degrees.ownPoint > wide.degrees.ownPoint);
+    // What she hands over follows the degree: her name first, then last, then not at all.
+    for (const s of [settled, half, digger, wide]) {
+      const at = s.gives.indexOf('her-name');
+      if (s.degrees.ownPoint >= 0.75) assert.strictEqual(at, -1);
+      else if (s.degrees.ownPoint >= 0.5) assert.strictEqual(at, s.gives.length - 1);
+      else assert.strictEqual(at, 0);
+    }
+  }
+  // With room to spare she says who she is and goes on to her problem; with none, only who she is.
+  for (let seed = 1; seed <= 200; seed++) {
+    const s = shape(Y, name, [past(bag)], seed, { openness: -6 });
+    const room = { 'a few words': 1, 'a sentence or two': 2, 'three or four sentences': 3, 'runs on': 5 }[s.says];
+    assert.strictEqual(s.gives[0], 'her-name');
+    if (s.bands.signal === 'usual') assert.strictEqual(s.gives.length, room);
+  }
+  // All four of the record's own wordings come up across sheets and draws.
+  const seen = new Set();
+  for (let seed = 1; seed <= 300; seed++) {
+    for (const sheet of [Y, Z, withValue(Y, 'depth', 0.5)]) {
+      for (const history of [open, [past(bag, ['cannot-transfer'])], [past(bag)]]) seen.add(shape(sheet, name, history, seed).labels.takes);
+    }
+  }
+  assert.deepStrictEqual([...seen].sort(), ['answers', 'answers and adds', 'half-answers and drifts', 'leaves the question']);
+  // A question on her problem is her own point already, and a fix asks nothing.
+  assert.strictEqual(shape(Y, bag, open).degrees.ownPoint, 0);
+  assert.strictEqual(shape(Y, { kind: 'fix' }).labels.takes, null);
+});
+
+test('pattern: a run is heard in proportion to her sense of it; alternation only by the upper half', () => {
+  const run = [bag, ask('what', 'contract', 'draught'), ask('what', 'contract', 'transfer')];
+  const heard = (sheet, moves) => shapeCall({ sheet, moves, rng: seededRng(2) }).map((h) => h.shape);
+  assert.deepStrictEqual(heard(Y, run).map((s) => s.labels.pattern), [null, null, 'names the run']);
+  assert.deepStrictEqual(heard(X, run).map((s) => s.labels.pattern), [null, null, null]);
+  assert.ok(near(heard(Y, run)[1].degrees.pattern, 0.25) && near(heard(Y, run)[2].degrees.pattern, 0.5));
+  // High sense starts to hear it at two in a row.
+  assert.strictEqual(heard({ ...Y, pattern: 'high' }, run)[1].labels.pattern, 'starts to hear the run');
+  const alternating = [ask('why', 'expand', 'pell'), ask('when', 'expand', 'morning'), ask('why', 'expand', 'bag'), ask('when', 'expand', 'contract')];
+  assert.strictEqual(heard(Y, alternating)[3].degrees.pattern, 0);
+  assert.strictEqual(heard({ ...Y, pattern: 'high' }, alternating)[3].labels.pattern, 'names the alternation');
+  // A fix is not a card, so it cannot complete a run.
+  assert.strictEqual(shape(Y, { kind: 'fix' }, run.map((m) => past(m))).degrees.pattern, 0);
+});
+
+test('empathy sets how warmly or how shortly a clumsy move is met', () => {
+  const fishing = ask('what', 'random', 'bag', { landing: 'misfire' });
+  const met = (sheet, move) => shape(sheet, move);
+  assert.ok(near(met(X, fishing).degrees.warmth, 0.8) && near(met(X, fishing).degrees.short, 0.2));
+  assert.strictEqual(met(X, fishing).labels.towardAgent, 'lets them off');
+  assert.strictEqual(met(Y, fishing).labels.towardAgent, 'gets short');
+  assert.strictEqual(met(Z, fishing).labels.towardAgent, 'no warmth');
+  assert.strictEqual(met(X, paraphrase('pell', { stock: true })).labels.towardAgent, 'hears the stock line');
+  assert.strictEqual(met(Y, paraphrase('pell', { stock: true })).labels.towardAgent, null);
+  // A flat move is a little clumsy, not enough to remark on; a clean one not at all.
+  const flat = met(Y, ask('what', 'contract', 'bag', { landing: 'flat' }));
+  assert.ok(near(flat.degrees.short, 0.15));
+  assert.strictEqual(flat.labels.towardAgent, null);
+  assert.strictEqual(met(X, bag).degrees.warmth, 0);
+  // Getting short costs her words in proportion.
+  const clean = shape(Y, { ...fishing, landing: 'lands' }, [], 9);
+  assert.ok(near(shape(Y, fishing, [], 9).counts.volume, clean.counts.volume - 0.25));
+});
+
+test('her baggage comes out by degrees: the more open she is, and the nearer its trigger', () => {
+  const out = (sheet, move, openness) => shape(sheet, move, [], 1, { openness: openness - drawCounts(seededRng(1)).openness }).degrees.baggage;
+  // The same question, with her openness set by hand.
+  assert.ok(rising([0, 0.5, 1, 1.8].map((z) => out(Y, bag, z))));
+  assert.strictEqual(out(Y, bag, -2), 0);
+  // The morning is Y's trigger and not X's.
+  const morning = ask('when', 'expand', 'morning');
+  assert.ok(out(Y, morning, 0) > out(X, morning, 0));
+  assert.ok(near(out(Y, morning, 0), 0.7) && near(out(X, morning, 0), 0.1));
+  // Pell is near it, and the wrong suit dulls it.
+  assert.ok(near(out(Y, ask('why', 'expand', 'pell'), 0), 0.52));
+  assert.ok(near(out(Y, ask('who', 'expand', 'pell'), 0), 0.31));
+  const label = (sheet, move, openness) => shape(sheet, move, [], 1, { openness: openness - drawCounts(seededRng(1)).openness }).labels.baggage;
+  assert.strictEqual(label(Y, morning, 0), 'pell-gets-hurt');
+  assert.strictEqual(label(X, bag, 1.2), 'no-one-told-her');
+  assert.strictEqual(label(Y, bag, 0), null);
+  // The more she closes up, the less even her trigger brings out; shut tight, nothing.
+  assert.ok(falling([0, -1, -2, -3].map((z) => out(Y, morning, z))));
+  assert.strictEqual(out(Y, morning, -3), 0);
+  assert.strictEqual(label(Y, morning, -2), null);
+});
+
+test('she states that nothing changed on her side: right on X, wrong on Y, and how sure is a degree', () => {
   const asked = ask('what', 'verify', 'changed');
-  assert.deepStrictEqual(shape(X, asked, [], 1, { certainty: 6 }).belief, { id: 'nothing-changed-on-her-side', right: true, sure: true });
-  assert.deepStrictEqual(shape(Y, asked, [], 1, { certainty: 6 }).belief, { id: 'nothing-changed-on-her-side', right: false, sure: true });
-  assert.strictEqual(shape(Y, asked, [], 1, { certainty: -6 }).belief.sure, false);
-  // Z has the update and her own word, not her own setting: she is right.
+  assert.strictEqual(shape(X, asked).belief.right, true);
+  assert.strictEqual(shape(Y, asked).belief.right, false);
   assert.strictEqual(shape(Z, asked).belief.right, true);
-  assert.strictEqual(shape(Y, ask('what', 'contract', 'bag')).belief, null);
+  assert.strictEqual(shape(Y, bag).belief, null);
+  const sure = [-6, -1, 0, 1, 6].map((c) => shape(Y, asked, [], 1, { certainty: c }).belief.sure);
+  assert.ok(sure.every((v, i) => i === 0 || v >= sure[i - 1]) && sure[0] === 0 && sure[4] === 1);
+  // Told she changed something, she says she did not, right or wrong.
+  for (let seed = 1; seed <= 30; seed++) {
+    assert.strictEqual(shape(Y, { kind: 'blame' }, [], seed).belief.right, false);
+    assert.strictEqual(shape(X, { kind: 'blame' }, [], seed).belief.right, true);
+    assert.strictEqual(shape(Y, { kind: 'fix' }, [], seed).belief, null);
+  }
 });
 
-test('what a fix leaves her doing follows her sheet', () => {
+test('what a fix leaves in her follows her sheet, by degrees', () => {
   const miss = { kind: 'wrong-fix' };
-  const twice = (sheet) => shapeCall({ sheet, moves: [miss, miss], rng: seededRng(4) }).map((h) => h.shape.afterFix);
-  assert.deepStrictEqual(twice(Y), ['shows it', 'asks for someone else']);
-  assert.deepStrictEqual(twice(X), ['stops signalling', 'stops signalling']);
-  assert.deepStrictEqual(twice(Z), ['shows it', 'shows it']);
-  assert.strictEqual(shape(X, { kind: 'unclear-fix' }).afterFix, 'thanks them and rings off');
-  assert.strictEqual(shape(Y, { kind: 'unclear-fix' }).afterFix, 'asks what it means');
-  assert.strictEqual(shape(X, { kind: 'blame' }).afterFix, 'puts it on the company');
-  assert.strictEqual(shape(X, { kind: 'blame' }).towardAgent, 'lets them off');
-  assert.strictEqual(shape(Y, { kind: 'blame' }).afterFix, 'turns on the agent');
-  assert.strictEqual(shape(Y, { kind: 'fix' }).afterFix, null);
+  const after = (sheet, n) => shapeCall({ sheet, moves: Array(n).fill(miss), rng: seededRng(4) }).map((h) => h.shape);
+  assert.deepStrictEqual(after(Y, 2).map((s) => s.labels.afterFix), ['shows it', 'asks for someone else']);
+  assert.deepStrictEqual(after(X, 3).map((s) => s.labels.afterFix), ['gives no sign', 'gives no sign', 'gives no sign']);
+  assert.deepStrictEqual(after(Z, 3).map((s) => s.labels.afterFix), ['shows it', 'shows it', 'asks for someone else']);
+  // The strain builds with each miss on every sheet; what reaches the agent is less than what is there.
+  for (const sheet of [X, Y, Z]) {
+    const strain = after(sheet, 3).map((s) => s.degrees.strain);
+    assert.ok(strain[1] > strain[0] && strain[2] >= strain[1]);
+  }
+  assert.ok(after(X, 2)[1].degrees.shows < after(X, 2)[1].degrees.strain);
+  assert.strictEqual(shape(X, { kind: 'unclear-fix' }).labels.afterFix, 'thanks them and rings off');
+  assert.strictEqual(shape(Y, { kind: 'unclear-fix' }).labels.afterFix, 'asks what it means');
+  assert.strictEqual(shape(X, { kind: 'blame' }).labels.afterFix, 'puts it on the company');
+  assert.strictEqual(shape(X, { kind: 'blame' }).labels.towardAgent, 'lets them off');
+  assert.strictEqual(shape(Y, { kind: 'blame' }).labels.afterFix, 'turns on the agent');
+  assert.ok(near(shape(X, { kind: 'blame' }).degrees.onCompany, 0.8) && near(shape(X, { kind: 'blame' }).degrees.onAgent, 0.2));
+  assert.strictEqual(shape(Y, { kind: 'fix' }).labels.afterFix, null);
 });
 
-test('she only ever gives what she knows, nearest the question first, and no more than fits', () => {
-  const ids = KNOWS.map((k) => k.id);
+test('on her problem she gives what she knows, nearest the question first, and no more than fits', () => {
   const room = { 'a few words': 1, 'a sentence or two': 2, 'three or four sentences': 3, 'runs on': 5 };
   for (let seed = 1; seed <= 300; seed++) {
     const s = shape(Y, ask('who', 'contract', 'pell'), [], seed);
-    for (const given of s.gives) assert.ok(ids.includes(given));
-    assert.strictEqual(new Set(s.gives).size, s.gives.length);
     assert.ok(s.gives.length <= room[s.says] + 1, `${s.says} gave ${s.gives.length}`);
     if (s.gives.length) assert.strictEqual(s.gives[0], 'pell-shut-out');
     if (s.bands.signal === 'tail low') assert.deepStrictEqual(s.gives, []);
   }
-  assert.strictEqual(shape(Y, { kind: 'fix' }).asked, false);
-  // A critical question gets one thing more than the same draw would give.
   const lands = shape(Y, ask('who', 'contract', 'pell'), [], 12);
   const critical = shape(Y, ask('who', 'contract', 'pell', { landing: 'critical' }), [], 12);
   assert.strictEqual(critical.gives.length, Math.min(KNOWS.length, lands.gives.length + 1));
 });
 
-test('asked who she is, she says so, unless her own point is still open', () => {
-  const name = ask('who', 'expand', 'name');
-  const open = [past(ask('what', 'contract', 'bag'), 'a sentence or two', null, [])];
-  const answered = [past(ask('what', 'contract', 'bag'))];
-  for (let seed = 1; seed <= 200; seed++) {
-    // Nothing open: she answers, at the start of a call or after her point is dealt with.
-    for (const history of [[], answered]) {
-      for (const sheet of [X, Y, Z]) {
-        const s = shape(sheet, name, history, seed);
-        assert.strictEqual(s.takes, 'the question');
-        assert.strictEqual(s.gives[0], 'her-name');
-      }
-    }
-    // Her point open, and she prefers digging: she stays on it.
-    const digger = shape(Y, name, open, seed);
-    assert.strictEqual(digger.takes, 'her own point');
-    assert.ok(digger.gives.every((g) => !g.startsWith('her-')));
-    // Her point open, and she casts wide: she answers, unless she has room for only one thing.
-    const wide = shape(Z, name, open, seed);
-    assert.strictEqual(wide.takes, wide.says === 'a few words' ? 'her own point' : 'the question');
-  }
-});
-
-test('a question about her problem is never left, and a fix has nothing to take', () => {
-  for (let seed = 1; seed <= 200; seed++) {
-    assert.strictEqual(shape(Y, ask('what', 'contract', 'bag'), [], seed).takes, 'the question');
-  }
-  for (let seed = 1; seed <= 50; seed++) assert.strictEqual(shape(Y, { kind: 'fix' }, [], seed).takes, null);
-  const open = [past(ask('what', 'contract', 'bag'), 'a sentence or two', null, [])];
-  assert.ok(describeShape(shape(Y, ask('who', 'expand', 'name'), open)).includes('carries on with her problem'));
-});
-
-test('asked who she is before her point is answered, a digger feels brushed off; nobody else does', () => {
-  const name = ask('who', 'expand', 'name');
-  const bag = ask('what', 'contract', 'bag');
-  const open = [past(bag, 'a sentence or two', null, [])];
-  for (let seed = 1; seed <= 50; seed++) {
-    assert.strictEqual(shape(Y, name, open, seed).reach, 'brushed off');
-    // Her point answered, the start of the call, or a customer who casts wide: nothing.
-    assert.strictEqual(shape(Y, name, [past(bag)], seed).reach, null);
-    assert.strictEqual(shape(Y, name, [], seed).reach, null);
-    assert.strictEqual(shape(Z, name, open, seed).reach, null);
-  }
-});
-
-test('after a fix she comes back with something of her own when she has it to give or is open', () => {
-  let volunteered = 0;
-  for (let seed = 1; seed <= 2000; seed++) {
+test('after a fix she comes back with as much as her signal or openness moves her to', () => {
+  let some = 0;
+  let none = 0;
+  for (let seed = 1; seed <= 1000; seed++) {
     const s = shape(Y, { kind: 'fix' }, [], seed);
     assert.strictEqual(s.asked, false);
-    assert.strictEqual(s.volunteers, s.counts.signal > 1 || s.counts.openness > 1);
-    if (!s.volunteers) {
-      assert.deepStrictEqual(s.gives, []);
-      assert.ok(!describeShape(s).includes('gives') && !describeShape(s).includes('volunteers'));
-      continue;
-    }
-    volunteered++;
-    // It starts from her own night on the account, when there is room for anything.
+    assert.ok(near(s.degrees.volunteers, Math.max(0, Math.min(1, Math.max(s.counts.signal, s.counts.openness) / 2))));
     if (s.gives.length) {
+      some++;
       assert.strictEqual(s.gives[0], 'at-it-since-last-night');
       assert.ok(describeShape(s).includes('volunteers at-it-since-last-night'));
+    } else {
+      none++;
+      assert.ok(!describeShape(s).includes('gives') && !describeShape(s).includes('volunteers'));
     }
   }
-  assert.ok(volunteered > 0 && volunteered < 2000);
-  assert.strictEqual(shape(Y, { kind: 'fix' }, [], 1, { signal: 6 }).volunteers, true);
-  assert.strictEqual(shape(Y, { kind: 'fix' }, [], 1, { signal: -6, openness: -6 }).volunteers, false);
-  // A question is answered, not volunteered.
-  assert.strictEqual(shape(Y, ask('what', 'contract', 'bag')).volunteers, false);
-});
-
-test('told she changed something, she says she did not, right or wrong', () => {
-  for (let seed = 1; seed <= 50; seed++) {
-    assert.strictEqual(shape(Y, { kind: 'blame' }, [], seed).belief.right, false);
-    assert.strictEqual(shape(X, { kind: 'blame' }, [], seed).belief.right, true);
-    assert.strictEqual(shape(Y, { kind: 'fix' }, [], seed).belief, null);
-  }
+  assert.ok(some > 50 && none > 50);
+  const more = [0, 1, 2, 6].map((z) => shape(Y, { kind: 'fix' }, [], 1, { signal: z - drawCounts(seededRng(1)).signal, openness: -6 }).degrees.volunteers);
+  assert.ok(more[0] <= more[1] && more[1] < more[2] && more[3] === 1);
+  assert.strictEqual(shape(Y, bag).degrees.volunteers, 0);
 });
 
 test('two sheets differ only where the sheets differ', () => {
@@ -290,53 +385,17 @@ test('two sheets differ only where the sheets differ', () => {
     const y = shape(Y, ask('what', 'contract', 'draught'), [], seed);
     assert.deepStrictEqual(x.counts, y.counts);
     assert.deepStrictEqual(x.gives, y.gives);
-    if (x.baggage) assert.notStrictEqual(x.baggage, y.baggage);
+    if (x.labels.baggage) assert.notStrictEqual(x.labels.baggage, y.labels.baggage);
   }
-  // A paraphrase is where they part.
-  assert.notStrictEqual(shape(X, paraphrase('pell')).repeat, shape(Y, paraphrase('pell')).repeat);
-});
-
-test('the only chance in an answer is her five counts: pin them and the answer is fixed', () => {
-  const moves = [ask('what', 'contract', 'bag'), ask('who', 'expand', 'name'), paraphrase('bag'), ask('what', 'random', 'bag'), { kind: 'fix' }];
-  // A generator that always returns the same numbers gives every answer the same counts.
-  const fixed = () => 0.5;
-  const strip = (call) => call.map(({ shape: sh }) => ({ ...sh, counts: null, bands: null }));
-  for (const sheet of [X, Y, Z]) {
-    const a = shapeCall({ sheet, moves, rng: fixed });
-    const b = shapeCall({ sheet, moves, rng: fixed });
-    assert.deepStrictEqual(strip(a), strip(b));
-  }
-  // Ten numbers are taken per answer, two for each count, and no others.
-  let taken = 0;
-  shapeAnswer({ sheet: Y, move: moves[1], history: [], rng: () => { taken++; return 0.5; } });
-  assert.strictEqual(taken, 10);
+  assert.notStrictEqual(shape(X, paraphrase('pell')).labels.repeat, shape(Y, paraphrase('pell')).labels.repeat);
 });
 
 test('shapeAnswer is pure and deterministic', () => {
-  const move = Object.freeze(ask('what', 'contract', 'bag'));
-  const history = Object.freeze([Object.freeze(past(Object.freeze(paraphrase('bag')), 'a few words', 'fine'))]);
+  const move = Object.freeze({ ...bag });
+  const history = Object.freeze([Object.freeze(past(Object.freeze(paraphrase('bag')), Object.freeze([]), 1))]);
   const before = JSON.stringify({ move, history, sheet: Y });
   const a = shape(Y, move, history, 21);
   assert.strictEqual(JSON.stringify({ move, history, sheet: Y }), before);
   assert.deepStrictEqual(a, shape(Y, move, history, 21));
   assert.notDeepStrictEqual(a.counts, shape(Y, move, history, 22).counts);
-});
-
-test('many calls on every sheet: nothing throws and every shape reads as a sentence', () => {
-  const moves = [
-    ask('what', 'expand', 'working'), ask('what', 'contract', 'bag'), paraphrase('pell', { stock: true }),
-    ask('what', 'random', 'bag', { landing: 'misfire' }), ask('when', 'expand', 'morning', { landing: 'critical' }),
-    ask('what', 'verify', 'changed'), { kind: 'wrong-fix' }, { kind: 'blame' }, { kind: 'fix' },
-  ];
-  const says = ['a few words', 'a sentence or two', 'three or four sentences', 'runs on'];
-  for (const sheet of [X, Y, Z]) {
-    for (let seed = 1; seed <= 200; seed++) {
-      const call = shapeCall({ sheet, moves, rng: seededRng(seed) });
-      assert.strictEqual(call.length, moves.length);
-      for (const { shape: s } of call) {
-        assert.ok(says.includes(s.says));
-        assert.ok(describeShape(s).startsWith(`says ${s.says}`));
-      }
-    }
-  }
 });

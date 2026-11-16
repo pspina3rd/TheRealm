@@ -94,15 +94,15 @@ function measureNew() {
       const x = shapeCall({ sheet: SHEETS.X, moves, rng: seededRng(s) });
       const y = shapeCall({ sheet: SHEETS.Y, moves, rng: seededRng(s) });
       total += 2;
-      for (const call of [x, y]) if (call.some((h) => h.shape.baggage)) withBaggage++;
+      for (const call of [x, y]) if (call.some((h) => h.shape.labels.baggage)) withBaggage++;
       x.forEach((h, i) => {
         answers++;
         if (describeShape(h.shape) !== describeShape(y[i].shape)) differ++;
         for (const one of [h, y[i]]) {
           if (one.move.kind !== 'paraphrase') continue;
           repeats++;
-          // "fine" is her not minding, which nobody on the call would hear.
-          if (one.shape.repeat && one.shape.repeat !== 'fine') reacted++;
+          // Fine with it, or settled by it, is nothing the agent would hear.
+          if (one.shape.labels.repeat && !['fine with it', 'settled by it'].includes(one.shape.labels.repeat)) reacted++;
         }
       });
     }

@@ -14,12 +14,25 @@ const { BAGGAGE } = require('./bag');
  * Kept apart from `turn.js` and `reply.js`, which are untouched and still
  * runnable for comparison.
  *
+ * **Nothing in here is a switch or a coin.** Phil, 16 November: the
+ * outcomes "fall within a spectrum, and a spectrum of spectrums". So every
+ * reaction is a degree between 0 and 1, worked out from other things that
+ * are themselves ranges: the value under each band on her sheet, how much
+ * of her point has been answered, how like an earlier question this one is,
+ * and where she landed on her five counts. A reaction's effect scales with
+ * its degree. The words in `labels` are put on last, for a person reading;
+ * nothing is decided from them.
+ *
+ * The only chance is where she lands on her own five curves. Pin those and
+ * the answer is fixed.
+ *
  * What is Phil's here: the five sheet fields and what each band means
- * (settled.md section 8, Fields); the five counts and that each answer is a
- * draw from her own bell curve on each, with the counts acting on one
- * another (docs/claims-her-side.md, 16-24); what she knows on this call
- * (docs/notes-reply-engine.md, top). **Every number is Claude's guess**, and
- * so is how each band behaviour is triggered.
+ * (settled.md section 8, Fields), with a continuous value underneath; the
+ * five counts and that each answer is a draw from her own bell curve on
+ * each, with the counts acting on one another (docs/claims-her-side.md,
+ * 16-24); what she knows on this call (docs/notes-reply-engine.md, top);
+ * that she answers from her own card, which need not be the one asked.
+ * **Every number is Claude's guess**, and so is how the ranges combine.
  */
 
 /** The five counts of how she shares information. */
@@ -43,8 +56,33 @@ const PULLS = Object.freeze([
   { from: 'openness', to: 'signal', low: -0.15, high: -0.15 },
 ]);
 
-/** How far a reaction on her sheet moves her volume, in spreads. */
-const DROP = Object.freeze({ repeat: 1, reach: 1, short: 0.5 });
+/** The value under each band, where a sheet gives the band and no number. */
+const VALUE = Object.freeze({ low: 0.2, middle: 0.5, high: 0.8 });
+
+/** The same for depth or breadth: how strongly she prefers digging. */
+const DEPTH = Object.freeze({ wide: 0.2, none: 0.5, digging: 0.8 });
+
+/** How the ranges combine. Every one is a guess. */
+const WEIGHT = Object.freeze({
+  // How like an earlier question a new one is: the word, the suit, the angle.
+  sameWord: 0.6, sameSuit: 0.2, sameAngle: 0.2,
+  // How much each repeat wears her tolerance down for the rest of the call.
+  wear: 0.4,
+  // How far a new subject is from her point: a related one, an unrelated
+  // one, and a question about who she is.
+  related: 0.3, unrelated: 0.6, whoSheIs: 1,
+  // Things she knows that make a full answer to a question on her point.
+  fullAnswer: 2,
+  // How clumsy a move is to her ear.
+  misfire: 1, flat: 0.3, stock: 0.6,
+  // What a trigger near her baggage adds, and how much a wrong suit dulls it.
+  trigger: 0.6, near: 0.7, wrongSuit: 0.5,
+  // Spreads of volume a reaction at full strength takes from her.
+  repeatDrop: 1.2, reachDrop: 1, shortDrop: 0.5,
+});
+
+/** Where a degree is spoken of at all, plainly, and strongly, in a label. */
+const SAY = Object.freeze({ some: 0.3, plain: 0.5, strong: 0.75 });
 
 /** The three test sheets of docs/player-designs.md. */
 const SHEETS = Object.freeze({
@@ -74,16 +112,13 @@ const KNOWS = Object.freeze([
   { id: 'at-it-since-last-night', about: ['tried', 'account', 'transfer'] },
 ]);
 
-/**
- * What identifies her. Asked for one of these she gives it, and it is not a
- * line of inquiry: moving on from it is not a change of subject to her.
- */
+/** What identifies her, as against what her problem is. */
 const IDENTIFIES = Object.freeze(['name', 'number', 'party', 'account']);
 
 /**
  * What she believes and can be wrong about. `rightWhen` names a cause that
- * makes it true; with none of them on the call she is wrong, and does not
- * know it.
+ * makes it true; `wrongWhen` one that makes it false. Whether she is right
+ * is a fact about the call, not a degree; how sure she is, is a degree.
  */
 const BELIEVES = Object.freeze([
   { id: 'nothing-changed-on-her-side', about: ['account', 'changed', 'settings'], rightWhen: 'update', wrongWhen: 'own-setting' },
@@ -100,6 +135,8 @@ const SAYS = Object.freeze({
 
 /** How many things she knows fit into each length of answer. */
 const ROOM = Object.freeze({ 'a few words': 1, 'a sentence or two': 2, 'three or four sentences': 3, 'runs on': KNOWS.length });
+
+const clamp = (n) => Math.max(0, Math.min(1, n));
 
 /** A draw from a bell curve centred on 0 with a spread of 1. */
 function bell(rng) {
@@ -122,6 +159,24 @@ function band(z) {
 }
 
 /**
+ * The value under a band on her sheet, from 0 to 1.
+ *
+ * The record gives each trait a written meaning at low, middle and high
+ * "with a continuous value underneath: the number decides the band and the
+ * strength within it". A sheet may carry the number in `values`; where it
+ * gives only the band, the middle of that band is used.
+ *
+ * @param {object} sheet
+ * @param {'repetition'|'empathy'|'pattern'|'nonPositive'|'depth'} field
+ *   `depth` is how strongly she prefers digging over casting wide.
+ * @returns {number}
+ */
+function valueOf(sheet, field) {
+  if (sheet.values && typeof sheet.values[field] === 'number') return clamp(sheet.values[field]);
+  return field === 'depth' ? DEPTH[sheet.reach] : VALUE[sheet[field]];
+}
+
+/**
  * One answer's five counts: a draw on each, then the pulls between them.
  *
  * Openness and certainty are what she brings; volume follows from them;
@@ -136,12 +191,6 @@ function band(z) {
 function drawCounts(rng, shift = {}) {
   const z = {};
   for (const count of COUNTS) z[count] = bell(rng) + (shift[count] || 0);
-  return applyPulls(z);
-}
-
-/** The pulls, applied to a copy in an order that lets volume settle first. */
-function applyPulls(counts) {
-  const z = { ...counts };
   for (const target of ['volume', 'signal', 'accuracy']) {
     for (const pull of PULLS) {
       if (pull.to !== target) continue;
@@ -152,180 +201,252 @@ function applyPulls(counts) {
   return z;
 }
 
-/**
- * True when she hears this move as going back over something. Her own
- * words said back to her always are, and so is the same card on the same
- * word. The same word asked a different way is two questions to the agent;
- * whether it is one to her comes from her tolerance for repetition. Low
- * hears it at once. Middle hears it only once repetition has already worn
- * on her in this call, which is the record's point that tolerance wears
- * down inside a single bad call. High does not mind and does not hear it.
- */
-function isRepeat(sheet, move, history) {
-  if (move.kind === 'paraphrase') return true;
-  if (move.kind !== 'question') return false;
-  const before = history.filter((h) => h.move.kind === 'question' && h.move.subject === move.subject);
-  if (before.some((h) => h.move.suit === move.suit && h.move.angle === move.angle)) return true;
-  if (before.length === 0) return false;
-  const worn = history.some((h) => h.shape.repeat && !['fine', 'settled'].includes(h.shape.repeat));
-  return sheet.repetition === 'low' || (sheet.repetition === 'middle' && worn);
-}
-
-/**
- * What going back over something does to her, from her tolerance for
- * repetition (settled.md section 8).
- */
-function repeatReaction(sheet, move, history) {
-  if (!isRepeat(sheet, move, history)) return null;
-  const nth = history.filter((h) => h.shape.repeat).length + 1;
-  if (sheet.repetition === 'low') return 'not listening';
-  if (sheet.repetition === 'high') return 'settled';
-  return ['fine', 'wears thin'][nth - 1] || 'notices the repeat';
-}
-
-/** The moves aimed at her so far, this one included, as "suit/angle". */
-function cardsPlayed(move, history) {
-  return [...history.map((h) => h.move), move].filter((m) => m.suit && m.angle).map((m) => `${m.suit}/${m.angle}`);
-}
-
-/**
- * Whether she names the shape of the questioning. Middle catches a straight
- * run of three; high also hears two cards alternating over four turns.
- */
-function patternReaction(sheet, move, history) {
-  if (!move.suit || !move.angle) return null;
-  const cards = cardsPlayed(move, history);
-  const last = cards.slice(-4);
-  const run = cards.length >= 3 && new Set(cards.slice(-3)).size === 1;
-  const alternating = last.length === 4 && last[0] === last[2] && last[1] === last[3] && last[0] !== last[1];
-  if (sheet.pattern === 'low') return null;
-  if (run) return 'names the run';
-  return sheet.pattern === 'high' && alternating ? 'names the alternation' : null;
-}
-
 /** True for a move about her problem, as against one about who she is. */
 function onPoint(move) {
   return Boolean(move.subject) && !IDENTIFIES.includes(move.subject);
 }
 
+/** The moves about her problem so far, oldest first. */
+function pointSoFar(history) {
+  return history.filter((h) => onPoint(h.move));
+}
+
 /**
- * True when the last thing she was asked about her problem has had nothing
- * out of her yet, so her point is still open.
+ * How like something already asked or said this move is, from 0 to 1. Her
+ * own words said back to her are wholly so. A question is as like an
+ * earlier one as it shares its word, its suit and its angle.
  */
-function pointPending(history) {
-  const asked = history.filter((h) => onPoint(h.move));
+function likeness(move, history) {
+  if (move.kind === 'paraphrase') return 1;
+  if (move.kind !== 'question') return 0;
+  return history.reduce((most, h) => {
+    if (h.move.kind !== 'question' || h.move.subject !== move.subject) return most;
+    const like = WEIGHT.sameWord
+      + (h.move.suit === move.suit ? WEIGHT.sameSuit : 0)
+      + (h.move.angle === move.angle ? WEIGHT.sameAngle : 0);
+    return Math.max(most, like);
+  }, 0);
+}
+
+/**
+ * What going back over something does to her. Her tolerance starts at the
+ * value on her sheet and is worn down by every repeat so far in this call,
+ * faster the less of it she had (settled.md section 8: it "can wear down
+ * inside a single bad call"). `repeat` is how much this one grates;
+ * `settles` is how much it reassures her, which is the high end of the same
+ * trait, where she wants it.
+ */
+function repetition(sheet, move, history) {
+  const tolerance = valueOf(sheet, 'repetition');
+  const like = likeness(move, history);
+  const worn = history.reduce((sum, h) => sum + WEIGHT.wear * (1 - tolerance) * h.shape.degrees.likeness, 0);
+  return { likeness: like, repeat: like * (1 - Math.max(0, tolerance - worn)), settles: like * tolerance };
+}
+
+/** How much of her point is still unanswered, from 0 to 1. */
+function pointOpen(history) {
+  const asked = pointSoFar(history);
   const last = asked[asked.length - 1];
-  return Boolean(last) && last.shape.gives.length === 0;
+  return last ? 1 - clamp(last.shape.gives.length / WEIGHT.fullAnswer) : 0;
+}
+
+/** How far this move is from the point she was last on, from 0 to 1. */
+function distance(move, history) {
+  if (!move.subject) return 0;
+  if (!onPoint(move)) return WEIGHT.whoSheIs;
+  const asked = pointSoFar(history);
+  const last = asked[asked.length - 1];
+  if (!last || last.move.subject === move.subject) return 0;
+  const related = KNOWS.some((k) => k.about.includes(move.subject) && k.about.includes(last.move.subject));
+  return related ? WEIGHT.related : WEIGHT.unrelated;
 }
 
 /**
- * Depth or breadth. Digging: leaving her point before it is answered feels
- * like being brushed off, whether the agent leaves it for another subject
- * or to ask who she is. Casting wide: a third inquiry running on one
- * subject feels stuck.
+ * Depth or breadth, as two degrees on one trait. `brushedOff` grows with
+ * how strongly she prefers digging, how much of her point is still open,
+ * and how far the move leaves it. `stuck` grows with how strongly she
+ * prefers casting wide and how long the agent has stayed on one word.
  */
-function reachReaction(sheet, move, history) {
-  if (!move.subject) return null;
-  const asked = history.filter((h) => onPoint(h.move));
-  const prev = asked[asked.length - 1];
-  if (!prev) return null;
-  if (!onPoint(move)) return sheet.reach === 'digging' && pointPending(history) ? 'brushed off' : null;
-  if (sheet.reach === 'digging') {
-    const moved = prev.move.subject !== move.subject;
-    return moved && prev.shape.gives.length === 0 ? 'brushed off' : null;
-  }
-  if (sheet.reach === 'wide') {
-    const same = asked.slice(-2).every((h) => h.move.subject === move.subject);
-    return asked.length >= 2 && same ? 'stuck' : null;
-  }
-  return null;
+function reach(sheet, move, history) {
+  const depth = valueOf(sheet, 'depth');
+  const asked = pointSoFar(history);
+  let stayed = 0;
+  for (let i = asked.length - 1; i >= 0 && asked[i].move.subject === move.subject; i--) stayed++;
+  return {
+    brushedOff: depth * pointOpen(history) * distance(move, history),
+    stuck: onPoint(move) ? (1 - depth) * clamp(stayed / 2) : 0,
+  };
 }
 
-/** What a clumsy or stock move draws from her, from her own empathy. */
-function towardAgent(sheet, move) {
-  const clumsy = move.landing === 'misfire' || move.kind === 'blame';
-  if (sheet.empathy === 'high') {
-    if (move.stock) return 'hears the stock line';
-    return clumsy ? 'lets them off' : null;
-  }
-  if (!clumsy) return null;
-  return sheet.empathy === 'low' ? 'no warmth' : 'gets short';
+/**
+ * How much she hears the shape of the questioning. A straight run of one
+ * card is heard in proportion to her sensitivity. Two cards alternating is
+ * a subtler shape, heard only by the upper half of the trait.
+ */
+function patternHeard(sheet, move, history) {
+  if (!move.suit || !move.angle) return { pattern: 0, shape: null };
+  const sense = valueOf(sheet, 'pattern');
+  const cards = [...history.map((h) => h.move), move].filter((m) => m.suit && m.angle).map((m) => `${m.suit}/${m.angle}`);
+  let run = 1;
+  for (let i = cards.length - 2; i >= 0 && cards[i] === cards[cards.length - 1]; i--) run++;
+  const last = cards.slice(-4);
+  const alternating = last.length === 4 && last[0] === last[2] && last[1] === last[3] && last[0] !== last[1];
+  const asRun = sense * clamp((run - 1) / 2);
+  const asShape = alternating ? clamp((sense - 0.5) * 2) : 0;
+  return { pattern: Math.max(asRun, asShape), shape: asShape > asRun ? 'alternation' : 'run' };
 }
 
-/** Whether her baggage comes out in this answer. */
-function baggageSurfaces(sheet, move, counts) {
-  if (band(counts.openness) === 'tail low') return false;
-  if (counts.openness > 1) return true;
+/**
+ * What a clumsy or stock move draws from her. Her empathy is how closely
+ * she reads the agent: the more of it, the more a clumsy move is met with
+ * `warmth`; the less, the more it is met `short`.
+ */
+function towardAgent(sheet, move, landing) {
+  const empathy = valueOf(sheet, 'empathy');
+  const landed = move.kind === 'blame' ? WEIGHT.misfire : (WEIGHT[landing] || 0);
+  const clumsy = Math.max(landed, move.stock ? WEIGHT.stock : 0);
+  return { warmth: empathy * clumsy, short: (1 - empathy) * clumsy, hearsStock: move.stock ? empathy : 0 };
+}
+
+/**
+ * How far her baggage comes out in this answer, from 0 to 1: how open she
+ * is running, plus the pull of its trigger, which is dulled as she closes
+ * up and gone when she is shut tight.
+ */
+function baggageOut(sheet, move, counts) {
   const trigger = BAGGAGE[sheet.baggage].trigger;
-  const subjects = [trigger.subject, ...trigger.near];
-  return subjects.includes(move.subject) && trigger.suits.includes(move.suit);
+  const hit = move.subject === trigger.subject ? 1 : (trigger.near.includes(move.subject) ? WEIGHT.near : 0);
+  const suit = trigger.suits.includes(move.suit) ? 1 : WEIGHT.wrongSuit;
+  const open = clamp(counts.openness / 2 + 0.1);
+  return clamp(open + WEIGHT.trigger * hit * suit * clamp((counts.openness + 3) / 3));
 }
 
-/**
- * A belief she states when asked near it, or when told she changed
- * something, and whether she is right.
- */
+/** A belief she states when asked near it, or told she changed something. */
 function beliefStated(sheet, move, counts) {
   const subject = move.kind === 'blame' ? 'changed' : move.subject;
   const belief = BELIEVES.find((b) => b.about.includes(subject));
   if (!belief) return null;
   const right = sheet.causes.includes(belief.rightWhen) && !sheet.causes.includes(belief.wrongWhen);
-  return { id: belief.id, right, sure: counts.certainty > -1 };
-}
-
-/** What a fix, right or wrong, leaves her doing. */
-function afterFix(sheet, move, history) {
-  const misses = [...history.map((h) => h.move), move].filter((m) => m.kind === 'wrong-fix').length;
-  if (move.kind === 'wrong-fix') {
-    if (sheet.nonPositive === 'low') return misses >= 2 ? 'asks for someone else' : 'shows it';
-    return sheet.nonPositive === 'high' ? 'stops signalling' : 'shows it';
-  }
-  if (move.kind === 'unclear-fix') return sheet.nonPositive === 'high' ? 'thanks them and rings off' : 'asks what it means';
-  if (move.kind === 'blame') return sheet.empathy === 'high' ? 'puts it on the company' : 'turns on the agent';
-  return null;
+  return { id: belief.id, right, sure: clamp((counts.certainty + 2) / 3) };
 }
 
 /**
- * Whether she answers what was asked or carries on with her own problem.
- * She answers from her own card, which need not be the one asked
- * (settled.md section 2, Her side, mirrored). Only a question about who she
- * is can be left: a question on her problem and her own point are the same
- * thing. She leaves it when her point is still open and either she prefers
- * digging, or this answer has room for only one thing, which she spends on
- * her problem.
+ * What a fix leaves in her. `strain` is what the misses so far have cost
+ * her, less the more she tolerates; `shows` is how much of it reaches the
+ * agent, which falls away faster still at the high end, where "you lose
+ * your read". `asks` is how readily she questions a fix she did not follow.
+ * `onAgent` and `onCompany` are where being blamed lands.
  */
-function whatSheTakes(sheet, move, history, says) {
-  if (!move.subject) return null;
-  if (onPoint(move) || !pointPending(history)) return 'the question';
-  return sheet.reach === 'digging' || says === 'a few words' ? 'her own point' : 'the question';
+function afterFix(sheet, move, history) {
+  const tolerates = valueOf(sheet, 'nonPositive');
+  const empathy = valueOf(sheet, 'empathy');
+  const misses = [...history.map((h) => h.move), move].filter((m) => m.kind === 'wrong-fix').length;
+  const strain = clamp((misses * (1 - tolerates)) / 2);
+  return {
+    strain,
+    shows: clamp(strain * (1.6 - 1.5 * tolerates)),
+    asks: move.kind === 'unclear-fix' ? 1 - tolerates : 0,
+    onAgent: move.kind === 'blame' ? 1 - empathy : 0,
+    onCompany: move.kind === 'blame' ? empathy : 0,
+  };
 }
 
-/** The things she knows that this answer has room for, nearest first. */
-function handsOver(move, says, counts, landing, takes, volunteers) {
-  // A fix is something said to her; she is not being asked for anything,
-  // and what she comes back with, if she does, starts from her own night.
-  if (!move.subject && !volunteers) return [];
+/**
+ * How much of an answer about who she is goes to her own problem instead,
+ * from 0 (she answers) to 1 (she leaves the question entirely). It grows
+ * with how much of her point is open, how strongly she prefers digging,
+ * how little room this answer has, and how open she is running.
+ */
+function ownPoint(sheet, move, history, says, counts) {
+  if (!move.subject || onPoint(move)) return 0;
+  const tight = 1 - clamp((ROOM[says] - 1) / (KNOWS.length - 1));
+  const pressed = pointOpen(history) * (0.6 * valueOf(sheet, 'depth') + 0.4 * tight);
+  return clamp(pressed + 0.15 * clamp(counts.openness / 2));
+}
+
+/** The room this answer has for things she knows. */
+function roomFor(says, counts, landing) {
+  const lift = { 'tail low': -ROOM[says], 'low side': -1, usual: 0, 'high side': 1, 'tail high': 1 }[band(counts.signal)];
+  return Math.max(0, Math.min(KNOWS.length, ROOM[says] + lift + (landing === 'critical' ? 1 : 0)));
+}
+
+/**
+ * What she hands over. On her problem: what she knows, nearest the question
+ * first. Asked who she is: her answer and her problem share the room, her
+ * problem taking at least the share `own` gives it; past halfway her
+ * problem comes first, and near the top she leaves the question out. After a
+ * fix: only as much as she is moved to volunteer, starting from her own
+ * night on the account.
+ */
+function handsOver(move, room, own, volunteers) {
   const subject = move.subject || 'account';
-  // Asked who she is, and answering, she says so first.
-  const answers = takes === 'the question' && IDENTIFIES.includes(move.subject);
-  const asked = answers ? [`her-${move.subject}`] : [];
   const near = KNOWS.filter((k) => k.about.includes(subject));
-  const rest = KNOWS.filter((k) => !near.includes(k));
-  const signal = band(counts.signal);
-  const lift = { 'tail low': -ROOM[says], 'low side': -1, usual: 0, 'high side': 1, 'tail high': 1 }[signal];
-  const room = Math.max(0, Math.min(KNOWS.length, ROOM[says] + lift + (landing === 'critical' ? 1 : 0)));
-  const known = [...near, ...rest].map((k) => k.id);
-  return [...asked, ...known].slice(0, Math.max(room, asked.length));
+  const known = [...near, ...KNOWS.filter((k) => !near.includes(k))].map((k) => k.id);
+  if (!move.subject) return known.slice(0, Math.round(volunteers * room));
+  if (onPoint(move)) return known.slice(0, room);
+  const asked = `her-${move.subject}`;
+  const slots = Math.max(1, room);
+  if (own >= SAY.strong) return known.slice(0, slots);
+  // Her problem takes its share of the room, and whatever room is left
+  // over once she has said who she is.
+  const hers = known.slice(0, Math.max(Math.round(own * slots), slots - 1));
+  return own >= SAY.plain ? [...hers, asked] : [asked, ...hers];
+}
+
+/** A degree in words, for a label: slight, plain, or strong. */
+function howMuch(degree, word) {
+  if (degree < SAY.some) return null;
+  if (degree < SAY.plain) return `a little ${word}`;
+  return degree < SAY.strong ? word : `badly ${word}`;
+}
+
+/**
+ * The words a person would put on the degrees. Read-only: nothing in the
+ * answer is decided from these.
+ */
+function labelsFor(sheet, move, d, takesShare) {
+  const tolerance = valueOf(sheet, 'repetition');
+  let repeat = null;
+  if (d.likeness > 0) {
+    if (d.repeat >= SAY.strong) repeat = tolerance < 0.35 ? 'reads it as not listening' : 'notices the repeat';
+    else if (d.repeat >= 0.55) repeat = 'it wears thin';
+    else repeat = d.settles >= 0.65 ? 'settled by it' : 'fine with it';
+  }
+  let toward = null;
+  if (d.hearsStock >= 0.65) toward = 'hears the stock line';
+  else if (d.warmth >= 0.6) toward = 'lets them off';
+  else if (d.short >= 0.4) toward = valueOf(sheet, 'empathy') < 0.35 ? 'no warmth' : 'gets short';
+  let fix = null;
+  if (move.kind === 'wrong-fix') fix = d.strain >= SAY.strong ? 'asks for someone else' : (d.shows >= 0.2 ? 'shows it' : 'gives no sign');
+  if (move.kind === 'unclear-fix') fix = d.asks >= 0.45 ? 'asks what it means' : 'thanks them and rings off';
+  if (move.kind === 'blame') fix = d.onAgent >= d.onCompany ? 'turns on the agent' : 'puts it on the company';
+  let takes = null;
+  if (move.subject) {
+    if (takesShare >= SAY.strong) takes = 'leaves the question';
+    else if (takesShare >= SAY.plain) takes = 'half-answers and drifts';
+    else takes = takesShare >= 0.15 ? 'answers and adds' : 'answers';
+  }
+  return {
+    takes,
+    repeat,
+    reach: howMuch(d.brushedOff, 'brushed off') || howMuch(d.stuck, 'stuck'),
+    pattern: d.pattern >= 0.45 ? `names the ${d.patternShape}` : (d.pattern >= SAY.some ? `starts to hear the ${d.patternShape}` : null),
+    towardAgent: toward,
+    baggage: d.baggage >= SAY.plain ? sheet.baggage : null,
+    afterFix: fix,
+  };
 }
 
 /**
  * The shape of her answer to one move.
  *
- * Pure: the sheet, move and history are not modified, and the same seed
- * gives the same shape.
+ * Pure: the sheet, move and history are not modified. Ten numbers are taken
+ * from `rng`, two for each of her five counts, and no others: with the
+ * counts pinned the whole answer is fixed.
  *
  * @param {object} args
- * @param {object} args.sheet one of SHEETS, or the same fields
+ * @param {object} args.sheet one of SHEETS, or the same fields; `values`
+ *   may give the number under any band (see valueOf)
  * @param {{kind: string, suit?: string, angle?: string, subject?: string,
  *   landing?: string, stock?: boolean}} args.move - `kind` is one of
  *   question, paraphrase, guess, fix, wrong-fix, unclear-fix, blame.
@@ -333,58 +454,57 @@ function handsOver(move, says, counts, landing, takes, volunteers) {
  *   moves aimed at her on this call, oldest first
  * @param {() => number} [args.rng] injected; defaults to Math.random
  * @param {Object<string, number>} [args.shift] see drawCounts
- * @returns {object} counts and their bands; `says`; `asked` (false when
- *   the move was a fix said to her, not a question); `takes` ('the
- *   question', or 'her own point' when she leaves it and carries on with
- *   her problem); `volunteers` (true when she comes back with something
- *   of her own after a fix); `gives`; `hedged`,
- *   `flat`, `loose`, `misleading`, `exact`; and what the move set off:
- *   `repeat`, `pattern`, `reach`, `towardAgent`, `baggage`, `belief`,
- *   `afterFix`. Anything not set off is null or false.
+ * @returns {object} `counts` and their `bands`; `says`; `asked` (false when
+ *   the move was a fix said to her); `gives`; `hedged`, `flat`, `loose`,
+ *   `misleading`, `exact`; `belief`; `degrees`, every reaction from 0 to 1;
+ *   and `labels`, the same in words.
  */
 function shapeAnswer({ sheet, move, history = [], rng = Math.random, shift = {} }) {
   const landing = move.landing || 'lands';
-  // The only chance in an answer: where she lands on her own five curves.
   const drawn = drawCounts(rng, shift);
-  const repeat = repeatReaction(sheet, move, history);
-  const reach = reachReaction(sheet, move, history);
-  const toward = towardAgent(sheet, { ...move, landing });
+  const again = repetition(sheet, move, history);
+  const reached = reach(sheet, move, history);
+  const toward = towardAgent(sheet, move, landing);
 
-  // Her sheet's reactions take words away before the answer is sized.
-  let drop = 0;
-  if (repeat === 'not listening' || repeat === 'wears thin' || repeat === 'notices the repeat') drop += DROP.repeat;
-  if (reach) drop += DROP.reach;
-  if (toward === 'gets short') drop += DROP.short;
+  // Each reaction takes words from her in proportion to its strength.
+  const drop = WEIGHT.repeatDrop * again.repeat * again.repeat
+    + WEIGHT.reachDrop * (reached.brushedOff + reached.stuck)
+    + WEIGHT.shortDrop * toward.short * clamp(2 * valueOf(sheet, 'empathy'));
   const counts = { ...drawn, volume: drawn.volume - drop };
 
   const bands = {};
   for (const count of COUNTS) bands[count] = band(counts[count]);
   const says = SAYS[bands.volume];
-  const takes = whatSheTakes(sheet, move, history, says);
-  // After a fix she comes back with something of her own when this answer
-  // finds her with something useful to say or notably open.
-  const volunteers = !move.subject && (counts.signal > 1 || counts.openness > 1);
+  const own = ownPoint(sheet, move, history, says, counts);
+  const volunteers = move.subject ? 0 : clamp(Math.max(counts.signal, counts.openness) / 2);
+  const heard = patternHeard(sheet, move, history);
+
+  const degrees = {
+    ...again,
+    ...reached,
+    ownPoint: own,
+    pattern: heard.pattern,
+    patternShape: heard.shape,
+    ...toward,
+    baggage: baggageOut(sheet, move, counts),
+    ...afterFix(sheet, move, history),
+    volunteers,
+  };
 
   return {
     counts,
     bands,
     says,
     asked: Boolean(move.subject),
-    takes,
-    volunteers,
-    gives: handsOver(move, says, counts, landing, takes, volunteers),
+    gives: handsOver(move, roomFor(says, counts, landing), own, volunteers),
     hedged: counts.certainty < -1,
     flat: counts.certainty > 1,
     loose: counts.accuracy < -1,
     misleading: counts.accuracy < -TAIL,
     exact: counts.accuracy > 1,
-    repeat,
-    pattern: patternReaction(sheet, move, history),
-    reach,
-    towardAgent: toward,
-    baggage: baggageSurfaces(sheet, move, counts) ? sheet.baggage : null,
     belief: beliefStated(sheet, move, counts),
-    afterFix: afterFix(sheet, move, history),
+    degrees,
+    labels: labelsFor(sheet, move, degrees, own),
   };
 }
 
@@ -410,24 +530,25 @@ function shapeCall({ sheet, moves, rng, shift = {} }) {
  * @returns {string}
  */
 function describeShape(shape) {
+  const { labels } = shape;
   const parts = [`says ${shape.says}`];
-  if (shape.takes === 'her own point') parts.push('leaves the question and carries on with her problem');
+  if (labels.takes && labels.takes !== 'answers') parts.push(labels.takes);
   if (shape.asked) parts.push(shape.gives.length ? `gives ${shape.gives.join(', ')}` : 'gives nothing useful');
-  if (shape.volunteers && shape.gives.length) parts.push(`volunteers ${shape.gives.join(', ')}`);
+  else if (shape.gives.length) parts.push(`volunteers ${shape.gives.join(', ')}`);
   if (shape.hedged) parts.push('hedged');
   if (shape.flat) parts.push('flatly sure');
   if (shape.misleading) parts.push('misleading');
   else if (shape.loose) parts.push('loosely put');
   if (shape.exact) parts.push('exact');
-  if (shape.belief) parts.push(`states ${shape.belief.id} (${shape.belief.sure ? 'sure' : 'unsure'}, ${shape.belief.right ? 'right' : 'wrong'})`);
-  if (shape.baggage) parts.push(`baggage: ${shape.baggage}`);
+  if (shape.belief) parts.push(`states ${shape.belief.id} (${shape.belief.sure >= SAY.plain ? 'sure' : 'unsure'}, ${shape.belief.right ? 'right' : 'wrong'})`);
+  if (labels.baggage) parts.push(`baggage: ${labels.baggage}`);
   for (const key of ['repeat', 'pattern', 'reach', 'towardAgent', 'afterFix']) {
-    if (shape[key]) parts.push(shape[key]);
+    if (labels[key] && labels[key] !== 'fine with it') parts.push(labels[key]);
   }
   return parts.join(' · ');
 }
 
 module.exports = {
-  COUNTS, TAIL, PULLS, SHEETS, KNOWS, BELIEVES, IDENTIFIES,
-  band, drawCounts, shapeAnswer, shapeCall, describeShape,
+  COUNTS, TAIL, PULLS, WEIGHT, SHEETS, KNOWS, BELIEVES, IDENTIFIES,
+  band, valueOf, drawCounts, shapeAnswer, shapeCall, describeShape,
 };
