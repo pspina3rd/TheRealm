@@ -480,6 +480,20 @@ test('something she said long enough ago can come round again, ahead of what she
   }
 });
 
+test('the suit decides which answer she reaches for first: who can get into the bag is Pell', () => {
+  for (let seed = 1; seed <= 100; seed++) {
+    const who = shape(Y, ask('who', 'verify', 'bag'), [], seed, { signal: 1 });
+    const what = shape(Y, ask('what', 'contract', 'bag'), [], seed, { signal: 1 });
+    const when = shape(Y, ask('when', 'expand', 'bag'), [], seed, { signal: 1 });
+    if (who.gives.length) assert.strictEqual(who.gives[0], 'pell-shut-out');
+    if (what.gives.length) assert.strictEqual(what.gives[0], 'cannot-transfer');
+    if (when.gives.length) assert.strictEqual(when.gives[0], 'never-a-problem-before');
+  }
+  // A suit nothing near the subject answers falls back to the nearest thing.
+  const why = shape(Y, ask('why', 'expand', 'bag'), [], 3, { signal: 1 });
+  if (why.gives.length) assert.strictEqual(why.gives[0], 'cannot-transfer');
+});
+
 test('two sheets differ only where the sheets differ', () => {
   // A plain question that sets nothing off: the same draw gives the same answer.
   for (let seed = 1; seed <= 100; seed++) {

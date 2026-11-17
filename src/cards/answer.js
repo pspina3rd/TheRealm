@@ -117,14 +117,17 @@ const SHEETS = Object.freeze({
 
 /**
  * What she knows on this call: Phil's list of 16 October, in the order she
- * reaches for it. `about` is the subjects each one answers to.
+ * reaches for it. `about` is the subjects each one answers to; `answers` is
+ * the kind of answer it is, by suit (docs/card-rules.md, rule 8: the suit is
+ * the kind of answer asked for), so that "who can get into the bag?" is
+ * answered with Pell and not with the transfer.
  */
 const KNOWS = Object.freeze([
-  { id: 'cannot-transfer', about: ['transfer', 'draught', 'bag', 'working'] },
-  { id: 'pell-shut-out', about: ['pell', 'bag', 'working'] },
-  { id: 'leaves-in-the-morning', about: ['morning', 'pell', 'contract'] },
-  { id: 'never-a-problem-before', about: ['before', 'bag', 'working'] },
-  { id: 'at-it-since-last-night', about: ['tried', 'account', 'transfer'] },
+  { id: 'cannot-transfer', about: ['transfer', 'draught', 'bag', 'working'], answers: ['what', 'how'] },
+  { id: 'pell-shut-out', about: ['pell', 'bag', 'working'], answers: ['who', 'what'] },
+  { id: 'leaves-in-the-morning', about: ['morning', 'pell', 'contract'], answers: ['when', 'why'] },
+  { id: 'never-a-problem-before', about: ['before', 'bag', 'working'], answers: ['when'] },
+  { id: 'at-it-since-last-night', about: ['tried', 'account', 'transfer'], answers: ['when', 'how'] },
 ]);
 
 /** What identifies her, as against what her problem is. */
@@ -422,7 +425,8 @@ function handsOver(move, room, own, volunteers, said) {
   // What she remembers saying least comes first, so something said long
   // enough ago can come round again. The one thing the question is aimed
   // straight at she answers either way.
-  const aimed = ranked.filter((id) => near.some((k) => k.id === id)).slice(0, 1);
+  const fits = near.filter((k) => k.answers.includes(move.suit));
+  const aimed = (fits.length ? fits : near).slice(0, 1).map((k) => k.id);
   const rest = ranked.filter((id) => !aimed.includes(id));
   const recall = (id) => said[id] || 0;
   const known = [...aimed, ...rest.map((id, i) => ({ id, i })).sort((a, b) => recall(a.id) - recall(b.id) || a.i - b.i).map((x) => x.id)];
