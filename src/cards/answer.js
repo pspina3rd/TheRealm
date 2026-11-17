@@ -86,6 +86,16 @@ const WEIGHT = Object.freeze({
   sourRepeat: 0.5, sourMiss: 1, sourDrop: 0.3,
 });
 
+/**
+ * How much of each kind of thing she still holds from one answer to the
+ * next. The record's order, from the research Phil cited
+ * (docs/handover/memory/therealm-design-frame.md): gist very high, emotion
+ * high, her own words moderate-high, exact dialogue extremely low. What she
+ * felt fades slowly; that she said a particular thing fades faster, which is
+ * why people repeat themselves. Guesses within that order.
+ */
+const RETAIN = Object.freeze({ emotion: 0.95, ownWords: 0.8 });
+
 /** Where a degree is spoken of at all, plainly, and strongly, in a label. */
 const SAY = Object.freeze({ some: 0.3, plain: 0.5, strong: 0.75 });
 
@@ -237,12 +247,17 @@ function likeness(move, history) {
  * Where she stands at the start of a call, before anything has happened:
  * her sheet's own values, nothing said, nothing soured.
  *
+ * Nothing in here is perfect recall. `said` is how strongly she remembers
+ * having said each thing, from 1 when she has just said it, fading at the
+ * rate for her own words; the feelings fade back toward her sheet at the
+ * slower rate for emotion.
+ *
  * @param {object} sheet
  * @returns {{tolerance: number, pressure: number, strain: number,
- *   sour: number, said: string[]}}
+ *   sour: number, said: Object<string, number>}}
  */
 function freshNow(sheet) {
-  return Object.freeze({ tolerance: valueOf(sheet, 'repetition'), pressure: 1, strain: 0, sour: 0, said: Object.freeze([]) });
+  return Object.freeze({ tolerance: valueOf(sheet, 'repetition'), pressure: 1, strain: 0, sour: 0, said: Object.freeze({}) });
 }
 
 /** Where she stands now: what the call so far has written on her sheet. */
@@ -404,11 +419,13 @@ function handsOver(move, room, own, volunteers, said) {
   const subject = move.subject || 'account';
   const near = KNOWS.filter((k) => k.about.includes(subject));
   const ranked = [...near, ...KNOWS.filter((k) => !near.includes(k))].map((k) => k.id);
-  // What she has not said yet comes before what she has, except the one
-  // thing the question is aimed straight at, which she answers either way.
+  // What she remembers saying least comes first, so something said long
+  // enough ago can come round again. The one thing the question is aimed
+  // straight at she answers either way.
   const aimed = ranked.filter((id) => near.some((k) => k.id === id)).slice(0, 1);
   const rest = ranked.filter((id) => !aimed.includes(id));
-  const known = [...aimed, ...rest.filter((id) => !said.includes(id)), ...rest.filter((id) => said.includes(id))];
+  const recall = (id) => said[id] || 0;
+  const known = [...aimed, ...rest.map((id, i) => ({ id, i })).sort((a, b) => recall(a.id) - recall(b.id) || a.i - b.i).map((x) => x.id)];
   if (!move.subject) return known.slice(0, Math.round(volunteers * room));
   if (onPoint(move)) return known.slice(0, room);
   const asked = `her-${move.subject}`;
@@ -488,7 +505,8 @@ function labelsFor(sheet, move, d, takesShare) {
  *   leaves it, which the next answer starts from. `sheet.now` holds what
  *   the call has written on her: her tolerance as worn so far, the
  *   pressure behind her baggage, the strain from misses, how soured she
- *   is, and what she has already said.
+ *   is, and how well she remembers what she has already said. Each fades
+ *   at the rate for its kind (RETAIN); none of it is perfect recall.
  */
 function shapeAnswer({ sheet, move, history = [], rng = Math.random, shift = {} }) {
   const landing = move.landing || 'lands';
@@ -530,13 +548,19 @@ function shapeAnswer({ sheet, move, history = [], rng = Math.random, shift = {} 
   // What this answer writes back on her sheet, for the next one to start
   // from (settled.md section 8: one sheet, with her mood in this call
   // changing turn to turn).
+  // changing turn to turn). None of it is held perfectly: each thing fades
+  // at the rate for its kind before this answer adds to it.
   const base = valueOf(sheet, 'repetition');
+  const fade = (value, rest) => rest + (value - rest) * RETAIN.emotion;
+  const said = {};
+  for (const [id, held] of Object.entries(now.said)) said[id] = held * RETAIN.ownWords;
+  for (const g of gives) if (!g.startsWith('her-')) said[g] = 1;
   const wrote = Object.freeze({
-    tolerance: Math.max(0, now.tolerance - WEIGHT.wear * (1 - base) * again.likeness),
-    pressure: labels.baggage ? now.pressure * (1 - WEIGHT.ease * degrees.baggage) : now.pressure,
-    strain: degrees.strain,
-    sour: now.sour + WEIGHT.sourRepeat * again.repeat + (move.kind === 'wrong-fix' ? WEIGHT.sourMiss * (1 - valueOf(sheet, 'nonPositive')) : 0),
-    said: Object.freeze([...now.said, ...gives.filter((g) => !now.said.includes(g) && !g.startsWith('her-'))]),
+    tolerance: Math.max(0, fade(now.tolerance, base) - WEIGHT.wear * (1 - base) * again.likeness),
+    pressure: labels.baggage ? fade(now.pressure, 1) * (1 - WEIGHT.ease * degrees.baggage) : fade(now.pressure, 1),
+    strain: fade(degrees.strain, 0),
+    sour: fade(now.sour, 0) + WEIGHT.sourRepeat * again.repeat + (move.kind === 'wrong-fix' ? WEIGHT.sourMiss * (1 - valueOf(sheet, 'nonPositive')) : 0),
+    said: Object.freeze(said),
   });
 
   return {
@@ -604,6 +628,6 @@ function describeShape(shape) {
 }
 
 module.exports = {
-  COUNTS, TAIL, PULLS, WEIGHT, SHEETS, KNOWS, BELIEVES, IDENTIFIES,
+  COUNTS, TAIL, PULLS, WEIGHT, RETAIN, SHEETS, KNOWS, BELIEVES, IDENTIFIES,
   band, valueOf, freshNow, drawCounts, shapeAnswer, shapeCall, describeShape,
 };

@@ -44,9 +44,9 @@ sheet allows occurred, and none it doesn't:
 ## Her worry about Pell
 
 In the first run it came out in 480 of 1,800 answers, three times or more
-in 88 calls.[^1] With each answer now written back on her sheet, it comes
-out once in 165 calls, twice in 19, and not at all in 16. Nothing else
-in the tally moved, and nothing went against her sheet.
+in 88 calls.[^1] With each answer now written back on her sheet, and that
+memory fading as a person's does,[^2] it comes out once in 155 calls,
+twice in 29, and not at all in 16. Nothing went against her sheet.
 
 [^1]: The new module worked out each answer from her sheet as she started
     the call, and wrote nothing back. The original engine carried what
@@ -58,3 +58,15 @@ in the tally moved, and nothing went against her sheet.
     so far, the pressure behind her baggage (eased each time she says it),
     the strain from misses, how soured she is, and what she has already
     said, which now comes after what she has not.
+
+[^2]: My first write-back held everything perfectly: once she had said
+    something, she knew it for the rest of the call. Phil: *"Is it 100%
+    perfect recall, because that would be an inaccurate representation of
+    what the memory on the sheet is supposed to be."* It was. Corrected
+    17 November, by the record's order of what people keep (gist very
+    high, emotion high, her own words moderate-high, exact dialogue
+    extremely low): how well she remembers having said each thing now
+    fades from one answer to the next, faster than what she felt, which
+    fades back toward her sheet more slowly. So something she said a while
+    ago can come round again, and a worry she voiced early can build back
+    up.

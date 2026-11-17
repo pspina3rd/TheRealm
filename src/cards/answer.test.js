@@ -4,7 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert');
 const { seededRng } = require('../call/rng');
 const {
-  COUNTS, SHEETS, KNOWS, band, valueOf, drawCounts, shapeAnswer, shapeCall, describeShape,
+  COUNTS, SHEETS, KNOWS, RETAIN, band, valueOf, freshNow, drawCounts, shapeAnswer, shapeCall, describeShape,
 } = require('./answer');
 
 const { X, Y, Z } = SHEETS;
@@ -154,7 +154,7 @@ test('repetition reads as the record words it: middle fine, then thin, then noti
   const grates = (sheet) => call(sheet).map((h) => h.shape.degrees.repeat);
   assert.ok(rising(grates(Y)));
   assert.ok(grates(X)[1] >= grates(X)[0] && grates(X)[0] > grates(Y)[0]);
-  assert.ok(near(grates(Y)[0], 0.5) && near(grates(Y)[1], 0.7) && near(grates(Y)[2], 0.9));
+  assert.ok(near(grates(Y)[0], 0.5) && grates(Y)[2] < 1);
   // Middle tolerance does not mind the same word asked another way, until the call has worn on her.
   const last = (moves) => shapeCall({ sheet: Y, moves, rng: seededRng(6) }).pop().shape.labels.repeat;
   assert.strictEqual(last([bag, ask('what', 'random', 'bag')]), 'fine with it');
@@ -330,7 +330,9 @@ test('what a fix leaves in her follows her sheet, by degrees', () => {
   const after = (sheet, n) => shapeCall({ sheet, moves: Array(n).fill(miss), rng: seededRng(4) }).map((h) => h.shape);
   assert.deepStrictEqual(after(Y, 2).map((s) => s.labels.afterFix), ['shows it', 'asks for someone else']);
   assert.deepStrictEqual(after(X, 3).map((s) => s.labels.afterFix), ['gives no sign', 'gives no sign', 'gives no sign']);
-  assert.deepStrictEqual(after(Z, 3).map((s) => s.labels.afterFix), ['shows it', 'shows it', 'asks for someone else']);
+  // Middle absorbs a fair bit, and shows it: three misses in a row, and she has still not asked for someone else.
+  assert.deepStrictEqual(after(Z, 3).map((s) => s.labels.afterFix), ['shows it', 'shows it', 'shows it']);
+  assert.strictEqual(after(Z, 4)[3].labels.afterFix, 'asks for someone else');
   // The strain builds with each miss on every sheet; what reaches the agent is less than what is there.
   for (const sheet of [X, Y, Z]) {
     const strain = after(sheet, 3).map((s) => s.degrees.strain);
@@ -388,9 +390,8 @@ test('each answer writes back on her sheet, and the next starts from it', () => 
   assert.strictEqual(Y.now, undefined);
   for (const { shape: s } of call) assert.ok(Object.isFrozen(s.sheet) && s.sheet.now);
   const now = call.map((h) => h.shape.sheet.now);
-  // What she has said is kept, and only grows.
-  assert.deepStrictEqual(now[0].said, call[0].shape.gives.filter((g) => !g.startsWith('her-')));
-  for (let i = 1; i < now.length; i++) for (const g of now[i - 1].said) assert.ok(now[i].said.includes(g));
+  // What she has just said she holds at full strength.
+  for (const g of call[0].shape.gives.filter((x) => !x.startsWith('her-'))) assert.strictEqual(now[0].said[g], 1);
   // The paraphrase wore her tolerance, and the miss strained and soured her.
   assert.ok(now[1].tolerance < now[0].tolerance);
   assert.ok(now[2].strain > 0 && now[2].sour > now[1].sour);
@@ -432,8 +433,8 @@ test('over many calls her baggage comes out once or twice, not on a loop', () =>
 });
 
 test('what she has already said comes after what she has not, except what the question is aimed at', () => {
-  const said = ['cannot-transfer', 'pell-shut-out'];
-  const sheet = { ...Y, now: { ...Object.fromEntries(Object.entries(require('./answer').freshNow(Y))), said } };
+  const said = { 'cannot-transfer': 1, 'pell-shut-out': 1 };
+  const sheet = { ...Y, now: { ...freshNow(Y), said } };
   for (let seed = 1; seed <= 100; seed++) {
     const s = shape(sheet, ask('what', 'contract', 'working'), [], seed, { volume: 3, signal: 1 });
     if (!s.gives.length) continue;
@@ -442,6 +443,40 @@ test('what she has already said comes after what she has not, except what the qu
     // Then new things before Pell, which she has said already.
     const at = s.gives.indexOf('pell-shut-out');
     if (at !== -1) assert.strictEqual(at, s.gives.length - 1);
+  }
+});
+
+test('nothing on her sheet is perfect recall: what she said fades faster than what she felt', () => {
+  // She has just said Pell is shut out; then a miss, then fixes she adds nothing to.
+  const start = { ...Y, now: { ...freshNow(Y), said: { 'pell-shut-out': 1 } } };
+  const moves = [{ kind: 'wrong-fix' }, ...Array(6).fill({ kind: 'fix' })];
+  const call = shapeCall({ sheet: start, moves, rng: () => 0.5 });
+  const now = [start.now, ...call.map((h) => h.shape.sheet.now)];
+  for (const { shape: sh } of call) assert.deepStrictEqual(sh.gives, []);
+  // Pell, not said again, fades at the rate for her own words.
+  for (let i = 1; i < now.length; i++) assert.ok(Math.abs(now[i].said['pell-shut-out'] - RETAIN.ownWords ** i) < 1e-9);
+  // The strain of the miss fades too, but at the slower rate for what she felt.
+  const strain = now.slice(1).map((n) => n.strain);
+  assert.ok(strain[0] > 0);
+  assert.ok(falling(strain) && strain[strain.length - 1] > 0);
+  const heldWords = now[now.length - 1].said['pell-shut-out'];
+  const heldFeeling = strain[strain.length - 1] / strain[0];
+  assert.ok(heldFeeling > heldWords, `feeling ${heldFeeling}, words ${heldWords}`);
+  // Her baggage pressure comes back toward full when she has not said it for a while.
+  const morning = ask('when', 'expand', 'morning');
+  const eased = { ...Y, now: { ...freshNow(Y), pressure: 0.2 } };
+  const later = shapeCall({ sheet: eased, moves: Array(5).fill(name), rng: () => 0.5 }).map((h) => h.shape.sheet.now.pressure);
+  assert.ok(rising(later) && later[4] < 1);
+  assert.ok(shape(eased, morning).degrees.baggage < shape(Y, morning).degrees.baggage);
+});
+
+test('something she said long enough ago can come round again, ahead of what she has just said', () => {
+  const sheet = { ...Y, now: { ...freshNow(Y), said: { 'pell-shut-out': 0.2, 'leaves-in-the-morning': 1, 'never-a-problem-before': 1, 'at-it-since-last-night': 1 } } };
+  for (let seed = 1; seed <= 100; seed++) {
+    const s = shape(sheet, ask('what', 'contract', 'transfer'), [], seed, { volume: 3, signal: 1 });
+    if (s.gives.length < 2) continue;
+    assert.strictEqual(s.gives[0], 'cannot-transfer');
+    assert.strictEqual(s.gives[1], 'pell-shut-out');
   }
 });
 
