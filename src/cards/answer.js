@@ -79,6 +79,11 @@ const WEIGHT = Object.freeze({
   trigger: 0.6, near: 0.7, wrongSuit: 0.5,
   // Spreads of volume a reaction at full strength takes from her.
   repeatDrop: 1.2, reachDrop: 1, shortDrop: 0.5,
+  // How much saying her baggage eases the pressure behind it.
+  ease: 0.8,
+  // What sours her over a call, and how many spreads of volume souring
+  // takes from every answer after: a repeat that grates, and a miss.
+  sourRepeat: 0.5, sourMiss: 1, sourDrop: 0.3,
 });
 
 /** Where a degree is spoken of at all, plainly, and strongly, in a label. */
@@ -229,6 +234,23 @@ function likeness(move, history) {
 }
 
 /**
+ * Where she stands at the start of a call, before anything has happened:
+ * her sheet's own values, nothing said, nothing soured.
+ *
+ * @param {object} sheet
+ * @returns {{tolerance: number, pressure: number, strain: number,
+ *   sour: number, said: string[]}}
+ */
+function freshNow(sheet) {
+  return Object.freeze({ tolerance: valueOf(sheet, 'repetition'), pressure: 1, strain: 0, sour: 0, said: Object.freeze([]) });
+}
+
+/** Where she stands now: what the call so far has written on her sheet. */
+function nowOf(sheet) {
+  return sheet.now || freshNow(sheet);
+}
+
+/**
  * What going back over something does to her. Her tolerance starts at the
  * value on her sheet and is worn down by every repeat so far in this call,
  * faster the less of it she had (settled.md section 8: it "can wear down
@@ -237,10 +259,10 @@ function likeness(move, history) {
  * trait, where she wants it.
  */
 function repetition(sheet, move, history) {
-  const tolerance = valueOf(sheet, 'repetition');
   const like = likeness(move, history);
-  const worn = history.reduce((sum, h) => sum + WEIGHT.wear * (1 - tolerance) * h.shape.degrees.likeness, 0);
-  return { likeness: like, repeat: like * (1 - Math.max(0, tolerance - worn)), settles: like * tolerance };
+  // Grating is against her tolerance as the call has worn it; wanting it,
+  // at the high end, is her own and does not wear.
+  return { likeness: like, repeat: like * (1 - nowOf(sheet).tolerance), settles: like * valueOf(sheet, 'repetition') };
 }
 
 /** How much of her point is still unanswered, from 0 to 1. */
@@ -318,7 +340,8 @@ function baggageOut(sheet, move, counts) {
   const hit = move.subject === trigger.subject ? 1 : (trigger.near.includes(move.subject) ? WEIGHT.near : 0);
   const suit = trigger.suits.includes(move.suit) ? 1 : WEIGHT.wrongSuit;
   const open = clamp(counts.openness / 2 + 0.1);
-  return clamp(open + WEIGHT.trigger * hit * suit * clamp((counts.openness + 3) / 3));
+  // Having said it already this call eases the pressure behind it.
+  return nowOf(sheet).pressure * clamp(open + WEIGHT.trigger * hit * suit * clamp((counts.openness + 3) / 3));
 }
 
 /** A belief she states when asked near it, or told she changed something. */
@@ -337,11 +360,10 @@ function beliefStated(sheet, move, counts) {
  * your read". `asks` is how readily she questions a fix she did not follow.
  * `onAgent` and `onCompany` are where being blamed lands.
  */
-function afterFix(sheet, move, history) {
+function afterFix(sheet, move) {
   const tolerates = valueOf(sheet, 'nonPositive');
   const empathy = valueOf(sheet, 'empathy');
-  const misses = [...history.map((h) => h.move), move].filter((m) => m.kind === 'wrong-fix').length;
-  const strain = clamp((misses * (1 - tolerates)) / 2);
+  const strain = clamp(nowOf(sheet).strain + (move.kind === 'wrong-fix' ? (1 - tolerates) / 2 : 0));
   return {
     strain,
     shows: clamp(strain * (1.6 - 1.5 * tolerates)),
@@ -378,10 +400,15 @@ function roomFor(says, counts, landing) {
  * fix: only as much as she is moved to volunteer, starting from her own
  * night on the account.
  */
-function handsOver(move, room, own, volunteers) {
+function handsOver(move, room, own, volunteers, said) {
   const subject = move.subject || 'account';
   const near = KNOWS.filter((k) => k.about.includes(subject));
-  const known = [...near, ...KNOWS.filter((k) => !near.includes(k))].map((k) => k.id);
+  const ranked = [...near, ...KNOWS.filter((k) => !near.includes(k))].map((k) => k.id);
+  // What she has not said yet comes before what she has, except the one
+  // thing the question is aimed straight at, which she answers either way.
+  const aimed = ranked.filter((id) => near.some((k) => k.id === id)).slice(0, 1);
+  const rest = ranked.filter((id) => !aimed.includes(id));
+  const known = [...aimed, ...rest.filter((id) => !said.includes(id)), ...rest.filter((id) => said.includes(id))];
   if (!move.subject) return known.slice(0, Math.round(volunteers * room));
   if (onPoint(move)) return known.slice(0, room);
   const asked = `her-${move.subject}`;
@@ -457,7 +484,11 @@ function labelsFor(sheet, move, d, takesShare) {
  * @returns {object} `counts` and their `bands`; `says`; `asked` (false when
  *   the move was a fix said to her); `gives`; `hedged`, `flat`, `loose`,
  *   `misleading`, `exact`; `belief`; `degrees`, every reaction from 0 to 1;
- *   and `labels`, the same in words.
+ *   `labels`, the same in words; and `sheet`, her sheet as this answer
+ *   leaves it, which the next answer starts from. `sheet.now` holds what
+ *   the call has written on her: her tolerance as worn so far, the
+ *   pressure behind her baggage, the strain from misses, how soured she
+ *   is, and what she has already said.
  */
 function shapeAnswer({ sheet, move, history = [], rng = Math.random, shift = {} }) {
   const landing = move.landing || 'lands';
@@ -467,9 +498,12 @@ function shapeAnswer({ sheet, move, history = [], rng = Math.random, shift = {} 
   const toward = towardAgent(sheet, move, landing);
 
   // Each reaction takes words from her in proportion to its strength.
+  // What has soured her so far in the call takes some from every answer.
+  const now = nowOf(sheet);
   const drop = WEIGHT.repeatDrop * again.repeat * again.repeat
     + WEIGHT.reachDrop * (reached.brushedOff + reached.stuck)
-    + WEIGHT.shortDrop * toward.short * clamp(2 * valueOf(sheet, 'empathy'));
+    + WEIGHT.shortDrop * toward.short * clamp(2 * valueOf(sheet, 'empathy'))
+    + WEIGHT.sourDrop * now.sour;
   const counts = { ...drawn, volume: drawn.volume - drop };
 
   const bands = {};
@@ -487,16 +521,30 @@ function shapeAnswer({ sheet, move, history = [], rng = Math.random, shift = {} 
     patternShape: heard.shape,
     ...toward,
     baggage: baggageOut(sheet, move, counts),
-    ...afterFix(sheet, move, history),
+    ...afterFix(sheet, move),
     volunteers,
   };
+  const gives = handsOver(move, roomFor(says, counts, landing), own, volunteers, now.said);
+  const labels = labelsFor(sheet, move, degrees, own);
+
+  // What this answer writes back on her sheet, for the next one to start
+  // from (settled.md section 8: one sheet, with her mood in this call
+  // changing turn to turn).
+  const base = valueOf(sheet, 'repetition');
+  const wrote = Object.freeze({
+    tolerance: Math.max(0, now.tolerance - WEIGHT.wear * (1 - base) * again.likeness),
+    pressure: labels.baggage ? now.pressure * (1 - WEIGHT.ease * degrees.baggage) : now.pressure,
+    strain: degrees.strain,
+    sour: now.sour + WEIGHT.sourRepeat * again.repeat + (move.kind === 'wrong-fix' ? WEIGHT.sourMiss * (1 - valueOf(sheet, 'nonPositive')) : 0),
+    said: Object.freeze([...now.said, ...gives.filter((g) => !now.said.includes(g) && !g.startsWith('her-'))]),
+  });
 
   return {
     counts,
     bands,
     says,
     asked: Boolean(move.subject),
-    gives: handsOver(move, roomFor(says, counts, landing), own, volunteers),
+    gives,
     hedged: counts.certainty < -1,
     flat: counts.certainty > 1,
     loose: counts.accuracy < -1,
@@ -504,12 +552,14 @@ function shapeAnswer({ sheet, move, history = [], rng = Math.random, shift = {} 
     exact: counts.accuracy > 1,
     belief: beliefStated(sheet, move, counts),
     degrees,
-    labels: labelsFor(sheet, move, degrees, own),
+    labels,
+    sheet: Object.freeze({ ...sheet, now: wrote }),
   };
 }
 
 /**
- * Plays a list of moves at her and returns each with its shape.
+ * Plays a list of moves at her and returns each with its shape. Each answer
+ * starts from her sheet as the answer before it left it.
  *
  * @param {object} args
  * @param {object} args.sheet
@@ -519,7 +569,12 @@ function shapeAnswer({ sheet, move, history = [], rng = Math.random, shift = {} 
  * @returns {Array<{move: object, shape: object}>}
  */
 function shapeCall({ sheet, moves, rng, shift = {} }) {
-  return moves.reduce((history, move) => [...history, { move, shape: shapeAnswer({ sheet, move, history, rng, shift }) }], []);
+  let current = sheet;
+  return moves.reduce((history, move) => {
+    const shape = shapeAnswer({ sheet: current, move, history, rng, shift });
+    current = shape.sheet;
+    return [...history, { move, shape }];
+  }, []);
 }
 
 /**
@@ -550,5 +605,5 @@ function describeShape(shape) {
 
 module.exports = {
   COUNTS, TAIL, PULLS, WEIGHT, SHEETS, KNOWS, BELIEVES, IDENTIFIES,
-  band, valueOf, drawCounts, shapeAnswer, shapeCall, describeShape,
+  band, valueOf, freshNow, drawCounts, shapeAnswer, shapeCall, describeShape,
 };

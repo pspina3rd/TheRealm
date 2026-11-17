@@ -78,6 +78,10 @@ test('the only chance in an answer is her five counts', () => {
   for (const sheet of [X, Y, Z]) {
     assert.deepStrictEqual(shapeCall({ sheet, moves, rng: () => 0.5 }), shapeCall({ sheet, moves, rng: () => 0.5 }));
   }
+  // Ten numbers per answer over a whole call too: nothing else draws.
+  let n = 0;
+  shapeCall({ sheet: Y, moves, rng: () => { n++; return 0.5; } });
+  assert.strictEqual(n, 10 * moves.length);
 });
 
 test('no reaction is a switch: move the number on her sheet and the degree moves with it', () => {
@@ -152,10 +156,9 @@ test('repetition reads as the record words it: middle fine, then thin, then noti
   assert.ok(grates(X)[1] >= grates(X)[0] && grates(X)[0] > grates(Y)[0]);
   assert.ok(near(grates(Y)[0], 0.5) && near(grates(Y)[1], 0.7) && near(grates(Y)[2], 0.9));
   // Middle tolerance does not mind the same word asked another way, until the call has worn on her.
-  const fresh = shape(Y, ask('what', 'random', 'bag'), [past(bag)]);
-  const worn = shape(Y, ask('what', 'random', 'bag'), [past(bag), past(paraphrase('pell'), ['pell-shut-out'], 1), past(paraphrase('pell'), ['pell-shut-out'], 1)]);
-  assert.strictEqual(fresh.labels.repeat, 'fine with it');
-  assert.strictEqual(worn.labels.repeat, 'it wears thin');
+  const last = (moves) => shapeCall({ sheet: Y, moves, rng: seededRng(6) }).pop().shape.labels.repeat;
+  assert.strictEqual(last([bag, ask('what', 'random', 'bag')]), 'fine with it');
+  assert.strictEqual(last([bag, paraphrase('pell'), paraphrase('pell'), ask('what', 'random', 'bag')]), 'it wears thin');
 });
 
 test('a repeat takes words from her in proportion to how much it grates', () => {
@@ -376,6 +379,70 @@ test('after a fix she comes back with as much as her signal or openness moves he
   const more = [0, 1, 2, 6].map((z) => shape(Y, { kind: 'fix' }, [], 1, { signal: z - drawCounts(seededRng(1)).signal, openness: -6 }).degrees.volunteers);
   assert.ok(more[0] <= more[1] && more[1] < more[2] && more[3] === 1);
   assert.strictEqual(shape(Y, bag).degrees.volunteers, 0);
+});
+
+test('each answer writes back on her sheet, and the next starts from it', () => {
+  const moves = [bag, paraphrase('bag'), { kind: 'wrong-fix' }, ask('when', 'expand', 'morning')];
+  const call = shapeCall({ sheet: Y, moves, rng: seededRng(8) });
+  // The sheet she started with is untouched, and each answer hands on a new one.
+  assert.strictEqual(Y.now, undefined);
+  for (const { shape: s } of call) assert.ok(Object.isFrozen(s.sheet) && s.sheet.now);
+  const now = call.map((h) => h.shape.sheet.now);
+  // What she has said is kept, and only grows.
+  assert.deepStrictEqual(now[0].said, call[0].shape.gives.filter((g) => !g.startsWith('her-')));
+  for (let i = 1; i < now.length; i++) for (const g of now[i - 1].said) assert.ok(now[i].said.includes(g));
+  // The paraphrase wore her tolerance, and the miss strained and soured her.
+  assert.ok(now[1].tolerance < now[0].tolerance);
+  assert.ok(now[2].strain > 0 && now[2].sour > now[1].sour);
+  // Playing an answer by hand from her sheet as left gives the same answer the call did.
+  const fixed = shapeCall({ sheet: Y, moves, rng: () => 0.5 });
+  const again = shapeAnswer({ sheet: fixed[2].shape.sheet, move: moves[3], history: fixed.slice(0, 3), rng: () => 0.5 });
+  assert.deepStrictEqual(again, fixed[3].shape);
+});
+
+test('having said her baggage eases it: once out, it comes out less for the rest of the call', () => {
+  const morning = ask('when', 'expand', 'morning');
+  let calls = 0;
+  for (let seed = 1; seed <= 300; seed++) {
+    const call = shapeCall({ sheet: Y, moves: [morning, morning], rng: seededRng(seed) });
+    const [first, second] = call.map((h) => h.shape);
+    if (!first.labels.baggage) continue;
+    calls++;
+    assert.ok(first.sheet.now.pressure < 1);
+    // The same draw again, from a fresh sheet and from the eased one.
+    const fresh = shapeAnswer({ sheet: Y, move: morning, history: call.slice(0, 1), rng: seededRng(seed + 9000) });
+    const eased = shapeAnswer({ sheet: first.sheet, move: morning, history: call.slice(0, 1), rng: seededRng(seed + 9000) });
+    assert.ok(eased.degrees.baggage < fresh.degrees.baggage);
+    assert.ok(second.degrees.baggage <= 1);
+  }
+  assert.ok(calls > 100);
+});
+
+test('over many calls her baggage comes out once or twice, not on a loop', () => {
+  const moves = [
+    ask('what', 'expand', 'working'), ask('who', 'expand', 'pell'), ask('when', 'expand', 'morning'), bag,
+    ask('why', 'expand', 'pell'), ask('when', 'contract', 'morning'), ask('what', 'contract', 'draught'), ask('who', 'contract', 'pell'), { kind: 'fix' },
+  ];
+  let three = 0;
+  for (let seed = 1; seed <= 300; seed++) {
+    const times = shapeCall({ sheet: Y, moves, rng: seededRng(seed) }).filter((h) => h.shape.labels.baggage).length;
+    if (times >= 3) three++;
+  }
+  assert.ok(three / 300 < 0.15, `three or more in ${three} of 300`);
+});
+
+test('what she has already said comes after what she has not, except what the question is aimed at', () => {
+  const said = ['cannot-transfer', 'pell-shut-out'];
+  const sheet = { ...Y, now: { ...Object.fromEntries(Object.entries(require('./answer').freshNow(Y))), said } };
+  for (let seed = 1; seed <= 100; seed++) {
+    const s = shape(sheet, ask('what', 'contract', 'working'), [], seed, { volume: 3, signal: 1 });
+    if (!s.gives.length) continue;
+    // Aimed at what is not working, she still says she cannot transfer it first.
+    assert.strictEqual(s.gives[0], 'cannot-transfer');
+    // Then new things before Pell, which she has said already.
+    const at = s.gives.indexOf('pell-shut-out');
+    if (at !== -1) assert.strictEqual(at, s.gives.length - 1);
+  }
 });
 
 test('two sheets differ only where the sheets differ', () => {

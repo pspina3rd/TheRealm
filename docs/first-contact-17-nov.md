@@ -22,7 +22,8 @@ two misses; that a question about her problem is never left.
 
 ## Result
 
-**Nothing went against her sheet in 1,800 answers.** Every reaction the
+**Nothing went against her sheet in 1,800 answers,** before or after the
+correction below. Every reaction the
 sheet allows occurred, and none it doesn't:
 
 - **Repetition (middle):** fine with it 257, wears thin 224, notices the
@@ -32,18 +33,28 @@ sheet allows occurred, and none it doesn't:
 - **Pattern (middle):** names a straight run 13. Never an alternation.
 - **Non-positive (low):** shows it after one miss 68; asks for someone else
   after two 31.
-- **Digging:** a little brushed off 80, badly brushed off 19.
-- **Asked who she is:** answers and adds 48, half-answers and drifts 8,
+- **Digging:** a little brushed off 81, badly brushed off 19.
+- **Asked who she is:** answers and adds 47, half-answers and drifts 9,
   leaves the question 18.
 - **Blamed:** turns on the agent 41.
-- **How much she says:** a few words 477, a sentence or two 1,089, three
-  or four sentences 203, runs on 31.
+- **How much she says:** a few words 557, a sentence or two 1,056, three
+  or four sentences 160, runs on 27. A little shorter than before the
+  correction, because what sours her now carries through the call.
 
-## One problem
+## Her worry about Pell
 
-**Her baggage comes out too often within a call.** "If he goes out without
-it and something happens, that's on me" came out in 480 of the 1,800
-answers. In 88 of the 200 calls she said it three times or more; once,
-seven times. Read as the person on the call, a worry said once or twice is
-her; said five times it is a loop. The cause is that each answer works out
-her baggage afresh, with no account of having already said it.
+In the first run it came out in 480 of 1,800 answers, three times or more
+in 88 calls.[^1] With each answer now written back on her sheet, it comes
+out once in 165 calls, twice in 19, and not at all in 16. Nothing else
+in the tally moved, and nothing went against her sheet.
+
+[^1]: The new module worked out each answer from her sheet as she started
+    the call, and wrote nothing back. The original engine carried what
+    happened from turn to turn: she said her baggage once, what she had
+    already answered was less likely to come up again, and repeats and
+    wrong remedies soured her. I dropped that when I built the new module.
+    Corrected 17 November: each answer now returns her sheet as it leaves
+    her, and the next answer starts from it. It holds her tolerance as worn
+    so far, the pressure behind her baggage (eased each time she says it),
+    the strain from misses, how soured she is, and what she has already
+    said, which now comes after what she has not.
