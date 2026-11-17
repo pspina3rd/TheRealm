@@ -1,0 +1,83 @@
+Sheet X: no-one-told-her · repetition low · empathy high · pattern low · non-positive high · digging · update
+200 first calls, each a fresh first contact.
+
+Call 1
+  AGENT  what·expand working (lands)
+  SELLA  says a sentence or two · gives cannot-transfer, pell-shut-out · baggage: no-one-told-her
+  AGENT  who·expand name (lands)
+  SELLA  says a few words · gives her-name · flatly sure
+  AGENT  what·expand draught (misfire)
+  SELLA  says a few words · gives nothing useful · flatly sure · baggage: no-one-told-her · lets them off
+  AGENT  how·contract transfer (lands)
+  SELLA  says a sentence or two · gives cannot-transfer, at-it-since-last-night · loosely put
+  AGENT  what·contract working (lands)
+  SELLA  says three or four sentences · gives cannot-transfer, never-a-problem-before · it wears thin
+  AGENT  who·contract pell (lands)
+  SELLA  says a sentence or two · gives pell-shut-out, leaves-in-the-morning · hedged · exact
+  AGENT  how·contract transfer (critical)
+  SELLA  says a sentence or two · gives cannot-transfer, at-it-since-last-night, never-a-problem-before · reads it as not listening
+  AGENT  a wrong fix
+  SELLA  says a sentence or two · gives no sign
+  AGENT  the fix
+  SELLA  says a sentence or two · volunteers at-it-since-last-night, pell-shut-out
+
+Call 2
+  AGENT  what·expand working (lands)
+  SELLA  says a sentence or two · gives nothing useful · flatly sure · baggage: no-one-told-her
+  AGENT  paraphrase about working, with a stock line
+  SELLA  says a sentence or two · gives cannot-transfer, pell-shut-out · hedged · loosely put · reads it as not listening · hears the stock line
+  AGENT  who·expand account (critical)
+  SELLA  says a few words · gives her-account · hedged · states nothing-changed-on-her-side (unsure, right)
+  AGENT  who·verify pell (lands)
+  SELLA  says a sentence or two · gives pell-shut-out, leaves-in-the-morning
+  AGENT  who·verify pell (lands)
+  SELLA  says a few words · gives pell-shut-out · hedged · misleading · reads it as not listening
+  AGENT  who·expand pell (lands)
+  SELLA  says a sentence or two · gives pell-shut-out · reads it as not listening
+  AGENT  when·verify morning (lands)
+  SELLA  says a sentence or two · gives leaves-in-the-morning · hedged · exact
+  AGENT  what·contract morning (flat)
+  SELLA  says a sentence or two · gives leaves-in-the-morning, never-a-problem-before · exact · it wears thin
+  AGENT  the fix, in words she may not follow
+  SELLA  says a few words · hedged · thanks them and rings off
+
+Call 3
+  AGENT  what·expand working (lands)
+  SELLA  says a sentence or two · gives cannot-transfer, pell-shut-out
+  AGENT  who·expand number (flat)
+  SELLA  says a sentence or two · gives her-number, leaves-in-the-morning · baggage: no-one-told-her
+  AGENT  how·contract transfer (lands)
+  SELLA  says a sentence or two · gives cannot-transfer, at-it-since-last-night
+  AGENT  when·contract morning (lands)
+  SELLA  says a few words · gives leaves-in-the-morning
+  AGENT  paraphrase about morning, with a stock line
+  SELLA  says a few words · gives leaves-in-the-morning · reads it as not listening · hears the stock line
+  AGENT  when·contract morning (lands)
+  SELLA  says a few words · gives leaves-in-the-morning · reads it as not listening
+  AGENT  how·contract transfer (lands)
+  SELLA  says a few words · gives nothing useful · reads it as not listening
+  AGENT  what·contract transfer (lands)
+  SELLA  says a sentence or two · gives cannot-transfer, never-a-problem-before · reads it as not listening
+  AGENT  the fix
+  SELLA  says a sentence or two · volunteers at-it-since-last-night
+
+What occurred, over 1800 answers
+  afterFix: gives no sign                          99
+  afterFix: puts it on the company                 41
+  afterFix: thanks them and rings off              30
+  baggage: no-one-told-her                         201
+  reach: a little brushed off                      93
+  reach: badly brushed off                         22
+  repeat: it wears thin                            136
+  repeat: reads it as not listening                497
+  says a few words                                 619
+  says a sentence or two                           1004
+  says runs on                                     28
+  says three or four sentences                     149
+  takes: answers and adds                          53
+  takes: half-answers and drifts                   9
+  takes: leaves the question                       21
+  towardAgent: hears the stock line                34
+  towardAgent: lets them off                       357
+
+Against her sheet: 0

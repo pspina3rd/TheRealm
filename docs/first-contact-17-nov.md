@@ -70,3 +70,39 @@ twice in 29, and not at all in 16. Nothing went against her sheet.
     fades back toward her sheet more slowly. So something she said a while
     ago can come round again, and a worry she voiced early can build back
     up.
+
+---
+
+## Sheet X, the same way
+
+Phil, 17 November: *"Yes, run Sheet X the same way."* Same script, same
+200 apprentices making the same moves on the same draws; only the sheet
+differs. Output in `logs/first-contact-X.txt`.
+
+Sheet X: *no one told her* · repetition low · empathy high · pattern low ·
+non-positive high · digging · the system update.
+
+**Nothing went against her sheet in 1,800 answers.**
+
+### Where X and Y part, on the same calls
+
+| | Sheet Y | Sheet X |
+|---|---|---|
+| Her own words said back, or asked again | fine 268, wears thin 217, notices 148 | not listening 497, wears thin 136, never fine |
+| A clumsy move | gets short 364 | lets them off 357 |
+| A stock line | not heard | heard 34 |
+| A straight run of the same card | named 13 | never |
+| Wrong fixes | shows it 68, asks for someone else after two 31 | gives no sign 99, never asks for someone else |
+| A fix in words she doesn't follow | asks what it means 30 | thanks them and rings off 30 |
+| Told she changed it | turns on the agent 41 | puts it on the company 41 |
+| Sure nothing changed on her side | wrong | right |
+| Her baggage | *Pell gets hurt*: once 155, twice 29 | *no one told her*: once 151, twice 25 |
+
+**Where the sheets agree, the calls agree:** brushed off (X 93 and 22, Y
+81 and 19, a little more on X because she says less after a repeat and
+leaves more points open); what she does when asked who she is; how much
+she says, apart from X's repeats costing her more words.
+
+**Verdict:** the second sheet works the same way the first did. Same
+moves, same draws, a different customer, and every difference traces to
+a line on her sheet.
