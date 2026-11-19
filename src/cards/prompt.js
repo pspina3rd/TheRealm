@@ -87,6 +87,7 @@ function manner(shape) {
   const repeat = {
     'reads it as not listening': 'She hears it as the agent not listening, and it shows.',
     'it wears thin': 'It is wearing thin with her.',
+    'it grates on her': 'It grates on her: she has nearly been asked this already.',
     'notices the repeat': 'She notices she is being asked again, and says so.',
     'settled by it': 'Hearing it again reassures her.',
   }[l.repeat];

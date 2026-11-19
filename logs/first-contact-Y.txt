@@ -1,85 +1,89 @@
 Sheet Y: pell-gets-hurt · repetition middle · empathy middle · pattern middle · non-positive low · digging · own-setting + her-word
-200 first calls, each a fresh first contact.
+200 first calls, each a fresh first contact. The middle of each is chosen as it goes.
 
 Call 1
-  AGENT  what·expand working (lands)
-  SELLA  says a sentence or two · gives cannot-transfer, pell-shut-out · baggage: pell-gets-hurt
-  AGENT  who·expand name (lands)
-  SELLA  says a few words · gives her-name · flatly sure
-  AGENT  what·expand draught (misfire)
-  SELLA  says a few words · gives nothing useful · flatly sure · baggage: pell-gets-hurt · gets short
-  AGENT  how·contract transfer (lands)
-  SELLA  says a sentence or two · gives cannot-transfer, at-it-since-last-night · loosely put
-  AGENT  what·contract working (lands)
-  SELLA  says three or four sentences · gives cannot-transfer, never-a-problem-before
-  AGENT  who·contract pell (lands)
-  SELLA  says a sentence or two · gives pell-shut-out, leaves-in-the-morning · hedged · exact
-  AGENT  how·contract transfer (critical)
-  SELLA  says three or four sentences · gives cannot-transfer, at-it-since-last-night, never-a-problem-before, pell-shut-out · it wears thin
-  AGENT  a wrong fix
-  SELLA  says a sentence or two · shows it
-  AGENT  the fix
-  SELLA  says a few words · volunteers at-it-since-last-night, leaves-in-the-morning
-
-Call 2
-  AGENT  what·expand working (lands)
-  SELLA  says a sentence or two · gives nothing useful · flatly sure · baggage: pell-gets-hurt
-  AGENT  paraphrase about working, with a stock line
-  SELLA  says a sentence or two · gives cannot-transfer, pell-shut-out · hedged · loosely put
-  AGENT  who·expand account (critical)
-  SELLA  says a few words · gives her-account · hedged · states nothing-changed-on-her-side (unsure, wrong)
-  AGENT  who·verify pell (lands)
-  SELLA  says a sentence or two · gives pell-shut-out, leaves-in-the-morning
-  AGENT  who·verify pell (lands)
-  SELLA  says a few words · gives pell-shut-out · hedged · misleading · it wears thin
-  AGENT  who·expand pell (lands)
-  SELLA  says a sentence or two · gives pell-shut-out · it wears thin
-  AGENT  when·verify morning (lands)
-  SELLA  says a sentence or two · gives leaves-in-the-morning · hedged · exact
-  AGENT  what·contract morning (flat)
-  SELLA  says a sentence or two · gives leaves-in-the-morning, never-a-problem-before · exact · it wears thin
-  AGENT  the fix, in words she may not follow
-  SELLA  says a few words · hedged · asks what it means
-
-Call 3
-  AGENT  what·expand working (lands)
+  AGENT  Thank you for contacting TLC, this is [Name]. How may I serve you?
   SELLA  says a sentence or two · gives cannot-transfer, pell-shut-out
-  AGENT  who·expand number (flat)
-  SELLA  says a sentence or two · gives her-number, leaves-in-the-morning · baggage: pell-gets-hurt
-  AGENT  how·contract transfer (lands)
-  SELLA  says a sentence or two · gives cannot-transfer, at-it-since-last-night
+  AGENT  what·expand account (misfire)
+  SELLA  says a sentence or two · gives her-account, at-it-since-last-night · states nothing-changed-on-her-side (sure, wrong) · gets short
+  AGENT  what·contract bag (flat)
+  SELLA  says a sentence or two · gives cannot-transfer, never-a-problem-before · exact · baggage: pell-gets-hurt
+  AGENT  when·expand before (lands)
+  SELLA  says a sentence or two · gives never-a-problem-before, leaves-in-the-morning, pell-shut-out · exact
+  AGENT  what·verify changed (lands)
+  SELLA  says a few words · gives at-it-since-last-night · flatly sure · loosely put · states nothing-changed-on-her-side (sure, wrong)
+  AGENT  when·verify morning (lands)
+  SELLA  says a few words · gives nothing useful · flatly sure · misleading
   AGENT  when·contract morning (lands)
-  SELLA  says a few words · gives leaves-in-the-morning
-  AGENT  paraphrase about morning, with a stock line
-  SELLA  says a few words · gives leaves-in-the-morning
-  AGENT  when·contract morning (lands)
-  SELLA  says a few words · gives leaves-in-the-morning · it wears thin
-  AGENT  how·contract transfer (lands)
-  SELLA  says a few words · gives nothing useful · notices the repeat
-  AGENT  what·contract transfer (lands)
-  SELLA  says a sentence or two · gives cannot-transfer, never-a-problem-before · notices the repeat
+  SELLA  says three or four sentences · gives leaves-in-the-morning, cannot-transfer, pell-shut-out · exact
+  AGENT  where·contract draught (lands)
+  SELLA  says a sentence or two · gives cannot-transfer, never-a-problem-before
+  AGENT  (looks her up in the record)
   AGENT  the fix
   SELLA  says a sentence or two · volunteers at-it-since-last-night
+  (the case is written after; 9 plays used, fixed)
 
-What occurred, over 1800 answers
-  afterFix: asks for someone else                  31
-  afterFix: asks what it means                     30
-  afterFix: shows it                               68
-  afterFix: turns on the agent                     41
-  baggage: pell-gets-hurt                          213
-  pattern: names the run                           13
-  reach: a little brushed off                      81
-  reach: badly brushed off                         19
-  repeat: fine with it                             268
-  repeat: it wears thin                            217
-  repeat: notices the repeat                       148
-  says a few words                                 546
-  says a sentence or two                           1064
-  says runs on                                     29
-  says three or four sentences                     161
-  takes: answers and adds                          47
-  takes: half-answers and drifts                   9
-  takes: leaves the question                       18
-  towardAgent: gets short                          364
+Call 2
+  AGENT  Thank you for contacting TLC, this is [Name]. How may I serve you?
+  SELLA  says a sentence or two · gives cannot-transfer · flatly sure
+  AGENT  what·contract transfer (lands)
+  SELLA  says a sentence or two · gives cannot-transfer, at-it-since-last-night
+  AGENT  what·verify bag (lands)
+  SELLA  says three or four sentences · gives cannot-transfer, pell-shut-out, never-a-problem-before · misleading
+  AGENT  what·contract before (flat)
+  SELLA  says a sentence or two · gives never-a-problem-before, leaves-in-the-morning · hedged · loosely put
+  AGENT  paraphrase about before
+  SELLA  says a sentence or two · gives never-a-problem-before, at-it-since-last-night, cannot-transfer · baggage: pell-gets-hurt
+  AGENT  when·expand morning (flat)
+  SELLA  says a few words · gives leaves-in-the-morning · loosely put
+  AGENT  when·contract morning (flat)
+  SELLA  says a sentence or two · gives leaves-in-the-morning, pell-shut-out, cannot-transfer · loosely put · baggage: pell-gets-hurt · it wears thin
+  AGENT  who·expand name (flat)
+  SELLA  says a few words · gives her-name · hedged
+  AGENT  (looks her up in the record)
+  AGENT  the fix
+  SELLA  says a few words · misleading
+  (the case is written after; 9 plays used, fixed)
+
+Call 3
+  AGENT  Thank you for contacting TLC, this is [Name]. How may I serve you?
+  SELLA  says a sentence or two · gives cannot-transfer, pell-shut-out
+  AGENT  what·expand number (misfire)
+  SELLA  says a few words · gives her-number · gets short
+  AGENT  (looks her up in the record)
+  AGENT  a wrong fix
+  SELLA  says a sentence or two · shows it
+  AGENT  paraphrase about working, with a stock line
+  SELLA  says a few words · gives cannot-transfer · gets short
+  AGENT  the fix
+  SELLA  says a few words · flatly sure
+  (the case is written after; 5 plays used, fixed)
+
+How free the middle was
+  different paths through the call: 197 of 200
+  first move after the opening: paraphrase about working 29 · what·contract working 21 · what·expand number 19 · who·expand name 14 · what·expand account 10 · paraphrase about working, with a stock line 10
+  asked who she is at: play 7 65 · play 1 59 · play 2 31 · play 3 16 · play 4 12 · play 5 11 · play 6 6
+  how calls ended: fixed, 9 plays 102 · not fixed, 9 plays 41 · fixed, 5 plays 15 · fixed, 7 plays 13 · fixed, 6 plays 11 · fixed, 8 plays 7 · fixed, 3 plays 7 · fixed, 4 plays 4
+
+What occurred, over 1424 answers
+  afterFix: asks for someone else                  3
+  afterFix: asks what it means                     35
+  afterFix: shows it                               43
+  afterFix: turns on the agent                     16
+  baggage: pell-gets-hurt                          194
+  pattern: names the run                           16
+  reach: a little brushed off                      68
+  reach: badly brushed off                         42
+  repeat: fine with it                             203
+  repeat: it wears thin                            129
+  repeat: notices the repeat                       82
+  says a few words                                 449
+  says a sentence or two                           808
+  says runs on                                     23
+  says three or four sentences                     144
+  takes: answers and adds                          51
+  takes: half-answers and drifts                   4
+  takes: leaves the question                       42
+  towardAgent: gets short                          270
 
 Against her sheet: 0

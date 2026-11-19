@@ -455,8 +455,12 @@ function howMuch(degree, word) {
 function labelsFor(sheet, move, d, takesShare) {
   const tolerance = valueOf(sheet, 'repetition');
   let repeat = null;
-  if (d.likeness > 0) {
-    if (d.repeat >= SAY.strong) repeat = tolerance < 0.35 ? 'reads it as not listening' : 'notices the repeat';
+  if (d.likeness > 0 && tolerance < 0.35) {
+    // Low tolerance notices a repeat at once: the words run from a part
+    // repeat grating to being read as not listening, and never to fine.
+    repeat = d.repeat >= 0.6 ? 'reads it as not listening' : 'it grates on her';
+  } else if (d.likeness > 0) {
+    if (d.repeat >= SAY.strong) repeat = 'notices the repeat';
     else if (d.repeat >= 0.55) repeat = 'it wears thin';
     else repeat = d.settles >= 0.65 ? 'settled by it' : 'fine with it';
   }

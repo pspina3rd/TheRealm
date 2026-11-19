@@ -106,3 +106,44 @@ she says, apart from X's repeats costing her more words.
 **Verdict:** the second sheet works the same way the first did. Same
 moves, same draws, a different customer, and every difference traces to
 a line on her sheet.
+
+---
+
+## The free middle — 19 November
+
+Phil, 19 November: the opening is fixed, the case comes after, and what
+happens between is fluid (`docs/card-rules.md`, 28–31). My test agent had
+forced a path: it always opened on what was not working, always asked who
+she was in the first half, and always ended with a fix in the last two
+plays.[^3]
+
+**Rebuilt:** `scripts/firstContact.js` now opens with Phil's line and then
+chooses every move from the call so far: what she has just said, which
+words she has put in play, what is still open, whether she has been
+identified or looked up, and how many plays are left. Each move starts
+from one of Phil's questions to reach for, drawn as the apprentice's sheet
+has it. The apprentice may follow her lead, go back to a thin answer,
+paraphrase, wander to a word she raised, look her up, or try a fix when
+they think they have it; a right fix ends her side of the call. When the
+plays left are no more than the steps still to do, they take the next
+step.
+
+**How free it came out, on Sheet Y:** 197 different paths in 200 calls.
+The first move after the opening varied (a paraphrase, a question on what
+is not working, asking her number, her name, her account, and others), she
+was asked who she is anywhere from the first play to the seventh, and
+calls ended anywhere from the third play to the ninth, fixed or not.
+
+**Both sheets, with the middle free:** nothing went against either sheet,
+Y over 1,424 answers and X over 1,413. Where the sheets differ, the calls
+differ the same way as before.
+
+**One fault found reading X, fixed:** a question that only partly repeated
+an earlier one was labelled "fine with it" for X, whose tolerance is low;
+the record says low notices a repeat at once. A part repeat now reads as
+grating on her, and the check for "fine" on low tolerance is in the
+script.
+
+[^3]: The answer module never forced an order; the test agent did, and so
+    did the procedure I gave the apprentice in the hand-played runs.
+    Corrected 19 November.
