@@ -134,3 +134,19 @@ here goes into the record.
     returns one result. The number on the bag returns an exact match.
 27. **[C·ok, 14 November]** A new apprentice reads what came back
     correctly 65 times in 100. A guess, accepted to play with.
+
+## The shape of a call — Phil, 19 November
+
+28. **[P]** The opening is only ever: *"Thank you for contacting TLC, this
+    is [Name]. How may I serve you?"* ("Serve", not "help": more medieval
+    and fantasy-adjacent.)
+29. **[P]** What comes between the opening and the case is the free
+    middle: fluid, and dependent on how the interaction between customer
+    and player plays out. That is what is being worked on.
+30. **[P]** Every call ends with the agent creating the case, whatever the
+    outcome. The case is the Mad Libs mechanic: the player builds the case
+    notes from what the customer provided and what the player remembers.
+    (The record already has the Mad Libs of the case, `settled.md`,
+    *Coworker conversations*.)
+31. **[P]** The case is a separate mechanic. The nine plays are for the
+    interaction with the customer only.
