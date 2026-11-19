@@ -92,6 +92,8 @@ function manner(shape) {
     'settled by it': 'Hearing it again reassures her.',
   }[l.repeat];
   if (repeat) out.push(repeat);
+  if (l.pressed) out.push(l.pressed === 'feels badgered' ? 'She feels badgered: she is being pushed on something she has already said she cannot give.' : 'She feels pressed for something she did not have.');
+  if (l.heard) out.push('Being asked about it again tells her she was heard.');
   if (l.reach) out.push(`She feels ${l.reach.replace('brushed off', 'brushed off, as if her point was dropped').replace('stuck', 'stuck on one thing')}.`);
   if (l.pattern) out.push(`She ${l.pattern.replace('names', 'names').replace('starts to hear', 'starts to notice')} in the questions.`);
   const toward = {

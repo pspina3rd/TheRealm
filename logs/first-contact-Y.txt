@@ -13,9 +13,9 @@ Call 1
   AGENT  what·verify changed (lands)
   SELLA  says a few words · gives at-it-since-last-night · flatly sure · loosely put · states nothing-changed-on-her-side (sure, wrong)
   AGENT  when·verify morning (lands)
-  SELLA  says a few words · gives nothing useful · flatly sure · misleading
+  SELLA  says a few words · gives nothing useful · flatly sure · misleading · feels heard
   AGENT  when·contract morning (lands)
-  SELLA  says three or four sentences · gives leaves-in-the-morning, cannot-transfer, pell-shut-out · exact
+  SELLA  says three or four sentences · gives leaves-in-the-morning, cannot-transfer, pell-shut-out · exact · feels heard
   AGENT  where·contract draught (lands)
   SELLA  says a sentence or two · gives cannot-transfer, never-a-problem-before
   AGENT  (looks her up in the record)
@@ -35,9 +35,9 @@ Call 2
   AGENT  paraphrase about before
   SELLA  says a sentence or two · gives never-a-problem-before, at-it-since-last-night, cannot-transfer · baggage: pell-gets-hurt
   AGENT  when·expand morning (flat)
-  SELLA  says a few words · gives leaves-in-the-morning · loosely put
+  SELLA  says a few words · gives leaves-in-the-morning · loosely put · feels heard
   AGENT  when·contract morning (flat)
-  SELLA  says a sentence or two · gives leaves-in-the-morning, pell-shut-out, cannot-transfer · loosely put · baggage: pell-gets-hurt · it wears thin
+  SELLA  says a sentence or two · gives leaves-in-the-morning, pell-shut-out, cannot-transfer · loosely put · baggage: pell-gets-hurt · feels heard
   AGENT  who·expand name (flat)
   SELLA  says a few words · gives her-name · hedged
   AGENT  (looks her up in the record)
@@ -62,28 +62,31 @@ Call 3
 How free the middle was
   different paths through the call: 197 of 200
   first move after the opening: paraphrase about working 29 · what·contract working 21 · what·expand number 19 · who·expand name 14 · what·expand account 10 · paraphrase about working, with a stock line 10
-  asked who she is at: play 7 65 · play 1 59 · play 2 31 · play 3 16 · play 4 12 · play 5 11 · play 6 6
-  how calls ended: fixed, 9 plays 102 · not fixed, 9 plays 41 · fixed, 5 plays 15 · fixed, 7 plays 13 · fixed, 6 plays 11 · fixed, 8 plays 7 · fixed, 3 plays 7 · fixed, 4 plays 4
+  asked who she is at: play 7 64 · play 1 59 · play 2 31 · play 3 16 · play 4 12 · play 5 11 · play 6 7
+  how calls ended: fixed, 9 plays 101 · not fixed, 9 plays 39 · fixed, 5 plays 15 · fixed, 7 plays 15 · fixed, 6 plays 11 · fixed, 8 plays 8 · fixed, 3 plays 7 · fixed, 4 plays 4
 
-What occurred, over 1424 answers
+What occurred, over 1417 answers
   afterFix: asks for someone else                  3
-  afterFix: asks what it means                     35
+  afterFix: asks what it means                     36
   afterFix: shows it                               43
   afterFix: turns on the agent                     16
-  baggage: pell-gets-hurt                          194
-  pattern: names the run                           16
-  reach: a little brushed off                      68
-  reach: badly brushed off                         42
-  repeat: fine with it                             203
-  repeat: it wears thin                            129
-  repeat: notices the repeat                       82
-  says a few words                                 449
-  says a sentence or two                           808
-  says runs on                                     23
-  says three or four sentences                     144
-  takes: answers and adds                          51
-  takes: half-answers and drifts                   4
-  takes: leaves the question                       42
-  towardAgent: gets short                          270
+  baggage: pell-gets-hurt                          195
+  heard: feels heard                               126
+  pattern: names the run                           11
+  pressed: feels badgered                          16
+  pressed: feels pressed                           21
+  reach: a little brushed off                      61
+  reach: badly brushed off                         37
+  repeat: fine with it                             233
+  repeat: it wears thin                            91
+  repeat: notices the repeat                       22
+  says a few words                                 405
+  says a sentence or two                           834
+  says runs on                                     24
+  says three or four sentences                     154
+  takes: answers and adds                          45
+  takes: half-answers and drifts                   5
+  takes: leaves the question                       36
+  towardAgent: gets short                          269
 
 Against her sheet: 0

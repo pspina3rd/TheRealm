@@ -147,3 +147,38 @@ script.
 [^3]: The answer module never forced an order; the test agent did, and so
     did the procedure I gave the apprentice in the hand-played runs.
     Corrected 19 November.
+
+### What a repeat is to her — 19 November
+
+Phil asked whether the part repeats were immediate or later, and then
+whether the player was attempting something else. Tagging each move with
+what the apprentice was after, on Sheet X: of 176 questions read as
+repeats, 147 were going back to a point her answer had left short, 14 were
+asking who she was again because she had not answered, 9 followed up her
+worry, and 4 checked whether anything had changed. None was the agent
+missing what she said.[^4]
+
+**Changed, on Phil's "Yes, make that change":** a question asked again is
+now three things to her, each a degree:
+
+- **A repeat:** asked again about something she did answer. Only this is
+  the record's repetition, and it fades with how long ago the first asking
+  was, at the rate for exactly what she was asked.
+- **Being pressed:** asked again about something she gave little or
+  nothing to. Her tolerance decides how it lands: low feels badgered,
+  middle feels pressed, high does not mind.
+- **Being heard:** coming back, after her worry came out, to what she was
+  talking about when it did, or to what it is about.
+
+Her own words said back to her are still a repeat whenever they come
+(card rule 11 is unchanged).
+
+**After the change, nothing went against either sheet.** On Sheet X, of
+what had read as repeats, most going back to a short answer now grates on
+her a little or reads as being pressed, asking who she is again after she
+left the question reads as being pressed, and a follow-up on her worry
+reads as being heard.
+
+[^4]: The module measured only how alike two questions were. It ignored
+    whether she had answered the first, how long ago it was, and what the
+    agent was coming back for. Corrected 19 November.

@@ -156,9 +156,13 @@ test('repetition reads as the record words it: middle fine, then thin, then noti
   assert.ok(grates(X)[1] >= grates(X)[0] && grates(X)[0] > grates(Y)[0]);
   assert.ok(near(grates(Y)[0], 0.5) && grates(Y)[2] < 1);
   // Middle tolerance does not mind the same word asked another way, until the call has worn on her.
-  const last = (moves) => shapeCall({ sheet: Y, moves, rng: seededRng(6) }).pop().shape.labels.repeat;
-  assert.strictEqual(last([bag, ask('what', 'random', 'bag')]), 'fine with it');
-  assert.strictEqual(last([bag, paraphrase('pell'), paraphrase('pell'), ask('what', 'random', 'bag')]), 'it wears thin');
+  // Pinned to the same answers so only the wearing differs: the bag answered in full straight before.
+  const answeredBag = past(bag);
+  const fresh = shape(Y, ask('what', 'random', 'bag'), [answeredBag]);
+  const wornSheet = shapeCall({ sheet: Y, moves: [paraphrase('pell'), paraphrase('pell')], rng: seededRng(6) }).pop().shape.sheet;
+  const worn = shapeAnswer({ sheet: wornSheet, move: ask('what', 'random', 'bag'), history: [answeredBag], rng: seededRng(1) });
+  assert.strictEqual(fresh.labels.repeat, 'fine with it');
+  assert.strictEqual(worn.labels.repeat, 'it wears thin');
 });
 
 test('a repeat takes words from her in proportion to how much it grates', () => {
@@ -492,6 +496,51 @@ test('the suit decides which answer she reaches for first: who can get into the 
   // A suit nothing near the subject answers falls back to the nearest thing.
   const why = shape(Y, ask('why', 'expand', 'bag'), [], 3, { signal: 1 });
   if (why.gives.length) assert.strictEqual(why.gives[0], 'cannot-transfer');
+});
+
+test('asked again, what she makes of it depends on whether she answered, how long ago, and what it is about', () => {
+  const again = ask('what', 'contract', 'bag');
+  const full = past(bag, ['cannot-transfer', 'pell-shut-out']);
+  const none = past(bag, []);
+  const filler = past(ask('what', 'contract', 'draught'));
+  // Answered in full, straight before: a repeat, not pressing.
+  const r1 = shape(X, again, [full]).degrees;
+  assert.ok(near(r1.likeness, 1) && r1.pressed === 0);
+  // Gave nothing: the agent is pressing, not repeating.
+  const r2 = shape(X, again, [none]).degrees;
+  assert.ok(r2.likeness === 0 && near(r2.pressed, 0.8));
+  assert.strictEqual(shape(X, again, [none]).labels.repeat, null);
+  assert.strictEqual(shape(X, again, [none]).labels.pressed, 'feels badgered');
+  assert.strictEqual(shape(Y, again, [none]).labels.pressed, 'feels pressed');
+  assert.strictEqual(shape({ ...Y, repetition: 'high' }, again, [none]).labels.pressed, null);
+  // Half answered: a little of each.
+  const r3 = shape(X, again, [past(bag, ['cannot-transfer'])]).degrees;
+  assert.ok(near(r3.likeness, 0.5) && near(r3.pressed, 0.4));
+  // Further back, it fades at the rate for exactly what she was asked.
+  const r4 = shape(X, again, [full, filler, filler]).degrees;
+  assert.ok(near(r4.likeness, 0.25));
+  assert.ok(shape(X, again, [full, filler, filler]).degrees.repeat < r1.likeness * 0.8);
+  // Coming back to her worry after it came out is heard, not repeated.
+  const morning = ask('when', 'expand', 'morning');
+  const worry = { move: morning, shape: { gives: ['leaves-in-the-morning', 'pell-shut-out'], degrees: { likeness: 0, baggage: 0.9 } } };
+  // Back to the morning, where it came out: heard. Off to the draught: not.
+  const r5 = shape(Y, ask('why', 'expand', 'morning'), [worry]);
+  assert.ok(near(r5.degrees.heard, 0.9));
+  assert.strictEqual(r5.labels.heard, 'feels heard');
+  assert.strictEqual(shape(Y, ask('what', 'contract', 'draught'), [worry]).degrees.heard, 0);
+  // Only when it plainly came out: a flicker of it earns nothing.
+  const flicker = { move: morning, shape: { gives: ['leaves-in-the-morning'], degrees: { likeness: 0, baggage: 0.3 } } };
+  assert.strictEqual(shape(Y, ask('why', 'expand', 'morning'), [flicker]).degrees.heard, 0);
+  const r6 = shape(Y, morning, [worry]).degrees;
+  assert.ok(r6.likeness < 0.15, `${r6.likeness}`);
+  // For X the morning is where it came out too, so it is heard the same way.
+  assert.ok(near(shape(X, morning, [worry]).degrees.heard, 0.9));
+  // Asked who she is again after she left the question: pressing, not repeating.
+  const name = ask('who', 'expand', 'name');
+  const r7 = shape(Y, name, [past(name, ['cannot-transfer'])]).degrees;
+  assert.ok(r7.likeness === 0 && r7.pressed > 0);
+  const r8 = shape(Y, name, [past(name, ['her-name'])]).degrees;
+  assert.ok(r8.likeness > 0 && r8.pressed === 0);
 });
 
 test('two sheets differ only where the sheets differ', () => {

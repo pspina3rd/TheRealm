@@ -92,9 +92,10 @@ const WEIGHT = Object.freeze({
  * (docs/handover/memory/therealm-design-frame.md): gist very high, emotion
  * high, her own words moderate-high, exact dialogue extremely low. What she
  * felt fades slowly; that she said a particular thing fades faster, which is
- * why people repeat themselves. Guesses within that order.
+ * why people repeat themselves; exactly what she was asked fades fastest of
+ * all. Guesses within that order.
  */
-const RETAIN = Object.freeze({ emotion: 0.95, ownWords: 0.8 });
+const RETAIN = Object.freeze({ emotion: 0.95, ownWords: 0.8, dialogue: 0.5 });
 
 /** Where a degree is spoken of at all, plainly, and strongly, in a label. */
 const SAY = Object.freeze({ some: 0.3, plain: 0.5, strong: 0.75 });
@@ -229,21 +230,53 @@ function pointSoFar(history) {
   return history.filter((h) => onPoint(h.move));
 }
 
+/** How fully she answered an earlier question, from 0 to 1. */
+function answered(h) {
+  if (IDENTIFIES.includes(h.move.subject)) return h.shape.gives.some((g) => g.startsWith('her-')) ? 1 : 0;
+  return clamp(h.shape.gives.length / WEIGHT.fullAnswer);
+}
+
 /**
- * How like something already asked or said this move is, from 0 to 1. Her
- * own words said back to her are wholly so. A question is as like an
- * earlier one as it shares its word, its suit and its angle.
+ * What a question asked again is to her, as three degrees from 0 to 1.
+ *
+ * How alike it is to the earlier one (its word, its suit, its angle) is
+ * weighed against how long ago that was, since exactly what she was asked
+ * fades fast (RETAIN.dialogue), and then split by how fully she answered it:
+ *
+ * - `likeness`: asked again about something she did answer. This is the
+ *   repeat the record's repetition bands are about.
+ * - `pressed`: asked again about something she gave little or nothing to.
+ *   The agent is pressing for more, not missing what she said.
+ * - `heard`: coming back, after her worry came out, to what she was talking
+ *   about when it did, or to what her worry is about. It tells her she was
+ *   heard, and takes the place of a repeat.
+ *
+ * Her own words said back to her are a repeat whenever they come; card rule
+ * 11 is about a paraphrase as such and is not changed here.
  */
-function likeness(move, history) {
-  if (move.kind === 'paraphrase') return 1;
-  if (move.kind !== 'question') return 0;
-  return history.reduce((most, h) => {
-    if (h.move.kind !== 'question' || h.move.subject !== move.subject) return most;
-    const like = WEIGHT.sameWord
+function askedAgain(sheet, move, history) {
+  if (move.kind === 'paraphrase') return { likeness: 1, pressed: 0, heard: 0 };
+  if (move.kind !== 'question') return { likeness: 0, pressed: 0, heard: 0 };
+  let likeness = 0;
+  let pressed = 0;
+  history.forEach((h, i) => {
+    if (h.move.kind !== 'question' || h.move.subject !== move.subject) return;
+    const alike = WEIGHT.sameWord
       + (h.move.suit === move.suit ? WEIGHT.sameSuit : 0)
       + (h.move.angle === move.angle ? WEIGHT.sameAngle : 0);
-    return Math.max(most, like);
+    const held = alike * RETAIN.dialogue ** (history.length - 1 - i);
+    likeness = Math.max(likeness, held * answered(h));
+    pressed = Math.max(pressed, held * (1 - answered(h)));
+  });
+  // Coming back to what she was talking about when her worry came out, or
+  // to the thing her worry is about, tells her she was heard.
+  const about = BAGGAGE[sheet.baggage].trigger.subject;
+  const heard = history.reduce((most, h) => {
+    const out = (h.shape.degrees && h.shape.degrees.baggage) || 0;
+    const back = h.move.subject === move.subject || move.subject === about;
+    return back && out >= SAY.plain ? Math.max(most, out) : most;
   }, 0);
+  return { likeness: likeness * (1 - heard), pressed: pressed * (1 - heard), heard };
 }
 
 /**
@@ -277,10 +310,18 @@ function nowOf(sheet) {
  * trait, where she wants it.
  */
 function repetition(sheet, move, history) {
-  const like = likeness(move, history);
+  const again = askedAgain(sheet, move, history);
+  const tolerance = nowOf(sheet).tolerance;
   // Grating is against her tolerance as the call has worn it; wanting it,
-  // at the high end, is her own and does not wear.
-  return { likeness: like, repeat: like * (1 - nowOf(sheet).tolerance), settles: like * valueOf(sheet, 'repetition') };
+  // at the high end, is her own and does not wear. Being pressed sits on the
+  // same trait: the less of it she has, the more being pushed badgers her.
+  return {
+    likeness: again.likeness,
+    repeat: again.likeness * (1 - tolerance),
+    settles: again.likeness * valueOf(sheet, 'repetition'),
+    pressed: again.pressed * (1 - tolerance),
+    heard: again.heard,
+  };
 }
 
 /** How much of her point is still unanswered, from 0 to 1. */
@@ -478,9 +519,13 @@ function labelsFor(sheet, move, d, takesShare) {
     else if (takesShare >= SAY.plain) takes = 'half-answers and drifts';
     else takes = takesShare >= 0.15 ? 'answers and adds' : 'answers';
   }
+  let pressed = null;
+  if (d.pressed >= SAY.some) pressed = d.pressed >= 0.55 ? 'feels badgered' : 'feels pressed';
   return {
     takes,
     repeat,
+    pressed,
+    heard: d.heard >= SAY.plain ? 'feels heard' : null,
     reach: howMuch(d.brushedOff, 'brushed off') || howMuch(d.stuck, 'stuck'),
     pattern: d.pattern >= 0.45 ? `names the ${d.patternShape}` : (d.pattern >= SAY.some ? `starts to hear the ${d.patternShape}` : null),
     towardAgent: toward,
@@ -567,7 +612,7 @@ function shapeAnswer({ sheet, move, history = [], rng = Math.random, shift = {} 
     tolerance: Math.max(0, fade(now.tolerance, base) - WEIGHT.wear * (1 - base) * again.likeness),
     pressure: labels.baggage ? fade(now.pressure, 1) * (1 - WEIGHT.ease * degrees.baggage) : fade(now.pressure, 1),
     strain: fade(degrees.strain, 0),
-    sour: fade(now.sour, 0) + WEIGHT.sourRepeat * again.repeat + (move.kind === 'wrong-fix' ? WEIGHT.sourMiss * (1 - valueOf(sheet, 'nonPositive')) : 0),
+    sour: fade(now.sour, 0) + WEIGHT.sourRepeat * (again.repeat + again.pressed / 2) + (move.kind === 'wrong-fix' ? WEIGHT.sourMiss * (1 - valueOf(sheet, 'nonPositive')) : 0),
     said: Object.freeze(said),
   });
 
@@ -629,7 +674,7 @@ function describeShape(shape) {
   if (shape.exact) parts.push('exact');
   if (shape.belief) parts.push(`states ${shape.belief.id} (${shape.belief.sure >= SAY.plain ? 'sure' : 'unsure'}, ${shape.belief.right ? 'right' : 'wrong'})`);
   if (labels.baggage) parts.push(`baggage: ${labels.baggage}`);
-  for (const key of ['repeat', 'pattern', 'reach', 'towardAgent', 'afterFix']) {
+  for (const key of ['repeat', 'pressed', 'heard', 'pattern', 'reach', 'towardAgent', 'afterFix']) {
     if (labels[key] && labels[key] !== 'fine with it') parts.push(labels[key]);
   }
   return parts.join(' · ');
