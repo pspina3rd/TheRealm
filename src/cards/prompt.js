@@ -179,7 +179,10 @@ function promptFor({ sheet, move, shape, before }) {
   const facts = shape.gives.map((g) => (held[g] >= 0.5 ? `${FACTS[g]} (She has already told them this, and knows it.)` : FACTS[g])).filter(Boolean);
   const baggage = shape.labels.baggage ? BAGGAGE[sheet.baggage].line : null;
   const belief = shape.belief
-    ? `She ${shape.belief.sure >= 0.5 ? 'is sure' : 'thinks, without being sure,'} that nothing has changed on her side.`
+    // Her belief from where she stands: she hasn't changed anything herself.
+    // Not "nothing has changed on her side", which was my wording and makes
+    // it a claim about whose fault it is.
+    ? `She ${shape.belief.sure >= 0.5 ? 'is sure' : 'thinks, without being sure,'} that she hasn't changed anything herself.`
     : null;
   // Her own word for the action goes in only where the action is in play.
   const inPlay = move.subject === 'transfer' || shape.gives.includes('cannot-transfer') || Boolean(FIXES[move.kind]);
