@@ -1,0 +1,31 @@
+=== Call 1 ===
+Answer 1: The draught won't transfer from the party bag into Pell's bag. And Pell can't get into the party bag himself.
+Answer 2: It's the party's account, I'm the party leader. I've been trying to work it out since last night, and nothing's changed on my side. It's all right.
+Answer 3: I still can't transfer it to Pell's bag. It's never been a problem before, and he leaves on a contract in the morning. Nobody has ever sat down and told me how any of this is meant to go.
+Answer 4: He leaves on a contract in the morning, and he can't get into the party bag himself. I've been at this since last night.
+Answer 5: Nothing on my end. Still can't transfer it.
+Answer 6: He's going, yes.
+Answer 7: He leaves on a contract in the morning. It's never been a problem before, and he can't get into the party bag himself. I've said all of that. There isn't anything else.
+Answer 8: I can't transfer it, and I've been trying since last night.
+(The agent looks something up. She waits.)
+Answer 9: Okay. I've been trying to sort that out since last night.
+
+=== Call 2 ===
+Answer 1: The draught won't transfer from the party bag to Pell's.
+Answer 2: Yes, I can't transfer it. I've been trying to work it out since last night.
+Answer 3: It won't go over to his bag. Pell can't get into the party bag himself. It's never been a problem before.
+Answer 4: No, never. Pell leaves on a contract in the morning.
+Answer 5: It's never been a problem before, I've been at it since last night, and I can't transfer it. Nobody has ever sat down and told me how any of this is meant to go.
+Answer 6: In the morning, yes.
+Answer 7: Pell leaves on a contract in the morning, and he can't get into the party bag. I can't transfer it, and I've got nothing else for you.
+Answer 8: Sella Brandt.
+(The agent looks something up. She waits.)
+Answer 9: Oh. Okay then.
+
+=== Call 3 ===
+Answer 1: I can't transfer the draught from the party bag to Pell's bag. He can't get into the party bag himself.
+Answer 2: It's 4-4-0-9, on the bag. Take your time.
+(The agent looks something up. She waits.)
+Answer 3: Right. I've been trying to transfer it since last night.
+Answer 4: I don't need that. I can't transfer it.
+Answer 5: Okay. That's all I needed.

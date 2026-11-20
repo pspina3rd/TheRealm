@@ -16,6 +16,8 @@
  *
  *   node scripts/firstContact.js --sheet Y            (200 calls, 3 printed)
  *   node scripts/firstContact.js --sheet X --calls 500 --show 5
+ *   node scripts/firstContact.js --sheet Y --show 3 --prompts logs/prompts-Y.txt
+ *     (also writes the prompt for each answer of the printed calls)
  *
  * Prints a few whole calls to read as a person would, how varied the paths
  * were and why calls were lost, what reactions occurred and how often, and
@@ -24,7 +26,9 @@
  */
 
 const { seededRng } = require('../src/call/rng');
+const fs = require('fs');
 const { SHEETS, KNOWS, shapeAnswer, describeShape } = require('../src/cards/answer');
+const { promptFor } = require('../src/cards/prompt');
 
 function arg(name, dflt) {
   const i = process.argv.indexOf(`--${name}`);
@@ -34,6 +38,7 @@ function arg(name, dflt) {
 const sheet = SHEETS[arg('sheet', 'Y')];
 const calls = Number(arg('calls', 200));
 const show = Number(arg('show', 3));
+const promptsTo = arg('prompts', null);
 if (!sheet) throw new Error('--sheet must be X, Y or Z');
 
 const PLAYS = 9;
@@ -187,7 +192,7 @@ function playCall(rng) {
   let st = freshState();
   // Her answer to the opening, which is free (card rules 2 and 28). It is
   // part of what she has said, so later answers start from it.
-  const openingMove = { kind: 'question', suit: 'what', angle: 'expand', subject: 'working' };
+  const openingMove = { kind: 'question', suit: 'what', angle: 'expand', subject: 'working', said: OPENING };
   const opening = shapeAnswer({ sheet: current, move: openingMove, rng });
   current = opening.sheet;
   st = learn(st, openingMove, opening, rng);
@@ -247,6 +252,7 @@ const firstMoves = {};
 const identifiedAt = {};
 const endings = {};
 const lost = {};
+const promptLines = [];
 let answers = 0;
 
 console.log(`Sheet ${sheet.id}: ${sheet.baggage} · repetition ${sheet.repetition} · empathy ${sheet.empathy} · pattern ${sheet.pattern} · non-positive ${sheet.nonPositive} · ${sheet.reach} · ${sheet.causes.join(' + ')}`);
@@ -260,6 +266,15 @@ for (let n = 1; n <= calls; n++) {
     console.log(`  AGENT  ${OPENING}\n  SELLA  ${describeShape(opening)}`);
     for (const { move, shape } of call) console.log(`  AGENT  ${sayMove(move)}${shape ? `\n  SELLA  ${describeShape(shape)}` : ''}`);
     console.log(`  (the case is written after; ${call.length} plays used, ${fixed ? 'fixed' : 'not fixed'})\n`);
+    promptLines.push(`=== Call ${n} ===`);
+    let at = 0;
+    let before = sheet;
+    for (const { move, shape } of [{ move: history[0].move, shape: opening }, ...call]) {
+      if (!shape) { promptLines.push('(The agent looks something up. She waits.)'); continue; }
+      at++;
+      promptLines.push(`--- Answer ${at} ---`, promptFor({ sheet, move, shape, before }).text, '');
+      before = shape.sheet;
+    }
   }
   paths.add(call.map((c) => sayMove(c.move).replace(/ \(.*\)$/, '')).join(' > '));
   const first = sayMove(call[0].move).replace(/ \(.*\)$/, '');
@@ -282,6 +297,7 @@ for (let n = 1; n <= calls; n++) {
   });
 }
 
+if (promptsTo) fs.writeFileSync(promptsTo, `${promptLines.join('\n')}\n`);
 const sorted = (o) => Object.entries(o).sort((a, b) => b[1] - a[1]);
 console.log(`How free the middle was`);
 console.log(`  different paths through the call: ${paths.size} of ${calls}`);

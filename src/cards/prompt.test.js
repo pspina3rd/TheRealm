@@ -100,3 +100,28 @@ test('promptFor is pure', () => {
   assert.deepStrictEqual(promptFor({ sheet: SHEETS.Y, move, shape }), promptFor({ sheet: SHEETS.Y, move, shape }));
   assert.strictEqual(JSON.stringify({ move, shape }), before);
 });
+
+test('a fix says what the agent said and what she now knows, so nothing has to be made up', () => {
+  for (const kind of ['fix', 'wrong-fix', 'unclear-fix', 'blame']) {
+    const call = shapeCall({ sheet: SHEETS.Y, moves: [{ kind }], rng: seededRng(2) });
+    const p = promptFor({ sheet: SHEETS.Y, ...call[0] });
+    assert.match(p.heard, /^The agent has just said: "/);
+  }
+  const fixed = promptFor({ sheet: SHEETS.Y, ...shapeCall({ sheet: SHEETS.Y, moves: [{ kind: 'fix' }], rng: seededRng(2) })[0] });
+  assert.match(fixed.heard, /Pell can take the draught out himself/);
+  assert.match(fixed.heard, /Nobody has said anything about transferring it/);
+});
+
+test('what she knows she has already said is marked as said; what she has half forgotten is not', () => {
+  const ask2 = { kind: 'question', suit: 'who', angle: 'contract', subject: 'pell' };
+  const call = shapeCall({ sheet: SHEETS.Y, moves: [ask2], rng: seededRng(4) });
+  const { move, shape } = call[0];
+  if (!shape.gives.length) return;
+  const first = shape.gives[0];
+  const fresh = promptFor({ sheet: SHEETS.Y, move, shape, before: SHEETS.Y });
+  const remembered = promptFor({ sheet: SHEETS.Y, move, shape, before: { ...SHEETS.Y, now: { said: { [first]: 0.9 } } } });
+  const faded = promptFor({ sheet: SHEETS.Y, move, shape, before: { ...SHEETS.Y, now: { said: { [first]: 0.3 } } } });
+  assert.ok(!fresh.text.includes('already told them'));
+  assert.ok(remembered.facts[0].endsWith('(She has already told them this, and knows it.)'));
+  assert.ok(!faded.text.includes('already told them'));
+});

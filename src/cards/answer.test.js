@@ -543,6 +543,19 @@ test('asked again, what she makes of it depends on whether she answered, how lon
   assert.ok(r8.likeness > 0 && r8.pressed === 0);
 });
 
+test('she hedges only about why, or when she has nothing to go on: never what she has seen or who she is', () => {
+  for (let seed = 1; seed <= 300; seed++) {
+    for (const move of [ask('who', 'expand', 'name'), ask('who', 'contract', 'pell'), bag, ask('what', 'verify', 'changed'), { kind: 'fix' }]) {
+      const s = shape(Y, move, [], seed, { certainty: -3 });
+      const facts = s.gives.length > 0;
+      if (s.hedged) assert.ok(s.belief || (s.asked && !facts), `${move.subject} hedged with ${s.gives}`);
+      if (s.gives.some((g) => g.startsWith('her-'))) assert.strictEqual(s.hedged, false);
+    }
+  }
+  // Unsure, and asked whether anything changed: she hedges her belief.
+  assert.strictEqual(shape(Y, ask('what', 'verify', 'changed'), [], 1, { certainty: -3 }).hedged, true);
+});
+
 test('two sheets differ only where the sheets differ', () => {
   // A plain question that sets nothing off: the same draw gives the same answer.
   for (let seed = 1; seed <= 100; seed++) {

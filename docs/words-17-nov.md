@@ -42,3 +42,67 @@ facts; it shows the voice the prompt has to make possible.
   her", "She sees they are struggling and lets them off").
 - The plain-words names for what the agent asked about.
 - Which kinds of answer each fact is, by suit.
+
+---
+
+## Step two: a model writes her lines — 20 November
+
+**Run:** prompts for three free-middle calls on each sheet
+(`node scripts/firstContact.js --sheet Y --calls 3 --show 3 --prompts …`),
+46 answers in all, in `logs/words-20-nov/prompts-Y.txt` and `-X.txt`. One
+subagent on Sonnet wrote her line for each, from the prompt alone; I read
+every line as the person on the call and checked it against its prompt.
+The brief it was given is in this session's transcript; what it asks for
+is listed at the end. The lines are in `logs/words-20-nov/lines-Y.txt` and
+`-X.txt`.
+
+**Three passes.** The first two turned up faults, which were fixed before
+the next pass:
+
+- **First pass:**
+  - **The same sentence, answer after answer.** The prompts gave each fact
+    as a fixed sentence and never said what she had already told them, so
+    the model copied the sentence each time. The prompt now marks a fact
+    she remembers saying (held at half or more on her sheet); a fact she
+    has half forgotten is left unmarked, so she may say it again in full.
+  - **Hedging her own name and what she had seen.** *"Sella Brandt, I
+    think."* That went against the sharing range Phil accepted (certainty
+    is high on what she has seen, low only on why). `answer.js` now hedges
+    only a belief, or an answer with nothing in it, and never who she is.
+  - **Inventing the outcome of a fix.** *"Right, it's transferred."* The
+    prompt never said what the fix was. It now carries what the agent said
+    (Phil's fix line for the update) and what that leaves her knowing: the
+    bag is open again, so Pell can take the draught himself, and nothing
+    has been said about transferring.
+- **Second pass:**
+  - **"Like I said" in nearly every answer.** The brief now asks her to
+    vary how she refers back.
+  - **"I'm worn out" every time her night on the account came up.** That
+    was my wording in the fact. Phil's list says she is frustrated; it now
+    shows in how she speaks and is never said.
+  - **No reaction to a right fix.** The prompt now says a right fix meets
+    what she needed: Pell has the draught before he leaves.
+  - **"Skip the sorry"**, not English anyone says. The brief now names it
+    as the kind of phrase to avoid.
+
+**Third pass, read in full:**
+- **No invented fact** in 46 lines: no name, number, time or outcome
+  outside its prompt; *Assign* never said; no feeling named.
+- **She refers back to what she has said** without restating it, and says
+  a half-forgotten fact again, as people do.
+- **A right fix lands:** *"Okay. Good."*, *"That's all I needed."*
+- **The sheets come through in the words.** Sheet Y gets short and says
+  her worry about Pell; Sheet X lets a fumbling agent off (*"Take your
+  time."*, *"It's all right."*), hears the stock line for what it is
+  (*"I don't need that."*), and says no one ever told her how it works.
+- **One line reads wrong:** *"He's off, yeah. You've got that."* (Sheet Y,
+  call 1, answer 6). The second sentence is not something a person would
+  say.
+
+**What the brief asks of the model, mine:** use only the prompt's facts;
+refer back briefly to what she knows she has said, and vary how; put facts
+in her own words, never the prompt's; say the quoted baggage line as given
+or close to it; respond to what the agent has just said; show manner and
+frustration without naming a feeling; say *transferring* or plain words,
+never *assign*; plain modern spoken English with no regional slang or
+invented idioms; leave things unsaid.

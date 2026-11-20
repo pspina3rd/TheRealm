@@ -622,7 +622,10 @@ function shapeAnswer({ sheet, move, history = [], rng = Math.random, shift = {} 
     says,
     asked: Boolean(move.subject),
     gives,
-    hedged: counts.certainty < -1,
+    // Sure of what she has seen, and says so; unsure only about why, or
+    // when she has nothing to go on (docs/claims-her-side.md, 18). She
+    // never hedges who she is.
+    hedged: counts.certainty < -1 && (Boolean(beliefStated(sheet, move, counts)) || (Boolean(move.subject) && gives.length === 0)),
     flat: counts.certainty > 1,
     loose: counts.accuracy < -1,
     misleading: counts.accuracy < -TAIL,

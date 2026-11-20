@@ -28,7 +28,9 @@ const FACTS = Object.freeze({
   'pell-shut-out': "Pell can't get into the party bag himself.",
   'leaves-in-the-morning': 'Pell leaves on a contract in the morning.',
   'never-a-problem-before': 'This has never been a problem before.',
-  'at-it-since-last-night': 'She has been trying to work it out since last night, and is worn out and frustrated.',
+  // Phil's list: she has spent a lot of time on it, and she is frustrated.
+  // The frustration is how she says things, never a word she uses.
+  'at-it-since-last-night': 'She has been trying to work it out since last night.',
   'her-name': `Her name is ${CALLER.name}.`,
   'her-number': `There is a number on the bag: ${HANDLE.key.split('').join('-')}.`,
   'her-party': `Her party is ${CALLER.party}.`,
@@ -43,12 +45,30 @@ const ABOUT = Object.freeze({
   party: 'which party she is with', account: 'her account', contract: "Pell's contract",
 });
 
-/** What each kind of fix sounds like to her. */
+/**
+ * What the agent says for each kind of fix, and what she now knows from it.
+ * The fix line is Phil's for the system update; the others are the agent's
+ * words from the hand-played runs, mine. What a fix does is the record's:
+ * the party bag is open to the party again, so Pell can take the draught
+ * himself. Nothing has shown her how to transfer it.
+ */
 const FIXES = Object.freeze({
-  fix: 'The agent has just fixed it and said so.',
-  'wrong-fix': 'The agent has just offered a fix that does not fit what she has told them.',
-  'unclear-fix': 'The agent has just fixed it, in their own words, which she does not follow.',
-  blame: 'The agent has just fixed it, and said she changed the setting herself.',
+  fix: {
+    said: 'Your party bag was set to Admin Only, we switched it back.',
+    knows: 'The party bag is open to the party again, so Pell can take the draught out himself before he leaves. That is what she needed. Nobody has said anything about transferring it.',
+  },
+  'wrong-fix': {
+    said: 'These sometimes settle on their own. Could you try again in an hour?',
+    knows: 'This does not fit what she has told them: she has been trying since last night.',
+  },
+  'unclear-fix': {
+    said: "It was on Admin Only. I've taken it off.",
+    knows: 'She does not know what that means, or whether anything is different now.',
+  },
+  blame: {
+    said: "It looks like you changed the bag to Admin Only. I've put it back.",
+    knows: 'She is being told she changed the setting herself. The party bag is open to the party again, so Pell can take the draught before he leaves.',
+  },
 });
 
 /** How long the line is, as a person would hear it. */
@@ -61,8 +81,8 @@ const LENGTH = Object.freeze({
 
 /** What the agent's move was, as she heard it. */
 function heard(move) {
+  if (FIXES[move.kind]) return `The agent has just said: "${move.said || FIXES[move.kind].said}" ${FIXES[move.kind].knows}`;
   if (move.said) return `The agent has just said: "${move.said}"`;
-  if (FIXES[move.kind]) return FIXES[move.kind];
   if (move.kind === 'paraphrase') return `The agent has just said back to her what she told them about ${ABOUT[move.subject] || move.subject}${move.stock ? ', opening with a stock line of sympathy' : ''}.`;
   const how = move.angle === 'random' ? ', clumsily, as if fishing' : '';
   const land = { misfire: ' It came out badly.', flat: ' It came out flat.', critical: ' It was exactly the right question.' }[move.landing] || '';
@@ -126,12 +146,19 @@ function manner(shape) {
  * @param {object} args.move the agent's move she is answering; `said`, if
  *   given, is what the agent actually said, and is quoted in the prompt
  * @param {object} args.shape what answer.shapeAnswer returned for it
+ * @param {object} [args.before] her sheet as this answer started, for what
+ *   she remembers having said already this call
  * @returns {{facts: string[], length: string, heard: string,
  *   manner: string[], baggage: string|null, belief: string|null,
  *   words: string[], text: string}} the parts, and the whole as text
  */
-function promptFor({ sheet, move, shape }) {
-  const facts = shape.gives.map((g) => FACTS[g]).filter(Boolean);
+function promptFor({ sheet, move, shape, before }) {
+  // What she has already told them this call, as far as she remembers having
+  // said it (answer.js keeps that on her sheet, fading). Held at half or more,
+  // she knows she is saying it again; held less, she may repeat it without
+  // noticing, as people do.
+  const held = (before && before.now && before.now.said) || {};
+  const facts = shape.gives.map((g) => (held[g] >= 0.5 ? `${FACTS[g]} (She has already told them this, and knows it.)` : FACTS[g])).filter(Boolean);
   const baggage = shape.labels.baggage ? BAGGAGE[sheet.baggage].line : null;
   const belief = shape.belief
     ? `She ${shape.belief.sure >= 0.5 ? 'is sure' : 'thinks, without being sure,'} that nothing has changed on her side.`
@@ -159,6 +186,7 @@ function promptFor({ sheet, move, shape }) {
     `Length: ${parts.length}`,
     ...parts.manner,
     ...words,
+    'She has spent a long time on this and is frustrated; it shows in how she speaks, and she does not say it.',
     'She says nothing that is not given here, and speaks as a person would on the phone, in plain English.',
   ].filter(Boolean);
   return Object.freeze({ ...parts, text: lines.join('\n') });
