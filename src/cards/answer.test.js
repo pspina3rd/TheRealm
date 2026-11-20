@@ -375,8 +375,8 @@ test('after a fix she comes back with as much as her signal or openness moves he
     assert.ok(near(s.degrees.volunteers, Math.max(0, Math.min(1, Math.max(s.counts.signal, s.counts.openness) / 2))));
     if (s.gives.length) {
       some++;
-      assert.strictEqual(s.gives[0], 'at-it-since-last-night');
-      assert.ok(describeShape(s).includes('volunteers at-it-since-last-night'));
+      assert.strictEqual(s.gives[0], 'leaves-in-the-morning');
+      assert.ok(describeShape(s).includes('volunteers leaves-in-the-morning'));
     } else {
       none++;
       assert.ok(!describeShape(s).includes('gives') && !describeShape(s).includes('volunteers'));
@@ -583,6 +583,19 @@ test('asked straight about something she knows, she gives at least that, however
     const none = shape(Y, ask('what', 'verify', 'changed'), [], seed, { signal: -6 });
     assert.deepStrictEqual(none.gives, []);
   }
+});
+
+test('after a fix, what she comes back with starts from her own worry', () => {
+  const after = (sheet) => {
+    for (let seed = 1; seed <= 200; seed++) {
+      const s = shape(sheet, { kind: 'fix' }, [], seed, { signal: 3 });
+      if (s.gives.length) return s.gives[0];
+    }
+    return null;
+  };
+  // Y worries about Pell going in the morning; X that nobody told her, nearest to what she tried.
+  assert.strictEqual(after(Y), 'leaves-in-the-morning');
+  assert.strictEqual(after(X), 'at-it-since-last-night');
 });
 
 test('two sheets differ only where the sheets differ', () => {

@@ -122,7 +122,7 @@ test('what she knows she has already said is marked as said; what she has half f
   const remembered = promptFor({ sheet: SHEETS.Y, move, shape, before: { ...SHEETS.Y, now: { said: { [first]: 0.9 } } } });
   const faded = promptFor({ sheet: SHEETS.Y, move, shape, before: { ...SHEETS.Y, now: { said: { [first]: 0.3 } } } });
   assert.ok(!fresh.text.includes('already told them'));
-  assert.ok(remembered.facts[0].endsWith('(She has already told them this, and knows it.)'));
+  assert.ok(remembered.facts[0].endsWith('(She has already told them this, and knows it: she need not say it again.)'));
   assert.ok(!faded.text.includes('already told them'));
 });
 

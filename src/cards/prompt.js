@@ -176,7 +176,7 @@ function promptFor({ sheet, move, shape, before }) {
   // she knows she is saying it again; held less, she may repeat it without
   // noticing, as people do.
   const held = (before && before.now && before.now.said) || {};
-  const facts = shape.gives.map((g) => (held[g] >= 0.5 ? `${FACTS[g]} (She has already told them this, and knows it.)` : FACTS[g])).filter(Boolean);
+  const facts = shape.gives.map((g) => (held[g] >= 0.5 ? `${FACTS[g]} (She has already told them this, and knows it: she need not say it again.)` : FACTS[g])).filter(Boolean);
   const baggage = shape.labels.baggage ? BAGGAGE[sheet.baggage].line : null;
   const belief = shape.belief
     // Her belief from where she stands: she hasn't changed anything herself.
@@ -209,6 +209,7 @@ function promptFor({ sheet, move, shape, before }) {
     ...parts.manner,
     ...words,
     'She has spent a long time on this and is frustrated; it shows in how she speaks, and she does not say it.',
+    'Once something has been named in the call she calls it what a person would, such as "the bag", "his" or "it", not its full name every time.',
     'She says nothing that is not given here, and speaks as a person would on the phone, in plain English.',
   ].filter(Boolean);
   return Object.freeze({ ...parts, text: lines.join('\n') });

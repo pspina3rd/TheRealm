@@ -30,3 +30,18 @@ questions, both about her, not about people in general:
    a general audience would follow it.
 A line can be fine English and still fail either.
 Related: [[phil-verify-by-reading-output]], [[phil-correct-or-not]].
+
+**How to read, Phil, 20 November:** *"When reviewing the text, it is vital
+to be considering it as a whole, and as smaller chunks: paragraphs,
+sentences, and phrases and phrasings, and look at colloquialisms, turns of
+phrase, metaphors, similes, etc. too. Who is this person speaking, what
+does their character sheet tell us, what else do we know about this
+person, what else can we discover about them, what else can we expect from
+them, what would be unexpected for them?"*
+
+So a review is: the whole call read through as one conversation (does it
+repeat, loop, or read as mechanical?), then each answer, sentence and
+phrase, then the colloquialisms and figures of speech, each held against
+who she is: her sheet, her history in the record, what she knows, how she
+talks, and what would be in or out of character for her.
+

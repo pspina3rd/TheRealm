@@ -464,8 +464,18 @@ function roomFor(says, counts, landing, move) {
  * fix: only as much as she is moved to volunteer, starting from her own
  * night on the account.
  */
-function handsOver(move, room, own, volunteers, said) {
-  const subject = move.subject || 'account';
+/**
+ * After a fix, what she comes back with starts from what she cares about:
+ * the nearest thing she knows to her worry (her baggage's trigger, then the
+ * subjects near it).
+ */
+function caresAbout(sheet) {
+  const trigger = BAGGAGE[sheet.baggage].trigger;
+  return [trigger.subject, ...trigger.near].find((s) => KNOWS.some((k) => k.about.includes(s))) || 'account';
+}
+
+function handsOver(move, room, own, volunteers, said, sheet) {
+  const subject = move.subject || caresAbout(sheet);
   const near = KNOWS.filter((k) => k.about.includes(subject));
   const ranked = [...near, ...KNOWS.filter((k) => !near.includes(k))].map((k) => k.id);
   // What she remembers saying least comes first, so something said long
@@ -600,7 +610,7 @@ function shapeAnswer({ sheet, move, history = [], rng = Math.random, shift = {} 
     ...afterFix(sheet, move),
     volunteers,
   };
-  const gives = handsOver(move, roomFor(says, counts, landing, move), own, volunteers, now.said);
+  const gives = handsOver(move, roomFor(says, counts, landing, move), own, volunteers, now.said, sheet);
   const labels = labelsFor(sheet, move, degrees, own);
 
   // What this answer writes back on her sheet, for the next one to start
