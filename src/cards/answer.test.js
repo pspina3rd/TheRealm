@@ -345,10 +345,7 @@ test('what a fix leaves in her follows her sheet, by degrees', () => {
   assert.ok(after(X, 2)[1].degrees.shows < after(X, 2)[1].degrees.strain);
   assert.strictEqual(shape(X, { kind: 'unclear-fix' }).labels.afterFix, 'thanks them and rings off');
   assert.strictEqual(shape(Y, { kind: 'unclear-fix' }).labels.afterFix, 'asks what it means');
-  assert.strictEqual(shape(X, { kind: 'blame' }).labels.afterFix, 'puts it on the company');
   assert.strictEqual(shape(X, { kind: 'blame' }).labels.towardAgent, 'lets them off');
-  assert.strictEqual(shape(Y, { kind: 'blame' }).labels.afterFix, 'turns on the agent');
-  assert.ok(near(shape(X, { kind: 'blame' }).degrees.onCompany, 0.8) && near(shape(X, { kind: 'blame' }).degrees.onAgent, 0.2));
   assert.strictEqual(shape(Y, { kind: 'fix' }).labels.afterFix, null);
 });
 
@@ -617,6 +614,38 @@ test('what she knows she has said she does not say again, unless asked straight 
     // Asked straight about Pell, she answers it although she has said it.
     const p = shape(sheet, ask('who', 'contract', 'pell'), [], seed, { signal: 1 });
     assert.strictEqual(p.gives[0], 'pell-shut-out');
+  }
+});
+
+test('told she changed it herself, what she does is a range her sheet decides', () => {
+  const blame = { kind: 'blame' };
+  const sure = (sheet) => shape(sheet, blame, [], 1, { certainty: 6 });
+  const unsure = (sheet) => shape(sheet, blame, [], 1, { certainty: -6 });
+  // How sure she is decides whether she holds firm or starts to doubt.
+  assert.match(sure(X).labels.afterFix, /^holds firm/);
+  assert.match(unsure(X).labels.afterFix, /^starts to doubt herself/);
+  // Where it lands: X, high empathy and nobody told her, puts it on TLC; Z, low empathy, turns on the agent;
+  // Y, sure, turns on the agent, and less sure, cares more that Pell has it than whose fault it was.
+  assert.match(sure(X).labels.afterFix, /puts it on TLC/);
+  assert.match(sure(Z).labels.afterFix, /turns on the agent/);
+  assert.match(sure(Y).labels.afterFix, /turns on the agent/);
+  assert.match(unsure(Y).labels.afterFix, /cares more that Pell has it/);
+  // Whether it shows: X absorbs things and goes quiet; Y and Z show it.
+  assert.match(sure(X).labels.afterFix, /goes quiet about it$/);
+  assert.match(sure(Y).labels.afterFix, /and shows it$/);
+  // Doubting herself, she does not put it on anyone else.
+  assert.ok(!/turns on the agent|puts it on TLC/.test(unsure(X).labels.afterFix));
+  assert.ok(!/turns on the agent|puts it on TLC/.test(unsure(Z).labels.afterFix));
+  // Feeling foolish makes doubt come easier: the same middling certainty, Z doubts where Y holds.
+  const mid = { certainty: 0.4 };
+  assert.ok(shape(Z, blame, [], 1, mid).degrees.doubts > shape(Y, blame, [], 1, mid).degrees.doubts);
+  // Every degree stays in range, and nothing of it shows on a move that is not blame.
+  for (let seed = 1; seed <= 100; seed++) {
+    for (const sheet of [X, Y, Z]) {
+      const d = shape(sheet, blame, [], seed).degrees;
+      for (const k of ['firm', 'doubts', 'onAgent', 'onCompany', 'letsGo', 'blameShows']) assert.ok(d[k] >= 0 && d[k] <= 1);
+      assert.strictEqual(shape(sheet, { kind: 'fix' }, [], seed).degrees.firm, 0);
+    }
   }
 });
 

@@ -60,8 +60,11 @@ test('the same moves on the same draws give different prompts where the sheets d
   assert.ok(differ / total > 0.4, `${differ} of ${total}`);
   // Blamed, X puts it on the company and Y turns on the agent.
   const blamed = (call) => call.find((h) => h.move.kind === 'blame');
-  assert.match(promptFor({ sheet: SHEETS.X, ...blamed(xs[0]) }).text, /does not blame the agent/);
-  assert.match(promptFor({ sheet: SHEETS.Y, ...blamed(ys[0]) }).text, /turns on the agent/);
+  // Blamed, X never lands it on the agent; both say what she does with being sure she didn't.
+  for (let c = 0; c < 50; c++) {
+    assert.ok(!promptFor({ sheet: SHEETS.X, ...blamed(xs[c]) }).text.includes('lands on the agent'));
+    assert.match(promptFor({ sheet: SHEETS.Y, ...blamed(ys[c]) }).text, /holds firm that she did not|starts to doubt herself/);
+  }
 });
 
 test('every prompt says how long, what she heard, and the rule against inventing', () => {

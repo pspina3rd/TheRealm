@@ -99,6 +99,22 @@ function heard(move) {
   return `The agent has just asked about ${ABOUT[move.subject] || move.subject}.${how}${land}`;
 }
 
+/**
+ * Told she changed it herself: she is sure she didn't, and the label says
+ * what she does with that, in three parts.
+ */
+function blameManner(label) {
+  // Her belief itself is already in the prompt; this is what she does with it.
+  const out = [];
+  if (label.startsWith('starts to doubt herself')) out.push('Being told she did, she starts to doubt herself: maybe she did, without meaning to.');
+  else out.push('She holds firm that she did not.');
+  if (label.includes('turns on the agent')) out.push('She takes it as being blamed, and it lands on the agent.');
+  if (label.includes('puts it on TLC')) out.push('She puts it on TLC rather than on the agent.');
+  if (label.includes('cares more that Pell has it')) out.push('Whose fault it was matters less to her than that Pell can have the draught now.');
+  out.push(label.endsWith('shows it') ? 'It shows in how she speaks.' : 'She keeps it to herself and says little about it.');
+  return out;
+}
+
 /** How she says it, from her counts and what the move set off. */
 function manner(shape) {
   const out = [];
@@ -147,10 +163,9 @@ function manner(shape) {
     'asks for someone else': 'She has had enough and asks for someone else.',
     'asks what it means': 'She asks what that means.',
     'thanks them and rings off': 'She thanks them and makes to ring off without saying she did not follow.',
-    'turns on the agent': 'She takes it as blame, and turns on the agent.',
-    'puts it on the company': 'She takes it as the company having changed something and not said; she does not blame the agent.',
   }[l.afterFix];
   if (fix) out.push(fix);
+  if (l.afterFix && l.afterFix.includes(', ')) out.push(...blameManner(l.afterFix));
   return out;
 }
 

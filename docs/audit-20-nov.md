@@ -156,3 +156,30 @@ understood saying it):
   leader, and I've been trying to get this sorted since last night; I
   haven't changed anything."* — passes.
 - **X1.5** *"Nothing I've done. I just can't transfer it."* — passes.
+
+## 7. Being sure she didn't change it, and what she does with that
+
+Phil, 20 November, on her denial: the belief itself is in character; she
+*"could be sure she didn't change anything herself, and still be wrong …
+be made to believe she did … get angry … cry … scream … believe anything to
+the contrary is a lie … be glad someone was able to help her … be glad
+when called out … and … ?"* I had proposed removing the belief. Wrong: the
+fault was only that she volunteered it unasked (fixed: it comes out when
+she is asked whether anything changed, or told she changed it).
+
+**What was built, on Phil's "Yes":** told she changed it herself, her
+reaction is a range from her sheet, not the two outcomes there were:
+- **Holds firm or starts to doubt herself** — from how sure she is on that
+  answer; feeling foolish (*set it up herself*) makes doubt come easier.
+- **Where it lands** — on the agent, the less empathy she has; on TLC, the
+  more she has, and more if her worry is that nobody told her; nowhere, if
+  she is doubting herself; and if her worry is for Pell, whose fault it was
+  can matter less than that he has it now.
+- **Shows it or goes quiet** — her tolerance for things going badly.
+
+Over 200 calls each: Sheet Y held firm and turned on the agent 5 times,
+held firm but cared more that Pell had it 4, and doubted herself and cared
+more that Pell had it 9. Sheet X held firm and put it on TLC, quietly, 11,
+and doubted herself, quietly, 9. One combination that did not hold
+together, doubting herself while blaming TLC, was ruled out before this
+was written.

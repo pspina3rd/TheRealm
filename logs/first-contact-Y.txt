@@ -69,8 +69,10 @@ How free the middle was
 What occurred, over 1603 answers
   afterFix: asks for someone else                  2
   afterFix: asks what it means                     37
+  afterFix: holds firm, cares more that Pell has it than whose fault it was, and shows it 4
+  afterFix: holds firm, turns on the agent, and shows it 5
   afterFix: shows it                               44
-  afterFix: turns on the agent                     18
+  afterFix: starts to doubt herself, cares more that Pell has it than whose fault it was, and shows it 9
   baggage: pell-gets-hurt                          221
   heard: feels heard                               174
   pattern: names the run                           14

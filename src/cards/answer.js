@@ -422,16 +422,43 @@ function beliefStated(sheet, move, counts) {
  * your read". `asks` is how readily she questions a fix she did not follow.
  * `onAgent` and `onCompany` are where being blamed lands.
  */
-function afterFix(sheet, move) {
-  const tolerates = valueOf(sheet, 'nonPositive');
+/**
+ * Told she changed it herself. She is sure she didn't, and what she does
+ * with that is a range her sheet decides (Phil, 20 November: she could get
+ * angry, cry, scream, call it a lie, come to believe she did, be glad of the
+ * help, be glad to be called out…):
+ *
+ * - `firm` against `doubts`: how sure she is on this answer. Feeling foolish
+ *   (*set it up herself*) makes doubt come easier.
+ * - where it lands: on the agent, with less empathy; on TLC, with more, and
+ *   more still if her worry is that nobody told her; or, if her worry is for
+ *   Pell, `letsGo`: whose fault it was matters less than that he has it now.
+ * - `shows` against going quiet: her tolerance for things going badly.
+ */
+function blamed(sheet, counts) {
   const empathy = valueOf(sheet, 'empathy');
+  const doubtful = sheet.baggage === 'set-it-up-herself' ? 0.3 : 0;
+  const firm = clamp((counts.certainty + 2) / 3 - doubtful);
+  const fromCompany = sheet.baggage === 'no-one-told-her' ? 0.3 : 0;
+  return {
+    firm,
+    doubts: 1 - firm,
+    onAgent: firm * (1 - empathy) * (1 - fromCompany),
+    onCompany: clamp(firm * empathy + fromCompany),
+    letsGo: sheet.baggage === 'pell-gets-hurt' ? clamp(0.4 + 0.5 * (1 - firm)) : 0,
+    blameShows: 1 - valueOf(sheet, 'nonPositive'),
+  };
+}
+
+function afterFix(sheet, move, counts) {
+  const tolerates = valueOf(sheet, 'nonPositive');
   const strain = clamp(nowOf(sheet).strain + (move.kind === 'wrong-fix' ? (1 - tolerates) / 2 : 0));
+  const none = { firm: 0, doubts: 0, onAgent: 0, onCompany: 0, letsGo: 0, blameShows: 0 };
   return {
     strain,
     shows: clamp(strain * (1.6 - 1.5 * tolerates)),
     asks: move.kind === 'unclear-fix' ? 1 - tolerates : 0,
-    onAgent: move.kind === 'blame' ? 1 - empathy : 0,
-    onCompany: move.kind === 'blame' ? empathy : 0,
+    ...(move.kind === 'blame' ? blamed(sheet, counts) : none),
   };
 }
 
@@ -534,7 +561,15 @@ function labelsFor(sheet, move, d, takesShare) {
   let fix = null;
   if (move.kind === 'wrong-fix') fix = d.strain >= SAY.strong ? 'asks for someone else' : (d.shows >= 0.2 ? 'shows it' : 'gives no sign');
   if (move.kind === 'unclear-fix') fix = d.asks >= 0.45 ? 'asks what it means' : 'thanks them and rings off';
-  if (move.kind === 'blame') fix = d.onAgent >= d.onCompany ? 'turns on the agent' : 'puts it on the company';
+  if (move.kind === 'blame') {
+    // Doubting herself, she puts it on nobody else; holding firm, it lands
+    // somewhere. Either way her worry for Pell can outweigh whose fault it was.
+    const doubting = d.doubts >= SAY.plain;
+    let lands = doubting ? null : (d.onAgent >= d.onCompany ? 'turns on the agent' : 'puts it on TLC');
+    if (d.letsGo >= Math.max(d.onAgent, d.onCompany)) lands = 'cares more that Pell has it than whose fault it was';
+    const shows = d.blameShows >= SAY.plain ? 'and shows it' : 'and goes quiet about it';
+    fix = [doubting ? 'starts to doubt herself' : 'holds firm', lands, shows].filter(Boolean).join(', ');
+  }
   let takes = null;
   if (move.subject) {
     if (takesShare >= SAY.strong) takes = 'leaves the question';
@@ -614,7 +649,7 @@ function shapeAnswer({ sheet, move, history = [], rng = Math.random, shift = {} 
     patternShape: heard.shape,
     ...toward,
     baggage: baggageOut(sheet, move, counts),
-    ...afterFix(sheet, move),
+    ...afterFix(sheet, move, counts),
     volunteers,
   };
   const gives = handsOver(move, roomFor(says, counts, landing, move), own, volunteers, now.said, sheet);
