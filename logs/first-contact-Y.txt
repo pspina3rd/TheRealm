@@ -9,15 +9,15 @@ Call 1
   AGENT  what·contract bag (flat)
   SELLA  says a sentence or two · gives cannot-transfer, never-a-problem-before · exact · baggage: pell-gets-hurt
   AGENT  when·expand before (lands)
-  SELLA  says a sentence or two · gives never-a-problem-before, leaves-in-the-morning, pell-shut-out · exact
+  SELLA  says a sentence or two · gives never-a-problem-before, leaves-in-the-morning · exact
   AGENT  what·verify changed (lands)
-  SELLA  says a few words · gives at-it-since-last-night · flatly sure · loosely put · states nothing-changed-on-her-side (sure, wrong)
+  SELLA  says a few words · gives nothing useful · flatly sure · loosely put · states nothing-changed-on-her-side (sure, wrong)
   AGENT  when·verify morning (lands)
-  SELLA  says a few words · gives leaves-in-the-morning · flatly sure · misleading · feels heard
+  SELLA  says a few words · gives leaves-in-the-morning · flatly sure · misleading · feels heard · a little brushed off
   AGENT  when·contract morning (lands)
-  SELLA  says three or four sentences · gives leaves-in-the-morning, cannot-transfer, pell-shut-out · exact · feels heard
+  SELLA  says three or four sentences · gives leaves-in-the-morning, pell-shut-out, at-it-since-last-night · exact · feels heard
   AGENT  where·contract draught (lands)
-  SELLA  says a sentence or two · gives cannot-transfer, never-a-problem-before
+  SELLA  says a sentence or two · gives cannot-transfer
   AGENT  (looks her up in the record)
   AGENT  the fix
   SELLA  says a sentence or two · volunteers leaves-in-the-morning
@@ -33,11 +33,11 @@ Call 2
   AGENT  what·contract before (flat)
   SELLA  says a sentence or two · gives never-a-problem-before, leaves-in-the-morning · loosely put
   AGENT  paraphrase about before
-  SELLA  says a sentence or two · gives never-a-problem-before, at-it-since-last-night, cannot-transfer · baggage: pell-gets-hurt
+  SELLA  says a sentence or two · gives never-a-problem-before · baggage: pell-gets-hurt
   AGENT  when·expand morning (flat)
   SELLA  says a few words · gives leaves-in-the-morning · loosely put · feels heard
   AGENT  when·contract morning (flat)
-  SELLA  says a sentence or two · gives leaves-in-the-morning, pell-shut-out, cannot-transfer · loosely put · baggage: pell-gets-hurt · feels heard
+  SELLA  says a sentence or two · gives leaves-in-the-morning, at-it-since-last-night · loosely put · baggage: pell-gets-hurt · feels heard
   AGENT  who·expand name (flat)
   SELLA  says a few words · gives her-name
   AGENT  (looks her up in the record)
@@ -62,32 +62,32 @@ Call 3
 How free the middle was
   different paths through the call: 197 of 200
   first move after the opening: paraphrase about working 29 · what·contract working 21 · what·expand number 19 · who·expand name 14 · what·expand account 10 · paraphrase about working, with a stock line 10
-  asked who she is at: play 7 65 · play 1 59 · play 2 29 · play 3 18 · play 5 11 · play 4 11 · play 6 7
-  how calls ended: fixed, 9 plays 103 · not fixed, 9 plays 34 · fixed, 5 plays 16 · fixed, 7 plays 15 · fixed, 6 plays 12 · fixed, 8 plays 9 · fixed, 3 plays 7 · fixed, 4 plays 4
-  why calls were not fixed: misread the record, and the last fix was wrong 33 · never found out who she is, so never looked her up 1
+  asked who she is at: play 7 67 · play 1 59 · play 2 29 · play 3 18 · play 4 11 · play 5 9 · play 6 7
+  how calls ended: fixed, 9 plays 103 · not fixed, 9 plays 33 · fixed, 5 plays 16 · fixed, 7 plays 16 · fixed, 6 plays 11 · fixed, 8 plays 10 · fixed, 3 plays 7 · fixed, 4 plays 4
+  why calls were not fixed: misread the record, and the last fix was wrong 29 · never found out who she is, so never looked her up 4
 
-What occurred, over 1600 answers
-  afterFix: asks for someone else                  3
-  afterFix: asks what it means                     39
-  afterFix: shows it                               49
-  afterFix: turns on the agent                     16
+What occurred, over 1603 answers
+  afterFix: asks for someone else                  2
+  afterFix: asks what it means                     37
+  afterFix: shows it                               44
+  afterFix: turns on the agent                     18
   baggage: pell-gets-hurt                          221
-  heard: feels heard                               145
-  pattern: names the run                           10
-  pressed: feels badgered                          3
-  pressed: feels pressed                           10
-  reach: a little brushed off                      84
-  reach: badly brushed off                         4
-  repeat: fine with it                             280
-  repeat: it wears thin                            100
-  repeat: notices the repeat                       27
-  says a few words                                 448
-  says a sentence or two                           946
-  says runs on                                     23
-  says three or four sentences                     183
-  takes: answers and adds                          77
-  takes: half-answers and drifts                   8
-  takes: leaves the question                       4
-  towardAgent: gets short                          261
+  heard: feels heard                               174
+  pattern: names the run                           14
+  pressed: feels badgered                          7
+  pressed: feels pressed                           16
+  reach: a little brushed off                      113
+  reach: badly brushed off                         15
+  repeat: fine with it                             329
+  repeat: it wears thin                            101
+  repeat: notices the repeat                       33
+  says a few words                                 454
+  says a sentence or two                           948
+  says runs on                                     20
+  says three or four sentences                     181
+  takes: answers and adds                          96
+  takes: half-answers and drifts                   11
+  takes: leaves the question                       15
+  towardAgent: gets short                          259
 
 Against her sheet: 0

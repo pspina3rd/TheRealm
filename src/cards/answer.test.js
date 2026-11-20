@@ -607,6 +607,19 @@ test('she states her belief only when asked whether anything changed, or told sh
   }
 });
 
+test('what she knows she has said she does not say again, unless asked straight for it', () => {
+  const sheet = { ...Y, now: { ...freshNow(Y), said: { 'pell-shut-out': 0.9, 'at-it-since-last-night': 0.9, 'leaves-in-the-morning': 0.3 } } };
+  for (let seed = 1; seed <= 200; seed++) {
+    const s = shape(sheet, ask('what', 'contract', 'transfer'), [], seed, { volume: 6, signal: 2 });
+    // Not aimed at Pell or her night: she leaves both out. The half-forgotten one may come round.
+    assert.ok(!s.gives.includes('pell-shut-out'), `${s.gives}`);
+    assert.ok(!s.gives.includes('at-it-since-last-night'), `${s.gives}`);
+    // Asked straight about Pell, she answers it although she has said it.
+    const p = shape(sheet, ask('who', 'contract', 'pell'), [], seed, { signal: 1 });
+    assert.strictEqual(p.gives[0], 'pell-shut-out');
+  }
+});
+
 test('two sheets differ only where the sheets differ', () => {
   // A plain question that sets nothing off: the same draw gives the same answer.
   for (let seed = 1; seed <= 100; seed++) {

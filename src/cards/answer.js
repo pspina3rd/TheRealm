@@ -488,7 +488,11 @@ function handsOver(move, room, own, volunteers, said, sheet) {
   const aimed = (fits.length ? fits : near).slice(0, 1).map((k) => k.id);
   const rest = ranked.filter((id) => !aimed.includes(id));
   const recall = (id) => said[id] || 0;
-  const known = [...aimed, ...rest.map((id, i) => ({ id, i })).sort((a, b) => recall(a.id) - recall(b.id) || a.i - b.i).map((x) => x.id)];
+  // What she knows she has said (held at half or more) she does not say
+  // again unless the question is aimed straight at it; what she has half
+  // forgotten saying can come round again, as people repeat themselves.
+  const fresh = rest.filter((id) => recall(id) < SAY.plain);
+  const known = [...aimed, ...fresh.map((id, i) => ({ id, i })).sort((a, b) => recall(a.id) - recall(b.id) || a.i - b.i).map((x) => x.id)];
   if (!move.subject) return known.slice(0, Math.round(volunteers * room));
   if (onPoint(move)) return known.slice(0, room);
   const asked = `her-${move.subject}`;

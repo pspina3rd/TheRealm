@@ -9,15 +9,15 @@ Call 1
   AGENT  what·contract bag (flat)
   SELLA  says three or four sentences · gives cannot-transfer, never-a-problem-before, leaves-in-the-morning · exact · baggage: no-one-told-her
   AGENT  what·expand contract (lands)
-  SELLA  says a sentence or two · gives leaves-in-the-morning, pell-shut-out, at-it-since-last-night · exact
+  SELLA  says a sentence or two · gives leaves-in-the-morning · exact
   AGENT  what·verify changed (lands)
-  SELLA  says a few words · gives cannot-transfer · flatly sure · loosely put · states nothing-changed-on-her-side (sure, right)
+  SELLA  says a few words · gives nothing useful · flatly sure · loosely put · states nothing-changed-on-her-side (sure, right)
   AGENT  when·verify morning (lands)
-  SELLA  says a few words · gives leaves-in-the-morning · flatly sure · misleading
+  SELLA  says a few words · gives leaves-in-the-morning · flatly sure · misleading · a little brushed off
   AGENT  when·contract morning (lands)
-  SELLA  says three or four sentences · gives leaves-in-the-morning, never-a-problem-before, pell-shut-out · exact · it grates on her · feels pressed
+  SELLA  says three or four sentences · gives leaves-in-the-morning, pell-shut-out, at-it-since-last-night · exact · it grates on her · feels pressed
   AGENT  where·contract draught (lands)
-  SELLA  says a sentence or two · gives cannot-transfer, at-it-since-last-night
+  SELLA  says a sentence or two · gives cannot-transfer, never-a-problem-before
   AGENT  (looks her up in the record)
   AGENT  the fix
   SELLA  says a sentence or two · volunteers at-it-since-last-night
@@ -33,11 +33,11 @@ Call 2
   AGENT  what·contract before (flat)
   SELLA  says a sentence or two · gives never-a-problem-before, leaves-in-the-morning · loosely put
   AGENT  paraphrase about before
-  SELLA  says a sentence or two · gives never-a-problem-before, at-it-since-last-night, cannot-transfer · baggage: no-one-told-her · reads it as not listening
+  SELLA  says a sentence or two · gives never-a-problem-before · baggage: no-one-told-her · reads it as not listening
   AGENT  when·expand morning (flat)
   SELLA  says a few words · gives leaves-in-the-morning · loosely put
   AGENT  when·contract morning (flat)
-  SELLA  says a sentence or two · gives leaves-in-the-morning, pell-shut-out, cannot-transfer · loosely put · it grates on her · feels pressed
+  SELLA  says a sentence or two · gives leaves-in-the-morning, at-it-since-last-night · loosely put · it grates on her · feels pressed
   AGENT  who·expand name (flat)
   SELLA  says a few words · gives her-name
   AGENT  (looks her up in the record)
@@ -62,30 +62,30 @@ Call 3
 How free the middle was
   different paths through the call: 198 of 200
   first move after the opening: paraphrase about working 29 · what·contract working 21 · what·expand number 19 · who·expand name 14 · what·expand account 10 · paraphrase about working, with a stock line 10
-  asked who she is at: play 7 64 · play 1 59 · play 2 29 · play 3 17 · play 4 13 · play 5 11 · play 6 7
-  how calls ended: fixed, 9 plays 99 · not fixed, 9 plays 35 · fixed, 5 plays 17 · fixed, 7 plays 17 · fixed, 8 plays 11 · fixed, 6 plays 11 · fixed, 3 plays 7 · fixed, 4 plays 3
-  why calls were not fixed: misread the record, and the last fix was wrong 34 · never found out who she is, so never looked her up 1
+  asked who she is at: play 7 66 · play 1 59 · play 2 29 · play 3 17 · play 4 13 · play 5 9 · play 6 7
+  how calls ended: fixed, 9 plays 99 · not fixed, 9 plays 34 · fixed, 7 plays 18 · fixed, 5 plays 17 · fixed, 8 plays 11 · fixed, 6 plays 11 · fixed, 3 plays 7 · fixed, 4 plays 3
+  why calls were not fixed: misread the record, and the last fix was wrong 30 · never found out who she is, so never looked her up 4
 
-What occurred, over 1598 answers
-  afterFix: gives no sign                          56
-  afterFix: puts it on the company                 16
-  afterFix: thanks them and rings off              43
-  baggage: no-one-told-her                         193
-  heard: feels heard                               44
-  pressed: feels badgered                          3
-  pressed: feels pressed                           78
-  reach: a little brushed off                      92
-  reach: badly brushed off                         4
-  repeat: it grates on her                         174
-  repeat: reads it as not listening                248
-  says a few words                                 479
-  says a sentence or two                           920
-  says runs on                                     23
-  says three or four sentences                     176
-  takes: answers and adds                          85
-  takes: half-answers and drifts                   7
-  takes: leaves the question                       4
-  towardAgent: hears the stock line                72
-  towardAgent: lets them off                       246
+What occurred, over 1599 answers
+  afterFix: gives no sign                          50
+  afterFix: puts it on the company                 20
+  afterFix: thanks them and rings off              40
+  baggage: no-one-told-her                         190
+  heard: feels heard                               51
+  pressed: feels badgered                          7
+  pressed: feels pressed                           111
+  reach: a little brushed off                      116
+  reach: badly brushed off                         15
+  repeat: it grates on her                         226
+  repeat: reads it as not listening                251
+  says a few words                                 495
+  says a sentence or two                           915
+  says runs on                                     18
+  says three or four sentences                     171
+  takes: answers and adds                          99
+  takes: half-answers and drifts                   10
+  takes: leaves the question                       15
+  towardAgent: hears the stock line                74
+  towardAgent: lets them off                       250
 
 Against her sheet: 0
