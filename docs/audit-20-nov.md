@@ -130,3 +130,29 @@ independent reader's. The one left is Y1.2, *"The party's. I'm the
 leader. I've been at this since last night, and nothing on my side has
 changed."*, which the reader failed and I pass (section 4). That is for
 Phil to judge.
+
+## 6. Her belief, worded from her side — 20 November
+
+Phil, of *"…and nothing on my side has changed"*: is that within her
+character? *"On my side"* was my wording in the prompt (*"nothing has
+changed on her side"*), carried into her lines; it makes her frustration a
+claim about whose fault it is. Phil also showed that I had judged a
+fragment instead of the whole sentence: *"I've been at this since last
+night and nothing has changed"* is in character, meaning her effort has
+got her nowhere.
+
+The prompt now says she is sure she hasn't changed anything herself. The
+four lines that carry it were rewritten and judged by Phil's two
+questions (would this person say this; does she believe she will be
+understood saying it):
+
+- **Y1.2** *"The party's. I'm the leader. I've been at this since last
+  night, and I haven't changed anything."* — passes.
+- **Y1.5** first came back as *"I haven't touched a thing."* — fails: she
+  has been through the account all night. Rewritten: *"I haven't changed
+  anything."* — passes; she has said it once already, and is asked
+  directly.
+- **X1.2** *"That's all right. It's the party's account, I'm the party
+  leader, and I've been trying to get this sorted since last night; I
+  haven't changed anything."* — passes.
+- **X1.5** *"Nothing I've done. I just can't transfer it."* — passes.
