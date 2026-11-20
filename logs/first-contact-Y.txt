@@ -13,7 +13,7 @@ Call 1
   AGENT  what·verify changed (lands)
   SELLA  says a few words · gives at-it-since-last-night · flatly sure · loosely put · states nothing-changed-on-her-side (sure, wrong)
   AGENT  when·verify morning (lands)
-  SELLA  says a few words · gives nothing useful · flatly sure · misleading · feels heard
+  SELLA  says a few words · gives nothing useful · feels heard
   AGENT  when·contract morning (lands)
   SELLA  says three or four sentences · gives leaves-in-the-morning, cannot-transfer, pell-shut-out · exact · feels heard
   AGENT  where·contract draught (lands)
@@ -31,7 +31,7 @@ Call 2
   AGENT  what·verify bag (lands)
   SELLA  says three or four sentences · gives cannot-transfer, pell-shut-out, never-a-problem-before · misleading
   AGENT  what·contract before (flat)
-  SELLA  says a sentence or two · gives never-a-problem-before, leaves-in-the-morning · hedged · loosely put
+  SELLA  says a sentence or two · gives never-a-problem-before, leaves-in-the-morning · loosely put
   AGENT  paraphrase about before
   SELLA  says a sentence or two · gives never-a-problem-before, at-it-since-last-night, cannot-transfer · baggage: pell-gets-hurt
   AGENT  when·expand morning (flat)
@@ -42,7 +42,7 @@ Call 2
   SELLA  says a few words · gives her-name · hedged
   AGENT  (looks her up in the record)
   AGENT  the fix
-  SELLA  says a few words · misleading
+  SELLA  says a few words
   (the case is written after; 9 plays used, fixed)
 
 Call 3
@@ -56,7 +56,7 @@ Call 3
   AGENT  paraphrase about working, with a stock line
   SELLA  says a few words · gives cannot-transfer · gets short
   AGENT  the fix
-  SELLA  says a few words · flatly sure
+  SELLA  says a few words
   (the case is written after; 5 plays used, fixed)
 
 How free the middle was

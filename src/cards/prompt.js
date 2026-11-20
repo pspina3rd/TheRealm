@@ -92,7 +92,8 @@ function heard(move) {
 /** How she says it, from her counts and what the move set off. */
 function manner(shape) {
   const out = [];
-  if (shape.hedged) out.push('She hedges: she is not sure of herself.');
+  if (shape.hedged && shape.gives.some((g) => g.startsWith('her-'))) out.push('She is not sure which name they want, or whose name the account is under, and it shows.');
+  else if (shape.hedged) out.push('She hedges: she is not sure of herself.');
   if (shape.flat) out.push('She says it flatly, sure of it.');
   if (shape.misleading) out.push('She puts it loosely enough to mislead.');
   else if (shape.loose) out.push('She puts it loosely.');

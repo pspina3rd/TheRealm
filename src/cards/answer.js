@@ -616,20 +616,26 @@ function shapeAnswer({ sheet, move, history = [], rng = Math.random, shift = {} 
     said: Object.freeze(said),
   });
 
+  const saysSomething = gives.length > 0 || Boolean(beliefStated(sheet, move, counts));
   return {
     counts,
     bands,
     says,
     asked: Boolean(move.subject),
     gives,
-    // Sure of what she has seen, and says so; unsure only about why, or
-    // when she has nothing to go on (docs/claims-her-side.md, 18). She
-    // never hedges who she is.
-    hedged: counts.certainty < -1 && (Boolean(beliefStated(sheet, move, counts)) || (Boolean(move.subject) && gives.length === 0)),
-    flat: counts.certainty > 1,
-    loose: counts.accuracy < -1,
-    misleading: counts.accuracy < -TAIL,
-    exact: counts.accuracy > 1,
+    // Sure of what she has seen, and says so; unsure about why, when she has
+    // nothing to go on (docs/claims-her-side.md, 18), or, asked who she is,
+    // about which name they want or whose name the account is under (Phil,
+    // 20 November).
+    hedged: counts.certainty < -1 && (Boolean(beliefStated(sheet, move, counts))
+      || (Boolean(move.subject) && gives.length === 0)
+      || gives.some((g) => g.startsWith('her-'))),
+    // How sure and how exact she is needs something to be sure or exact
+    // about: a fact she gives, or a belief she states.
+    flat: counts.certainty > 1 && saysSomething,
+    loose: counts.accuracy < -1 && saysSomething,
+    misleading: counts.accuracy < -TAIL && saysSomething,
+    exact: counts.accuracy > 1 && saysSomething,
     belief: beliefStated(sheet, move, counts),
     degrees,
     labels,

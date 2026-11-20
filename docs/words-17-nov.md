@@ -106,3 +106,40 @@ or close to it; respond to what the agent has just said; show manner and
 frustration without naming a feeling; say *transferring* or plain words,
 never *assign*; plain modern spoken English with no regional slang or
 invented idioms; leave things unsaid.
+
+### Fourth pass — 20 November
+
+Phil, of *"He's off, yeah."*: *"Prove to me that in context this response
+makes sense."* It did not. The prompt behind it gave her nothing to say,
+did not give the agent's actual question, and still told her to sound
+flatly sure and loose enough to mislead. So the model made up a question
+to say "yeah" to, and answered it with an idiom. Three fixes:
+
+1. **The agent's words are in the prompt** where the call already has
+   them written (`bag.js` QUESTIONS), so her line has a real question to
+   answer.
+2. **How sure or exact she sounds needs something to be sure or exact
+   about**: a fact she gives or a belief she states. With nothing to give,
+   she is only vague (`answer.js`).
+3. **The brief now says** her line must answer what was said, may not say
+   yes or no to something that cannot be agreed with, and may not use
+   colloquial shortcuts like *"he's off"*.
+
+Phil also corrected my fix for *"Sella Brandt, I think"*: *"She may not
+remember how the account is setup, if it is under her personal name or a
+team's name, or be unaware of what type of name is being prompted for."*
+So unsure, asked who she is, she now hedges about which name they want or
+whose name the account is under, not about who she is. Her lines: *"Sella
+Brandt. Is that the name you need, or the account's?"* and *"Sella Brandt.
+I don't know if that's the name it's under."*
+
+**Read beside what the agent said, every line now answers it,** with two
+exceptions, both from a written agent question that does not fit what she
+knows:
+
+- *"When are you leaving?"* She answers *"I'm not the one leaving, Pell
+  is."* That is a fact she was not given: her facts say only that Pell
+  leaves in the morning. The question is mine, from October.
+- *"When did you last move something to one of them?"* She answers that it
+  has never been a problem before, which does not answer when. Nothing she
+  knows says whether she has ever moved anything to anyone.

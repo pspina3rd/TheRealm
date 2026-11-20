@@ -10,7 +10,7 @@ She says nothing that is not given here, and speaks as a person would on the pho
 
 --- Answer 2 ---
 Sella Brandt, party leader of the Fairweather party, is on the phone to TLC support.
-The agent has just asked about her account. It came out badly.
+The agent has just said: "Tell me about the account."
 What she says, and only this: The account is the party's; she is its party leader. She has been trying to work it out since last night.
 She is sure that nothing has changed on her side.
 Length: One or two sentences.
@@ -20,7 +20,7 @@ She says nothing that is not given here, and speaks as a person would on the pho
 
 --- Answer 3 ---
 Sella Brandt, party leader of the Fairweather party, is on the phone to TLC support.
-The agent has just asked about the party bag. It came out flat.
+The agent has just said: "Which bag is it — the party's, or your own?"
 What she says, and only this: She can't transfer the draught from the party bag to Pell's bag. (She has already told them this, and knows it.) This has never been a problem before. Pell leaves on a contract in the morning.
 This comes out of her: "Nobody has ever sat down and told me how any of this is meant to go."
 Length: Three or four sentences.
@@ -55,14 +55,12 @@ Sella Brandt, party leader of the Fairweather party, is on the phone to TLC supp
 The agent has just asked about when Pell leaves.
 She has nothing in this answer that moves things on: she answers vaguely, or not really at all.
 Length: A few words.
-She says it flatly, sure of it.
-She puts it loosely enough to mislead.
 She has spent a long time on this and is frustrated; it shows in how she speaks, and she does not say it.
 She says nothing that is not given here, and speaks as a person would on the phone, in plain English.
 
 --- Answer 7 ---
 Sella Brandt, party leader of the Fairweather party, is on the phone to TLC support.
-The agent has just asked about when Pell leaves.
+The agent has just said: "When are you leaving?"
 What she says, and only this: Pell leaves on a contract in the morning. (She has already told them this, and knows it.) This has never been a problem before. (She has already told them this, and knows it.) Pell can't get into the party bag himself. (She has already told them this, and knows it.)
 Length: Three or four sentences.
 She is exact about it.
@@ -141,7 +139,7 @@ She says nothing that is not given here, and speaks as a person would on the pho
 
 --- Answer 6 ---
 Sella Brandt, party leader of the Fairweather party, is on the phone to TLC support.
-The agent has just asked about when Pell leaves. It came out flat.
+The agent has just said: "When do you need it by?"
 What she says, and only this: Pell leaves on a contract in the morning. (She has already told them this, and knows it.)
 Length: A few words.
 She puts it loosely.
@@ -150,7 +148,7 @@ She says nothing that is not given here, and speaks as a person would on the pho
 
 --- Answer 7 ---
 Sella Brandt, party leader of the Fairweather party, is on the phone to TLC support.
-The agent has just asked about when Pell leaves. It came out flat.
+The agent has just said: "When are you leaving?"
 What she says, and only this: Pell leaves on a contract in the morning. (She has already told them this, and knows it.) Pell can't get into the party bag himself. (She has already told them this, and knows it.) She can't transfer the draught from the party bag to Pell's bag. (She has already told them this, and knows it.)
 Length: One or two sentences.
 She puts it loosely.
@@ -165,6 +163,7 @@ Sella Brandt, party leader of the Fairweather party, is on the phone to TLC supp
 The agent has just asked about her name. It came out flat.
 What she says, and only this: Her name is Sella Brandt.
 Length: A few words.
+She is not sure which name they want, or whose name the account is under, and it shows.
 She has spent a long time on this and is frustrated; it shows in how she speaks, and she does not say it.
 She says nothing that is not given here, and speaks as a person would on the phone, in plain English.
 
@@ -174,7 +173,6 @@ Sella Brandt, party leader of the Fairweather party, is on the phone to TLC supp
 The agent has just said: "Your party bag was set to Admin Only, we switched it back." The party bag is open to the party again, so Pell can take the draught out himself before he leaves. That is what she needed. Nobody has said anything about transferring it.
 She adds nothing new.
 Length: A few words.
-She puts it loosely enough to mislead.
 She calls what she is trying to do "transferring" it; she does not know the word the company uses.
 She has spent a long time on this and is frustrated; it shows in how she speaks, and she does not say it.
 She says nothing that is not given here, and speaks as a person would on the phone, in plain English.
@@ -225,7 +223,6 @@ Sella Brandt, party leader of the Fairweather party, is on the phone to TLC supp
 The agent has just said: "Your party bag was set to Admin Only, we switched it back." The party bag is open to the party again, so Pell can take the draught out himself before he leaves. That is what she needed. Nobody has said anything about transferring it.
 She adds nothing new.
 Length: A few words.
-She says it flatly, sure of it.
 She calls what she is trying to do "transferring" it; she does not know the word the company uses.
 She has spent a long time on this and is frustrated; it shows in how she speaks, and she does not say it.
 She says nothing that is not given here, and speaks as a person would on the phone, in plain English.

@@ -543,17 +543,32 @@ test('asked again, what she makes of it depends on whether she answered, how lon
   assert.ok(r8.likeness > 0 && r8.pressed === 0);
 });
 
-test('she hedges only about why, or when she has nothing to go on: never what she has seen or who she is', () => {
+test('she hedges about why, about which name they want, or when she has nothing to go on: never what she has seen', () => {
   for (let seed = 1; seed <= 300; seed++) {
     for (const move of [ask('who', 'expand', 'name'), ask('who', 'contract', 'pell'), bag, ask('what', 'verify', 'changed'), { kind: 'fix' }]) {
-      const s = shape(Y, move, [], seed, { certainty: -3 });
+      const s = shape(Y, move, [], seed, { certainty: -6 });
+      const identity = s.gives.some((g) => g.startsWith('her-'));
       const facts = s.gives.length > 0;
-      if (s.hedged) assert.ok(s.belief || (s.asked && !facts), `${move.subject} hedged with ${s.gives}`);
-      if (s.gives.some((g) => g.startsWith('her-'))) assert.strictEqual(s.hedged, false);
+      if (s.hedged) assert.ok(s.belief || identity || (s.asked && !facts), `${move.subject} hedged with ${s.gives}`);
+      // Asked who she is and unsure, she hedges: which name, whose account.
+      if (identity) assert.strictEqual(s.hedged, true);
+      // What she has seen for herself, she does not hedge.
+      if (move.subject === 'pell' && facts && !s.belief) assert.strictEqual(s.hedged, false);
     }
   }
   // Unsure, and asked whether anything changed: she hedges her belief.
   assert.strictEqual(shape(Y, ask('what', 'verify', 'changed'), [], 1, { certainty: -3 }).hedged, true);
+});
+
+test('how sure or exact she is needs something to be sure or exact about', () => {
+  for (let seed = 1; seed <= 300; seed++) {
+    for (const move of [bag, ask('when', 'expand', 'morning'), { kind: 'fix' }]) {
+      const s = shape(Y, move, [], seed, { certainty: 6, accuracy: -6 });
+      const something = s.gives.length > 0 || Boolean(s.belief);
+      assert.strictEqual(s.flat, something);
+      assert.strictEqual(s.misleading, something);
+    }
+  }
 });
 
 test('two sheets differ only where the sheets differ', () => {

@@ -29,6 +29,7 @@ const { seededRng } = require('../src/call/rng');
 const fs = require('fs');
 const { SHEETS, KNOWS, shapeAnswer, describeShape } = require('../src/cards/answer');
 const { promptFor } = require('../src/cards/prompt');
+const { QUESTIONS } = require('../src/cards/bag');
 
 function arg(name, dflt) {
   const i = process.argv.indexOf(`--${name}`);
@@ -97,13 +98,17 @@ function landing(rng) {
 /** A question about a word, in a suit that fits it, now and then without choosing an angle. */
 function question(word, rng, angle) {
   const random = rng() < 0.07;
-  return {
+  const move = {
     kind: 'question',
     suit: pick(SUITS[word] || ['what'], rng),
     angle: random ? 'random' : angle || pick(['expand', 'contract', 'contract', 'verify'], rng),
     subject: word,
     landing: random ? 'misfire' : landing(rng),
   };
+  // What the agent actually says, where the call already has it written
+  // (bag.js QUESTIONS); otherwise the prompt names only what was asked about.
+  const said = (QUESTIONS[word] || {})[`${move.suit}/${move.angle}`];
+  return said ? { ...move, said } : move;
 }
 
 /** What the agent knows so far, from the call itself. */

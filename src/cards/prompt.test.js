@@ -125,3 +125,14 @@ test('what she knows she has already said is marked as said; what she has half f
   assert.ok(remembered.facts[0].endsWith('(She has already told them this, and knows it.)'));
   assert.ok(!faded.text.includes('already told them'));
 });
+
+test('unsure when asked who she is, the prompt says she is unsure which name, not unsure of herself', () => {
+  const move = { kind: 'question', suit: 'who', angle: 'expand', subject: 'name' };
+  for (let seed = 1; seed <= 40; seed++) {
+    const shape = require('./answer').shapeAnswer({ sheet: SHEETS.Y, move, rng: seededRng(seed), shift: { certainty: -6 } });
+    if (!shape.gives.includes('her-name')) continue;
+    const p = promptFor({ sheet: SHEETS.Y, move, shape });
+    assert.match(p.text, /not sure which name they want, or whose name the account is under/);
+    assert.ok(!p.text.includes('not sure of herself'));
+  }
+});
