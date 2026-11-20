@@ -9,3 +9,4 @@
 - [Record details, report problems](phil-record-details-report-problems.md) — details go in a file; tell him only problems, each with three solutions.
 - [What Trust and Verify means](phil-trust-and-verify-means.md) — Phil's seven lines: check, fix, re-check, up and downstream, the obvious, the unexpected, the leaps; the last commit is not the target.
 - [Correct or not](phil-correct-or-not.md) — work with any fault in it is not done; never call it done, good or working while something is wrong.
+- [Would this person say it](phil-this-person-would-say.md) — judge her lines by two separate questions about her: would THIS person say it; does she believe she'll be understood.
