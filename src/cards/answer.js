@@ -562,10 +562,12 @@ function labelsFor(sheet, move, d, takesShare) {
   if (move.kind === 'wrong-fix') fix = d.strain >= SAY.strong ? 'asks for someone else' : (d.shows >= 0.2 ? 'shows it' : 'gives no sign');
   if (move.kind === 'unclear-fix') fix = d.asks >= 0.45 ? 'asks what it means' : 'thanks them and rings off';
   if (move.kind === 'blame') {
-    // Doubting herself, she puts it on nobody else; holding firm, it lands
-    // somewhere. Either way her worry for Pell can outweigh whose fault it was.
+    // People hold both at once: she can doubt herself and still put it on
+    // TLC ("if I did, nobody told me it would do that"). Her worry for Pell
+    // can outweigh whose fault it was.
     const doubting = d.doubts >= SAY.plain;
-    let lands = doubting ? null : (d.onAgent >= d.onCompany ? 'turns on the agent' : 'puts it on TLC');
+    const leaning = Math.max(d.onAgent, d.onCompany) >= SAY.some;
+    let lands = leaning ? (d.onAgent >= d.onCompany ? 'turns on the agent' : 'puts it on TLC') : null;
     if (d.letsGo >= Math.max(d.onAgent, d.onCompany)) lands = 'cares more that Pell has it than whose fault it was';
     const shows = d.blameShows >= SAY.plain ? 'and shows it' : 'and goes quiet about it';
     fix = [doubting ? 'starts to doubt herself' : 'holds firm', lands, shows].filter(Boolean).join(', ');

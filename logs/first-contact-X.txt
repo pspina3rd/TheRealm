@@ -69,7 +69,7 @@ How free the middle was
 What occurred, over 1599 answers
   afterFix: gives no sign                          50
   afterFix: holds firm, puts it on TLC, and goes quiet about it 11
-  afterFix: starts to doubt herself, and goes quiet about it 9
+  afterFix: starts to doubt herself, puts it on TLC, and goes quiet about it 9
   afterFix: thanks them and rings off              40
   baggage: no-one-told-her                         190
   heard: feels heard                               51

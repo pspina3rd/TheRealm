@@ -633,9 +633,8 @@ test('told she changed it herself, what she does is a range her sheet decides', 
   // Whether it shows: X absorbs things and goes quiet; Y and Z show it.
   assert.match(sure(X).labels.afterFix, /goes quiet about it$/);
   assert.match(sure(Y).labels.afterFix, /and shows it$/);
-  // Doubting herself, she does not put it on anyone else.
-  assert.ok(!/turns on the agent|puts it on TLC/.test(unsure(X).labels.afterFix));
-  assert.ok(!/turns on the agent|puts it on TLC/.test(unsure(Z).labels.afterFix));
+  // She can doubt herself and still put it on TLC: X, whose worry is that nobody told her.
+  assert.match(unsure(X).labels.afterFix, /^starts to doubt herself, puts it on TLC/);
   // Feeling foolish makes doubt come easier: the same middling certainty, Z doubts where Y holds.
   const mid = { certainty: 0.4 };
   assert.ok(shape(Z, blame, [], 1, mid).degrees.doubts > shape(Y, blame, [], 1, mid).degrees.doubts);

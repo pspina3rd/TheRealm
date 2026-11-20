@@ -180,6 +180,11 @@ reaction is a range from her sheet, not the two outcomes there were:
 Over 200 calls each: Sheet Y held firm and turned on the agent 5 times,
 held firm but cared more that Pell had it 4, and doubted herself and cared
 more that Pell had it 9. Sheet X held firm and put it on TLC, quietly, 11,
-and doubted herself, quietly, 9. One combination that did not hold
+and doubted herself, quietly, 9. ~~One combination that did not hold
 together, doubting herself while blaming TLC, was ruled out before this
-was written.
+was written.~~[^both]
+
+[^both]: Wrong, and put back. Phil asked why. I had ruled it out as
+    illogical, but people hold both at once, and for Sheet X, whose worry
+    is that nobody told her, it is the most in-character of all: *"If I
+    did, nobody told me it would do that."*
