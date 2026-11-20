@@ -94,3 +94,25 @@ was not one of its tests, and the same prompt fault as X1.2 is why).
 plain way of saying he will have left by morning. Not a contradiction.
 
 **Lines being rewritten:** Y1.2, Y2.2, X1.2, X1.6, X1.7.
+
+## 4. The five rewrites, read again
+
+The same kind of independent reader, this time given each full prompt
+and what she had said earlier in the call (`logs/words-20-nov/recheck.txt`,
+verdicts in `recheck-read.txt`).
+
+- **X1.6** *"Pell goes sometime in the morning."* — passes.
+- **X1.7** *"I'm not the one leaving, Pell is. He leaves in the morning,
+  like I said, and he can't get into the party bag himself. I've never had
+  this problem with the party bag before."* — passes.
+- **Y2.2** — fails, and I agree: it repeats her opening line almost word
+  for word though the fact is marked as already told, with none of the
+  frustration the prompt asks for. Being rewritten.
+- **X1.2** — fails, and I agree: *"I'm its party leader"* is written
+  phrasing, not speech. Being rewritten.
+- **Y1.2** *"The party's. I'm the leader. I've been at this since last
+  night, and nothing on my side has changed."* — the reader failed it,
+  saying *"The party's."* alone could be heard as the start of "the party
+  is". I do not count it a fault: as a reply to *"Tell me about the
+  account"* it is understood at once as "it's the party's", and clipped
+  is what the prompt asked for (she gets short).

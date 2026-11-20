@@ -11,7 +11,7 @@ Answer 8: It's in the party bag, and I can't transfer it to Pell's. I've never h
 Answer 9: Oh, okay. I've been at this since last night.
 === Call 2 ===
 Answer 1: I can't transfer the draught from the party bag to Pell's.
-Answer 2: I can't transfer the draught from the party bag to Pell's. I've been trying to work out why since last night.
+Answer 2: I can't, like I told you. I've been trying to work out why since last night.
 Answer 3: The party bag won't let me move the draught over to Pell's bag. Pell can't get in it himself either. It's never done this before. I just can't get it to transfer.
 Answer 4: No, never. Pell goes out on the contract in the morning.
 Answer 5: That's right, and I've been at it since last night. If he goes out without it and something happens, that's on me.

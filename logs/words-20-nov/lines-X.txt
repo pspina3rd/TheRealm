@@ -1,6 +1,6 @@
 === Call 1 ===
 Answer 1: I'm trying to transfer a draught from the party bag to Pell's bag and I can't. He can't get into the party bag either.
-Answer 2: That's all right. The account is the party's and I'm its party leader; I've been trying to get this sorted since last night, and nothing has changed on my side.
+Answer 2: That's all right. It's the party's account, I'm the party leader, and I've been trying to get this sorted since last night; nothing's changed on my side.
 Answer 3: It's the party bag. I can't transfer the draught from it to Pell's bag, and that's never been a problem before. Pell leaves on a contract in the morning. Nobody has ever sat down and told me how any of this is meant to go.
 Answer 4: He leaves in the morning. He can't get into the party bag himself, and I've been working on this since last night.
 Answer 5: Nothing from my side.

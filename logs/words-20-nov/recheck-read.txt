@@ -1,0 +1,5 @@
+Y1.2  FAIL  1  "The party's." on its own answers a "whose account?" question nobody asked, and heard over the phone it sounds like the start of "the party is..." rather than "it's the party's".
+Y2.2  FAIL  4,5  She repeats her opening line almost word for word as if saying it for the first time, with no sign that she knows she has already told them and no frustration in how it is said.
+X1.2  FAIL  1  "I'm its party leader" is stiff written phrasing nobody says on the phone (they would say "I'm the party leader"), and the whole thing runs on as one long semicolon sentence.
+X1.6  PASS
+X1.7  PASS
