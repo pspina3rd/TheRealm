@@ -126,13 +126,37 @@ test('what she knows she has already said is marked as said; what she has half f
   assert.ok(!faded.text.includes('already told them'));
 });
 
-test('unsure when asked who she is, the prompt says she is unsure which name, not unsure of herself', () => {
+test('a customer unsure how the account is set up is unsure which name, not unsure of herself', () => {
   const move = { kind: 'question', suit: 'who', angle: 'expand', subject: 'name' };
+  const unsure = { ...SHEETS.Y, unsureOfAccount: true };
   for (let seed = 1; seed <= 40; seed++) {
-    const shape = require('./answer').shapeAnswer({ sheet: SHEETS.Y, move, rng: seededRng(seed), shift: { certainty: -6 } });
+    const shape = require('./answer').shapeAnswer({ sheet: unsure, move, rng: seededRng(seed), shift: { certainty: -6 } });
     if (!shape.gives.includes('her-name')) continue;
-    const p = promptFor({ sheet: SHEETS.Y, move, shape });
+    const p = promptFor({ sheet: unsure, move, shape });
     assert.match(p.text, /not sure which name they want, or whose name the account is under/);
     assert.ok(!p.text.includes('not sure of herself'));
   }
+});
+
+test('that Pell goes alone is there to answer with, and not a fact she volunteers', () => {
+  const { BACKGROUND } = require('./prompt');
+  for (const call of calls(SHEETS.Y, 20)) {
+    for (const { move, shape } of call) {
+      const p = promptFor({ sheet: SHEETS.Y, move, shape });
+      assert.ok(p.text.includes(`She also knows, and says only if it is what she was asked: ${BACKGROUND[0]}`));
+      assert.ok(!p.facts.some((f) => /alone/.test(f)));
+    }
+  }
+});
+
+test('misleading wording is tied to what she is saying in that answer', () => {
+  const { shapeAnswer } = require('./answer');
+  const morning = { kind: 'question', suit: 'when', angle: 'expand', subject: 'morning' };
+  const transfer = { kind: 'question', suit: 'what', angle: 'contract', subject: 'transfer' };
+  const m = shapeAnswer({ sheet: SHEETS.Y, move: morning, rng: seededRng(3), shift: { accuracy: -6, signal: -6 } });
+  const t = shapeAnswer({ sheet: SHEETS.Y, move: transfer, rng: seededRng(3), shift: { accuracy: -6 } });
+  assert.ok(m.misleading && t.misleading);
+  // About when Pell leaves, nothing about the bag refusing her.
+  assert.ok(!promptFor({ sheet: SHEETS.Y, move: morning, shape: m }).text.includes('refusing'));
+  assert.match(promptFor({ sheet: SHEETS.Y, move: transfer, shape: t }).text, /as if the bag is refusing her/);
 });

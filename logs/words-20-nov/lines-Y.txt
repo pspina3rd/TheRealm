@@ -1,29 +1,29 @@
 === Call 1 ===
-Answer 1: I can't transfer the draught from the party bag into Pell's bag. He can't get into the party bag himself either.
-Answer 2: It's the party's account. I'm the party leader. Nothing's changed on my side, and I've been at it since last night.
-Answer 3: The party bag, the one I'm transferring out of. It's never been a problem before. If he goes out without it and something happens, that's on me.
-Answer 4: Never had a problem with it before. He leaves on a contract in the morning, and he can't get into the party bag himself.
-Answer 5: Nothing's changed here. Been at it since last night.
-Answer 6: Soon enough. That's why I'm calling.
-Answer 7: I'm not the one leaving, Pell is. He goes on a contract in the morning, and he can't get into the party bag himself. I can't transfer the draught into his bag, I've said that already.
-Answer 8: I can't transfer it from the party bag to Pell's. It's never been a problem before.
+Answer 1: I can't transfer the draught from the party bag to Pell's bag. He can't open the party bag himself, either.
+Answer 2: It's the party's account, and I'm the party leader. I've been trying to work it out since last night, and nothing's changed on my side.
+Answer 3: It's the party bag I'm transferring from, and this has never been a problem before. If he goes out without it and something happens, that's on me.
+Answer 4: I've never had a problem with it before. Pell leaves on a contract in the morning, and he can't get into the party bag on his own.
+Answer 5: Nothing on my end.
+Answer 6: The morning. It just won't let me.
+Answer 7: I'm not the one leaving, Pell is. He goes on the contract in the morning, and he can't get into the party bag himself. Like I said, I can't transfer the draught into his bag either.
+Answer 8: It's in the party bag, and I can't transfer it to Pell's. I've never had trouble with it before.
 (The agent looks something up. She waits.)
-Answer 9: Oh. I'd been trying to transfer it since last night.
+Answer 9: Oh, okay. I've been at this since last night.
 === Call 2 ===
-Answer 1: I can't transfer the draught out of the party bag into Pell's.
-Answer 2: It won't transfer from the party bag to Pell's, and I've been trying to work out why since last night.
-Answer 3: It's the bag I'm trying to transfer it out of. Pell can't get into it himself. It's never been a problem before.
-Answer 4: Never. Pell leaves on a contract in the morning, though.
-Answer 5: Right, never been a problem before, and I still can't transfer it after trying since last night. If he goes out without it and something happens, that's on me.
-Answer 6: He goes in the morning.
-Answer 7: That's Pell, in the morning, and he can't get into the party bag and I can't transfer it to him. If he goes out without it and something happens, that's on me.
-Answer 8: Sella Brandt. Is that the name you need, or the account's?
+Answer 1: I can't transfer the draught from the party bag to Pell's.
+Answer 2: It won't go across. I've been at it since last night.
+Answer 3: The party bag won't let me move the draught over to Pell's bag. Pell can't get in it himself either. It's never done this before. I just can't get it to transfer.
+Answer 4: No, never. Pell goes out on the contract in the morning.
+Answer 5: That's right, and I've been at it since last night. If he goes out without it and something happens, that's on me.
+Answer 6: The morning, when Pell goes.
+Answer 7: I'm not going, Pell is, in the morning. If he goes out without it and something happens, that's on me.
+Answer 8: Sella Brandt.
 (The agent looks something up. She waits.)
-Answer 9: Okay. Good, thank you.
+Answer 9: Okay, good. Thank you.
 === Call 3 ===
-Answer 1: I'm trying to transfer the draught out of the party bag into Pell's, and I can't. He can't get into the party bag himself, either.
-Answer 2: There's a number on the bag. 4-4-0-9.
+Answer 1: I can't transfer the draught from the party bag to Pell's bag. He can't get into the party bag himself.
+Answer 2: It's 4-4-0-9, on the bag.
 (The agent looks something up. She waits.)
-Answer 3: An hour? I've been trying to transfer it since last night.
-Answer 4: I can't transfer it. That's the problem.
-Answer 5: Right. Thank you.
+Answer 3: I've been trying since last night. An hour isn't going to change anything.
+Answer 4: Right. I can't transfer it.
+Answer 5: Okay, good. Thanks.

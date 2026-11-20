@@ -446,9 +446,14 @@ function ownPoint(sheet, move, history, says, counts) {
 }
 
 /** The room this answer has for things she knows. */
-function roomFor(says, counts, landing) {
+function roomFor(says, counts, landing, move) {
   const lift = { 'tail low': -ROOM[says], 'low side': -1, usual: 0, 'high side': 1, 'tail high': 1 }[band(counts.signal)];
-  return Math.max(0, Math.min(KNOWS.length, ROOM[says] + lift + (landing === 'critical' ? 1 : 0)));
+  const room = Math.max(0, Math.min(KNOWS.length, ROOM[says] + lift + (landing === 'critical' ? 1 : 0)));
+  // Asked straight about something she knows, she gives at least that,
+  // however little else she has in her: low signal makes her terse, not
+  // silent on the one thing asked.
+  const aimed = onPoint(move) && KNOWS.some((k) => k.about.includes(move.subject));
+  return aimed ? Math.max(1, room) : room;
 }
 
 /**
@@ -595,7 +600,7 @@ function shapeAnswer({ sheet, move, history = [], rng = Math.random, shift = {} 
     ...afterFix(sheet, move),
     volunteers,
   };
-  const gives = handsOver(move, roomFor(says, counts, landing), own, volunteers, now.said);
+  const gives = handsOver(move, roomFor(says, counts, landing, move), own, volunteers, now.said);
   const labels = labelsFor(sheet, move, degrees, own);
 
   // What this answer writes back on her sheet, for the next one to start
@@ -623,13 +628,15 @@ function shapeAnswer({ sheet, move, history = [], rng = Math.random, shift = {} 
     says,
     asked: Boolean(move.subject),
     gives,
-    // Sure of what she has seen, and says so; unsure about why, when she has
-    // nothing to go on (docs/claims-her-side.md, 18), or, asked who she is,
-    // about which name they want or whose name the account is under (Phil,
-    // 20 November).
+    // Sure of what she has seen, and says so; unsure about why, or when she
+    // has nothing to go on (docs/claims-her-side.md, 18). Asked who she is,
+    // a customer may be unsure which name is wanted or whose name the
+    // account is under (Phil, 20 November: someone could say that); only a
+    // sheet marked `unsureOfAccount` does. Sella knows the account is the
+    // party's and that she leads it, so none of her sheets is.
     hedged: counts.certainty < -1 && (Boolean(beliefStated(sheet, move, counts))
       || (Boolean(move.subject) && gives.length === 0)
-      || gives.some((g) => g.startsWith('her-'))),
+      || (Boolean(sheet.unsureOfAccount) && gives.some((g) => g.startsWith('her-')))),
     // How sure and how exact she is needs something to be sure or exact
     // about: a fact she gives, or a belief she states.
     flat: counts.certainty > 1 && saysSomething,

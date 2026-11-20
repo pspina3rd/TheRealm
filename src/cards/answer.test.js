@@ -358,7 +358,8 @@ test('on her problem she gives what she knows, nearest the question first, and n
     const s = shape(Y, ask('who', 'contract', 'pell'), [], seed);
     assert.ok(s.gives.length <= room[s.says] + 1, `${s.says} gave ${s.gives.length}`);
     if (s.gives.length) assert.strictEqual(s.gives[0], 'pell-shut-out');
-    if (s.bands.signal === 'tail low') assert.deepStrictEqual(s.gives, []);
+    // At her least useful she still answers the one thing asked, and nothing more.
+    if (s.bands.signal === 'tail low') assert.deepStrictEqual(s.gives, ['pell-shut-out']);
   }
   const lands = shape(Y, ask('who', 'contract', 'pell'), [], 12);
   const critical = shape(Y, ask('who', 'contract', 'pell', { landing: 'critical' }), [], 12);
@@ -543,15 +544,17 @@ test('asked again, what she makes of it depends on whether she answered, how lon
   assert.ok(r8.likeness > 0 && r8.pressed === 0);
 });
 
-test('she hedges about why, about which name they want, or when she has nothing to go on: never what she has seen', () => {
+test('she hedges about why, or when she has nothing to go on: never what she has seen, and Sella never which name', () => {
   for (let seed = 1; seed <= 300; seed++) {
     for (const move of [ask('who', 'expand', 'name'), ask('who', 'contract', 'pell'), bag, ask('what', 'verify', 'changed'), { kind: 'fix' }]) {
       const s = shape(Y, move, [], seed, { certainty: -6 });
       const identity = s.gives.some((g) => g.startsWith('her-'));
       const facts = s.gives.length > 0;
       if (s.hedged) assert.ok(s.belief || identity || (s.asked && !facts), `${move.subject} hedged with ${s.gives}`);
-      // Asked who she is and unsure, she hedges: which name, whose account.
-      if (identity) assert.strictEqual(s.hedged, true);
+      // Sella knows the account is the party's and she leads it: no hedging which name.
+      if (identity) assert.strictEqual(s.hedged, false);
+      // A customer unsure how the account is set up does.
+      if (identity) assert.strictEqual(shape({ ...Y, unsureOfAccount: true }, move, [], seed, { certainty: -6 }).hedged, true);
       // What she has seen for herself, she does not hedge.
       if (move.subject === 'pell' && facts && !s.belief) assert.strictEqual(s.hedged, false);
     }
@@ -568,6 +571,17 @@ test('how sure or exact she is needs something to be sure or exact about', () =>
       assert.strictEqual(s.flat, something);
       assert.strictEqual(s.misleading, something);
     }
+  }
+});
+
+test('asked straight about something she knows, she gives at least that, however low her signal', () => {
+  for (let seed = 1; seed <= 200; seed++) {
+    const s = shape(Y, ask('when', 'expand', 'morning'), [], seed, { signal: -6 });
+    assert.ok(s.gives.includes('leaves-in-the-morning'), `${s.gives}`);
+    assert.ok(s.gives.length <= 2);
+    // A question about something she knows nothing of can still get nothing.
+    const none = shape(Y, ask('what', 'verify', 'changed'), [], seed, { signal: -6 });
+    assert.deepStrictEqual(none.gives, []);
   }
 });
 

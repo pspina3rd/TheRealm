@@ -76,7 +76,7 @@ const ANSWERS = {
     'when/contract': 'Since last night.',
   },
   morning: {
-    'when/expand': "First light. That's when we're out.",
+    'when/expand': "First light. That's when he goes.",
     'when/contract': 'First light.',
     'when/validate': "I'd rather it was in his hands before then, yes.",
     'why/expand': "Because he's the one who takes the hits. I'd rather he had it on him.",
@@ -129,7 +129,7 @@ const ANSWERS = {
  * entry for `looking`: the explanation is given, never volunteered.
  */
 const VOLUNTEER = {
-  morning: "We're out at first light, and I'd rather it was in his hands before then.",
+  morning: "He goes at first light, and I'd rather it was in his hands before then.",
   pell: "Pell's the one who takes the hits. He ought to be the one carrying it.",
   leader: 'I set this whole thing up myself.',
   permission: 'Nobody has ever mentioned permissions to me.',

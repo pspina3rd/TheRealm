@@ -37,6 +37,14 @@ const FACTS = Object.freeze({
   'her-account': `The account is the party's; she is its ${CALLER.job}.`,
 });
 
+/**
+ * What she knows and would only say if it is asked for: true on this call,
+ * so it can answer a question, but not hers to volunteer. Pell goes alone
+ * and she is not going (her-side-46.md, Phil 15 October; Phil 20 November:
+ * "Pell is going on a solo mission").
+ */
+const BACKGROUND = Object.freeze(['Pell is going on the contract alone; she is not going.']);
+
 /** What the agent asked about, by subject, in plain words. */
 const ABOUT = Object.freeze({
   working: 'what is not working', bag: 'the party bag', draught: 'the draught', transfer: 'transferring the draught',
@@ -95,8 +103,15 @@ function manner(shape) {
   if (shape.hedged && shape.gives.some((g) => g.startsWith('her-'))) out.push('She is not sure which name they want, or whose name the account is under, and it shows.');
   else if (shape.hedged) out.push('She hedges: she is not sure of herself.');
   if (shape.flat) out.push('She says it flatly, sure of it.');
-  if (shape.misleading) out.push('She puts it loosely enough to mislead.');
-  else if (shape.loose) out.push('She puts it loosely.');
+  // Loose and misleading are in how she words the facts, never a fact she
+  // was not given.
+  if (shape.misleading) {
+    const how = shape.gives.includes('cannot-transfer')
+      ? 'for example, putting it as if the bag is refusing her, when she simply cannot find how to do it'
+      : 'vague where she should be exact';
+    out.push(`She words the facts in this answer so loosely they could be taken the wrong way: ${how}. This is only in how she puts what she is saying here; she adds nothing else to do it.`);
+  }
+  else if (shape.loose) out.push('She puts it loosely: vague words, not quite exact.');
   if (shape.exact) out.push('She is exact about it.');
   const l = shape.labels;
   const takes = {
@@ -183,6 +198,7 @@ function promptFor({ sheet, move, shape, before }) {
       ? `What she says, and only this: ${facts.join(' ')}`
       : (shape.asked ? 'She has nothing in this answer that moves things on: she answers vaguely, or not really at all.' : 'She adds nothing new.'),
     belief,
+    `She also knows, and says only if it is what she was asked: ${BACKGROUND.join(' ')}`,
     baggage ? `This comes out of her: "${baggage}"` : null,
     `Length: ${parts.length}`,
     ...parts.manner,
@@ -193,4 +209,4 @@ function promptFor({ sheet, move, shape, before }) {
   return Object.freeze({ ...parts, text: lines.join('\n') });
 }
 
-module.exports = { FACTS, promptFor };
+module.exports = { FACTS, BACKGROUND, promptFor };

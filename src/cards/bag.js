@@ -69,7 +69,7 @@ const BASELINE = {
   permission: "I don't know the first thing about permissions. Nobody has ever mentioned them to me.",
   before: "No. I've never moved anything to anybody before. There's never been a need.",
   since: 'Since last night.',
-  morning: "We're out at first light, and I'd rather it was in his hands before then.",
+  morning: "He goes at first light, and I'd rather it was in his hands before then.",
   members: "They're all on it. I put each of them on myself.",
   item: "It's in the bag. I'm looking at it now.",
   account: "The party's account. We set it up three years ago.",

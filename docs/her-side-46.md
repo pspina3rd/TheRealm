@@ -186,9 +186,18 @@ recovering from injuries, so it's only Pell going."*
 `bag.js:72`, `bagTalk.js:79`, `bagTalk.js:132`, set 2 Where · Pell, set 4
 Where · morning (Phil's alternative also says *we*).
 
-**Phil, 15 October:** *we* can encompass Sella and Pell. So the five
+**Phil, 15 October:** *we* can encompass Sella and Pell. ~~So the five
 *we're out at first light* lines stand unchanged; Sella and Pell go, the Ryles
-stay behind.
+stay behind.~~[^we]
+
+[^we]: Recorded wrongly. Phil had already said, above, that only Pell is
+    going. Phil, 20 November: *"You took the 'I', 'You', 'Me', 'We', 'Us',
+    conversation incorrectly or recorded it wrong. Using words like Us, or
+    We instead of You, Me, or I helps establish a sense of
+    teamwork/togetherness between the Agent and Customer, its a soft
+    skill."* And: *"Pell is going on a solo mission."* Sella does not go.
+    The lines in `bag.js` and `bagTalk.js` that said *we're out at first
+    light* now say *he goes*.
 
 Where · ryles, revised: **[C]** *"They're staying behind. They're both still
 recovering from injuries, so it's just Pell and me going."*
