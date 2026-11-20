@@ -8,3 +8,4 @@
 - [Raise inventions before building](phil-raise-inventions-before-building.md) — standing rule: each invention raised individually first; run the Trust and Verify loop before reporting.
 - [Record details, report problems](phil-record-details-report-problems.md) — details go in a file; tell him only problems, each with three solutions.
 - [What Trust and Verify means](phil-trust-and-verify-means.md) — Phil's seven lines: check, fix, re-check, up and downstream, the obvious, the unexpected, the leaps; the last commit is not the target.
+- [Correct or not](phil-correct-or-not.md) — work with any fault in it is not done; never call it done, good or working while something is wrong.

@@ -85,7 +85,7 @@ the next pass:
   - **"Skip the sorry"**, not English anyone says. The brief now names it
     as the kind of phrase to avoid.
 
-**Third pass, read in full:**
+**Third pass, read in full** *(reported to Phil as having worked, which was wrong: a line in it made no sense)*:
 - **No invented fact** in 46 lines: no name, number, time or outcome
   outside its prompt; *Assign* never said; no feeling named.
 - **She refers back to what she has said** without restating it, and says
@@ -143,3 +143,7 @@ knows:
 - *"When did you last move something to one of them?"* She answers that it
   has never been a problem before, which does not answer when. Nothing she
   knows says whether she has ever moved anything to anyone.
+
+**Status: not done.** Two lines are still wrong (above). Step two is
+complete only when every line answers what was said and uses only what
+she knows.
