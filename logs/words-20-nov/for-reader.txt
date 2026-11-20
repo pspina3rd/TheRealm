@@ -1,0 +1,144 @@
+=== Sheet Y, call 1 ===
+Y1.1  The agent said: "Thank you for contacting TLC, this is [Name]. How may I serve you?"
+       She may use: She can't transfer the draught from the party bag to Pell's bag. Pell can't get into the party bag himself.
+       SHE SAYS: I can't transfer the draught from the party bag to Pell's bag. He can't open the party bag himself, either.
+Y1.2  The agent said: "Tell me about the account."
+       She may use: The account is the party's; she is its party leader. She has been trying to work it out since last night. She believes nothing has changed on her side.
+       SHE SAYS: It's the party's account, and I'm the party leader. I've been trying to work it out since last night, and nothing's changed on my side.
+Y1.3  The agent said: "Which bag is it — the party's, or your own?"
+       She may use: She can't transfer the draught from the party bag to Pell's bag. [already said] This has never been a problem before. Her worry: "If he goes out without it and something happens, that's on me."
+       SHE SAYS: It's the party bag I'm transferring from, and this has never been a problem before. If he goes out without it and something happens, that's on me.
+Y1.4  The agent said: "When did you last move something to one of them?"
+       She may use: This has never been a problem before. [already said] Pell leaves on a contract in the morning. Pell can't get into the party bag himself. [already said]
+       SHE SAYS: I've never had a problem with it before. Pell leaves on a contract in the morning, and he can't get into the party bag on his own.
+Y1.5  The agent asked about whether anything has changed.
+       She may use: She has been trying to work it out since last night. [already said] She believes nothing has changed on her side.
+       SHE SAYS: Nothing on my end.
+Y1.6  The agent asked about when Pell leaves.
+       She may use: Pell leaves on a contract in the morning. [already said]
+       SHE SAYS: Morning. He's gone by then.
+Y1.7  The agent said: "When are you leaving?"
+       She may use: Pell leaves on a contract in the morning. [already said] She can't transfer the draught from the party bag to Pell's bag. [already said] Pell can't get into the party bag himself. [already said]
+       SHE SAYS: I'm not the one leaving, Pell is. He goes on the contract in the morning, and he can't get into the party bag himself. Like I said, I can't transfer the draught into his bag either.
+Y1.8  The agent asked about the draught.
+       She may use: She can't transfer the draught from the party bag to Pell's bag. [already said] This has never been a problem before. [already said]
+       SHE SAYS: It's in the party bag, and I can't transfer it to Pell's. I've never had trouble with it before.
+Y1.9  The agent said: "Your party bag was set to Admin Only, we switched it back."
+       She may use: She has been trying to work it out since last night. [already said]
+       SHE SAYS: Oh, okay. I've been at this since last night.
+=== Sheet Y, call 2 ===
+Y2.1  The agent said: "Thank you for contacting TLC, this is [Name]. How may I serve you?"
+       She may use: She can't transfer the draught from the party bag to Pell's bag.
+       SHE SAYS: I can't transfer the draught from the party bag to Pell's.
+Y2.2  The agent asked about transferring the draught.
+       She may use: She can't transfer the draught from the party bag to Pell's bag. [already said] She has been trying to work it out since last night.
+       SHE SAYS: It won't go across. I've been at it since last night.
+Y2.3  The agent asked about the party bag.
+       She may use: She can't transfer the draught from the party bag to Pell's bag. [already said] Pell can't get into the party bag himself. This has never been a problem before.
+       SHE SAYS: The party bag won't let me move the draught over to Pell's bag. Pell can't get in it himself either. It's never done this before. I just can't get it to transfer.
+Y2.4  The agent asked about whether this has happened before. It came out flat.
+       She may use: This has never been a problem before. [already said] Pell leaves on a contract in the morning.
+       SHE SAYS: No, never. Pell goes out on the contract in the morning.
+Y2.5  The agent said back to her what she told them about whether this has happened before.
+       She may use: This has never been a problem before. [already said] She has been trying to work it out since last night. [already said] She can't transfer the draught from the party bag to Pell's bag. [already said] Her worry: "If he goes out without it and something happens, that's on me."
+       SHE SAYS: That's right, and I've been at it since last night. If he goes out without it and something happens, that's on me.
+Y2.6  The agent said: "When do you need it by?"
+       She may use: Pell leaves on a contract in the morning. [already said]
+       SHE SAYS: The morning, when Pell goes.
+Y2.7  The agent said: "When are you leaving?"
+       She may use: Pell leaves on a contract in the morning. [already said] Pell can't get into the party bag himself. [already said] She can't transfer the draught from the party bag to Pell's bag. [already said] Her worry: "If he goes out without it and something happens, that's on me."
+       SHE SAYS: I'm not going, Pell is, in the morning. If he goes out without it and something happens, that's on me.
+Y2.8  The agent asked about her name. It came out flat.
+       She may use: Her name is Sella Brandt.
+       SHE SAYS: Sella Brandt.
+Y2.9  The agent said: "Your party bag was set to Admin Only, we switched it back."
+       She may use: Nothing new.
+       SHE SAYS: Okay, good. Thank you.
+=== Sheet Y, call 3 ===
+Y3.1  The agent said: "Thank you for contacting TLC, this is [Name]. How may I serve you?"
+       She may use: She can't transfer the draught from the party bag to Pell's bag. Pell can't get into the party bag himself.
+       SHE SAYS: I can't transfer the draught from the party bag to Pell's bag. He can't get into the party bag himself.
+Y3.2  The agent asked about a number to find her by. It came out badly.
+       She may use: There is a number on the bag: 4-4-0-9.
+       SHE SAYS: It's 4-4-0-9, on the bag.
+Y3.3  The agent said: "These sometimes settle on their own. Could you try again in an hour?"
+       She may use: Nothing new.
+       SHE SAYS: I've been trying since last night. An hour isn't going to change anything.
+Y3.4  The agent said back to her what she told them about what is not working, opening with a stock line of sympathy.
+       She may use: She can't transfer the draught from the party bag to Pell's bag. [already said]
+       SHE SAYS: Right. I can't transfer it.
+Y3.5  The agent said: "Your party bag was set to Admin Only, we switched it back."
+       She may use: Nothing new.
+       SHE SAYS: Okay, good. Thanks.
+=== Sheet X, call 1 ===
+X1.1  The agent said: "Thank you for contacting TLC, this is [Name]. How may I serve you?"
+       She may use: She can't transfer the draught from the party bag to Pell's bag. Pell can't get into the party bag himself.
+       SHE SAYS: I'm trying to transfer a draught from the party bag to Pell's bag and I can't. He can't get into the party bag either.
+X1.2  The agent said: "Tell me about the account."
+       She may use: The account is the party's; she is its party leader. She has been trying to work it out since last night. She believes nothing has changed on her side.
+       SHE SAYS: Take your time. It's the party's account, I'm its party leader, and I've been trying to work this out since last night; nothing's changed on my side.
+X1.3  The agent said: "Which bag is it — the party's, or your own?"
+       She may use: She can't transfer the draught from the party bag to Pell's bag. [already said] This has never been a problem before. Pell leaves on a contract in the morning. Her worry: "If he goes out without it and something happens, that's on me." Her worry: "Nobody has ever sat down and told me how any of this is meant to go."
+       SHE SAYS: It's the party bag. I can't transfer the draught from it to Pell's bag, and that's never been a problem before. Pell leaves on a contract in the morning. Nobody has ever sat down and told me how any of this is meant to go.
+X1.4  The agent asked about Pell's contract.
+       She may use: Pell leaves on a contract in the morning. [already said] Pell can't get into the party bag himself. [already said] She has been trying to work it out since last night. [already said]
+       SHE SAYS: He leaves in the morning. He can't get into the party bag himself, and I've been working on this since last night.
+X1.5  The agent asked about whether anything has changed.
+       She may use: She can't transfer the draught from the party bag to Pell's bag. [already said] She believes nothing has changed on her side.
+       SHE SAYS: Nothing from my side.
+X1.6  The agent asked about when Pell leaves.
+       She may use: Pell leaves on a contract in the morning. [already said]
+       SHE SAYS: Morning. That's when he's gone.
+X1.7  The agent said: "When are you leaving?"
+       She may use: Pell leaves on a contract in the morning. [already said] This has never been a problem before. [already said] Pell can't get into the party bag himself. [already said]
+       SHE SAYS: I'm not going, Pell is, in the morning, like I said. This has never been a problem before, and he can't get into the party bag himself.
+X1.8  The agent asked about the draught.
+       She may use: She can't transfer the draught from the party bag to Pell's bag. [already said] She has been trying to work it out since last night. [already said]
+       SHE SAYS: I can't transfer it from the party bag to Pell's. I've been trying since last night.
+X1.9  The agent said: "Your party bag was set to Admin Only, we switched it back."
+       She may use: She has been trying to work it out since last night. [already said]
+       SHE SAYS: Good. I'd been trying to work that out since last night.
+=== Sheet X, call 2 ===
+X2.1  The agent said: "Thank you for contacting TLC, this is [Name]. How may I serve you?"
+       She may use: She can't transfer the draught from the party bag to Pell's bag.
+       SHE SAYS: I can't transfer the draught out of the party bag into Pell's bag.
+X2.2  The agent asked about transferring the draught.
+       She may use: She can't transfer the draught from the party bag to Pell's bag. [already said] She has been trying to work it out since last night.
+       SHE SAYS: I can't, not from the party bag to Pell's. I've been trying since last night.
+X2.3  The agent asked about the party bag.
+       She may use: She can't transfer the draught from the party bag to Pell's bag. [already said] Pell can't get into the party bag himself. This has never been a problem before.
+       SHE SAYS: The party bag's not letting me move it over to Pell's. Pell can't get in there himself. And it's never been like this before.
+X2.4  The agent asked about whether this has happened before. It came out flat.
+       She may use: This has never been a problem before. [already said] Pell leaves on a contract in the morning.
+       SHE SAYS: No, never. Pell's going in the morning.
+X2.5  The agent said back to her what she told them about whether this has happened before.
+       She may use: This has never been a problem before. [already said] She has been trying to work it out since last night. [already said] She can't transfer the draught from the party bag to Pell's bag. [already said] Her worry: "If he goes out without it and something happens, that's on me." Her worry: "Nobody has ever sat down and told me how any of this is meant to go."
+       SHE SAYS: That's what I just told you. I can't transfer it, and I've been at it since last night. Nobody has ever sat down and told me how any of this is meant to go.
+X2.6  The agent said: "When do you need it by?"
+       She may use: Pell leaves on a contract in the morning. [already said]
+       SHE SAYS: Morning, when he leaves.
+X2.7  The agent said: "When are you leaving?"
+       She may use: Pell leaves on a contract in the morning. [already said] Pell can't get into the party bag himself. [already said] She can't transfer the draught from the party bag to Pell's bag. [already said]
+       SHE SAYS: It's Pell, not me, he goes in the morning. He can't get at the party bag, and I can't transfer it to him.
+X2.8  The agent asked about her name. It came out flat.
+       She may use: Her name is Sella Brandt.
+       SHE SAYS: It's Sella Brandt.
+X2.9  The agent said: "Your party bag was set to Admin Only, we switched it back."
+       She may use: Nothing new.
+       SHE SAYS: Good, thank you.
+=== Sheet X, call 3 ===
+X3.1  The agent said: "Thank you for contacting TLC, this is [Name]. How may I serve you?"
+       She may use: She can't transfer the draught from the party bag to Pell's bag. Pell can't get into the party bag himself.
+       SHE SAYS: I can't transfer the draught from the party bag into Pell's bag, and he can't get into the party bag either.
+X3.2  The agent asked about a number to find her by. It came out badly.
+       She may use: There is a number on the bag: 4-4-0-9.
+       SHE SAYS: That's all right. It's 4-4-0-9, on the bag.
+X3.3  The agent said: "These sometimes settle on their own. Could you try again in an hour?"
+       She may use: Nothing new.
+       SHE SAYS: Okay. I've been trying to transfer it since last night.
+X3.4  The agent said back to her what she told them about what is not working, opening with a stock line of sympathy.
+       She may use: She can't transfer the draught from the party bag to Pell's bag. [already said]
+       SHE SAYS: I don't need that. I just can't transfer it.
+X3.5  The agent said: "Your party bag was set to Admin Only, we switched it back."
+       She may use: Nothing new.
+       SHE SAYS: Okay. That's what I needed.
