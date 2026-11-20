@@ -116,3 +116,17 @@ verdicts in `recheck-read.txt`).
   is". I do not count it a fault: as a reply to *"Tell me about the
   account"* it is understood at once as "it's the party's", and clipped
   is what the prompt asked for (she gets short).
+
+## 5. Second rewrite, read again
+
+- **Y2.2** *"I can't, like I told you. I've been trying to work out why
+  since last night."* — passes, by me and the reader.
+- **X1.2** *"That's all right. It's the party's account, I'm the party
+  leader, and I've been trying to get this sorted since last night;
+  nothing's changed on my side."* — passes, by me and the reader.
+
+**Where it stands:** 45 of the 46 lines pass both my reading and the
+independent reader's. The one left is Y1.2, *"The party's. I'm the
+leader. I've been at this since last night, and nothing on my side has
+changed."*, which the reader failed and I pass (section 4). That is for
+Phil to judge.

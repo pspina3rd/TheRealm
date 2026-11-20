@@ -3,3 +3,7 @@ Y2.2  FAIL  4,5  She repeats her opening line almost word for word as if saying 
 X1.2  FAIL  1  "I'm its party leader" is stiff written phrasing nobody says on the phone (they would say "I'm the party leader"), and the whole thing runs on as one long semicolon sentence.
 X1.6  PASS
 X1.7  PASS
+
+Second rewrite:
+Y2.2  PASS
+X1.2  PASS
