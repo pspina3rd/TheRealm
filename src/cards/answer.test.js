@@ -598,6 +598,15 @@ test('after a fix, what she comes back with starts from her own worry', () => {
   assert.strictEqual(after(X), 'at-it-since-last-night');
 });
 
+test('she states her belief only when asked whether anything changed, or told she changed it', () => {
+  for (let seed = 1; seed <= 50; seed++) {
+    assert.strictEqual(shape(Y, ask('what', 'expand', 'account'), [], seed).belief, null);
+    assert.strictEqual(shape(Y, ask('who', 'expand', 'account'), [], seed).belief, null);
+    assert.ok(shape(Y, ask('what', 'verify', 'changed'), [], seed).belief);
+    assert.ok(shape(Y, { kind: 'blame' }, [], seed).belief);
+  }
+});
+
 test('two sheets differ only where the sheets differ', () => {
   // A plain question that sets nothing off: the same draw gives the same answer.
   for (let seed = 1; seed <= 100; seed++) {

@@ -1,29 +1,31 @@
 === Call 1 ===
-Answer 1: I'm trying to transfer a draught from the party bag to Pell's bag and I can't. He can't get into the party bag either.
-Answer 2: That's all right. It's the party's account, I'm the party leader, and I've been trying to get this sorted since last night; I haven't changed anything.
-Answer 3: It's the party bag. I can't transfer the draught from it to Pell's bag, and that's never been a problem before. Pell leaves on a contract in the morning. Nobody has ever sat down and told me how any of this is meant to go.
-Answer 4: He leaves in the morning. He can't get into the party bag himself, and I've been working on this since last night.
-Answer 5: Nothing I've done. I just can't transfer it.
-Answer 6: Pell goes sometime in the morning.
-Answer 7: I'm not the one leaving, Pell is. He leaves in the morning, like I said, and he can't get into the party bag himself. I've never had this problem with the party bag before.
-Answer 8: I can't transfer it from the party bag to Pell's. I've been trying since last night.
+Answer 1: I can't transfer the draught from the party bag into Pell's bag. He can't get into the party bag himself either.
+Answer 2: It's the party's, and I'm the leader. I haven't changed anything myself, I've just been trying to work it out since last night, so take your time.
+Answer 3: The party bag. It's never been a problem before, but nobody has ever sat down and told me how any of this is meant to go. Pell leaves in the morning.
+Answer 4: He's doing it alone, I'm not going. That's why I've been stuck on this.
+Answer 5: Nothing I've done.
+Answer 6: In the morning.
+Answer 7: I'm not the one leaving, Pell is. In the morning, I've told you that already. It's never given me trouble before, and he still can't get into the party bag himself.
+Answer 8: I can't transfer it to Pell's bag, and I've been trying since last night.
 (The agent looks something up. She waits.)
-Answer 9: Good. I'd been trying to work that out since last night.
+Answer 9: That's what I needed. I've been trying to work that out since last night, and now he can just take it out himself.
+
 === Call 2 ===
-Answer 1: I can't transfer the draught out of the party bag into Pell's bag.
-Answer 2: I can't, not from the party bag to Pell's. I've been trying since last night.
-Answer 3: The party bag's not letting me move it over to Pell's. Pell can't get in there himself. And it's never been like this before.
-Answer 4: No, never. Pell's going in the morning.
-Answer 5: That's what I just told you. I can't transfer it, and I've been at it since last night. Nobody has ever sat down and told me how any of this is meant to go.
-Answer 6: Morning, when he leaves.
-Answer 7: It's Pell, not me, he goes in the morning. He can't get at the party bag, and I can't transfer it to him.
-Answer 8: It's Sella Brandt.
+Answer 1: I can't transfer the draught from the party bag to Pell's bag.
+Answer 2: No, I can't. I've been trying to work out how since last night.
+Answer 3: The party bag won't let me give it to him. It won't let him in either. It's never done this before.
+Answer 4: Not before, no. Pell leaves in the morning.
+Answer 5: Yes, I said that. Nobody has ever sat down and told me how any of this is meant to go.
+Answer 6: Morning, before he goes.
+Answer 7: It's Pell leaving, not me, in the morning, and I've said that. He can't get into the party bag and I still can't transfer it for him.
+Answer 8: Sella Brandt.
 (The agent looks something up. She waits.)
-Answer 9: Good, thank you.
+Answer 9: Good. He can take it himself.
+
 === Call 3 ===
-Answer 1: I can't transfer the draught from the party bag into Pell's bag, and he can't get into the party bag either.
-Answer 2: That's all right. It's 4-4-0-9, on the bag.
+Answer 1: I can't transfer the draught from the party bag to Pell's bag, and he can't get into the party bag himself.
+Answer 2: It's 4-4-0-9, on the bag. Take your time.
 (The agent looks something up. She waits.)
-Answer 3: Okay. I've been trying to transfer it since last night.
-Answer 4: I don't need that. I just can't transfer it.
-Answer 5: Okay. That's what I needed.
+Answer 3: I've been trying it since last night. It hasn't helped.
+Answer 4: Yes, that's what I said. You don't have to say that part.
+Answer 5: Right. That's what I needed.

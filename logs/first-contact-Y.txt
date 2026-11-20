@@ -5,7 +5,7 @@ Call 1
   AGENT  Thank you for contacting TLC, this is [Name]. How may I serve you?
   SELLA  says a sentence or two · gives cannot-transfer, pell-shut-out
   AGENT  what·expand account (misfire)
-  SELLA  says a sentence or two · gives her-account, at-it-since-last-night · states nothing-changed-on-her-side (sure, wrong) · gets short
+  SELLA  says a sentence or two · gives her-account, at-it-since-last-night · gets short
   AGENT  what·contract bag (flat)
   SELLA  says a sentence or two · gives cannot-transfer, never-a-problem-before · exact · baggage: pell-gets-hurt
   AGENT  when·expand before (lands)

@@ -140,7 +140,10 @@ const IDENTIFIES = Object.freeze(['name', 'number', 'party', 'account']);
  * is a fact about the call, not a degree; how sure she is, is a degree.
  */
 const BELIEVES = Object.freeze([
-  { id: 'nothing-changed-on-her-side', about: ['account', 'changed', 'settings'], rightWhen: 'update', wrongWhen: 'own-setting' },
+  // Said when she is asked whether anything has changed, or told she changed
+  // something; not whenever the account comes up, where an unasked denial
+  // reads to an agent as a clue that she did (Phil, 20 November).
+  { id: 'nothing-changed-on-her-side', about: ['changed', 'settings'], rightWhen: 'update', wrongWhen: 'own-setting' },
 ]);
 
 /** How much she says, by where her volume landed. */

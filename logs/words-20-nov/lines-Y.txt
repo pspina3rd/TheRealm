@@ -1,29 +1,31 @@
 === Call 1 ===
-Answer 1: I can't transfer the draught from the party bag to Pell's bag. He can't open the party bag himself, either.
-Answer 2: The party's. I'm the leader. I've been at this since last night, and I haven't changed anything.
-Answer 3: It's the party bag I'm transferring from, and this has never been a problem before. If he goes out without it and something happens, that's on me.
-Answer 4: I've never had a problem with it before. Pell leaves on a contract in the morning, and he can't get into the party bag on his own.
-Answer 5: I haven't changed anything.
-Answer 6: Morning. He's gone by then.
-Answer 7: I'm not the one leaving, Pell is. He goes on the contract in the morning, and he can't get into the party bag himself. Like I said, I can't transfer the draught into his bag either.
-Answer 8: It's in the party bag, and I can't transfer it to Pell's. I've never had trouble with it before.
+Answer 1: I can't transfer the draught from the party bag to Pell's bag. And he can't get into the party bag himself.
+Answer 2: It's the party's. I'm the leader. I've been at this since last night and I haven't touched anything.
+Answer 3: The party bag, and it's never been a problem before. If he goes out without it and something happens, that's on me.
+Answer 4: It's always worked before. Pell leaves on a contract in the morning.
+Answer 5: Nothing I did.
+Answer 6: In the morning, yes.
+Answer 7: I'm not leaving, Pell is. He goes in the morning, on his own. I still can't transfer the draught into his bag, and he can't get into the party bag himself.
+Answer 8: I just can't transfer it to his bag. It's never given me trouble before.
 (The agent looks something up. She waits.)
-Answer 9: Oh, okay. I've been at this since last night.
+Answer 9: Good. Then he can take it out himself, he leaves in the morning.
+
 === Call 2 ===
-Answer 1: I can't transfer the draught from the party bag to Pell's.
-Answer 2: I can't, like I told you. I've been trying to work out why since last night.
-Answer 3: The party bag won't let me move the draught over to Pell's bag. Pell can't get in it himself either. It's never done this before. I just can't get it to transfer.
-Answer 4: No, never. Pell goes out on the contract in the morning.
-Answer 5: That's right, and I've been at it since last night. If he goes out without it and something happens, that's on me.
-Answer 6: The morning, when Pell goes.
-Answer 7: I'm not going, Pell is, in the morning. If he goes out without it and something happens, that's on me.
+Answer 1: I can't transfer the draught from the party bag into Pell's.
+Answer 2: I can't do it. I've been trying to work it out since last night.
+Answer 3: The party bag won't let me transfer it to his. It won't let him in either. It's never done this before.
+Answer 4: Not before, no. Pell goes in the morning.
+Answer 5: Yes, that's right. If he goes out without it and something happens, that's on me.
+Answer 6: Morning, before he goes.
+Answer 7: Not me, Pell, in the morning. If he goes out without it and something happens, that's on me.
 Answer 8: Sella Brandt.
 (The agent looks something up. She waits.)
-Answer 9: Okay, good. Thank you.
+Answer 9: Okay, he can take it out then.
+
 === Call 3 ===
-Answer 1: I can't transfer the draught from the party bag to Pell's bag. He can't get into the party bag himself.
-Answer 2: It's 4-4-0-9, on the bag.
+Answer 1: I'm trying to transfer a draught from the party bag into Pell's bag and I can't. He can't get into the party bag himself either.
+Answer 2: 4-4-0-9. It's on the bag.
 (The agent looks something up. She waits.)
-Answer 3: I've been trying since last night. An hour isn't going to change anything.
-Answer 4: Right. I can't transfer it.
-Answer 5: Okay, good. Thanks.
+Answer 3: That's what I've been doing since last night. It hasn't helped.
+Answer 4: Yes. That's what I said.
+Answer 5: Good. He can take it out himself, then.
