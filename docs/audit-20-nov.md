@@ -55,3 +55,42 @@ added no fact, and treated that as "correct". I did not hold each sentence
 to the plain test of whether a person would say it and be understood at
 once, and I declared done before reading slowly enough to catch what
 fails that test.
+
+## 3. The independent read, and where it and I differ
+
+One Opus subagent, read-only, given each line beside what the agent said
+and the facts she could use, and not my verdicts. Its file is
+`logs/words-20-nov/independent-read.txt`: 37 pass, 9 fail. Its verdicts
+are claims, so each was checked against the prompt it came from.
+
+**Faults both of us found:** X1.6 (*"That's when he's gone"*).
+
+**Faults it found that I had passed, which are faults:**
+- **X1.2** — *"Take your time"* as a reply to *"Tell me about the
+  account"*. The prompt told her to let a struggling agent off, but had
+  dropped the fact that the question came out badly, so she was letting
+  off nobody. A fault in my prompt code: wherever the agent's words were
+  quoted, how the move came off was left out. Fixed.
+- **X1.7** — *"This has never been a problem before"* straight after
+  *"I'm not going, Pell is"*, so "this" seems to mean Pell leaving.
+
+**Faults I found that it passed:** Y2.2 (*"It won't go across"*, against
+Phil's ruling on *get across*); Y1.2 (told to get short, and not; manner
+was not one of its tests, and the same prompt fault as X1.2 is why).
+
+**Its failures that are not faults:**
+- **Y3.3 and X3.3** — it said *"I've been trying since last night"* was
+  invented. It was in the prompt, in what the wrong fix told her; my
+  layout for the reader cut that sentence off. My error, not the line's.
+- **Y1.4** — the *"when did you last move something"* answer, which Phil
+  has ruled valid and in character.
+- **Y1.3 and Y2.5** — "it" in *"If he goes out without it…"* is Phil's own
+  accepted line, and in the call the draught is the only thing she has
+  been trying to give him.
+- **X2.7** — *"I can't transfer it to him"* after naming the party bag;
+  in the call the draught is the only thing being transferred.
+
+**My own flag that was wrong:** Y1.6, *"Morning. He's gone by then."* — a
+plain way of saying he will have left by morning. Not a contradiction.
+
+**Lines being rewritten:** Y1.2, Y2.2, X1.2, X1.6, X1.7.

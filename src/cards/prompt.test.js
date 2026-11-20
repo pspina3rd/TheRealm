@@ -160,3 +160,10 @@ test('misleading wording is tied to what she is saying in that answer', () => {
   assert.ok(!promptFor({ sheet: SHEETS.Y, move: morning, shape: m }).text.includes('refusing'));
   assert.match(promptFor({ sheet: SHEETS.Y, move: transfer, shape: t }).text, /as if the bag is refusing her/);
 });
+
+test('how a move came off stays in the prompt when the agent\'s words are quoted', () => {
+  const { shapeAnswer } = require('./answer');
+  const move = { kind: 'question', suit: 'what', angle: 'expand', subject: 'account', landing: 'misfire', said: 'Tell me about the account.' };
+  const shape = shapeAnswer({ sheet: SHEETS.X, move, rng: seededRng(1) });
+  assert.strictEqual(promptFor({ sheet: SHEETS.X, move, shape }).heard, 'The agent has just said: "Tell me about the account." It came out badly.');
+});

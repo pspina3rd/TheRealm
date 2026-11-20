@@ -1,0 +1,48 @@
+Y1.1  PASS
+Y1.2  PASS
+Y1.3  FAIL  1  In "If he goes out without it" the "it" has no clear referent, because the only things named in the line are the party bag and "this", so it sounds like he would go out without the party bag.
+Y1.4  FAIL  2  The agent asked when she last moved something into one of the bags, and she gives no time and does not say she can't remember; "never had a problem" sidesteps the question.
+Y1.5  PASS
+Y1.6  PASS
+Y1.7  PASS
+Y1.8  PASS
+Y1.9  PASS
+Y2.1  PASS
+Y2.2  PASS
+Y2.3  PASS
+Y2.4  PASS
+Y2.5  FAIL  1  The two uses of "it" mean different things ("at it" is the problem, "without it" is the draught), and the draught hasn't been mentioned for several turns, so the listener has to work out what he would go out without.
+Y2.6  PASS
+Y2.7  PASS
+Y2.8  PASS
+Y2.9  PASS
+Y3.1  PASS
+Y3.2  PASS
+Y3.3  FAIL  3  "I've been trying since last night" is not in what she may use ("Nothing new") and she has not said it earlier in this call.
+Y3.4  PASS
+Y3.5  PASS
+X1.1  PASS
+X1.2  FAIL  1,2,4  "Take your time" makes no sense as a reply to "Tell me about the account", because the agent is not taking any time and is waiting for her to talk.
+X1.3  PASS
+X1.4  PASS
+X1.5  PASS
+X1.6  FAIL  1  "That's when he's gone" is awkward, since it sounds like a description of when he is away rather than when he leaves.
+X1.7  FAIL  1,4  "This has never been a problem before" comes straight after "I'm not going, Pell is", so "this" seems to point to who is leaving rather than to the transfer.
+X1.8  PASS
+X1.9  PASS
+X2.1  PASS
+X2.2  PASS
+X2.3  PASS
+X2.4  PASS
+X2.5  PASS
+X2.6  PASS
+X2.7  FAIL  1  In "He can't get at the party bag, and I can't transfer it to him" the "it" naturally refers back to the party bag, so she seems to be saying she can't transfer the bag itself.
+X2.8  PASS
+X2.9  PASS
+X3.1  PASS
+X3.2  PASS
+X3.3  FAIL  3  "I've been trying to transfer it since last night" is not in what she may use ("Nothing new") and she has not said it earlier in this call.
+X3.4  PASS
+X3.5  PASS
+
+37 PASS, 9 FAIL (46 lines)

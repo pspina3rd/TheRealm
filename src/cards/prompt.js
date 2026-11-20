@@ -90,11 +90,13 @@ const LENGTH = Object.freeze({
 /** What the agent's move was, as she heard it. */
 function heard(move) {
   if (FIXES[move.kind]) return `The agent has just said: "${move.said || FIXES[move.kind].said}" ${FIXES[move.kind].knows}`;
-  if (move.said) return `The agent has just said: "${move.said}"`;
-  if (move.kind === 'paraphrase') return `The agent has just said back to her what she told them about ${ABOUT[move.subject] || move.subject}${move.stock ? ', opening with a stock line of sympathy' : ''}.`;
-  const how = move.angle === 'random' ? ', clumsily, as if fishing' : '';
+  // How the move came off is part of what she heard, quoted words or not:
+  // without it, a reaction such as letting them off has nothing to answer.
   const land = { misfire: ' It came out badly.', flat: ' It came out flat.', critical: ' It was exactly the right question.' }[move.landing] || '';
-  return `The agent has just asked about ${ABOUT[move.subject] || move.subject}${how}.${land}`;
+  const how = move.angle === 'random' ? ' It came out clumsily, as if they were fishing.' : '';
+  if (move.said) return `The agent has just said: "${move.said}"${how}${land}`;
+  if (move.kind === 'paraphrase') return `The agent has just said back to her what she told them about ${ABOUT[move.subject] || move.subject}${move.stock ? ', opening with a stock line of sympathy' : ''}.${land}`;
+  return `The agent has just asked about ${ABOUT[move.subject] || move.subject}.${how}${land}`;
 }
 
 /** How she says it, from her counts and what the move set off. */
