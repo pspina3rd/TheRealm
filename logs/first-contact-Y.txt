@@ -62,31 +62,32 @@ Call 3
 How free the middle was
   different paths through the call: 197 of 200
   first move after the opening: paraphrase about working 29 · what·contract working 21 · what·expand number 19 · who·expand name 14 · what·expand account 10 · paraphrase about working, with a stock line 10
-  asked who she is at: play 7 64 · play 1 59 · play 2 31 · play 3 16 · play 4 12 · play 5 11 · play 6 7
-  how calls ended: fixed, 9 plays 101 · not fixed, 9 plays 39 · fixed, 5 plays 15 · fixed, 7 plays 15 · fixed, 6 plays 11 · fixed, 8 plays 8 · fixed, 3 plays 7 · fixed, 4 plays 4
+  asked who she is at: play 7 64 · play 1 59 · play 2 31 · play 3 17 · play 5 11 · play 4 11 · play 6 7
+  how calls ended: fixed, 9 plays 99 · not fixed, 9 plays 40 · fixed, 5 plays 15 · fixed, 7 plays 15 · fixed, 6 plays 12 · fixed, 8 plays 9 · fixed, 3 plays 6 · fixed, 4 plays 4
+  why calls were not fixed: misread the record, and the last fix was wrong 30 · never found out who she is, so never looked her up 10
 
-What occurred, over 1417 answers
+What occurred, over 1619 answers
   afterFix: asks for someone else                  3
-  afterFix: asks what it means                     36
+  afterFix: asks what it means                     35
   afterFix: shows it                               43
-  afterFix: turns on the agent                     16
-  baggage: pell-gets-hurt                          195
-  heard: feels heard                               126
-  pattern: names the run                           11
-  pressed: feels badgered                          16
-  pressed: feels pressed                           21
-  reach: a little brushed off                      61
-  reach: badly brushed off                         37
-  repeat: fine with it                             233
-  repeat: it wears thin                            91
-  repeat: notices the repeat                       22
-  says a few words                                 405
-  says a sentence or two                           834
-  says runs on                                     24
-  says three or four sentences                     154
-  takes: answers and adds                          45
-  takes: half-answers and drifts                   5
-  takes: leaves the question                       36
-  towardAgent: gets short                          269
+  afterFix: turns on the agent                     17
+  baggage: pell-gets-hurt                          223
+  heard: feels heard                               149
+  pattern: names the run                           13
+  pressed: feels badgered                          15
+  pressed: feels pressed                           27
+  reach: a little brushed off                      86
+  reach: badly brushed off                         45
+  repeat: fine with it                             249
+  repeat: it wears thin                            97
+  repeat: notices the repeat                       25
+  says a few words                                 458
+  says a sentence or two                           953
+  says runs on                                     23
+  says three or four sentences                     185
+  takes: answers and adds                          61
+  takes: half-answers and drifts                   8
+  takes: leaves the question                       43
+  towardAgent: gets short                          270
 
 Against her sheet: 0

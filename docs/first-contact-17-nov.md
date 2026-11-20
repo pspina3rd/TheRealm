@@ -182,3 +182,30 @@ reads as being heard.
 [^4]: The module measured only how alike two questions were. It ignored
     whether she had answered the first, how long ago it was, and what the
     agent was coming back for. Corrected 19 November.
+
+### Rerun with her opening answer included — 20 November
+
+Checking my summary of the Sheet Y run against the run itself found two
+claims wrong and a gap in the script.[^5] Her answer to the opening was not
+in the history later answers worked from, and was not counted or checked
+against her sheet. Both fixed; both sheets rerun over the same 200 calls.
+
+**Sheet Y, 1,619 answers, nothing against her sheet:**
+- **Not fixed: 40 calls.** 30 because the apprentice misread the record
+  and the last fix was wrong; 10 because they never found out who she was,
+  so never looked her up.
+- **Getting short: 270.** 207 after a fumbled question, 46 after a fumbled
+  paraphrase, 17 after being told it was her fault.
+- **Her worry came out in 182 of the 200 calls,** 223 times in all.
+- **Going back to a point her answer had left short: 161 times.** She was
+  fine with it 112 times, felt heard 21, felt pressed 18, felt badgered 5.
+  On Sheet X the same moves grated on her 129 times and badgered her 25.
+
+**Sheet X, 1,618 answers, nothing against her sheet.** Not fixed: 42 (32
+misread the record, 10 never found out who she was).
+
+[^5]: I told Phil on 20 November that every unfixed call was lost to a
+    misread record; 10 of them were lost because she was never
+    identified. I also said that going back to a short answer was taken as
+    being pressed; on Sheet Y it was mostly taken as a repeat she was fine
+    with. Corrected here.

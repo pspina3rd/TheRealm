@@ -18,8 +18,9 @@
  *   node scripts/firstContact.js --sheet X --calls 500 --show 5
  *
  * Prints a few whole calls to read as a person would, how varied the paths
- * were, what reactions occurred and how often, and every place an answer
- * went against her sheet.
+ * were and why calls were lost, what reactions occurred and how often, and
+ * every place an answer went against her sheet. Her answer to the opening is
+ * counted and checked with the rest.
  */
 
 const { seededRng } = require('../src/call/rng');
@@ -184,12 +185,14 @@ function sayMove(m) {
 function playCall(rng) {
   let current = sheet;
   let st = freshState();
-  // Her answer to the opening, which is free (card rules 2 and 28).
-  const opening = shapeAnswer({ sheet: current, move: { kind: 'question', suit: 'what', angle: 'expand', subject: 'working' }, rng });
+  // Her answer to the opening, which is free (card rules 2 and 28). It is
+  // part of what she has said, so later answers start from it.
+  const openingMove = { kind: 'question', suit: 'what', angle: 'expand', subject: 'working' };
+  const opening = shapeAnswer({ sheet: current, move: openingMove, rng });
   current = opening.sheet;
-  st = learn(st, { kind: 'question', subject: 'working' }, opening, rng);
+  st = learn(st, openingMove, opening, rng);
   const call = [];
-  const history = [];
+  const history = [{ move: openingMove, shape: opening }];
   for (let play = 0; play < PLAYS && !st.fixed; play++) {
     const move = choose(st, PLAYS - play, rng);
     if (move.kind === 'lookup') {
@@ -203,7 +206,7 @@ function playCall(rng) {
     call.push({ move, shape });
     st = learn(st, move, shape, rng);
   }
-  return { opening, call, history, fixed: st.fixed };
+  return { opening, call, history, fixed: st.fixed, st };
 }
 
 /**
@@ -243,6 +246,7 @@ const paths = new Set();
 const firstMoves = {};
 const identifiedAt = {};
 const endings = {};
+const lost = {};
 let answers = 0;
 
 console.log(`Sheet ${sheet.id}: ${sheet.baggage} · repetition ${sheet.repetition} · empathy ${sheet.empathy} · pattern ${sheet.pattern} · non-positive ${sheet.nonPositive} · ${sheet.reach} · ${sheet.causes.join(' + ')}`);
@@ -250,7 +254,7 @@ console.log(`${calls} first calls, each a fresh first contact. The middle of eac
 
 for (let n = 1; n <= calls; n++) {
   const rng = seededRng(5000 + n);
-  const { opening, call, history, fixed } = playCall(rng);
+  const { opening, call, history, fixed, st } = playCall(rng);
   if (n <= show) {
     console.log(`Call ${n}`);
     console.log(`  AGENT  ${OPENING}\n  SELLA  ${describeShape(opening)}`);
@@ -265,11 +269,16 @@ for (let n = 1; n <= calls; n++) {
   identifiedAt[where] = (identifiedAt[where] || 0) + 1;
   const end = `${fixed ? 'fixed' : 'not fixed'}, ${call.length} plays`;
   endings[end] = (endings[end] || 0) + 1;
+  if (!fixed) {
+    const why = !st.identified ? 'never found out who she is, so never looked her up' : 'misread the record, and the last fix was wrong';
+    lost[why] = (lost[why] || 0) + 1;
+  }
+  // Every answer she gave, the opening included, is tallied and checked.
   history.forEach(({ shape }, i) => {
     answers++;
     count(`says ${shape.says}`);
     for (const [key, value] of Object.entries(shape.labels)) if (value && !(key === 'takes' && value === 'answers')) count(`${key}: ${value}`);
-    for (const p of against(sheet, history, i)) problems.push(`call ${n}, answer ${i + 1}: ${p}`);
+    for (const p of against(sheet, history, i)) problems.push(`call ${n}, answer ${i}: ${p}`);
   });
 }
 
@@ -279,6 +288,7 @@ console.log(`  different paths through the call: ${paths.size} of ${calls}`);
 console.log(`  first move after the opening: ${sorted(firstMoves).slice(0, 6).map(([k, v]) => `${k} ${v}`).join(' · ')}`);
 console.log(`  asked who she is at: ${sorted(identifiedAt).map(([k, v]) => `${k} ${v}`).join(' · ')}`);
 console.log(`  how calls ended: ${sorted(endings).slice(0, 8).map(([k, v]) => `${k} ${v}`).join(' · ')}`);
+console.log(`  why calls were not fixed: ${sorted(lost).map(([k, v]) => `${k} ${v}`).join(' · ')}`);
 console.log(`\nWhat occurred, over ${answers} answers`);
 for (const [key, n] of Object.entries(tally).sort()) console.log(`  ${key.padEnd(48)} ${n}`);
 console.log(`\nAgainst her sheet: ${problems.length}`);

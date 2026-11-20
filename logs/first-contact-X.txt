@@ -63,28 +63,29 @@ How free the middle was
   different paths through the call: 198 of 200
   first move after the opening: paraphrase about working 29 · what·contract working 21 · what·expand number 19 · who·expand name 14 · what·expand account 10 · paraphrase about working, with a stock line 10
   asked who she is at: play 7 63 · play 1 59 · play 2 31 · play 3 16 · play 4 13 · play 5 11 · play 6 7
-  how calls ended: fixed, 9 plays 96 · not fixed, 9 plays 41 · fixed, 5 plays 17 · fixed, 7 plays 16 · fixed, 8 plays 10 · fixed, 6 plays 10 · fixed, 3 plays 7 · fixed, 4 plays 3
+  how calls ended: fixed, 9 plays 95 · not fixed, 9 plays 42 · fixed, 7 plays 17 · fixed, 5 plays 16 · fixed, 6 plays 11 · fixed, 8 plays 10 · fixed, 3 plays 6 · fixed, 4 plays 3
+  why calls were not fixed: misread the record, and the last fix was wrong 32 · never found out who she is, so never looked her up 10
 
-What occurred, over 1413 answers
+What occurred, over 1618 answers
   afterFix: gives no sign                          51
-  afterFix: puts it on the company                 17
+  afterFix: puts it on the company                 15
   afterFix: thanks them and rings off              39
-  baggage: no-one-told-her                         165
-  heard: feels heard                               38
-  pressed: feels badgered                          32
-  pressed: feels pressed                           47
-  reach: a little brushed off                      68
-  reach: badly brushed off                         38
-  repeat: it grates on her                         108
-  repeat: reads it as not listening                247
-  says a few words                                 430
-  says a sentence or two                           814
-  says runs on                                     21
-  says three or four sentences                     148
-  takes: answers and adds                          52
-  takes: half-answers and drifts                   4
-  takes: leaves the question                       37
-  towardAgent: hears the stock line                72
-  towardAgent: lets them off                       253
+  baggage: no-one-told-her                         192
+  heard: feels heard                               48
+  pressed: feels badgered                          39
+  pressed: feels pressed                           61
+  reach: a little brushed off                      92
+  reach: badly brushed off                         46
+  repeat: it grates on her                         140
+  repeat: reads it as not listening                246
+  says a few words                                 479
+  says a sentence or two                           940
+  says runs on                                     22
+  says three or four sentences                     177
+  takes: answers and adds                          68
+  takes: half-answers and drifts                   7
+  takes: leaves the question                       44
+  towardAgent: hears the stock line                71
+  towardAgent: lets them off                       254
 
 Against her sheet: 0
