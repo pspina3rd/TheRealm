@@ -144,6 +144,43 @@ knows:
   has never been a problem before, which does not answer when. Nothing she
   knows says whether she has ever moved anything to anyone.
 
-**Status: not done.** Two lines are still wrong (above). Step two is
-complete only when every line answers what was said and uses only what
-she knows.
+### Phil's corrections, 20 November, and the passes after
+
+Phil answered the two blocking questions and corrected me on four points:
+
+- **"Asked about when Pell leaves" is a question.** My explanation said
+  there was no question; that was wrong. What actually happened: her signal
+  drew at the bottom of her curve, and `answer.js` then gave her room for
+  nothing, not even the one thing she was asked and had already said. A
+  person asked when Pell leaves still says the morning. Fixed: asked
+  straight about something she knows, she gives at least that.
+- **Hedging which name.** Phil said someone *could* say "is that the name
+  you need, or the account's?"; the question was whether Sella would. She
+  would not: she knows the account is the party's and that she leads it.
+  Fixed: only a sheet marked as unsure how the account is set up hedges
+  which name, and none of Sella's is.
+- **"We".** I had recorded *"we can encompass Sella and Pell"* as Sella
+  going, over the record's own *"Only Pell is going"*. Phil: "we" is the
+  agent's soft skill of togetherness, and *"Pell is going on a solo
+  mission."* Corrected in `her-side-46.md` (footnoted); the old lines that
+  said *we're out at first light* now say *he goes*.
+- **"When did you last move something to one of them?" answered with
+  "never been a problem before"** is a valid answer and in character: her
+  experience is that her team has never had trouble getting at their
+  items before. I had called it wrong. Whether she has handed anything
+  over before does not matter.
+
+**Three more faults found reading the passes that followed, fixed:**
+she volunteered *"I'm not going"* when nobody asked, because I had put it
+in the fact about Pell (it is now something she knows and says only if
+asked); *"alone"* was added every time Pell's departure came up; and the
+example I gave for misleading wording (*as if the bag is refusing her*)
+was pushed into answers about something else (*"The morning. It just won't
+let me."*).
+
+**Seventh pass, every line read beside what the agent said and what she
+was given:** each of the 46 answers what was said, uses only what her
+prompt gave her, and is plain spoken English.
+
+**Status: done for these six calls.** Every line answers what was said and
+uses only what she knows.
