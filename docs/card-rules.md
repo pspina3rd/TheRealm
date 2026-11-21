@@ -150,3 +150,22 @@ here goes into the record.
     *Coworker conversations*.)
 31. **[P]** The case is a separate mechanic. The nine plays are for the
     interaction with the customer only.
+
+## The ends of a call, and what lies between — Phil, 21 November
+
+32. **[P]** The ends are known: the opening (greeting and inquiry) and the
+    status decision (resolve, transfer or hold). What happens between is
+    entirely dependent on what the customer provides.
+33. **[P]** Creating the case and its status are interrelated (with rule
+    30).
+34. **[P]** Identifying information gives a finite set of outcomes: the
+    match is found, it is not found, potential results that are valid, or
+    potential results that are invalid. That set decides what the player
+    can choose next; how the player proceeds drives the customer's choices
+    for what happens next. Rule 22 is a similar version that splits the
+    potential results into levels, without the yes/no. *(I had read the two
+    as separate measures; that was wrong.)*
+35. **[P, "I think"]** The moves available, and the approach to taking
+    them, are where the suits and enhancements for the cards should be
+    drawn from. Not ruled on: whether this replaces the six suits and four
+    angles or decides which of them can be played.
