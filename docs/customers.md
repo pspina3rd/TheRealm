@@ -97,3 +97,12 @@ the repairer myself"* — he is the one who repairs the company's blades.
 Why he sent this sword out is left open and can differ from call to call
 (Phil: the opinion applies to all the reasons, and to many other scenarios
 for him).
+
+**5. Pastimes** · 22 November
+- *"I like to make small trinkets, children really seem to like them."*
+  **[P]** (Phil's wording)
+- *"I spend my rest days with the boys."*
+
+Withdrawn: *"Little horses, mostly"* (no reason to say what kind), *"I take
+the boys down to the river"* (too specific), *"for the children on our
+street"* (limits him to his street).
