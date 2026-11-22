@@ -86,3 +86,14 @@ wonder why they need work"* (no one believes that), *"…then wonder"* and
 tells me the north road's closed again"* (nothing to him, and nothing to an
 agent who doesn't know the town), *"The company always wants its blades back
 the same day"* (sometimes that is simply needed).
+
+**4. Opinions** · accepted 22 November (*"Yes"*)
+- *"I don't like sending work out. Sometimes there's no choice."*
+- *"A boy should learn a trade before he picks up a sword."*
+- *"Most trouble comes from someone rushing."*
+
+Withdrawn: *"POOF's fine for most things. I'd still rather take a blade to
+the repairer myself"* — he is the one who repairs the company's blades.
+Why he sent this sword out is left open and can differ from call to call
+(Phil: the opinion applies to all the reasons, and to many other scenarios
+for him).
