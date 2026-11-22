@@ -65,3 +65,10 @@ calls write to it.
     warm"*, which doesn't say whose dog it is and explains the obvious. I
     first changed *"It's been a long spring"* instead; Phil: *"wrong on
     number 2. Try the dog."* Put back.
+
+**2. What he cares about** · accepted 22 November (*"Yes"*)
+- *"Ada and the boys."*
+- *"Work done right. Nothing leaves my forge that isn't."*
+- *"Paying what I owe when I owe it. I expect the same."*
+- *"My tools. Most of them were my master's."*
+- *"Straight answers."*
