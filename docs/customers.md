@@ -72,3 +72,17 @@ calls write to it.
 - *"Paying what I owe when I owe it. I expect the same."*
 - *"My tools. Most of them were my master's."*
 - *"Straight answers."*
+
+**3. What he'd gossip or grumble about** · accepted 22 November (*"Yes"*)
+- *"Iron costs more every month."*
+- *"The company brings me every blade the night before they march."*
+- *"Ada's mother has something to say about everything I do."*
+- *"Bren's got a story for everything, and it gets bigger every time he
+  tells it."* (the fish story, Phil's)
+
+Withdrawn on the way: *"The company's men treat their blades badly, then
+wonder why they need work"* (no one believes that), *"…then wonder"* and
+*"Bren says a lot of things"* (a sneer on top of second-hand gossip), *"Bren
+tells me the north road's closed again"* (nothing to him, and nothing to an
+agent who doesn't know the town), *"The company always wants its blades back
+the same day"* (sometimes that is simply needed).
