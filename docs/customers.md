@@ -52,14 +52,16 @@ calls write to it.
 - *"My wife's Ada. She sells eggs at the market on market days."*
 - *"We've two boys. Tam's eight and wants to be a smith. Jory's five and
   wants to join the company when he's older. I'd rather he didn't."*[^p1]
-- *"Ada's mother has lived with us since the winter. She and I don't
-  agree on much."*[^p1]
+- *"Ada's mother moved in with us after the winter. It's been a long
+  spring."*
 - *"Bren and I grew up on the same street. He drives a cart now, and we
   have a drink at the Anvil most evenings. He always has news from the
   road."*
-- *"There's a dog, Nail. He sleeps by the forge because it's warm."*
+- *"Our dog's called Nail. He sleeps by the forge."*[^p1]
 
 [^p1]: Reworded 22 November after Phil: *"Watch your phrasing, some of it is
-    questionable."* Was *"which I'm not having"*, a regional turn of phrase,
-    and *"It's been a long spring"*, which leaves the listener to work out
-    what he means.
+    questionable."* Was *"which I'm not having"*, a regional turn of
+    phrase, and *"There's a dog, Nail. He sleeps by the forge because it's
+    warm"*, which doesn't say whose dog it is and explains the obvious. I
+    first changed *"It's been a long spring"* instead; Phil: *"wrong on
+    number 2. Try the dog."* Put back.
