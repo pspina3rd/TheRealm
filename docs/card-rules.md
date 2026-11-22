@@ -169,3 +169,28 @@ here goes into the record.
     them, are where the suits and enhancements for the cards should be
     drawn from. Not ruled on: whether this replaces the six suits and four
     angles or decides which of them can be played.
+
+## The fence, and where requests come from — Phil, 22 November
+
+36. **[P, tentative: "I think so"]** An interaction is the convergence of
+    an account, an individual and a request, and a fourth thing: the case,
+    ticket or identifier, which is the end goal of every interaction and
+    says what the request was about. Picture a triangular fenced area: the
+    posts are the Account, the Individual and the Record of the
+    Interaction. Inside the fence is the story, history, mythology, facts
+    and opinions about the request, from those who were involved.
+    **[C]** The suits and angles cover moving inside the fence; the moves
+    with no card (`docs/moves-vs-suits.md`) belong to the posts: finding
+    the account and individual (refining a search), what is put into the
+    story (telling her, how a fix is said), and setting the third post (the
+    status decision). The record's five categories of identifier (Account ·
+    Contact · Case · Related Numbers · Related Details, `settled.md` §18)
+    already name the three posts.
+37. **[P]** Contemplate what types of request would likely come in for
+    support. The universal greeting prompts the customer: it generates
+    their account of the experience that led them to contact support. Their
+    character sheet supplies the variables that make that explanation
+    unique, and that explanation is what the player responds to on their
+    first play. Finding what multiple customers have in common, and the
+    play-throughs that follow, will show where descriptions overlap between
+    categories of request.
