@@ -29,3 +29,32 @@ marked; each is accepted by Phil before the next is proposed.
   certainty high · accuracy very high on anything to do with metal,
   ordinary otherwise · openness low.
 - **How he talks:** short, exact about his trade, no small talk.
+
+### Hob's notebook
+
+Phil, 22 November: the personal part of a sheet is the character's
+notebook, *"the piece of the puzzle that says here is who he is, what he
+might inject into a conversation, who he might mention, what he might
+gossip about, what he might care about, etc."* Like a separate notebook per
+character loaded when they call in, done through programming, not AI. A
+first set of six personal areas was rejected as forced, oddly specific and
+poorly worded; withdrawn.
+
+Sections [C]: people · what he cares about · what he'd gossip or grumble
+about · opinions · pastimes (*small toys for children* **[P]**) · things
+that have happened to him · rivals.
+
+**What he says from it passes through memory by type** (`settled.md` §8,
+*It misremembers*): the gist holds; dates, names and exact words slip. And
+calls write to it.
+
+**1. People** · accepted 22 November (*"Yeah that makes sense."*)
+- *"My wife's Ada. She sells eggs at the market on market days."*
+- *"We've two boys. Tam's eight and wants to be a smith. Jory's five and
+  wants to be one of the company's men, which I'm not having."*
+- *"Ada's mother moved in with us after the winter. It's been a long
+  spring."*
+- *"Bren and I grew up on the same street. He drives a cart now, and we
+  have a drink at the Anvil most evenings. He always has news from the
+  road."*
+- *"There's a dog, Nail. He sleeps by the forge because it's warm."*
