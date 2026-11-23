@@ -228,3 +228,76 @@ the burned hand reworded · rivals left as they are.
 
 **Wren's notebook is complete.** Phil, 23 November: *"By not raising them
 as issues, I was passing them."*
+
+## Customer 3 — Ilse Harrow · proposed 23 November
+
+Checked before proposing against both earlier customers and every
+correction Phil made to them (see the end of this section).
+
+- **The individual:** owner of a shop selling goods for travellers: belts,
+  pouches, charms.
+- **The account:** her shop's, and she is its only contact. Here the account
+  post and the individual post are the same person, which neither Hob nor
+  Wren tested.
+- **Request type:** POOF Instant Order **[P, the type]**, for Accessories
+  **[P]**.
+- **Her experience:** TLC's notice says her order was delivered yesterday.
+  Nothing arrived at the shop.
+- **Knows:** what she ordered; when; that the notice says delivered; that
+  she was in the shop all day yesterday; that customers have been asking for
+  the stock. She has the order number to hand.
+- **Does not know:** where it went, or whether it went somewhere else.
+- **Customer-service baggage:** support once promised her a callback that
+  never came.
+- **Sheet:** repetition middle · empathy middle · pattern low · non-positive
+  high · digging.
+- **How she shares, where she usually sits:** volume middle · signal high ·
+  certainty high · accuracy high · openness middle.
+- **How she talks:** brisk, organised, polite; businesslike, with now and
+  then a dry remark.
+
+### Ilse's notebook
+
+**1. People**
+- *"My husband, Aldo, keeps the books for the shop."*
+- *"Our daughter's grown up and moved away. She writes every month."*
+- *"Greta next door and I have been neighbours for twenty years."*
+- *"There's a cat in the shop. Some customers come in just to see her."*
+
+**2. What she cares about**
+- *"The shop. I built it up myself."*
+- *"Aldo and our daughter."*
+- *"Keeping my word to customers."*
+- *"Not wasting anyone's time, mine included."*
+
+**3. What she'd gossip or grumble about**
+- *"The rent on the shop goes up every year."*
+- *"Some customers ask for a discount before they've looked at the price."*
+- *"They've dug up the street outside again. Nobody can get to the door."*
+
+**4. Opinions**
+- *"If you say you'll do something, do it."*
+- *"A shop lives or dies on word of mouth."*
+
+**5. Pastimes**
+- *"Greta and I play cards when the shop's closed."*
+- *"I keep a small garden behind the shop."*
+
+**6. Things that have happened to her**
+- *"I opened the shop twenty years ago with not much more than a table."*
+- *"Our daughter married last autumn."*
+- *"We had a fire in the stockroom a few years ago. We were lucky."*
+
+**7. Rivals and people she doesn't get on with**
+- *"The landlord. In all the years I've rented from him, he's never fixed
+  the roof."*
+- *"There's a merchant who still owes me for an order from last winter."*
+
+**Checked against Hob and Wren, and Phil's corrections to them:** nothing
+tied to her call (the callback baggage is on her sheet, not in her
+notebook); nothing that limits her where it needn't (no street names, no
+exact kinds of thing); no sneer; nothing anyone wouldn't believe; no
+regional turns of phrase (*"high street"* and *"of an evening"* were taken
+out); each grumble touches her; nothing makes her smaller; no line that
+repeats the other two customers' (a cheaper rival across town would have
+copied Hob's, and was replaced by the landlord).
