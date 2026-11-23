@@ -166,13 +166,16 @@ Same sections as Hob's, written as she would think about them.
 - *"Not letting the workshop down."*
 - *"People being kind to each other. It doesn't cost anything."*
 
-**3. What she'd gossip or grumble about** · proposed 23 November
-- *"Our supplier's put his prices up again. I'm the one who has to explain
-  the bill."*
+**3. What she'd gossip or grumble about** · 23 November
 - *"Mum keeps asking when she's going to meet Tom."*
-- *"Everyone says the master's going to retire soon. I'll believe it when I
-  see it."*
-- *"The guild hall's always cold."*
+- *"My brother never comes to visit."* (her openness lets personal things
+  slip; Phil: *"I don't dislike your justification"*)
+- *"The workshop's always cold first thing."* (she works there every
+  morning; not the guild hall, where she would not be often enough to know)
+
+Withdrawn: the price grumble (prices don't touch her; the guild pays), the
+retirement gossip (an odd thing to tell a stranger), and the workshop gossip
+she shared and then withheld.
 
 **4. Opinions** · proposed 23 November
 - *"If you're not sure, ask. I'd rather look silly than get it wrong."*
@@ -183,10 +186,24 @@ Same sections as Hob's, written as she would think about them.
 - *"I like to read, when I can stay awake long enough."*
 - *"On rest days I try to get out of the workshop for a while."*
 
-**6. Things that have happened to her** · proposed 23 November
+**6. Things that have happened to her** · 23 November
 - *"I came to the city when I was fifteen."*
-- *"I failed my first journeyman test. I passed the second."*
-- *"I burned my hand badly in my first year. I'm more careful now."*
+- *"I'm the first alchemist in my family. Mum still isn't sure what I do
+  all day."* (Phil: ok)
+- *"I made journeyman last spring. It still doesn't feel real."* (Phil: ok)
+- *"I went with the guild to the coast once, gathering salts. It was the
+  first time I'd seen the sea."* (Phil: fine)
+
+Withdrawn, and why: *"I failed my first journeyman test"*, *"I burned my
+hand badly in my first year"*, *"I mislabelled a whole shelf of jars"* and
+*"My master took me on after two others turned me down"* all made her
+smaller, the last reading as worse than that beside her being a woman.
+Hob's past is ordinary; hers had become a list of failings. Phil: *"you kind
+of went with some offensive male chauvinistic ideas there."* Also
+withdrawn: keeping her first potion unused (a potion is made to be used),
+keeping the flask for the deposit, *"the first in my family to join a
+guild"* (her mother may well be in one), and an apprentices' prize with no
+time to it.
 
 **7. Rivals and people she doesn't get on with** · proposed 23 November
 - *"There's another journeyman who always seems to get the better work. I
