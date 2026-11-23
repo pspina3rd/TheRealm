@@ -120,3 +120,41 @@ street"* (limits him to his street).
 - *"The company's quartermaster argues over every bill."*
 
 **Hob's notebook is complete.**
+
+## Customer 2 — Wren Ashby · call sheet taken as standing 23 November
+
+(Proposed 22 November; Phil went on to the notebook without changing it:
+*"Use the template we established for Hob."*)
+
+- **The individual:** a journeyman at the alchemists' guild who places the
+  ingredient orders for the guild workshop.
+- **The account:** the guild's; she is one of many contacts on it.
+- **Request type:** Ingredients **[P, the type]**.
+- **Her experience:** the order arrived this morning one container short;
+  the workshop can't start the batch without it.
+- **Knows:** what she ordered; that it came this morning; which container
+  is missing; that her master expects the batch started today.
+- **Does not know:** whether it was left out, lost or sent separately; she
+  doesn't have the order number to hand.
+- **Customer-service baggage:** last time she rang, she was passed between
+  three people before anyone helped.
+- **Sheet:** repetition low · empathy high · pattern middle · non-positive
+  low · no strong lean.
+- **How she shares, where she usually sits:** volume high · signal middle ·
+  certainty low · accuracy middle · openness high.
+- **How she talks:** quick, apologetic, explains more than she needs to,
+  thinks out loud.
+
+### Wren's notebook
+
+Same sections as Hob's, written as she would think about them.
+
+**1. People** · accepted 23 November (*"Yes"*)
+- *"My mum's a seamstress. She wanted me to go into the trade with her, but
+  I think she's proud of me now. I think."*
+- *"My brother's in the city watch. I worry about him, though he says I
+  shouldn't."*
+- *"I share rooms with Pip, another journeyman. She's the tidy one, if I'm
+  honest."*
+- *"I've been seeing Tom, from the bakery. It's still new, so I don't say
+  much about it. Well, I try not to."*
