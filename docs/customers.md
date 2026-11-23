@@ -159,7 +159,7 @@ Same sections as Hob's, written as she would think about them.
 - *"I've been seeing Tom, from the bakery. It's still new, so I don't say
   much about it. Well, I try not to."*
 
-**2. What she cares about** · proposed 23 November
+**2. What she cares about** · accepted 23 November
 - *"Mum, my brother, Pip. Tom too, I suppose."*
 - *"Getting things right. I check everything twice, then once more to be
   sure."*
@@ -177,12 +177,12 @@ Withdrawn: the price grumble (prices don't touch her; the guild pays), the
 retirement gossip (an odd thing to tell a stranger), and the workshop gossip
 she shared and then withheld.
 
-**4. Opinions** · proposed 23 November
+**4. Opinions** · accepted 23 November
 - *"If you're not sure, ask. I'd rather look silly than get it wrong."*
 - *"Most people are doing their best."*
 - *"A workshop runs on people helping each other."*
 
-**5. Pastimes** · proposed 23 November
+**5. Pastimes** · accepted 23 November
 - *"I like to read, when I can stay awake long enough."*
 - *"On rest days I try to get out of the workshop for a while."*
 
@@ -205,7 +205,7 @@ keeping the flask for the deposit, *"the first in my family to join a
 guild"* (her mother may well be in one), and an apprentices' prize with no
 time to it.
 
-**7. Rivals and people she doesn't get on with** · proposed 23 November
+**7. Rivals and people she doesn't get on with** · accepted 23 November
 - *"There's another journeyman who always seems to get the better work. I
   try not to mind."*
 - *"I don't really have enemies. I'm not sure I'd know if I did."*
@@ -225,3 +225,6 @@ suppose"* is fine · the price grumble did not say why it affects her; it now
 does (she explains the bill) · gossip she shares and then withholds made no
 sense; replaced · the reading joke stays (*"Jokes don't always land"*) ·
 the burned hand reworded · rivals left as they are.
+
+**Wren's notebook is complete.** Phil, 23 November: *"By not raising them
+as issues, I was passing them."*

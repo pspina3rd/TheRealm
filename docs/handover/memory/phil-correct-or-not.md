@@ -26,3 +26,8 @@ had to show me the line made no sense.
 - Check every claim against the output before sending it; when unsure,
   say not done.
 Related: [[phil-verify-by-reading-output]], [[phil-trust-and-verify-means]].
+
+**Silence is a pass.** Phil, 23 November: *"By not raising them as issues,
+I was passing them."* When he reviews a set and raises only some items, the
+rest are accepted. Do not ask him again about the ones he left alone.
+
