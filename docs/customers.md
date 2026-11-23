@@ -111,3 +111,12 @@ street"* (limits him to his street).
 - *"I was apprenticed at twelve."*
 - *"My master left me the forge when she died."*
 - *"I broke my wrist two winters ago. Couldn't work for a month."*
+
+**7. Rivals and people he doesn't get on with** · 23 November
+- *"There's a smith who settled nearby. He charges less and some say you
+  get what you pay for…"* **[P]** (Phil's wording, in place of mine: *"a
+  smith across town who charges half what I do. You get what you pay
+  for."*)
+- *"The company's quartermaster argues over every bill."*
+
+**Hob's notebook is complete.**
