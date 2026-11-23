@@ -167,11 +167,11 @@ Same sections as Hob's, written as she would think about them.
 - *"People being kind to each other. It doesn't cost anything."*
 
 **3. What she'd gossip or grumble about** · proposed 23 November
-- *"Our supplier's put his prices up again, and nobody at the guild seems
-  to mind but me."*
+- *"Our supplier's put his prices up again. I'm the one who has to explain
+  the bill."*
 - *"Mum keeps asking when she's going to meet Tom."*
-- *"Somebody in the workshop is seeing somebody else in the workshop. I'm
-  not saying who."*
+- *"Everyone says the master's going to retire soon. I'll believe it when I
+  see it."*
 - *"The guild hall's always cold."*
 
 **4. Opinions** · proposed 23 November
@@ -186,7 +186,7 @@ Same sections as Hob's, written as she would think about them.
 **6. Things that have happened to her** · proposed 23 November
 - *"I came to the city when I was fifteen."*
 - *"I failed my first journeyman test. I passed the second."*
-- *"I burned my hand badly in my first year. You learn."*
+- *"I burned my hand badly in my first year. I'm more careful now."*
 
 **7. Rivals and people she doesn't get on with** · proposed 23 November
 - *"There's another journeyman who always seems to get the better work. I
@@ -202,3 +202,9 @@ proposing: a grumble that Pip leaves her things everywhere, which
 contradicted *"She's the tidy one"* in section 1. Also left out: a grumble
 about the guild hall clerk, which is one of Sella's in the record, and a
 grumble about the delivery man, which would have been tied to the call.
+
+**Phil's rulings on the portions put to him, 23 November:** *"Tom too, I
+suppose"* is fine · the price grumble did not say why it affects her; it now
+does (she explains the bill) · gossip she shares and then withholds made no
+sense; replaced · the reading joke stays (*"Jokes don't always land"*) ·
+the burned hand reworded · rivals left as they are.
