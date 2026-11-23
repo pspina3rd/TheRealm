@@ -106,3 +106,8 @@ for him).
 Withdrawn: *"Little horses, mostly"* (no reason to say what kind), *"I take
 the boys down to the river"* (too specific), *"for the children on our
 street"* (limits him to his street).
+
+**6. Things that have happened to him** · accepted 23 November (*"Yes"*)
+- *"I was apprenticed at twelve."*
+- *"My master left me the forge when she died."*
+- *"I broke my wrist two winters ago. Couldn't work for a month."*
