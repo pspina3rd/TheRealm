@@ -8,19 +8,24 @@ will show where descriptions overlap between categories of request
 sheets one at a time"*). Everything on each sheet is mine **[C]** unless
 marked; each is accepted by Phil before the next is proposed.
 
+**Characters are independent of requests (Phil, 23 November).** *"What good
+does it do to design a character if you are requiring a customer service
+reason to create them? The customer service reason is the variable that
+they react to when presented it, which could be any in the game!"* So each
+customer below is the character alone: who they are and where they stand
+(the account and individual posts of the fence), their sheet, how they
+share, their customer-service baggage, how they talk, and their notebook.
+The requests are a separate list at the end; any customer can be handed
+any of them, and what they know about it comes from the request plus who
+they are. I first wrote each customer around one request; those requests
+have been moved out, and nothing about the characters depended on them.
+
 ## Customer 1 — Hob Tallis · accepted 22 November (*"Looks good."*)
 
 - **The individual:** a smith who keeps the blades for a small mercenary
   company; ringing as the company's contact, not for himself.
 - **The account:** the company's, not his (the account post and the
   individual post are different people).
-- **Request type:** POOF Instant Repair **[P, the type]**, on a sword.
-- **His experience:** he sent a sword for repair; it came back today, well
-  mended, but it is not his. It has another smith's mark.
-- **Knows:** which sword he sent and its mark; when he sent it; that what
-  came back has a different mark; that the company needs the sword.
-- **Does not know:** whether the mix-up was at TLC or the repairer; where
-  his sword is.
 - **Customer-service baggage:** he has been told before that he was
   mistaken about something he was not, and expects it again.
 - **Sheet:** repetition high (wants things said back) · empathy low ·
@@ -129,13 +134,6 @@ street"* (limits him to his street).
 - **The individual:** a journeyman at the alchemists' guild who places the
   ingredient orders for the guild workshop.
 - **The account:** the guild's; she is one of many contacts on it.
-- **Request type:** Ingredients **[P, the type]**.
-- **Her experience:** the order arrived this morning one container short;
-  the workshop can't start the batch without it.
-- **Knows:** what she ordered; that it came this morning; which container
-  is missing; that her master expects the batch started today.
-- **Does not know:** whether it was left out, lost or sent separately; she
-  doesn't have the order number to hand.
 - **Customer-service baggage:** last time she rang, she was passed between
   three people before anyone helped.
 - **Sheet:** repetition low · empathy high · pattern middle · non-positive
@@ -239,14 +237,6 @@ correction Phil made to them (see the end of this section).
 - **The account:** her shop's, and she is its only contact. Here the account
   post and the individual post are the same person, which neither Hob nor
   Wren tested.
-- **Request type:** POOF Instant Order **[P, the type]**, for Accessories
-  **[P]**.
-- **Her experience:** TLC's notice says her order was delivered yesterday.
-  Nothing arrived at the shop.
-- **Knows:** what she ordered; when; that the notice says delivered; that
-  she was in the shop all day yesterday; that customers have been asking for
-  the stock. She has the order number to hand.
-- **Does not know:** where it went, or whether it went somewhere else.
 - **Customer-service baggage:** support once promised her a callback that
   never came.
 - **Sheet:** repetition middle · empathy middle · pattern low · non-positive
@@ -294,10 +284,32 @@ correction Phil made to them (see the end of this section).
 - *"There's a merchant who still owes me for an order from last winter."*
 
 **Checked against Hob and Wren, and Phil's corrections to them:** nothing
-tied to her call (the callback baggage is on her sheet, not in her
+tied to a call (the callback baggage is on her sheet, not in her
 notebook); nothing that limits her where it needn't (no street names, no
 exact kinds of thing); no sneer; nothing anyone wouldn't believe; no
 regional turns of phrase (*"high street"* and *"of an evening"* were taken
 out); each grumble touches her; nothing makes her smaller; no line that
 repeats the other two customers' (a cheaper rival across town would have
 copied Hob's, and was replaced by the landlord).
+
+---
+
+## Requests — any customer can be handed any of these
+
+Each is mine **[C]** unless marked, written first as part of one customer
+and moved here on 23 November. What a customer knows about a request comes
+from the request and from who they are: a smith knows a sword's mark; a
+shop owner has her order number to hand; a journeyman may not.
+
+- **POOF Instant Repair** **[P, the type]** — an item sent for repair comes
+  back mended, but it isn't the one that was sent.
+- **Ingredients** **[P, the type]** — an ingredients order arrives one
+  container short.
+- **POOF Instant Order** **[P, the type]** — TLC's notice says the order
+  was delivered; nothing arrived.
+- **The party bag** — an item can't be transferred from a party's shared
+  bag to a member's (Sella's call; causes in `docs/plan-two-causes.md`).
+
+Some requests fit some customers more naturally than others (a guild orders
+ingredients; a company sends its blades for repair), but none is tied to
+one customer.

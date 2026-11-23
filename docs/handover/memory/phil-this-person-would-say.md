@@ -45,3 +45,10 @@ phrase, then the colloquialisms and figures of speech, each held against
 who she is: her sheet, her history in the record, what she knows, how she
 talks, and what would be in or out of character for her.
 
+
+**Characters are not built around a request.** Phil, 23 November: the
+customer-service reason is the variable a character reacts to, and could
+be any in the game; *"This isn't an enemy in a video game that only has one
+area and one move to memorize."* Build the person first (sheet, sharing,
+baggage, voice, notebook); requests are a separate pool handed to any of
+them.
