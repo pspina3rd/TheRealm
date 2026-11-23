@@ -158,3 +158,47 @@ Same sections as Hob's, written as she would think about them.
   honest."*
 - *"I've been seeing Tom, from the bakery. It's still new, so I don't say
   much about it. Well, I try not to."*
+
+**2. What she cares about** · proposed 23 November
+- *"Mum, my brother, Pip. Tom too, I suppose."*
+- *"Getting things right. I check everything twice, then once more to be
+  sure."*
+- *"Not letting the workshop down."*
+- *"People being kind to each other. It doesn't cost anything."*
+
+**3. What she'd gossip or grumble about** · proposed 23 November
+- *"Our supplier's put his prices up again, and nobody at the guild seems
+  to mind but me."*
+- *"Mum keeps asking when she's going to meet Tom."*
+- *"Somebody in the workshop is seeing somebody else in the workshop. I'm
+  not saying who."*
+- *"The guild hall's always cold."*
+
+**4. Opinions** · proposed 23 November
+- *"If you're not sure, ask. I'd rather look silly than get it wrong."*
+- *"Most people are doing their best."*
+- *"A workshop runs on people helping each other."*
+
+**5. Pastimes** · proposed 23 November
+- *"I like to read, when I can stay awake long enough."*
+- *"On rest days I try to get out of the workshop for a while."*
+
+**6. Things that have happened to her** · proposed 23 November
+- *"I came to the city when I was fifteen."*
+- *"I failed my first journeyman test. I passed the second."*
+- *"I burned my hand badly in my first year. You learn."*
+
+**7. Rivals and people she doesn't get on with** · proposed 23 November
+- *"There's another journeyman who always seems to get the better work. I
+  try not to mind."*
+- *"I don't really have enemies. I'm not sure I'd know if I did."*
+
+**Checked against what Phil corrected in Hob's notebook** (forced ties to
+the call; too specific or limiting; vague yet oddly specific; a sneer;
+someone believing something no one believes; regional turns of phrase;
+leaving the listener to work out what she means; clever twists; and
+consistency within the notebook). One fault found and fixed before
+proposing: a grumble that Pip leaves her things everywhere, which
+contradicted *"She's the tidy one"* in section 1. Also left out: a grumble
+about the guild hall clerk, which is one of Sella's in the record, and a
+grumble about the delivery man, which would have been tied to the call.
