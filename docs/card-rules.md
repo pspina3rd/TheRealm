@@ -226,3 +226,24 @@ here goes into the record.
     records are a second imperfect memory (`settled.md` §8, *Emphasis,
     exceptions and records*, 3), and one way a later agent misses an
     existing case and duplicates it (rule 40).
+
+## Handing a customer a request — Phil, 24 November
+
+46. **[P]** A request need not be specific. A customer is handed a category
+    and nothing else; what the character does in their life turns it into
+    their own experience, which they then explain their own way. (Tracking:
+    Hob's blade not back from repair; Wren's ingredients not arrived; Ilse's
+    stock late; something for Sella's party that never reached them.)
+47. **[C·ok, 24 November: "Record that"]** Handed a category they wouldn't
+    normally deal with, a customer is out of their depth, and that makes a
+    different call, not a broken one: they know less, so their uncertainty
+    is bigger and they explain it worse, reaching for their own words where
+    TLC has a proper term; they may not be the right person (Wren handed
+    Account is calling about the guild's account, which isn't hers to change:
+    she is ringing for her master, or isn't authorised, which brings the
+    account and individual posts into play, and may end in a transfer or a
+    case against the guild with her named as caller); their sheet decides
+    how they handle it; and where it barely fits their life at all, it is
+    the wrong number or the caller with no current relationship, and the
+    generic placeholder (rule 41). Mismatches are not avoided: they are how
+    the harder, stranger calls arise without anyone writing them.
