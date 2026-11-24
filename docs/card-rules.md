@@ -212,3 +212,7 @@ here goes into the record.
     ANYTHING.
 43. **[P]** Uncertainty comes from their experience, and is for the
     customer to explain.
+44. **[P, "something like"]** How TLC would quantify requests, as
+    categories on the case: Shipment · Order · Tracking · Navigation ·
+    Access · Account · User · Repair. The customer describes an
+    experience; TLC files it under a category.
