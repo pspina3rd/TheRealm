@@ -292,3 +292,12 @@ here goes into the record.
 50. **[P, 24 November: "2"]** Every customer has a position on all five
     kinds of baggage, like the other fields on their sheet. The request and
     the call decide which of them comes up.
+51. **[C·ok, 24 November: "Sure let's test them with those"]** The five
+    kinds of baggage are placed only by where the customer stands, never by
+    what they do about it; how they feel and how it shows comes from the rest
+    of their sheet. Past interactions with TLC: poor · mixed or none · good.
+    Experiences with other companies: poor · mixed or none · good. What they
+    think support can do: little · some · a lot. How valued they feel: not
+    much · somewhat · very. What they know going in: little · some · a lot.
+    (A first version wrote what each band made a customer do, which would
+    have given every character the same reactions.)
