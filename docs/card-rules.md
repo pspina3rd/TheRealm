@@ -301,3 +301,12 @@ here goes into the record.
     much · somewhat · very. What they know going in: little · some · a lot.
     (A first version wrote what each band made a customer do, which would
     have given every character the same reactions.)
+
+**Footnote to 49–51 (Claude, 24 November).** I wrote these as fixed
+positions and left out what `settled.md` §8 already holds for the sheet,
+baggage included: what was felt on a call is written back, only the residue
+carries to the next call, and a later call can remove an earlier impression
+or be layered on top of it (*What gets written back*; Phil, 15 November: the
+sheet grows from call to call, like a character in a long campaign). The
+five positions move that way between calls. Within a call, the pressure
+behind baggage already changes answer by answer (`src/cards/answer.js`).
