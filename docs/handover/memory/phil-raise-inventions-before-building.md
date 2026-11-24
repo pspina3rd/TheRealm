@@ -34,3 +34,12 @@ raise them one at a time. Build the mechanism he described, not a
 decoration of what already exists. Before showing output, read it as the
 caller would. Related: [[phil-verify-by-reading-output]],
 [[phil-teaches-by-register]], [[phil-change-only-what-was-asked]].
+
+**ASK — Actively Seeking Knowledge.** Phil, 24 November, after I built
+three customers around one request each without asking: *"you did exactly
+what you were told not to do, make unilateral decisions because you felt
+there was missing information to complete the task INSTEAD of ACTIVELY
+SEEKING KNOWLEDGE and ASKING ME!"* When something needed to do the work is
+missing or unclear, including the shape of the work itself (what a sheet
+holds, what goes with what), ask before building. Copying the shape of an
+earlier piece of work is a decision, and is asked about too.
