@@ -301,6 +301,15 @@ here goes into the record.
     much · somewhat · very. What they know going in: little · some · a lot.
     (A first version wrote what each band made a customer do, which would
     have given every character the same reactions.)
+52. **[P, 24 November]** The opening is the agent's line. It prompts the
+    customer's response, their own greeting and inquiry, and only that
+    response is timed. How long it runs depends on the customer's volume:
+    - **Low:** 1 to 15 seconds, median 8.
+    - **Middle:** 8 to 22 seconds, median 15.
+    - **High:** 15 to 29 seconds, median 22.
+
+    Within that range, the rest of the customer's sheet moves them off the
+    median.
 
 **Footnote to 49–51 (Claude, 24 November).** I wrote these as fixed
 positions and left out what `settled.md` §8 already holds for the sheet,
