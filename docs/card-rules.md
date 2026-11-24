@@ -194,3 +194,21 @@ here goes into the record.
     first play. Finding what multiple customers have in common, and the
     play-throughs that follow, will show where descriptions overlap between
     categories of request.
+
+## Cases, and what brings a customer to call — Phil, 24 November
+
+38. **[P]** The result of every interaction is a case created or updated.
+    To create a case you need the account, the individual and the request.
+    To update one you need any of the case number, the individual or the
+    account. A customer needs one thing to contact support: uncertainty.
+39. **[P]** An update ultimately needs the request too, but without the
+    existing case the request doesn't matter.
+40. **[P]** Deciding whether to create or update is part of the agent's
+    skill, and so is avoiding duplicate requests.
+41. **[P]** When the account or individual can't be established, there is
+    a generic placeholder, because wrong numbers happen and people with no
+    current relationship may call.
+42. **[P]** A customer will call about nearly anything: uncertainty about
+    ANYTHING.
+43. **[P]** Uncertainty comes from their experience, and is for the
+    customer to explain.
