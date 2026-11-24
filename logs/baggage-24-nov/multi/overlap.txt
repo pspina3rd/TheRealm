@@ -1,0 +1,57 @@
+Responses read: 120. Sharing a 4-word phrase with another customer in the same round, category and condition: 41.
+
+Shared phrases (customers using them):
+  you tell me where — hob, wren, sella, ilse
+  and it hasn't come — hob, wren, sella
+  tell me where it — hob, wren, ilse
+  me where it is — hob, wren, ilse
+  to know where it — hob, ilse, sella
+  tell me what to — wren, sella, ilse
+  where it's got to — hob, wren, ilse
+  can you tell me — hob, sella
+  i have the order — wren, ilse
+  in front of me — wren, ilse
+  have the order reference — wren, ilse
+  know where it is — hob, ilse
+  need to find it — hob, sella
+  to see our orders — wren, ilse
+  you tell me who — hob, sella
+  tell me who can — hob, sella
+  could you tell me — wren, ilse
+  where it is now — wren, ilse
+  i'm calling about a — ilse, sella
+  the date i was — ilse, sella
+  date i was given — ilse, sella
+  can you find it — hob, sella
+  at the depot i — hob, wren
+  i'm sure you can — wren, ilse
+  sure you can sort — wren, ilse
+  tell me where it's — hob, sella
+  see where it is — wren, sella
+  what you'll need from — wren, ilse
+  you'll need from me — wren, ilse
+  need from me if — wren, ilse
+  from me if you — wren, ilse
+  is that something you — ilse, sella
+
+Items, per condition (customer, round, T/A):
+  dontKnow
+    Profile A: 9 — ilse3A sella1A sella1T sella2A wren1A wren1T wren2A wren2T wren3T
+    Profile B, knowing a lot worked out: 2 — wren1A wren1T
+    Mix D: 9 — hob1A ilse3A ilse3T sella1A sella1T sella2T wren2A wren3A wren3T
+    Mix C: 1 — wren1A
+  reference
+    Profile B: 6 — hob2T ilse1T ilse3T wren1T wren2T wren3T
+    Profile B, knowing a lot worked out: 5 — hob2T ilse1T wren1T wren2T wren3T
+    Mix C: 6 — hob2T ilse1T ilse3T wren1T wren2T wren3T
+    Profile A: 1 — sella2T
+    Mix D: 1 — ilse3T
+  ownName
+    Profile B: 4 — sella1A sella1T wren1A wren1T
+    Profile B, knowing a lot worked out: 2 — wren1A wren1T
+    Mix C: 1 — wren1T
+  whatYouNeed
+    Mix D: 4 — ilse1T sella1A sella2T sella3T
+    Profile B: 1 — wren1A
+    Mix C: 1 — ilse1A
+    Profile B, knowing a lot worked out: 2 — wren3A wren3T
