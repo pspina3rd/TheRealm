@@ -263,3 +263,29 @@ here goes into the record.
     and *set it up herself* is a feeling about herself, not a view of the
     service. Hob's (told before he was mistaken), Wren's (passed between
     three people) and Ilse's (a callback that never came) are baggage.
+49. **[P, 24 November]** Customer baggage is handed to a character the same
+    way as a request: a broad kind, which their sheet interprets (what
+    happened to them, how they feel about it, how it shows). Sella's *no one
+    told her* is, broadly, the curse of knowledge: the assumption that no
+    learning curve exists for the product, service or experience. The main
+    categories, from CEB/Gartner's research and common service frameworks
+    (Phil's sources: crmbuyer.com, *Reality check: your customers have
+    baggage too*; destinationcrm.com, *Customers come with baggage*;
+    twice.com, *Customer service rep as baggage handler, CEB*):
+    - **Past interactions with your company:** unresolved issues, repeat
+      contacts about the same problem, prior friction with frontline staff.
+    - **Experiences with other companies:** habits, expectations or
+      frustrations formed by dealing with competitors or unrelated
+      businesses.
+    - **Perceptions of service capabilities:** what the customer believes the
+      team can or cannot do, including how much effort or enjoyment they
+      expect from contacting support.
+    - **Perceived value and relationship history:** how much value they feel
+      they get, and how valued they feel as a customer.
+    - **Pre-interaction information:** what the customer already knows, or
+      thinks they know, going in, including inconsistent answers they
+      received earlier.
+    A first list of mine (left to work it out alone, not remembered,
+    disbelieved, passed around, promise not kept, unreliable product,
+    charged more than expected, kept waiting, blamed, treated well) was
+    rough and is superseded by these.
