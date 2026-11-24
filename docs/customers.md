@@ -140,8 +140,9 @@ street"* (limits him to his street).
   low · no strong lean.
 - **How she shares, where she usually sits:** volume high · signal middle ·
   certainty low · accuracy middle · openness high.
-- **How she talks:** quick, apologetic, explains more than she needs to,
-  thinks out loud.
+- **How she talks:** quick, hesitant, explains more than she needs to,
+  thinks out loud. (*Hesitant* is Phil's, 24 November, replacing my
+  *apologetic*, which writers read as her running herself down.)
 
 ### Wren's notebook
 
@@ -232,8 +233,8 @@ as issues, I was passing them."*
 Checked before proposing against both earlier customers and every
 correction Phil made to them (see the end of this section).
 
-- **The individual:** owner of a shop selling goods for travellers: belts,
-  pouches, charms.
+- **The individual:** owner of an outfitter's shop: the packs, belts,
+  pouches and charms people buy before a journey.
 - **The account:** her shop's, and she is its only contact. Here the account
   post and the individual post are the same person, which neither Hob nor
   Wren tested.
@@ -262,7 +263,7 @@ correction Phil made to them (see the end of this section).
 
 **3. What she'd gossip or grumble about**
 - *"The rent on the shop goes up every year."*
-- *"Some customers ask for a discount before they've looked at the price."*
+- *"Some customers haggle over every price, and I've already marked them fair."*
 - *"They've dug up the street outside again. Nobody can get to the door."*
 
 **4. Opinions**
@@ -276,7 +277,8 @@ correction Phil made to them (see the end of this section).
 **6. Things that have happened to her**
 - *"I opened the shop twenty years ago with not much more than a table."*
 - *"Our daughter married last autumn."*
-- *"We had a fire in the stockroom a few years ago. We were lucky."*
+- *"We had a fire in the stockroom a few years ago. Nobody was hurt, and we saved
+  most of the stock."*
 
 **7. Rivals and people she doesn't get on with**
 - *"The landlord. In all the years I've rented from him, he's never fixed
@@ -291,6 +293,14 @@ regional turns of phrase (*"high street"* and *"of an evening"* were taken
 out); each grumble touches her; nothing makes her smaller; no line that
 repeats the other two customers' (a cheaper rival across town would have
 copied Hob's, and was replaced by the landlord).
+
+**Fixed 24 November, on Phil's *"Fix it all"*.** *A shop selling goods for
+travellers* was vague, so she is now an outfitter, with what she sells. The
+discount grumble read as a sneer at her customers, so it is now about
+haggling over prices she has marked fair. *"We were lucky"* didn't say what
+about, so it now does. The shop cat and the dug-up street stay as they
+were: my doubts about them were not faults. Any shop can keep a cat, and
+the street is the kind of grumble her notebook is for.
 
 ---
 
