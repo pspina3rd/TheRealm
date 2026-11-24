@@ -289,3 +289,6 @@ here goes into the record.
     disbelieved, passed around, promise not kept, unreliable product,
     charged more than expected, kept waiting, blamed, treated well) was
     rough and is superseded by these.
+50. **[P, 24 November: "2"]** Every customer has a position on all five
+    kinds of baggage, like the other fields on their sheet. The request and
+    the call decide which of them comes up.
