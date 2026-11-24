@@ -253,7 +253,7 @@ correction Phil made to them (see the end of this section).
 - *"My husband, Aldo, keeps the books for the shop."*
 - *"Our daughter's grown up and moved away. She writes every month."*
 - *"Greta next door and I have been neighbours for twenty years."*
-- *"There's a cat in the shop. Some customers come in just to see her."*
+- *"We keep a cat in the shop. Some customers come in just to see her."*
 
 **2. What she cares about**
 - *"The shop. I built it up myself."*
@@ -263,8 +263,8 @@ correction Phil made to them (see the end of this section).
 
 **3. What she'd gossip or grumble about**
 - *"The rent on the shop goes up every year."*
-- *"Some customers haggle over every price, and I've already marked them fair."*
-- *"They've dug up the street outside again. Nobody can get to the door."*
+- *"Some customers haggle over every price."*
+- *"They've dug up the street outside again. Carts can't get near the door."*
 
 **4. Opinions**
 - *"If you say you'll do something, do it."*
@@ -294,13 +294,20 @@ out); each grumble touches her; nothing makes her smaller; no line that
 repeats the other two customers' (a cheaper rival across town would have
 copied Hob's, and was replaced by the landlord).
 
-**Fixed 24 November, on Phil's *"Fix it all"*.** *A shop selling goods for
-travellers* was vague, so she is now an outfitter, with what she sells. The
-discount grumble read as a sneer at her customers, so it is now about
-haggling over prices she has marked fair. *"We were lucky"* didn't say what
-about, so it now does. The shop cat and the dug-up street stay as they
-were: my doubts about them were not faults. Any shop can keep a cat, and
-the street is the kind of grumble her notebook is for.
+**Fixed 24 November, on Phil's *"Fix it all"*.**
+- *A shop selling goods for travellers* was vague, so she is now an
+  outfitter, with what she sells.
+- The discount grumble read as a sneer at her customers. It is now plain
+  haggling. An aside that her prices are fair was cut (Phil: a listener
+  assumes it).
+- *"We were lucky"* didn't say what about, so it now does.
+- *"There's a cat"* didn't say it was hers; now *"We keep a cat"*.
+- *"Nobody can get to the door"* overstated it; now carts can't get near
+  it.
+
+The reasons I first gave for flagging the cat (it might not suit the shop)
+and the street (too local for a stranger) did not hold up. The faults
+above were the real ones.
 
 ---
 
