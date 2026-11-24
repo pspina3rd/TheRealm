@@ -247,3 +247,19 @@ here goes into the record.
     the wrong number or the caller with no current relationship, and the
     generic placeholder (rule 41). Mismatches are not avoided: they are how
     the harder, stranger calls arise without anyone writing them.
+
+## What customer baggage is — Phil, 24 November
+
+48. **[P]** *"Customer baggage refers to a customer's past experiences,
+    perceptions, and prior facts before an interaction that shape their
+    expectations and how they view the service experience from any company
+    or support staff or product or service they have dealt with or used
+    previously."* His example: someone who doesn't like Ford vehicles
+    because, from their experience, Ford means "Fix Or Repair Daily".
+    *"Pell getting hurt isn't customer baggage at all. It is a worry, fear,
+    concern, etc."*
+    **[C]** By that definition, of the three accepted for the bag call on
+    18 October, *no one told her* is baggage, *Pell gets hurt* is a worry,
+    and *set it up herself* is a feeling about herself, not a view of the
+    service. Hob's (told before he was mistaken), Wren's (passed between
+    three people) and Ilse's (a callback that never came) are baggage.
