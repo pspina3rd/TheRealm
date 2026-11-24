@@ -216,3 +216,13 @@ here goes into the record.
     categories on the case: Shipment · Order · Tracking · Navigation ·
     Access · Account · User · Repair. The customer describes an
     experience; TLC files it under a category.
+45. **[P]** Shipment is about the goods themselves (wrong, damaged, short);
+    Tracking is about where they are. Navigation is the customer not
+    finding their way around TLC's services. Access, Account and User
+    overlap: *"Welcome to my work life, categories that overlap and probably
+    fit your description, however, someone else may think otherwise and
+    choose differently."* **[C]** So the category on a case is a judgment
+    call that differs from agent to agent, which is the record's point that
+    records are a second imperfect memory (`settled.md` §8, *Emphasis,
+    exceptions and records*, 3), and one way a later agent misses an
+    existing case and duplicates it (rule 40).
