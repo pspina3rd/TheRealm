@@ -253,7 +253,8 @@ correction Phil made to them (see the end of this section).
 - *"My husband, Aldo, keeps the books for the shop."*
 - *"Our daughter's grown up and moved away. She writes every month."*
 - *"Greta next door and I have been neighbours for twenty years."*
-- *"We keep a cat in the shop. Some customers come in just to see her."*
+- *"A boy from up the street sweeps the shop for me. He's quick, and careful
+  with the stock."* **[P, 25 November]**
 
 **2. What she cares about**
 - *"The shop. I built it up myself."*
@@ -264,7 +265,8 @@ correction Phil made to them (see the end of this section).
 **3. What she'd gossip or grumble about**
 - *"The rent on the shop goes up every year."*
 - *"Some customers haggle over every price."*
-- *"They've dug up the street outside again. Carts can't get near the door."*
+- *"Deliveries never come to my door. They always end up with Greta next door."*
+  **[P, 25 November]**
 
 **4. Opinions**
 - *"If you say you'll do something, do it."*
@@ -301,13 +303,10 @@ copied Hob's, and was replaced by the landlord).
   haggling. An aside that her prices are fair was cut (Phil: a listener
   assumes it).
 - *"We were lucky"* didn't say what about, so it now does.
-- *"There's a cat"* didn't say it was hers; now *"We keep a cat"*.
-- *"Nobody can get to the door"* overstated it; now carts can't get near
-  it.
-
-The reasons I first gave for flagging the cat (it might not suit the shop)
-and the street (too local for a stranger) did not hold up. The faults
-above were the real ones.
+- The shop cat and the dug-up street are replaced, by the boy who sweeps
+  the shop and by deliveries going to Greta. Phil chose both on
+  25 November, from three wordings each, after two attempts of mine only
+  swapped a word in the original lines.
 
 ---
 
